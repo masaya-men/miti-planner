@@ -1896,6 +1896,120 @@
   background: linear-gradient(90deg, #c8d2da, #8996a3 45%, var(--ms-cyan) 50%, #8996a3 55%, #c8d2da);
 }
 
+/* ---------- Task 10 (A2 / A1 / A3): 表フレーム層 + 縦パネルライン + thead メンバー列面
+   plan §1.1 の coverage table が落としていた「モックの DOM にしか instance が無い装飾」3 件
+   (whole-branch レビュー A1/A2/A3)。全て CSS のみ・製品コード不変。
+
+   A2 = mockup .table(1076): ws-screen(沈み黒) と thead/本文の間の中トーン鋼 + 全体 1px inset フレーム。
+     アンカー実測 = [data-timeline-root] > .glass-panel (Timeline.tsx:2714・DOM 上 1 個・
+     rect が .milspec-ws-screen と完全一致・background/box-shadow/疑似要素とも未使用)。
+     直下に コントロールバー / ヘッダー外枠 / リキャスト帯 / .timeline-scroll-container を束ねる
+     = mockup .table と同じ役割。(mockup は .subtoolbar が .workspace の兄弟なのでバーを含まない —
+     Task 2/3/5 と同じ既知の構造差。)
+   A1 = mockup .pl.v(2172・left:142 = 機工列開始) と .pl.bead.v(2134 thead / 2173 tbody・left:530 =
+     TAKEN|メンバー境界)。表を「時刻・機工 / ダメージ数値 / メンバーグリッド」の 3 ゾーンへ割る構造線。
+     アンカーは Task 10 C1 実測の ruling どおり **静的 col 変数** (--col-header-chunk-w / --col-member-start)
+     = 軽減バー / チップ / リキャスト帯と同じ「静的 x 陣営」。列折りたたみ時に collapse-aware な
+     表セルとはズレるが、それは SP2 以前からある既存分裂 (notes.md Task 10 §C1)。
+     primitive .milspec-pl(571-583) は bare .theme-military なので使わず、background 式だけ流用する。
+   A3 = Task 7 でリキャストを帯へ出した結果、thead の右 ≈40%(x > --col-member-start) が
+     外枠の素の raised プレートのまま露出している問題。メンバー列の識別情報 (ジョブアイコン +
+     ロール) は**このアプリではコントロールバーのジョブチップ .cj が担っている** (セッション 18 で
+     ヘッダーからチップへ移設済) ため、mockup .th-mem のアイコン/ロールタグを thead に再現すると
+     チップと二重になる → 再現せず「計器の空きベイ」に見せる方針 (コントローラー ruling)。
+     ⚠ 列ティック(仕切り線)は**引かない**: メンバー列幅は実測で不均一
+       (tank/healer = --col-th-w 151 + pad 5.8 = 156.8px / dps = --col-dps-w 53 + 5.8 = 58.8px)
+       かつ並び順は partySortOrder 依存なので、repeating-linear-gradient の一定ピッチでは
+       必ずズレて「間違った列線」になる。詳細は notes.md Task 10 §A3。
+   ---------- */
+.theme-military .milspec-app {
+  /* A2: mockup .table の #212a33 → #1d252d。上辺は同値の --ms-panel-lo(#222b34) を流用。 */
+  --ms-table-frame:      linear-gradient(180deg, var(--ms-panel-lo), #1d252d);
+  --ms-table-frame-edge: rgba(0,0,0,0.45);
+  /* A1: mockup .pl.v(486-488) / .pl.bead.v(638-639) の background 式 (primitive と同値)。 */
+  --ms-pl-v: linear-gradient(90deg,
+    rgba(255,255,255, calc(0.09 * var(--ms-tune-panelline))) 0 1px,
+    var(--ms-pl-dark) 1px 2px, rgba(0,0,0,0.5) 2px 3px);
+  --ms-pl-bead-v: linear-gradient(90deg,
+    rgba(255,255,255,0.18) 0 1px, rgba(255,255,255,0.05) 1px 2px,
+    rgba(0,0,0,0.55) 2px 4px, transparent 4px);
+  /* A3: 空きベイの機械加工ハッチ (mockup .hash / .hd-hash と同じ斜線束の語彙・ごく淡く)。 */
+  --ms-bay-hatch: rgba(150,190,205,0.055);
+}
+.theme-military.theme-light .milspec-app {
+  --ms-table-frame:      linear-gradient(180deg, #e6ecf2, #d5dee7);
+  --ms-table-frame-edge: rgba(40,80,120,0.26);
+  --ms-pl-bead-v: linear-gradient(90deg,
+    rgba(255,255,255,0.9) 0 1px, rgba(255,255,255,0.5) 1px 2px,
+    rgba(40,80,120,0.32) 2px 4px, transparent 4px);
+  --ms-bay-hatch: rgba(40,80,120,0.07);
+}
+
+/* A2: 中間金属フレーム層。
+   ⚠ 実測: この panel の子 (バー 28 + ヘッダー 40 + 帯 38 + 本文 flex-1 = 親高と一致・全て幅 100%・
+     全て不透明) が面を隙間なく覆うので、background は通常状態では 1px も見えない
+     (mockup の .table も children が同様に覆うので同じ)。よって
+     - background = 子が消えた/透明になったときの保険 (recastRowVisible OFF・狭幅等) 兼、
+       mockup .table と同じ層構造の明示
+     - mockup の `inset 0 0 0 1px rgba(0,0,0,0.45)` は「表ブロック全体を締める枠」が主眼なので、
+       子の下に敷いても見えない → ::before(pointer-events:none・子より上)に載せて実際に読めるようにする。
+       = mockup 意図の可視化アダプト (notes.md Task 10 §A2)。 */
+.theme-military .milspec-app [data-timeline-root] > .glass-panel {
+  background: var(--ms-table-frame);
+}
+.theme-military .milspec-app [data-timeline-root] > .glass-panel::before {
+  content: ""; position: absolute; inset: 0;
+  z-index: 60; /* コントロールバー z-[51] / ヘッダー z-50 より上・ポップオーバー(z-9999)より下 */
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--ms-table-frame-edge);
+}
+
+/* A1 tbody: sheetContainer (.timeline-scroll-container 直下で [data-time-row] を直子に持つ唯一の div・
+   position:relative・実測 1 個) の疑似要素。sheet は native の h-scroll で動く (transform ではない)
+   ので線もコンテンツと一緒にスクロールする = 正。::before/::after とも未使用を実測で確認済。 */
+.theme-military .milspec-app .timeline-scroll-container > div:has(> [data-time-row])::before {
+  content: ""; position: absolute; top: 0; bottom: 0;
+  left: var(--col-header-chunk-w); width: 3px;
+  z-index: 3; pointer-events: none;
+  background: var(--ms-pl-v);
+}
+.theme-military .milspec-app .timeline-scroll-container > div:has(> [data-time-row])::after {
+  content: ""; position: absolute; top: 0; bottom: 0;
+  left: var(--col-member-start); width: 5px;
+  z-index: 3; pointer-events: none;
+  opacity: 0.55; /* mockup 2173 */
+  background: var(--ms-pl-bead-v);
+}
+
+/* A3: thead メンバー列の「空きベイ」。#timeline-header-inner は md:w-max = 6 セル分の幅
+   (= --col-member-start) しか無く、その右は外枠の raised プレートが素で見えている。
+   ::before を left:100% (= inner の右端・折りたたみでも継ぎ目ゼロ) から右へ伸ばし、
+   #timeline-header-inner 自身と同じ暗い凹チャンネル + 機械加工ハッチで「計器の空きベイ」にする。
+   ⚠ 面と影の値は 1196-1210 の #timeline-header-inner と**同一**にしてある (継ぎ目を消すため)。
+     SP2 後のトーン調整でどちらかを触るときは必ず両方揃えること。
+   ⚠ display:flex の疑似要素は本来 flex item になるが、position:absolute なので flex item から
+     外れる = 列レイアウトに影響ゼロ。外枠は overflow:hidden なので 300vw はクリップされる。 */
+.theme-military .milspec-app #timeline-header-inner::before {
+  content: ""; position: absolute; top: 0; bottom: 0;
+  left: 100%; width: 300vw;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(-58deg, var(--ms-bay-hatch) 0 1px, transparent 1px 7px),
+    linear-gradient(180deg, var(--ms-panel-lo), var(--ms-recess-lo));
+  box-shadow:
+    inset 0 1px 0 rgba(0,0,0,0.45), inset 0 7px 12px -7px rgba(0,0,0,0.6),
+    inset 0 -1px 0 rgba(150,190,205,0.22);
+}
+/* A1 thead: TAKEN|メンバー境界の隆起ビード (mockup 2134・top/bottom 5px・opacity .7)。
+   tbody 側と同じ静的 --col-member-start にアンカーして縦 1 本に繋げる (ruling)。 */
+.theme-military .milspec-app #timeline-header-inner::after {
+  content: ""; position: absolute; top: 5px; bottom: 5px;
+  left: var(--col-member-start); width: 5px;
+  z-index: 1; pointer-events: none;
+  opacity: 0.7;
+  background: var(--ms-pl-bead-v);
+}
+
 /* ============================================================
  * SP1 Task 4: ヘッダー — ハードサーフェス パネルアセンブリ
  * 正典: milspec-mockup.html DOM 1920-1979 / CSS .header 771-886, タービン 1580-1699。
