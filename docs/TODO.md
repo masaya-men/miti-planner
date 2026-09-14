@@ -22,11 +22,18 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 ## 現在の状態 (次セッションはここから読む)
 ### 🟢 2026-09-04 X OGPカード不具合 = デプロイ済(`280da74d`)。診断=`docs/.private/2026-09-04-housing-ogp-card-x-timing-fix.md`。**残=実機確認のみ**: 次の新規登録ツイートで一発で出るか(出なければ登録→通知の間隔を空ける方向)。既存壊れは `?x=1` で貼り直し。⚠フロント変更デプロイ後は CF「すべてパージ」必須([[reference_cf_cache_housing_ogp_pages]])。
-### 🔴 次セッション最優先 = MIL-SPEC SP2(タイムライン表の軍事化)。**✅ 設計書=`docs/superpowers/specs/2026-09-09-milspec-sp2-table-design.md`**(brainstorm 完了・masaya「モックの見た目を再現して」で確定)。次=masaya が spec レビュー → writing-plans → subagent。実装まで数セッション規模。
-  **SP2 方式(SP1 spec §12/§5.5 から変更)**: 表は「作り直し」でなく**埋め込んだ本番 Timeline に `.theme-military` の見た目レイヤーを重ねる**(ロジック・座標計算・collab・競合判定は不変)。CSS で作れない構造差だけ軍事モード限定分岐: ①リキャスト行をヘッダーから独立帯に切り出し(左ラベル) ②隠してある縦スクロールバーを計器化して可視化(サイドバーとも共有・`scrollbar-width` 残存注意) ③`MitigationItem` に inert な `data-mit-bar/icon` フック。`MilspecControlBar` 5行目昇格は**撤回**(埋め込みのまま塗り替え=列整列/スクロール同期を壊さない)。検証=標準モード main 一致 + ゾーンごと masaya スクショ突き合わせ([[feedback_visual_fidelity_requires_screenshot_diff]])。
-  正典=`docs/.private/theme-refs/milspec-mockup.html`(GITIGNORE)。material=[[reference_milspec_material_language]]。経緯=`docs/.private/2026-09-03-milspec-trace-workflow.md`。方針(masaya)=モック全部取りこぼしなく・ライト同時・完成まで非公開(`localStorage 'milspec-preview'`)・編集機能全稼働・standard 不変・再スキンでなく構造から(`themeStyle==='military'&&PC`→`MilspecLayout`・既存ストア配線・標準は分岐1か所)。SP1〜SP4 分割(シェル/表/スマホ/編集モーダル)。旧プラン v2・旧spec §8/9/13/16 失効。
-  **✅ SP1 設計書=`docs/superpowers/specs/2026-09-08-milspec-structural-rebuild-sp1-shell-design.md`**。SP1 是正8件+文字サイズ調整=**2026-09-09 main に FF マージ済(`4076d277`・ブランチ `milspec-sp1-quality` 削除)。build+tsc+military35テスト green**。⚠ **main は origin より 9 コミット先行・未 push**(全部プレビューゲート裏で一般ユーザー影響ゼロ → 次の実務 push に同梱でOK)。punch-list=`docs/.private/2026-09-08-milspec-sp1-punch-list.md`。
-  **🔵 2026-09-09(masaya): SP1 の細かい見た目詰めは SP2 の後にまとめて**(理由=中央の標準UI表が統一感の主因・SP2 で外枠を合わせ直す二度手間)。順序: SP2実装 → 外枠+表を1回で見た目調整(フォント/余白/立体感/ロールカウンター/fp-inst幅/SCENARIO・ツリー役割) → 文字スケールを CSS 変数で固定。
+### 🔴 次セッション最優先 = MIL-SPEC SP2(タイムライン表の軍事化)**実装完了・masaya の見た目最終確認待ち**。
+  ブランチ `milspec-sp2-table`(main から 29 commits ahead・**未 push**)。全 10 タスク実装 → タスクごとレビュー → whole-branch 敵対レビュー(opus)→ fix wave → 再レビュー、まで完了。**標準モード(通常の見た目)は main と完全一致を機械検証済み**(壊れていない)。
+  **masaya に見てほしいこと(このままでは判断できない・実機 Chrome 推奨)**:
+  1. 軍事モードでタイムライン表がモックアップどおりの金属パネルに見えるか(全体の質感)
+  2. フェーズ/ラベル列を折りたたんだ時、リキャスト帯の位置がズレないか(表のセルだけ動くのは仕様上の判断=既存の作りに合わせた。詳細は `notes.md` §C1)
+  3. リキャスト行を OFF にした状態の見た目(帯が消えると計器の目盛りも一緒に消える)
+  4. ライトモードの軍事テーマ(コントラストは SP2 後にまとめて調整予定)
+  5. `scripts/milspec-sp2/notes.md` に非公開モックアップの HTML 断片・色コードを一部引用している(画像は gitignore 済で公開されない)→ このまま public リポに置いてよいか一言確認
+  承認後: masaya 最終ゲート → `main` へマージ → 次の実務 push にまとめて同梱。
+  正典=`docs/.private/theme-refs/milspec-mockup.html`(GITIGNORE)。設計書=`docs/superpowers/specs/2026-09-09-milspec-sp2-table-design.md`(実装内容を反映済み)。ledger=`.superpowers/sdd/2026-09-09-milspec-sp2-table/progress.md`。
+  **✅ SP1 は 2026-09-09 main に FF マージ済(`4076d277`)**。punch-list=`docs/.private/2026-09-08-milspec-sp1-punch-list.md`。
+  **🔵 SP1 の細かい見た目詰め(フォント/余白/立体感/ロールカウンター等)は SP2 マージ後にまとめて**(2026-09-09 masaya 決定・理由=中央の標準UI表が統一感の主因)。SP3(スマホ)/SP4(編集モーダル)は SP2 マージ後に着手。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = デプロイ済。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。設計書2026-08-28。
 ### 🟡 8/20〜9/1 ハウジング一括=本番反映済(詳細 COMPLETED)。**残**: Discord告知下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)/ Allmarksリージョン混在は未検証 / カード最適化Phase1・「トップ」再タップスクロール=実機確認のみ。
 ### 🟡 SEOソフト404対策: CF Cache Rule は `/housing/(listing|housinger|tour)/` `/h/` 追加済(2026-09-04)。**残**: `/share/*` の CF ルール検討 / Search Console 再検査+インデックス登録。
