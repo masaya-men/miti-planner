@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { MobileBottomSheet } from '../../MobileBottomSheet';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
+import { SUPPORT_PAGE_ENABLED } from '../../../constants/external';
 
 export interface HousingSettingsSheetProps {
   isOpen: boolean;
@@ -95,9 +96,12 @@ export const HousingSettingsSheet: React.FC<HousingSettingsSheetProps> = ({ isOp
         <a href="/terms" target="_blank" rel="noopener">
           {t('footer.terms')}
         </a>
-        <Link to="/support" onClick={onClose}>
-          {t('footer.kofi')}
-        </Link>
+        {/* 2026-09-16: MUL 対応で /support 停止中は導線ごと非表示(constants/external.ts 参照)。 */}
+        {SUPPORT_PAGE_ENABLED && (
+          <Link to="/support" onClick={onClose}>
+            {t('footer.kofi')}
+          </Link>
+        )}
       </div>
     </MobileBottomSheet>
   );

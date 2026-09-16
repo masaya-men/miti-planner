@@ -44,7 +44,7 @@ function renderStatusBar() {
 }
 
 describe('StatusBar', () => {
-  it('renders SE copyright + fan-tool disclaimer + legal links + Ko-fi link in the left group (2026-07-11 著作権是正)', () => {
+  it('renders SE copyright + fan-tool disclaimer + legal links in the left group (2026-07-11 著作権是正)', () => {
     renderStatusBar();
     // FF14 素材はスクエニ著作物。© LoPo は誤りで、軽減表フッターと同じ SE 表記 + 非公式免責にする。
     expect(screen.getByText(/SQUARE ENIX CO\., LTD\. All Rights Reserved\./)).toBeInTheDocument();
@@ -52,14 +52,18 @@ describe('StatusBar', () => {
     expect(screen.queryByText(/© \d+ LoPo/)).not.toBeInTheDocument();
     const privacy = screen.getByRole('link', { name: 'プライバシーポリシー' });
     const terms = screen.getByRole('link', { name: '利用規約' });
-    // Ko-fi は LoPo 内の応援説明ページ /support への内部リンク (他フッター導線と統一)。
-    const kofi = screen.getByRole('link', { name: 'Ko-fiで応援' });
     expect(privacy).toHaveAttribute('href', '/privacy');
     expect(privacy).toHaveAttribute('target', '_blank');
     expect(privacy).toHaveAttribute('rel', expect.stringContaining('noopener'));
     expect(terms).toHaveAttribute('href', '/terms');
     expect(terms).toHaveAttribute('target', '_blank');
-    expect(kofi).toHaveAttribute('href', '/support');
+  });
+
+  // 2026-09-16: FFXIV著作物利用条件が「寄付を募ること」を商用・営利目的に明記しているため
+  // /support (Ko-fi) 導線を停止(SUPPORT_PAGE_ENABLED=false・constants/external.ts)。
+  it('does not render the Ko-fi link while support page is disabled', () => {
+    renderStatusBar();
+    expect(screen.queryByRole('link', { name: 'Ko-fiで応援' })).not.toBeInTheDocument();
   });
 
   it('does not render the removed BUILD / LAT / LON / STOPS / FPS dummy readouts', () => {

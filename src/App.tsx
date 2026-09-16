@@ -8,6 +8,7 @@ import { SharePage } from './components/SharePage';
 // 遅延ロードしてソロ利用者の初期 bundle に yjs を載せない(設計の遅延ロード方針維持)。
 const CollabJoinerPage = lazy(() => import('./components/CollabJoinerPage'));
 import { SupportPage } from './components/SupportPage';
+import { SUPPORT_PAGE_ENABLED } from './constants/external';
 import StrategyBoardPastePage from './components/StrategyBoardPastePage';
 import { HousingDetailPage } from './components/housing/listing/HousingDetailPage';
 import { HousingShell } from './components/housing/shell/HousingShell';
@@ -92,7 +93,8 @@ function AppRoutes() {
       <Route path="/share/:shareId" element={<SharePage />} />
       {/* ⑤-3b: ジョイナー読み取り専用ライブビュー(招待リンク専用・内部導線なし)。lazy chunk。 */}
       <Route path="/collab/:roomToken" element={<Suspense fallback={null}><CollabJoinerPage /></Suspense>} />
-      <Route path="/support" element={<SupportPage />} />
+      {/* 2026-09-16: MUL(寄付募集=商用・営利目的に該当)対応で一時停止。constants/external.ts 参照。 */}
+      <Route path="/support" element={SUPPORT_PAGE_ENABLED ? <SupportPage /> : <Navigate to="/" replace />} />
       <Route path="/stgy" element={<StrategyBoardPastePage />} />
 
       {/* 再構築: URL タブで切り替わるシェル。子ルートは第1スパンで探すのみ、

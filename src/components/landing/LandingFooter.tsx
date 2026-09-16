@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { SUPPORT_PAGE_ENABLED } from '../../constants/external';
 
 const SITE_URL = 'https://lopoly.app';
 
@@ -115,9 +116,12 @@ export function LandingFooter() {
             <FooterLink href="https://x.com/lopoly_app" external>
               {t('footer.x_official')}
             </FooterLink>
-            <FooterLink href="/support">
-              {t('footer.kofi')}
-            </FooterLink>
+            {/* 2026-09-16: MUL 対応で /support 停止中は導線ごと非表示(constants/external.ts 参照)。 */}
+            {SUPPORT_PAGE_ENABLED && (
+              <FooterLink href="/support">
+                {t('footer.kofi')}
+              </FooterLink>
+            )}
             <FooterLink href="/privacy">
               {t('portal.footer.privacy')}
             </FooterLink>
