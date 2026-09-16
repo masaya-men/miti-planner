@@ -258,4 +258,25 @@ describe('_housingerPageHandler の listingCount (専用クエリ経由)', () =>
     expect(res.body as string).toContain('13件のハウジングを公開中');
     expect(res.body as string).not.toContain('0件のハウジングを公開中');
   });
+
+  it('displayName に # が含まれていても og:title 等から除去する (Xでの意図しないハッシュタグ化防止)', async () => {
+    mockProfileData = {
+      isPublished: true,
+      isModerationHidden: false,
+      displayName: '#ハウジングパパ',
+      bio: '',
+      avatarUrl: null,
+      avatarPngUrl: null,
+    };
+    mockQueryResults.push({ docs: [] }); // listingCount 専用クエリ
+    mockQueryResults.push({ docs: [] }); // OGP代表画像選定フォールバッククエリ
+
+    const { req, res } = makeReqRes({ query: { uid: 'testuser1' } });
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
+
+    await handler(req, res);
+
+    expect(res.body as string).toContain('ハウジングパパ のハウジング | LoPo');
+    expect(res.body as string).not.toContain('#ハウジングパパ');
+  });
 });
