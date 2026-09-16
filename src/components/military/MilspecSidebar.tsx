@@ -11,6 +11,7 @@ import { BackupExportModal } from '../BackupExportModal';
 import { BackupRestoreModal } from '../BackupRestoreModal';
 import { MilspecContentTree, useMilspecTreeTabs, tabForPlanCategory, type MilspecTreeTab } from './MilspecContentTree';
 import type { MilspecLayoutProps } from './MilspecLayout';
+import { SUPPORT_PAGE_ENABLED } from '../../constants/external';
 // 副作用 import: i18next の初期化(標準 Sidebar.tsx:35 と同じ理由)。
 import '../../i18n';
 
@@ -171,30 +172,33 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
 
           {/* DEPLOYMENT — 開発支援リンク(標準 Sidebar.tsx:1610-1615 の「☕ 開発を支援する」→ /support 相当)。
               意匠は mockup .deployment(DOM 2047-2059)。文言は footer.support に統一(旧「展開を支援する」は
-              "Deployment" の誤訳だった)。 */}
-          <div className="milspec-hp milspec-deployment recess" style={{ '--ms-sh': 'var(--ms-sh-tr)' } as React.CSSProperties}>
-            <span className="milspec-bolt bl" />
-            <span className="milspec-sc br">DPL-X · DO NOT REMOVE</span>
-            <div className="milspec-hazard milspec-deployment-hz" />
-            <span className="milspec-drip" style={{ left: 26, top: 9, height: 17 }} />
-            <span className="milspec-drip" style={{ left: '62%', top: 9, height: 11 }} />
-            <span className="milspec-drip" style={{ right: 34, top: 9, height: 14 }} />
-            <button
-              type="button"
-              className="milspec-deployment-bd"
-              onClick={() => navigate('/support')}
-              aria-label={t('footer.support')}
-            >
-              <svg className="mk" viewBox="0 0 40 40">
-                <path d="M8 8 L32 32 M32 8 L8 32" stroke="currentColor" strokeWidth="5" strokeLinecap="square" />
-                <path d="M4 13 L4 4 L13 4 M27 4 L36 4 L36 13 M36 27 L36 36 L27 36 M13 36 L4 36 L4 27" fill="none" stroke="currentColor" strokeWidth="1.5" />
-              </svg>
-              <div className="tx">
-                <span className="en">{t('footer.support', { lng: 'en' })}</span>
-                <span className="jp">{t('footer.support', { lng: 'ja' })}</span>
-              </div>
-            </button>
-          </div>
+              "Deployment" の誤訳だった)。
+              2026-09-16: MUL 対応で /support 停止中はパネルごと非表示(constants/external.ts 参照)。 */}
+          {SUPPORT_PAGE_ENABLED && (
+            <div className="milspec-hp milspec-deployment recess" style={{ '--ms-sh': 'var(--ms-sh-tr)' } as React.CSSProperties}>
+              <span className="milspec-bolt bl" />
+              <span className="milspec-sc br">DPL-X · DO NOT REMOVE</span>
+              <div className="milspec-hazard milspec-deployment-hz" />
+              <span className="milspec-drip" style={{ left: 26, top: 9, height: 17 }} />
+              <span className="milspec-drip" style={{ left: '62%', top: 9, height: 11 }} />
+              <span className="milspec-drip" style={{ right: 34, top: 9, height: 14 }} />
+              <button
+                type="button"
+                className="milspec-deployment-bd"
+                onClick={() => navigate('/support')}
+                aria-label={t('footer.support')}
+              >
+                <svg className="mk" viewBox="0 0 40 40">
+                  <path d="M8 8 L32 32 M32 8 L8 32" stroke="currentColor" strokeWidth="5" strokeLinecap="square" />
+                  <path d="M4 13 L4 4 L13 4 M27 4 L36 4 L36 13 M36 27 L36 36 L27 36 M13 36 L4 36 L4 27" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
+                <div className="tx">
+                  <span className="en">{t('footer.support', { lng: 'en' })}</span>
+                  <span className="jp">{t('footer.support', { lng: 'ja' })}</span>
+                </div>
+              </button>
+            </div>
+          )}
 
           <BackupExportModal isOpen={backupExportOpen} onClose={() => setBackupExportOpen(false)} />
           <BackupRestoreModal isOpen={backupRestoreOpen} onClose={() => setBackupRestoreOpen(false)} />

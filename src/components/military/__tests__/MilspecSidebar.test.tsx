@@ -23,7 +23,7 @@ const props = { isSidebarOpen: true, onToggleSidebar: vi.fn(), onCloseSidebar: v
 const r = () => render(<MemoryRouter><MilspecSidebar {...props} /></MemoryRouter>);
 
 describe('MilspecSidebar', () => {
-  it('CONTENT パネル(見出し+タブ) / コンテンツツリー / DOCK / DEPLOYMENT を描画', () => {
+  it('CONTENT パネル(見出し+タブ) / コンテンツツリー / DOCK を描画', () => {
     const { container } = r();
     expect(container.textContent).toMatch(/コンテンツ|Content/);
     expect(container.textContent).toMatch(/バックアップ|Backup/);
@@ -40,12 +40,13 @@ describe('MilspecSidebar', () => {
     expect(props.onToggleSidebar).toHaveBeenCalled();
   });
 
-  it('DEPLOYMENT パネルが /support への開発支援リンク(旧「展開を支援する」は撤去)', () => {
+  // 2026-09-16: FFXIV著作物利用条件が「寄付を募ること」を商用・営利目的に明記しているため
+  // /support (Ko-fi) 導線を停止(SUPPORT_PAGE_ENABLED=false・constants/external.ts)。
+  // DEPLOYMENT パネルはその導線そのものだったため、パネルごと非表示になる。
+  it('DEPLOYMENT パネルは /support 停止中は描画されない', () => {
     const { container } = r();
-    expect(container.textContent).not.toMatch(/展開を支援/);
-    const btn = container.querySelector('button.milspec-deployment-bd');
-    expect(btn).toBeTruthy();
-    expect(btn?.textContent).toMatch(/開発を支援する|Support Development/);
+    expect(container.querySelector('.milspec-deployment')).toBeNull();
+    expect(container.querySelector('button.milspec-deployment-bd')).toBeNull();
   });
 
   it('SCENARIO の NEW ボタンが milspec:new-plan を dispatch する', () => {

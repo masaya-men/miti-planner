@@ -67,6 +67,7 @@ import { commitNewPlan } from '../lib/commitNewPlan';
 import { useCollabSessionStore } from '../store/useCollabSessionStore';
 import { setLastOpened } from '../utils/lastOpenedStore';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
+import { SUPPORT_PAGE_ENABLED } from '../constants/external';
 
 // ─────────────────────────────────────────────
 // Props
@@ -1603,8 +1604,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         </div>
                     )}
 
-                    {/* Ko-fi 支援リンク — サイドバー最下部 */}
-                    {!multiSelect.isEnabled && (
+                    {/* Ko-fi 支援リンク — サイドバー最下部
+                        2026-09-16: MUL 対応で /support 停止中は導線ごと非表示(constants/external.ts 参照)。 */}
+                    {!multiSelect.isEnabled && SUPPORT_PAGE_ENABLED && (
                         <div className="shrink-0 flex flex-col items-center py-3">
                             <div className="border-t border-app-border w-full mb-2" />
                             <Link
