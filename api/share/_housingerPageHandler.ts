@@ -176,8 +176,10 @@ export default async function handler(req: any, res: any) {
         const isPublic = profile.isPublished === true && profile.isModerationHidden !== true;
 
         if (isPublic) {
+          // "#" を含む名前がそのまま og:title / カード画像 / ツイート文面に載ると、X 上で意図せず
+          // ハッシュタグとして機能してしまう(2026-09-15 masaya 指摘)ため、表示直前に除去する。
           const displayName: string = typeof profile.displayName === 'string' && profile.displayName
-            ? profile.displayName
+            ? profile.displayName.replace(/#/g, '').trim()
             : '';
           const bio: string = typeof profile.bio === 'string' ? profile.bio.slice(0, HOUSINGER_BIO_MAX_LENGTH) : '';
           // OGPレンダラー(satori)はWebP非対応のため、PNG派生版(Task6でアップロード)があれば

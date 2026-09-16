@@ -75,7 +75,9 @@ export function buildNewListingNotification(input: NewListingNotificationInput):
   if (input.visibility === 'unlisted') heading += '（住所非公開）';
 
   // --- 登録者名 / リプ ---
-  const rawName = input.housingerName ?? '';
+  // "#" が残っていると "{name}さんの他のハウジングはこちら" が投稿時にそのままハッシュタグとして
+  // 機能してしまう(2026-09-15 masaya 指摘)ため、リプ文面に使う前に除去する。
+  const rawName = (input.housingerName ?? '').replace(/#/g, '');
   const name = rawName.trim() || NAME_FALLBACK;
 
   let replyBlock = '';

@@ -59,6 +59,15 @@ describe('buildNewListingNotification', () => {
     expect(discordContent).not.toContain('他のハウジングはこちら');
   });
 
+  it('登録者名に # が含まれていても除去する (投稿時に意図せずハッシュタグ化するのを防ぐ)', () => {
+    const { discordContent } = buildNewListingNotification({
+      ...base, title: 'x', housingerName: '#ハウジングパパ',
+    });
+    expect(discordContent).toContain('登録者: ハウジングパパ');
+    expect(discordContent).toContain('ハウジングパパさんの他のハウジングはこちら👇');
+    expect(discordContent).not.toContain('#ハウジングパパ');
+  });
+
   it('登録者名が空なら「名無しさん」にフォールバック', () => {
     const { discordContent } = buildNewListingNotification({
       ...base, title: 'x', housingerName: '', housingerProfilePublished: false,
