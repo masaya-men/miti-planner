@@ -2,6 +2,13 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-09-21 Ko-fi寄付導線の一時停止 + ハウジング登録者名の#ハッシュタグ化バグ修正 = 本番反映済(`main` fast-forward)
+- **Ko-fi停止**: 公式「FFXIV著作物利用条件」1条(1)が「寄付を募ること」を明文で商用・営利目的に含めると確認(masaya指摘→公式ページ実地確認)。`constants/external.ts` の `SUPPORT_PAGE_ENABLED=false` フラグで `/support` ルート(未有効時は `/` へリダイレクト)+ 全5導線(通常/MIL-SPECサイドバー・ハウジングフッター/設定シート・LPフッター)を非表示化。コードは削除せず、フラグ復元で即再公開可能。
+- **ハッシュタグ化修正**: ハウジンガーの `displayName` に `#` が含まれていると、Discordリプ下書き文言・OGPタイトル/カード画像にそのまま載り、X投稿時に意図せず実ハッシュタグ化していた(masaya実機報告のスクショから発覚)。表示・投稿直前で `#` を除去(`newListingTweet.ts` / `_housingerPageHandler.ts`)。プロフィール本体は無改変。
+- **デプロイ手順の教訓**: 作業ブランチ `milspec-sp2-table` はmain未マージのWIP。ローカル`main`にも別途pushされていない13コミットの汚れがあると判明(実害なしで放置)。本番反映は `origin/main` から新規worktreeを切って該当ファイルだけ適用→push(`main`直push=Vercel自動デプロイ)。両ブランチに同内容を別コミットで反映し、将来のマージ時に二重管理を防いだ。
+- 関連判断: ハウジング登録の「Discordログイン必須」撤廃は見送り(masaya判断・2026-09-21)。理由=匿名だと登録上限(初回30件→1日5件)の歯止めが効かなくなる/画像アップロードもuid前提の設計/管理者に「所有者不在の投稿を完全削除」する手段が今は無い、を提示し「現状維持」で確定。Xログインは**再提案しない**(過去実装→コスト+API破壊+データ消失バグで2026-05-17に撤去済み、memory [[feedback_no_twitter_x_login]])。
+- main: `c09b2da5`(ハッシュタグ)+ `7adc6a1e`(Ko-fi停止)。milspec-sp2-table: `431fd962` + `f11b0b55`(同内容)。
+
 ### ✅ 2026-09-02 ハウジング物件OGPカード(X投稿由来物件の画像なしカード致命バグ) = 本番デプロイ済(`1bf9f2d2`)・X実機確認OK
 症状: X 投稿由来の物件を X にシェアするとカードに画像が出ない。原因=`og:image` が `pbs.twimg.com`(X 自社 CDN)を指しており、X は他サイトのカード画像として自社 CDN を描画しない。
 - **方式(masaya 承認)**: 代表写真をサーバー側で fetch → 1200×630 に整形(ぼかし背景 cover + 写真 contain・文字/枠/©なし)した PNG を自ドメイン `/og/{hash}.png` から配る。既存の `/api/og`(edge・satori)+ `/api/og-cache`(Node・Firebase Storage 永続)+ `og_image_meta` + 週次 GC cron を再利用。content-hash は `sha256(params).slice(0,16)`、HMAC(`CRON_SECRET`)署名で任意 URL 生成を防止。
