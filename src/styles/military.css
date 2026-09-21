@@ -12,18 +12,43 @@
 @font-face { font-family: 'Orbitron'; src: url('/fonts/orbitron-900.woff2') format('woff2'); font-weight: 900; font-display: swap; }
 @font-face { font-family: 'Share Tech Mono'; src: url('/fonts/share-tech-mono-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
 
-/* --- 調整ノブ (MilspecTunePanel が上書き。ここが実機で確定する最終値) --- */
+/* --- 調整ノブ (MilspecTunePanel が上書き。ここが実機で確定する最終値)
+ * 2026-09-14 参考画像(Chris Hodgson の techno panel render)をもとに試験的に relief/shadow/weather/wear を上げた
+ * (旧値: relief 1.1 / shadow 0 / weather 0 / wear 0)。実機で見て気に入らなければ即座に戻せる。 --- */
 .theme-military {
   --ms-tune-grain-all: 0.7;
   --ms-tune-grain-panel: 0.55;
   --ms-tune-frame: 1.25;
-  --ms-tune-relief: 1.1;
-  --ms-tune-shadow: 0;
+  --ms-tune-relief: 1.8;
+  --ms-tune-shadow: 1.2;
   --ms-tune-glow: 4;
   --ms-tune-panelline: 1.2;
   --ms-tune-channel: 0.5;
-  --ms-tune-weather: 0;
-  --ms-tune-wear: 0;
+  --ms-tune-weather: 0.3;
+  --ms-tune-wear: 0.25;
+}
+
+/* --- 背景グリーブル模様(2026-09-14 参考画像 = Chris Hodgson の techno panel render を受けて追加・強化)
+ * サイドバー・ヘッダー・フッターの下地に、配線グリッド + 発光スリット(LED 風)模様を敷く。
+ * 表(タイムライン本体)・ツールバー帯には数値の可読性を優先して適用していない。 --- */
+.theme-military {
+  --ms-greeble:
+    /* 発光スリット(シアン・縦のグループ) */
+    repeating-linear-gradient(90deg,
+      rgba(130,204,223,0.5) 0 2px, transparent 2px 5px,
+      rgba(130,204,223,0.5) 5px 7px, transparent 7px 10px,
+      rgba(130,204,223,0.5) 10px 12px, transparent 12px 190px),
+    /* 発光スリット(オレンジ・位置と周期をずらして単調さを消す) */
+    repeating-linear-gradient(90deg,
+      transparent 0 96px,
+      rgba(246,162,62,0.42) 96px 98px, transparent 98px 101px,
+      rgba(246,162,62,0.42) 101px 103px, transparent 103px 260px),
+    /* 区画の縁取り(中グリッド) */
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.1) 0 1.5px, transparent 1.5px 38px),
+    repeating-linear-gradient(0deg,  rgba(255,255,255,0.08) 0 1.5px, transparent 1.5px 38px),
+    /* 地の凹凸(微細グリッド) */
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(0deg,  rgba(255,255,255,0.03) 0 1px, transparent 1px 9px);
 }
 
 /* Phase 1.1: --ms-* パレット (.theme-military.theme-{dark,light}) — ここに追記 */
@@ -2041,7 +2066,8 @@
 .theme-military .milspec-hdr {
   position: relative; flex: 1 1 auto; min-height: 0; z-index: 6;
   display: flex; align-items: stretch; gap: 5px; padding: 6px 8px;
-  background: var(--ms-well); --ms-behind: var(--ms-well);
+  background-image: var(--ms-greeble);
+  background-color: var(--ms-well); --ms-behind: var(--ms-well);
   box-shadow: 0 10px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -2px 5px rgba(0,0,0,0.55);
 }
 .theme-military .milspec-hdr[data-collapsed] { overflow: hidden; }
@@ -2343,7 +2369,8 @@
 /* ---------- サイドバー本体(mockup .sidebar 1305-1318) ---------- */
 .theme-military .milspec-sb {
   position: relative;
-  background: var(--ms-sb-bg);
+  background-image: var(--ms-greeble);
+  background-color: var(--ms-sb-bg);
   border-right: 1px solid var(--ms-hairline-2);
   display: flex; flex-direction: column; gap: 9px;
   padding: 10px 12px 11px 13px;
@@ -2492,28 +2519,28 @@
   border: 1px solid var(--ms-bracket); border-radius: 3px; padding: 2px 6px; font: inherit;
 }
 
-/* ---------- DOCK: BACKUP / RESTORE(mockup .dock 1394-1401) ---------- */
-.theme-military .milspec-dock { flex: none; padding: 10px 13px; display: flex; gap: 10px; }
-.theme-military .milspec-dock button { flex: 1; display: flex; align-items: center; gap: 10px; padding: 3px 2px; cursor: pointer; background: none; border: 0; font-family: inherit; }
-.theme-military .milspec-dock button .tx { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
-.theme-military .milspec-dock button .en { font: 400 9px/1.1 'Share Tech Mono', monospace; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ms-heading); }
-.theme-military .milspec-dock button .jp { font-size: 8px; color: var(--ms-text-muted); letter-spacing: 0.02em; margin-top: 3px; }
-.theme-military .milspec-dock button svg { width: 20px; height: 20px; flex: none; color: var(--ms-text-sec); }
+/* ---------- DOCK: BACKUP / RESTORE(mockup .dock 1394-1401・masaya 目視指摘で縮小) ---------- */
+.theme-military .milspec-dock { flex: none; padding: 5px 8px; display: flex; gap: 6px; }
+.theme-military .milspec-dock button { flex: 1; display: flex; align-items: center; gap: 6px; padding: 1px 0; cursor: pointer; background: none; border: 0; font-family: inherit; }
+.theme-military .milspec-dock button .tx { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; }
+.theme-military .milspec-dock button .en { font: 400 7px/1.1 'Share Tech Mono', monospace; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ms-heading); }
+.theme-military .milspec-dock button .jp { font-size: 6px; color: var(--ms-text-muted); letter-spacing: 0.02em; margin-top: 2px; }
+.theme-military .milspec-dock button svg { width: 12px; height: 12px; flex: none; color: var(--ms-text-sec); }
 .theme-military .milspec-dock button:hover svg, .theme-military .milspec-dock button:hover .en { color: var(--ms-cyan); }
 
-/* ---------- DEPLOYMENT(開発支援リンク → /support・意匠は mockup .deployment 1403-1412) ---------- */
+/* ---------- DEPLOYMENT(開発支援リンク → /support・意匠は mockup .deployment 1403-1412・masaya 目視指摘で縮小) ---------- */
 .theme-military .milspec-deployment { flex: none; display: block; padding: 0; overflow: visible; }
-.theme-military .milspec-deployment-hz { position: relative; height: 9px; }
+.theme-military .milspec-deployment-hz { position: relative; height: 5px; }
 .theme-military .milspec-deployment-hz::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: rgba(255,255,255,0.14); }
-.theme-military .milspec-deployment-bd { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 12px; background: none; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; transition: background 0.15s ease; }
+.theme-military .milspec-deployment-bd { position: relative; display: flex; align-items: center; gap: 7px; width: 100%; padding: 6px 8px; background: none; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; transition: background 0.15s ease; }
 .theme-military .milspec-deployment-bd:hover { background: rgba(130,204,223,0.06); }
 .theme-military .milspec-deployment-bd:focus-visible { outline: 1px solid var(--ms-cyan); outline-offset: -2px; }
-.theme-military .milspec-deployment-bd .mk { width: 38px; height: 38px; flex: none; color: rgba(150,190,205,0.3); filter: drop-shadow(0 1px 0 rgba(0,0,0,0.5)); transition: color 0.15s ease; }
+.theme-military .milspec-deployment-bd .mk { width: 18px; height: 18px; flex: none; color: rgba(150,190,205,0.3); filter: drop-shadow(0 1px 0 rgba(0,0,0,0.5)); transition: color 0.15s ease; }
 .theme-military .milspec-deployment-bd:hover .mk { color: var(--ms-cyan); }
-.theme-military .milspec-deployment-bd .tx { display: flex; flex-direction: column; line-height: 1.45; min-width: 0; }
-.theme-military .milspec-deployment-bd .en { font: 400 9px/1.2 'Share Tech Mono', monospace; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ms-text-sec); transition: color 0.15s ease; }
+.theme-military .milspec-deployment-bd .tx { display: flex; flex-direction: column; line-height: 1.4; min-width: 0; }
+.theme-military .milspec-deployment-bd .en { font: 400 7px/1.2 'Share Tech Mono', monospace; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ms-text-sec); transition: color 0.15s ease; }
 .theme-military .milspec-deployment-bd:hover .en { color: var(--ms-cyan); }
-.theme-military .milspec-deployment-bd .jp { font-size: 8px; color: var(--ms-text-muted); }
+.theme-military .milspec-deployment-bd .jp { font-size: 6px; color: var(--ms-text-muted); }
 
 /* ============================================================
  * SP1 Task 6: ツールバー — CREW(パーティ編成/設定/ログ取込/その他) /
@@ -2638,7 +2665,7 @@
   position: absolute; inset: 0; z-index: 5;
   display: grid; grid-template-columns: 2.05fr 92px 1fr; gap: 9px;
   padding: 8px 13px 9px;
-  background: linear-gradient(180deg, #1b232d, #131a22);
+  background: var(--ms-greeble), linear-gradient(180deg, #1b232d, #131a22);
   box-shadow: 0 -6px 16px rgba(0,0,0,0.3), inset 0 3px 12px rgba(0,0,0,0.5), var(--ms-zone-edge);
 }
 .theme-military .milspec-ftr::before {
