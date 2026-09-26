@@ -1878,22 +1878,18 @@ const Timeline: React.FC = () => {
         }
 
         if (isAaModeEnabled) {
-            const existingEvents = eventsByTime.get(time) || [];
-            if (existingEvents.length < 2) {
-                const currentAaSettings = useMitigationStore.getState().aaSettings;
-                const newId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9);
-                useMitigationStore.getState().addEvent({
-                    id: newId,
-                    time: time,
-                    name: { ja: 'AA', en: 'AA' },
-                    damageAmount: currentAaSettings.damage,
-                    damageType: currentAaSettings.type,
-                    target: currentAaSettings.target
-                });
-                return;
-            } else {
-                setIsAaModeEnabled(false);
-            }
+            // 同じ秒に何件あっても AA を追加する(旧: 2 件あると AA モードを解除してモーダルを開いていた)
+            const currentAaSettings = useMitigationStore.getState().aaSettings;
+            const newId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9);
+            useMitigationStore.getState().addEvent({
+                id: newId,
+                time: time,
+                name: { ja: 'AA', en: 'AA' },
+                damageAmount: currentAaSettings.damage,
+                damageType: currentAaSettings.type,
+                target: currentAaSettings.target
+            });
+            return;
         }
 
         setEventModalPosition({ x: e.clientX, y: e.clientY });
@@ -1901,7 +1897,7 @@ const Timeline: React.FC = () => {
         setSelectedEvent(null);
         setIsModalOpen(true);
         useTutorialStore.getState().completeEvent('create:event-modal-opened');
-    }, [isAaModeEnabled, eventsByTime]);
+    }, [isAaModeEnabled]);
 
     const handlePhaseAdd = useCallback((time: number, e: React.MouseEvent) => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
