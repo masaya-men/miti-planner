@@ -53,6 +53,8 @@ import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement, findSameSkillCdConflicts } from '../utils/resourceTracker';
 import { ConflictOffscreenArrows } from './timeline/ConflictOffscreenArrows';
 import type { ConflictPoint } from './timeline/conflictArrows';
+import { computeRowLayout, EMPTY_ROW_LAYOUT, ROW_UNIT_PX, MITI_ICON_PX, mitiIconOffset, barStartY, barEndY, childIconCutY } from './timeline/rowLayout';
+import type { RowLayout } from './timeline/rowLayout';
 import { calculateLinkedShieldValue } from '../utils/calculator';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
@@ -107,7 +109,8 @@ export function isJoinerReadonly(roomToken: string | null, canEdit: boolean): bo
 
 interface MitigationItemProps {
     mitigation: AppliedMitigation;
-    pixelsPerSecond: number;
+    /** 行の配置係。縦位置(ドラッグのスナップ・帯クリック)はすべてここから得る */
+    rowLayout: RowLayout;
     onRemove: (id: string) => void;
     onUpdateTime: (id: string, newTime: number) => void;
     top: number;
@@ -115,12 +118,9 @@ interface MitigationItemProps {
     left: number;
     laneIndex?: number;
     partySortOrder?: 'role' | 'light_party';
-    offsetTime: number;
     scrollContainerRef: React.RefObject<HTMLDivElement | null>;
     activeMitigations: AppliedMitigation[];
     overlapOffset?: number;
-    recastHeight?: number;
-    timeToYMap: Map<number, number>;
     isVirtual?: boolean;
     iconOverride?: string;
     /** 仮想アイテムを白黒表示する(ウォーキングデッド用)。 */
@@ -227,9 +227,9 @@ const RecordModeAttrBridge: React.FC<{ targetRef: React.RefObject<HTMLDivElement
 
 const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const {
-        mitigation, pixelsPerSecond, onRemove, onUpdateTime,
-        top, height, left, partySortOrder, offsetTime,
-        scrollContainerRef, activeMitigations, overlapOffset = 0, timeToYMap,
+        mitigation, rowLayout, onRemove, onUpdateTime,
+        top, height, left, partySortOrder,
+        scrollContainerRef, activeMitigations, overlapOffset = 0,
         isVirtual = false, iconOverride, layoutReady = true, grayscale = false,
         onCellClick
     } = props;
@@ -247,9 +247,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const indicatorRef = useRef<HTMLDivElement>(null);
     const timeLabelRef = useRef<HTMLDivElement>(null);
 
-    const { myMemberId, hideEmptyRows } = useMitigationStore(
-        useShallow(s => ({ myMemberId: s.myMemberId, hideEmptyRows: s.hideEmptyRows }))
-    );
+    const myMemberId = useMitigationStore(s => s.myMemberId);
     // 「自分以外」判定。myJobHighlight はここで購読しない（購読すると全アイコンが一斉再描画される）。
     // 薄暗くの ON/OFF は親 .timeline-scroll-container の data-myjob-highlight + CSS が担当。
     const isNotMine = !!myMemberId && myMemberId !== mitigation.ownerId;
@@ -263,42 +261,25 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     // recast / recastPx は廃止された点線描画 (border-dotted) でのみ使われていたため、 推論側 props (recastHeight)
     // ごと参照しないようにした。 maxTime クリップは効果棒 (effectiveEndTime) で引き続き利用。
 
-    // 👇 追加：Y座標から、コンパクトモード時でも正確に「どの時間の行を指しているか」を逆算する関数
-    const getTimeFromY = (targetY: number): number => {
-        if (!hideEmptyRows) {
-            return Math.max(offsetTime, offsetTime + Math.round(targetY / pixelsPerSecond));
-        }
-
-        // コンパクトモード時：Y座標が一番近い「可視行の時間」を探す
-        let closestTime = offsetTime;
-        let minDiff = Infinity;
-
-        timeToYMap.forEach((mappedY, time) => {
-            const diff = Math.abs(mappedY - targetY);
-            if (diff < minDiff) {
-                minDiff = diff;
-                closestTime = time;
-            } else if (diff === minDiff && time > closestTime) {
-                // 👇 修正：同じY座標（距離が同じ）なら、必ず一番大きい時間（＝実際の可視行）を選ぶ
-                closestTime = time;
-            }
-        });
-
-        return closestTime;
-    };
+    // 縦位置はすべて rowLayout(行の配置係)から得る。
+    // アイコンは行の最上段(1 つ目の攻撃の段)の縦中央に置く。
+    const iconOffset = mitiIconOffset(rowLayout.unitPx);
+    // ドラッグ中の「行の上端」Y から、アイコンの中央がある行の秒を求める
+    // (均一な行では旧実装の「最も近い行の上端」と同じ動き。背の高い行でもアイコンの下の行に落ちる)
+    const timeAtDraggedTop = (rowTopY: number): number => rowLayout.timeAtY(rowTopY + rowLayout.unitPx / 2);
 
     // エフェクト棒クリック → 下のマス目に配置クリックしたのと同じ扱いに転送する(2026-08-26)。
     // 棒はホバーでツールチップを出すためpointer-events-autoが要るが、そのままだと今まで
-    // 素通りしていた配置クリックがここで止まってしまうため、getTimeFromYで棒のクリック位置
-    // (ratio)から行の時間を逆算し、TimelineRowのonCellClickと同じ関数を直接呼んで橋渡しする。
+    // 素通りしていた配置クリックがここで止まってしまうため、rowLayout.timeAtY で棒のクリック位置
+    // (ratio)から行の時間を求め、TimelineRowのonCellClickと同じ関数を直接呼んで橋渡しする。
     const handleBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!onCellClick || isVirtual) return;
         const rect = e.currentTarget.getBoundingClientRect();
         const ratio = rect.height > 0 ? (e.clientY - rect.top) / rect.height : 0;
-        // top+13(コンテナ) + 12(棒自身のtop-3) = 棒の上端のシート座標Y。durationHeight×ratioで
-        // クリック位置まで進める(drag系のtop+dyと同じ座標系、getTimeFromYの入力そのもの)。
-        const barTopY = top + 13 + 12;
-        const time = getTimeFromY(barTopY + ratio * durationHeight);
+        // 棒の上端 = 行の最上段の中央(アイコン中央)。クリック位置を「含む」行の秒へ転送する
+        // (旧実装は最も近い行の上端を選んでいたため、行の下半分をクリックすると 1 秒後になるずれがあった)。
+        const barTopY = top + rowLayout.unitPx / 2;
+        const time = rowLayout.timeAtY(barTopY + ratio * durationHeight);
         onCellClick(mitigation.ownerId, time, e);
     };
 
@@ -312,14 +293,13 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         }
 
         const currentY = top + dy;
-        containerRef.current.style.top = `${currentY + 13}px`;
+        containerRef.current.style.top = `${currentY + iconOffset}px`;
         containerRef.current.style.zIndex = '50';
         containerRef.current.style.opacity = '0.9';
 
-        // 修正：スナップ先の時間を計算
-        const snappedTime = getTimeFromY(currentY);
-        // その時間の正しいY座標（コンパクトモードの圧縮を加味）
-        const snappedY = hideEmptyRows ? (timeToYMap.get(snappedTime) ?? currentY) : (snappedTime - offsetTime) * pixelsPerSecond;
+        // スナップ先 = アイコンの中央がある行の秒。その行の上端 Y は rowLayout から
+        const snappedTime = timeAtDraggedTop(currentY);
+        const snappedY = rowLayout.topOf(snappedTime);
         const relativeY = snappedY - currentY; // containerRefからの相対位置
 
         if (indicatorRef.current) {
@@ -345,7 +325,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
             containerRef.current.style.transition = 'none';
         }
 
-        containerRef.current.style.top = `${top + 13}px`;
+        containerRef.current.style.top = `${top + iconOffset}px`;
 
         if (animate) {
             setTimeout(() => {
@@ -468,7 +448,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
 
         // 👇 修正：指を離した最終的なY座標から、スナップ先の時間を計算する
         const finalY = top + dy;
-        const newTime = getTimeFromY(finalY);
+        const newTime = timeAtDraggedTop(finalY);
 
         dragStartRef.current = null;
 
@@ -533,8 +513,8 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                 className="absolute flex flex-col items-center group select-none pointer-events-none animate-in zoom-in-90 fade-in duration-200"
                 style={{
                     left: `${left}px`,
-                    top: `${top + 13}px`,
-                    width: '24px',
+                    top: `${top + iconOffset}px`,
+                    width: `${MITI_ICON_PX}px`,
                     visibility: layoutReady ? undefined : 'hidden',
                 }}
             >
@@ -552,11 +532,11 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                     data-myjob-dim={isNotMine ? 'gray' : undefined}
                     className={clsx(
                         "rounded shadow-md relative z-20 flex items-center justify-center",
-                        "w-6 h-6",
                         !isVirtual && "cursor-grab hover:scale-110 pointer-events-auto",
                         isVirtual && "cursor-default pointer-events-none",
                         isConflicting && "animate-conflict-pulse ring-2 ring-amber-400"
                     )}
+                    style={{ width: `${MITI_ICON_PX}px`, height: `${MITI_ICON_PX}px` }}
                     onContextMenu={handleContextMenu}
                     onPointerDown={handlePointerDown}
                     onPointerMove={handlePointerMove}
@@ -619,12 +599,13 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                         data-myjob-dim={isNotMine ? 'bar' : undefined}
                         onClick={handleBarClick}
                         className={clsx(
-                            "absolute top-3 w-1.5 z-10 rounded-b-sm border-x pointer-events-auto cursor-pointer",
+                            "absolute w-1.5 z-10 rounded-b-sm border-x pointer-events-auto cursor-pointer",
                             colors.bg,
                             colors.border,
                             colors.shadow
                         )}
                         style={{
+                            top: `${MITI_ICON_PX / 2}px`,
                             height: `${Math.max(0, durationHeight)}px`,
                             left: `calc(50% + ${overlapOffset}px)`,
                             transform: 'translateX(-50%)'
@@ -650,9 +631,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                     </div>
                 )}
 
-                {/* リキャスト残時間点線は廃止 (セッション 18 のリキャスト専用行で代替可能)。
-                    関連クリップ ロジック (maxTime / recastEndTime / calculatedRecastHeight) は
-                    効果棒の長さ制御に残っているため撤去せず保持。 */}
+                {/* リキャスト残時間点線は廃止 (セッション 18 のリキャスト専用行で代替可能)。 */}
             </div>
         </>
     );
@@ -756,7 +735,8 @@ const Timeline: React.FC = () => {
     const [labelSelectMode, setLabelSelectMode] = useState<{ labelId: string; startTime: number; field: 'startTime' | 'endTime' } | null>(null);
     const [showPreStart] = useState(true);
     const isMobileTimeline = typeof window !== 'undefined' && window.innerWidth < 768;
-    const pixelsPerSecond = isMobileTimeline ? 60 : 50;
+    // 1 段の高さ(PC=攻撃 1 つ分 / スマホ=カード 1 枚)。縦位置は rowLayout(下で計算)から得る
+    const rowUnitPx = isMobileTimeline ? ROW_UNIT_PX.mobile : ROW_UNIT_PX.pc;
     const previewEndTimeRef = useRef<number | null>(null);
     const previewRafRef = useRef<number | null>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
@@ -827,21 +807,20 @@ const Timeline: React.FC = () => {
             }
         }
 
-        // オーバーレイ位置を直接更新
-        if (overlayRef.current && timeToYMapRef.current) {
-            const tMap = timeToYMapRef.current;
+        // オーバーレイ位置を直接更新(縦位置は rowLayout から)
+        if (overlayRef.current) {
+            const layout = rowLayoutRef.current;
             const offsetTime = showPreStart ? -10 : 0;
-            const pxPerSec = pixelsPerSecond;
             const startTime = Math.max(Math.min(mode.startTime, time), offsetTime);
             const endTime = Math.max(Math.max(mode.startTime, time) + 1, offsetTime);
-            const startY = tMap.get(startTime) ?? (Math.max(0, startTime - offsetTime) * pxPerSec);
-            const endY = tMap.get(endTime) ?? (Math.max(0, endTime - offsetTime) * pxPerSec);
+            const startY = layout.topOf(startTime);
+            const endY = layout.topOf(endTime);
             const height = Math.max(0, endY - startY);
             overlayRef.current.style.top = `${startY}px`;
             overlayRef.current.style.height = `${height}px`;
             overlayRef.current.style.display = height > 0 ? '' : 'none';
         }
-    }, [timelineSelectMode, labelSelectMode, showPreStart, pixelsPerSecond]);
+    }, [timelineSelectMode, labelSelectMode, showPreStart]);
 
     const throttledUpdatePreview = useCallback((time: number | null) => {
         previewEndTimeRef.current = time;
@@ -965,18 +944,11 @@ const Timeline: React.FC = () => {
     const labelColumnVisible = !labelColumnCollapsed && !(phaseColumnCollapsed && !hasLabels);
 
     // useCallback で包む: progress:jump-to-time リスナが最新版を参照するため。
-    // deps = [showPreStart, pixelsPerSecond]。ref は常に最新なので deps 不要。
+    // 縦位置は rowLayoutRef(常に最新の行の配置)から得るので deps 不要。
     const handleNavJump = useCallback((time: number) => {
         if (!scrollContainerRef.current) return;
-        const targetY = timeToYMapRef.current.get(time);
-        if (targetY !== undefined) {
-            scrollContainerRef.current.scrollTo({ top: targetY, behavior: 'smooth' });
-        } else {
-            const offsetTime = showPreStart ? -10 : 0;
-            const y = Math.max(0, (time - offsetTime)) * pixelsPerSecond;
-            scrollContainerRef.current.scrollTo({ top: y, behavior: 'smooth' });
-        }
-    }, [showPreStart, pixelsPerSecond]);
+        scrollContainerRef.current.scrollTo({ top: rowLayoutRef.current.topOf(time), behavior: 'smooth' });
+    }, []);
 
     // 「タイムラインの最後の行」 = maxPopulatedTime + 1 (= 行追加用の空白行)。
     // ユーザー仕様: 新規イベント追加用に最終イベント/軽減の 1 秒後の空白行が表示される。
@@ -1401,13 +1373,16 @@ const Timeline: React.FC = () => {
     const headerRef = useRef<HTMLDivElement>(null);
     const controlBarRef = useRef<HTMLDivElement>(null);
     const timeToYMapRef = useRef(new Map<number, number>());
-    // syncRecastRow (hideEmptyRows時) がスクロール毎にY最近傍の時刻を逆引きするための索引。
+    // syncRecastRow がスクロール毎にY最近傍の時刻を逆引きするための索引。
     // timeToYMapをforEachで毎回全走査していたのをY昇順ソート済み配列+二分探索に変える
     // (2026-08-14ユーザー実機報告「スマホでスクロールが重い/変身アニメがとびとび」対応。
     // 長い戦闘ほどtimeToYMapの要素数が増え、毎スクロールイベントでの全走査コストが
     // 積み重なりメインスレッドを塞いでいた)。中身はtimeToYMapと同じタイミング(レイアウト
     // 再計算時)でのみ作り直し、スクロール中は読むだけ。
     const sortedTimeYRef = useRef<[number, number][]>([]);
+    // 行の配置係の最新値。コールバック(スクロール同期・ジャンプ・範囲選択)は描画後にこれを読む。
+    // 書き込みは rowLayout の useMemo の直後(描画中)で 1 回だけ。
+    const rowLayoutRef = useRef<RowLayout>(EMPTY_ROW_LAYOUT);
     // handleScrollSync がヘッダー/コントロールバー内の対象要素を毎スクロールイベントで
     // querySelector していたのをキャッシュする(2026-08-14、実測プロファイルでスクロール毎の
     // 負荷の一因と判明)。要素が差し替わった場合のみ(isConnected/contains チェックで検知して)
@@ -1536,8 +1511,8 @@ const Timeline: React.FC = () => {
         const scrollTop = container.scrollTop;
         const offsetTime = showPreStart ? -10 : 0;
         let currentTime: number;
-        if (hideEmptyRows && sortedTimeYRef.current.length > 0) {
-            // hideEmptyRows モード: Y に最も近い可視時刻を逆引き。
+        if (sortedTimeYRef.current.length > 0) {
+            // 上端が scrollTop に最も近い行の時刻を逆引き(行の高さが可変でも、空の行を隠す設定でも同じ方法)。
             // Y昇順ソート済み配列(sortedTimeYRef)を二分探索する。以前はtimeToYMapを毎回
             // forEachで全走査しており、戦闘が長い(=行数が多い)ほどスクロール1回ごとの
             // コストが積み重なりメインスレッドを塞いでいた(2026-08-14ユーザー実機報告
@@ -1554,10 +1529,10 @@ const Timeline: React.FC = () => {
             }
             currentTime = arr[closestIdx][0];
         } else {
-            currentTime = offsetTime + Math.round(scrollTop / pixelsPerSecond);
+            currentTime = offsetTime;
         }
         recastRowRef.current?.update(currentTime);
-    }, [pixelsPerSecond, showPreStart, hideEmptyRows, recastRowVisible]);
+    }, [showPreStart, recastRowVisible]);
 
     useEffect(() => {
         const container = scrollContainerRef.current;
@@ -1595,8 +1570,8 @@ const Timeline: React.FC = () => {
         const container = scrollContainerRef.current;
         if (!container) return;
         const scrollTop = container.scrollTop;
-        const offsetTime = showPreStart ? -10 : 0;
-        const yOfTime = (time: number) => timeToYMapRef.current.get(time) ?? ((time - offsetTime) * pixelsPerSecond);
+        const layout = rowLayoutRef.current;
+        const yOfTime = (time: number) => layout.topOf(time);
 
         const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
         const labelFor = (i: number) => {
@@ -1625,7 +1600,7 @@ const Timeline: React.FC = () => {
         let p = 0;
         if (next) {
             nextEl.textContent = labelFor(idx + 1);
-            const transitionPx = MOBILE_PHASE_TRANSITION_SECONDS * pixelsPerSecond;
+            const transitionPx = MOBILE_PHASE_TRANSITION_SECONDS * layout.unitPx;
             const distancePx = Math.max(0, yOfTime(next.startTime) - scrollTop);
             p = distancePx <= transitionPx ? 1 - distancePx / transitionPx : 0;
         } else {
@@ -1634,7 +1609,7 @@ const Timeline: React.FC = () => {
 
         curEl.style.transform = `translateX(${-p * 100}%)`;
         nextEl.style.transform = `translateX(${(1 - p) * 100}%)`;
-    }, [showPreStart, pixelsPerSecond, phases, contentLanguage, t]);
+    }, [phases, contentLanguage, t]);
 
     useEffect(() => {
         const container = scrollContainerRef.current;
@@ -1853,6 +1828,32 @@ const Timeline: React.FC = () => {
         });
         return map;
     }, [timelineEvents]);
+
+    // 行の配置係: 各秒の行の位置と高さ・表全体の高さを 1 か所で決める(縦位置の答えはすべてここから)。
+    // 行の高さ = 1 段 × max(1, 攻撃数)。空の行を隠す設定の可視判定もここ(旧: 表全体の高さと描画ループで二重に計算)。
+    const forceShowTime0 = useTutorialStore(s => s.isActive && s.getCurrentStep()?.id === 'create-6-add-event');
+    const rowLayout = useMemo(() => {
+        let maxPopulatedTime = -11;
+        if (hideEmptyRows) {
+            timelineEvents.forEach(e => { if (e.time > maxPopulatedTime) maxPopulatedTime = e.time; });
+            timelineMitigations.forEach(m => { if (m.time > maxPopulatedTime) maxPopulatedTime = m.time; });
+        }
+        const mitStartTimes = new Set<number>();
+        timelineMitigations.forEach(m => { if (!m.autoHidden) mitStartTimes.add(m.time); });
+        return computeRowLayout({
+            times: gridLines,
+            eventCountAt: t => eventsByTime.get(t)?.length ?? 0,
+            hasMitigationStartAt: t => mitStartTimes.has(t),
+            hideEmptyRows,
+            maxPopulatedTime,
+            forceVisibleTimes: forceShowTime0 ? new Set([0]) : undefined,
+            unitPx: rowUnitPx,
+        });
+    }, [gridLines, eventsByTime, timelineEvents, timelineMitigations, hideEmptyRows, forceShowTime0, rowUnitPx]);
+    // 縦位置を使うコールバック(スクロール同期・ジャンプ・範囲選択・メモ・カーソル)は ref 経由で最新を読む
+    rowLayoutRef.current = rowLayout;
+    timeToYMapRef.current = rowLayout.timeToY;
+    sortedTimeYRef.current = rowLayout.sortedTimeY;
 
     const handleAddClick = useCallback((time: number, e: React.MouseEvent) => {
         // 進捗記録モード中はクリックを横取りして到達点を記録（既存の配置/追加には入らない）
@@ -2637,27 +2638,17 @@ const Timeline: React.FC = () => {
     }, [memberLayout]);
 
     // 画面外ガイド矢印用: 競合中インスタンスの列中央X + コンテンツ内絶対Y を算出。
-    // timeToYMap は render IIFE 内ローカル変数のため ref 経由でアクセスする。
-    // PC 専用(isMobileTimeline が true のときは空配列)。
-    //
-    // [制約] hideEmptyRows=true (compact モード) のとき Y は timeToYMapRef.current を参照するが、
-    //   timeToYMapRef は render 中に書き込まれる ref であり useMemo は render 前に評価されるため、
-    //   「直前レンダーの timeToYMap」を読む構造上 1 レンダー分のラグが避けられない。
-    //   hideEmptyRows / pixelsPerSecond / showPreStart を deps に含めることで、
-    //   compact モード切替・スケール変化直後の次レンダーには正しい Y に追従する。
-    //   初回マウント時の 1 フレームずれは ConflictOffscreenArrows 側で viewportHeight===0 中は
-    //   描画しないことで緩和している。
+    // Y は rowLayout(同じレンダーで計算済みの行の配置)から得る。旧実装の「直前レンダーの
+    // timeToYMap を ref 経由で読む 1 レンダー分のラグ」は無くなった。
+    // 初回マウント時の 1 フレームずれは ConflictOffscreenArrows 側で viewportHeight===0 中は
+    // 描画しないことで緩和している。
     const conflictPoints = useMemo<ConflictPoint[]>(() => {
-        const tMap = timeToYMapRef.current;
-        const offsetT = showPreStart ? -10 : 0;
         return timelineMitigations
             // 表示/非表示スイッチで隠したメンバーの競合は、列自体が描画されないため画面外
             // ガイド矢印の対象からも除外する(競合検知=conflictingIds 自体は不変・見た目だけ)。
             .filter(m => conflictingIds.has(m.id) && m.id !== lastPlacedMitigationId && !hiddenPartyMemberIds.includes(m.ownerId))
             .map(m => {
-                const y = hideEmptyRows
-                    ? (tMap.get(m.time) ?? (m.time - offsetT) * pixelsPerSecond)
-                    : (m.time - offsetT) * pixelsPerSecond;
+                const y = rowLayout.topOf(m.time);
                 if (isMobileTimeline) {
                     // モバイルは担当者ごとの列が無い(1本の行に全員分のアイコンが並ぶ)ため、
                     // ownerId を固定値にして矢印を「上下1個ずつ」に集約する(PCのように
@@ -2674,9 +2665,8 @@ const Timeline: React.FC = () => {
                 };
             });
     // memberLayout は Map で参照同一・中身が変化するため refVersion を直接含められない。
-    // timeToYMapRef は ref なので deps に入れられない → timelineMitigations / conflictingIds 変化で再算出。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [timelineMitigations, conflictingIds, lastPlacedMitigationId, memberLayout, hideEmptyRows, pixelsPerSecond, showPreStart, isMobileTimeline, sheetWidth]);
+    }, [timelineMitigations, conflictingIds, lastPlacedMitigationId, memberLayout, rowLayout, isMobileTimeline, sheetWidth]);
 
     const getJobIcon = (jobId: string | null) => {
         if (!jobId) return null;
@@ -3129,43 +3119,12 @@ const Timeline: React.FC = () => {
                         {/* isolate: 内部の mix-blend-mode(モバイルのエフェクト棒⇄アイコンのクロスフェード)を
                             このコンテナ内だけに閉じ込め、ページ全体の背景と混ざらないようにする。 */}
                         <div ref={sheetContainerRef} onClick={handleSheetClick} className="relative isolate bg-transparent md:w-max md:min-w-full" style={{
-                            height: `${(() => {
-                                let totalHeight = 0;
-                                let maxPopulatedTime = -11;
-                                if (hideEmptyRows) {
-                                    timelineEvents.forEach(e => { if (e.time > maxPopulatedTime) maxPopulatedTime = e.time; });
-                                    timelineMitigations.forEach(m => { if (m.time > maxPopulatedTime) maxPopulatedTime = m.time; });
-                                }
-
-                                gridLines.forEach(time => {
-                                    const rowEvents = eventsByTime.get(time) || [];
-                                    const hasEvents = rowEvents.length > 0;
-                                    const hasMitigationStart = timelineMitigations.some(m => m.time === time && !m.autoHidden);
-
-                                    const isBottomEmptyRow = hideEmptyRows && time === maxPopulatedTime + 1;
-
-                                    // create-plan チュートリアル step6 では time=0 行を常に表示する
-                                    const forceShowTime0 = time === 0
-                                        && useTutorialStore.getState().isActive
-                                        && useTutorialStore.getState().getCurrentStep()?.id === 'create-6-add-event';
-
-                                    if (!hideEmptyRows || hasEvents || hasMitigationStart || isBottomEmptyRow || forceShowTime0) {
-                                        totalHeight += pixelsPerSecond;
-                                    }
-                                });
-                                return `calc(${totalHeight}px + 50vh)`;
-                            })()}`
+                            // 表全体の高さ = 行の配置係の合計(描画と同じ計算。旧実装は別ループで数えていて、
+                            // スマホの同時刻 2 件行を 1 段分少なく数えていた)
+                            height: `calc(${rowLayout.totalHeight}px + 50vh)`
                         }}>
                             {(() => {
                                 const renderItems: React.ReactElement[] = [];
-                                let currentY = 0;
-                                let maxPopulatedTime = -11;
-                                if (hideEmptyRows) {
-                                    timelineEvents.forEach(e => { if (e.time > maxPopulatedTime) maxPopulatedTime = e.time; });
-                                    timelineMitigations.forEach(m => { if (m.time > maxPopulatedTime) maxPopulatedTime = m.time; });
-                                }
-
-                                const timeToYMap = new Map<number, number>();
 
                                 // 🚀 Performance Optimization: Pre-calculate mitigations map
                                 const mitigationsByTime = new Map<number, AppliedMitigation[]>();
@@ -3182,27 +3141,11 @@ const Timeline: React.FC = () => {
                                     }
                                 });
 
-                                gridLines.forEach((time) => {
+                                rowLayout.rows.forEach(({ time, top, height, visible }) => {
+                                    if (!visible) return;
                                     const rowEvents = eventsByTime.get(time) || [];
                                     const rowDamages = rowEvents.map(event => damageMap.get(event.id) || null);
-
-                                    const hasEvents = rowEvents.length > 0;
                                     const activeMitigationsForRow = mitigationsByTime.get(time) || [];
-                                    const hasMitigationStart = mitStartsByTime.has(time);
-
-                                    const isBottomEmptyRow = hideEmptyRows && time === maxPopulatedTime + 1;
-
-                                    // create-plan チュートリアル step6 では time=0 行を常に表示する
-                                    const forceShowTime0 = time === 0
-                                        && useTutorialStore.getState().isActive
-                                        && useTutorialStore.getState().getCurrentStep()?.id === 'create-6-add-event';
-
-                                    if (hideEmptyRows && !hasEvents && !hasMitigationStart && !isBottomEmptyRow && !forceShowTime0) {
-                                        timeToYMap.set(time, currentY);
-                                        return;
-                                    }
-
-                                    timeToYMap.set(time, currentY);
 
                                     if (isMobileTimeline) {
                                         // Mobile: MobileTimelineRow を使用
@@ -3231,13 +3174,15 @@ const Timeline: React.FC = () => {
                                             if (timelineSelectMode || labelSelectMode) throttledUpdatePreview(time);
                                         };
 
-                                        if (rowEvents.length >= 2) {
-                                            // 2イベント: 別々のカードに分割
+                                        // 攻撃 1 つにつきカード 1 枚(攻撃なしは 1 枚)。行の高さ = 1 段 × 枚数。
+                                        // 同じ秒のカードの間には区切り線を引かない(最後のカードだけ下に線)。
+                                        const cardCount = Math.max(1, rowEvents.length);
+                                        for (let i = 0; i < cardCount; i++) {
                                             renderItems.push(
                                                 <MobileTimelineRow
-                                                    key={`${time}-0`}
+                                                    key={`${time}-${i}`}
                                                     time={time}
-                                                    top={currentY}
+                                                    top={top + i * rowLayout.unitPx}
                                                     damages={rowDamages}
                                                     events={rowEvents}
                                                     partyMembers={sortedPartyMembers}
@@ -3251,71 +3196,22 @@ const Timeline: React.FC = () => {
                                                     labelSelectMode={labelSelectMode}
                                                     onTimelineSelect={mobileSelectHandler}
                                                     onTimelineSelectHover={mobileHoverHandler}
-                                                    eventIndex={0}
-                                                    hideBottomDivider
-                                                    rowHeight={pixelsPerSecond}
-                                                    maxMitiIcons={maxMitiIconsPerRow}
-                                                    conflictingIds={mobileConflictingIds}
-                                                />
-                                            );
-                                            currentY += pixelsPerSecond;
-                                            renderItems.push(
-                                                <MobileTimelineRow
-                                                    key={`${time}-1`}
-                                                    time={time}
-                                                    top={currentY}
-                                                    damages={rowDamages}
-                                                    events={rowEvents}
-                                                    partyMembers={sortedPartyMembers}
-                                                    hiddenPartyMemberIds={hiddenPartyMemberIds}
-                                                    activeMitigations={activeMitigationsForRow}
-                                                    onMobileDamageClick={handleMobileDamageClick}
-                                                    onLongPress={handleMobileLongPress}
-                                                    phaseColumnCollapsed={phaseColumnCollapsed}
-                                                    hasPhases={phases.length > 0}
-                                                    timelineSelectMode={timelineSelectMode}
-                                                    labelSelectMode={labelSelectMode}
-                                                    onTimelineSelect={mobileSelectHandler}
-                                                    onTimelineSelectHover={mobileHoverHandler}
-                                                    eventIndex={1}
-                                                    isSecondEvent
-                                                    rowHeight={pixelsPerSecond}
-                                                    maxMitiIcons={maxMitiIconsPerRow}
-                                                    conflictingIds={mobileConflictingIds}
-                                                />
-                                            );
-                                        } else {
-                                            renderItems.push(
-                                                <MobileTimelineRow
-                                                    key={time}
-                                                    time={time}
-                                                    top={currentY}
-                                                    damages={rowDamages}
-                                                    events={rowEvents}
-                                                    partyMembers={sortedPartyMembers}
-                                                    hiddenPartyMemberIds={hiddenPartyMemberIds}
-                                                    activeMitigations={activeMitigationsForRow}
-                                                    onMobileDamageClick={handleMobileDamageClick}
-                                                    onLongPress={handleMobileLongPress}
-                                                    phaseColumnCollapsed={phaseColumnCollapsed}
-                                                    hasPhases={phases.length > 0}
-                                                    timelineSelectMode={timelineSelectMode}
-                                                    labelSelectMode={labelSelectMode}
-                                                    onTimelineSelect={mobileSelectHandler}
-                                                    onTimelineSelectHover={mobileHoverHandler}
-                                                    rowHeight={pixelsPerSecond}
+                                                    eventIndex={i}
+                                                    hideBottomDivider={i < cardCount - 1}
+                                                    rowHeight={rowLayout.unitPx}
                                                     maxMitiIcons={maxMitiIconsPerRow}
                                                     conflictingIds={mobileConflictingIds}
                                                 />
                                             );
                                         }
                                     } else {
-                                        // PC: TimelineRow (body 行)
+                                        // PC: TimelineRow (body 行)。高さ = 1 段 × max(1, 攻撃数)
                                         renderItems.push(
                                             <TimelineRow
                                                 key={time}
                                                 time={time}
-                                                top={currentY}
+                                                top={top}
+                                                height={height}
                                                 damages={rowDamages}
                                                 events={rowEvents}
                                                 partyMembers={sortedPartyMembers}
@@ -3362,12 +3258,7 @@ const Timeline: React.FC = () => {
                                             />
                                         );
                                     }
-
-                                    currentY += pixelsPerSecond;
                                 });
-
-                                timeToYMapRef.current = timeToYMap;
-                                sortedTimeYRef.current = Array.from(timeToYMap.entries()).sort((a, b) => a[1] - b[1]);
 
                                 return (
                                     <>
@@ -3391,8 +3282,8 @@ const Timeline: React.FC = () => {
                                             const mobileBars = computeMobileEffectBars({
                                                 timelineMitigations: visibleTimelineMitigationsForBars,
                                                 mitigationDefs: MITIGATIONS,
-                                                timeToYMap,
-                                                pixelsPerSecond,
+                                                timeToYMap: rowLayout.timeToY,
+                                                pixelsPerSecond: rowLayout.unitPx,
                                                 offsetTime,
                                                 hideEmptyRows,
                                                 maxTime,
@@ -3425,9 +3316,9 @@ const Timeline: React.FC = () => {
                                             const effectiveStartTime = Math.max(startTime, offsetTime);
                                             const effectiveEndTime = Math.max(endTime, offsetTime);
 
-                                            const startY = timeToYMap.get(effectiveStartTime) ?? (Math.max(0, effectiveStartTime - offsetTime) * pixelsPerSecond);
+                                            const startY = rowLayout.topOf(effectiveStartTime);
                                             const top = startY;
-                                            const height = Math.max(0, (timeToYMap.get(effectiveEndTime) ?? (Math.max(0, effectiveEndTime - offsetTime) * pixelsPerSecond)) - startY);
+                                            const height = Math.max(0, rowLayout.topOf(effectiveEndTime) - startY);
 
                                             return (
                                                 <div
@@ -3471,8 +3362,8 @@ const Timeline: React.FC = () => {
                                                 const effectiveEnd = Math.max(effectiveEndTime, offsetTime);
                                                 if (!showPreStart && effectiveEnd <= 0) return null;
 
-                                                const startY = timeToYMap.get(effectiveStart) ?? (Math.max(0, effectiveStart - offsetTime) * pixelsPerSecond);
-                                                const endY = timeToYMap.get(effectiveEnd) ?? (Math.max(0, effectiveEnd - offsetTime) * pixelsPerSecond);
+                                                const startY = rowLayout.topOf(effectiveStart);
+                                                const endY = rowLayout.topOf(effectiveEnd);
                                                 const top = startY;
                                                 const height = Math.max(0, endY - startY);
                                                 if (height <= 0) return null;
@@ -3688,18 +3579,8 @@ const Timeline: React.FC = () => {
                                                 displayItems.forEach(mitigation => {
                                                     const candidateLeft = positionByMitId.get(mitigation.id) ?? 0;
 
-                                                    const offsetTime = showPreStart ? -10 : 0;
                                                     const durationSeconds = Math.max(1, mitigation.duration);
                                                     const durationEndTime = mitigation.time + durationSeconds - 1;
-
-                                                    const getMappedY = (t: number) => {
-                                                        if (timeToYMap.has(t)) return timeToYMap.get(t)!;
-                                                        const gridKeys = Array.from(timeToYMap.keys());
-                                                        const maxGridTime = gridKeys.length > 0 ? Math.max(...gridKeys) : 0;
-                                                        const maxGridY = timeToYMap.get(maxGridTime) ?? 0;
-                                                        if (t > maxGridTime) return maxGridY + (t - maxGridTime) * pixelsPerSecond;
-                                                        return Math.max(0, t - offsetTime) * pixelsPerSecond;
-                                                    };
 
                                                     // コンパクトモード: 終了時間が空行なら、その前の可視行に切り詰める
                                                     let effectiveEndTime = durationEndTime;
@@ -3721,18 +3602,13 @@ const Timeline: React.FC = () => {
                                                     // 持続時間の長い学者スキル (鼓舞 30s 等) が末尾を超えて伸びる問題を防ぐ。
                                                     effectiveEndTime = Math.min(effectiveEndTime, maxTime);
 
-                                                    const startY = getMappedY(mitigation.time);
-                                                    const endY = getMappedY(effectiveEndTime) + 24;
+                                                    // 縦位置はすべて rowLayout から(行の高さが攻撃数で変わっても帯が正しく伸びる)。
+                                                    // top = 開始の秒の行の上端(MitigationItem の基準)。帯は最上段の中央(アイコン中央)から、
+                                                    // 「効果がかかる最後の秒」の行の下端の 1px 上まで。
+                                                    const top = rowLayout.topOf(mitigation.time);
+                                                    const barTop = barStartY(rowLayout, mitigation.time);
                                                     const def = MITIGATIONS.find((m: any) => m.id === mitigation.mitigationId);
-                                                    const recast = def?.recast || def?.recast || 0;
-                                                    // リキャスト点線は maxTime (= イベント・フェーズ・ラベル末尾の最大) でクリップ。
-                                                    // タイムライン末尾以降に点線が伸びるのを防ぐ。
-                                                    const recastEndTime = Math.min(mitigation.time + Math.max(1, recast) - 1, maxTime);
-                                                    const recastEndY = getMappedY(recastEndTime) + 24;
-                                                    const calculatedRecastHeight = Math.max(0, recastEndY - startY);
-
-                                                    const top = startY;
-                                                    let height = Math.max(0, Math.round(endY - startY));
+                                                    let height = Math.max(0, Math.round(barEndY(rowLayout, effectiveEndTime) - barTop));
 
                                                     if (!mitigation.isVirtual) {
                                                         if (def?.id === 'horoscope') {
@@ -3740,20 +3616,17 @@ const Timeline: React.FC = () => {
                                                                 am.isVirtual && am.parentId === mitigation.id
                                                             ).sort((a: any, b: any) => a.time - b.time);
                                                             if (heliosInHoro.length > 0) {
-                                                                const cutY = getMappedY(heliosInHoro[0].time);
-                                                                height = Math.max(0, Math.round(cutY - startY) - 8);
+                                                                height = Math.max(0, Math.round(childIconCutY(rowLayout, heliosInHoro[0].time) - barTop));
                                                             }
                                                         }
                                                         if (def?.id === 'earthly_star' && durationSeconds > 10) {
-                                                            const cutY = getMappedY(mitigation.time + 10);
-                                                            height = Math.max(0, Math.round(cutY - startY) - 8);
+                                                            height = Math.max(0, Math.round(childIconCutY(rowLayout, mitigation.time + 10) - barTop));
                                                         }
                                                         if (def && isLivingDeadStyle(def)) {
                                                             // WD 仮想アイコンの実際の開始(tT、重なり回避時は tT+1)で親バーを切る(ホロスコープと同じく仮想の time を参照)。
                                                             const wd = displayItems.find((am: any) => am.isVirtual && am.parentId === mitigation.id);
                                                             if (wd) {
-                                                                const cutY = getMappedY(wd.time);
-                                                                height = Math.max(0, Math.round(cutY - startY) - 8);
+                                                                height = Math.max(0, Math.round(childIconCutY(rowLayout, wd.time) - barTop));
                                                             }
                                                         }
                                                         // バリア(シールド)が吸収量を使い切ったら、その時点で棒を止める。
@@ -3762,13 +3635,11 @@ const Timeline: React.FC = () => {
                                                         // (バリアが割れても効果時間いっぱい % 軽減が乗り続けるため・2026-08-31 実機報告)。
                                                         // 既存の horoscope/earthly_star/WD クリップとは Math.min で共存させる。
                                                         if (def && shieldEffectBarEndsOnBarrierExhaustion(def) && shieldExhaustedAt.has(mitigation.id)) {
-                                                            const cutY = getMappedY(shieldExhaustedAt.get(mitigation.id)!);
-                                                            height = Math.min(height, Math.max(0, Math.round(cutY + 24 - startY)));
+                                                            height = Math.min(height, Math.max(0, Math.round(barEndY(rowLayout, shieldExhaustedAt.get(mitigation.id)!) - barTop)));
                                                         }
                                                         // 上書き負けしたバリア: 負けた時刻で棒を止める(方式a)。overwritten に入るのはバリアのみなので def?.isShield 判定は不要。
                                                         if (barrierOverwrittenAt.has(mitigation.id)) {
-                                                            const cutY = getMappedY(barrierOverwrittenAt.get(mitigation.id)!);
-                                                            height = Math.min(height, Math.max(0, Math.round(cutY + 24 - startY)));
+                                                            height = Math.min(height, Math.max(0, Math.round(barEndY(rowLayout, barrierOverwrittenAt.get(mitigation.id)!) - barTop)));
                                                         }
                                                     }
 
@@ -3778,20 +3649,17 @@ const Timeline: React.FC = () => {
                                                         <MitigationItem
                                                             key={mitigation.id}
                                                             mitigation={mitigation}
-                                                            pixelsPerSecond={pixelsPerSecond}
+                                                            rowLayout={rowLayout}
                                                             onRemove={(mitigation.isVirtual || readOnly) ? () => { } : removeMitigation}
                                                             onUpdateTime={(mitigation.isVirtual || readOnly) ? () => { } : updateMitigationTime}
                                                             top={top}
                                                             height={height}
-                                                            recastHeight={mitigation.isVirtual ? 0 : calculatedRecastHeight}
                                                             left={absoluteLeft}
                                                             laneIndex={candidateLeft / PLACEMENT_STEP}
                                                             partySortOrder={partySortOrder}
-                                                            offsetTime={offsetTime}
                                                             scrollContainerRef={scrollContainerRef}
                                                             activeMitigations={ownerMitigations}
                                                             overlapOffset={0}
-                                                            timeToYMap={timeToYMap}
                                                             isVirtual={mitigation.isVirtual}
                                                             grayscale={mitigation.grayscale}
                                                             iconOverride={mitigation.iconOverride}

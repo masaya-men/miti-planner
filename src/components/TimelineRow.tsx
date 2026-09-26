@@ -30,6 +30,8 @@ interface DamageInfo {
 interface TimelineRowProps {
     time: number;
     top: number;
+    /** 行の高さ(px)= 1 段 × max(1, 攻撃数)。Timeline の rowLayout が決める */
+    height: number;
     damages: (DamageInfo | null)[];
     events: TimelineEvent[];
     partyMembers: PartyMember[];
@@ -220,6 +222,7 @@ const PcCopyButton: React.FC<{ event: TimelineEvent }> = ({ event }) => {
 export const TimelineRow = memo(({
     time,
     top,
+    height,
     damages,
     events,
     partyMembers,
@@ -283,14 +286,16 @@ export const TimelineRow = memo(({
         <div
             data-time-row={time}
             className={clsx(
-                "absolute left-0 w-full md:w-fit flex h-[50px] group  duration-75",
+                "absolute left-0 w-full md:w-fit flex group duration-75",
                 "hover:bg-app-surface2",
-                // perf #59: ビューポート外行を style/layout/paint からスキップ。 行 height は h-[50px] と一致
-                "[content-visibility:auto] [contain-intrinsic-size:auto_50px]",
+                // perf #59: ビューポート外行を style/layout/paint からスキップ。仮の高さ(contain-intrinsic-size)は style の height と一致させる
+                "[content-visibility:auto]",
                 showRowBorders && "border-b border-app-border",
                 (timelineSelectMode || labelSelectMode) && "cursor-pointer"
             )}
             style={{
+                height: `${height}px`,
+                containIntrinsicSize: `auto ${height}px`,
                 top: `${top}px`,
                 // hover line の left/width は CSS 変数 (viewport 連動 clamp) ベースで計算する。
                 // 旧実装は開発者画面 (1489) の max 値をハードコード (60+200+100+100=460px) して
@@ -696,6 +701,7 @@ export const TimelineRow = memo(({
 }, (prevProps, nextProps) => {
     if (prevProps.time !== nextProps.time) return false;
     if (prevProps.top !== nextProps.top) return false;
+    if (prevProps.height !== nextProps.height) return false;
     if (prevProps.events !== nextProps.events) return false;
     if (prevProps.damages !== nextProps.damages) return false;
     if (prevProps.partyMembers !== nextProps.partyMembers) return false;
