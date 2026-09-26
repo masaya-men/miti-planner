@@ -22,12 +22,10 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 ## 現在の状態 (次セッションはここから読む)
 ### 🟢 2026-09-04 X OGPカード不具合 = デプロイ済(`280da74d`)。診断=`docs/.private/2026-09-04-housing-ogp-card-x-timing-fix.md`。**残=実機確認のみ**: 次の新規登録ツイートで一発で出るか(出なければ登録→通知の間隔を空ける方向)。既存壊れは `?x=1` で貼り直し。⚠フロント変更デプロイ後は CF「すべてパージ」必須([[reference_cf_cache_housing_ogp_pages]])。
-### 🔴 次セッション最優先 = MIL-SPEC テーマ 本番移植。worktree `milspec-theme`。
-  **正典=`docs/.private/theme-refs/milspec-mockup.html`**(GITIGNORE・CSS1846行+DOM+JS。一週間かけ作り込んだ削り出し金属・C面・タービン遊びボタン・ロールカウンター計器・導管・フッターHUD)。経緯=`docs/.private/2026-09-03-milspec-trace-workflow.md`追記1〜25。material=memory `reference_milspec_material_language`。
-  **2026-09-07 masaya 方針**: モックアップの全部(見た目・遊びボタン・計器・フッターHUD)を**取りこぼしなく本番へ**・**ライト同時**・**完成までユーザー非公開**(`localStorage 'milspec-preview'`)・本番編集機能は全稼働・standard 1バイト不変。
-  **2026-09-08 方針転換(masaya)**: 再スキンでは無理 → **構造から作り直す**。themeStyle==='military'&&PC で専用ツリー `MilspecLayout` を描画、既存ストア配線で編集機能全維持、標準は Layout 分岐1か所のみで不変。**SP1〜SP4 に分割**(SP1=外側シェル / SP2=タイムライン表 / SP3=スマホ / SP4=編集モーダル軍事化)。Phase1土台(--ms-*/プリミティブ/フォント)は残し、Phase2の皮(data-milspec-*)は撤去。旧プラン v2 と旧spec §8/9/13/16 は失効。Q1〜Q6 確定。
-  **✅ SP1 設計書 = `docs/superpowers/specs/2026-09-08-milspec-structural-rebuild-sp1-shell-design.md`**(`ed047f9b`)。
-  **✅ SP1 実装完了・main へマージ済み(2026-09-08)**。実装プラン=`docs/superpowers/plans/2026-09-08-milspec-sp1-layout-shell.md`。subagent-driven-development で9タスク全完了(分岐+骨格/Phase2撤去/Workspace/Header/Sidebar/Toolbar/Footer/Seam+折りたたみ/サイズ+i18n検証)+whole-branchレビュー(Important 4件修正済・残1件はmasaya判断で意図的に未修正=punch-list参照)。標準モード不変性を全タスクで検証済み。`localStorage 'milspec-preview'` ゲートは稼働中のまま(ユーザー非公開)。**次 = masaya が本番で実機確認 → OK なら SP2(タイムライン表の軍事化)へ**。細かい確認事項一覧はworktree内 `.superpowers/sdd/2026-09-08-milspec-sp1-layout-shell/punch-list.md`(worktree削除前に確認・gitignore対象)。
+### 🔴 次セッション最優先 = 同じ秒に3つ以上の攻撃+行の高さ可変(LoPo本体)。ブランチ `feat/multi-attack-rows`(origin/main `504ff28e` から・**未push**)。設計書=`docs/superpowers/specs/2026-09-26-multi-attack-rows-design.md` / 計画=`docs/superpowers/plans/2026-09-26-multi-attack-rows.md` / 決定ログ=`docs/.private/2026-09-26-multi-attack-rows.md`。subagent-driven 実行中。**再開は進捗台帳 `.superpowers/sdd/2026-09-26-multi-attack-rows/progress.md` から(gitignore・完了タスクを再実行しない)**。
+  2026-09-27 夜中に中断: Task1〜3 実装済(`c1328c17`/`edb4001d`/`9f1a41f4`)・Task3 のレビュー結果は台帳を見る → Task4(FFLogs 同秒ずらし廃止)→ Task4b(スマホの帯を最後のカードまで・台帳の Ruling 参照)→ Task5(build+全テスト+画面確認。下書き=台帳と同じフォルダの `mar_verify.cjs`)→ 全体レビュー → masaya ローカル確認(行の高さ・アイコンの大きさを見て決める)→ main マージ・push・CF パージ。次の段階=同秒内の並べ替え(表示順と計算順を揃えるか masaya と決める)。
+### 🟡 MIL-SPEC 全体ブラッシュアップ = ブランチ `milspec-polish`(最新状況は**そのブランチの TODO.md**)。モック最新 v11(`docs/.private/theme-refs/milspec-v11-full.html`)の masaya FB 待ち。SP1 は main マージ済み(2026-09-08)。
+### 🟢 2026-09-26 サイドバー最下部の余白(Ko-fi 停止中)= 本番反映済(`504ff28e`)・masaya 確認済。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = デプロイ済。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。設計書2026-08-28。
 ### 🟡 8/20〜9/1 ハウジング一括=本番反映済(詳細 COMPLETED)。**残**: Discord告知下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)/ Allmarksリージョン混在は未検証 / カード最適化Phase1・「トップ」再タップスクロール=実機確認のみ。
 ### 🟡 SEOソフト404対策: CF Cache Rule は `/housing/(listing|housinger|tour)/` `/h/` 追加済(2026-09-04)。**残**: `/share/*` の CF ルール検討 / Search Console 再検査+インデックス登録。
