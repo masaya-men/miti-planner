@@ -85,8 +85,8 @@ export interface RowLayout {
   unitPx: number;
   rows: readonly RowBox[];                      // times と同じ順
   totalHeight: number;                          // 可視行の高さの合計
-  timeToY: ReadonlyMap<number, number>;         // 今の timeToYMap と同じ意味
-  sortedTimeY: readonly (readonly [number, number])[]; // 今の sortedTimeYRef と同じ意味
+  timeToY: Map<number, number>;                 // 今の timeToYMap と同じ意味(読み取り専用として扱う)
+  sortedTimeY: [number, number][];              // 今の sortedTimeYRef と同じ意味
   topOf(t: number): number;
   bottomOf(t: number): number;
   timeAtY(y: number): number;
