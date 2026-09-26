@@ -1581,9 +1581,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         </div>
                     )}
 
-                    {/* バックアップ/復元ボタン */}
+                    {/* バックアップ/復元ボタン
+                        下の Ko-fi 支援リンクが非表示(SUPPORT_PAGE_ENABLED=false)の間はこれが最下部になるので、下に余白を取る。 */}
                     {!multiSelect.isEnabled && (
-                        <div className="shrink-0 px-3 pt-1 pb-0">
+                        <div className={clsx('shrink-0 px-3 pt-1', SUPPORT_PAGE_ENABLED ? 'pb-0' : 'pb-3')}>
                             <div className="border-t border-glass-border w-full mb-1" />
                             <div className="flex gap-1">
                                 <button
