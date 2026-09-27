@@ -37,7 +37,7 @@ export const MOBILE_EFFECT_BAR_FAST_SCROLL_MIN_PX_MS = 0.2;
 /** 初速最大時の「進む」アニメの長さ(ms)。 */
 export const MOBILE_EFFECT_BAR_SLOWDOWN_MAX_MS = 400;
 
-/** PC版のエフェクト棒(MitigationItem)がアイコン分の高さとして加算しているのと同じ値。[Timeline.tsx:3503] */
+/** 帯の終点を、最後にかかるカードの上端からこの分だけ下げる(アイコン 1 個分)。PC の旧実装(1 秒 = 50px 行)と同じ値。 */
 const ICON_BOTTOM_PADDING = 24;
 
 /**
@@ -210,7 +210,10 @@ export function computeMobileEffectBars(args: ComputeMobileEffectBarsArgs): Mobi
     }
 
     const startY = getMappedY(mit.time);
-    const endY = getMappedY(effectiveEndTime) + ICON_BOTTOM_PADDING;
+    // 最後にかかる秒に攻撃が複数あるとき(スマホは攻撃 1 つにつきカード 1 枚が縦に並ぶ)は、
+    // 帯をその秒の最後のカードまで伸ばす(PC の「最後にかかる秒の行の下端まで」と同じ意味)
+    const endCards = Math.max(1, eventsByTime.get(effectiveEndTime)?.length ?? 0);
+    const endY = getMappedY(effectiveEndTime) + (endCards - 1) * pixelsPerSecond + ICON_BOTTOM_PADDING;
     const height = Math.max(0, Math.round(endY - startY));
 
     results.push({

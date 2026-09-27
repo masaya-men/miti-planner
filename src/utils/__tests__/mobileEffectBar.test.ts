@@ -48,6 +48,22 @@ describe('computeMobileEffectBars', () => {
     expect(result[0].height).toBe(564);
   });
 
+  it('最後にかかる秒に攻撃が複数(カードが縦に並ぶ)なら、帯はその秒の最後のカードまで伸ばす', () => {
+    const def = makeDef('reprisal', { duration: 10 });
+    const mit = makeMit('p1', 'reprisal', 'MT', 5, 10);
+    // 最後にかかる秒 = 5 + 10 - 1 = 14。14 秒に攻撃 3 つ = カード 3 枚
+    const result = computeMobileEffectBars({
+      ...baseArgs,
+      eventsByTime: new Map<number, unknown[]>([[14, [{}, {}, {}]]]),
+      timelineMitigations: [mit],
+      mitigationDefs: [def],
+    });
+    // カード 1 枚のときの高さは 564(上のテスト)。3 枚なら 2 枚分(2 × 60px)伸びる
+    expect(result[0].height).toBe(564 + 120);
+    // 始点は変わらない
+    expect(result[0].top).toBe(338);
+  });
+
   it('excludes mitigations with duration <= 1', () => {
     const def = makeDef('swiftcast', { duration: 1 });
     const mit = makeMit('p1', 'swiftcast', 'MT', 5, 1);
