@@ -403,9 +403,6 @@ export function mapFFLogsToTimeline(
     // ── Step 7: ソート ──
     tl.sort((a, b) => a.time - b.time);
 
-    // ── Step 8: スケジューリング（同秒競合解消） ──
-    resolveSchedulingConflicts(tl);
-
     // ── Step 9: フェーズ自動生成（V5.0） ──
     const phases = buildPhases(fight);
 
@@ -648,63 +645,6 @@ function median(values: number[]): number {
     const s = [...values].sort((a, b) => a - b);
     const mid = Math.floor(s.length / 2);
     return s.length % 2 === 0 ? Math.floor((s[mid - 1] + s[mid]) / 2) : s[mid];
-}
-
-/** 同秒競合を解消（V5.0） */
-function resolveSchedulingConflicts(tl: TimelineEvent[]): void {
-    const isAA = (ev: TimelineEvent) => ev.name.ja === 'AA' || ev.name.en === 'AA';
-    const isTankTgt = (ev: TimelineEvent) => ev.target === 'MT' || ev.target === 'ST';
-
-    let changed = true;
-    while (changed) {
-        changed = false;
-        tl.sort((a, b) => a.time - b.time);
-        const byTime = new Map<number, number[]>();
-        for (let i = 0; i < tl.length; i++) {
-            const t = tl[i].time;
-            if (!byTime.has(t)) byTime.set(t, []);
-            byTime.get(t)!.push(i);
-        }
-        for (const [, ix] of byTime) {
-            if (ix.length < 2) continue;
-            const hasNonAATank = ix.some(i => isTankTgt(tl[i]) && !isAA(tl[i]));
-            const hasAoE = ix.some(i => tl[i].target === 'AoE' && !isAA(tl[i]));
-            const hasAAev = ix.some(i => isAA(tl[i]));
-            if (hasNonAATank && hasAoE) {
-                for (const i of ix) {
-                    if (tl[i].target === 'AoE' && !isAA(tl[i])) { tl[i].time += 1; changed = true; }
-                }
-            }
-            if (hasAoE && hasAAev) {
-                for (const i of ix) {
-                    if (isAA(tl[i])) { tl[i].time += 1; changed = true; }
-                }
-            }
-        }
-    }
-
-    // 最大2イベント/秒制限
-    changed = true;
-    while (changed) {
-        changed = false;
-        tl.sort((a, b) => a.time - b.time);
-        const byTime = new Map<number, number[]>();
-        for (let i = 0; i < tl.length; i++) {
-            const t = tl[i].time;
-            if (!byTime.has(t)) byTime.set(t, []);
-            byTime.get(t)!.push(i);
-        }
-        for (const [, ix] of byTime) {
-            if (ix.length <= 2) continue;
-            const s = [...ix].sort((a, b) => {
-                const aA = isAA(tl[a]), bA = isAA(tl[b]);
-                if (aA !== bA) return aA ? 1 : -1;
-                return a - b;
-            });
-            for (let k = 2; k < s.length; k++) { tl[s[k]].time += 1; changed = true; }
-        }
-    }
-    tl.sort((a, b) => a.time - b.time);
 }
 
 /** フェーズ自動生成（V5.1: report.phasesからボス名取得） */

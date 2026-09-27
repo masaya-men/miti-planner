@@ -143,16 +143,28 @@ describe('mapFFLogsToTimeline', () => {
     expect(r.phases[1].startTimeSec).toBe(120);
   });
 
-  it('同秒イベントは最大2件に制限される', () => {
+  it('同じ秒の攻撃は 3 つ以上でもずらさず、全部その秒に残る', () => {
     const rawEn = [
       dmg(10, 100, 'A', 3, 50000), dmg(10, 100, 'A', 4, 50000), dmg(10, 100, 'A', 5, 50000),
       dmg(10, 200, 'B', 3, 60000), dmg(10, 200, 'B', 4, 60000), dmg(10, 200, 'B', 5, 60000),
       dmg(10, 300, 'C', 3, 70000), dmg(10, 300, 'C', 4, 70000), dmg(10, 300, 'C', 5, 70000),
     ];
     const r = mapFFLogsToTimeline(rawEn, [], makeFight(), [], [], [], makePlayers());
-    const byTime = new Map<number, number>();
-    for (const ev of r.events) byTime.set(ev.time, (byTime.get(ev.time) ?? 0) + 1);
-    for (const count of byTime.values()) expect(count).toBeLessThanOrEqual(2);
+    const names = r.events.filter(e => e.time === 10).map(e => e.name.en).sort();
+    expect(names).toEqual(['A', 'B', 'C']);
+    expect(r.events.some(e => e.time === 11)).toBe(false);
+  });
+
+  it('タンクへの攻撃と全体攻撃が同じ秒でも、全体攻撃をずらさない', () => {
+    // Tank1 にAAを多く打たせてMT判定
+    const aaHits = Array.from({ length: 10 }, (_, i) => dmg(i, 999, 'Attack', 1, 5000));
+    const tbHit = dmg(15, 200, 'Tankbuster', 1, 120000);
+    const aoe = [3, 4, 5, 6].map(id => dmg(15, 100, 'Megaflare', id, 80000));
+    const r = mapFFLogsToTimeline([...aaHits, tbHit, ...aoe], [], makeFight(), [], [], [], makePlayers());
+    const tb = r.events.find(e => e.name.en.includes('Tankbuster'));
+    const mf = r.events.find(e => e.name.en === 'Megaflare');
+    expect(tb!.time).toBe(15);
+    expect(mf!.time).toBe(15);
   });
 
   it('statsを正しく返す', () => {
