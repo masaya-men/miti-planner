@@ -13,6 +13,7 @@ import { usePlanStore } from '../store/usePlanStore';
 import { useCollabJoinerSession } from '../store/useCollabJoinerSession';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
+import { useStableCallback } from '../hooks/useStableCallback';
 import type { TimelineEvent, Mitigation, AppliedMitigation, LocalizedString, Phase, Label, PlanMemo } from '../types';
 import { getPhaseName } from '../types';
 import { EventModal } from './EventModal';
@@ -2146,6 +2147,48 @@ const Timeline: React.FC = () => {
         setMobileContextMenu({ isOpen: true, event, time });
     }, [setMobilePartyOpen, setMobileToolsOpen, setMobileMenuOpen]);
 
+    // 行(TimelineRow/MobileTimelineRow)の onTimelineSelect / onTimelineSelectHover。
+    // PC・スマホで中身が同じなので1組にまとめる(元はレンダー行のループ内でそれぞれ別の
+    // インライン関数として毎行・毎レンダー作っていたため、行の memo 比較を素通りできなかった)。
+    const handleTimelineSelect = (time: number) => {
+        if (labelSelectMode) {
+            if (labelSelectMode.field === 'startTime') {
+                updateLabelStartTime(labelSelectMode.labelId, time);
+            } else {
+                updateLabelEndTime(labelSelectMode.labelId, time);
+            }
+            setLabelSelectMode(null);
+            throttledUpdatePreview(null);
+            return;
+        }
+        if (timelineSelectMode) {
+            if (timelineSelectMode.field === 'startTime') {
+                updatePhaseStartTime(timelineSelectMode.phaseId, time);
+            } else {
+                updatePhaseEndTime(timelineSelectMode.phaseId, time);
+            }
+            setTimelineSelectMode(null);
+            throttledUpdatePreview(null);
+        }
+    };
+    const handleTimelineSelectHover = (time: number) => {
+        if (timelineSelectMode || labelSelectMode) throttledUpdatePreview(time);
+    };
+
+    // perf(timeline-row-memo): 行に渡すコールバックは全部 useStableCallback で包み、参照を
+    // 固定する。行の memo 比較(rowPropsEqual)が「関数の中身は同じだが参照が違うだけ」で
+    // 毎回 false を返し全行描き直しになっていたのを防ぐ。呼び出し自体は if/ループの中ではなく
+    // コンポーネント本体のトップレベルに置く(フックのルール)。
+    const stableAddClick = useStableCallback(handleAddClick);
+    const stablePhaseAdd = useStableCallback(handlePhaseAdd);
+    const stableLabelAdd = useStableCallback(handleLabelAdd);
+    const stableEventClick = useStableCallback(handleEventClick);
+    const stableCellClick = useStableCallback(handleCellClick);
+    const stableMobileDamageClick = useStableCallback(handleMobileDamageClick);
+    const stableMobileLongPress = useStableCallback(handleMobileLongPress);
+    const stableTimelineSelect = useStableCallback(handleTimelineSelect);
+    const stableTimelineSelectHover = useStableCallback(handleTimelineSelectHover);
+
     const handleContextEdit = useCallback(() => {
         if (!mobileContextMenu?.event) return;
         setSelectedEvent(mobileContextMenu.event);
@@ -3152,31 +3195,6 @@ const Timeline: React.FC = () => {
 
                                     if (isMobileTimeline) {
                                         // Mobile: MobileTimelineRow を使用
-                                        const mobileSelectHandler = (time: number) => {
-                                            if (labelSelectMode) {
-                                                if (labelSelectMode.field === 'startTime') {
-                                                    updateLabelStartTime(labelSelectMode.labelId, time);
-                                                } else {
-                                                    updateLabelEndTime(labelSelectMode.labelId, time);
-                                                }
-                                                setLabelSelectMode(null);
-                                                throttledUpdatePreview(null);
-                                                return;
-                                            }
-                                            if (timelineSelectMode) {
-                                                if (timelineSelectMode.field === 'startTime') {
-                                                    updatePhaseStartTime(timelineSelectMode.phaseId, time);
-                                                } else {
-                                                    updatePhaseEndTime(timelineSelectMode.phaseId, time);
-                                                }
-                                                setTimelineSelectMode(null);
-                                                throttledUpdatePreview(null);
-                                            }
-                                        };
-                                        const mobileHoverHandler = (time: number) => {
-                                            if (timelineSelectMode || labelSelectMode) throttledUpdatePreview(time);
-                                        };
-
                                         // 攻撃 1 つにつきカード 1 枚(攻撃なしは 1 枚)。行の高さ = 1 段 × 枚数。
                                         // 同じ秒のカードの間には区切り線を引かない(最後のカードだけ下に線)。
                                         const cardCount = Math.max(1, rowEvents.length);
@@ -3191,14 +3209,14 @@ const Timeline: React.FC = () => {
                                                     partyMembers={sortedPartyMembers}
                                                     hiddenPartyMemberIds={hiddenPartyMemberIds}
                                                     activeMitigations={activeMitigationsForRow}
-                                                    onMobileDamageClick={handleMobileDamageClick}
-                                                    onLongPress={handleMobileLongPress}
+                                                    onMobileDamageClick={stableMobileDamageClick}
+                                                    onLongPress={stableMobileLongPress}
                                                     phaseColumnCollapsed={phaseColumnCollapsed}
                                                     hasPhases={phases.length > 0}
                                                     timelineSelectMode={timelineSelectMode}
                                                     labelSelectMode={labelSelectMode}
-                                                    onTimelineSelect={mobileSelectHandler}
-                                                    onTimelineSelectHover={mobileHoverHandler}
+                                                    onTimelineSelect={stableTimelineSelect}
+                                                    onTimelineSelectHover={stableTimelineSelectHover}
                                                     eventIndex={i}
                                                     hideBottomDivider={i < cardCount - 1}
                                                     rowHeight={rowLayout.unitPx}
@@ -3220,43 +3238,19 @@ const Timeline: React.FC = () => {
                                                 partyMembers={sortedPartyMembers}
                                                 visiblePartyMembers={visiblePartyMembers}
                                                 activeMitigations={activeMitigationsForRow}
-                                                onPhaseAdd={handlePhaseAdd}
-                                                onLabelAdd={handleLabelAdd}
+                                                onPhaseAdd={stablePhaseAdd}
+                                                onLabelAdd={stableLabelAdd}
                                                 hasPhases={phases.length > 0}
-                                                onAddEventClick={handleAddClick}
-                                                onEventClick={handleEventClick}
-                                                onCellClick={handleCellClick}
-                                                onMobileDamageClick={handleMobileDamageClick}
+                                                onAddEventClick={stableAddClick}
+                                                onEventClick={stableEventClick}
+                                                onCellClick={stableCellClick}
+                                                onMobileDamageClick={stableMobileDamageClick}
                                                 phaseColumnCollapsed={phaseColumnCollapsed}
                                                 labelColumnVisible={labelColumnVisible}
                                                 timelineSelectMode={timelineSelectMode}
                                                 labelSelectMode={labelSelectMode}
-                                                onTimelineSelect={(time) => {
-                                                    if (labelSelectMode) {
-                                                        if (labelSelectMode.field === 'startTime') {
-                                                            updateLabelStartTime(labelSelectMode.labelId, time);
-                                                        } else {
-                                                            updateLabelEndTime(labelSelectMode.labelId, time);
-                                                        }
-                                                        setLabelSelectMode(null);
-                                                        throttledUpdatePreview(null);
-                                                        return;
-                                                    }
-                                                    if (timelineSelectMode) {
-                                                        if (timelineSelectMode.field === 'startTime') {
-                                                            updatePhaseStartTime(timelineSelectMode.phaseId, time);
-                                                        } else {
-                                                            updatePhaseEndTime(timelineSelectMode.phaseId, time);
-                                                        }
-                                                        setTimelineSelectMode(null);
-                                                        throttledUpdatePreview(null);
-                                                    }
-                                                }}
-                                                onTimelineSelectHover={(time) => {
-                                                    if (timelineSelectMode || labelSelectMode) {
-                                                        throttledUpdatePreview(time);
-                                                    }
-                                                }}
+                                                onTimelineSelect={stableTimelineSelect}
+                                                onTimelineSelectHover={stableTimelineSelectHover}
                                                 showRowBorders={showRowBorders}
                                             />
                                         );

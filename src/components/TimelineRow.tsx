@@ -17,6 +17,7 @@ import { AnimatedDamage } from './AnimatedDamage';
 import { DamageTypeIcon } from './DamageTypeIcon';
 import { nextDamageType } from '../utils/damageTypeLogic';
 import { EventNameSpan } from './EventNameSpan';
+import { rowPropsEqual } from './timeline/rowPropsEqual';
 
 interface DamageInfo {
     unmitigated: number;
@@ -55,6 +56,10 @@ interface TimelineRowProps {
     onTimelineSelectHover?: (time: number) => void;
     showRowBorders?: boolean;
 }
+
+// 外枠(TimelineRow)が持つ位置情報。中身(TimelineRowContent)は高さ・位置を使わないため
+// 受け取らない(行の高さ変化で位置だけズレた行は、外枠だけ描き直し中身は描き直さないため)。
+type TimelineRowContentProps = Omit<TimelineRowProps, 'top' | 'height'>;
 
 // スマホ用: 対象バッジ（AoE以外の場合に表示）
 // effTarget: 挑発によるタンクスイッチを反映した実効ターゲット（表示用）
@@ -278,68 +283,24 @@ const DamageTakenCell: React.FC<{
     );
 };
 
+// TimelineRow(外枠): 位置(top/height)だけを持つ一番外側の div。中身(TimelineRowContent)は
+// 別コンポーネントに分けてあるので、他の行の高さが変わって top だけがズレた行は、この外枠だけが
+// 描き直され、中身(列のセル群)は描き直されない(memo 比較で弾かれる)。
 export const TimelineRow = memo(({
-    time,
     top,
     height,
-    damages,
-    events,
-    partyMembers,
-    visiblePartyMembers,
-    activeMitigations,
-    onPhaseAdd,
-    onAddEventClick,
-    onEventClick,
-    onCellClick,
-    onMobileDamageClick,
-    onLabelAdd,
-    phaseColumnCollapsed,
-    labelColumnVisible,
-    hasPhases = true,
-    timelineSelectMode,
-    labelSelectMode,
-    onTimelineSelect,
-    onTimelineSelectHover,
-    showRowBorders = false,
+    ...contentProps
 }: TimelineRowProps) => {
-    const { t } = useTranslation();
-    const { contentLanguage } = useThemeStore();
-    const myMemberId = useMitigationStore(state => state.myMemberId);
-    // 挑発スキル（isTankSwap）による実効ターゲット計算に必要なデータ
-    const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
-    const phases = useMitigationStore(state => state.phases);
-    const MITIGATIONS = useMitigations();
-    // isTankSwap なスキルのみ抽出（挑発マーカー）。毎レンダーの再計算を避けるためメモ化
-    const swapMarkers = useMemo(
-        () => timelineMitigations.filter(m => {
-            const def = MITIGATIONS.find(def => def.id === m.mitigationId);
-            return def?.isTankSwap === true;
-        }),
-        [timelineMitigations, MITIGATIONS]
-    );
-
-    const orConnector = t('event.or_connector');
-    const getEventName = (ev: TimelineEvent) => formatEventName(ev, contentLanguage, orConnector);
-
-    const isMobileRow = typeof window !== 'undefined' && window.innerWidth < 768;
-    const formatDmg = (val: number) => {
-        if (!isMobileRow) return val.toLocaleString();
-        if (val >= 1000000) return (val / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-        if (val >= 1000) return (val / 1000).toFixed(0) + 'k';
-        return String(val);
-    };
-
-    // スマホ: どこをタップしても軽減追加を開く
-    const handleMobileTap = (e: React.MouseEvent) => {
-        if (window.innerWidth < 768 && onMobileDamageClick && events.length > 0) {
-            onMobileDamageClick(time, e);
-        }
-    };
-
-    const displayTimeStr = Math.floor(Math.abs(time) / 60) + ':' + (Math.abs(time) % 60).toString().padStart(2, '0');
-    const formattedTime = time < 0 && time > -60 ? `-0:${(Math.abs(time) % 60).toString().padStart(2, '0')}` :
-        time < 0 ? `-${displayTimeStr}` :
-            displayTimeStr;
+    const {
+        time,
+        showRowBorders = false,
+        timelineSelectMode,
+        labelSelectMode,
+        phaseColumnCollapsed,
+        labelColumnVisible,
+        onTimelineSelect,
+        onTimelineSelectHover,
+    } = contentProps;
 
     return (
         <div
@@ -385,6 +346,75 @@ export const TimelineRow = memo(({
                 }
             }}
         >
+            <TimelineRowContent {...contentProps} />
+        </div>
+    );
+}, (prevProps, nextProps) => rowPropsEqual(prevProps, nextProps, ['events', 'damages', 'activeMitigations']));
+
+// TimelineRowContent(中身): 列のセル群。top/height は受け取らない(使わない)。
+const TimelineRowContent = memo(({
+    time,
+    damages,
+    events,
+    partyMembers,
+    visiblePartyMembers,
+    activeMitigations,
+    onPhaseAdd,
+    onAddEventClick,
+    onEventClick,
+    onCellClick,
+    onMobileDamageClick,
+    onLabelAdd,
+    phaseColumnCollapsed,
+    labelColumnVisible,
+    hasPhases = true,
+    timelineSelectMode,
+    labelSelectMode,
+    onTimelineSelect,
+    onTimelineSelectHover,
+    showRowBorders = false,
+}: TimelineRowContentProps) => {
+    const { t } = useTranslation();
+    const { contentLanguage } = useThemeStore();
+    const myMemberId = useMitigationStore(state => state.myMemberId);
+    // 挑発スキル（isTankSwap）による実効ターゲット計算に必要なデータ
+    const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
+    const phases = useMitigationStore(state => state.phases);
+    const MITIGATIONS = useMitigations();
+    // isTankSwap なスキルのみ抽出（挑発マーカー）。毎レンダーの再計算を避けるためメモ化
+    const swapMarkers = useMemo(
+        () => timelineMitigations.filter(m => {
+            const def = MITIGATIONS.find(def => def.id === m.mitigationId);
+            return def?.isTankSwap === true;
+        }),
+        [timelineMitigations, MITIGATIONS]
+    );
+
+    const orConnector = t('event.or_connector');
+    const getEventName = (ev: TimelineEvent) => formatEventName(ev, contentLanguage, orConnector);
+
+    const isMobileRow = typeof window !== 'undefined' && window.innerWidth < 768;
+    const formatDmg = (val: number) => {
+        if (!isMobileRow) return val.toLocaleString();
+        if (val >= 1000000) return (val / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (val >= 1000) return (val / 1000).toFixed(0) + 'k';
+        return String(val);
+    };
+
+    // スマホ: どこをタップしても軽減追加を開く
+    const handleMobileTap = (e: React.MouseEvent) => {
+        if (window.innerWidth < 768 && onMobileDamageClick && events.length > 0) {
+            onMobileDamageClick(time, e);
+        }
+    };
+
+    const displayTimeStr = Math.floor(Math.abs(time) / 60) + ':' + (Math.abs(time) % 60).toString().padStart(2, '0');
+    const formattedTime = time < 0 && time > -60 ? `-0:${(Math.abs(time) % 60).toString().padStart(2, '0')}` :
+        time < 0 ? `-${displayTimeStr}` :
+            displayTimeStr;
+
+    return (
+        <>
             {/* Phase Column — スマホ: フェーズなし→非表示 / PC: フェーズ追加 */}
             {!phaseColumnCollapsed ? (
                 <div
@@ -617,23 +647,6 @@ export const TimelineRow = memo(({
                     </div>
                 ))
             }
-        </div>
+        </>
     );
-}, (prevProps, nextProps) => {
-    if (prevProps.time !== nextProps.time) return false;
-    if (prevProps.top !== nextProps.top) return false;
-    if (prevProps.height !== nextProps.height) return false;
-    if (prevProps.events !== nextProps.events) return false;
-    if (prevProps.damages !== nextProps.damages) return false;
-    if (prevProps.partyMembers !== nextProps.partyMembers) return false;
-    if (prevProps.visiblePartyMembers !== nextProps.visiblePartyMembers) return false;
-    if (prevProps.activeMitigations !== nextProps.activeMitigations) {
-        if (prevProps.activeMitigations.length !== nextProps.activeMitigations.length) return false;
-        for (let i = 0; i < prevProps.activeMitigations.length; i++) {
-            if (prevProps.activeMitigations[i] !== nextProps.activeMitigations[i]) return false;
-        }
-    }
-    if (prevProps.phaseColumnCollapsed !== nextProps.phaseColumnCollapsed) return false;
-    if (prevProps.labelColumnVisible !== nextProps.labelColumnVisible) return false;
-    return true;
-});
+}, (prevProps, nextProps) => rowPropsEqual(prevProps, nextProps, ['events', 'damages', 'activeMitigations']));

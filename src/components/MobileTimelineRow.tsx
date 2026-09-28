@@ -12,6 +12,7 @@ import { AnimatedDamage } from './AnimatedDamage';
 import { DamageTypeIcon } from './DamageTypeIcon';
 import { getEffectiveTarget } from '../utils/effectiveTarget';
 import { PARTY_MEMBER_IDS } from '../constants/party';
+import { rowPropsEqual } from './timeline/rowPropsEqual';
 
 interface DamageInfo {
     unmitigated: number;
@@ -516,20 +517,4 @@ export const MobileTimelineRow = memo(({
             </div>{/* カード本体 end */}
         </motion.div>
     );
-}, (prevProps, nextProps) => {
-    if (prevProps.time !== nextProps.time) return false;
-    if (prevProps.top !== nextProps.top) return false;
-    if (prevProps.events !== nextProps.events) return false;
-    if (prevProps.damages !== nextProps.damages) return false;
-    if (prevProps.partyMembers !== nextProps.partyMembers) return false;
-    if (prevProps.eventIndex !== nextProps.eventIndex) return false;
-    if (prevProps.hideBottomDivider !== nextProps.hideBottomDivider) return false;
-    if (prevProps.onLongPress !== nextProps.onLongPress) return false;
-    if (prevProps.activeMitigations !== nextProps.activeMitigations) {
-        if (prevProps.activeMitigations.length !== nextProps.activeMitigations.length) return false;
-        for (let i = 0; i < prevProps.activeMitigations.length; i++) {
-            if (prevProps.activeMitigations[i] !== nextProps.activeMitigations[i]) return false;
-        }
-    }
-    return true;
-});
+}, (prevProps, nextProps) => rowPropsEqual(prevProps, nextProps, ['events', 'damages', 'activeMitigations']));
