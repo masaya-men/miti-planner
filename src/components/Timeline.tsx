@@ -258,8 +258,8 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const colors = getMitigationColorClasses(def?.jobId, mitigation.ownerId, partySortOrder);
 
     const durationHeight = height;
-    // recast / recastPx は廃止された点線描画 (border-dotted) でのみ使われていたため、 推論側 props (recastHeight)
-    // ごと参照しないようにした。 maxTime クリップは効果棒 (effectiveEndTime) で引き続き利用。
+    // recast / recastPx は廃止された点線描画 (border-dotted) でのみ使われていたため参照しない。
+    // maxTime クリップは効果棒 (effectiveEndTime) で引き続き利用。
 
     // 縦位置はすべて rowLayout(行の配置係)から得る。
     // アイコンは行の最上段(1 つ目の攻撃の段)の縦中央に置く。
@@ -611,7 +611,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                             transform: 'translateX(-50%)'
                         }}
                     >
-                        {/* ホバー検知だけを担う内側のTooltip。棒自体の絶対配置(top-3/left/transform)は
+                        {/* ホバー検知だけを担う内側のTooltip。棒自体の絶対配置(top/height/left/transform)は
                             外側のdivのまま変えず、内側を重ねるだけに留める(2026-08-26)。棒の見た目の
                             幅(6px)そのままだと当たり判定が細すぎて確認しづらいとの実機FBのため、
                             左右3pxずつ当たり判定だけ広げる(見た目のバー幅は変えない)。同じ持ち主の
@@ -1854,6 +1854,13 @@ const Timeline: React.FC = () => {
     rowLayoutRef.current = rowLayout;
     timeToYMapRef.current = rowLayout.timeToY;
     sortedTimeYRef.current = rowLayout.sortedTimeY;
+
+    // 行の位置が変わったら(攻撃の追加・空の行を隠すの切り替えなど)、スクロールを待たずに
+    // リキャスト行とスマホのフェーズ表示を今の行の位置で合わせ直す(どちらもふだんはスクロール時にしか更新されない)
+    useEffect(() => {
+        syncRecastRow();
+        syncMobilePhaseLabel();
+    }, [rowLayout, syncRecastRow, syncMobilePhaseLabel]);
 
     const handleAddClick = useCallback((time: number, e: React.MouseEvent) => {
         // 進捗記録モード中はクリックを横取りして到達点を記録（既存の配置/追加には入らない）

@@ -41,7 +41,7 @@ interface MobileTimelineRowProps {
     eventIndex?: number;
     /** true の場合、下部区切り線を出さない(同時刻の複数カードのうち最後以外) */
     hideBottomDivider?: boolean;
-    /** 行の高さ (pixelsPerSecond) */
+    /** カード 1 枚の高さ (px)。呼び出し側が rowLayout の 1 段の高さを渡す */
     rowHeight?: number;
     /** 軽減アイコン専用行に横並びで入りきる最大アイコン数(画面幅から算出、呼び出し側が渡す)。
      * あふれた分は折り返さず「+N」バッジにする(2026-08-13ユーザー要望=行の高さが固定コマの
