@@ -22,8 +22,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 ## 現在の状態 (次セッションはここから読む)
 ### 🟢 2026-09-04 X OGPカード不具合 = デプロイ済(`280da74d`)。診断=`docs/.private/2026-09-04-housing-ogp-card-x-timing-fix.md`。**残=実機確認のみ**: 次の新規登録ツイートで一発で出るか(出なければ登録→通知の間隔を空ける方向)。既存壊れは `?x=1` で貼り直し。⚠フロント変更デプロイ後は CF「すべてパージ」必須([[reference_cf_cache_housing_ogp_pages]])。
-### 🔴 次セッション最優先 = 同じ秒に3つ以上の攻撃+行の高さ可変(LoPo本体)。ブランチ `feat/multi-attack-rows`(origin/main `504ff28e` から・**未push**)。設計書=`docs/superpowers/specs/2026-09-26-multi-attack-rows-design.md` / 計画=`docs/superpowers/plans/2026-09-26-multi-attack-rows.md` / 決定ログ=`docs/.private/2026-09-26-multi-attack-rows.md`。subagent-driven 実行中。**再開は進捗台帳 `.superpowers/sdd/2026-09-26-multi-attack-rows/progress.md` から(gitignore・完了タスクを再実行しない)**。
-  2026-09-27 夜中に中断: Task1〜3 実装済(`c1328c17`/`edb4001d`/`9f1a41f4`)・Task3 のレビュー結果は台帳を見る → Task4(FFLogs 同秒ずらし廃止)→ Task4b(スマホの帯を最後のカードまで・台帳の Ruling 参照)→ Task5(build+全テスト+画面確認。下書き=台帳と同じフォルダの `mar_verify.cjs`)→ 全体レビュー → masaya ローカル確認(行の高さ・アイコンの大きさを見て決める)→ main マージ・push・CF パージ。次の段階=同秒内の並べ替え(表示順と計算順を揃えるか masaya と決める)。
+### 🔴 次セッション最優先 = 同じ秒に3つ以上の攻撃+行の高さ可変(LoPo本体)。ブランチ `feat/multi-attack-rows`(origin/main `504ff28e` から・**未push**)。設計書=`docs/superpowers/specs/2026-09-26-multi-attack-rows-design.md` / 計画=`docs/superpowers/plans/2026-09-26-multi-attack-rows.md` / 決定ログ=`docs/.private/2026-09-26-multi-attack-rows.md`。進捗台帳=`.superpowers/sdd/2026-09-26-multi-attack-rows/progress.md`(gitignore・判断の記録つき)。
+  2026-09-28: 実装・レビュー・自動の画面確認まで完了(Task1〜5+最終レビュー修正 `81cdd67f`・ビルド OK・全テスト OK・画面確認 41/42 OK。残り 1 件=スマホの帯が最後のカードから 2px はみ出す=以前からの定数・今回の範囲外で保留)。**残=ユーザーのローカル確認**(行の高さ 25px・アイコン 24px・「+」の出方・3 つ以上の行の見え方)→ OK なら全テスト再実行 → main マージ・push・CF パージ。行の高さは定数 1 か所で変えられるが、アイコンの大きさは横(レーン幅)も一緒に直す必要あり。次の段階=同秒内の並べ替え(表示順と計算順を揃えるか要相談)。
 ### 🟡 MIL-SPEC 全体ブラッシュアップ = ブランチ `milspec-polish`(最新状況は**そのブランチの TODO.md**)。モック最新 v11(`docs/.private/theme-refs/milspec-v11-full.html`)の masaya FB 待ち。SP1 は main マージ済み(2026-09-08)。
 ### 🟢 2026-09-26 サイドバー最下部の余白(Ko-fi 停止中)= 本番反映済(`504ff28e`)・masaya 確認済。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = デプロイ済。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。設計書2026-08-28。
