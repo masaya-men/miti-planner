@@ -22,9 +22,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 ## 現在の状態 (次セッションはここから読む)
 ### 🟢 2026-09-04 X OGPカード不具合 = デプロイ済(`280da74d`)。診断=`docs/.private/2026-09-04-housing-ogp-card-x-timing-fix.md`。**残=実機確認のみ**: 次の新規登録ツイートで一発で出るか(出なければ登録→通知の間隔を空ける方向)。既存壊れは `?x=1` で貼り直し。⚠フロント変更デプロイ後は CF「すべてパージ」必須([[reference_cf_cache_housing_ogp_pages]])。
-### 🔴 次セッション最優先 = 同じ秒に3つ以上の攻撃+行の高さ可変(LoPo本体)。ブランチ `feat/multi-attack-rows`(origin/main `504ff28e` から・**未push**)。設計書=`docs/superpowers/specs/2026-09-26-multi-attack-rows-design.md` / 計画=`docs/superpowers/plans/2026-09-26-multi-attack-rows.md` / 決定ログ=`docs/.private/2026-09-26-multi-attack-rows.md`。進捗台帳=`.superpowers/sdd/2026-09-26-multi-attack-rows/progress.md`(gitignore・判断の記録つき)。
-  2026-09-28: 実装・レビュー・自動の画面確認まで完了(Task1〜5+最終レビュー修正 `81cdd67f`・ビルド OK・全テスト OK・画面確認 41/42 OK。残り 1 件=スマホの帯が最後のカードから 2px はみ出す=以前からの定数・今回の範囲外で保留)。**残=ユーザーのローカル確認**(行の高さ 25px・アイコン 24px・「+」の出方・3 つ以上の行の見え方)→ OK なら全テスト再実行 → main マージ・push・CF パージ。行の高さは定数 1 か所で変えられるが、アイコンの大きさは横(レーン幅)も一緒に直す必要あり。次の段階=同秒内の並べ替え(表示順と計算順を揃えるか要相談)。
-### 🟡 MIL-SPEC 全体ブラッシュアップ = ブランチ `milspec-polish`(最新状況は**そのブランチの TODO.md**)。モック最新 v11(`docs/.private/theme-refs/milspec-v11-full.html`)の masaya FB 待ち。SP1 は main マージ済み(2026-09-08)。
+### 🟢 2026-09-28 同じ秒に3つ以上の攻撃+行の高さ可変(1段25px・アイコン24px・「+」ボタン・FFLogs同秒ずらし廃止・スマホの帯を最後のカードの下端−1pxまで)= 本番反映済(ブランチ `feat/multi-attack-rows` を origin/main へ fast-forward)。ユーザーのローカル確認OK。設計書=`docs/superpowers/specs/2026-09-26-multi-attack-rows-design.md` / 決定ログ=`docs/.private/2026-09-26-multi-attack-rows.md`。**残**=CF パージ後の実機確認。次の段階=①同秒内の並べ替え(表示順と計算順を揃えるか要相談)②行を足したときの見せ方(今は2段階に変化・原因未調査/なめらかに広げる案=要相談)。
+### 🟡 MIL-SPEC 全体ブラッシュアップ = ブランチ `milspec-polish`(最新状況は**そのブランチの TODO.md**)。モック最新 v11(`docs/.private/theme-refs/milspec-v11-full.html`)の masaya FB 待ち。SP1 は main マージ済み(2026-09-08)。⚠ **手元の main は origin/main と分岐**(MIL-SPEC の未公開 13 件あり・origin/main 側に Ko-fi 停止/サイドバー余白/同秒3攻撃)。MIL-SPEC を push する前に必ず origin/main を取り込むこと(手元 main をそのまま push しない)。
 ### 🟢 2026-09-26 サイドバー最下部の余白(Ko-fi 停止中)= 本番反映済(`504ff28e`)・masaya 確認済。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = デプロイ済。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。設計書2026-08-28。
 ### 🟡 8/20〜9/1 ハウジング一括=本番反映済(詳細 COMPLETED)。**残**: Discord告知下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)/ Allmarksリージョン混在は未検証 / カード最適化Phase1・「トップ」再タップスクロール=実機確認のみ。
@@ -52,7 +51,7 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 ## 既知の残課題 (中規模・別セッションで設計から)
 
-- **🆕 vitestフルスイート実行が途中で本当にハングする(2026-08-10再確認)**: パイプ起因の見かけ上のハングとは別に、ドキュメント通りの安全な手順(ファイル出力・`npm test`)でも約160秒CPU消費した後に完全停止する実例を確認。[[reference_vitest_vmthreads_hang]]記載の「vmThreadsが実タイマーを残すテストを終了できない」根因が未解決のまま残っている(App Check起因分は対処済だが別のテストが同様の実タイマーを残している疑い)。ユーザー判断: 今すぐ深掘りせず別セッションで着手。対応時は該当メモリの「未解決の根治候補(forks復活/Node LTS降格)」から検討。それまでは全体テストの代わりに変更ファイルに絞った実行で運用する。
+- **🆕 vitestフルスイート実行が途中で本当にハングする(2026-08-10再確認)**: パイプ起因の見かけ上のハングとは別に、ドキュメント通りの安全な手順(ファイル出力・`npm test`)でも約160秒CPU消費した後に完全停止する実例を確認。[[reference_vitest_vmthreads_hang]]記載の「vmThreadsが実タイマーを残すテストを終了できない」根因が未解決のまま残っている(App Check起因分は対処済だが別のテストが同様の実タイマーを残している疑い)。ユーザー判断: 今すぐ深掘りせず別セッションで着手。対応時は該当メモリの「未解決の根治候補(forks復活/Node LTS降格)」から検討。それまでは全体テストの代わりに変更ファイルに絞った実行で運用する。**2026-09-28 追記**: 全体テストは約24秒で完走するようになった(3回)が、`src/__tests__/housing/HousingerPage.test.tsx` が全体実行のときだけ時々 1 件落ちる(2回・毎回違うテスト・単独では 23/23 合格・自動選択の非同期待ち不足の疑い)。
 - **#59 残(公開後OK)**: ESLint `react-hooks/rules-of-hooks` 有効化(hook違反→React #310 本番真っ白・tscは通る) / 「表を展開する」click 394ms(全展開レンダー) / メモリ振れ600-800MB(DOM 73,060個・将来 react-window)
 - **🅿 スプシ取込スマホ/「あらゆるスプシ対応」=棚上げ(2026-06-30 ユーザー判断・スマホは取込UI非表示化済)**: 残設計課題=②フェーズ貼付ガイド/未貼付ガード ③全選択コピーの図解(優先低)。[[project_spreadsheet_mobile_grid]]
 - **旧・同期バグ2件**: 同期不安定(2026-04-29 軽減配置→タブ閉→別端末で消失等の複合症状) / ローカル削除→即同期で復活(2026-04-28 `deletePlan` の `_deletedPlanIds` 漏れ)
