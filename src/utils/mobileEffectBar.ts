@@ -37,9 +37,6 @@ export const MOBILE_EFFECT_BAR_FAST_SCROLL_MIN_PX_MS = 0.2;
 /** 初速最大時の「進む」アニメの長さ(ms)。 */
 export const MOBILE_EFFECT_BAR_SLOWDOWN_MAX_MS = 400;
 
-/** 帯の終点を、最後にかかるカードの上端からこの分だけ下げる(アイコン 1 個分)。PC の旧実装(1 秒 = 50px 行)と同じ値。 */
-const ICON_BOTTOM_PADDING = 24;
-
 /**
  * 行の一番上(=時刻)から、静止時に軽減アイコンが実際に表示される高さ(2行目)までのオフセット。
  * MobileTimelineRow.tsx の1行目は「時間+攻撃名」に加えて右端へ「元ダメ→(極小)/軽減率+軽減後
@@ -209,18 +206,18 @@ export function computeMobileEffectBars(args: ComputeMobileEffectBarsArgs): Mobi
       effectiveEndTime = Math.min(effectiveEndTime, barrierOverwrittenAt.get(mit.id)!);
     }
 
-    const startY = getMappedY(mit.time);
-    // 最後にかかる秒に攻撃が複数あるとき(スマホは攻撃 1 つにつきカード 1 枚が縦に並ぶ)は、
-    // 帯をその秒の最後のカードまで伸ばす(PC の「最後にかかる秒の行の下端まで」と同じ意味)
+    const top = Math.round(getMappedY(mit.time)) + MOBILE_EFFECT_BAR_ICON_ROW_OFFSET;
+    // 帯の下端 = 最後にかかる秒の「最後のカード」の下端 − 1px(次の秒のカードには入らない。PC の「行の下端 − 1」と同じ)。
+    // その秒に攻撃が複数あるとき(スマホは攻撃 1 つにつきカード 1 枚が縦に並ぶ)は、その秒の最後のカードまで伸ばす。
     const endCards = Math.max(1, eventsByTime.get(effectiveEndTime)?.length ?? 0);
-    const endY = getMappedY(effectiveEndTime) + (endCards - 1) * pixelsPerSecond + ICON_BOTTOM_PADDING;
-    const height = Math.max(0, Math.round(endY - startY));
+    const bottom = getMappedY(effectiveEndTime) + endCards * pixelsPerSecond - 1;
+    const height = Math.max(0, Math.round(bottom - top));
 
     results.push({
       id: mit.id,
       ownerId: mit.ownerId,
       iconUrl: def.icon,
-      top: Math.round(startY) + MOBILE_EFFECT_BAR_ICON_ROW_OFFSET,
+      top,
       height,
       slotIndex,
       colors: getColorClasses(def.jobId, mit.ownerId),

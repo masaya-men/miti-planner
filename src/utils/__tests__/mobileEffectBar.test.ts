@@ -43,9 +43,10 @@ describe('computeMobileEffectBars', () => {
     expect(result[0].slotIndex).toBe(0);
     // top = (5 - 0) * 60 + MOBILE_EFFECT_BAR_ICON_ROW_OFFSET(38) = 338
     expect(result[0].top).toBe(338);
-    // effectiveEndTime = 5 + 10 - 1 = 14, endY = (14-0)*60 + 24 = 864, height = 864 - 300 = 564
-    // (heightにはICON_ROW_OFFSETは乗らない。startY/endYどちらもオフセット無しの値のまま差分を取るため)
-    expect(result[0].height).toBe(564);
+    // effectiveEndTime = 5 + 10 - 1 = 14。帯の下端 = 14 秒のカードの下端 − 1 = 14*60 + 60 - 1 = 899
+    // (次の秒のカードには入らない。PC の「行の下端 − 1」と同じ)→ height = 899 - 338 = 561
+    expect(result[0].top + result[0].height).toBe(14 * 60 + 60 - 1);
+    expect(result[0].height).toBe(561);
   });
 
   it('最後にかかる秒に攻撃が複数(カードが縦に並ぶ)なら、帯はその秒の最後のカードまで伸ばす', () => {
@@ -58,8 +59,9 @@ describe('computeMobileEffectBars', () => {
       timelineMitigations: [mit],
       mitigationDefs: [def],
     });
-    // カード 1 枚のときの高さは 564(上のテスト)。3 枚なら 2 枚分(2 × 60px)伸びる
-    expect(result[0].height).toBe(564 + 120);
+    // 帯の下端 = 14 秒の 3 枚目のカードの下端 − 1。カード 1 枚のときの高さは 561(上のテスト)。3 枚なら 2 枚分(2 × 60px)伸びる
+    expect(result[0].top + result[0].height).toBe(14 * 60 + 3 * 60 - 1);
+    expect(result[0].height).toBe(561 + 120);
     // 始点は変わらない
     expect(result[0].top).toBe(338);
   });
@@ -85,8 +87,8 @@ describe('computeMobileEffectBars', () => {
     });
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe('p1');
-    // reprisal と同じ幾何: effectiveEndTime = 14, endY = 14*60+24 = 864, startY = 5*60 = 300 → height 564
-    expect(result[0].height).toBe(564);
+    // reprisal と同じ幾何: effectiveEndTime = 14, 下端 = 14*60 + 60 - 1 = 899, top = 5*60 + 38 = 338 → height 561
+    expect(result[0].height).toBe(561);
   });
 
   it('reuses the same slot for non-overlapping mitigations from the same owner', () => {
@@ -175,8 +177,8 @@ describe('computeMobileEffectBars', () => {
       mitigationDefs: [def],
     });
     // durationEndTime=19 は可視行でないため、8(直前の可視行)に切り詰め。
-    // endY = (8-0)*60 + 24 = 504, top = 0, height = 504
-    expect(result[0].height).toBe(504);
+    // 下端 = 8*60 + 60 - 1 = 539, top = 0 + 38 = 38, height = 501
+    expect(result[0].height).toBe(501);
   });
 
   describe('shieldExhaustedAt (バリア吸収し切りで棒を早期終了)', () => {
@@ -189,8 +191,8 @@ describe('computeMobileEffectBars', () => {
         mitigationDefs: [def],
         shieldExhaustedAt: new Map([['p1', 10]]),
       });
-      // effectiveEndTime = min(29, 10) = 10 → endY = 10*60 + 24 = 624, top = 0
-      expect(result[0].height).toBe(624);
+      // effectiveEndTime = min(29, 10) = 10 → 下端 = 10*60 + 60 - 1 = 659, top = 38 → height 621
+      expect(result[0].height).toBe(621);
     });
 
     it('shieldExhaustedAt が無ければ本来の duration いっぱい', () => {
@@ -201,8 +203,8 @@ describe('computeMobileEffectBars', () => {
         timelineMitigations: [mit],
         mitigationDefs: [def],
       });
-      // effectiveEndTime = 29 → endY = 29*60 + 24 = 1764
-      expect(result[0].height).toBe(1764);
+      // effectiveEndTime = 29 → 下端 = 29*60 + 60 - 1 = 1799, top = 38 → height 1761
+      expect(result[0].height).toBe(1761);
     });
 
     it('def.isShield でない軽減は shieldExhaustedAt があってもクランプしない', () => {
@@ -214,7 +216,7 @@ describe('computeMobileEffectBars', () => {
         mitigationDefs: [def],
         shieldExhaustedAt: new Map([['p1', 10]]),
       });
-      expect(result[0].height).toBe(1764);
+      expect(result[0].height).toBe(1761);
     });
 
     it('バリア + 持続 % 軽減の複合スキル(ホーリズム相当)は shieldExhaustedAt があってもクランプしない', () => {
@@ -228,8 +230,8 @@ describe('computeMobileEffectBars', () => {
         mitigationDefs: [def],
         shieldExhaustedAt: new Map([['p1', 3]]),
       });
-      // クランプされない: effectiveEndTime = 19 → endY = 19*60 + 24 = 1164
-      expect(result[0].height).toBe(1164);
+      // クランプされない: effectiveEndTime = 19 → 下端 = 19*60 + 60 - 1 = 1199, top = 38 → height 1161
+      expect(result[0].height).toBe(1161);
     });
 
     it('尽きた時刻が本来の終端より後なら短くならない(Math.min)', () => {
@@ -241,8 +243,8 @@ describe('computeMobileEffectBars', () => {
         mitigationDefs: [def],
         shieldExhaustedAt: new Map([['p1', 50]]),
       });
-      // effectiveEndTime = min(9, 50) = 9 → endY = 9*60 + 24 = 564
-      expect(result[0].height).toBe(564);
+      // effectiveEndTime = min(9, 50) = 9 → 下端 = 9*60 + 60 - 1 = 599, top = 38 → height 561
+      expect(result[0].height).toBe(561);
     });
 
     it('別インスタンスの尽き時刻は流用しない(id 一致のみ)', () => {
@@ -254,7 +256,7 @@ describe('computeMobileEffectBars', () => {
         mitigationDefs: [def],
         shieldExhaustedAt: new Map([['other-id', 10]]),
       });
-      expect(result[0].height).toBe(1764);
+      expect(result[0].height).toBe(1761);
     });
   });
 
@@ -268,8 +270,8 @@ describe('computeMobileEffectBars', () => {
         mitigationDefs: [def],
         barrierOverwrittenAt: new Map([['p1', 8]]),
       });
-      // effectiveEndTime = min(29, 8) = 8 → endY = 8*60 + 24 = 504
-      expect(result[0].height).toBe(504);
+      // effectiveEndTime = min(29, 8) = 8 → 下端 = 8*60 + 60 - 1 = 539, top = 38 → height 501
+      expect(result[0].height).toBe(501);
     });
   });
 
