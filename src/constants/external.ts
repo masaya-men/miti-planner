@@ -9,5 +9,8 @@ export const LOPO_X_URL = 'https://x.com/lopoly_app';
 /** 開発者個人の X アカウント */
 export const DEVELOPER_X_URL = 'https://x.com/men_masaya';
 
+/** スクウェア・エニックス「ファイナルファンタジーXIV 著作物利用条件」(寄付受付終了の出典) */
+export const SE_MATERIAL_TERMS_URL = 'https://support.jp.square-enix.com/rule.php?id=5381&la=0&tag=authc';
+
 /** LoPo Discord コミュニティの招待リンク */
 export const DISCORD_INVITE_URL = 'https://discord.gg/z7uypbJSnN';

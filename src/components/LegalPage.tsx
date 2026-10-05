@@ -10,7 +10,7 @@ import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { ArrowLeft, Sun, Moon } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
-import { LOPO_X_URL, DEVELOPER_X_URL, DISCORD_INVITE_URL } from '../constants/external';
+import { LOPO_X_URL, DEVELOPER_X_URL, DISCORD_INVITE_URL, SE_MATERIAL_TERMS_URL } from '../constants/external';
 
 /** i18nキーで「,」区切りのリストを配列に変換 */
 export function splitItems(value: string): string[] {
@@ -112,7 +112,10 @@ export const PrivacyPolicyPage: React.FC = () => {
 
             {/* 1c. 支援(Ko-fi)について — 受付終了の告知のみ(過去の支援者情報の扱いを説明するため残す) */}
             <Section title={t('legal.privacy_section1c_title')}>
-                <p className="text-app-2xl text-app-text-muted mb-3">{t('legal.privacy_section1c_body')}</p>
+                <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.privacy_section1c_body')}</p>
+                <p className="text-app-2xl text-app-text-muted">
+                    <InlineLink href="/about">{t('legal.privacy_section1c_about_link')}</InlineLink>
+                </p>
             </Section>
 
             {/* 2. 集めない情報 */}
@@ -274,6 +277,14 @@ export const AboutPage: React.FC = () => {
                 <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.about_data_body')}</p>
                 <p className="text-app-2xl text-app-text-muted">
                     <InlineLink href="/privacy">{t('legal.about_data_link')}</InlineLink>
+                </p>
+            </Section>
+
+            {/* 寄付について — SE 著作物利用条件 2026-09-16 改訂で寄付募集が商用・営利目的と明記されたための受付終了の経緯 */}
+            <Section title={t('legal.about_donation_title')}>
+                <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.about_donation_body')}</p>
+                <p className="text-app-2xl text-app-text-muted">
+                    <InlineLink href={SE_MATERIAL_TERMS_URL} external>{t('legal.about_donation_source')}</InlineLink>
                 </p>
             </Section>
         </LegalPageLayout>
