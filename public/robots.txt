@@ -1,3 +1,34 @@
+# 方針 (2026-10-05): 検索・AI 回答用のボットは通す / AI の学習専用ボットは止める。
+# Cloudflare AI Crawl Control 側のブロックと二重化している。
+# X / Discord / Facebook 等の共有カード用ボット (Twitterbot, facebookexternalhit 等) は止めない (下の * ルールで通る)。
+
+# --- AI 学習専用ボット: 全拒否 ---
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: anthropic-ai
+User-agent: CCBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Bytespider
+User-agent: Meta-ExternalAgent
+User-agent: cohere-training-data-crawler
+User-agent: Amazonbot
+User-agent: FacebookBot
+Disallow: /
+
+# --- AI 検索・回答用ボット: 明示的に許可 (/api/ と /dev/ は * と同じく除外) ---
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+Allow: /
+Allow: /api/og
+Disallow: /api/
+Disallow: /dev/
+
+# --- その他すべて ---
 User-agent: *
 Allow: /
 # OGP 画像生成エンドポイントは Twitter/X や Discord 等のクローラーが取得する必要があるため明示的に許可。

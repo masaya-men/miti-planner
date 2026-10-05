@@ -20,7 +20,7 @@
       "source": "/icons/:path",
       "destination": "https://firebasestorage.googleapis.com/v0/b/lopo-7793e.firebasestorage.app/o/icons%2F:path?alt=media"
     },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/app.html" }
   ],
   "crons": [
     { "path": "/api/cron/cleanup-og-images", "schedule": "0 3 * * 0" },

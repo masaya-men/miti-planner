@@ -11,9 +11,9 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#000000" />
   <title>LoPo | FF14 軽減表 & ハウジング | スマホ対応</title>
-  <meta name="description" content="FF14の軽減表をスマホでも作れるシミュレーター。タイムライン上に軽減スキルを配置して、ダメージを自動計算。作成したプランはURLで共有できます。" />
+  <meta name="description" content="FF14をもっと便利に、もっと楽しくするツールを集めたポータルサイト。スマホでも作れる軽減表、ハウジングを探して見学できるハウジングツアー、PS5用ストラテジーボードのコピペ支援ツールなどを公開しています。" />
   <meta property="og:title" content="LoPo | FF14 軽減表 & ハウジング | スマホ対応" />
-  <meta property="og:description" content="FF14の軽減表をスマホでも作れるシミュレーター。タイムライン上に軽減スキルを配置して、ダメージを自動計算。作成したプランはURLで共有できます。" />
+  <meta property="og:description" content="FF14をもっと便利に、もっと楽しくするツールを集めたポータルサイト。スマホでも作れる軽減表、ハウジングを探して見学できるハウジングツアー、PS5用ストラテジーボードのコピペ支援ツールなどを公開しています。" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://lopoly.app" />
   <meta property="og:image" content="https://lopoly.app/ogp.png" />
@@ -21,8 +21,43 @@
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="LoPo | FF14 軽減表 & ハウジング | スマホ対応" />
-  <meta name="twitter:description" content="FF14の軽減表をスマホでも作れるシミュレーター。タイムライン上に軽減スキルを配置して、ダメージを自動計算。作成したプランはURLで共有できます。" />
+  <meta name="twitter:description" content="FF14をもっと便利に、もっと楽しくするツールを集めたポータルサイト。スマホでも作れる軽減表、ハウジングを探して見学できるハウジングツアー、PS5用ストラテジーボードのコピペ支援ツールなどを公開しています。" />
   <meta name="twitter:image" content="https://lopoly.app/ogp.png" />
+  <!-- seo:top-only:start
+    ここから seo:top-only:end までは「トップページ (/) 専用」。ビルド時に vite.config.ts の
+    topOnlySeoPlugin がこの区間を取り除いた app.html を作り、/ 以外の全ページはそちらを返す
+    (vercel.json の最後の rewrite)。canonical を全ページに付けると「全ページがトップの複製」と
+    検索エンジンに伝わってしまうため、必ずこの区間の中に置くこと。 -->
+  <link rel="canonical" href="https://lopoly.app/" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://lopoly.app/#organization",
+        "name": "LoPo",
+        "url": "https://lopoly.app/",
+        "logo": "https://lopoly.app/icons/pwa-512x512.png",
+        "sameAs": ["https://x.com/lopoly_app", "https://discord.gg/z7uypbJSnN"]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://lopoly.app/#website",
+        "name": "LoPo",
+        "url": "https://lopoly.app/",
+        "description": "FF14をもっと便利に、もっと楽しくするツールを集めたポータルサイト。スマホでも作れる軽減表、ハウジングを探して見学できるハウジングツアー、PS5用ストラテジーボードのコピペ支援ツールなどを公開しています。",
+        "inLanguage": ["ja", "en", "ko", "zh-Hans", "zh-Hant"],
+        "publisher": { "@id": "https://lopoly.app/#organization" }
+      }
+    ]
+  }
+  </script>
+  <!-- seo:top-only:end -->
+  <style>
+    /* JS が動く環境ではボット向けの静的本文を隠す (React の描画で置き換わるまでのチラつき防止)。 */
+    .js .seo-static { display: none; }
+  </style>
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,6 +66,8 @@
 
 <body>
   <script>
+    // JS が動く環境の印 (ボット向け静的本文 .seo-static を隠す)
+    document.documentElement.classList.add('js');
     // テーマフラッシュ防止: Reactより前にlocalStorageからテーマを適用
     try {
       var d = JSON.parse(localStorage.getItem('theme-storage') || '{}');
@@ -51,7 +88,44 @@
     // フォントサイズスケーリング（最小6px保証）
     document.documentElement.setAttribute('data-font-scale', '1');
   </script>
-  <div id="root"></div>
+  <div id="root"><!-- seo:top-only:start
+    JS を動かさない AI 検索ボット向けの本文 (トップページ専用・app.html では除去)。
+    人間の画面には出ない (.js で非表示 → React の初回描画で #root ごと置き換わる)。
+    内容は実際のトップページと同じ事柄だけを書くこと (ボットにだけ別のことを見せない)。 -->
+    <div class="seo-static">
+      <header>
+        <h1>LoPo</h1>
+        <p>FF14 をもっと便利に、もっと楽しくするツールのポータルサイト(非公式ファンツール)</p>
+      </header>
+      <main>
+        <section>
+          <h2><a href="/miti">軽減表(軽減プランナー)</a></h2>
+          <p>零式・絶などのレイドの軽減表を作るツール。スマホでも作れて、仲間と一緒に編集することもできます。</p>
+        </section>
+        <section>
+          <h2><a href="/housing">ハウジングツアー</a></h2>
+          <p>みんなが登録した FF14 のハウジングを探して、見学ルートを組んで巡れるサービス。自分の家を登録して紹介することもできます。</p>
+        </section>
+        <section>
+          <h2><a href="/stgy">ユーティリティ(PS5 ストラテジーボード貼り付けアシスト)</a></h2>
+          <p>PS5 でプレイしている人が、リモートプレイを使ってストラテジーボードの共有コードをゲームにコピペするための支援ツール。</p>
+        </section>
+      </main>
+      <footer>
+        <nav>
+          <ul>
+            <li><a href="/privacy">プライバシーポリシー</a></li>
+            <li><a href="/terms">利用規約</a></li>
+            <li><a href="/commercial">特定商取引法に基づく表記</a></li>
+            <li><a href="https://x.com/lopoly_app" rel="me">公式 X (@lopoly_app)</a></li>
+            <li><a href="https://discord.gg/z7uypbJSnN">Discord</a></li>
+          </ul>
+        </nav>
+        <p>当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。</p>
+        <p>© SQUARE ENIX CO., LTD. All Rights Reserved.</p>
+      </footer>
+    </div>
+    <!-- seo:top-only:end --></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 

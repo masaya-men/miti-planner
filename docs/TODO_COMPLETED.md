@@ -2153,3 +2153,5 @@ build PASS、 vitest 636/636 PASS、 tsc clean、 Playwright 6/6 PASS (5 viewpor
 ## 2026-06-30 (現在の状態から退避)
 - **スプシ取込のレベル/ステータス未反映バグ修正(本番済・実機OK)**: `commitImportedPlan` が currentLevel/stats を Lv100固定だったのを `levelForContent` 単一窓口新設+`buildImportedPartyMembers` level必須化で修正。敵対監査2回(計9体)でデータ消失なし確認。後始末(ファイアウォール7878/`/clip`撤去)も完了。報告者対応クローズ。
 - **スマホ スプシ取込(textarea貼付方式・本番済だが実シート取込不可)→棚上げ**: iOS readText ブロック回避で textarea+onChange 採用、useIsMobile 追加、スマホ縦リスト割当。但し有名スプシ(grid)は実機で取り込めず=構造的に不可と判明し、スマホ取込UI自体を非表示化+「あらゆるスプシ対応」を本命ゴールとして棚上げ(TODO.md 棚上げセクション参照)。spec=2026-06-30-mobile-spreadsheet-import-paste-design.md ほか。
+
+- 2026-09-26 サイドバー最下部の余白(Ko-fi 停止中)= 本番反映済(`504ff28e`)・masaya 確認済。(2026-10-05 TODO.md から移動)

@@ -85,6 +85,27 @@ function resolveHousingBuild(): string {
 }
 const HOUSING_BUILD = resolveHousingBuild()
 
+// AI 検索ボット対策 (2026-10-05): index.html の <!-- seo:top-only:start --> 〜 <!-- seo:top-only:end -->
+// (canonical / JSON-LD / ボット向け静的本文) はトップページ (/) 専用。その区間を取り除いた app.html を
+// 追加出力し、/ 以外の全ページは vercel.json の最後の rewrite で app.html を返す。
+// generateBundle で出すので vite-plugin-pwa の precache にも載る。
+function topOnlySeoPlugin(): Plugin {
+  const REGION = /<!-- seo:top-only:start[\s\S]*?<!-- seo:top-only:end -->/g
+  return {
+    name: 'top-only-seo',
+    apply: 'build',
+    enforce: 'post',
+    generateBundle(_options, bundle) {
+      const index = bundle['index.html']
+      if (!index || index.type !== 'asset') this.error('top-only-seo: index.html が bundle に無い')
+      const html = String(index.source)
+      const regions = html.match(REGION)?.length ?? 0
+      if (regions !== 2) this.error(`top-only-seo: seo:top-only 区間が ${regions} 個 (head と #root の 2 個のはず)`)
+      this.emitFile({ type: 'asset', fileName: 'app.html', source: html.replace(REGION, '') })
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   // build 時テキスト置換の定数注入 (dev/build/vitest すべてに適用)。
@@ -116,6 +137,7 @@ export default defineConfig({
     entranceSaverPlugin(),
     routeSaverPlugin(),
     react(),
+    topOnlySeoPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icons/favicon-192x192.png', 'icons/pwa-192x192.png', 'icons/pwa-512x512.png'],
