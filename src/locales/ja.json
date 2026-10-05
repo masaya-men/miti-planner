@@ -770,6 +770,7 @@
         "discord": "Discord（質問・要望・バグ報告）",
         "x_official": "X（Twitter）",
         "about": "運営について",
+        "contact": "お問い合わせ",
         "legal": "法的情報"
     },
     "legal": {
@@ -893,6 +894,7 @@
             "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
             "disclaimer": "当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。",
             "about": "運営について",
+            "contact": "お問い合わせ",
             "privacy": "プライバシーポリシー",
             "terms": "利用規約",
             "share": "共有する",

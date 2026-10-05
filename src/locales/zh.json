@@ -758,6 +758,7 @@
         "discord": "Discord（提问、反馈与 Bug 报告）",
         "x_official": "X (Twitter)",
         "about": "关于我们",
+        "contact": "联系我们",
         "legal": "法律信息"
     },
     "legal": {
@@ -879,6 +880,7 @@
             "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
             "disclaimer": "本网站为非官方粉丝工具，与株式会社史克威尔艾尼克斯无关。",
             "about": "关于我们",
+            "contact": "联系我们",
             "privacy": "隐私政策",
             "terms": "使用条款",
             "share": "分享",

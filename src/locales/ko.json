@@ -758,6 +758,7 @@
         "discord": "Discord (질문, 피드백, 버그)",
         "x_official": "X (Twitter)",
         "about": "운영 정보",
+        "contact": "문의",
         "legal": "법적 고지"
     },
     "legal": {
@@ -879,6 +880,7 @@
             "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
             "disclaimer": "이 사이트는 비공식 팬 도구이며 SQUARE ENIX와 관련이 없습니다.",
             "about": "운영 정보",
+            "contact": "문의",
             "privacy": "개인정보 처리방침",
             "terms": "이용약관",
             "share": "공유하기",

@@ -3,7 +3,7 @@
  * /privacy と /terms で共用するコンポーネント
  */
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
@@ -18,8 +18,8 @@ export function splitItems(value: string): string[] {
 }
 
 /** セクション: タイトル + 本文 */
-const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-    <section className="mb-8">
+const Section: React.FC<{ title: string; id?: string; children: React.ReactNode }> = ({ title, id, children }) => (
+    <section id={id} className="mb-8 scroll-mt-6">
         <h2 className="text-app-2xl-plus font-bold mb-3 border-b border-app-border pb-1">{title}</h2>
         {children}
     </section>
@@ -230,6 +230,14 @@ export const AboutPage: React.FC = () => {
     React.useEffect(() => {
         document.title = t('app.page_title_about');
     }, [t]);
+    // フッターの「お問い合わせ」(/about#contact) から来たときは問い合わせ欄へ移動する。
+    // LegalPageLayout の scrollTo(0,0) (子の effect が先に走る) の後に実行される。
+    const { hash } = useLocation();
+    React.useEffect(() => {
+        if (!hash) return;
+        const id = requestAnimationFrame(() => document.getElementById(hash.slice(1))?.scrollIntoView());
+        return () => cancelAnimationFrame(id);
+    }, [hash]);
     return (
         <LegalPageLayout>
             <h1 className="text-app-4xl font-bold mb-1">{t('legal.about_title')}</h1>
@@ -264,7 +272,7 @@ export const AboutPage: React.FC = () => {
             </Section>
 
             {/* お問い合わせ */}
-            <Section title={t('legal.about_contact_title')}>
+            <Section id="contact" title={t('legal.about_contact_title')}>
                 <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.about_contact_body')}</p>
                 <LinkList items={[
                     { href: DISCORD_INVITE_URL, label: t('legal.about_contact_discord'), external: true },

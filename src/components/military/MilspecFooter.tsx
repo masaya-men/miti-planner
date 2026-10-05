@@ -165,6 +165,7 @@ export const MilspecFooter: React.FC = () => {
             <a href="/privacy" onClick={() => setLegalOpen(false)}>{t('footer.privacy_policy')}</a>
             <a href="/terms" onClick={() => setLegalOpen(false)}>{t('footer.terms')}</a>
             <a href="/about" onClick={() => setLegalOpen(false)}>{t('footer.about')}</a>
+            <a href="/about#contact" onClick={() => setLegalOpen(false)}>{t('footer.contact')}</a>
           </div>
         </>
       )}

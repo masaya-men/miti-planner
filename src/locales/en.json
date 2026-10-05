@@ -766,6 +766,7 @@
         "discord": "Discord (Questions, Feedback & Bugs)",
         "x_official": "X (Twitter)",
         "about": "About",
+        "contact": "Contact",
         "legal": "Legal"
     },
     "legal": {
@@ -889,6 +890,7 @@
             "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
             "disclaimer": "This is an unofficial fan tool and is not affiliated with SQUARE ENIX CO., LTD.",
             "about": "About",
+            "contact": "Contact",
             "privacy": "Privacy Policy",
             "terms": "Terms of Service",
             "share": "Share",

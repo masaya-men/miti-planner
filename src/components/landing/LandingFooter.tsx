@@ -118,6 +118,9 @@ export function LandingFooter() {
             <FooterLink href="/about">
               {t('portal.footer.about')}
             </FooterLink>
+            <FooterLink href="/about#contact">
+              {t('portal.footer.contact')}
+            </FooterLink>
             <FooterLink href="/privacy">
               {t('portal.footer.privacy')}
             </FooterLink>

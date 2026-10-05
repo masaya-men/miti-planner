@@ -29,6 +29,7 @@ export const AppFooter: React.FC = () => {
                                 <a href="/privacy" className="block px-4 py-2.5 text-app-base text-app-text hover:bg-app-surface2 transition-colors" onClick={() => setFooterLegalOpen(false)}>{t('footer.privacy_policy')}</a>
                                 <a href="/terms" className="block px-4 py-2.5 text-app-base text-app-text hover:bg-app-surface2 transition-colors" onClick={() => setFooterLegalOpen(false)}>{t('footer.terms')}</a>
                                 <a href="/about" className="block px-4 py-2.5 text-app-base text-app-text hover:bg-app-surface2 transition-colors" onClick={() => setFooterLegalOpen(false)}>{t('footer.about')}</a>
+                                <a href="/about#contact" className="block px-4 py-2.5 text-app-base text-app-text hover:bg-app-surface2 transition-colors" onClick={() => setFooterLegalOpen(false)}>{t('footer.contact')}</a>
                             </div>
                         </>
                     )}
