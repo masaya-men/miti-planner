@@ -796,7 +796,7 @@
         "privacy_section1d_title": "Discord 사용자 ID 처리 방법",
         "privacy_section1d_body": "LoPo는 Discord 사용자 ID를 서버 측에 보관된 비밀 키와 결합해 HMAC-SHA256으로 해시화한 값만 저장합니다. 원본 Discord ID는 LoPo의 데이터베이스에 일절 저장되지 않으며 LoPo 운영자를 포함한 LoPo 내부에서도 복원할 수 없습니다. 이 해시화로 인해 만일 LoPo의 데이터가 유출되더라도 이용자의 Discord 계정이 특정될 위험은 극히 낮습니다.",
         "privacy_section1c_title": "후원(Ko-fi)에 대해",
-        "privacy_section1c_body": "이전에는 Ko-fi를 통해 자발적인 후원을 받았으나 현재는 접수를 종료했습니다. 과거 후원으로 전달된 정보(후원자 이름·이메일 주소·메시지·금액·일시)는 Ko-fi와 PayPal 관리 화면에만 남으며, 운영자가 별도로 보관·기록하지 않습니다.",
+        "privacy_section1c_body": "이전에는 Ko-fi를 통해 자발적인 후원을 받았으나 현재는 접수를 종료하고 Ko-fi 계정도 삭제했습니다. 과거 후원의 결제 기록(후원자 이름·이메일 주소·금액·일시)은 PayPal 관리 화면에만 남으며, 운영자가 별도로 보관·기록하지 않습니다.",
         "privacy_section2_title": "2. 수집하지 않는 정보",
         "privacy_section2_body": "본 서비스는 다음 정보를 수집하지 않습니다:",
         "privacy_section2_items": "이메일 주소(Discord로 로그인 시에는 서버에 도달하지 않습니다),실명· 주소· 전화번호 등 개인 정보,결제 정보(카드 번호 등의 결제 정보),게임 내 캐릭터 이름 또는 플레이 데이터",

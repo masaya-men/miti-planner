@@ -796,7 +796,7 @@
         "privacy_section1d_title": "Discord 使用者 ID 的處理方式",
         "privacy_section1d_body": "LoPo 僅儲存 Discord 使用者 ID 與伺服器端金鑰結合後的 HMAC-SHA256 雜湊值。原始 Discord ID 不會儲存在 LoPo 資料庫中，包括 LoPo 運營者在內的任何人都無法從內部恢復。通過這種雜湊化，即使 LoPo 資料發生洩露，使用者的 Discord 賬號被識別的風險也極低。",
         "privacy_section1c_title": "關於支援（Ko-fi）",
-        "privacy_section1c_body": "我們此前通過 Ko-fi 接受自願支援，目前已終止接受。過去支援所產生的資訊（支援者姓名、電子郵件地址、留言、金額、日期時間）僅保留在 Ko-fi 和 PayPal 的管理介面中，營運者不會另行儲存或記錄。",
+        "privacy_section1c_body": "我們此前通過 Ko-fi 接受自願支援，目前已終止接受，Ko-fi 帳戶也已刪除。過去支援的付款紀錄（支援者姓名、電子郵件地址、金額、日期時間）僅保留在 PayPal 的管理介面中，營運者不會另行儲存或記錄。",
         "privacy_section2_title": "2. 我們不收集的資訊",
         "privacy_section2_body": "本服務不收集以下任何資訊：",
         "privacy_section2_items": "電子郵件地址（通過 Discord 登入時不會到達我們的伺服器）,真實姓名、家庭住址、電話號碼或其他個人資訊,支付資訊（卡號等支付資訊）,遊戲內角色名稱或遊玩資料",
