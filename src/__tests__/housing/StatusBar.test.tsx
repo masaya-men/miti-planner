@@ -59,9 +59,9 @@ describe('StatusBar', () => {
     expect(terms).toHaveAttribute('target', '_blank');
   });
 
-  // 2026-09-16: FFXIV著作物利用条件が「寄付を募ること」を商用・営利目的に明記しているため
-  // /support (Ko-fi) 導線を停止(SUPPORT_PAGE_ENABLED=false・constants/external.ts)。
-  it('does not render the Ko-fi link while support page is disabled', () => {
+  // 2026-10-05: FFXIV著作物利用条件が「寄付を募ること」を商用・営利目的に明記しているため、
+  // Ko-fi 支援導線は撤去済み。復活していないことの回帰テスト。
+  it('does not render the Ko-fi link', () => {
     renderStatusBar();
     expect(screen.queryByRole('link', { name: 'Ko-fiで応援' })).not.toBeInTheDocument();
   });

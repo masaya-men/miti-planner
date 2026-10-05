@@ -21,6 +21,11 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lopoly.app/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
     <loc>https://lopoly.app/privacy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
@@ -29,10 +34,5 @@
     <loc>https://lopoly.app/terms</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://lopoly.app/support</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
   </url>
 </urlset>

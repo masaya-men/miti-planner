@@ -3,13 +3,11 @@
  * 複数コンポーネントから参照するため、個別ファイルへのハードコードを避けてここに集約する。
  */
 
-/** Ko-fi 支援ページ */
-export const KOFI_URL = 'https://ko-fi.com/lopoly';
+/** LoPo 公式 X アカウント */
+export const LOPO_X_URL = 'https://x.com/lopoly_app';
 
-/**
- * 2026-09-16 masaya 判断: FFXIV著作物利用条件(https://support.jp.square-enix.com/rule.php?id=5381)
- * 1条(1)が「商用・営利目的」に「寄付を募ること」を明記しているため、/support (Ko-fi 支援導線) を
- * 一時停止する。コードは残置(削除しない)。**再開判断もこのフラグの値も、必ずユーザー確認の上で変更する
- * こと(このコメントを読んだだけで true に戻さない)**。
- */
-export const SUPPORT_PAGE_ENABLED = false;
+/** 開発者個人の X アカウント */
+export const DEVELOPER_X_URL = 'https://x.com/men_masaya';
+
+/** LoPo Discord コミュニティの招待リンク */
+export const DISCORD_INVITE_URL = 'https://discord.gg/z7uypbJSnN';

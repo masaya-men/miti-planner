@@ -28,7 +28,7 @@ export const AppFooter: React.FC = () => {
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-[999] bg-app-surface border border-app-border rounded-lg shadow-lg py-2 min-w-[220px]">
                                 <a href="/privacy" className="block px-4 py-2.5 text-app-base text-app-text hover:bg-app-surface2 transition-colors" onClick={() => setFooterLegalOpen(false)}>{t('footer.privacy_policy')}</a>
                                 <a href="/terms" className="block px-4 py-2.5 text-app-base text-app-text hover:bg-app-surface2 transition-colors" onClick={() => setFooterLegalOpen(false)}>{t('footer.terms')}</a>
-                                <a href="/commercial" className="block px-4 py-2.5 text-app-base text-app-text hover:bg-app-surface2 transition-colors" onClick={() => setFooterLegalOpen(false)}>{t('footer.commercial')}</a>
+                                <a href="/about" className="block px-4 py-2.5 text-app-base text-app-text hover:bg-app-surface2 transition-colors" onClick={() => setFooterLegalOpen(false)}>{t('footer.about')}</a>
                             </div>
                         </>
                     )}

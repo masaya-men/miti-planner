@@ -10,6 +10,7 @@ import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { ArrowLeft, Sun, Moon } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
+import { LOPO_X_URL, DEVELOPER_X_URL, DISCORD_INVITE_URL } from '../constants/external';
 
 /** i18nキーで「,」区切りのリストを配列に変換 */
 export function splitItems(value: string): string[] {
@@ -109,13 +110,9 @@ export const PrivacyPolicyPage: React.FC = () => {
                 <p className="text-app-2xl text-app-text-muted">{t('legal.privacy_section1d_body')}</p>
             </Section>
 
-            {/* 1c. 支援(Ko-fi)を通じて受け取る情報 */}
+            {/* 1c. 支援(Ko-fi)について — 受付終了の告知のみ(過去の支援者情報の扱いを説明するため残す) */}
             <Section title={t('legal.privacy_section1c_title')}>
                 <p className="text-app-2xl text-app-text-muted mb-3">{t('legal.privacy_section1c_body')}</p>
-                <SubSection title={t('legal.privacy_section1c_kofi_title')} items={splitItems(t('legal.privacy_section1c_kofi_items'))} />
-                <SubSection title={t('legal.privacy_section1c_paypal_title')} items={splitItems(t('legal.privacy_section1c_paypal_items'))} />
-                <SubSection title={t('legal.privacy_section1c_promise_title')} items={splitItems(t('legal.privacy_section1c_promise_items'))} />
-                <SubSection title={t('legal.privacy_section1c_tips_title')} items={splitItems(t('legal.privacy_section1c_tips_items'))} />
             </Section>
 
             {/* 2. 集めない情報 */}
@@ -140,7 +137,6 @@ export const PrivacyPolicyPage: React.FC = () => {
                 />
                 <Note text={t('legal.privacy_section4_analytics_note')} />
                 <Note text={t('legal.privacy_section4_recaptcha_note')} />
-                <Note text={t('legal.privacy_section4_kofi_note')} />
             </Section>
 
             {/* 5. Cookieとブラウザへのデータ保存 */}
@@ -200,6 +196,91 @@ export const PrivacyPolicyPage: React.FC = () => {
 };
 
 // ========================================
+// 運営について
+// ========================================
+
+/** ページ内リンク(内部は同一タブ、外部は別タブ) */
+const InlineLink: React.FC<{ href: string; external?: boolean; children: React.ReactNode }> = ({ href, external, children }) => (
+    <a
+        href={href}
+        {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        className="underline underline-offset-2 hover:text-app-text"
+    >
+        {children}
+    </a>
+);
+
+/** リンク付き箇条書き */
+const LinkList: React.FC<{ items: { href: string; label: string; external?: boolean }[] }> = ({ items }) => (
+    <ul className="list-disc list-inside space-y-1 text-app-2xl text-app-text-muted">
+        {items.map((item) => (
+            <li key={item.href + item.label}>
+                <InlineLink href={item.href} external={item.external}>{item.label}</InlineLink>
+            </li>
+        ))}
+    </ul>
+);
+
+export const AboutPage: React.FC = () => {
+    useCanonicalUrl('/about');
+    const { t } = useTranslation();
+    React.useEffect(() => {
+        document.title = t('app.page_title_about');
+    }, [t]);
+    return (
+        <LegalPageLayout>
+            <h1 className="text-app-4xl font-bold mb-1">{t('legal.about_title')}</h1>
+            <p className="text-app-lg text-app-text-muted mb-6">{t('legal.about_last_updated')}</p>
+
+            {/* LoPo とは */}
+            <Section title={t('legal.about_intro_title')}>
+                <p className="text-app-2xl text-app-text-muted">{t('legal.about_intro_body')}</p>
+            </Section>
+
+            {/* 提供しているツール */}
+            <Section title={t('legal.about_tools_title')}>
+                <LinkList items={[
+                    { href: '/miti', label: t('legal.about_tool_miti') },
+                    { href: '/housing', label: t('legal.about_tool_housing') },
+                    { href: '/stgy', label: t('legal.about_tool_stgy') },
+                ]} />
+            </Section>
+
+            {/* 運営者 */}
+            <Section title={t('legal.about_operator_title')}>
+                <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.about_operator_body')}</p>
+                <LinkList items={[{ href: DEVELOPER_X_URL, label: t('legal.about_developer_x_label'), external: true }]} />
+            </Section>
+
+            {/* 公式アカウント */}
+            <Section title={t('legal.about_official_title')}>
+                <LinkList items={[
+                    { href: LOPO_X_URL, label: t('legal.about_official_x_label'), external: true },
+                    { href: DISCORD_INVITE_URL, label: t('legal.about_official_discord_label'), external: true },
+                ]} />
+            </Section>
+
+            {/* お問い合わせ */}
+            <Section title={t('legal.about_contact_title')}>
+                <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.about_contact_body')}</p>
+                <LinkList items={[
+                    { href: DISCORD_INVITE_URL, label: t('legal.about_contact_discord'), external: true },
+                    { href: LOPO_X_URL, label: t('legal.about_contact_xdm'), external: true },
+                ]} />
+            </Section>
+
+            {/* データの扱い */}
+            <Section title={t('legal.about_data_title')}>
+                <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.about_data_body')}</p>
+                <p className="text-app-2xl text-app-text-muted">
+                    <InlineLink href="/privacy">{t('legal.about_data_link')}</InlineLink>
+                </p>
+            </Section>
+        </LegalPageLayout>
+    );
+};
+
+// ========================================
 // 利用規約
 // ========================================
 
@@ -250,55 +331,6 @@ export const TermsPage: React.FC = () => {
                 <p className="text-app-2xl text-app-text-muted mt-4 mb-2">{t('legal.terms_section8_contact')}</p>
                 <BulletList items={splitItems(t('legal.terms_section8_contact_items'))} />
             </Section>
-        </LegalPageLayout>
-    );
-};
-
-// ========================================
-// 特定商取引法に基づく表記
-// ========================================
-
-/** テーブル行 */
-const InfoRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-    <tr className="border-b border-app-border">
-        <th className="text-left text-app-2xl font-semibold py-2.5 pr-4 align-top whitespace-nowrap w-[140px]">{label}</th>
-        <td className="text-app-2xl text-app-text-muted py-2.5">{value}</td>
-    </tr>
-);
-
-export const CommercialDisclosurePage: React.FC = () => {
-    useCanonicalUrl('/commercial');
-    const { t } = useTranslation();
-    React.useEffect(() => {
-        document.title = t('app.page_title_commercial');
-    }, [t]);
-    const rows: [string, string][] = [
-        [t('legal.commercial_seller'), t('legal.commercial_seller_value')],
-        [t('legal.commercial_address'), t('legal.commercial_address_value')],
-        [t('legal.commercial_phone'), t('legal.commercial_phone_value')],
-        [t('legal.commercial_email'), t('legal.commercial_email_value')],
-        [t('legal.commercial_manager'), t('legal.commercial_manager_value')],
-        [t('legal.commercial_service'), t('legal.commercial_service_value')],
-        [t('legal.commercial_price'), t('legal.commercial_price_value')],
-        [t('legal.commercial_fees'), t('legal.commercial_fees_value')],
-        [t('legal.commercial_payment'), t('legal.commercial_payment_value')],
-        [t('legal.commercial_payment_timing'), t('legal.commercial_payment_timing_value')],
-        [t('legal.commercial_delivery'), t('legal.commercial_delivery_value')],
-        [t('legal.commercial_refund'), t('legal.commercial_refund_value')],
-    ];
-
-    return (
-        <LegalPageLayout>
-            <h1 className="text-app-4xl font-bold mb-1">{t('legal.commercial_title')}</h1>
-            <p className="text-app-lg text-app-text-muted mb-6">{t('legal.commercial_last_updated')}</p>
-
-            <table className="w-full">
-                <tbody>
-                    {rows.map(([label, value], i) => (
-                        <InfoRow key={i} label={label} value={value} />
-                    ))}
-                </tbody>
-            </table>
         </LegalPageLayout>
     );
 };

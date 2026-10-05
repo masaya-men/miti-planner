@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
@@ -67,7 +66,6 @@ import { commitNewPlan } from '../lib/commitNewPlan';
 import { useCollabSessionStore } from '../store/useCollabSessionStore';
 import { setLastOpened } from '../utils/lastOpenedStore';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
-import { SUPPORT_PAGE_ENABLED } from '../constants/external';
 
 // ─────────────────────────────────────────────
 // Props
@@ -1582,9 +1580,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     )}
 
                     {/* バックアップ/復元ボタン
-                        下の Ko-fi 支援リンクが非表示(SUPPORT_PAGE_ENABLED=false)の間はこれが最下部になるので、下に余白を取る。 */}
+                        サイドバー最下部になるので、下に余白を取る。 */}
                     {!multiSelect.isEnabled && (
-                        <div className={clsx('shrink-0 px-3 pt-1', SUPPORT_PAGE_ENABLED ? 'pb-0' : 'pb-3')}>
+                        <div className={'shrink-0 px-3 pt-1 pb-3'}>
                             <div className="border-t border-glass-border w-full mb-1" />
                             <div className="flex gap-1">
                                 <button
@@ -1602,20 +1600,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     {isOpen ? t('backup.restore_button') : null}
                                 </button>
                             </div>
-                        </div>
-                    )}
-
-                    {/* Ko-fi 支援リンク — サイドバー最下部
-                        2026-09-16: MUL 対応で /support 停止中は導線ごと非表示(constants/external.ts 参照)。 */}
-                    {!multiSelect.isEnabled && SUPPORT_PAGE_ENABLED && (
-                        <div className="shrink-0 flex flex-col items-center py-3">
-                            <div className="border-t border-app-border w-full mb-2" />
-                            <Link
-                                to="/support"
-                                className="text-app-sm text-app-text-muted hover:text-app-text transition-colors font-scale-exclude"
-                            >
-                                {(isOpen || fullWidth) ? <>☕ {t('footer.support')}</> : '☕'}
-                            </Link>
                         </div>
                     )}
                 </div>

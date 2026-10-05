@@ -11,9 +11,9 @@
 ## 運営・規約
 
 - [トップページ](https://lopoly.app/)
+- [運営について](https://lopoly.app/about): 運営者(個人で開発・運営)・公式アカウント・お問い合わせ先(Discord / X の DM)
 - [プライバシーポリシー](https://lopoly.app/privacy)
 - [利用規約](https://lopoly.app/terms)
-- [特定商取引法に基づく表記](https://lopoly.app/commercial)
 - [公式 X (@lopoly_app)](https://x.com/lopoly_app)
 - [Discord](https://discord.gg/z7uypbJSnN)
 

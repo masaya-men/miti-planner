@@ -95,6 +95,11 @@ function topOnlySeoPlugin(): Plugin {
     name: 'top-only-seo',
     apply: 'build',
     enforce: 'post',
+    // __BUILD_DATE__ = ビルド日 (JST・YYYY-MM-DD)。本番は push ごとにビルドされるので「サイトの最終更新日」として正しい。
+    transformIndexHtml(html) {
+      const buildDate = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' })
+      return html.replaceAll('__BUILD_DATE__', buildDate)
+    },
     generateBundle(_options, bundle) {
       const index = bundle['index.html']
       if (!index || index.type !== 'asset') this.error('top-only-seo: index.html が bundle に無い')
