@@ -7,6 +7,7 @@ import { buildHousingerShortSlug } from './housingerProfile.js';
 import { formatFullHousingAddress } from './formatHousingAddress.js';
 import { regionForDC } from '../../data/housing/dcServerMap.js';
 import type { HousingArea } from '../../types/housing.js';
+import { isHousingSnapPostUrl, normalizeXStatusUrl } from './housingSnapCreator.js';
 
 const SITE_ORIGIN = 'https://lopoly.app';
 /** 設計書 §5 で確定。ここだけ書き換えれば全ツイートに反映される。 */
@@ -28,6 +29,12 @@ export interface NewListingNotificationInput {
   apartmentBuilding?: 1 | 2;
   roomNumber?: number;
   postUrl?: string | null;
+  /** 登録時の投稿元一覧。postUrl が X 以外でも、ここに X のポストがあれば引用先に使う */
+  sourcePostUrls?: string[];
+  /** HOUSING SNAP のページから拾った作者本人の X ポスト (api/housing/_housingSnapCreator.ts) */
+  creatorPostUrl?: string | null;
+  /** HOUSING SNAP のページから拾った作者名 (X ポストが無いときの文字クレジット用) */
+  creatorName?: string | null;
   housingerUid: string;
   housingerName: string | null;
   housingerProfilePublished: boolean;
@@ -63,9 +70,21 @@ export function buildNewListingNotification(input: NewListingNotificationInput):
   const listingUrl = `${SITE_ORIGIN}/housing/listing/${input.listingId}`;
 
   // --- 本文ツイート (Web Intent。URL はすべて text= に入れる) ---
+  // X は最後の URL で引用/カードを決める。作者の手柄を取らないよう、作者の X ポストがあれば必ずそれを最後に置く
+  // (投稿元が HOUSING SNAP 等でも、登録データ or ページ内に X ポストがあればそちらを引用)。
+  const quoteUrl = [input.creatorPostUrl, input.postUrl, ...(input.sourcePostUrls ?? [])]
+    .map((u) => (typeof u === 'string' ? normalizeXStatusUrl(u) : null))
+    .find((u): u is string => !!u) ?? null;
+  const lastUrl = quoteUrl ?? input.postUrl ?? null;
+  // HOUSING SNAP は twitter:card="photo"(X で廃止済み)でカードが出ず LoPo のカードが目立つ。
+  // 引用もできないときは、本文に作者名を出して作者を先に見せる。
+  const creatorName = (input.creatorName ?? '').replace(/[#@]/g, '').trim();
+  const credit = !quoteUrl && lastUrl && isHousingSnapPostUrl(lastUrl) && creatorName
+    ? `\n制作: ${creatorName}さん（HOUSING SNAP）`
+    : '';
   // リード文とハッシュタグの間は改行 + 空白行 1 行 (2026-08-31 実機テスト後のユーザー指定)。
-  const bodyLines = [`${BODY_LEAD}\n\n${HASHTAGS}`, listingUrl];
-  if (input.postUrl) bodyLines.push(input.postUrl);
+  const bodyLines = [`${BODY_LEAD}${credit}\n\n${HASHTAGS}`, listingUrl];
+  if (lastUrl) bodyLines.push(lastUrl);
   const bodyText = bodyLines.join('\n');
   const bodyIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(bodyText)}`;
 
@@ -97,6 +116,7 @@ export function buildNewListingNotification(input: NewListingNotificationInput):
   // --- 確認用 ---
   const confirmLines = [`物件ページ  ${listingUrl}`];
   if (input.postUrl) confirmLines.push(`投稿元      ${input.postUrl}`);
+  if (quoteUrl && quoteUrl !== normalizeXStatusUrl(input.postUrl ?? '')) confirmLines.push(`引用先      ${quoteUrl}`);
 
   const discordContent =
     `🏠 新着ハウジング: ${heading}\n`

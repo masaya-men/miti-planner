@@ -21,6 +21,8 @@ import { bumpPublicVersionTx } from './_publicVersion.js';
 import { buildNewListingNotification } from '../../src/lib/housing/newListingTweet.js';
 import { sendHousingNewListingNotification } from '../../src/lib/discordWebhook.js';
 import { warmListingCard } from './_warmListingCard.js';
+import { fetchHousingSnapCreator } from './_housingSnapCreator.js';
+import { isHousingSnapPostUrl, normalizeXStatusUrl } from '../../src/lib/housing/housingSnapCreator.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -217,6 +219,16 @@ export default async function handler(req: any, res: any) {
                 ? L.sourcePostUrls[0]
                 : null);
 
+        // 2026-10-12: 投稿元が HOUSING SNAP で登録データに X のポストが無いときは、ページから作者本人の
+        // X ポスト (引用先) と作者名を拾う (HOUSING SNAP はカードが出ず LoPo が目立ってしまうため)。
+        const sourcePostUrls: string[] = Array.isArray(L.sourcePostUrls)
+          ? L.sourcePostUrls.filter((u: unknown): u is string => typeof u === 'string')
+          : [];
+        const hasXPost = [postUrl, ...sourcePostUrls].some((u) => !!u && normalizeXStatusUrl(u));
+        const creator = postUrl && !hasXPost && isHousingSnapPostUrl(postUrl)
+          ? await fetchHousingSnapCreator(postUrl)
+          : { postUrl: null, name: null };
+
         const { discordContent } = buildNewListingNotification({
           listingId: createdId,
           title: typeof L.title === 'string' ? L.title : null,
@@ -231,6 +243,9 @@ export default async function handler(req: any, res: any) {
           apartmentBuilding: L.apartmentBuilding === 1 || L.apartmentBuilding === 2 ? L.apartmentBuilding : undefined,
           roomNumber: typeof L.roomNumber === 'number' ? L.roomNumber : undefined,
           postUrl,
+          sourcePostUrls,
+          creatorPostUrl: creator.postUrl,
+          creatorName: creator.name,
           housingerUid: uid,
           housingerName: P && typeof P.displayName === 'string' ? P.displayName : null,
           housingerProfilePublished: !!(P && P.isPublished === true && P.isModerationHidden !== true),
