@@ -3508,7 +3508,9 @@ select.housing-input option {
     gap: 8px;
     flex-wrap: wrap;
 }
-.housing-detail-report-actions button {
+.housing-detail-report-actions button,
+.housing-detail-report-actions a {
+    text-decoration: none;
     padding: 8px 14px;
     border-radius: var(--housing-input-radius-sm);
     background: var(--housing-input-bg-strong);
@@ -3517,7 +3519,8 @@ select.housing-input option {
     cursor: pointer;
     font-size: var(--housing-text-base);
 }
-.housing-detail-report-actions button:hover {
+.housing-detail-report-actions button:hover,
+.housing-detail-report-actions a:hover {
     background: var(--housing-input-bg-hover);
 }
 /* 左列: 写真ギャラリー (ヒーロー) のみ。 地図は右レール最下部へ移動した。 */
@@ -6967,6 +6970,23 @@ select.housing-input option {
    付かないため既定 opacity:1 のまま = 従来挙動。 */
 .housing-listing-card-media[data-blur-pending] .housing-listing-card-img {
   opacity: 0;
+}
+/* 運営非表示の家 (ハウジンガーページ専用): 非リンク・画像なしの無地タイル + 横向きの帯。 */
+.housing-listing-card-admin-hidden { cursor: default; }
+.housing-listing-card-admin-hidden:hover {
+  transform: none;
+  border-color: var(--housing-panel-border);
+  box-shadow: none;
+}
+.housing-listing-card-admin-hidden-band {
+  position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+  padding: 8px 12px;
+  background: var(--housing-panel-bg-solid);
+  border-top: 1px solid var(--housing-divider);
+  border-bottom: 1px solid var(--housing-divider);
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm); font-weight: 600;
+  text-align: center;
 }
 /* 画像に被らない常設フッター (主アクション) */
 .housing-listing-card-footer {

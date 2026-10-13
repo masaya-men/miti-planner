@@ -218,6 +218,11 @@ export interface HousingListing {
    */
   lastConfirmedAt: number;
   isHidden: boolean;
+  /**
+   * 運営が非表示にした家のしるし ('listing'=家1件ごと / 'owner'=その人の家まとめて)。
+   * 存在する間は家主の自己解除 (resolve-report) 不可。 クライアント書き込み不可 (firestore.rules)。
+   */
+  adminHiddenScope?: 'listing' | 'owner';
   reportCount: number;
 
   /**
@@ -331,6 +336,8 @@ export interface HousingerProfile {
   snsUrl: string | null;
   isPublished: boolean;
   isModerationHidden: boolean;
+  /** 運営が「この人の家を全部非表示」 にしている間 true (API のみ書き込み)。 */
+  listingsModerationHidden?: boolean;
   reportCount: number;
   createdAt: number;
   updatedAt: number;

@@ -1720,6 +1720,10 @@
             "empty": "通報あり物件はありません",
             "view": "物件を見る",
             "hide": "非表示にする",
+            "restore": "복원",
+            "restore_confirm": "이 하우징의 숨김을 해제할까요?",
+            "restore_success": "복원했습니다",
+            "admin_hidden_badge": "운영 숨김",
             "hiding": "...",
             "hide_confirm": "この物件を非表示にしますか?",
             "hide_success": "非表示にしました",
@@ -1754,7 +1758,16 @@
             "title": "하우징어 신고",
             "description": "신고된 하우징어 프로필을 확인하고 필요하면 강제 비공개 처리합니다. 자동 숨김 기준이 없으므로 사람이 직접 판단합니다. 강제 비공개 중인 프로필은 신고 수가 0건이 되어도 목록에 계속 표시됩니다.",
             "empty": "신고된 프로필이 없습니다",
-            "hide": "강제 비공개",
+            "hide": "프로필 비공개",
+            "hide_hint": "이름·아이콘·자기소개만 숨깁니다. 하우징은 숨겨지지 않습니다.",
+            "hide_listings": "이 사람의 하우징 전부 숨기기",
+            "hide_listings_hint": "현재 등록된 하우징을 모두 목록·검색에서 숨깁니다. 본인은 되돌릴 수 없습니다. 새 하우징 등록은 가능합니다.",
+            "hide_listings_confirm": "이 사람의 현재 하우징을 모두 숨길까요? 본인은 되돌릴 수 없습니다.",
+            "hide_listings_success": "하우징 {{count}}건을 숨겼습니다",
+            "restore_listings": "하우징 숨김 해제",
+            "restore_listings_confirm": "이 사람의 하우징 숨김을 해제할까요? (개별로 숨긴 하우징은 해제되지 않습니다)",
+            "restore_listings_success": "하우징 {{count}}건을 복원했습니다",
+            "listings_hidden_badge": "하우징 전체 숨김 중",
             "hiding": "...",
             "hide_confirm": "이 하우징어를 강제로 비공개 처리하시겠습니까?",
             "hide_success": "강제 비공개 처리했습니다",
@@ -1897,7 +1910,8 @@
             "addressPrivate": "주소는 비공개입니다",
             "privateListing": "비공개 하우징",
             "new_badge": "NEW",
-            "new_badge_aria": "신규 하우징"
+            "new_badge_aria": "신규 하우징",
+            "admin_hidden_band": "규약 위반으로 비공개 처리되었습니다"
         },
         "tray": {
             "title": "투어 트레이",
@@ -2780,6 +2794,8 @@
                 "dismiss": "잘못된 신고예요 (기각)"
             },
             "escalated_note": "한 번 복귀된 후 다시 신고되었습니다. 기각이나 수정으로는 되돌릴 수 없습니다. Discord에서 이의를 제기해 주세요 (운영자 확인)",
+            "admin_hidden_note": "운영진에 의해 비공개 처리되었습니다. 내용을 수정하여 다시 게시하고 싶으신 경우 LoPo Discord로 문의해 주세요.",
+            "admin_hidden_cta": "LoPo Discord 열기",
             "later": "나중에"
         },
         "favorites": {

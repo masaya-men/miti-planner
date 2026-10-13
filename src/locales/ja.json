@@ -1759,6 +1759,10 @@
             "empty": "通報あり物件はありません",
             "view": "物件を見る",
             "hide": "非表示にする",
+            "restore": "元に戻す",
+            "restore_confirm": "この家の非表示を元に戻しますか?",
+            "restore_success": "元に戻しました",
+            "admin_hidden_badge": "運営非表示",
             "hiding": "...",
             "hide_confirm": "この物件を非表示にしますか?",
             "hide_success": "非表示にしました",
@@ -1793,7 +1797,16 @@
             "title": "ハウジンガー通報",
             "description": "通報があったハウジンガープロフィールを確認し、 必要なら強制非公開にします。 自動非表示のしきい値は無いため、 人の目で判断します。 強制非公開中のプロフィールは、 通報が0件になっても一覧に残り続けます。",
             "empty": "通報ありプロフィールはありません",
-            "hide": "強制非公開にする",
+            "hide": "プロフィールを非公開にする",
+            "hide_hint": "名前・アイコン・自己紹介だけを隠します。家は隠れません",
+            "hide_listings": "この人の家を全部非表示にする",
+            "hide_listings_hint": "今ある家をすべて一覧・検索から隠します。本人は戻せません。新しい家の登録はできます",
+            "hide_listings_confirm": "この人の今ある家をすべて非表示にします。本人は戻せません。よろしいですか?",
+            "hide_listings_success": "{{count}}件の家を非表示にしました",
+            "restore_listings": "家の非表示を元に戻す",
+            "restore_listings_confirm": "この人の家の非表示を元に戻しますか? (個別に非表示にした家は戻りません)",
+            "restore_listings_success": "{{count}}件の家を元に戻しました",
+            "listings_hidden_badge": "家を全部非表示中",
             "hiding": "...",
             "hide_confirm": "このハウジンガーを強制非公開にしますか?",
             "hide_success": "強制非公開にしました",
@@ -1953,7 +1966,8 @@
             "addressPrivate": "住所は非公開です",
             "privateListing": "非公開のハウジング",
             "new_badge": "NEW",
-            "new_badge_aria": "新着のハウジング"
+            "new_badge_aria": "新着のハウジング",
+            "admin_hidden_band": "規約違反のため非表示になりました"
         },
         "tray": {
             "title": "ツアートレイ",
@@ -2836,6 +2850,8 @@
                 "dismiss": "これは誤り（却下）"
             },
             "escalated_note": "一度復帰した後に再び報告されました。 却下や編集では戻せません。 Discord で異議申し立て (運営確認) してください",
+            "admin_hidden_note": "運営により非表示になっています。内容を修正して再掲載を希望する場合は LoPo Discord でご連絡ください",
+            "admin_hidden_cta": "LoPo Discord を開く",
             "later": "あとで"
         },
         "favorites": {

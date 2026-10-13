@@ -3,7 +3,7 @@
  *
  * GET /api/housing/public?action=version                 → { version } (s-maxage=30)
  * GET /api/housing/public?action=gallery&v=N             → { listings } (s-maxage=86400)
- * GET /api/housing/public?action=housinger&uid=U&v=N     → { listings } (s-maxage=86400)
+ * GET /api/housing/public?action=housinger&uid=U&v=N     → { listings, hiddenListings } (s-maxage=86400)
  * GET /api/housing/public?action=listing&id=X&v=N        → { listing, peers } (s-maxage=86400) / 404
  *
  * - App Check 不要 (匿名が触れる公開データ・tweet-meta 型)。Cloudflare がキャッシュする。
@@ -17,7 +17,7 @@
  * /api/housing) で従来どおり /api/housing/public を維持 (Cloudflare キャッシュ境界も不変)。
  */
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
-import { projectPublicListing } from '../../src/lib/housing/publicListingProjection.js';
+import { projectPublicListing, projectHiddenListing } from '../../src/lib/housing/publicListingProjection.js';
 
 const COLLECTION = 'housing_listings';
 const PUBLIC_VISIBILITY = ['public', 'unlisted'];
@@ -77,18 +77,35 @@ export async function publicWindowHandler(req: any, res: any) {
       if (!uid || typeof uid !== 'string') {
         return res.status(400).json({ error: 'uid required' });
       }
-      const snap = await db.collection(COLLECTION)
-        .where('ownerUid', '==', uid)
-        .where('visibility', 'in', PUBLIC_VISIBILITY)
-        .where('isHidden', '==', false)
-        .orderBy('createdAt', 'desc')
-        .select(...SELECT_FIELDS)
-        .get();
+      const [snap, hiddenSnap] = await Promise.all([
+        db.collection(COLLECTION)
+          .where('ownerUid', '==', uid)
+          .where('visibility', 'in', PUBLIC_VISIBILITY)
+          .where('isHidden', '==', false)
+          .orderBy('createdAt', 'desc')
+          .select(...SELECT_FIELDS)
+          .get(),
+        // 運営非表示 (adminHiddenScope あり) の家。 ハウジンガーページだけに「非表示の帯」 付きで出す。
+        // 同じ複合インデックス (ownerUid, visibility, isHidden, createdAt) で足りる。
+        db.collection(COLLECTION)
+          .where('ownerUid', '==', uid)
+          .where('visibility', 'in', PUBLIC_VISIBILITY)
+          .where('isHidden', '==', true)
+          .orderBy('createdAt', 'desc')
+          .select(...SELECT_FIELDS, 'adminHiddenScope')
+          .get(),
+      ]);
       const listings = snap.docs
         .filter((doc) => doc.data().deletedAt == null)
         .map((doc) => projectPublicListing(doc.id, doc.data()));
+      const hiddenListings = hiddenSnap.docs
+        .filter((doc) => {
+          const x = doc.data();
+          return x.deletedAt == null && !!x.adminHiddenScope;
+        })
+        .map((doc) => projectHiddenListing(doc.id, doc.data()));
       res.setHeader('Cache-Control', 'public, s-maxage=86400, max-age=86400');
-      return res.status(200).json({ listings });
+      return res.status(200).json({ listings, hiddenListings });
     }
 
     if (action === 'listing') {

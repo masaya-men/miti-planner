@@ -1755,6 +1755,10 @@
             "empty": "No reported listings",
             "view": "View listing",
             "hide": "Hide",
+            "restore": "Restore",
+            "restore_confirm": "Restore this listing?",
+            "restore_success": "Restored",
+            "admin_hidden_badge": "Hidden by admin",
             "hiding": "...",
             "hide_confirm": "Hide this listing?",
             "hide_success": "Hidden",
@@ -1789,7 +1793,16 @@
             "title": "Housinger reports",
             "description": "Review reported Housinger profiles and force-hide them if necessary. There is no automatic hide threshold, so this requires human judgment. Force-hidden profiles stay listed here even after their report count reaches zero.",
             "empty": "No reported profiles",
-            "hide": "Force-hide",
+            "hide": "Hide profile",
+            "hide_hint": "Hides only the name, icon and bio. Listings stay visible.",
+            "hide_listings": "Hide all of this person's listings",
+            "hide_listings_hint": "Hides every current listing from lists and search. The owner cannot undo this. New listings can still be registered.",
+            "hide_listings_confirm": "Hide all of this person's current listings? The owner cannot undo this.",
+            "hide_listings_success": "Hid {{count}} listing(s)",
+            "restore_listings": "Restore hidden listings",
+            "restore_listings_confirm": "Restore this person's hidden listings? (Listings hidden individually stay hidden.)",
+            "restore_listings_success": "Restored {{count}} listing(s)",
+            "listings_hidden_badge": "All listings hidden",
             "hiding": "...",
             "hide_confirm": "Force-hide this Housinger?",
             "hide_success": "Force-hidden",
@@ -1932,7 +1945,8 @@
             "addressPrivate": "Address is private",
             "privateListing": "Private housing",
             "new_badge": "NEW",
-            "new_badge_aria": "New listing"
+            "new_badge_aria": "New listing",
+            "admin_hidden_band": "Hidden for violating the rules"
         },
         "tray": {
             "title": "Tour Tray",
@@ -2815,6 +2829,8 @@
                 "dismiss": "This is a mistake (Dismiss)"
             },
             "escalated_note": "This listing was restored once already but has been reported again. Dismissing or editing it won't restore it this time — please file a dispute on Discord for operator review",
+            "admin_hidden_note": "This listing has been hidden by the operators. If you would like to fix it and have it republished, please contact us on the LoPo Discord.",
+            "admin_hidden_cta": "Open LoPo Discord",
             "later": "Later"
         },
         "favorites": {

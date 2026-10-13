@@ -34,7 +34,7 @@ import { HousingLoginPrompt } from '../HousingLoginPrompt';
 import { HousingAvatarCropModal } from '../mypage/HousingAvatarCropModal';
 import {
   getHousingerProfile,
-  getHousingerListings,
+  getHousingerListingsWithHidden,
   upsertHousingerProfile,
 } from '../../../lib/housing/housingerProfileService';
 import { isEligibleForOgRepresentative, mergeListingsForViewer } from '../../../lib/housing/listingPublish';
@@ -93,6 +93,8 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
 
   const [profile, setProfile] = useState<HousingerProfile | null>(null);
   const [listings, setListings] = useState<MockListing[]>([]);
+  // 運営非表示の家 (他人閲覧時のみ・帯カード表示専用。ツアー等の対象には使わない)。
+  const [hiddenListings, setHiddenListings] = useState<MockListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [kebabOpen, setKebabOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
@@ -126,6 +128,7 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
     // uid 切替時、 前の人の profile/一覧を保持したまま表示しない (別人のデータが一瞬出る事故防止)。
     setProfile(null);
     setListings([]);
+    setHiddenListings([]);
     setLoading(true);
     (async () => {
       try {
@@ -143,11 +146,18 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
           setLoading(false);
           return;
         }
-        const [profileResult, listingDocs] = await Promise.all([
+        const [profileResult, listingResult] = await Promise.all([
           getHousingerProfile(uid),
-          getHousingerListings(uid),
+          getHousingerListingsWithHidden(uid),
         ]);
         if (cancelled) return;
+        const listingDocs = listingResult.listings;
+        // 運営非表示の家: 一覧表示専用 (件数・帯カード)。 ツアー/OGP代表作/お気に入り等の対象 (listings) には含めない。
+        const hiddenCards = listingResult.hiddenListings
+          .map(firestoreToGalleryListing)
+          .filter((l): l is MockListing => l !== null)
+          .map((l) => ({ ...l, imageMode: 'none' as const, adminHidden: true }));
+        setHiddenListings(hiddenCards);
         const gallery = sortListingsForGallery(
           listingDocs.map(firestoreToGalleryListing).filter((l): l is MockListing => l !== null),
         );
@@ -163,6 +173,7 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
         console.warn('[HousingerPage] failed to load profile/listings', err);
         setProfile(null);
         setListings([]);
+        setHiddenListings([]);
         setLoading(false);
       }
     })();
@@ -194,10 +205,10 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
   // sort は実際には 'newest'/'oldest' しか取り得ない (共有型 BrowseSortOrder には 'random' も含むが未使用)。
   const sorted = useMemo(
     () =>
-      [...listings].sort((a, b) =>
+      [...listings, ...hiddenListings].sort((a, b) =>
         sort === 'newest' ? b.createdAt - a.createdAt : a.createdAt - b.createdAt,
       ),
-    [listings, sort],
+    [listings, hiddenListings, sort],
   );
 
   // マイページ一覧: カードの切替メニューで選んだ内容を確認モーダルへ渡す (実行はモーダルの確認で)。
@@ -593,7 +604,7 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
             </div>
 
             <div className="housinger-page-listings-col">
-              {listings.length === 0 ? (
+              {sorted.length === 0 ? (
                 <p className="housinger-page-empty">{t('housing.housinger.noListings')}</p>
               ) : (
                 <ListingGrid

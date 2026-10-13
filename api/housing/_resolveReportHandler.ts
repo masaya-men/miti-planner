@@ -63,6 +63,9 @@ export default async function handler(req: any, res: any) {
     if (data.deletedAt) return res.status(404).json({ error: 'not_found' });
     if (data.ownerUid !== uid) return res.status(403).json({ error: 'forbidden' });
 
+    // 運営が非表示にした家は家主が自己解除できない (Discord 経由で運営対応)
+    if (data.adminHiddenScope) return res.status(403).json({ error: 'admin_hidden' });
+
     const wasHidden = data.isHidden === true;
     const restoreCount = data.restoreCount || 0;
     if (wasHidden && restoreCount >= MAX_SELF_RESTORE) {

@@ -7,12 +7,15 @@
  *      — reporterUid は管理者にも返さない (家主漏洩リスクヘッジ)
  * PATCH ?resource=housing_reports&action=hide&listingId=xxx
  *      — 物件を非表示 (isHidden=true) — 管理者の明示判断用
+ * PATCH ?resource=housing_reports&action=restore&listingId=xxx
+ *      — 運営非表示の解除 (adminHiddenScope 削除 + 閾値で isHidden 再判定)
  * PATCH ?resource=housing_reports&action=dismiss-one&listingId=xxx&reportId=yyy
  *      — 個別通報レコードを 1 件却下 (該当 report 削除 + reportCount-1 + 閾値割れで isHidden=false)
  *
  * 認可: 全エンドポイント verifyAdmin による管理者チェック必須。
  * 物理削除 cron / BAN / 異議申し立てアプリ内 UI は公開後対応 (Phase 3 残)。
  */
+import { FieldValue } from 'firebase-admin/firestore';
 import { initAdmin, verifyAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
@@ -59,11 +62,22 @@ export default async function handler(req: any, res: any) {
         .orderBy('reportCount', 'desc')
         .limit(LIST_LIMIT)
         .get();
+      // 運営が個別に隠した家 (scope='listing') は通報が全部却下されて 0 件になっても一覧に残す
+      // (残さないと「元に戻す」 に到達できない)。 単一フィールド等価のため複合インデックス不要。
+      const adminHiddenSnap = await db.collection(COLLECTION)
+        .where('adminHiddenScope', '==', 'listing')
+        .limit(LIST_LIMIT)
+        .get();
+      const seenIds = new Set(snap.docs.map((d) => d.id));
+      const listingDocs = [
+        ...snap.docs,
+        ...adminHiddenSnap.docs.filter((d) => !seenIds.has(d.id) && d.data().deletedAt == null),
+      ];
 
       // 各 listing の reports サブコレクションを並列取得 (最新 20 件)。
       // reporterUid は API レスポンスに含めない (管理者 UI に出さない方針)。
       const listings = await Promise.all(
-        snap.docs.map(async (d) => {
+        listingDocs.map(async (d) => {
           const data = d.data();
           const reportsSnap = await d.ref
             .collection('reports')
@@ -98,6 +112,7 @@ export default async function handler(req: any, res: any) {
             description: data.description ?? '',
             createdAt: data.createdAt ?? 0,
             isHidden: data.isHidden === true,
+            adminHiddenScope: data.adminHiddenScope ?? null,
             reportCount: data.reportCount ?? 0,
             reports,
           };
@@ -118,9 +133,22 @@ export default async function handler(req: any, res: any) {
       if (!snap.exists) return res.status(404).json({ error: 'not_found' });
 
       if (action === 'hide') {
-        await ref.update({ isHidden: true, updatedAt: Date.now() });
+        // 運営による非表示: adminHiddenScope='listing' を付け、 家主の自己解除 (resolve-report) を禁止する。
+        await ref.update({ isHidden: true, adminHiddenScope: 'listing', updatedAt: Date.now() });
         await bumpPublicVersionDirect(db);
         return res.status(200).json({ success: true });
+      }
+      if (action === 'restore') {
+        // 運営非表示の解除: adminHiddenScope を削除し、 isHidden は通報数の閾値判定に戻す。
+        const data = snap.data() ?? {};
+        const stillHidden = (data.reportCount ?? 0) >= REPORT_AUTO_HIDE_THRESHOLD;
+        await ref.update({
+          adminHiddenScope: FieldValue.delete(),
+          isHidden: stillHidden,
+          updatedAt: Date.now(),
+        });
+        await bumpPublicVersionDirect(db);
+        return res.status(200).json({ success: true, isHidden: stillHidden });
       }
       if (action === 'dismiss-one') {
         // 個別通報レコードを 1 件却下: report doc 削除 + reportCount-1 + 閾値割れで isHidden=false。
@@ -145,7 +173,8 @@ export default async function handler(req: any, res: any) {
             reportCount: newCount,
             updatedAt: Date.now(),
           };
-          if (newCount < REPORT_AUTO_HIDE_THRESHOLD) {
+          // 運営非表示 (adminHiddenScope あり) の家は却下しても isHidden を戻さない
+          if (newCount < REPORT_AUTO_HIDE_THRESHOLD && !data.adminHiddenScope) {
             update.isHidden = false;
             if (data.isHidden === true) bumpPublicVersionTx(tx, db);
           }

@@ -30,6 +30,7 @@ interface ReportedProfile {
   snsUrl: string | null;
   isPublished: boolean;
   isModerationHidden: boolean;
+  listingsModerationHidden: boolean;
   reportCount: number;
   reports: ReportRecord[];
 }
@@ -89,6 +90,27 @@ export function AdminHousingerReports() {
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       showToast(t('admin.housinger_reports.restore_success'));
+      await fetchData();
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : 'failed', 'error');
+    } finally {
+      setPendingUid(null);
+    }
+  };
+
+  // 家まとめて非表示 / 元に戻す (hide-listings / restore-listings)。 完了時に影響件数を表示する。
+  const handleListingsBulk = async (uid: string, mode: 'hide' | 'restore') => {
+    const key = mode === 'hide' ? 'hide_listings' : 'restore_listings';
+    if (!confirm(t(`admin.housinger_reports.${key}_confirm`))) return;
+    setPendingUid(uid);
+    try {
+      const res = await apiFetch(
+        `/api/admin?resource=housinger_reports&action=${key.replace('_', '-')}&uid=${encodeURIComponent(uid)}`,
+        { method: 'PATCH' },
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json().catch(() => ({}));
+      showToast(t(`admin.housinger_reports.${key}_success`, { count: json?.affected ?? 0 }));
       await fetchData();
     } catch (e: unknown) {
       showToast(e instanceof Error ? e.message : 'failed', 'error');
@@ -173,6 +195,11 @@ export function AdminHousingerReports() {
                       {t('admin.housinger_reports.unpublished_badge')}
                     </span>
                   )}
+                  {p.listingsModerationHidden && (
+                    <span className="text-app-sm text-app-text-muted border border-app-text/20 px-2 py-0.5 rounded">
+                      {t('admin.housinger_reports.listings_hidden_badge')}
+                    </span>
+                  )}
                   {p.isModerationHidden && (
                     <span className="text-app-sm text-app-text-muted border border-app-text/20 px-2 py-0.5 rounded">
                       {t('admin.housinger_reports.hidden_badge')}
@@ -229,7 +256,7 @@ export function AdminHousingerReports() {
                   </ul>
                 )}
               </div>
-              <div className="flex flex-col gap-2 shrink-0">
+              <div className="flex flex-col gap-2 shrink-0 max-w-[260px]">
                 {!p.isModerationHidden ? (
                   <button
                     type="button"
@@ -251,6 +278,31 @@ export function AdminHousingerReports() {
                     {pendingUid === p.uid
                       ? t('admin.housinger_reports.restoring')
                       : t('admin.housinger_reports.restore')}
+                  </button>
+                )}
+                <p className="text-app-sm text-app-text-muted">{t('admin.housinger_reports.hide_hint')}</p>
+                {!p.listingsModerationHidden ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleListingsBulk(p.uid, 'hide')}
+                      disabled={pendingUid === p.uid}
+                      className="px-3 py-1 text-app-base bg-app-red text-white rounded disabled:opacity-50"
+                    >
+                      {t('admin.housinger_reports.hide_listings')}
+                    </button>
+                    <p className="text-app-sm text-app-text-muted">
+                      {t('admin.housinger_reports.hide_listings_hint')}
+                    </p>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleListingsBulk(p.uid, 'restore')}
+                    disabled={pendingUid === p.uid}
+                    className="px-3 py-1 text-app-base border border-app-text/30 rounded hover:bg-app-text/10 disabled:opacity-50"
+                  >
+                    {t('admin.housinger_reports.restore_listings')}
                   </button>
                 )}
               </div>

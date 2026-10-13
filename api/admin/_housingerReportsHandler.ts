@@ -13,6 +13,10 @@
  *      — 強制非公開: isModerationHidden=true のみ。
  * PATCH ?resource=housinger_reports&action=restore&uid=xxx
  *      — 復帰: isModerationHidden=false。
+ * PATCH ?resource=housinger_reports&action=hide-listings&uid=xxx
+ *      — この人の今ある家を全部運営非表示 (adminHiddenScope='owner')。 profile.listingsModerationHidden=true。
+ * PATCH ?resource=housinger_reports&action=restore-listings&uid=xxx
+ *      — scope='owner' の家だけ戻す。 'listing' の家には触れない。
  * PATCH ?resource=housinger_reports&action=dismiss-one&uid=xxx&reportId=yyy
  *      — 個別通報レコードを 1 件却下 (該当 report 削除 + reportCount-1)。
  *        listing と異なり通報閾値による自動非表示が無いため isModerationHidden には触れない。
@@ -25,7 +29,13 @@ import { initAdmin, verifyAdmin, getAdminFirestore } from '../../src/lib/adminAu
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 
+import { FieldValue } from 'firebase-admin/firestore';
+import { REPORT_AUTO_HIDE_THRESHOLD } from '../../src/constants/housing.js';
+import { bumpPublicVersionDirect } from '../housing/_publicVersion.js';
+
 const COLLECTION = 'housing_profiles';
+const LISTINGS_COLLECTION = 'housing_listings';
+const BATCH_LIMIT = 500;
 const LIST_LIMIT = 50;
 
 export interface ProfileRef {
@@ -92,7 +102,7 @@ export default async function handler(req: any, res: any) {
       // 「通報あり」 と 「強制非公開中」 を別クエリで取得し (単一フィールド where のみ = 複合
       // インデックス不要)、 uid で重複排除してマージする。 強制非公開後に通報が全部却下されて
       // reportCount=0 になったプロフィールも一覧から消えず、 復帰ボタンに到達できるようにする。
-      const [reportedSnap, hiddenSnap] = await Promise.all([
+      const [reportedSnap, hiddenSnap, listingsHiddenSnap] = await Promise.all([
         db.collection(COLLECTION)
           .where('reportCount', '>', 0)
           .orderBy('reportCount', 'desc')
@@ -102,16 +112,24 @@ export default async function handler(req: any, res: any) {
           .where('isModerationHidden', '==', true)
           .limit(LIST_LIMIT)
           .get(),
+        // 「家を全部非表示」 中のプロフィールも一覧に残す (通報が全部却下されても復帰ボタンに到達できるように)
+        db.collection(COLLECTION)
+          .where('listingsModerationHidden', '==', true)
+          .limit(LIST_LIMIT)
+          .get(),
       ]);
 
       const docsByUid = new Map<string, (typeof reportedSnap.docs)[number]>();
-      for (const d of [...reportedSnap.docs, ...hiddenSnap.docs]) {
+      for (const d of [...reportedSnap.docs, ...hiddenSnap.docs, ...listingsHiddenSnap.docs]) {
         if (!docsByUid.has(d.id)) docsByUid.set(d.id, d);
       }
 
       const mergedRefs = mergeReportedProfileRefs(
         reportedSnap.docs.map((d) => ({ uid: d.id, reportCount: d.data().reportCount ?? 0 })),
-        hiddenSnap.docs.map((d) => ({ uid: d.id, reportCount: d.data().reportCount ?? 0 })),
+        [...hiddenSnap.docs, ...listingsHiddenSnap.docs].map((d) => ({
+          uid: d.id,
+          reportCount: d.data().reportCount ?? 0,
+        })),
         LIST_LIMIT,
       );
 
@@ -143,6 +161,7 @@ export default async function handler(req: any, res: any) {
             snsUrl: data.snsUrl ?? null,
             isPublished: data.isPublished === true,
             isModerationHidden: data.isModerationHidden === true,
+            listingsModerationHidden: data.listingsModerationHidden === true,
             reportCount: data.reportCount ?? 0,
             reports,
           };
@@ -176,6 +195,58 @@ export default async function handler(req: any, res: any) {
           tx.update(profileRef, { isModerationHidden: false, updatedAt: Date.now() });
         });
         return res.status(200).json({ success: true });
+      }
+
+      if (action === 'hide-listings') {
+        // この人の今ある家 (未削除・運営非表示でないもの) を全部「運営非表示 (owner)」 にする。
+        const profileSnap = await profileRef.get();
+        if (!profileSnap.exists) throw new Error('not_found');
+        const listingsSnap = await db.collection(LISTINGS_COLLECTION)
+          .where('ownerUid', '==', uid)
+          .get();
+        const targets = listingsSnap.docs.filter((d) => {
+          const x = d.data();
+          return x.deletedAt == null && !x.adminHiddenScope;
+        });
+        const now = Date.now();
+        for (let i = 0; i < targets.length; i += BATCH_LIMIT) {
+          const batch = db.batch();
+          targets.slice(i, i + BATCH_LIMIT).forEach((d) =>
+            batch.update(d.ref, { isHidden: true, adminHiddenScope: 'owner', updatedAt: now }),
+          );
+          await batch.commit();
+        }
+        await profileRef.update({ listingsModerationHidden: true, updatedAt: now });
+        await bumpPublicVersionDirect(db);
+        return res.status(200).json({ success: true, affected: targets.length });
+      }
+
+      if (action === 'restore-listings') {
+        // scope='owner' の家だけ戻す (個別に隠した scope='listing' の家は触らない)。
+        const profileSnap = await profileRef.get();
+        if (!profileSnap.exists) throw new Error('not_found');
+        const listingsSnap = await db.collection(LISTINGS_COLLECTION)
+          .where('ownerUid', '==', uid)
+          .get();
+        const targets = listingsSnap.docs.filter((d) => {
+          const x = d.data();
+          return x.deletedAt == null && x.adminHiddenScope === 'owner';
+        });
+        const now = Date.now();
+        for (let i = 0; i < targets.length; i += BATCH_LIMIT) {
+          const batch = db.batch();
+          targets.slice(i, i + BATCH_LIMIT).forEach((d) =>
+            batch.update(d.ref, {
+              adminHiddenScope: FieldValue.delete(),
+              isHidden: (d.data().reportCount ?? 0) >= REPORT_AUTO_HIDE_THRESHOLD,
+              updatedAt: now,
+            }),
+          );
+          await batch.commit();
+        }
+        await profileRef.update({ listingsModerationHidden: false, updatedAt: now });
+        await bumpPublicVersionDirect(db);
+        return res.status(200).json({ success: true, affected: targets.length });
       }
 
       if (action === 'dismiss-one') {

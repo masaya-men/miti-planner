@@ -41,3 +41,30 @@ export function projectPublicListing(
   if (out.tags === undefined) out.tags = [];
   return out;
 }
+
+/**
+ * 運営非表示 (adminHiddenScope あり) の家を「ハウジンガーページだけ」 に出すための射影。
+ * 画像系フィールド (imageMode / ogImageUrl / thumbnail* / coverThumbHash / sourceImage* /
+ * youtube* / video* / postUrl / tweetId) は一切含めない。 住所は projectPublicListing と同じく public のみ。
+ */
+const HIDDEN_SAFE_FIELDS = [
+  'ownerUid', 'title', 'description', 'tags', 'buildingType', 'roomKind', 'createdAt',
+] as const;
+
+export function projectHiddenListing(
+  id: string,
+  raw: Record<string, unknown>,
+): Record<string, unknown> {
+  const visibility = raw.visibility === 'unlisted' ? 'unlisted' : 'public';
+  const out: Record<string, unknown> = { id, visibility, isHidden: true };
+  for (const f of HIDDEN_SAFE_FIELDS) {
+    if (raw[f] !== undefined) out[f] = raw[f];
+  }
+  if (visibility === 'public') {
+    for (const f of ADDRESS_FIELDS) {
+      if (raw[f] !== undefined) out[f] = raw[f];
+    }
+  }
+  if (out.tags === undefined) out.tags = [];
+  return out;
+}

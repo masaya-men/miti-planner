@@ -12,6 +12,8 @@ import type { Region } from './dcServerMap.js';
  */
 export interface MockListing {
     id: string;
+    /** true = 運営非表示の家 (ハウジンガーページ専用・画像なし・非リンクの帯カード)。 */
+    adminHidden?: boolean;
     ownerUid: string;
     /**
      * 2026-07-15 (P3 §3.5 確定2): unlisted は galleryAdapter の窓口で住所系フィールドが
