@@ -34,6 +34,8 @@
      旧値 rgba(255,255,255,0.04) は透けすぎて暗幕頼みだった。light/dark 共通 (text は常に白)。 */
   --housing-panel-bg: rgba(17, 23, 37, 0.56);
   --housing-panel-bg-solid: rgba(13, 18, 30, 0.74);
+  /* 「…」メニュー専用: 背後の本文が透けて読めないよう、濃紺をほぼ不透明に (blur/大影なし) */
+  --housing-menu-bg-opaque: rgba(13, 18, 30, 0.96);
   /* 実機FB第2弾#1(訂正): 完全不透明面は「常設ボトムナビ」ではなく「シート(フィルター/設定)」用。
      ナビは従来どおり panel-bg-solid の透けを残し、開いたシートだけ中身が透けないようにする。 */
   --housing-mobile-chrome-bg: rgb(13, 18, 30);
@@ -3041,7 +3043,6 @@ select.housing-input option {
    ブラーは付けない (A案パネルも --liquid-filter 未設定でブラー無し。材質をパネルへ揃える)。
    個別ルールは border-radius / padding / 寸法だけを持ち、面(bg/border/影)はここへ集約。 */
 .housing-tour-expose-card,
-.housing-kebab-menu,
 .housing-notif-dropdown,
 .housing-card-visibility-menu,
 .housing-bottomnav-account-menu {
@@ -3155,6 +3156,10 @@ select.housing-input option {
     min-width: 160px;
     border-radius: 12px;
     padding: 6px;
+    /* 共通ガラス面ルールから外し、濃紺ほぼ不透明の面にする (本文が透けない) */
+    background: var(--housing-menu-bg-opaque);
+    border: 1px solid var(--housing-panel-border);
+    box-shadow: var(--housing-popover-shadow-glass);
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -3169,6 +3174,7 @@ select.housing-input option {
     padding: 8px 12px;
     cursor: pointer;
     border-radius: 8px;
+    white-space: nowrap;
 }
 .housing-kebab-menu button:hover {
     background: var(--housing-honey-medium);
@@ -4170,23 +4176,8 @@ select.housing-input option {
 }
 
 /* ============================================================
- * Phase 3 Group D: 通報モーダル
+ * Phase 3 Group D: 通報モーダル (外枠は HousingPanelModal。ここは中身のフォーム部品のみ)
  * ============================================================ */
-.housing-report-modal {
-    background: var(--housing-popover-bg);
-    border: 1px solid var(--housing-panel-border-strong);
-    border-radius: var(--housing-panel-radius);
-    padding: var(--housing-report-modal-padding);
-    max-width: var(--housing-report-modal-max-w);
-    width: calc(100% - 32px);
-    color: var(--housing-text);
-    box-shadow: var(--housing-popover-shadow);
-}
-.housing-report-title {
-    font-size: var(--housing-report-title-size);
-    font-weight: 600;
-    margin: 0 0 8px;
-}
 .housing-report-subtitle {
     font-size: var(--housing-text-sm);
     color: var(--housing-text-dim);

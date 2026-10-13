@@ -2621,7 +2621,7 @@
                 "intro": "A quick request to help keep LoPo pleasant for everyone.",
                 "item1": "To keep fake listings or harassment-driven registrations from ruining the house-hunting experience for others, we ask you to log in with Discord when registering.",
                 "item2": "LoPo only stores a hash of your Discord ID. Because a hash cannot be converted back to the original ID, no one — including the operators — can recover your Discord ID.",
-                "item3": "So you can feel free to tap the \"Not it\" button, we also keep an internal record of accounts that repeatedly file harassing reports this way. If we find an account is abusing this, we may restrict that account's access."
+                "item3": "So you can feel free to tap the \"Report\" button, we also keep an internal record of accounts that repeatedly file harassing reports this way. If we find an account is abusing this, we may restrict that account's access."
             },
             "discordButton": "Login with Discord",
             "closeLabel": "Close the login screen"
@@ -2742,7 +2742,7 @@
             "share_copied": "Copied!",
             "share_twitter": "Share on X",
             "share_x": "Share on X",
-            "report_button": "Wrong",
+            "report_button": "Report",
             "back_aria": "Back",
             "view_source": "View original post",
             "view_original": "View original post",

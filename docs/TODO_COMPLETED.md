@@ -2155,3 +2155,5 @@ build PASS、 vitest 636/636 PASS、 tsc clean、 Playwright 6/6 PASS (5 viewpor
 - **スマホ スプシ取込(textarea貼付方式・本番済だが実シート取込不可)→棚上げ**: iOS readText ブロック回避で textarea+onChange 採用、useIsMobile 追加、スマホ縦リスト割当。但し有名スプシ(grid)は実機で取り込めず=構造的に不可と判明し、スマホ取込UI自体を非表示化+「あらゆるスプシ対応」を本命ゴールとして棚上げ(TODO.md 棚上げセクション参照)。spec=2026-06-30-mobile-spreadsheet-import-paste-design.md ほか。
 
 - 2026-09-26 サイドバー最下部の余白(Ko-fi 停止中)= 本番反映済(`504ff28e`)・masaya 確認済。(2026-10-05 TODO.md から移動)
+
+- 2026-10-13 通報まわり割り込み: 運営の「この人の家を全部非表示」(adminHiddenScope・自己解除不可・ハウジンガーページのみ帯表示) / 「ちがった」→「報告」 / 通報モーダル2種を HousingPanelModal 化 / …メニュー不透明化+折返し防止。
