@@ -41,7 +41,7 @@ const ZONES = {
   // Task 6: mit-bar/mit-icon の意匠は 6px 幅の細片なので、全体表ではなく MitigationItem 1 個
   // (icon チップ + 効果棒パイプ) を接写する。captureApp が clip を自前計算する。
   mitbar: { mock: '.tbody', app: '[data-mit-bar]' },
-  workspace: { mock: '.workspace', app: '.milspec-ws' },
+  workspace: { mock: '.workspace', app: '[data-ms-zone="workspace"]' },
   // Task 6: ジョブチップ .cj = JobPickerRow の各セル。8 セルを束ねた矩形を clip で撮る。
   jobchips: { mock: '.subtoolbar .cb-e', app: '#timeline-controls-inner [data-member-id]' },
   // Task 8: 計器スクロールバー。::-webkit-scrollbar は headless 非描画 → headed 実 Chrome で撮る。
@@ -50,11 +50,11 @@ const ZONES = {
   scrollbar: { mock: '.table', app: '.timeline-scroll-container', headed: true },
   // Task 2: 端末キャップ + ROSTER ノート。cap/note は右端に絶対配置された小片なので、
   // 位置・帯幅・文字サイズ・不透明度を「表に対して」評価できるよう装甲板ごと撮る
-  // (mock .workspace / app .milspec-ws)。要素単体だと 14px の帯や極小テキストしか写らない。
-  wscap: { mock: '.workspace', app: '.milspec-ws' },
+  // (mock .workspace / app [data-ms-zone="workspace"])。要素単体だと 14px の帯や極小テキストしか写らない。
+  wscap: { mock: '.workspace', app: '[data-ms-zone="workspace"]' },
   // Task 9: 全ゾーン最終突き合わせ。workspace 全体を 1 枚で撮り、モック DOM(2088-2213)を
   // 要素単位で app と照合する(SP1 タービン欠落の再発防止)。lethal 行注入で致命セルも入れる。
-  full: { mock: '.workspace', app: '.milspec-ws' },
+  full: { mock: '.workspace', app: '[data-ms-zone="workspace"]' },
 };
 
 async function shot(page, selector, outPath, { outer = false } = {}) {

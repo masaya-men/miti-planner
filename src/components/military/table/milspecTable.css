@@ -334,3 +334,8 @@
 .theme-military .milspec-ret[data-reduced] { transition: none; }
 /* 見出しの照準: 枠を見出しの内側に収め、タグも見出しの中(上端に切れない位置)へ */
 .theme-military .milspec-ret[data-head] .milspec-ret-tag { top: 3px; }
+/* 見出しの十字の目盛り: 見出しの上端・端で切れないよう、上下左右とも枠の内側へ(表の中身の照準は外側のまま) */
+.theme-military .milspec-ret[data-head] u:nth-of-type(1) { left: 1px; }
+.theme-military .milspec-ret[data-head] u:nth-of-type(2) { right: 1px; }
+.theme-military .milspec-ret[data-head] u:nth-of-type(3) { top: 1px; }
+.theme-military .milspec-ret[data-head] u:nth-of-type(4) { bottom: 1px; }
