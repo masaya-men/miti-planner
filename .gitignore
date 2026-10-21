@@ -101,3 +101,6 @@ tmp/
 
 # SP2 視覚突き合わせスクショ (*-mock.png は非公開モックアップ由来 = コミット禁止)
 scripts/milspec-sp2/.compare/
+
+# 表のスクロール性能の基準(コミットしない)
+scripts/milspec-polish/.perf/
