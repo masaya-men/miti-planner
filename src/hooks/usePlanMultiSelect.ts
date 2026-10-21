@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
@@ -52,9 +52,10 @@ export function usePlanMultiSelect() {
         });
     };
 
-    const reset = () => {
+    // setState のみに依存するので参照は不変(Escape の購読などが張り直されない)
+    const reset = useCallback(() => {
         setMultiSelect({ isEnabled: false, selectedIds: [], mode: 'share' });
-    };
+    }, []);
 
     const openBundleShare = async () => {
         if (multiSelect.selectedIds.length === 0) return;

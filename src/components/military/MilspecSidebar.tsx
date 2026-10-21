@@ -47,7 +47,9 @@ const capPos = (cap: CapSpec): React.CSSProperties => {
  * プランツリーを置く。座標は見本どおり区画座標で、y が 300 より下のものは区画の実高 H に追従する。
  */
 export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  // 英語は副題を持たない(空文字が ja にフォールバックして日本語が出るのを防ぐ)
+  const isEn = (i18n.resolvedLanguage ?? i18n.language ?? '').startsWith('en');
 
   const { plans, currentPlanId } = usePlanStore(
     useShallow((s) => ({ plans: s.plans, currentPlanId: s.currentPlanId })),
@@ -108,11 +110,16 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen })
   // 件数・モードが変わったら武装を外す(違う件数を巻き込んで消さない)
   React.useEffect(() => { setArmed(false); }, [selCount, selMode]);
 
-  // 選択モード中の Escape で抜ける(共有・バックアップ・復元のモーダルが開いている間は触らない)
+  // 選択モード中の Escape で抜ける(共有・バックアップ・復元のモーダルや、開いている他のダイアログがあれば触らない)
   const { reset } = ms;
   React.useEffect(() => {
     if (!multiSelect.isEnabled || ms.bundleOpen || backupExportOpen || backupRestoreOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') reset(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      // 新規作成・取り込みなど、どのダイアログが開いていても選択を消さない
+      if (document.querySelector('[role="dialog"], [aria-modal="true"]')) return;
+      reset();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [multiSelect.isEnabled, ms.bundleOpen, backupExportOpen, backupRestoreOpen, reset]);
@@ -172,7 +179,7 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen })
                 key={g.text}
                 en={g.text}
                 hi={i < 2}
-                sub={i === 0 ? t('milspec.sb_content_sub') : i === 1 ? t('milspec.sb_service_sub') : undefined}
+                sub={isEn ? undefined : i === 0 ? t('milspec.sb_content_sub') : i === 1 ? t('milspec.sb_service_sub') : undefined}
                 style={{ left: g.x, top: sbY(g.y, H) }}
               />
             ))}

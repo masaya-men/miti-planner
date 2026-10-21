@@ -10,6 +10,7 @@ vi.mock('../fx/engine', () => ({
 }));
 import { energy, emit } from '../fx/engine';
 import { MilspecSidebar } from '../MilspecSidebar';
+import i18n from '../../../i18n';
 import { usePlanStore } from '../../../store/usePlanStore';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { useLocalImportDialog } from '../../../store/useLocalImportDialog';
@@ -168,6 +169,30 @@ describe('MilspecSidebar', () => {
     fireEvent.click(key(container, /バックアップ|Backup/));
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(container.querySelector('.milspec-sb-selbar')).not.toBeNull();
+  });
+
+  it('他のダイアログ(role=dialog)が開いている間は Escape で選択モードを抜けない', () => {
+    const { container } = r();
+    fireEvent.click(key(container, /まとめて共有|Share/));
+    const dlg = document.createElement('div');
+    dlg.setAttribute('role', 'dialog');
+    document.body.appendChild(dlg);
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(container.querySelector('.milspec-sb-selbar')).not.toBeNull();
+    dlg.remove();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(container.querySelector('.milspec-sb-selbar')).toBeNull();
+  });
+
+  it('英語では刻印の副題の要素が出ない(ja にフォールバックしない)', async () => {
+    const prev = i18n.language;
+    await act(async () => { await i18n.changeLanguage('en'); });
+    try {
+      const { container } = r();
+      expect(container.querySelectorAll('.milspec-stencil-sub').length).toBe(0);
+    } finally {
+      await act(async () => { await i18n.changeLanguage(prev); });
+    }
   });
 
   it('取消キーで選択モードを抜ける', () => {
