@@ -12,7 +12,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { usePlanStore } from '../store/usePlanStore';
 import { useCollabJoinerSession } from '../store/useCollabJoinerSession';
 import { useTutorialStore } from '../store/useTutorialStore';
-import { useThemeStore } from '../store/useThemeStore';
+import { useThemeStore, useEffectiveThemeStyle } from '../store/useThemeStore';
 import { useStableCallback } from '../hooks/useStableCallback';
 import type { TimelineEvent, Mitigation, AppliedMitigation, LocalizedString, Phase, Label, PlanMemo } from '../types';
 import { getPhaseName } from '../types';
@@ -742,7 +742,7 @@ const Timeline: React.FC = () => {
     // MIL-SPEC SP2 Task 7: PC 軍事モードのときだけ、リキャストを列見出し行から切り離して
     // 独立した帯 ([data-milspec-recast-band]) にマウントする (モックの .recast-row 再現)。
     // standard では常に false → 分岐は全て else = 従来 DOM のまま (標準モード不変)。
-    const themeStyle = useThemeStore(s => s.themeStyle);
+    const themeStyle = useEffectiveThemeStyle();
     const isMilspecTable = themeStyle === 'military' && !isMobileTimeline;
     // 1 段の高さ(PC=攻撃 1 つ分 / スマホ=カード 1 枚)。縦位置は rowLayout(下で計算)から得る
     const rowUnitPx = isMobileTimeline ? ROW_UNIT_PX.mobile : ROW_UNIT_PX.pc;

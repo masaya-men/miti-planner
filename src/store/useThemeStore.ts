@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { getCanPreviewWip, useCanPreviewWip } from '../hooks/useCanPreviewWip';
 
 export type Theme = 'dark' | 'light';
 /** テーマの「スタイル軸」。明るさ軸(theme)と直交。'military' = 軍事SF HUD (MIL-SPEC)。 */
@@ -34,11 +35,11 @@ export const useThemeStore = create<ThemeState>()(
             mobileEffectBarMode: 'icon',
             setTheme: (theme) => {
                 set({ theme });
-                applyThemeClasses(theme, get().themeStyle);
+                applyThemeClasses(theme, resolveThemeStyle(get().themeStyle, getCanPreviewWip()));
             },
             setThemeStyle: (themeStyle) => {
                 set({ themeStyle });
-                applyThemeClasses(get().theme, themeStyle);
+                applyThemeClasses(get().theme, resolveThemeStyle(themeStyle, getCanPreviewWip()));
             },
             setContentLanguage: (lang) => set({ contentLanguage: lang }),
             setMobileEffectBarMode: (mode) => set({ mobileEffectBarMode: mode }),
@@ -71,4 +72,17 @@ export function applyThemeClasses(theme: Theme, style: ThemeStyle): void {
     root.classList.remove('theme-dark', 'theme-light', 'theme-military');
     root.classList.add(`theme-${theme}`);
     if (style === 'military') root.classList.add('theme-military');
+}
+
+/** 実際に使うスタイル。保存値が 'military' でも、WIP 閲覧権限(DEV か管理者)が無ければ 'standard'。
+ *  保存値自体は消さない(管理者に戻れば軍事が復活する)。 */
+export function resolveThemeStyle(saved: ThemeStyle, canPreview: boolean): ThemeStyle {
+    return canPreview ? saved : 'standard';
+}
+
+/** コンポーネント用: 保存値 + 権限から実際に使うスタイルを返す。 */
+export function useEffectiveThemeStyle(): ThemeStyle {
+    const saved = useThemeStore((s) => s.themeStyle);
+    const canPreview = useCanPreviewWip();
+    return resolveThemeStyle(saved, canPreview);
 }

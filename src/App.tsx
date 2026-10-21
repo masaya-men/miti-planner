@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect, lazy, Suspense } from 'react';
-import { useThemeStore, applyThemeClasses } from './store/useThemeStore';
+import { useThemeStore, applyThemeClasses, useEffectiveThemeStyle } from './store/useThemeStore';
 import { LandingPage } from './components/landing/LandingPage';
 import { MitiPlannerPage } from './components/MitiPlannerPage';
 import { SharePage } from './components/SharePage';
@@ -172,7 +172,7 @@ function AppRoutes() {
 
 function App() {
   const theme = useThemeStore((state) => state.theme);
-  const themeStyle = useThemeStore((state) => state.themeStyle);
+  const themeStyle = useEffectiveThemeStyle();
   const { i18n } = useTranslation();
   useMasterDataInit();
 

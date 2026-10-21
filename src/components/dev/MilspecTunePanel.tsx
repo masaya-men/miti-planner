@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useThemeStore } from '../../store/useThemeStore';
+import { useEffectiveThemeStyle } from '../../store/useThemeStore';
 
 /** 調整対象の --ms-tune-* 変数。military.css の初期値・モックアップの #tune と一致させる。 */
 const TUNABLES: { key: string; label: string; min: number; max: number; step: number }[] = [
@@ -17,7 +17,7 @@ const TUNABLES: { key: string; label: string; min: number; max: number; step: nu
 /** 開発専用。?tune クエリ or localStorage 'milspec-tune'==='1' かつ DEV かつ military のときだけ出る。
  *  --ms-tune-* を実機でドラッグ調整するためのパネル。Phase 3 で撤去。 */
 export const MilspecTunePanel: React.FC = () => {
-  const themeStyle = useThemeStore((s) => s.themeStyle);
+  const themeStyle = useEffectiveThemeStyle();
   const [open, setOpen] = useState(true);
   const [vals, setVals] = useState<Record<string, number>>({});
 

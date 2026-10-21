@@ -15,7 +15,7 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 1. **軍事SF(MIL-SPEC)テーマ + スプシモード = 1つの大型アップデート(ユーザー本命)**。**worktree で隔離**して両方作り、揃ったらまとめて main へ1本化・push(2026-09-02 masaya 決定)。
    - **① MIL-SPEC テーマ**: brainstorm済み・**設計書=`docs/superpowers/specs/2026-09-02-military-theme-design.md`** / **実装計画=`docs/superpowers/plans/2026-09-02-military-theme.md`**。`using-git-worktrees` → Phase 0 Task 0.1 から `subagent-driven-development`。Phase 0 Task 0.7 が masaya の見た目承認ゲート。参考画像=`docs/.private/theme-refs/`。論点 memory [[project_sf_military_theme]]。
-   - **② 軽減表スプシモード**(①の後・同じ worktree)。全テーマにトークン経由。要 brainstorm→spec→plan。議論=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。WIP中は両方 dev ガード(`localStorage 'milspec-preview'`)、マージ時に公開。
+   - **② 軽減表スプシモード**(①の後・同じ worktree)。全テーマにトークン経由。要 brainstorm→spec→plan。議論=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。WIP中は両方 dev か管理者ログイン限定(`useCanPreviewWip`)、マージ時に公開。
 2. **🆕 スケジュール管理 + ロット管理(固定PT運営)** — ①②の直後(masaya 2026-09-04)。要brainstorming。形態 A(軽減表collab内の1機能)or B(別アプリ+プラン紐付け)未定。日程調整アイデア(2026-06-16)を吸収検討。詳細=`docs/.private/2026-09-04-schedule-and-loot-management-idea.md`。
 3. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming・中断)。実機で**タイムラインDOMキャプチャがハング**・原因未特定で保留。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
 4. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。

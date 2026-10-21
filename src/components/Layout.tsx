@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/react/shallow';
-import { useThemeStore } from '../store/useThemeStore';
+import { useThemeStore, useEffectiveThemeStyle } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -574,7 +574,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // MIL-SPEC 専用シェル分岐: themeStyle==='military' かつ PC のときだけ標準 JSX の代わりに
     // MilspecLayout を返す。全フックはこの上で実行済 (実行時ホスト=自動保存/collab/データ復旧は
     // 分岐前に持つ)。標準モード (themeStyle 未設定 / 'standard') は完全不変。
-    const themeStyle = useThemeStore(s => s.themeStyle);
+    const themeStyle = useEffectiveThemeStyle();
 
     if (themeStyle === 'military' && !isMobile) {
         return (

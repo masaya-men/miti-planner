@@ -2252,7 +2252,7 @@
   background: rgba(255,255,255,0.12); color: var(--ms-heading); font: 700 10px/1 'Rajdhani', sans-serif;
 }
 
-/* MilspecStyleToggle(DEV / ?milspec-preview=1 のときだけ表示される暫定スキャフォールド)。
+/* MilspecStyleToggle(DEV か管理者ログイン時のだけ表示される暫定スキャフォールド)。
    モックには存在しないので .milspec-hp-tools の 4 タイル(mockup 準拠)には混ぜず、
    ヘッダー左下隅に小さく絶対配置する(右下の折りたたみハンドルと対称)。 */
 .theme-military .milspec-hdr .milspec-style-toggle-mount {

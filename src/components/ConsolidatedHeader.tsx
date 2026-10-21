@@ -16,6 +16,7 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { useCanPreviewWip } from '../hooks/useCanPreviewWip';
 import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -118,6 +119,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
     // 認証状態
     const { user } = useAuthStore();
+    const canPreviewWip = useCanPreviewWip();
     const profileDisplayName = useAuthStore(s => s.profileDisplayName);
     const profileAvatarUrl = useAuthStore(s => s.profileAvatarUrl);
     const [showLoginModal, setShowLoginModal] = React.useState(false);
@@ -306,10 +308,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 </button>
                             </Tooltip>
 
-                            {/* MIL-SPEC スタイル切替（WIP: DEV か ?milspec-preview 相当でのみ表示。
+                            {/* MIL-SPEC スタイル切替（WIP: DEV か管理者ログイン時のみ表示(useCanPreviewWip)。
                                 SP1 では military 側の入口がこれ1つしか無い — 標準UIから欠けると
                                 誰も MIL-SPEC モードに入れなくなるため撤去しないこと） */}
-                            {(import.meta.env.DEV || (typeof localStorage !== 'undefined' && localStorage.getItem('milspec-preview') === '1')) && (
+                            {canPreviewWip && (
                                 <MilspecStyleToggle className={clsx(iconBtnBase, iconBtnDefault)} />
                             )}
 

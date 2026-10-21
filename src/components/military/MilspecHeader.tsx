@@ -14,6 +14,7 @@ import { MilspecTileInner } from './MilspecTileInner';
 import { useThemeStore } from '../../store/useThemeStore';
 import { usePlanStore } from '../../store/usePlanStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useCanPreviewWip } from '../../hooks/useCanPreviewWip';
 import { getContentById } from '../../data/contentRegistry';
 import { getPhaseName } from '../../types';
 import type { MilspecLayoutProps } from './MilspecLayout';
@@ -23,15 +24,6 @@ export type MilspecHeaderProps = Pick<
   'theme' | 'onToggleTheme' | 'isHeaderCollapsed' | 'setIsHeaderCollapsed'
 >;
 
-/** SP1 では旧 ConsolidatedHeader から外した MilspecStyleToggle を DEV / ?milspec-preview=1 の
- *  ときだけ表示する(旧 ConsolidatedHeader.tsx の呼び出し側にあったゲートを再現。トグル本体は無変更)。 */
-function useShowStyleToggle(): boolean {
-  return (
-    import.meta.env.DEV ||
-    (typeof localStorage !== 'undefined' && localStorage.getItem('milspec-preview') === '1')
-  );
-}
-
 /** ヘッダー — ハードサーフェス パネルアセンブリ。
  *  正典: docs/.private/theme-refs/milspec-mockup.html DOM 1920-1979 / CSS .header 771- 。
  *  .hp-logo(ロゴプレート) / .seam-diag / .hp-title(遭遇名) / .hp-fill(銘板+ハザード+タービン) /
@@ -40,7 +32,7 @@ export const MilspecHeader: React.FC<MilspecHeaderProps> = (props) => {
   const { theme, onToggleTheme, isHeaderCollapsed, setIsHeaderCollapsed } = props;
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const showStyleToggle = useShowStyleToggle();
+  const showStyleToggle = useCanPreviewWip();
 
   const contentLanguage = useThemeStore((s) => s.contentLanguage);
   const currentPlan = usePlanStore((s) => s.plans.find((p) => p.id === s.currentPlanId));

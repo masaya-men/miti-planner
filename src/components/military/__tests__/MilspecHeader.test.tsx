@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { MilspecHeader } from '../MilspecHeader';
 import { useThemeStore } from '../../../store/useThemeStore';
 
-beforeEach(() => { useThemeStore.setState({ theme: 'dark', themeStyle: 'military' }); localStorage.setItem('milspec-preview', '1'); });
+beforeEach(() => { useThemeStore.setState({ theme: 'dark', themeStyle: 'military' }) });
 const props = { theme: 'dark' as const, onToggleTheme: vi.fn(), isHeaderCollapsed: false, setIsHeaderCollapsed: vi.fn() };
 // MilspecHeader 自身が TransitionOverlayProvider を内包して自己完結しているため、
 // テスト側で外側から重ねてラップする必要は無い(MemoryRouter のみで十分)。
