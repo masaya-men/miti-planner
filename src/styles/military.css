@@ -169,6 +169,46 @@
     inset 0 1.5px 0 rgba(255,255,255,0.24),
     inset 0 -2px 2px rgba(0,0,0,0.4),
     inset 0 -4px 0 -1px rgba(0,0,0,0.3);
+  /* v11 材質トークン(見本由来・--ma- 接頭辞) */
+  /* 装甲 3 トーン + キー(黒い樹脂) */
+  --ma-pri-top: #555b61; --ma-pri-bot: #43484d; --ma-pri-hi: #b3bcc4; --ma-pri-lo: #111316;
+  --ma-sec-top: #3d4247; --ma-sec-bot: #313539; --ma-sec-hi: #8b949b; --ma-sec-lo: #0d0f11;
+  --ma-chs-top: #24282c; --ma-chs-bot: #1b1e21; --ma-chs-hi: #535a61; --ma-chs-lo: #070809;
+  --ma-key-top: #43484e; --ma-key-bot: #303438; --ma-key-hi: #9ea7ae; --ma-key-lo: #060708; --ma-key-edge: #020203; --ma-key-dish: 0.07; --ma-key-sh: 0.85;
+  --ma-a-edge: #07080a; --ma-pk-edge: #000000; --ma-screen-bg: #0f1113;
+  --ma-a-pk-top: #040505; --ma-a-pk-bot: #101214; --ma-a-scribe: rgba(6,8,10,0.85); --ma-a-scribe-hi: rgba(255,255,255,0.10);
+  --ma-seam: #050707; --ma-seam-core: #17231e; --ma-grain: 0.55; --ma-spec: 0.22;
+  --ma-frame: #15181b; --ma-frame-hi: #2a2e33;
+  /* 刻印(色で沈める: 純白を使わない) */
+  --ma-ink: #d9d7cf; --ma-ink-2: #9aa1a7; --ma-ink-3: #686f75; --ma-leg: #7a8288;
+  --ma-kink: rgba(220,218,210,0.84); --ma-kink-hot: #f3f1e9; --ma-kicon: #aab1b6; --ma-kts: 0 0.5px 0 rgba(0,0,0,0.55);
+  /* 樹脂(ロッカー・スライド) */
+  --ma-pl-hi: #4b5157; --ma-pl: #383d42; --ma-pl-lo: #282b2f; --ma-pl-spec: rgba(255,255,255,0.22);
+  --ma-pl-up: linear-gradient(180deg, #6a7279 0%, #555c63 40%, #454b51 100%); --ma-pl-dn: linear-gradient(180deg, #25282c 0%, #1d2023 55%, #17191c 100%);
+  --ma-pl-end-hi: linear-gradient(180deg, #9aa3aa, #6a737a); --ma-pl-end-lo: #2e3237;
+  --ma-bz-hi: #2c3034; --ma-bz: #202326; --ma-bz-lo: #181a1d;
+  --ma-pit-hi: #020303; --ma-pit-lo: #0c0d0e;
+  --ma-glyph: #e9e7e0;
+  --ma-steel-hi: #c3c9ce; --ma-steel: #7c848b; --ma-steel-lo: #3a4046;
+  --ma-screen: #07100a; --ma-phos: #7dff96; --ma-phos-rgb: 125,255,150;
+  --ma-row: rgba(255,255,255,0.022); --ma-row-line: rgba(255,255,255,0.045); --ma-cell-line: rgba(255,255,255,0.04);
+  --ma-txt-num: #c2c7cb; --ma-txt-atk: #cdd1d4; --ma-txt-ok: #55d477; --ma-th: #6c747a;
+  /* 光の意味(テーマ共通)。緑 = 入/選択 ・ 琥珀 = 注意 ・ 赤 = 危険 ・ 信号(基板を走る光)= 青みの緑 */
+  --ma-on: #52f07a; --ma-on-hot: #eaffee; --ma-on-deep: #0d6a2a; --ma-on-rgb: 82,240,122;
+  --ma-warn: #ffae2e; --ma-warn-hot: #fff3dc; --ma-warn-deep: #8a4a00; --ma-warn-rgb: 255,174,46;
+  --ma-dng: #ff3b2a; --ma-dng-hot: #ffe4df; --ma-dng-deep: #8c1206; --ma-dng-rgb: 255,59,42;
+  --ma-sig: #46ffb0; --ma-sig-hot: #effff8; --ma-sig-rgb: 70,255,176;
+  /* 基板(内部フレームの信号線)。どちらのテーマでも暗い */
+  --ma-pcb: #07100c; --ma-pcb-2: #0a1510; --ma-cu: #2b5646; --ma-cu-dim: #1c3a2e; --ma-gold: #a78a4b; --ma-gold-lo: #5d4a22; --ma-pcb-silk: #6d8377;
+  /* 使い込まれた質感 */
+  --ma-chip: #7a8288;
+  --ma-chip-sh: rgba(0,0,0,0.55);
+  --ma-grime: rgba(6,5,3,0.42);
+  --ma-streak: rgba(12,9,5,0.55);
+  --ma-scratch: rgba(214,221,226,0.45);
+  --ma-scratch-sh: rgba(0,0,0,0.5);
+  --ma-polish: rgba(255,255,255,0.075);
+  --ma-wash: rgba(0,0,0,0.34);
 }
 
 /* ---------- トークン: Light ---------- */
@@ -238,6 +278,44 @@
   --ms-wear-substrate: #aeb9c4;
   --ms-wear-lip:       rgba(255,255,255,0.9);
   --ms-wear-ao:        rgba(40,80,120,0.26);
+  /* v11 材質トークン(見本由来・--ma- 接頭辞) */
+  --ma-pri-top: #fbfcfc; --ma-pri-bot: #e8ebed; --ma-pri-hi: #ffffff; --ma-pri-lo: #8a929a;
+  --ma-sec-top: #d7dbde; --ma-sec-bot: #c6cbcf; --ma-sec-hi: #f3f5f6; --ma-sec-lo: #717980;
+  --ma-chs-top: #4b5259; --ma-chs-bot: #3c4248; --ma-chs-hi: #79818a; --ma-chs-lo: #1a1e21;
+  --ma-key-top: #ffffff; --ma-key-bot: #e8ebee; --ma-key-hi: #ffffff; --ma-key-lo: #8d959c; --ma-key-edge: #3d444a; --ma-key-dish: 0.0; --ma-key-sh: 0.6;
+  --ma-a-edge: #4f575e; --ma-pk-edge: #000000; --ma-screen-bg: #f1f3f4;
+  --ma-a-pk-top: #1b1f22; --ma-a-pk-bot: #2b3035; --ma-a-scribe: rgba(70,80,90,0.55); --ma-a-scribe-hi: rgba(255,255,255,0.95);
+  --ma-seam: #2c3237; --ma-seam-core: #4a5a52; --ma-grain: 0.30; --ma-spec: 0.55;
+  --ma-frame: #3a4046; --ma-frame-hi: #5a6168;
+  --ma-ink: #1c2125; --ma-ink-2: #4b535a; --ma-ink-3: #858d94; --ma-leg: #7b838a;
+  --ma-kink: #2a3035; --ma-kink-hot: #0b0e10; --ma-kicon: #4d555c; --ma-kts: 0 0.5px 0 rgba(255,255,255,0.9);
+  --ma-pl-hi: #ffffff; --ma-pl: #f0f2f4; --ma-pl-lo: #dde1e4; --ma-pl-spec: #ffffff;
+  --ma-pl-up: linear-gradient(180deg, #ffffff 0%, #fbfbfc 55%, #eef0f2 100%); --ma-pl-dn: linear-gradient(180deg, #d3d8dc 0%, #c6ccd1 55%, #b9c0c6 100%);
+  --ma-pl-end-hi: linear-gradient(180deg, #ffffff, #eef0f2); --ma-pl-end-lo: #7f878f;
+  --ma-bz-hi: #4a5158; --ma-bz: #3b4147; --ma-bz-lo: #2f3439;
+  --ma-pit-hi: #16191b; --ma-pit-lo: #262a2e;
+  --ma-glyph: #2a2f34;
+  --ma-steel-hi: #ffffff; --ma-steel: #c2c8cd; --ma-steel-lo: #7d858c;
+  --ma-screen: #0c1411; --ma-phos: #6cf08a; --ma-phos-rgb: 108,240,138;
+  --ma-row: rgba(20,30,40,0.03); --ma-row-line: rgba(20,30,40,0.075); --ma-cell-line: rgba(20,30,40,0.065);
+  --ma-txt-num: #2a2f34; --ma-txt-atk: #1f2428; --ma-txt-ok: #178a4c; --ma-th: #7a8289;
+  /* 光の意味(テーマ共通)。緑 = 入/選択 ・ 琥珀 = 注意 ・ 赤 = 危険 ・ 信号(基板を走る光)= 青みの緑 */
+  --ma-on: #52f07a; --ma-on-hot: #eaffee; --ma-on-deep: #0d6a2a; --ma-on-rgb: 82,240,122;
+  --ma-warn: #ffae2e; --ma-warn-hot: #fff3dc; --ma-warn-deep: #8a4a00; --ma-warn-rgb: 255,174,46;
+  --ma-dng: #ff3b2a; --ma-dng-hot: #ffe4df; --ma-dng-deep: #8c1206; --ma-dng-rgb: 255,59,42;
+  --ma-sig: #46ffb0; --ma-sig-hot: #effff8; --ma-sig-rgb: 70,255,176;
+  /* 基板(内部フレームの信号線)。どちらのテーマでも暗い */
+  --ma-pcb: #07100c; --ma-pcb-2: #0a1510; --ma-cu: #2b5646; --ma-cu-dim: #1c3a2e; --ma-gold: #a78a4b; --ma-gold-lo: #5d4a22; --ma-pcb-silk: #6d8377;
+  --ma-on: #2fd45e; --ma-on-rgb: 47,212,94;
+  /* 使い込まれた質感 */
+  --ma-chip: #a0a7ad;
+  --ma-chip-sh: rgba(35,40,45,0.5);
+  --ma-grime: rgba(80,66,48,0.17);
+  --ma-streak: rgba(96,78,56,0.3);
+  --ma-scratch: rgba(255,255,255,0.95);
+  --ma-scratch-sh: rgba(55,62,70,0.45);
+  --ma-polish: rgba(110,95,80,0.07);
+  --ma-wash: rgba(60,70,80,0.26);
 }
 
 /* Phase 1.2: 意味トークンリマップ — ここに追記 */
