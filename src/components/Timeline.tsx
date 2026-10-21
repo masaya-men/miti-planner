@@ -76,10 +76,11 @@ import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 import { RecastRow, type RecastRowHandle } from './RecastRow';
 import { JobPickerRow } from './JobPickerRow';
-import { MilspecControlDeck } from './military/table/MilspecControlDeck';
+// 軍事専用部品は標準テーマに配信しないよう遅延読み込み(useSortSlide は軽い hook なので静的のまま)
+const MilspecControlDeck = React.lazy(() => import('./military/table/MilspecControlDeck').then(m => ({ default: m.MilspecControlDeck })));
 import { useSortSlide } from './military/table/useSortSlide';
-import { MilspecJackBoard } from './military/table/MilspecJackBoard';
-import { MilspecMemberHeads } from './military/table/MilspecMemberHeads';
+const MilspecJackBoard = React.lazy(() => import('./military/table/MilspecJackBoard').then(m => ({ default: m.MilspecJackBoard })));
+const MilspecMemberHeads = React.lazy(() => import('./military/table/MilspecMemberHeads').then(m => ({ default: m.MilspecMemberHeads })));
 import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
 import { MemoFloatingBar } from './Memo/MemoFloatingBar';
@@ -2793,7 +2794,7 @@ const Timeline: React.FC = () => {
                             {/* MIL-SPEC v11: 操作列(表を展開〜軽減の削除メニュー)は軍事テーマ専用の装甲・スイッチ・キー。
                                 標準テーマでは下の従来 JSX をそのまま描く */}
                             {isMilspecTable && (
-                                <>
+                                <React.Suspense fallback={null}>
                                     <MilspecControlDeck
                                         hideEmptyRows={hideEmptyRows}
                                         onToggleHideEmpty={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
@@ -2846,7 +2847,7 @@ const Timeline: React.FC = () => {
                                             setConfirmDialog={setConfirmDialog}
                                         />
                                     )}
-                                </>
+                                </React.Suspense>
                             )}
                             {!isMilspecTable && (
                             <>
@@ -3060,7 +3061,7 @@ const Timeline: React.FC = () => {
                             )}
                             {/* セッション 18 案 C1 物理移動: ジョブアイコン行を controlBar の右端に */}
                             {isMilspecTable && (
-                                <MilspecJackBoard members={visiblePartyMembers} partySortOrder={partySortOrder} memberLayout={memberLayout} />
+                                <React.Suspense fallback={null}><MilspecJackBoard members={visiblePartyMembers} partySortOrder={partySortOrder} memberLayout={memberLayout} /></React.Suspense>
                             )}
                             <JobPickerRow
                                 variant={isMilspecTable ? 'socket' : undefined}
@@ -3187,7 +3188,7 @@ const Timeline: React.FC = () => {
                             </div>
                             {/* 軍事の表: メンバー列の見出し(ロール色の線 + ジョブ略号・見本 v11 css:472-475)。標準では出さない */}
                             {isMilspecTable && (
-                                <MilspecMemberHeads members={visiblePartyMembers} jobs={JOBS} memberLayout={memberLayout} />
+                                <React.Suspense fallback={null}><MilspecMemberHeads members={visiblePartyMembers} jobs={JOBS} memberLayout={memberLayout} /></React.Suspense>
                             )}
 
                             {/* セッション 18 案 C1: ヘッダーのメンバー列領域はリキャストアイコン専用に。

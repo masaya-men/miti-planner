@@ -6,7 +6,8 @@ import type { Job, PartyMember } from '../types';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { getColumnCssVar } from '../utils/calculator';
 import { Tooltip } from './ui/Tooltip';
-import { MilspecJackRow } from './military/table/MilspecJackRow';
+// 軍事専用部品は遅延読み込み(標準テーマに MIL-SPEC チャンクを配信しない)
+const MilspecJackRow = React.lazy(() => import('./military/table/MilspecJackRow').then(m => ({ default: m.MilspecJackRow })));
 
 export interface JobPickerRowProps {
     partyMembers: PartyMember[];
@@ -47,7 +48,7 @@ export const JobPickerRow: React.FC<JobPickerRowProps> = ({
     jobs,
 }) => {
     if (variant === 'socket') {
-        return <MilspecJackRow partyMembers={partyMembers} partySortOrder={partySortOrder} getJobIcon={getJobIcon} jobs={jobs} handleJobIconClick={handleJobIconClick} getMemberRefCallback={getMemberRefCallback} t={t} />;
+        return <React.Suspense fallback={null}><MilspecJackRow partyMembers={partyMembers} partySortOrder={partySortOrder} getJobIcon={getJobIcon} jobs={jobs} handleJobIconClick={handleJobIconClick} getMemberRefCallback={getMemberRefCallback} t={t} /></React.Suspense>;
     }
     return (
         <>

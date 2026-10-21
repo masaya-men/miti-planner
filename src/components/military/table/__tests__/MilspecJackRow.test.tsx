@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, fireEvent, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
+import { render, fireEvent, act, waitFor } from '@testing-library/react';
 import type { PartyMember, PlayerStats } from '../../../../types';
 import { JobPickerRow } from '../../../JobPickerRow';
 import { useMitigationStore } from '../../../../store/useMitigationStore';
@@ -38,6 +38,16 @@ const ui = (members: PartyMember[], sort: 'role' | 'light_party', onClick: (id: 
   <JobPickerRow variant="socket" partyMembers={members} partySortOrder={sort} getJobIcon={(j) => (j ? `/i/${j}.png` : null)} jobs={[]}
     handleJobIconClick={onClick as never} getMemberRefCallback={() => () => {}} t={tStub} />
 );
+
+// MilspecJackRow は React.lazy で読むので、最初に一度だけ描いて解決させておく(以降のテストは同期で描ける)
+beforeAll(async () => {
+  let r!: ReturnType<typeof render>;
+  vi.stubGlobal('matchMedia', mm(false));
+  await act(async () => { r = render(ui(ROLE.slice(0, 1), 'role')); });
+  await waitFor(() => { if (!r.container.querySelector('.milspec-jack')) throw new Error('lazy 未解決'); });
+  r.unmount();
+  vi.unstubAllGlobals();
+});
 
 describe('JobPickerRow variant=socket', () => {
   it('data 属性つきの外側 div が表示メンバー数だけ・差込口の中身', () => {
