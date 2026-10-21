@@ -36,10 +36,17 @@ function done(this: HTMLElement, e: AnimationEvent): void {
 const running = new WeakMap<HTMLElement, Animation[]>();
 const printed = new WeakMap<HTMLElement, HTMLElement[]>();
 
+/** 走っている描き込みを全部やめる(標準へ戻すとき)。行の class / listener / WAAPI を残さない */
+export function cancelPrintRows(container: HTMLElement): void {
+  printed.get(container)?.forEach((r) => { r.removeEventListener('animationend', done); r.classList.remove('milspec-pr'); });
+  running.get(container)?.forEach((a) => a.cancel());
+  printed.delete(container);
+  running.delete(container);
+}
+
 export function printRows(container: HTMLElement, base: number): void {
   if (prefersReduced()) return;
-  printed.get(container)?.forEach((r) => r.removeEventListener('animationend', done));
-  running.get(container)?.forEach((a) => a.cancel());
+  cancelPrintRows(container);
   const rs = visibleRows(container);
   rs.forEach((r, i) => {
     r.classList.remove('milspec-pr');
@@ -50,8 +57,12 @@ export function printRows(container: HTMLElement, base: number): void {
   });
   printed.set(container, rs);
   const anims: Animation[] = [];
+  const box = container.getBoundingClientRect();
   container.querySelectorAll<HTMLElement>('[data-mit-icon], [data-mit-bar]').forEach((m) => {
     if (typeof m.animate !== 'function') return;
+    // 縦の可視範囲にあるものだけ(画面外の数百個に Animation を作らない)
+    const mr = m.getBoundingClientRect();
+    if (mr.bottom <= box.top || mr.top >= box.bottom) return;
     // 終点は書かない = アイコン本来の opacity / filter / ホバーの明るさに任せる
     const a = m.animate(
       [{ opacity: 0, filter: 'brightness(2)' }],

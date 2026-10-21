@@ -1005,6 +1005,7 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
       await settle();
       const a = await measure();
       const idx = await btns.evaluateAll((els) => els.findIndex((e) => e.getAttribute('aria-pressed') === 'false'));
+      if (idx < 0) fail('押されていないキーが見つからない(並び替えを試せない)');
       await btns.nth(idx).click();
       await settle();
       const b = await measure();

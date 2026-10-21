@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 import { usePlanStore } from '../../../store/usePlanStore';
 import { onPower } from '../power/power';
-import { printRows } from './printRows';
+import { printRows, cancelPrintRows } from './printRows';
 
 // 表の行の描き込みのきっかけ(見本 v11 js:1019 / 1106 / 1172)。
 // プランの切替 = 200ms・コンテンツの切替 = 160ms・電源投入 = 620ms。何も描かない(null)。
@@ -30,7 +30,11 @@ export function MilspecRowPrinter({ scrollRef }: { scrollRef: RefObject<HTMLElem
 
   useEffect(() => {
     const off = onPower((e) => { if (e.state === 'on' && !e.reduced) run(620); });
-    return () => { off(); cancelAnimationFrame(raf.current); };
+    return () => {
+      off(); cancelAnimationFrame(raf.current);
+      // 標準へ戻すとき: 走っているアニメ・milspec-pr クラス・listener を片付ける
+      if (scrollRef.current) cancelPrintRows(scrollRef.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

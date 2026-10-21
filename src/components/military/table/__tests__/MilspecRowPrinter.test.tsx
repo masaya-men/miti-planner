@@ -13,7 +13,8 @@ vi.mock('../../../../store/usePlanStore', async () => {
   } };
 });
 const printRows = vi.fn();
-vi.mock('../printRows', () => ({ printRows: (...a: unknown[]) => printRows(...a) }));
+const cancelPrintRows = vi.fn();
+vi.mock('../printRows', () => ({ printRows: (...a: unknown[]) => printRows(...a), cancelPrintRows: (...a: unknown[]) => cancelPrintRows(...a) }));
 
 import { MilspecRowPrinter } from '../MilspecRowPrinter';
 
@@ -25,7 +26,7 @@ describe('MilspecRowPrinter', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     el = document.createElement('div');
-    state.currentPlanId = 'a'; state.plans[0].contentId = 'c1'; printRows.mockClear();
+    state.currentPlanId = 'a'; state.plans[0].contentId = 'c1'; printRows.mockClear(); cancelPrintRows.mockClear();
   });
   afterEach(() => { cleanup(); vi.useRealTimers(); });
   const mount = () => render(<MilspecRowPrinter scrollRef={{ current: el }} />);
@@ -58,5 +59,10 @@ describe('MilspecRowPrinter', () => {
     act(() => { emit('on'); });
     unmount(); act(() => { vi.runAllTimers(); });
     expect(printRows).not.toHaveBeenCalled();
+  });
+  it('アンマウントで走っている描き込みを片付ける', () => {
+    const { unmount } = mount();
+    unmount();
+    expect(cancelPrintRows).toHaveBeenCalledWith(el);
   });
 });

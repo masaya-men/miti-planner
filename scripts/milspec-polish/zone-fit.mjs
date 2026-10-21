@@ -34,7 +34,10 @@ for (const [w, h] of WIDTHS) {
     const cur = await handle.getAttribute('aria-expanded');
     if ((cur === 'true') !== open) { await handle.click(); await page.waitForTimeout(500); }
     const bad = [];
-    const hSet = new Set();
+    /** 左端で横スクロールに隠れていた部品(idx → 表示用の情報) */
+    const hInfo = new Map();
+    /** 右端で実際に見えて検査に合格した部品の idx */
+    const resolved = new Set();
     for (const pass of ['左端', '右端']) {
       // 表の横スクロール(.timeline-scroll-container)を左端 / 右端にして、それぞれ見えている部品を検査する
       await page.evaluate((p) => {
@@ -44,21 +47,25 @@ for (const [w, h] of WIDTHS) {
       await page.waitForTimeout(250);
       const got = await page.evaluate(({ SEL, w, h }) => {
       const app = document.querySelector('.milspec-app');
-      if (!app) return { out: [{ name: '(.milspec-app なし)', why: 'missing' }], hNames: [] };
+      if (!app) return { out: [{ name: '(.milspec-app なし)', why: 'missing', zone: '(区画外)', rect: [] }], hidden: [], okIdx: [] };
       const out = [];
-      const hNames = [];
-      for (const el of app.querySelectorAll(SEL)) {
+      const hidden = [];
+      const okIdx = [];
+      // 部品名の作り方は 1 か所に揃える
+      const nameOf = (el) => el.getAttribute('aria-label') || (el.textContent || '').trim().slice(0, 24) || el.getAttribute('title') || el.tagName;
+      const els = [...app.querySelectorAll(SEL)];
+      els.forEach((el, idx) => {
         const cs = getComputedStyle(el);
-        if (cs.visibility === 'hidden' || cs.display === 'none' || Number(cs.opacity) === 0) continue;
+        if (cs.visibility === 'hidden' || cs.display === 'none' || Number(cs.opacity) === 0) return;
         const r = el.getBoundingClientRect();
-        if (r.width === 0 || r.height === 0) continue;
+        if (r.width === 0 || r.height === 0) return;
         // 祖先に visibility:hidden / display:none / opacity:0 / 幅0のoverflow隠しがあるものは「見えていない」
         let hiddenAnc = false;
         for (let a = el.parentElement; a && a !== app; a = a.parentElement) {
           const c = getComputedStyle(a);
           if (c.visibility === 'hidden' || c.display === 'none' || Number(c.opacity) === 0) { hiddenAnc = true; break; }
         }
-        if (hiddenAnc) continue;
+        if (hiddenAnc) return;
         // 縦スクロール領域(表・サイドバーのツリー等)の中の要素は、その領域の矩形の内側にあるものだけを対象にする
         let clipped = false; let hClipped = false;
         for (let a = el.parentElement; a && a !== app; a = a.parentElement) {
@@ -67,30 +74,39 @@ for (const [w, h] of WIDTHS) {
             const sr = a.getBoundingClientRect();
             if (!(r.left >= sr.left && r.right <= sr.right && r.top >= sr.top && r.bottom <= sr.bottom)) clipped = true;
           }
-          // 横にはみ出す容器(表が画面より広いとき)の可視範囲の外にある要素は、横スクロールで見える位置へ
-          // 来たときに検査する(下の scrollLeft = 最大 の 2 回目)。ここでは違反にしない。
-          if (/(auto|scroll|hidden|clip)/.test(c.overflowX) && a.scrollWidth > a.clientWidth + 1) {
+          // 表の横スクロール容器だけは、可視範囲の外にある要素を「横スクロールで見える位置へ来たときに検査する」。
+          // それ以外の overflow 箱で切れている部品は通常どおり違反(下の検査へ進む)。
+          if (a.classList.contains('timeline-scroll-container') && a.scrollWidth > a.clientWidth + 1) {
             const sr = a.getBoundingClientRect();
             if (r.right > sr.right + 0.5 || r.left < sr.left - 0.5) { clipped = true; hClipped = true; }
           }
         }
-        if (hClipped) hNames.push(el.getAttribute('aria-label') || (el.textContent || '').trim().slice(0, 24) || el.tagName);
-        if (clipped) continue;
-        const name = el.getAttribute('aria-label') || (el.textContent || '').trim().slice(0, 24) || el.getAttribute('title') || el.tagName;
         const zone = el.closest('[data-ms-zone]')?.getAttribute('data-ms-zone') || '(区画外)';
-        const info = { zone, name, tag: el.tagName, cls: String(el.className).slice(0, 40), rect: [r.left, r.top, r.right, r.bottom].map(Math.round) };
-        if (r.left < 0 || r.top < 0 || r.right > w || r.bottom > h) { out.push({ ...info, why: '矩形が viewport 外' }); continue; }
+        const info = { zone, name: nameOf(el), tag: el.tagName, cls: String(el.className).slice(0, 40), rect: [r.left, r.top, r.right, r.bottom].map(Math.round) };
+        if (hClipped) hidden.push({ idx, ...info });
+        if (clipped) return;
+        if (r.left < 0 || r.top < 0 || r.right > w || r.bottom > h) { out.push({ ...info, idx, why: '矩形が viewport 外' }); return; }
         const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
         if (!top || !(top === el || el.contains(top))) {
           const t = top ? (top.tagName + '.' + String(top.className).slice(0, 40)) : 'null';
-          out.push({ ...info, why: '中心が別要素に覆われている: ' + t });
+          out.push({ ...info, idx, why: '中心が別要素に覆われている: ' + t });
+          return;
         }
-      }
-      return { out, hNames };
+        okIdx.push(idx);
+      });
+      return { out, hidden, okIdx };
     }, { SEL, w, h });
-      if (pass === '左端') for (const n of got.hNames) hSet.add(n);
+      if (pass === '左端') for (const x of got.hidden) hInfo.set(x.idx, x);
+      else for (const i of got.okIdx) if (hInfo.has(i)) resolved.add(i);
       // 右端では「左端のとき横に隠れていた部品」だけを検査する(操作列など左端で見えていたものは対象外)
-      for (const g of got.out) if ((pass === '左端' || hSet.has(g.name)) && !bad.some((b) => b.zone === g.zone && b.name === g.name && b.rect.join() === g.rect.join() && b.why === g.why)) bad.push({ ...g, pass });
+      for (const g of got.out) if ((pass === '左端' || hInfo.has(g.idx)) && !bad.some((b) => b.zone === g.zone && b.name === g.name && b.rect.join() === g.rect.join() && b.why === g.why)) bad.push({ ...g, pass });
+    }
+    // 右端までスクロールしても見えない / 検査できなかった部品は違反として数える
+    for (const [i, x] of hInfo) {
+      if (resolved.has(i)) continue;
+      if (bad.some((b) => b.idx === i)) continue; // 右端で別の理由の違反として既に出ている
+      const { idx, ...info } = x;
+      bad.push({ ...info, why: '横スクロールしても見えない', pass: '右端' });
     }
     const label = `${w}x${h} サイドバー${open ? '開' : '閉'}`;
     const counted = bad.filter((b) => !GATE || GATE.includes(b.zone));
@@ -101,7 +117,7 @@ for (const [w, h] of WIDTHS) {
       if (counted.length) fail++;
       console[counted.length ? 'error' : 'log']((counted.length ? 'NG ' : 'OK(対象外のみ) ') + label + ' ' + bad.length + ' 件 区画別 ' + JSON.stringify(zs));
       for (const b of bad) console[(!GATE || GATE.includes(b.zone)) ? 'error' : 'log']('   ', JSON.stringify(b));
-    } else console.log('OK ' + label + (hSet.size ? ' (横に隠れていた ' + hSet.size + ' 件は右端で検査済み)' : ''));
+    } else console.log('OK ' + label + (resolved.size ? ' (横に隠れていた ' + resolved.size + ' 件は右端で検査済み)' : ''));
   }
   await browser.close();
 }

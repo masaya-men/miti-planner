@@ -50,14 +50,21 @@ describe('Tooltip below 配置の左右クランプ', () => {
         const h = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
         Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { value: 200, configurable: true });
         Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { value: 40, configurable: true });
+        const ih = Object.getOwnPropertyDescriptor(window, 'innerHeight');
         Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+        let left: number;
+        try {
         render(<Tooltip content="TIP" below={below}><button>icon</button></Tooltip>);
         fireEvent.mouseEnter(screen.getByText('icon').parentElement!, { clientX: x, clientY: 100 });
         act(() => { vi.advanceTimersByTime(150); });
         act(() => { vi.advanceTimersByTime(50); });
-        const left = parseFloat((screen.getByText('TIP') as HTMLElement).style.left);
-        if (w) Object.defineProperty(HTMLElement.prototype, 'offsetWidth', w);
-        if (h) Object.defineProperty(HTMLElement.prototype, 'offsetHeight', h);
+        left = parseFloat((screen.getByText('TIP') as HTMLElement).style.left);
+        } finally {
+            // 書き換えた寸法は元に戻す(元の記述子が無ければ削除)
+            if (w) Object.defineProperty(HTMLElement.prototype, 'offsetWidth', w); else delete (HTMLElement.prototype as unknown as Record<string, unknown>).offsetWidth;
+            if (h) Object.defineProperty(HTMLElement.prototype, 'offsetHeight', h); else delete (HTMLElement.prototype as unknown as Record<string, unknown>).offsetHeight;
+            if (ih) Object.defineProperty(window, 'innerHeight', ih); else delete (window as unknown as Record<string, unknown>).innerHeight;
+        }
         return left;
     };
 

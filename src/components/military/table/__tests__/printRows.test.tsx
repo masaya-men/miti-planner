@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { printRows } from '../printRows';
+import { printRows, cancelPrintRows } from '../printRows';
 
 /** 行 n 個(高さ 25・上から並ぶ)と効果アイコン 2 個を持つ器。可視範囲は 0〜100(= 4 行) */
 function build(n = 20) {
@@ -13,7 +13,8 @@ function build(n = 20) {
     r.getBoundingClientRect = () => { rect(i); return { top: i * 25, bottom: i * 25 + 25, left: 0, right: 100, width: 100, height: 25, x: 0, y: i * 25, toJSON() {} } as DOMRect; };
     c.appendChild(r);
   }
-  for (let k = 0; k < 2; k++) { const m = document.createElement('div'); m.setAttribute('data-mit-icon', ''); m.animate = vi.fn(() => ({ cancel: vi.fn() })) as never; c.appendChild(m); }
+  // アイコン 2 個は可視範囲(y=10 と y=30)、画面外の 1 個(y=500)
+  for (const y of [10, 30, 500]) { const m = document.createElement('div'); m.setAttribute('data-mit-icon', ''); m.getBoundingClientRect = () => ({ top: y, bottom: y + 20, left: 0, right: 20, width: 20, height: 20, x: 0, y, toJSON() {} }) as DOMRect; m.animate = vi.fn(() => ({ cancel: vi.fn() })) as never; c.appendChild(m); }
   return { c, rect };
 }
 const rows = (c: HTMLElement) => [...c.querySelectorAll<HTMLElement>('[data-time-row]')];
@@ -46,6 +47,26 @@ describe('printRows', () => {
     const opts = (m.animate as ReturnType<typeof vi.fn>).mock.calls[0][1];
     expect(opts.delay).toBe(160 + 4 * 32 + 60);
     expect(opts.duration).toBe(360);
+  });
+
+  it('効果アイコンは縦の可視範囲にあるものだけに付ける', () => {
+    const { c } = build();
+    printRows(c, 0);
+    const calls = [...c.querySelectorAll<HTMLElement>('[data-mit-icon]')].map((m) => (m.animate as ReturnType<typeof vi.fn>).mock.calls.length);
+    expect(calls).toEqual([1, 1, 0]);
+  });
+
+  it('cancelPrintRows で class・listener・Animation を片付ける', () => {
+    const { c } = build();
+    printRows(c, 0);
+    const icon = c.querySelector('[data-mit-icon]') as HTMLElement;
+    const anim = (icon.animate as ReturnType<typeof vi.fn>).mock.results[0].value;
+    const r = rows(c)[0];
+    const spy = vi.spyOn(r, 'removeEventListener');
+    cancelPrintRows(c);
+    expect(anim.cancel).toHaveBeenCalled();
+    expect(spy).toHaveBeenCalledWith('animationend', expect.any(Function));
+    expect(c.querySelector('.milspec-pr')).toBeNull();
   });
 
   it('動きを減らす設定では何もしない', () => {
