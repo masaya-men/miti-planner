@@ -2776,8 +2776,24 @@
 .theme-military .milspec-key[data-pressed] .sh { opacity: 0.3; transform: none; }
 .theme-military .milspec-key[data-pressed] .lip { stroke: var(--ma-on); filter: drop-shadow(0 0 1.2px rgba(var(--ma-on-rgb),0.9)); }
 .theme-military .milspec-key[data-pressed] .milspec-key-lb { color: var(--ma-kink-hot); }
+/* 標準部品のボタンをキーにする(MilspecKeyCap を中に置く)。button 側は枠・背景なし、
+   幅高さ = キーの bbox、clip-path: polygon(hitPolygon) は style で渡す。ホバーは button 基準 */
+.theme-military .milspec-keybtn { position: relative; display: block; padding: 0; margin: 0; border: 0; background: none; cursor: pointer; }
+.theme-military .milspec-keybtn:disabled { cursor: default; opacity: 0.55; }
+/* フォーカス枠は clip-path で切れるため、フォーカス中だけ clip を外し MilspecKey と同じ枠を出す */
+.theme-military .milspec-keybtn:focus-visible { outline: 1.2px solid var(--ma-on); outline-offset: 2px; clip-path: none !important; }
+.theme-military .milspec-keybtn:not(:disabled):hover .milspec-key-hov { transform: translateY(-0.6px); }
+.theme-military .milspec-keybtn:not(:disabled):hover .sh { transform: translate(0, 0.7px) scale(1.015); }
+.theme-military .milspec-keybtn:not(:disabled):hover .rim { opacity: 0.34; }
+.theme-military .milspec-keybtn:not(:disabled):hover .milspec-key-lb { color: var(--ma-kink-hot); }
+.theme-military .milspec-keybtn:not(:disabled):hover .milspec-key-lb svg { stroke: var(--ma-kink-hot); }
+/* active = 連動キーと同じ「下縁のランプが点く」状態(沈みはしない) */
+.theme-military .milspec-key-active .lip { stroke: var(--ma-on); filter: drop-shadow(0 0 1.2px rgba(var(--ma-on-rgb),0.9)); }
+.theme-military .milspec-key-active .milspec-key-lb { color: var(--ma-kink-hot); }
+/* 視覚的に隠す(スクリーンリーダー用の名前) */
+.milspec-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
 @media (prefers-reduced-motion: reduce) {
-  .theme-military .milspec-key-hov, .theme-military .milspec-key .sh, .theme-military .milspec-key .rim, .theme-military .milspec-key .lip, .theme-military .milspec-key-lb { transition: none; }
+  .theme-military .milspec-key-hov, .theme-military .milspec-keybtn .milspec-key-hov, .theme-military .milspec-key .sh, .theme-military .milspec-key .rim, .theme-military .milspec-key .lip, .theme-military .milspec-key-lb { transition: none; }
 }
 
 /* ---- サイドバーの基板 PLAN CORE(見本 css:358-369, 593-598)。SVG 内の部品 class は .milspec-pcb 配下に閉じる ---- */

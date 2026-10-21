@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef } from 'react';
-import type { ButtonHTMLAttributes, MouseEvent, ReactNode, Ref } from 'react';
+import type { ButtonHTMLAttributes, MouseEvent, ReactNode, Ref, RefObject } from 'react';
 import { capSVG } from './armor/svg';
 import { bbox, centroid, offsetPoly, P } from './armor/geom';
 import { readPalette } from './armor/palette';
@@ -80,38 +80,37 @@ const labelPos = (cx: number, cy: number, bx: number, by: number, off?: Pt) => (
   top: `${(cy - by + (off?.[1] ?? 0)).toFixed(1)}px`,
 });
 
-/** 押せるキー。位置は親が決める(自身は position:absolute にしない) */
-export function MilspecKey({ cap, label, onClick, pressed, latch, disabled, className, labelOffset, style, onPointerDown, onKeyDown, onBlur, ref: extRef, role, ...rest }: Props) {
-  const { ref, bb, cx, cy } = useCapDrawing(cap);
-  const btnRef = useRef<HTMLButtonElement | null>(null);
-  const setBtnRef = useCallback((el: HTMLButtonElement | null) => {
-    btnRef.current = el;
-    if (typeof extRef === 'function') extRef(el);
-    else if (extRef) (extRef as { current: HTMLButtonElement | null }).current = el;
-  }, [extRef]);
-  const kfRef = useRef<HTMLSpanElement>(null);
+/**
+ * 押下の動き(見本 js:681-720)。button に native リスナーを付け、kf 層を WAAPI で動かす。
+ * - pointerdown / キーボード(Enter・Space)で沈み、click / blur / window の pointerup・cancel で戻る
+ * - latch: 連動キー。pressed が外れたら弾かれて戻る
+ * btnRef は effect 時点で button を指していること(MilspecKeyCap は祖先の button を探して渡す)
+ */
+export function useKeyPressMotion(o: { btnRef: RefObject<HTMLElement | null>; kfRef: RefObject<HTMLElement | null>; pressed?: boolean; latch?: boolean }): void {
+  const { btnRef, kfRef, pressed, latch } = o;
   const reduced = useReducedMotion();
+  const live = useRef({ pressed, latch, reduced });
+  live.current = { pressed, latch, reduced };
   const st = useRef<{ down: boolean; held: boolean; anims: Animation[]; timer?: number }>({ down: false, held: false, anims: [] });
-  const hit = useMemo(() => P(offsetPoly(cap.pts, -0.8)), [cap]);
-  const vb = `${bb.x} ${bb.y} ${bb.w} ${bb.h}`;
 
   const run = (frames: Keyframe[], dur: number, shTo: number, shDur: number): Animation | null => {
     const kf = kfRef.current;
-    if (!kf || reduced || typeof kf.animate !== 'function') return null;
+    if (!kf || live.current.reduced || typeof kf.animate !== 'function') return null;
     st.current.anims.forEach((a) => a.cancel());
     const a = kf.animate(frames, { duration: dur, fill: 'forwards' });
     st.current.anims = [a];
-    const sh = ref.current?.querySelector('.sh');
+    const sh = kf.querySelector('.sh');
     if (sh && typeof sh.animate === 'function') {
       sh.animate([{ opacity: getComputedStyle(sh).opacity }, { opacity: shTo }], { duration: shDur, fill: 'forwards' });
     }
     return a;
   };
+  const isDisabled = () => (btnRef.current as HTMLButtonElement | null)?.disabled === true;
   const down = () => {
-    if (disabled || st.current.down) return;
+    if (isDisabled() || st.current.down) return;
     st.current.down = true;
     btnRef.current?.classList.add('milspec-key-down');
-    run(downFrames(pressed ? KP.latch : KP.rest), 160, 0.12, 150);
+    run(downFrames(live.current.pressed ? KP.latch : KP.rest), 160, 0.12, 150);
   };
   const up = (to: 'rest' | 'latch') => {
     if (!st.current.down) {
@@ -124,8 +123,8 @@ export function MilspecKey({ cap, label, onClick, pressed, latch, disabled, clas
     }
     st.current.down = false;
     btnRef.current?.classList.remove('milspec-key-down');
-    const latch = to === 'latch';
-    const a = run(latch ? UP_LATCH : UP_REST, latch ? 280 : 440, latch ? 0.3 : 1, 320);
+    const isLatch = to === 'latch';
+    const a = run(isLatch ? UP_LATCH : UP_REST, isLatch ? 280 : 440, isLatch ? 0.3 : 1, 320);
     if (a) a.onfinish = () => { if (st.current.anims[0] === a) { a.cancel(); st.current.anims = []; } };
   };
   // 連動キーの pressed が外れた = 別のキーが掛かった: 弾かれて戻る
@@ -139,25 +138,67 @@ export function MilspecKey({ cap, label, onClick, pressed, latch, disabled, clas
   });
   const upRef = useRef(up);
   upRef.current = up;
+  const downRef = useRef(down);
+  downRef.current = down;
 
-  // ポインタがキーの外で離されても戻す
   useEffect(() => {
+    const btn = btnRef.current;
+    if (!btn) return;
+    const onPointerDown = (e: PointerEvent) => { if (e.button === 0) { st.current.held = true; downRef.current(); } };
+    const onKeyDown = (e: KeyboardEvent) => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) downRef.current(); };
+    // フォーカスが外れたら沈めたままにしない(キーボード押下中の blur 対策)
+    const onBlur = () => {
+      if (st.current.down) { st.current.held = false; window.clearTimeout(st.current.timer); upRef.current(live.current.latch && live.current.pressed ? 'latch' : 'rest'); }
+    };
+    const onClick = () => { st.current.held = false; upRef.current(live.current.latch ? 'latch' : 'rest'); };
+    // ポインタがキーの外で離されても戻す
     const release = (e: Event) => {
       if (!st.current.held) return;
       // キー自身の上で離したときは click が戻しを担当する(二重に戻さない)
-      if (e.target instanceof Node && btnRef.current?.contains(e.target)) return;
+      if (e.target instanceof Node && btn.contains(e.target)) return;
       st.current.held = false;
       if (st.current.down) upRef.current('rest');
     };
+    btn.addEventListener('pointerdown', onPointerDown);
+    btn.addEventListener('keydown', onKeyDown);
+    btn.addEventListener('blur', onBlur);
+    btn.addEventListener('click', onClick);
     window.addEventListener('pointerup', release);
     window.addEventListener('pointercancel', release);
+    const s = st.current;
     return () => {
+      btn.removeEventListener('pointerdown', onPointerDown);
+      btn.removeEventListener('keydown', onKeyDown);
+      btn.removeEventListener('blur', onBlur);
+      btn.removeEventListener('click', onClick);
       window.removeEventListener('pointerup', release);
       window.removeEventListener('pointercancel', release);
-      window.clearTimeout(st.current.timer);
-      st.current.anims.forEach((a) => a.cancel());
+      window.clearTimeout(s.timer);
+      s.anims.forEach((a) => a.cancel());
     };
-  }, []);
+  }, [btnRef]);
+}
+
+/** 標準部品のボタン(clip-path 用): キーの当たり判定。bbox 原点基準 */
+export function hitPolygon(cap: CapSpec): string {
+  const bb = bbox(cap.pts);
+  const f = (v: number) => `${+v.toFixed(2)}px`;
+  return `polygon(${offsetPoly(cap.pts, -0.8).map(([x, y]) => `${f(x - bb.x)} ${f(y - bb.y)}`).join(', ')})`;
+}
+
+/** 押せるキー。位置は親が決める(自身は position:absolute にしない) */
+export function MilspecKey({ cap, label, onClick, pressed, latch, disabled, className, labelOffset, style, onPointerDown, onKeyDown, onBlur, ref: extRef, role, ...rest }: Props) {
+  const { ref, bb, cx, cy } = useCapDrawing(cap);
+  const btnRef = useRef<HTMLButtonElement | null>(null);
+  const setBtnRef = useCallback((el: HTMLButtonElement | null) => {
+    btnRef.current = el;
+    if (typeof extRef === 'function') extRef(el);
+    else if (extRef) (extRef as { current: HTMLButtonElement | null }).current = el;
+  }, [extRef]);
+  const kfRef = useRef<HTMLSpanElement>(null);
+  const hit = useMemo(() => P(offsetPoly(cap.pts, -0.8)), [cap]);
+  const vb = `${bb.x} ${bb.y} ${bb.w} ${bb.h}`;
+  useKeyPressMotion({ btnRef, kfRef, pressed, latch });
 
   return (
     <button
@@ -172,14 +213,10 @@ export function MilspecKey({ cap, label, onClick, pressed, latch, disabled, clas
       className={`milspec-key${className ? ` ${className}` : ''}`}
       style={{ width: bb.w, height: bb.h, ...style }}
       disabled={disabled}
-      onPointerDown={(e) => { onPointerDown?.(e); if (e.button === 0) { st.current.held = true; down(); } }}
-      onKeyDown={(e) => { onKeyDown?.(e); if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) down(); }}
-      onBlur={(e) => {
-        onBlur?.(e);
-        // フォーカスが外れたら沈めたままにしない(キーボード押下中の blur 対策)
-        if (st.current.down) { st.current.held = false; window.clearTimeout(st.current.timer); up(latch && pressed ? 'latch' : 'rest'); }
-      }}
-      onClick={(e) => { st.current.held = false; up(latch ? 'latch' : 'rest'); onClick?.(e); }}
+      onClick={onClick}
+      onPointerDown={onPointerDown}
+      onKeyDown={onKeyDown}
+      onBlur={onBlur}
     >
       <span className="milspec-key-hov">
         <span className="milspec-key-kf" ref={kfRef}>
@@ -194,13 +231,22 @@ export function MilspecKey({ cap, label, onClick, pressed, latch, disabled, clas
   );
 }
 
-/** 見た目だけのキー(button なし)。自分で <button> を持つ部品の下に敷く */
-export function MilspecKeyCap({ cap, label, className }: { cap: CapSpec; label?: ReactNode; className?: string }) {
+/**
+ * 見た目だけのキー。自分で <button> を持つ部品の中に置くと、最も近い祖先の button に
+ * 押下の動きを付ける(button が無ければ見た目だけ)。active = 下縁のランプを緑にする
+ */
+export function MilspecKeyCap({ cap, label, className, active }: { cap: CapSpec; label?: ReactNode; className?: string; active?: boolean }) {
   const { ref, bb, cx, cy } = useCapDrawing(cap);
+  const rootRef = useRef<HTMLSpanElement>(null);
+  const kfRef = useRef<HTMLSpanElement>(null);
+  const btnRef = useRef<HTMLElement | null>(null);
+  // フックの listener 登録 effect より前に祖先 button を確定させる(宣言順 = 実行順)
+  useEffect(() => { btnRef.current = rootRef.current?.closest('button') ?? null; }, []);
+  useKeyPressMotion({ btnRef, kfRef });
   return (
-    <span className={`milspec-key milspec-key-static${className ? ` ${className}` : ''}`} aria-hidden="true" style={{ width: bb.w, height: bb.h }}>
+    <span ref={rootRef} className={`milspec-key milspec-key-static${active ? ' milspec-key-active' : ''}${className ? ` ${className}` : ''}`} aria-hidden="true" style={{ width: bb.w, height: bb.h }}>
       <span className="milspec-key-hov">
-        <span className="milspec-key-kf">
+        <span className="milspec-key-kf" ref={kfRef}>
           <svg className="milspec-key-cap" width={bb.w} height={bb.h} viewBox={`${bb.x} ${bb.y} ${bb.w} ${bb.h}`} ref={ref} aria-hidden="true" />
           <span className="milspec-key-lb" style={labelPos(cx, cy, bb.x, bb.y)}>{label}</span>
         </span>

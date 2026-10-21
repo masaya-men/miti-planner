@@ -4,7 +4,7 @@ import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createRef } from 'react';
 import { fireEvent } from '@testing-library/react';
-import { MilspecKey, MilspecKeyCap } from '../MilspecKey';
+import { MilspecKey, MilspecKeyCap, hitPolygon } from '../MilspecKey';
 import type { CapSpec } from '../armor/types';
 
 const cap: CapSpec = { pts: [[10, 10], [60, 10], [60, 30], [10, 30]], lip: true };
@@ -191,3 +191,40 @@ describe('MilspecKey ARIA / ref / blur', () => {
   });
 });
 
+
+describe('標準部品のボタンの中の MilspecKeyCap', () => {
+  it('祖先の button を押すと kf 層が animate され、離すと戻る', () => {
+    render(<button type="button" aria-label="host"><MilspecKeyCap cap={cap} label="X" /></button>);
+    const b = screen.getByRole('button', { name: 'host' });
+    fireEvent.pointerDown(b, { button: 0 });
+    // kf 層(+ 影の .sh)が animate される
+    expect(animate.mock.contexts.some((c) => (c as HTMLElement).classList.contains('milspec-key-kf'))).toBe(true);
+    expect(b.classList.contains('milspec-key-down')).toBe(true);
+    const n = animate.mock.calls.length;
+    fireEvent.click(b);
+    expect(animate.mock.calls.length).toBeGreaterThan(n);
+    expect(b.classList.contains('milspec-key-down')).toBe(false);
+  });
+
+  it('button が無くても壊れない(見た目だけ)', () => {
+    const { container } = render(<MilspecKeyCap cap={cap} label="X" />);
+    expect(container.querySelector('.milspec-key-static')).not.toBeNull();
+    expect(animate).not.toHaveBeenCalled();
+  });
+
+  it('active で milspec-key-active が付く', () => {
+    const { container, rerender } = render(<button type="button"><MilspecKeyCap cap={cap} /></button>);
+    expect(container.querySelector('.milspec-key-active')).toBeNull();
+    rerender(<button type="button"><MilspecKeyCap cap={cap} active /></button>);
+    expect(container.querySelector('.milspec-key-active')).not.toBeNull();
+  });
+});
+
+describe('hitPolygon', () => {
+  it('bbox 原点基準の polygon(px 付き・カンマ区切り)を返す', () => {
+    const s = hitPolygon(cap);
+    expect(s).toMatch(/^polygon\((-?[\d.]+px -?[\d.]+px)(, -?[\d.]+px -?[\d.]+px){3}\)$/);
+    // offsetPoly(pts, -0.8) の値をそのまま bbox 原点へ(MilspecKey の hit と同じ符号)
+    expect(s).toContain('polygon(-0.8px -0.8px, 50.8px -0.8px');
+  });
+});
