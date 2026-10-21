@@ -2179,3 +2179,5 @@ build PASS、 vitest 636/636 PASS、 tsc clean、 Playwright 6/6 PASS (5 viewpor
   正典=`docs/.private/theme-refs/milspec-mockup.html`(GITIGNORE)。設計書=`docs/superpowers/specs/2026-09-09-milspec-sp2-table-design.md`(実装内容を反映済み)。ledger=`.superpowers/sdd/2026-09-09-milspec-sp2-table/progress.md`。
   **✅ SP1 は 2026-09-09 main に FF マージ済(`4076d277`)**。punch-list=`docs/.private/2026-09-08-milspec-sp1-punch-list.md`。
   **🔵 SP1 の細かい見た目詰め(フォント/余白/立体感/ロールカウンター等)は SP2 マージ後にまとめて**(2026-09-09 masaya 決定・理由=中央の標準UI表が統一感の主因)。SP3(スマホ)/SP4(編集モーダル)は SP2 マージ後に着手。
+
+- (2026-10-21 TODO.md から移動) 直近の本番反映・確認済み: マイページ/複数投稿URL Batch2/編集画像管理/探すランダム化+初心者タグ/コストハードニング+実機FB9件/P0-P3耐性+住所非公開/big3(7-13)+競合コピー修正/D住所ゲート/旧UI掃除/ツアースマホ#1#2#3(`68e13644`+`482e9a94`・iPhone確認OK)。
