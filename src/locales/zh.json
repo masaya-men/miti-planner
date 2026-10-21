@@ -668,7 +668,12 @@
         "sb_content_sub": "内容",
         "sb_service_sub": "维护",
         "sb_content_group": "内容类型",
-        "hdr_turbine_start": "启动涡轮"
+        "hdr_lever_power_on": "接通电源",
+        "hdr_turbine_start": "启动涡轮",
+        "tbl_display_sub": "显示",
+        "tbl_edit_sub": "编辑",
+        "tbl_borders": "分隔线",
+        "tbl_pip": "显示切换"
     },
     "sidebar": {
         "new_plan": "新建",

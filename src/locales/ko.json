@@ -668,7 +668,12 @@
         "sb_content_sub": "콘텐츠",
         "sb_service_sub": "보수",
         "sb_content_group": "콘텐츠 종류",
-        "hdr_turbine_start": "터빈 가동"
+        "hdr_lever_power_on": "전원 켜기",
+        "hdr_turbine_start": "터빈 가동",
+        "tbl_display_sub": "표시",
+        "tbl_edit_sub": "편집",
+        "tbl_borders": "구분선",
+        "tbl_pip": "표시 전환"
     },
     "sidebar": {
         "new_plan": "새로 만들기",

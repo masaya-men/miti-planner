@@ -23,4 +23,9 @@ export const MsIcon = {
   login: () => <svg viewBox="0 0 16 16"><path d="M9 2h4v12H9M2 8h8M7 5l3 3-3 3" /></svg>,
   // 同期(見本にない。円弧 2 本 + 矢じり。線の太さは他と同じ CSS 任せ)
   sync: () => <svg viewBox="0 0 16 16"><path d="M3 8a5 5 0 0 1 8.6-3.4M12 2v3H9M13 8a5 5 0 0 1-8.6 3.4M4 14v-3h3" /></svg>,
-} satisfies Record<'plus' | 'share' | 'multi' | 'imp' | 'save' | 'rest' | 'dup' | 'rename' | 'close' | 'fold' | 'party' | 'stat' | 'more' | 'gear' | 'tut' | 'globe' | 'login' | 'sync', () => ReactElement>;
+  // 表の操作列(見本 js:266-272)
+  undo: () => <svg viewBox="0 0 16 16"><path d="M5.5 3 2.5 6l3 3M3 6h7a3.8 3.8 0 0 1 0 7.6H7" /></svg>,
+  redo: () => <svg viewBox="0 0 16 16"><path d="m10.5 3 3 3-3 3M13 6H6a3.8 3.8 0 0 0 0 7.6h3" /></svg>,
+  trash: () => <svg viewBox="0 0 16 16"><path d="M2.5 4h9M5.5 4V2.5h3V4M3.5 4l.7 9.5h5.6l.7-9.5" /><path d="M12.5 9.5l1.5 1.5 1.5-1.5" strokeWidth="1.3" /></svg>,
+  aa: () => <svg viewBox="0 0 16 16"><path d="M2 13 6 3l4 10M3.5 9.5h5M12.5 5v6M9.5 8h6" /></svg>,
+} satisfies Record<'plus' | 'share' | 'multi' | 'imp' | 'save' | 'rest' | 'dup' | 'rename' | 'close' | 'fold' | 'party' | 'stat' | 'more' | 'gear' | 'tut' | 'globe' | 'login' | 'sync' | 'undo' | 'redo' | 'trash' | 'aa', () => ReactElement>;

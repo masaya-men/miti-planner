@@ -676,7 +676,12 @@
         "sb_content_sub": "",
         "sb_service_sub": "",
         "sb_content_group": "Content type",
-        "hdr_turbine_start": "Start turbine"
+        "hdr_lever_power_on": "Power on",
+        "hdr_turbine_start": "Start turbine",
+        "tbl_display_sub": "Display",
+        "tbl_edit_sub": "Edit",
+        "tbl_borders": "Borders",
+        "tbl_pip": "View"
     },
     "sidebar": {
         "new_plan": "New",

@@ -237,8 +237,8 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
     });
 
     await step('折りたたむボタン (Area A) を ON/OFF', async () => {
-      const btn = page.locator('#timeline-controls-inner button').filter({ has: page.locator('svg.lucide-text-align-justify') }).first();
-      if ((await btn.count()) === 0) fail('折りたたむボタン (lucide-text-align-justify) が見つからない');
+      const btn = page.locator('#timeline-controls-inner [data-deck="expand"]').first();
+      if ((await btn.count()) === 0) fail('表を展開スライド ([data-deck=expand]) が見つからない');
       const b0 = await getState(MITI_STORE, 'hideEmptyRows');
       await btn.click();
       await page.waitForTimeout(250);
@@ -253,8 +253,8 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
 
     // ── step 4: AA 追加ボタン → ポップオーバー → Esc ────────────
     await step('AA 追加ボタンでポップオーバー表示 → Esc で閉じる', async () => {
-      const btn = page.locator('#timeline-controls-inner button').filter({ has: page.locator('svg.lucide-sword') }).first();
-      if ((await btn.count()) === 0) fail('AA 追加ボタン (lucide-sword) が見つからない');
+      const btn = page.locator('#timeline-controls-inner [data-deck="aa"]').first();
+      if ((await btn.count()) === 0) fail('AA 追加キー ([data-deck=aa]) が見つからない');
       await btn.click();
       await page.waitForTimeout(300);
       const pop = page.locator('.glass-tier3.z-\\[9999\\]');
@@ -269,8 +269,8 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
 
     // ── step 5: メモボタン ON/OFF ──────────────────────────────
     await step('メモボタンを ON/OFF', async () => {
-      const btn = page.locator('#timeline-controls-inner button').filter({ has: page.locator('svg.lucide-pencil') }).first();
-      if ((await btn.count()) === 0) fail('メモボタン (lucide-pencil) が見つからない');
+      const btn = page.locator('#timeline-controls-inner [data-deck="memo"]').first();
+      if ((await btn.count()) === 0) fail('メモロッカー ([data-deck=memo]) が見つからない');
       await btn.click();
       await page.waitForTimeout(250);
       const m1 = await getState(MITI_STORE, 'toolMode');
@@ -284,8 +284,8 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
 
     // ── step 6: リキャスト行トグル (Area C) OFF/ON ─────────────
     await step('リキャスト行トグル (Area C) を OFF/ON', async () => {
-      const btn = page.locator('#timeline-controls-inner button').filter({ has: page.locator('svg.lucide-clock') }).first();
-      if ((await btn.count()) === 0) fail('リキャスト行トグル (lucide-clock) が見つからない');
+      const btn = page.locator('#timeline-controls-inner [data-deck="recast"]').first();
+      if ((await btn.count()) === 0) fail('リキャストロッカー ([data-deck=recast]) が見つからない');
       const cellsBefore = await page.locator('.recast-cell').count();
       await btn.click();
       await page.waitForTimeout(250);

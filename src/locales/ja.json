@@ -680,7 +680,12 @@
         "sb_content_sub": "コンテンツ",
         "sb_service_sub": "保守",
         "sb_content_group": "コンテンツ種別",
-        "hdr_turbine_start": "タービン起動"
+        "hdr_lever_power_on": "電源を入れる",
+        "hdr_turbine_start": "タービン起動",
+        "tbl_display_sub": "表示",
+        "tbl_edit_sub": "編集",
+        "tbl_borders": "罫線",
+        "tbl_pip": "表示切替"
     },
     "sidebar": {
         "new_plan": "新規作成",

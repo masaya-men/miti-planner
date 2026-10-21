@@ -668,7 +668,12 @@
         "sb_content_sub": "內容",
         "sb_service_sub": "維護",
         "sb_content_group": "內容類型",
-        "hdr_turbine_start": "啟動渦輪"
+        "hdr_lever_power_on": "接通電源",
+        "hdr_turbine_start": "啟動渦輪",
+        "tbl_display_sub": "顯示",
+        "tbl_edit_sub": "編輯",
+        "tbl_borders": "分隔線",
+        "tbl_pip": "顯示切換"
     },
     "sidebar": {
         "new_plan": "新建",

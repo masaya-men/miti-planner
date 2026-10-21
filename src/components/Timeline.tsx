@@ -76,6 +76,7 @@ import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 import { RecastRow, type RecastRowHandle } from './RecastRow';
 import { JobPickerRow } from './JobPickerRow';
+import { MilspecControlDeck } from './military/table/MilspecControlDeck';
 import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
 import { MemoFloatingBar } from './Memo/MemoFloatingBar';
@@ -2782,6 +2783,66 @@ const Timeline: React.FC = () => {
                         )}
                     >
                         <div id="timeline-controls-inner" className="flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max will-change-transform">
+                            {/* MIL-SPEC v11: 操作列(表を展開〜軽減の削除メニュー)は軍事テーマ専用の装甲・スイッチ・キー。
+                                標準テーマでは下の従来 JSX をそのまま描く */}
+                            {isMilspecTable && (
+                                <>
+                                    <MilspecControlDeck
+                                        hideEmptyRows={hideEmptyRows}
+                                        onToggleHideEmpty={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
+                                        isMemoMode={isMemoMode}
+                                        onToggleMemo={() => useMitigationStore.getState().setToolMode(isMemoMode ? 'idle' : 'memo')}
+                                        showRowBorders={showRowBorders}
+                                        onToggleRowBorders={() => useMitigationStore.getState().setShowRowBorders(!showRowBorders)}
+                                        pipSupported={pipSupported}
+                                        pipActive={!!pipWindow}
+                                        pipMenuRef={pipMenuRef}
+                                        onPipEnter={openPipMenu}
+                                        onPipLeave={scheduleClosePipMenu}
+                                        onPipClick={() => { if (pipWindow) handleClosePip(); else openPipMenu(); }}
+                                        recastRowVisible={recastRowVisible}
+                                        onToggleRecast={handleToggleRecastRowVisible}
+                                        isAaModeEnabled={isAaModeEnabled}
+                                        onAaClick={() => {
+                                            if (isAaModeEnabled) {
+                                                setIsAaModeEnabled(false);
+                                            } else {
+                                                setAaSettingsOpen(!aaSettingsOpen);
+                                            }
+                                        }}
+                                        aaKeyRef={aaSettingsButtonRef}
+                                        canUndo={canUndo}
+                                        canRedo={canRedo}
+                                        readOnly={readOnly}
+                                        onUndo={() => useMitigationStore.getState().undo()}
+                                        onRedo={() => useMitigationStore.getState().redo()}
+                                        onClearClick={() => { if (readOnly) return; setClearMenuOpen(!clearMenuOpen); }}
+                                        clearKeyRef={clearMenuButtonRef}
+                                    />
+                                    <AASettingsPopover
+                                        isOpen={aaSettingsOpen}
+                                        onClose={() => setAaSettingsOpen(false)}
+                                        settings={aaSettings}
+                                        onSettingsChange={setAaSettings}
+                                        triggerRef={aaSettingsButtonRef}
+                                        onStartAdding={() => setIsAaModeEnabled(true)}
+                                        isAaActive={isAaModeEnabled}
+                                    />
+                                    {clearMenuOpen && (
+                                        <ClearMitigationsPopover
+                                            isOpen={clearMenuOpen}
+                                            onClose={() => setClearMenuOpen(false)}
+                                            triggerRef={clearMenuButtonRef}
+                                            partyMembers={partyMembers}
+                                            timelineMitigations={timelineMitigations}
+                                            contentLanguage={contentLanguage}
+                                            setConfirmDialog={setConfirmDialog}
+                                        />
+                                    )}
+                                </>
+                            )}
+                            {!isMilspecTable && (
+                            <>
                             {/* Area A: PHASE+LABEL+TIME — テーブルカラムと幅を揃える (var(--col-header-chunk-w) - 1px divider) */}
                             <div className="w-[calc(var(--col-header-chunk-w)-1px)] min-w-[calc(var(--col-header-chunk-w)-1px)] flex-none flex items-center px-1 md:px-2 h-full">
                                 <button
@@ -2988,6 +3049,8 @@ const Timeline: React.FC = () => {
                             {/* 短い区切り線 — テーブルの Dmg|Job列 境界と揃う */}
                             <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
 
+                            </>
+                            )}
                             {/* セッション 18 案 C1 物理移動: ジョブアイコン行を controlBar の右端に */}
                             <JobPickerRow
                                 partyMembers={visiblePartyMembers}
