@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { MilspecChrome } from './MilspecChrome';
+import { MilspecBackdropVideo } from './MilspecBackdropVideo';
 import { MilspecHeader } from './MilspecHeader';
 import { MilspecSidebar } from './MilspecSidebar';
 import { MilspecToolbar } from './MilspecToolbar';
@@ -49,6 +50,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   const { t } = useTranslation();
   return (
     <div data-app-shell className="milspec-app" data-theme-military>
+      <MilspecBackdropVideo />
       <MilspecChrome />
       {/* ゾーン: header(Task 4)/sidebar(Task 5)/toolbar(Task 6)/workspace(Task 3)/footer(Task 7)/seam(Task 8)は実装済。 */}
       {/* masaya 2026-09-14 確定: header ゾーンの高さは今までどおり(clamp 76-90px)据え置きで、

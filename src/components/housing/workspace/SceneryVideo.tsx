@@ -14,7 +14,7 @@ const LOAD_WATCHDOG_MS = 6000;
 const MAX_RETRIES = 1;
 
 /** アクティブになった video 要素が猶予時間内に描画開始しなければ load() し直す。 */
-function useVideoLoadRecovery(ref: React.RefObject<HTMLVideoElement | null>, active: boolean) {
+export function useVideoLoadRecovery(ref: React.RefObject<HTMLVideoElement | null>, active: boolean) {
   const retriesRef = useRef(0);
 
   const retry = useCallback(() => {

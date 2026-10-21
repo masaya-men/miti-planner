@@ -1006,6 +1006,13 @@
 .theme-military .milspec-zone-workspace { grid-area: workspace; position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
 .theme-military .milspec-zone-footer    { grid-area: footer;    position: relative; }
 
+/* 2026-09-25 polish Phase 1: 最奥の背景動画。viewport 全面に固定(1489 超の画面では app の外側も埋める)。
+   z-index:0 で .milspec-app の背景より上、position:relative の各ゾーン(後続・z-index auto)より下に描かれる。
+   明るさは暗幕トークンで調整(値は Phase 0 見本に合わせて Phase 2 で確定)。 */
+.theme-military .milspec-backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.theme-military .milspec-backdrop video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.theme-military .milspec-backdrop-veil { position: absolute; inset: 0; background: var(--ms-backdrop-veil, rgba(6, 8, 10, 0.55)); }
+
 /* サイドバー畳み: 列幅を 0 ではなく 28px の「レール」に。列は .milspec-app 側で制御(:has で)。
  * whole-branch レビュー Important#1: 0 にすると折りたたみハンドル(.milspec-sb-collapse・
  * width:18px; right:8px = 18+8=26px 必要)ごと画面から消え、復元手段が無い「行き止まり」になる。
