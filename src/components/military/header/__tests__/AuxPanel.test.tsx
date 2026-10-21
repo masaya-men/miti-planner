@@ -1,0 +1,173 @@
+// @vitest-environment happy-dom
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, fireEvent, act } from '@testing-library/react';
+import i18n from '../../../../i18n';
+import { AuxPanel } from '../AuxPanel';
+import { ThemeRocker } from '../ThemeRocker';
+import { ModeLever } from '../ModeLever';
+import { TransitionOverlayProvider } from '../../../ui/TransitionOverlay';
+import { useThemeStore } from '../../../../store/useThemeStore';
+import { usePlanStore } from '../../../../store/usePlanStore';
+import { useAuthStore } from '../../../../store/useAuthStore';
+
+const h = vi.hoisted(() => ({ reduced: false, openShareUI: vi.fn(), isOn: false }));
+vi.mock('../../../../lib/housing/useReducedMotion', () => ({ useReducedMotion: () => h.reduced }));
+vi.mock('../../../collab/useShareFlow', () => ({
+  useShareFlow: () => ({ openShareUI: h.openShareUI, isOn: h.isOn, liveCount: 0, active: false, modals: <div data-testid="share-modals" /> }),
+}));
+vi.mock('../../../LoginModal', () => ({ LoginModal: ({ isOpen }: { isOpen: boolean }) => (isOpen ? <div data-testid="login-modal" /> : null) }));
+
+const setUser = (u: object | null) => useAuthStore.setState({ user: u as never });
+const renderAux = (extra?: Partial<React.ComponentProps<typeof AuxPanel>>) =>
+  render(<TransitionOverlayProvider><AuxPanel MW={1189} theme="dark" onToggleTheme={() => {}} {...extra} /></TransitionOverlayProvider>);
+
+beforeEach(async () => {
+  await i18n.changeLanguage('ja');
+  vi.useFakeTimers();
+  h.reduced = false; h.isOn = false; h.openShareUI.mockClear();
+  setUser(null);
+  usePlanStore.setState({ plans: [], currentPlanId: null, _cloudStatus: 'idle' } as never);
+  useThemeStore.setState({ theme: 'dark', themeStyle: 'military' });
+  document.body.querySelectorAll('.milspec-wipe').forEach((n) => n.remove());
+});
+afterEach(() => { vi.runOnlyPendingTimers(); vi.useRealTimers(); });
+
+describe('AuxPanel', () => {
+  it('刻印 AUX/DSP/MODE/COM と型番 H4 を出す', () => {
+    const { container } = renderAux();
+    for (const s of ['AUX', 'DSP', 'MODE', 'COM', 'H4']) expect(container.textContent).toContain(s);
+  });
+
+  it('チュートリアル・言語のキーを押すとメニューが開き、名前が読める', () => {
+    const { getByRole, queryAllByText } = renderAux();
+    const tut = getByRole('button', { name: 'チュートリアルを見る' });
+    fireEvent.click(tut);
+    // メニューは body 直下に出る(キー自身の名前とは別に項目が出る)
+    expect(document.body.textContent).toContain('チュートリアル');
+    expect(queryAllByText('チュートリアルを見る').length).toBeGreaterThan(0);
+    const lang = getByRole('button', { name: '言語切替' });
+    fireEvent.click(lang);
+    expect(document.body.textContent).toContain('English');
+  });
+
+  it('共有キーで共有フローが開く / 共同編集中は押し込まれたまま', () => {
+    const { getByRole, rerender } = renderAux();
+    fireEvent.click(getByRole('button', { name: '共有' }));
+    expect(h.openShareUI).toHaveBeenCalledTimes(1);
+    expect(getByRole('button', { name: '共有' }).hasAttribute('data-pressed')).toBe(false);
+    h.isOn = true;
+    rerender(<TransitionOverlayProvider><AuxPanel MW={1189} theme="dark" onToggleTheme={() => {}} /></TransitionOverlayProvider>);
+    expect(getByRole('button', { name: '共同編集中' }).hasAttribute('data-pressed')).toBe(true);
+  });
+
+  it('同期キー: 未ログインでは出ず、ログイン + プランありで出て押すと同期する', () => {
+    const { queryByRole, rerender } = renderAux();
+    expect(queryByRole('button', { name: '保存済み' })).toBeNull();
+    const manualSync = vi.fn(() => Promise.resolve());
+    setUser({ uid: 'u1' });
+    usePlanStore.setState({ currentPlanId: 'p1', manualSync, updatePlan: vi.fn() } as never);
+    rerender(<TransitionOverlayProvider><AuxPanel MW={1189} theme="dark" onToggleTheme={() => {}} /></TransitionOverlayProvider>);
+    fireEvent.click(queryByRole('button', { name: '保存済み' })!);
+    expect(manualSync).toHaveBeenCalledWith('u1', 'User');
+  });
+
+  it('ログインキーで LoginModal が開く', () => {
+    const { getByRole, queryByTestId } = renderAux();
+    expect(queryByTestId('login-modal')).toBeNull();
+    fireEvent.click(getByRole('button', { name: 'ログイン' }));
+    expect(queryByTestId('login-modal')).toBeTruthy();
+  });
+
+  it('頭文字の刻印', () => {
+    setUser({ uid: 'u1' });
+    useAuthStore.setState({ profileDisplayName: 'masa' } as never);
+    const { getByRole } = renderAux();
+    expect(getByRole('button', { name: 'ログイン' }).textContent).toContain('M');
+  });
+});
+
+describe('ThemeRocker', () => {
+  it('押すと走査線が出て 360ms 後に onToggle・走査線は後で消える', () => {
+    const onToggle = vi.fn();
+    const { getByRole } = render(<ThemeRocker theme="dark" onToggle={onToggle} />);
+    const btn = getByRole('button', { name: 'テーマ' });
+    expect(btn.getAttribute('data-v')).toBe('night');
+    fireEvent.click(btn);
+    expect(btn.getAttribute('data-v')).toBe('day');
+    expect(document.body.querySelector('.milspec-wipe')).toBeTruthy();
+    act(() => { vi.advanceTimersByTime(359); });
+    expect(onToggle).not.toHaveBeenCalled();
+    act(() => { vi.advanceTimersByTime(1); });
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    act(() => { vi.advanceTimersByTime(1000); });
+    expect(document.body.querySelector('.milspec-wipe')).toBeNull();
+  });
+
+  it('動きを減らす設定なら即時(走査線なし)', () => {
+    h.reduced = true;
+    const onToggle = vi.fn();
+    const { getByRole } = render(<ThemeRocker theme="light" onToggle={onToggle} />);
+    fireEvent.click(getByRole('button', { name: 'テーマ' }));
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(document.body.querySelector('.milspec-wipe')).toBeNull();
+  });
+});
+
+describe('ModeLever', () => {
+  const lever = () => render(
+    <TransitionOverlayProvider><ModeLever x={0} y={0} w={36} h={30} /></TransitionOverlayProvider>,
+  );
+  const spies: { mockRestore: () => void }[] = [];
+  const spy = () => { const s = vi.spyOn(useThemeStore.getState(), 'setThemeStyle'); spies.push(s); return s; };
+  const flush = () => act(() => { vi.advanceTimersByTime(1500); });
+
+  beforeEach(() => { vi.stubEnv('DEV', true); });
+  afterEach(() => { vi.unstubAllEnvs(); spies.splice(0).forEach((s) => s.mockRestore()); });
+
+  it('軍事表示中は aria-checked=true。クリックで上がり 240ms 後に標準へ', () => {
+    const s = spy();
+    const { getByRole } = lever();
+    const sw = getByRole('switch');
+    expect(sw.getAttribute('aria-checked')).toBe('true');
+    fireEvent.click(sw);
+    expect(sw.getAttribute('aria-checked')).toBe('false');
+    act(() => { vi.advanceTimersByTime(200); });
+    expect(s).not.toHaveBeenCalled();
+    flush();
+    expect(s).toHaveBeenCalledWith('standard');
+    expect(useThemeStore.getState().themeStyle).toBe('standard');
+  });
+
+  it('ポインタのドラッグで上へ引き上げても標準へ / 中途半端なら戻って切り替えない', () => {
+    const s = spy();
+    const { getByRole } = lever();
+    const sw = getByRole('switch');
+    fireEvent.pointerDown(sw, { clientY: 100, pointerId: 1 });
+    fireEvent.pointerMove(sw, { clientY: 99, pointerId: 1 });
+    fireEvent.pointerMove(sw, { clientY: 95, pointerId: 1 }); // 18→13: 中間(10)より下
+    fireEvent.pointerUp(sw, { pointerId: 1 });
+    flush();
+    expect(s).not.toHaveBeenCalled();
+    expect(sw.getAttribute('aria-checked')).toBe('true');
+    fireEvent.pointerDown(sw, { clientY: 100, pointerId: 1 });
+    fireEvent.pointerMove(sw, { clientY: 60, pointerId: 1 });
+    fireEvent.pointerUp(sw, { pointerId: 1 });
+    flush();
+    expect(s).toHaveBeenCalledWith('standard');
+  });
+
+  it('キーボード(Space / Enter)でも切り替わる', () => {
+    const s = spy();
+    const { getByRole } = lever();
+    fireEvent.keyDown(getByRole('switch'), { key: ' ' });
+    flush();
+    expect(s).toHaveBeenCalledWith('standard');
+  });
+
+  it('WIP 公開条件を満たさないと出ない', () => {
+    vi.stubEnv('DEV', false);
+    useAuthStore.setState({ isAdmin: false } as never);
+    const { queryByRole } = lever();
+    expect(queryByRole('switch')).toBeNull();
+  });
+});
