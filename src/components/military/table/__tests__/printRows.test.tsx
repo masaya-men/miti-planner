@@ -13,7 +13,7 @@ function build(n = 20) {
     r.getBoundingClientRect = () => { rect(i); return { top: i * 25, bottom: i * 25 + 25, left: 0, right: 100, width: 100, height: 25, x: 0, y: i * 25, toJSON() {} } as DOMRect; };
     c.appendChild(r);
   }
-  for (let k = 0; k < 2; k++) { const m = document.createElement('div'); m.setAttribute('data-mit-icon', ''); m.animate = vi.fn() as never; c.appendChild(m); }
+  for (let k = 0; k < 2; k++) { const m = document.createElement('div'); m.setAttribute('data-mit-icon', ''); m.animate = vi.fn(() => ({ cancel: vi.fn() })) as never; c.appendChild(m); }
   return { c, rect };
 }
 const rows = (c: HTMLElement) => [...c.querySelectorAll<HTMLElement>('[data-time-row]')];
@@ -56,13 +56,48 @@ describe('printRows', () => {
     expect((c.querySelector('[data-mit-icon]')!.animate as ReturnType<typeof vi.fn>)).not.toHaveBeenCalled();
   });
 
+  it('子孫から bubble した animationend では外れない', () => {
+    const { c } = build();
+    printRows(c, 0);
+    const r = rows(c)[0];
+    const child = document.createElement('i'); r.appendChild(child);
+    const ev = (name: string) => { const e = new Event('animationend', { bubbles: true }) as Event & { animationName: string }; e.animationName = name; return e; };
+    child.dispatchEvent(ev('milspec-printin'));
+    expect(r.classList.contains('milspec-pr')).toBe(true);
+    r.dispatchEvent(ev('other'));
+    expect(r.classList.contains('milspec-pr')).toBe(true);
+    r.dispatchEvent(ev('milspec-printin'));
+    expect(r.classList.contains('milspec-pr')).toBe(false);
+  });
+
+  it('終点キーフレームは書かない', () => {
+    const { c } = build();
+    printRows(c, 0);
+    const frames = ((c.querySelector('[data-mit-icon]') as HTMLElement).animate as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    expect(frames).toHaveLength(1);
+  });
+
+  it('再トリガで前回の Animation を cancel し listener を重ねない', () => {
+    const { c } = build();
+    printRows(c, 0);
+    const icon = c.querySelector('[data-mit-icon]') as HTMLElement;
+    const first = (icon.animate as ReturnType<typeof vi.fn>).mock.results[0].value;
+    const r = rows(c)[0];
+    const spy = vi.spyOn(r, 'removeEventListener');
+    printRows(c, 0);
+    expect(first.cancel).toHaveBeenCalled();
+    expect(spy).toHaveBeenCalledWith('animationend', expect.any(Function));
+  });
+
   it('タイマーを残さず、終わったら class を外す', () => {
     const spy = vi.spyOn(window, 'setTimeout');
     const { c } = build();
     printRows(c, 0);
     expect(spy).not.toHaveBeenCalled();
     const r = rows(c)[0];
-    r.dispatchEvent(new Event('animationend'));
+    const e = new Event('animationend') as Event & { animationName: string };
+    e.animationName = 'milspec-printin';
+    r.dispatchEvent(e);
     expect(r.classList.contains('milspec-pr')).toBe(false);
   });
 });

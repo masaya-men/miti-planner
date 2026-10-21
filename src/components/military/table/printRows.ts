@@ -25,23 +25,39 @@ function visibleRows(container: HTMLElement): HTMLElement[] {
   return out;
 }
 
-const done = (e: Event) => (e.currentTarget as HTMLElement).classList.remove('milspec-pr');
+/** 行自身の printin が終わったときだけ class を外す(子孫から bubble した animationend は無視) */
+function done(this: HTMLElement, e: AnimationEvent): void {
+  if (e.target !== e.currentTarget || e.animationName !== 'milspec-printin') return;
+  this.classList.remove('milspec-pr');
+  this.removeEventListener('animationend', done);
+}
+
+/** 前回の描き込みの後始末(再トリガで listener と WAAPI を残さない) */
+const running = new WeakMap<HTMLElement, Animation[]>();
+const printed = new WeakMap<HTMLElement, HTMLElement[]>();
 
 export function printRows(container: HTMLElement, base: number): void {
   if (prefersReduced()) return;
+  printed.get(container)?.forEach((r) => r.removeEventListener('animationend', done));
+  running.get(container)?.forEach((a) => a.cancel());
   const rs = visibleRows(container);
   rs.forEach((r, i) => {
     r.classList.remove('milspec-pr');
     void r.offsetWidth; // アニメを最初から掛け直す(見えている行だけなので強制レイアウトは数十行)
     r.style.setProperty('--d', `${base + i * STEP}ms`);
     r.classList.add('milspec-pr');
-    r.addEventListener('animationend', done, { once: true });
+    r.addEventListener('animationend', done);
   });
+  printed.set(container, rs);
+  const anims: Animation[] = [];
   container.querySelectorAll<HTMLElement>('[data-mit-icon], [data-mit-bar]').forEach((m) => {
     if (typeof m.animate !== 'function') return;
-    m.animate(
-      [{ opacity: 0, filter: 'brightness(2)' }, { opacity: 1, filter: 'none' }],
+    // 終点は書かない = アイコン本来の opacity / filter / ホバーの明るさに任せる
+    const a = m.animate(
+      [{ opacity: 0, filter: 'brightness(2)' }],
       { duration: 360, delay: base + rs.length * STEP + 60, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' },
     );
+    if (a) anims.push(a);
   });
+  running.set(container, anims);
 }
