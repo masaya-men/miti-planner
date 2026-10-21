@@ -79,6 +79,7 @@ import { JobPickerRow } from './JobPickerRow';
 import { MilspecControlDeck } from './military/table/MilspecControlDeck';
 import { useSortSlide } from './military/table/useSortSlide';
 import { MilspecJackBoard } from './military/table/MilspecJackBoard';
+import { MilspecMemberHeads } from './military/table/MilspecMemberHeads';
 import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
 import { MemoFloatingBar } from './Memo/MemoFloatingBar';
@@ -3184,6 +3185,10 @@ const Timeline: React.FC = () => {
                                 <span className="md:hidden">{t('timeline.header_taken_short')}</span>
                                 <span className="hidden md:inline">{t('timeline.header_taken')}</span>
                             </div>
+                            {/* 軍事の表: メンバー列の見出し(ロール色の線 + ジョブ略号・見本 v11 css:472-475)。標準では出さない */}
+                            {isMilspecTable && (
+                                <MilspecMemberHeads members={visiblePartyMembers} jobs={JOBS} memberLayout={memberLayout} />
+                            )}
 
                             {/* セッション 18 案 C1: ヘッダーのメンバー列領域はリキャストアイコン専用に。
                                 旧ジョブアイコン行は controlBar に移動 (JobPickerRow)。

@@ -204,3 +204,28 @@
 .theme-military .milspec-app .milspec-tbl-wrap .milspec-rc-label {
   font-family: 'Saira Semi Condensed', sans-serif; font-weight: 600; font-size: 5.4px; letter-spacing: 0.24em; color: var(--ma-th); opacity: 0.9;
 }
+
+/* ---------- 見出しのメンバー列(見本 css:472-475 の .jc / .rl)。列の x は Timeline の実測 ---------- */
+.theme-military { --ma-role-tank: #4d79c6; --ma-role-healer: #4ea669; --ma-role-dps: #bf5049; }
+.theme-military .milspec-app #timeline-header-inner { position: relative; }
+.theme-military .milspec-app #timeline-header-inner > .milspec-mh {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0; height: auto; pointer-events: none;
+}
+.theme-military .milspec-app #timeline-header-inner > .milspec-mh::before,
+.theme-military .milspec-app #timeline-header-inner > .milspec-mh::after { content: none; }
+.theme-military .milspec-app #timeline-header-inner > .milspec-mh > .milspec-mh-item {
+  position: absolute; top: 0; bottom: 0; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3.5px;
+  padding: 0; font: 600 5.4px/1 'Saira Semi Condensed', sans-serif;
+}
+.theme-military .milspec-app .milspec-mh-rl {
+  display: block; width: 14px; height: 2px; border-radius: 1px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.35);
+  background: var(--ma-rc, var(--ma-ink-3));
+}
+.theme-military .milspec-app .milspec-mh-item small {
+  font: 600 5.4px/1 'Saira Semi Condensed', sans-serif; letter-spacing: 0.24em; padding-left: 0.24em;
+  color: var(--ma-th); min-height: 5.4px;
+}
+.theme-military .milspec-app .milspec-mh-item[data-role="tank"] { --ma-rc: var(--ma-role-tank); }
+.theme-military .milspec-app .milspec-mh-item[data-role="healer"] { --ma-rc: var(--ma-role-healer); }
+.theme-military .milspec-app .milspec-mh-item[data-role="dps"] { --ma-rc: var(--ma-role-dps); }
