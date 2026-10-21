@@ -133,7 +133,7 @@ export const MilspecContentTree: React.FC<{ tab: Tab; select?: MilspecTreeSelect
   }, []);
 
   return (
-    <div className="milspec-tree-scroll milspec-tr" data-ms-tree>
+    <div className="milspec-tr" data-ms-tree>
       {tab === 'savage' && <SavageTree lang={contentLanguage} currentContentId={currentContentId} onAdd={openNewPlan} select={select} />}
       {tab === 'ultimate' && getAllUltimates().map((c, i) => (
         <MilspecContentGroup
@@ -330,7 +330,7 @@ const MilspecContentGroup: React.FC<{
     }
     energy(row);
     if (plans.length > 0) setOpen(!expanded);
-    else onAdd(content.id);
+    else if (!select) onAdd(content.id); // 選択モード中は新規作成を開かない
   };
 
   return (
@@ -338,6 +338,7 @@ const MilspecContentGroup: React.FC<{
       <button
         type="button"
         className={clsx('milspec-tr-it', isCurrent && 'is-sel')}
+        aria-expanded={plans.length > 0 ? expanded : undefined}
         onClick={onHeadClick}
       >
         <span className="milspec-tr-n">{String(index + 1).padStart(2, '0')}</span>
@@ -436,7 +437,7 @@ const PlanRow: React.FC<{ plan: SavedPlan; select?: MilspecTreeSelect }> = ({ pl
       tabIndex={0}
       className={clsx('milspec-tr-plan', (select ? picked : sel) && 'is-sel', select && 'is-pick')}
       onClick={(e) => activate(e.currentTarget)}
-      onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !editing) { e.preventDefault(); activate(e.currentTarget); } }}
+      onKeyDown={(e) => { if (e.target !== e.currentTarget) return; if ((e.key === 'Enter' || e.key === ' ') && !editing) { e.preventDefault(); activate(e.currentTarget); } }}
     >
       {select && <MilspecLed state={picked ? 'on' : 'off'} size={6} />}
       {editing ? (

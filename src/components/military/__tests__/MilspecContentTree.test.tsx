@@ -180,4 +180,15 @@ describe('MilspecContentTree', () => {
     (useReducedMotion as ReturnType<typeof vi.fn>).mockReturnValue(false);
     delete (HTMLElement.prototype as unknown as { animate?: unknown }).animate;
   });
+
+  it('選択モード中はプランの無い層の行を押しても新規作成を開かない', () => {
+    usePlanStore.setState({ plans: [] as never, currentPlanId: null });
+    const onToggle = vi.fn();
+    r('ultimate', { mode: 'share', selectedIds: [], onToggle });
+    const before = document.body.children.length;
+    fireEvent.click(document.querySelector('.milspec-tr-it')!);
+    // 新規作成モーダルは body 直下へポータルされる。開けば子が増える
+    expect(document.body.children.length).toBe(before);
+    expect(onToggle).not.toHaveBeenCalled();
+  });
 });
