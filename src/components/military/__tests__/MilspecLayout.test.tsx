@@ -4,6 +4,7 @@ import { render, act, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { MilspecLayout } from '../MilspecLayout';
 import { useThemeStore } from '../../../store/useThemeStore';
+import { isPowered } from '../power/power';
 
 const baseProps = {
   isSidebarOpen: true, onToggleSidebar: vi.fn(), onCloseSidebar: vi.fn(),
@@ -156,5 +157,14 @@ describe('MilspecLayout', () => {
     unmount();
     expect(useSidebarToggleAnimator.getState().animated).toBeNull();
   });
-});
 
+  it('開いた直後は電源 off・各区画に暗幕がある・アンマウントで属性が消える', () => {
+    const { container, unmount } = renderIt();
+    expect(isPowered()).toBe(false);
+    for (const z of ['sidebar', 'rail', 'header', 'vent', 'workspace', 'footer']) {
+      expect(container.querySelector(`[data-ms-zone="${z}"] > .milspec-dim`)).not.toBeNull();
+    }
+    unmount();
+    expect(document.documentElement.dataset.msPower).toBeUndefined();
+  });
+});

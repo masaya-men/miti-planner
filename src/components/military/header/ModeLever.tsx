@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { MilspecLed } from '../MilspecDecor';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { useCanPreviewWip } from '../../../hooks/useCanPreviewWip';
-import { useTransitionOverlay } from '../../ui/TransitionOverlay';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
+import { isPowered, powerOn, powerOff } from '../power/power';
 import './milspecH4.css';
 
-// H4 MODE T 字レバー(見本 js:1141-1157)。標準 ⇄ MIL-SPEC。軍事表示中は「下」。上げると標準へ戻る。
-// 親は「ヘッダー区画」。TransitionOverlayProvider の内側に置くこと(標準へ戻すとき runTransition を使う)。
+// H4 MODE T 字レバー(見本 js:1141-1157)= MIL-SPEC の電源スイッチ。位置は電源に追従(off = 上・on = 下)。
+// 開いた直後は上から始まり、700ms 後に自動で下りて電源投入(見本 js:1228)。上げると電源断(300ms)の直後に標準へ戻る。
 
 const Y_UP = 2;
 const THUMB_H = 12; // 見本: yDn = clientHeight - 12
@@ -31,29 +31,38 @@ export interface ModeLeverProps {
 export function ModeLever({ x, y, w, h }: ModeLeverProps) {
   const { t } = useTranslation();
   const canPreview = useCanPreviewWip();
-  const { runTransition } = useTransitionOverlay();
   const reduced = useReducedMotion();
   const yDn = h - THUMB_H;
+  const powered0 = React.useRef(isPowered()); // マウント時点の電源(Layout が先に立てる)
 
   const lvRef = React.useRef<HTMLButtonElement>(null);
   const thRef = React.useRef<HTMLSpanElement>(null);
-  const pos = React.useRef(yDn); // 軍事表示中 = 下
-  const [on, setOn] = React.useState(true); // aria-checked(軍事表示中 = true)
+  const pos = React.useRef(powered0.current ? yDn : Y_UP); // 電源 on = 下・off = 上
+  const [on, setOn] = React.useState(powered0.current); // aria-checked = 電源状態
   const busy = React.useRef(false);
   const timer = React.useRef<number | undefined>(undefined);
   const drag = React.useRef<{ y0: number; l0: number; moved: boolean } | null>(null);
-  const live = React.useRef({ reduced, runTransition });
-  live.current = { reduced, runTransition };
+  const live = React.useRef({ reduced });
+  live.current = { reduced };
+  const dead = React.useRef(false);
 
   const place = (v: number) => {
     pos.current = v;
     if (thRef.current) thRef.current.style.transform = `translateY(${v}px)`;
   };
   React.useLayoutEffect(() => { place(pos.current); }, [canPreview]);
-  React.useEffect(() => () => window.clearTimeout(timer.current), []);
+  // 電源 off で開いたら 700ms 後にレバーが自動で下りる(見本 js:1228)。アンマウントでタイマーを消す
+  React.useEffect(() => {
+    dead.current = false;
+    let boot: number | undefined;
+    // 判定はマウント時点の電源で行う(StrictMode の疑似アンマウントで属性が一瞬外れても自動で下ろす)
+    if (!powered0.current) boot = window.setTimeout(() => { if (pos.current === Y_UP) settleRef.current(true); }, 700);
+    return () => { dead.current = true; window.clearTimeout(boot); window.clearTimeout(timer.current); };
+  }, []);
 
   const settle = (down: boolean) => {
     if (busy.current) return;
+    const powered = isPowered();
     const from = pos.current, to = down ? yDn : Y_UP;
     const th = thRef.current;
     if (!live.current.reduced && th && typeof th.animate === 'function') {
@@ -61,20 +70,33 @@ export function ModeLever({ x, y, w, h }: ModeLeverProps) {
     }
     place(to);
     setOn(down);
-    // 下ろし直した(= 軍事のまま)ときは切替なし。上げたときだけ 240ms 後に標準へ
-    if (down) return;
+    window.clearTimeout(timer.current);
+    if (down) {
+      // 下ろした = 電源投入(すでに入っていれば何もしない)
+      if (powered) return;
+      timer.current = window.setTimeout(() => { if (!dead.current) powerOn(); }, live.current.reduced ? 0 : 240);
+      return;
+    }
+    // 上げた = 電源断(300ms)の直後に標準へ。すでに切れていれば何もしない
+    if (!powered) return;
     busy.current = true;
     timer.current = window.setTimeout(() => {
-      live.current.runTransition(() => useThemeStore.getState().setThemeStyle('standard'), 'theme');
-      // runTransition が lock 中などで何もしなかった場合の保険: 一定時間後も軍事のままなら、固まらないよう下へ戻す
-      timer.current = window.setTimeout(() => {
-        busy.current = false;
-        if (useThemeStore.getState().themeStyle !== 'military') return;
-        place(yDn);
-        setOn(true);
-      }, 1500);
+      void powerOff().then(() => {
+        if (dead.current) return;
+        useThemeStore.getState().setThemeStyle('standard');
+        // 切替が実行されず軍事のままなら、固まらないよう電源を入れ直してレバーを下へ戻す(保険)
+        timer.current = window.setTimeout(() => {
+          busy.current = false;
+          if (dead.current || useThemeStore.getState().themeStyle !== 'military') return;
+          place(yDn);
+          setOn(true);
+          powerOn({ reduced: true });
+        }, 1500);
+      });
     }, live.current.reduced ? 0 : 240);
   };
+  const settleRef = React.useRef(settle);
+  settleRef.current = settle;
 
   const onPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
     if (busy.current) return;

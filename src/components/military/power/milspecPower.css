@@ -1,0 +1,12 @@
+/* MIL-SPEC の電源 off の見た目(見本 css:16, 140-141, 180, 333, 612-617)。属性は power.ts が <html data-ms-power> に書く */
+.theme-military .milspec-dim { position: absolute; inset: 0; z-index: 30; background: #000; opacity: 0; pointer-events: none; transition: opacity 90ms linear var(--pd, 0ms); }
+html.theme-military[data-ms-power="off"] .milspec-dim { opacity: 0.55; }
+.theme-military .milspec-blackout { position: fixed; inset: 0; z-index: 60; background: #000; opacity: 0; pointer-events: none; }
+/* 背景動画の暗幕 */
+html.theme-military .milspec-backdrop-veil { transition: background .3s; }
+html.theme-military[data-ms-power="off"] .milspec-backdrop-veil { background: rgba(2, 2, 3, 0.85); }
+/* 消灯したレンズ・連動キーの下縁・CRT 画面 */
+html.theme-military[data-ms-power="off"] .milspec-led .milspec-led-lens { background: radial-gradient(circle at 50% 62%, #2f3133 0%, #18191a 55%, #0a0a0b 100%) !important; }
+html.theme-military[data-ms-power="off"] .milspec-key[data-pressed] .lip { stroke: rgba(0,0,0,0.42); filter: none; }
+html.theme-military[data-ms-power="off"] .milspec-crt .scr-in > * { opacity: 0; }
+html.theme-military[data-ms-power="off"] .milspec-crt .scr-in { background: #030404; }

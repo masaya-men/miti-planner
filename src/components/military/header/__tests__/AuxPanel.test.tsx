@@ -5,6 +5,7 @@ import i18n from '../../../../i18n';
 import { AuxPanel } from '../AuxPanel';
 import { ThemeRocker } from '../ThemeRocker';
 import { ModeLever } from '../ModeLever';
+import { initPower, disposePower, isPowered } from '../../power/power';
 import { TransitionOverlayProvider } from '../../../ui/TransitionOverlay';
 import { useThemeStore } from '../../../../store/useThemeStore';
 import { usePlanStore } from '../../../../store/usePlanStore';
@@ -121,46 +122,46 @@ describe('ThemeRocker', () => {
 });
 
 describe('ModeLever', () => {
-  const lever = () => render(
-    <TransitionOverlayProvider><ModeLever x={0} y={0} w={36} h={30} /></TransitionOverlayProvider>,
-  );
+  const lever = () => render(<ModeLever x={0} y={0} w={36} h={30} />);
   const spies: { mockRestore: () => void }[] = [];
   const spy = () => { const s = vi.spyOn(useThemeStore.getState(), 'setThemeStyle'); spies.push(s); return s; };
-  const flush = () => act(() => { vi.advanceTimersByTime(1500); });
+  // 電源断(300ms)の Promise を進めるため非同期で時間を進める
+  const flush = (ms = 1500) => act(async () => { await vi.advanceTimersByTimeAsync(ms); });
 
   beforeEach(() => { vi.stubEnv('DEV', true); });
-  afterEach(() => { vi.unstubAllEnvs(); spies.splice(0).forEach((s) => s.mockRestore()); });
+  afterEach(() => { vi.unstubAllEnvs(); spies.splice(0).forEach((s) => s.mockRestore()); disposePower(); window.history.replaceState({}, '', '/'); });
 
-  it('軍事表示中は aria-checked=true。クリックで上がり 240ms 後に標準へ', () => {
+  it('電源 on で開くと aria-checked=true。クリックで上がり、240ms + 電源断 300ms の後に標準へ', async () => {
     const s = spy();
     const { getByRole } = lever();
     const sw = getByRole('switch');
     expect(sw.getAttribute('aria-checked')).toBe('true');
     fireEvent.click(sw);
     expect(sw.getAttribute('aria-checked')).toBe('false');
-    act(() => { vi.advanceTimersByTime(200); });
-    expect(s).not.toHaveBeenCalled();
-    flush();
+    await flush(500);
+    expect(isPowered()).toBe(false); // 電源断は始まっている
+    expect(s).not.toHaveBeenCalled(); // 300ms の電源断が終わるまで標準へは戻らない
+    await flush(100);
     expect(s).toHaveBeenCalledWith('standard');
     expect(useThemeStore.getState().themeStyle).toBe('standard');
   });
 
-  it('runTransition が何もしなくても、1500ms 後にレバーは下へ戻り再操作できる', () => {
+  it('切替が実行されなくても、1500ms 後にレバーは下へ戻り電源も入り直す', async () => {
     const s = spy();
-    s.mockImplementation(() => {}); // 切替が実行されず軍事のまま(lock 中の再現)
+    s.mockImplementation(() => {}); // 切替が実行されず軍事のまま
     const { getByRole } = lever();
     const sw = getByRole('switch');
     fireEvent.click(sw);
-    expect(sw.getAttribute('aria-checked')).toBe('false');
-    flush();
-    act(() => { vi.advanceTimersByTime(1600); });
+    await flush(600);
+    await flush(1600);
     expect(sw.getAttribute('aria-checked')).toBe('true');
+    expect(isPowered()).toBe(true);
     s.mockClear();
     fireEvent.click(sw); // 再操作できる
     expect(sw.getAttribute('aria-checked')).toBe('false');
   });
 
-  it('ポインタのドラッグで上へ引き上げても標準へ / 中途半端なら戻って切り替えない', () => {
+  it('ポインタのドラッグで上へ引き上げても標準へ / 中途半端なら戻って切り替えない', async () => {
     const s = spy();
     const { getByRole } = lever();
     const sw = getByRole('switch');
@@ -168,22 +169,55 @@ describe('ModeLever', () => {
     fireEvent.pointerMove(sw, { clientY: 99, pointerId: 1 });
     fireEvent.pointerMove(sw, { clientY: 95, pointerId: 1 }); // 18→13: 中間(10)より下
     fireEvent.pointerUp(sw, { pointerId: 1 });
-    flush();
+    await flush();
     expect(s).not.toHaveBeenCalled();
     expect(sw.getAttribute('aria-checked')).toBe('true');
     fireEvent.pointerDown(sw, { clientY: 100, pointerId: 1 });
     fireEvent.pointerMove(sw, { clientY: 60, pointerId: 1 });
     fireEvent.pointerUp(sw, { pointerId: 1 });
-    flush();
+    await flush();
     expect(s).toHaveBeenCalledWith('standard');
   });
 
-  it('キーボード(Space / Enter)でも切り替わる', () => {
+  it('キーボード(Space / Enter)でも切り替わる', async () => {
     const s = spy();
     const { getByRole } = lever();
     fireEvent.keyDown(getByRole('switch'), { key: ' ' });
-    flush();
+    await flush();
     expect(s).toHaveBeenCalledWith('standard');
+  });
+
+  it('電源 off で開くとレバーは上(aria-checked=false)。700ms で下り、240ms 後に電源が入る', async () => {
+    initPower(); // 既定は off
+    const { getByRole } = lever();
+    const sw = getByRole('switch');
+    expect(sw.getAttribute('aria-checked')).toBe('false');
+    expect(isPowered()).toBe(false);
+    await flush(699);
+    expect(sw.getAttribute('aria-checked')).toBe('false');
+    await flush(1);
+    expect(sw.getAttribute('aria-checked')).toBe('true');
+    await flush(239);
+    expect(isPowered()).toBe(false);
+    await flush(1);
+    expect(isPowered()).toBe(true);
+  });
+
+  it('?noboot なら最初から on で、レバーは自動で動かない', async () => {
+    window.history.replaceState({}, '', '/?noboot');
+    initPower();
+    const { getByRole } = lever();
+    expect(getByRole('switch').getAttribute('aria-checked')).toBe('true');
+    await flush(2000);
+    expect(isPowered()).toBe(true);
+  });
+
+  it('アンマウントでタイマーが残らない(電源投入が走らない)', async () => {
+    initPower();
+    const { unmount } = lever();
+    unmount();
+    await flush(2000);
+    expect(isPowered()).toBe(false);
   });
 
   it('WIP 公開条件を満たさないと出ない', () => {

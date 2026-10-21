@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
@@ -11,6 +11,8 @@ import { MilspecFooter } from './MilspecFooter';
 import { MilspecVent } from './MilspecVent';
 import { MilspecRail } from './MilspecRail';
 import { startAmbient } from './fx/engine';
+import { initPower, disposePower } from './power/power';
+import { MilspecDim } from './power/MilspecDim';
 import { relayoutZones } from './relayout';
 import { useHeaderCollapseAnimator } from './headerCollapseAnimator';
 import { useSidebarToggleAnimator } from './sidebarToggleAnimator';
@@ -58,6 +60,13 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   useMilspecFonts();
   // 常時の光(見本どおり 0.8〜2.5 秒ごと)。アンマウントで止める
   useEffect(() => startAmbient(), []);
+  // 電源: 開いた直後は off(子の初回描画より前に属性を立てる。?noboot・動きを減らす場合は on)。標準へ戻るときは属性を外す
+  const [bootPower] = useState(initPower);
+  useEffect(() => {
+    // StrictMode の擬似アンマウントで外れた属性を戻す(本物のアンマウントでだけ外れたままにする)
+    if (!document.documentElement.dataset.msPower) document.documentElement.dataset.msPower = bootPower;
+    return disposePower;
+  }, [bootPower]);
 
   const appRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -126,12 +135,14 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
           setStatusOpen={props.setStatusOpen}
         />
         </div>
+        <MilspecDim />
       </div>
       {/* 通気口の区画。取っ手でヘッダーを開閉する(閉じていても押せる)。縮小用の内箱は区画ごとに持つ */}
       <div data-ms-zone="vent" className="milspec-zone-vent">
         <div className="milspec-hs-box">
           <MilspecVent isHeaderCollapsed={props.isHeaderCollapsed} onToggleHeader={() => setCollapsedAnimated((v) => !v)} />
         </div>
+        <MilspecDim />
       </div>
       <div data-ms-zone="sidebar" className="milspec-zone-sidebar" data-open={props.isSidebarOpen ? '' : undefined}>
         <MilspecSidebar
@@ -139,10 +150,11 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
           onToggleSidebar={toggleSidebarAnimated}
           onCloseSidebar={props.onCloseSidebar}
         />
+        <MilspecDim />
       </div>
-      <div data-ms-zone="rail" className="milspec-zone-rail"><MilspecRail isSidebarOpen={props.isSidebarOpen} onToggleSidebar={toggleSidebarAnimated} /></div>
-      <div data-ms-zone="workspace" className="milspec-zone-workspace"><MilspecWorkspace>{children}</MilspecWorkspace></div>
-      <div data-ms-zone="footer" className="milspec-zone-footer"><MilspecFooter /></div>
+      <div data-ms-zone="rail" className="milspec-zone-rail"><MilspecRail isSidebarOpen={props.isSidebarOpen} onToggleSidebar={toggleSidebarAnimated} /><MilspecDim /></div>
+      <div data-ms-zone="workspace" className="milspec-zone-workspace"><MilspecWorkspace>{children}</MilspecWorkspace><MilspecDim /></div>
+      <div data-ms-zone="footer" className="milspec-zone-footer"><MilspecFooter /><MilspecDim /></div>
 
       {/* PC グローバルオーバーレイ(自己ゲート型・非アクティブ時 null)。標準 JSX からは移動しない。 */}
       <RenderPendingIndicator />
