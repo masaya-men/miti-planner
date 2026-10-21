@@ -95,6 +95,7 @@ export function MilspecCrt({ className, style }: { className?: string; style?: C
   const latest = useRef({ draw, hasTrace: verts.length > 0 });
   latest.current = { draw, hasTrace: verts.length > 0 };
   useEffect(() => onPower((e) => {
+    if (e.state === 'off') { window.clearTimeout(bootTimer.current); return; } // 電源断: 描き込み待ちを止める
     if (e.state !== 'on' || e.reduced) return;
     const b = btnRef.current;
     if (!b) return;

@@ -8,7 +8,7 @@
  * Task 1 時点: 軍事モードの「見た目」は未実装。ここで見るのは
  *   「入口が残っている」「操作が壊れていない」「エラーを吐かない」だけ。
  *
- * 手順 (step 番号は実行順・全 22 ステップ):
+ * 手順 (step 番号は実行順・全 26 ステップ):
  *   1. 標準ヘッダーに MIL-SPEC 切替ボタン (button[aria-label*="MIL-SPEC"]) が
  *      表示されていることを assert (SP1 の失敗 = この入口を消したこと) →
  *      useThemeStore.setThemeStyle('military') で軍事へ + store 注入 fixture
@@ -35,10 +35,14 @@
  *  16. コンテンツキーで絶タブ (aria-pressed ちょうど 1 つ)。
  *  17. シリーズの開閉で aria-expanded 反転。
  *  18. まとめて共有キーで選択の帯が出て Escape で消える。
- *  19. TRB でタービンが回り出す(ボタンが無効化・ランプが琥珀・羽根が回る。動きありの別ブラウザで検査)。
+ *  19. 電源投入で TRB が自動で押されタービンが回る(無効化・琥珀・羽根)→ 止まると戻り、手動でも回る(動きありの別ブラウザ)。
  *  20. 通気口の取っ手でヘッダーが閉じて開く(aria-expanded)。
  *  21. SORT の 2 キー(押したほうが沈み、もう片方が戻る)。
  *  22. 縦ロッカーで昼夜が切り替わる(<html> の theme-light)。
+ *  23. レールの取っ手でサイドバーが閉じて開く。
+ *  24. フッターの法的情報の一覧(4 リンク・外側クリックで閉じる)。
+ *  25. 電源が 2 秒以内に on になる(動きありの別ブラウザ)。
+ *  26. MODE レバーで標準テーマへ戻る(最後の step)。
  *
  * 各ステップ後に console エラー 0 を確認。1 件でも exit 1。
  */
@@ -46,7 +50,7 @@
 import { launch, gotoMiti, applyFixture, attachConsoleRecorder, MITIGATION_FIXTURE } from './_fixture.mjs';
 
 /** 実装済みステップ総数 (ファイル頭の手順コメントと一致させること)。 */
-const TOTAL_STEPS = 22;
+const TOTAL_STEPS = 26;
 
 let stepNum = 0;
 const results = [];
@@ -802,33 +806,42 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
     });
 
     // ── step 19〜22: v11 ヘッダー(タービン / 取っ手の開閉 / SORT / 昼夜ロッカー) ──
-    await step('TRB でタービンが回り出す(ボタン無効化・ランプが琥珀・羽根が回る)', async () => {
+    await step('電源投入で TRB が自動で押され、タービンが回り出す(無効化・琥珀・羽根)→ 止まると戻り、手動でも回せる', async () => {
       // タービンは「動きを減らす」だと動かない(マウント時に判定)。この step だけ動きありの別ブラウザで検査する
       const l2 = await launch({ theme: 'dark', viewport: { width: 1489, height: 900 }, motion: 'no-preference' });
-      let st;
+      let st, st2;
       try {
         const pg = l2.page;
         await gotoMiti(pg);
         await applyFixture(pg, { military: true });
-        await pg.waitForTimeout(2000);
         const trb = pg.locator('[data-ms-zone="header"] button.milspec-tsw');
         if ((await trb.count()) !== 1) fail(`TRB ボタンが ${await trb.count()} 個 (期待 1 個)`);
-        if (await trb.isDisabled()) fail('押す前から TRB が無効化されている');
-        await trb.click();
-        await pg.waitForTimeout(500);
-        st = await pg.evaluate(() => {
+        const read = () => pg.evaluate(() => {
           const b = document.querySelector('[data-ms-zone="header"] button.milspec-tsw');
           const led = b && b.querySelector('.milspec-led');
           const vane = document.querySelector('[data-ms-zone="header"] .milspec-h3-vanes');
           return { disabled: !!b && b.disabled, warn: !!led && led.classList.contains('is-warn'), vane: vane ? getComputedStyle(vane).transform : null };
         });
-        if (!st.disabled) fail('TRB を押したのにボタンが無効化されない(回転中の表示)');
-        if (!st.warn) fail('TRB を押したのにランプが琥珀(is-warn)にならない');
+        // 電源投入(約 0.9 秒)の 1 秒後に TRB が自動で押される(見本 js:1165-1178)= 回転中になる
+        try {
+          await pg.waitForFunction(() => { const b = document.querySelector('[data-ms-zone="header"] button.milspec-tsw'); return !!b && b.disabled; }, null, { timeout: 8000 });
+        } catch { fail('電源投入後に TRB が自動で押されない(無効化されない)'); }
+        await pg.waitForTimeout(500);
+        st = await read();
+        if (!st.disabled) fail('自動起動の回転中なのにボタンが無効化されていない');
+        if (!st.warn) fail('回転中なのにランプが琥珀(is-warn)でない');
         if (!st.vane || st.vane === 'none') fail(`羽根が回っていない(transform ${st.vane})`);
         // 回転が止まる(ボタンが戻る)まで待つ
-        await pg.waitForFunction(() => { const b = document.querySelector('[data-ms-zone="header"] button.milspec-tsw'); return !!b && !b.disabled; }, null, { timeout: 20000 });
+        await pg.waitForFunction(() => { const b = document.querySelector('[data-ms-zone="header"] button.milspec-tsw'); return !!b && !b.disabled; }, null, { timeout: 25000 });
+        // 戻った後に手動で押してもう一度回す
+        await trb.click();
+        await pg.waitForTimeout(500);
+        st2 = await read();
+        if (!st2.disabled) fail('手動で TRB を押したのにボタンが無効化されない');
+        if (!st2.warn) fail('手動で TRB を押したのにランプが琥珀にならない');
+        await pg.waitForFunction(() => { const b = document.querySelector('[data-ms-zone="header"] button.milspec-tsw'); return !!b && !b.disabled; }, null, { timeout: 25000 });
       } finally { await l2.browser.close(); }
-      return `無効化 → 琥珀 → vanes ${st.vane.slice(0, 24)} → 停止で復帰`;
+      return `自動起動 無効化 → 琥珀 → vanes ${st.vane.slice(0, 24)} → 停止で復帰 → 手動でも回る`;
     });
 
     await step('通気口の取っ手でヘッダーが閉じて開く(aria-expanded)', async () => {
@@ -881,6 +894,67 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
       const l2 = await isLight();
       if (l2 !== l0) fail(`もう一度押しても戻らない(${l0} → ${l1} → ${l2})`);
       return `theme-light ${l0} → ${l1} → ${l2}`;
+    });
+
+    // ── step 23〜26: v11 フッター・レール・電源 ──
+    await step('レールの取っ手でサイドバーが閉じて開く(aria-expanded)', async () => {
+      const h = page.locator('.milspec-rail-handle');
+      if ((await h.count()) !== 1) fail('レールの取っ手が無い');
+      const a0 = await h.getAttribute('aria-expanded');
+      await h.click();
+      await page.waitForTimeout(1200);
+      const a1 = await h.getAttribute('aria-expanded');
+      if (a1 === a0) fail(`サイドバーが閉じない(aria-expanded ${a0} → ${a1})`);
+      await h.click();
+      await page.waitForTimeout(1200);
+      const a2 = await h.getAttribute('aria-expanded');
+      if (a2 !== a0) fail(`もう一度押しても開かない(${a0} → ${a1} → ${a2})`);
+      return `aria-expanded ${a0} → ${a1} → ${a2}`;
+    });
+
+    await step('フッターの「法的情報」で一覧が開き、4 つのリンクが出て、閉じられる', async () => {
+      const btn = page.locator('[data-ms-zone="footer"] .milspec-ftr-legalwrap button.milspec-flink');
+      if ((await btn.count()) !== 1) fail('法的情報ボタンが無い');
+      if ((await btn.getAttribute('aria-expanded')) !== 'false') fail('最初から開いている');
+      await btn.click();
+      await page.waitForTimeout(400);
+      const hrefs = await page.locator('.milspec-legal-pop a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+      if (hrefs.join(',') !== '/privacy,/terms,/about,/about#contact') fail(`一覧のリンクが想定と違う: ${hrefs.join(',')}`);
+      if ((await btn.getAttribute('aria-expanded')) !== 'true') fail('開いたのに aria-expanded が true でない');
+      await page.locator('.milspec-ftr-backdrop').click({ position: { x: 5, y: 5 }, force: true });
+      await page.waitForTimeout(400);
+      if ((await page.locator('.milspec-legal-pop').count()) !== 0) fail('外側を押しても一覧が閉じない');
+      return `リンク ${hrefs.join(' ')} → 外側クリックで閉じる`;
+    });
+
+    await step('MIL-SPEC を開くと電源が 2 秒以内に on になる(動きありの別ブラウザ)', async () => {
+      const l2 = await launch({ theme: 'dark', viewport: { width: 1489, height: 900 }, motion: 'no-preference' });
+      let ms;
+      try {
+        const pg = l2.page;
+        await gotoMiti(pg);
+        const t0 = Date.now();
+        await applyFixture(pg, { military: true });
+        const first = await pg.evaluate(() => document.documentElement.dataset.msPower);
+        try {
+          await pg.waitForFunction(() => document.documentElement.dataset.msPower === 'on', null, { timeout: 2000 });
+        } catch { fail(`2 秒待っても電源が on にならない(最初 ${first})`); }
+        ms = Date.now() - t0;
+      } finally { await l2.browser.close(); }
+      return `fixture 適用から ${ms}ms で on`;
+    });
+
+    await step('MODE レバーで電源断 → 標準テーマへ戻る(<html> の data-ms-power も消える)', async () => {
+      const lv = page.locator('[data-ms-zone="header"] button.milspec-mlv');
+      if ((await lv.count()) !== 1) fail('MODE レバーが無い');
+      if ((await lv.getAttribute('aria-checked')) !== 'true') fail('電源が入っているのにレバーが on でない');
+      await lv.click();
+      try {
+        await page.waitForFunction(() => !document.querySelector('.milspec-app'), null, { timeout: 4000 });
+      } catch { fail('MODE レバーを上げても標準へ戻らない(.milspec-app が残る)'); }
+      const left = await page.evaluate(() => document.documentElement.dataset.msPower ?? null);
+      if (left !== null) fail(`標準へ戻ったのに data-ms-power が残る(${left})`);
+      return '標準へ戻り .milspec-app と data-ms-power が消えた';
     });
 
     // ── 最終判定 (この viewport) ──────────────────────────────

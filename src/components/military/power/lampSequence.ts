@@ -19,6 +19,7 @@ export function useLampSequence(): void {
   useEffect(() => {
     let cancel: () => void = () => {};
     const off = onPower((e) => {
+      if (e.state === 'off') { cancel(); return; } // 電源断: 進行中の順点灯を止める
       if (e.state !== 'on' || e.reduced) return;
       cancel();
       cancel = sequenceLamps();

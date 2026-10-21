@@ -8,7 +8,7 @@ vi.mock('../../../progress/ProgressCelebration', () => ({ ProgressCelebration: (
 
 import i18n from '../../../../i18n';
 import { MilspecCrt, toCrtVertices } from '../MilspecCrt';
-import { powerOn, initPower, disposePower } from '../../power/power';
+import { powerOn, powerOff, initPower, disposePower } from '../../power/power';
 import { useMitigationStore } from '../../../../store/useMitigationStore';
 import { usePlanStore } from '../../../../store/usePlanStore';
 import { useProgressRecording } from '../../../progress/useProgressRecording';
@@ -118,5 +118,21 @@ describe('MilspecCrt 電源投入', () => {
     expect(b.classList.contains('boot')).toBe(false);
     act(() => { powerOn({ reduced: false }); });
     expect(b.classList.contains('boot')).toBe(true);
+  });
+
+  it('電源断で 420ms の描き込み待ちが止まる', () => {
+    vi.useFakeTimers();
+    try {
+      act(() => { useMitigationStore.setState({ progress: { points: [pt(50), pt(100)], cleared: false } } as any); });
+      const { container } = render(<MilspecCrt />);
+      const pl = container.querySelector('polyline.trace') as any;
+      const spy = vi.fn(() => 100);
+      pl.getTotalLength = spy;
+      pl.getPointAtLength = () => ({ x: 120, y: 20 });
+      act(() => { powerOn({ reduced: false }); });
+      act(() => { void powerOff({ reduced: false }); });
+      act(() => { vi.advanceTimersByTime(600); });
+      expect(spy).not.toHaveBeenCalled();
+    } finally { vi.useRealTimers(); }
   });
 });

@@ -1,6 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { sequenceLamps } from '../lampSequence';
+import { sequenceLamps, useLampSequence } from '../lampSequence';
+import { powerOn, powerOff, initPower, disposePower } from '../power';
+import { renderHook } from '@testing-library/react';
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -31,5 +33,19 @@ describe('sequenceLamps', () => {
     sequenceLamps()();
     vi.advanceTimersByTime(1000);
     expect(el('a').classList.contains('is-on')).toBe(false);
+  });
+});
+
+describe('useLampSequence(電源断で順点灯を止める)', () => {
+  it('off が来たら進行中の順点灯は is-on を付けない', () => {
+    initPower();
+    const { unmount } = renderHook(() => useLampSequence());
+    powerOn({ reduced: false });
+    vi.advanceTimersByTime(100);
+    void powerOff({ reduced: false });
+    vi.advanceTimersByTime(2000);
+    expect(document.getElementById('a')!.classList.contains('is-on')).toBe(false);
+    unmount();
+    disposePower();
   });
 });

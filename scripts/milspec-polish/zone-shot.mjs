@@ -8,6 +8,10 @@
  *      出力: header-mock-<theme>.png / header-app-<theme>-<lang>-<幅>x<高さ>-sb<open|closed>.png / header-menu-<名前>-....png
  *      検査: 取り込み・その他・表示メンバー・言語・チュートリアルのメニューを順に開き、メニューの矩形がボタンの近く
  *            (ボタンの下か上で、横位置がボタンと重なる・viewport 内)にあるかを DOM で確認する。
+ *    --zone=footer|rail は 見本 #z-ftr / #z-rail と 本体 [data-ms-zone="footer"|"rail"] を撮る。電源投入の 1.5 秒後に撮る(--power=on 既定)。
+ *      --power=off は電源断の状態(MODE レバーを上げ、電源断の暗転が終わった直後)で撮る。
+ *      検査: 区画の矩形が viewport 内・幅と高さが 0 でない。footer は「法的情報」を開いた状態も撮り、一覧が viewport 内か確認する。
+ *      出力: <zone>-mock-<theme>.png / <zone>-app-<theme>-<lang>-<幅>x<高さ>-<power>.png / footer-legal-....png
  *  出力: <out>/sidebar-mock-<theme>.png / <out>/sidebar-app-<theme>-<lang>.png / <out>/sidebar-app-energy.png
  *  検査(失敗なら exit 1):
  *   - 刻印はみ出し: 本体の .milspec-key-lb で scrollWidth > clientWidth + 1
@@ -30,7 +34,7 @@ const mock = arg('mock', '');
 const out = arg('out', '');
 const theme = arg('theme', 'dark') === 'light' ? 'light' : 'dark';
 const lang = arg('lang', 'ja');
-if (zone !== 'sidebar' && zone !== 'header') { console.error(`未対応の zone: ${zone}(sidebar / header)`); process.exit(2); }
+if (!['sidebar', 'header', 'footer', 'rail'].includes(zone)) { console.error(`未対応の zone: ${zone}(sidebar / header / footer / rail)`); process.exit(2); }
 if (!out) { console.error('--out=<出力フォルダ> が必要'); process.exit(2); }
 fs.mkdirSync(out, { recursive: true });
 
@@ -41,9 +45,69 @@ const VP = { width, height };
 const tag = height === 679 ? '' : `-h${height}`;
 let failed = 0;
 
+const power = arg('power', 'on') === 'off' ? 'off' : 'on';
+
 if (zone === 'header') {
   await runHeader();
   process.exit(failed ? 1 : 0);
+}
+if (zone === 'footer' || zone === 'rail') {
+  await runFooterRail(zone);
+  process.exit(failed ? 1 : 0);
+}
+
+// ── フッター / レール ─────────────────────────────────
+async function runFooterRail(z) {
+  const mockSel = z === 'footer' ? '#z-ftr' : '#z-rail';
+  if (mock) {
+    const { browser, page } = await launch({ theme, viewport: VP, dsf: 2, motion: 'no-preference' });
+    await page.goto(mock.startsWith('file:') ? mock : pathToFileURL(path.resolve(mock)).href, { waitUntil: 'load' });
+    await page.waitForTimeout(3500);
+    if (theme === 'light') { await page.locator('.vr').first().click(); await page.waitForTimeout(1800); }
+    await page.locator(mockSel).screenshot({ path: path.join(out, `${z}-mock-${theme}.png`) });
+    console.log(`撮影: ${z}-mock-${theme}.png`);
+    await browser.close();
+  }
+  const { browser, page } = await launch({ theme, viewport: VP, dsf: 2, motion: 'no-preference' });
+  await page.addInitScript((l) => {
+    try {
+      const raw = localStorage.getItem('theme-storage');
+      const j = raw ? JSON.parse(raw) : { state: {}, version: 2 };
+      j.state.contentLanguage = l;
+      localStorage.setItem('theme-storage', JSON.stringify(j));
+    } catch { /* 無視 */ }
+  }, lang);
+  await gotoMiti(page);
+  await applyFixture(page, { military: true });
+  // 電源投入(レバーが 0.7 秒後に下りて約 0.94 秒で on)の 1.5 秒後に撮る
+  try {
+    await page.waitForFunction(() => document.documentElement.dataset.msPower === 'on', null, { timeout: 4000 });
+  } catch { failed++; console.error('NG 電源が on にならない'); }
+  await page.waitForTimeout(1500);
+  if (power === 'off') {
+    await page.locator('[data-ms-zone="header"] button.milspec-mlv').click();
+    // 標準へ戻る直前まで待つ余裕がないため、電源断(300ms)の途中〜直後を撮る
+    await page.waitForTimeout(350);
+  }
+  const base = `${z}-app-${theme}-${lang}-${width}x${height}-power${power}`;
+  const el = page.locator(`[data-ms-zone="${z}"]`);
+  if ((await el.count()) !== 1) { failed++; console.error(`NG 本体の ${z} 区画が見つからない`); await browser.close(); return; }
+  const r = await el.boundingBox();
+  if (!r || r.width < 10 || r.height < 10 || r.x < -1 || r.y < -1 || r.x + r.width > width + 1 || r.y + r.height > height + 1) {
+    failed++; console.error(`NG ${z} 区画の矩形が不正: ${JSON.stringify(r)}`);
+  } else console.log(`OK ${z} 区画 ${Math.round(r.width)}x${Math.round(r.height)} @(${Math.round(r.x)},${Math.round(r.y)})`);
+  await el.screenshot({ path: path.join(out, `${base}.png`) });
+  console.log(`撮影: ${base}.png`);
+  if (z === 'footer' && power === 'on') {
+    await page.locator('[data-ms-zone="footer"] .milspec-ftr-legalwrap button.milspec-flink').click();
+    await page.waitForTimeout(500);
+    const pop = await page.locator('.milspec-legal-pop').boundingBox();
+    if (!pop || pop.x < 0 || pop.y < 0 || pop.x + pop.width > width || pop.y + pop.height > height) {
+      failed++; console.error(`NG 法的情報の一覧が viewport 外/無い: ${JSON.stringify(pop)}`);
+    } else console.log(`OK 法的情報の一覧 ${Math.round(pop.width)}x${Math.round(pop.height)} @(${Math.round(pop.x)},${Math.round(pop.y)})`);
+    await page.screenshot({ path: path.join(out, `footer-legal-${theme}-${lang}-${width}x${height}.png`), clip: { x: 0, y: Math.max(0, height - 260), width, height: Math.min(260, height) } });
+  }
+  await browser.close();
 }
 
 // ── ヘッダー + 通気口 ─────────────────────────────────
