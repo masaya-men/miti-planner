@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, fireEvent, act } from '@testing-library/react';
 import i18n from '../../../../i18n';
@@ -200,6 +201,44 @@ describe('ModeLever', () => {
     await flush(239);
     expect(isPowered()).toBe(false);
     await flush(1);
+    expect(isPowered()).toBe(true);
+  });
+
+  it('自動で下りてから電源が入るまでの 240ms の間に上げると、標準へ進む', async () => {
+    initPower();
+    const s = spy();
+    const { getByRole } = lever();
+    const sw = getByRole('switch');
+    await flush(700); // 自動で下りた
+    expect(sw.getAttribute('aria-checked')).toBe('true');
+    fireEvent.click(sw); // 電源が入る前に上げる
+    expect(sw.getAttribute('aria-checked')).toBe('false');
+    await flush(1000);
+    expect(s).toHaveBeenCalledWith('standard');
+  });
+
+  it('ドラッグ中は自動で下ろさない', async () => {
+    initPower();
+    const { getByRole } = lever();
+    const sw = getByRole('switch');
+    fireEvent.pointerDown(sw, { clientY: 100, pointerId: 1 });
+    await flush(900);
+    expect(sw.getAttribute('aria-checked')).toBe('false');
+  });
+
+  it('aria-label: 電源 off で上 = 電源を入れる / on で下 = 標準へ戻す', async () => {
+    initPower();
+    const { getByRole } = lever();
+    const sw = getByRole('switch');
+    expect(sw.getAttribute('aria-label')).toBe(i18n.t('milspec.hdr_lever_power_on'));
+    await flush(1000);
+    expect(sw.getAttribute('aria-label')).toBe(i18n.t('app.theme_style_to_standard'));
+  });
+
+  it('StrictMode で描画しても電源が入る', async () => {
+    initPower();
+    render(<React.StrictMode><ModeLever x={0} y={0} w={36} h={30} /></React.StrictMode>);
+    await flush(1000);
     expect(isPowered()).toBe(true);
   });
 

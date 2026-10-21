@@ -16,6 +16,28 @@ beforeEach(() => { vi.useFakeTimers(); mount(); Object.values(fx).forEach((f) =>
 afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); disposePower(); window.history.replaceState({}, '', '/'); });
 
 describe('power', () => {
+  it('powerOn の順: 暗転 → --pd → イベント(購読者が見る時点で --pd は入っている)', () => {
+    const log: string[] = [];
+    vi.spyOn(HTMLElement.prototype as unknown as { animate: () => unknown }, 'animate').mockImplementation(() => { log.push('blackout'); return {}; });
+    const off = onPower(() => {
+      const pd = (document.querySelector('[data-ms-zone="sidebar"]') as HTMLElement).style.getPropertyValue('--pd');
+      log.push(pd ? 'event(--pd済)' : 'event');
+    });
+    initPower();
+    powerOn({ reduced: false });
+    expect(log).toEqual(['blackout', 'event(--pd済)']);
+    off();
+  });
+
+  it('disposePower で scanBall の 900ms タイマーが消える', () => {
+    animSpy();
+    initPower();
+    powerOn({ reduced: false });
+    disposePower();
+    vi.advanceTimersByTime(1000);
+    expect(fx.scanBall).not.toHaveBeenCalled();
+  });
+
   it('initPower: 既定は off / ?noboot なら on', () => {
     initPower();
     expect(isPowered()).toBe(false);

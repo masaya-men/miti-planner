@@ -5,10 +5,12 @@ import { MeterPanel, syncLampState, resetMissionClock } from '../MeterPanel';
 import { usePlanStore } from '../../../../store/usePlanStore';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import i18n from '../../../../i18n';
+import { powerOn, powerOff, initPower, disposePower } from '../../power/power';
 
 const fx = vi.hoisted(() => ({ listener: null as (() => void) | null, pulse: vi.fn() }));
 vi.mock('../../fx/engine', () => ({
   pulse: fx.pulse,
+  burst: vi.fn(), coreFire: vi.fn(), trafficBp: vi.fn(), scanBall: vi.fn(),
   setFxSignalListener: (fn: (() => void) | null) => { fx.listener = fn; },
 }));
 
@@ -114,5 +116,51 @@ describe('MeterPanel', () => {
     const { container } = render(<MeterPanel ix={518} iw={250} showClock={false} />);
     expect(container.querySelector('.milspec-drums')).toBeNull();
     expect(container.textContent).not.toContain('MSN CLOCK');
+  });
+});
+
+describe('MeterPanel 電源投入の演出', () => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('ja');
+    vi.useFakeTimers();
+    resetMissionClock();
+    setUser(null);
+    usePlanStore.setState({ _cloudStatus: 'idle', _dirtyPlanIds: new Set(), _deletedPlanIds: new Set() });
+    initPower();
+  });
+  afterEach(() => { disposePower(); vi.useRealTimers(); });
+
+  it('時計: 0 から始まり 380ms 後に桁ごとの transition で現在値へ、2200ms 後に戻す', () => {
+    const { container } = render(<MeterPanel ix={518} iw={310} showClock />);
+    act(() => { powerOn({ reduced: false }); });
+    const is = () => [...container.querySelectorAll<HTMLElement>('.milspec-dr i')];
+    expect(is().every((i) => i.style.transition.includes('none'))).toBe(true);
+    act(() => { vi.advanceTimersByTime(379); });
+    expect(drums(container)).toEqual(['0', '0', '0', '0', '0', '0']);
+    act(() => { vi.advanceTimersByTime(1); });
+    expect(is()[0].style.transition).toContain('1.1s');
+    expect(is()[5].style.transition).toContain('1.7');
+    act(() => { vi.advanceTimersByTime(2200); });
+    expect(is().every((i) => i.style.transition === '')).toBe(true);
+  });
+
+  it('タービン: 電源投入の 1000ms 後に TRB が自動で押される', () => {
+    const { container } = render(<MeterPanel ix={518} iw={310} showClock />);
+    const trb = () => container.querySelector('.milspec-tsw') as HTMLButtonElement;
+    act(() => { powerOn({ reduced: false }); });
+    act(() => { vi.advanceTimersByTime(999); });
+    expect(trb().disabled).toBe(false);
+    act(() => { vi.advanceTimersByTime(1); });
+    expect(trb().disabled).toBe(true);
+  });
+
+  it('動きを減らす場合は TRB を押さない / 電源断で時計は 0 に戻る', () => {
+    const { container } = render(<MeterPanel ix={518} iw={310} showClock />);
+    act(() => { powerOn({ reduced: true }); });
+    act(() => { vi.advanceTimersByTime(5000); });
+    expect((container.querySelector('.milspec-tsw') as HTMLButtonElement).disabled).toBe(false);
+    expect(drums(container)[5]).toBe('5');
+    act(() => { void powerOff({ reduced: true }); });
+    expect(drums(container)).toEqual(['0', '0', '0', '0', '0', '0']);
   });
 });

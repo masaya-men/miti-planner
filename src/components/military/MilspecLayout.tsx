@@ -12,6 +12,7 @@ import { MilspecVent } from './MilspecVent';
 import { MilspecRail } from './MilspecRail';
 import { startAmbient } from './fx/engine';
 import { initPower, disposePower } from './power/power';
+import { useLampSequence } from './power/lampSequence';
 import { MilspecDim } from './power/MilspecDim';
 import { relayoutZones } from './relayout';
 import { useHeaderCollapseAnimator } from './headerCollapseAnimator';
@@ -68,6 +69,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
     return disposePower;
   }, [bootPower]);
 
+  useLampSequence(); // 電源投入でランプを順に点灯(見本 js:1166)
   const appRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();

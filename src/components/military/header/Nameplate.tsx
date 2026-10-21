@@ -3,6 +3,7 @@ import { MilspecDecal, MilspecRivet, MilspecBarcode } from '../MilspecDecor';
 import { headerLayout, HDR_BASE_MW } from '../headerGeometry';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import { flapText } from './flapText';
+import { onPower } from '../power/power';
 
 // 銘板 H2(見本 js:870-878)。座標は headerLayout の decor(銘板まわりの位置は MW に依らない)。
 const DECOR = headerLayout(HDR_BASE_MW).decor;
@@ -38,9 +39,25 @@ export function Nameplate({ title, sub }: { title: string; sub: string }) {
     cancelS.current();
     cancelS.current = flapText(el, sub, 120, reducedRef.current);
   }, [sub]);
+  // 電源投入: 空にして 520ms 後にめくれて表示(見本 js:1171)
+  const text = React.useRef({ title, sub });
+  text.current = { title, sub };
   React.useEffect(() => {
     mounted.current = true;
-    return () => { mounted.current = false; cancelT.current(); cancelS.current(); };
+    let t: number | undefined;
+    const off = onPower((e) => {
+      if (e.state !== 'on' || e.reduced) return;
+      const a = ttlRef.current, b = subRef.current;
+      cancelT.current(); cancelS.current();
+      window.clearTimeout(t);
+      if (a) a.textContent = '';
+      if (b) b.textContent = '';
+      t = window.setTimeout(() => {
+        cancelT.current = flapText(ttlRef.current, text.current.title, 0, reducedRef.current);
+        cancelS.current = flapText(subRef.current, text.current.sub, 120, reducedRef.current);
+      }, 520);
+    });
+    return () => { mounted.current = false; off(); window.clearTimeout(t); cancelT.current(); cancelS.current(); };
   }, []);
 
   const inClip = (p: { x: number; y: number }) => ({ left: p.x - CLIP.left, top: p.y - CLIP.top });

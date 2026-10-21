@@ -10,6 +10,7 @@ export interface PowerEvent { state: PowerState; reduced: boolean }
 export interface PowerOpts { reduced?: boolean }
 
 const EVENT = 'milspec:power';
+let scanTimer: number | undefined; // 電源投入 900ms 後の scanBall(アンマウントで消す)
 /** 電源投入で順に点灯する区画の順番(決定事項: 見本の 7 区画を本体の 6 区画に) */
 export const POWER_ZONES = ['sidebar', 'rail', 'header', 'vent', 'workspace', 'footer'] as const;
 
@@ -32,6 +33,7 @@ export function initPower(): PowerState {
 
 /** 標準テーマへ戻るとき: 属性・暗転板・区画の遅延を残さない */
 export function disposePower(): void {
+  window.clearTimeout(scanTimer);
   delete root().dataset.msPower;
   document.querySelector('.milspec-blackout')?.remove();
   document.querySelectorAll<HTMLElement>('[data-ms-zone]').forEach((z) => z.style.removeProperty('--pd'));
@@ -75,7 +77,8 @@ export function powerOn(opts: PowerOpts = {}): void {
   trafficBp(560);
   pulse('s1', { delay: 380, len: 16 });
   pulse('h3', { delay: 460, len: 16 });
-  setTimeout(() => {
+  window.clearTimeout(scanTimer);
+  scanTimer = window.setTimeout(() => {
     const row = document.querySelector<HTMLElement>('.milspec-app [data-scan]');
     if (row) scanBall(row);
   }, 900);

@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, act } from '@testing-library/react';
 import { Nameplate } from '../Nameplate';
+import { powerOn, initPower, disposePower } from '../../power/power';
 
 let reduced = false;
 vi.mock('../../../../lib/housing/useReducedMotion', () => ({ useReducedMotion: () => reduced }));
@@ -76,5 +77,28 @@ describe('Nameplate', () => {
     expect(container.querySelectorAll('.milspec-rivet').length).toBe(2);
     expect(container.querySelector('svg.milspec-barcode')).not.toBeNull();
     expect(container.textContent).toContain('SN 0418-7A');
+  });
+});
+
+describe('Nameplate 電源投入', () => {
+  beforeEach(() => { vi.useFakeTimers(); reduced = false; initPower(); });
+  afterEach(() => { disposePower(); vi.useRealTimers(); vi.restoreAllMocks(); });
+
+  it('空にして 520ms 後にめくれて表示される', async () => {
+    const { container } = render(<Nameplate title="絶バハムート" sub="固定" />);
+    act(() => { powerOn({ reduced: false }); });
+    expect(ttl(container).textContent).toBe('');
+    expect(sub(container).textContent).toBe('');
+    await flush(519);
+    expect(ttl(container).textContent).toBe('');
+    await flush(3500);
+    expect(ttl(container).textContent).toBe('絶バハムート');
+    expect(sub(container).textContent).toBe('固定');
+  });
+
+  it('動きを減らす場合は何もしない', () => {
+    const { container } = render(<Nameplate title="A" sub="B" />);
+    act(() => { powerOn({ reduced: true }); });
+    expect(ttl(container).textContent).toBe('A');
   });
 });

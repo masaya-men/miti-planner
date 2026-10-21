@@ -6,6 +6,7 @@ import { useTurbineCluster } from '../useTurbineCluster';
 import { pulse, setFxSignalListener } from '../fx/engine';
 import { usePlanStore } from '../../../store/usePlanStore';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { onPower } from '../power/power';
 
 // H3 計器(見本 js:880-889 の部品群)。タービン 2 基・TRB・ランプ 4 個・ドラム時計・刻印。
 // 親は「ヘッダー区画」(position:absolute の座標系)。座標は headerLayout の decor.h3。
@@ -34,22 +35,40 @@ const DRUM_NUMS = Array.from({ length: 10 }, (_, n) => n);
 /** ドラム時計(MSN CLOCK)。画面を開いてからの経過時間。1 秒ごと・タブ非表示で止め、戻ったら追いつく */
 function MissionClock({ x, y }: { x: number; y: number }) {
   const [d, setD] = React.useState<number[]>(() => digitsOf(0));
+  // 電源投入の転がり(見本 js:1168-1169): 'zero' = transition なしで 0 / 'run' = 桁ごとに長い transition で現在値へ
+  const [roll, setRoll] = React.useState<'zero' | 'run' | null>(null);
+  const rollRef = React.useRef<'zero' | 'run' | null>(null);
   React.useEffect(() => {
     let id: number | null = null;
     const tick = () => {
       const s = Math.max(0, Math.floor((Date.now() - T0) / 1000));
-      setD(isPowered() ? digitsOf(s) : digitsOf(0)); // 見本: 電源 off では全部 0
+      setD(isPowered() && rollRef.current !== 'zero' ? digitsOf(s) : digitsOf(0)); // 見本: 電源 off・転がり前は全部 0
     };
     const run = () => { if (id == null) { tick(); id = window.setInterval(tick, 1000); } };
     const halt = () => { if (id != null) { window.clearInterval(id); id = null; } };
     const onVis = () => { if (document.hidden) halt(); else run(); };
     document.addEventListener('visibilitychange', onVis);
     if (!document.hidden) run();
-    return () => { document.removeEventListener('visibilitychange', onVis); halt(); };
+    const timers: number[] = [];
+    const set = (v: 'zero' | 'run' | null) => { rollRef.current = v; setRoll(v); };
+    const offPower = onPower((e) => {
+      timers.forEach((t) => window.clearTimeout(t));
+      timers.length = 0;
+      if (e.state === 'off') { set(null); tick(); return; }
+      if (e.reduced) return;
+      set('zero');
+      tick();
+      timers.push(window.setTimeout(() => {
+        set('run');
+        tick();
+        timers.push(window.setTimeout(() => set(null), 2200));
+      }, 380));
+    });
+    return () => { offPower(); timers.forEach((t) => window.clearTimeout(t)); document.removeEventListener('visibilitychange', onVis); halt(); };
   }, []);
   const drum = (k: number) => (
     <span className="milspec-dr" key={k}>
-      <i style={{ ['--v' as string]: d[k] } as React.CSSProperties}>{DRUM_NUMS.map((n) => <span key={n}>{n}</span>)}</i>
+      <i style={{ ['--v' as string]: d[k], ...(roll === 'zero' ? { transition: 'none' } : roll === 'run' ? { transition: `transform ${1.1 + k * 0.12}s cubic-bezier(.7,0,.2,1)` } : null) } as React.CSSProperties}>{DRUM_NUMS.map((n) => <span key={n}>{n}</span>)}</i>
     </span>
   );
   return (
@@ -74,6 +93,18 @@ export function MeterPanel({ iw, showClock }: { ix: number; iw: number; showCloc
   const h3 = React.useMemo(() => headerLayout(iw + 879).decor.h3, [iw]);
   const turbine = useTurbineCluster(2, { motion: 'v11', onBeat: () => { pulse('h3', { cls: 'warn', len: 10 }); } });
   const { t } = useTranslation();
+  // 電源投入の 1000ms 後に TRB を自動で押す(見本 js:1178)。動きを減らす場合は演出なし
+  const turbineRef = React.useRef(turbine);
+  turbineRef.current = turbine;
+  React.useEffect(() => {
+    let id: number | undefined;
+    const off = onPower((e) => {
+      window.clearTimeout(id);
+      if (e.state !== 'on' || e.reduced) return;
+      id = window.setTimeout(() => { if (!turbineRef.current.active) turbineRef.current.start(); }, 1000);
+    });
+    return () => { off(); window.clearTimeout(id); };
+  }, []);
 
   // SYNC: SyncButton と同じ store の値(クラウド状態・ログイン)+ 未保存の有無
   const loggedIn = useAuthStore((s) => !!s.user);

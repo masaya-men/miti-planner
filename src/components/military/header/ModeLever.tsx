@@ -40,6 +40,7 @@ export function ModeLever({ x, y, w, h }: ModeLeverProps) {
   const pos = React.useRef(powered0.current ? yDn : Y_UP); // 電源 on = 下・off = 上
   const [on, setOn] = React.useState(powered0.current); // aria-checked = 電源状態
   const busy = React.useRef(false);
+  const pendingOn = React.useRef(false); // 自動で下りてから電源が入るまでの待ち(240ms)の間
   const timer = React.useRef<number | undefined>(undefined);
   const drag = React.useRef<{ y0: number; l0: number; moved: boolean } | null>(null);
   const live = React.useRef({ reduced });
@@ -56,13 +57,15 @@ export function ModeLever({ x, y, w, h }: ModeLeverProps) {
     dead.current = false;
     let boot: number | undefined;
     // 判定はマウント時点の電源で行う(StrictMode の疑似アンマウントで属性が一瞬外れても自動で下ろす)
-    if (!powered0.current) boot = window.setTimeout(() => { if (pos.current === Y_UP) settleRef.current(true); }, 700);
+    if (!powered0.current) boot = window.setTimeout(() => { if (pos.current === Y_UP && !drag.current) settleRef.current(true); }, 700);
     return () => { dead.current = true; window.clearTimeout(boot); window.clearTimeout(timer.current); };
   }, []);
 
   const settle = (down: boolean) => {
     if (busy.current) return;
     const powered = isPowered();
+    const waitingOn = pendingOn.current; // 電源投入待ちの間に上げられたら「標準へ」に進む
+    pendingOn.current = false;
     const from = pos.current, to = down ? yDn : Y_UP;
     const th = thRef.current;
     if (!live.current.reduced && th && typeof th.animate === 'function') {
@@ -74,11 +77,12 @@ export function ModeLever({ x, y, w, h }: ModeLeverProps) {
     if (down) {
       // 下ろした = 電源投入(すでに入っていれば何もしない)
       if (powered) return;
-      timer.current = window.setTimeout(() => { if (!dead.current) powerOn(); }, live.current.reduced ? 0 : 240);
+      pendingOn.current = true;
+      timer.current = window.setTimeout(() => { pendingOn.current = false; if (!dead.current) powerOn(); }, live.current.reduced ? 0 : 240);
       return;
     }
     // 上げた = 電源断(300ms)の直後に標準へ。すでに切れていれば何もしない
-    if (!powered) return;
+    if (!powered && !waitingOn) return;
     busy.current = true;
     timer.current = window.setTimeout(() => {
       void powerOff().then(() => {
@@ -127,7 +131,8 @@ export function ModeLever({ x, y, w, h }: ModeLeverProps) {
   };
 
   if (!canPreview) return null;
-  const label = t('app.theme_style_to_standard');
+  // 電源 off で上 = 押すと電源投入 / on で下 = 上げると標準へ
+  const label = on ? t('app.theme_style_to_standard') : t('milspec.hdr_lever_power_on');
   return (
     <button
       ref={lvRef}

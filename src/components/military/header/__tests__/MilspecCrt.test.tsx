@@ -8,6 +8,7 @@ vi.mock('../../../progress/ProgressCelebration', () => ({ ProgressCelebration: (
 
 import i18n from '../../../../i18n';
 import { MilspecCrt, toCrtVertices } from '../MilspecCrt';
+import { powerOn, initPower, disposePower } from '../../power/power';
 import { useMitigationStore } from '../../../../store/useMitigationStore';
 import { usePlanStore } from '../../../../store/usePlanStore';
 import { useProgressRecording } from '../../../progress/useProgressRecording';
@@ -102,5 +103,20 @@ describe('MilspecCrt', () => {
       useMitigationStore.setState({ progress: { points: [pt(50), pt(100)], cleared: false } } as any);
     });
     expect(container.querySelector('circle.tdot')!.classList.contains('idle')).toBe(false);
+  });
+});
+
+describe('MilspecCrt 電源投入', () => {
+  beforeEach(() => { stubMatchMedia(false); initPower(); });
+  afterEach(() => { disposePower(); vi.unstubAllGlobals(); });
+
+  it('電源が入ると boot が付く(動きを減らす場合は付かない)', () => {
+    const { container } = render(<MilspecCrt />);
+    const b = container.querySelector('.milspec-crt') as HTMLElement;
+    expect(b.classList.contains('boot')).toBe(false);
+    act(() => { powerOn({ reduced: true }); });
+    expect(b.classList.contains('boot')).toBe(false);
+    act(() => { powerOn({ reduced: false }); });
+    expect(b.classList.contains('boot')).toBe(true);
   });
 });

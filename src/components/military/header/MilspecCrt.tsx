@@ -5,6 +5,7 @@ import { useProgressJourney } from '../../progress/useProgressJourney';
 import { ProgressRecordPanel } from '../../progress/ProgressRecordPanel';
 import { ProgressCelebrationHost } from '../../progress/ProgressTrackingHUD';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
+import { onPower } from '../power/power';
 // 副作用 import: i18next の初期化(MilspecFooter.tsx と同じ理由)
 import '../../../i18n';
 import './milspecCrt.css';
@@ -89,6 +90,20 @@ export function MilspecCrt({ className, style }: { className?: string; style?: C
   }, [sig]);
 
   useEffect(() => () => { cancelDraw.current(); window.clearTimeout(bootTimer.current); }, []);
+
+  // 電源投入: boot を付け直し + 420ms 後に描き込み(見本 js:1165)
+  const latest = useRef({ draw, hasTrace: verts.length > 0 });
+  latest.current = { draw, hasTrace: verts.length > 0 };
+  useEffect(() => onPower((e) => {
+    if (e.state !== 'on' || e.reduced) return;
+    const b = btnRef.current;
+    if (!b) return;
+    b.classList.remove('boot');
+    void b.offsetWidth;
+    b.classList.add('boot');
+    window.clearTimeout(bootTimer.current);
+    bootTimer.current = window.setTimeout(() => { if (latest.current.hasTrace) latest.current.draw(); }, 420);
+  }), []);
 
   // クリック: 起動し直し(boot)+ 350ms 後に描き込み + 記録パネルを開く(見本 js:1116)
   const onClick = () => {

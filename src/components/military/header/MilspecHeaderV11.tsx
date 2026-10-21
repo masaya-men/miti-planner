@@ -27,7 +27,7 @@ export interface MilspecHeaderV11Props {
 /**
  * v11 ヘッダー(見本 js:863-927)。装甲・光の経路・H1〜H5 を、ヘッダー区画の内箱に絶対座標で置く。
  * 区画の実幅 MW は layoutMW で 1189 以上に丸める(それ未満は内箱の縮小で見せる)。
- * LanguageSwitcher / ModeLever が useTransitionOverlay を使うため、TransitionOverlayProvider をここで持つ。
+ * LanguageSwitcher が useTransitionOverlay を使うため、TransitionOverlayProvider をここで持つ(ModeLever は電源スイッチで、標準へは powerOff → setThemeStyle で戻る)。
  */
 export function MilspecHeaderV11(props: MilspecHeaderV11Props) {
   const rootRef = React.useRef<HTMLDivElement>(null);
