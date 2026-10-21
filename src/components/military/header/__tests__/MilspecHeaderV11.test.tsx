@@ -51,6 +51,10 @@ describe('H5 の機能', () => {
     fireEvent.click(getByRole('button', { name: 'パーティ編成' }));
     expect(spy.mock.calls.some((c) => (c[0] as CustomEvent).type === 'timeline:party-settings')).toBe(true);
   });
+  it('パーティ編成キーに標準と同じチュートリアルの目印 data-tutorial="party-comp" が付く', () => {
+    const { getByRole } = r();
+    expect(getByRole('button', { name: 'パーティ編成' }).getAttribute('data-tutorial')).toBe('party-comp');
+  });
   it('ステータス設定キーで setStatusOpen(true)', () => {
     const { getByRole } = r();
     fireEvent.click(getByRole('button', { name: 'ステータス設定' }));

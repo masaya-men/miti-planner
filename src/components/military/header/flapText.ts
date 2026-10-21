@@ -23,7 +23,9 @@ export function flapText(node: HTMLElement | null, text: string, delay = 0, redu
   };
   node.classList.add('flap');
   const ch = [...text];
-  node.innerHTML = ch.map((c) => `<i>${c === ' ' ? '&nbsp;' : c}</i>`).join('');
+  // 利用者の文字列なので innerHTML は使わず、要素を作って textContent で入れる(空白は NBSP)
+  const nb = (c: string) => (c === ' ' ? ' ' : c);
+  node.replaceChildren(...ch.map((c) => { const i = document.createElement('i'); i.textContent = nb(c); return i; }));
   const go = () => {
     if (cancelled) return;
     const cells = [...node.querySelectorAll('i')] as HTMLElement[];
@@ -37,7 +39,7 @@ export function flapText(node: HTMLElement | null, text: string, delay = 0, redu
           restart(c, 'f');
           later(step, 48);
         } else {
-          c.innerHTML = ch[i] === ' ' ? '&nbsp;' : ch[i];
+          c.textContent = nb(ch[i]);
           restart(c, 's');
         }
       };

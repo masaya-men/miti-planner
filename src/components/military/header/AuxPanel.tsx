@@ -116,6 +116,8 @@ export function AuxPanel({ MW, theme, onToggleTheme }: AuxPanelProps) {
 
       {/* COM: 共有 / 同期 / 言語 / ログイン(丸キー 4 つ) */}
       <div className="milspec-h4-kc" role="group" aria-label="COM" style={{ left: com.x, top: com.y }}>
+        {/* 標準ヘッダーと同じく、プランが無いときは共有キーを出さない */}
+        {currentPlan && (
         <MilspecKey
           cap={com.caps[0]}
           style={capPos(com.caps[0])}
@@ -128,7 +130,8 @@ export function AuxPanel({ MW, theme, onToggleTheme }: AuxPanelProps) {
           data-tutorial={isOn ? undefined : 'share-copy-btn'}
           onClick={openShareUI}
         />
-        {isOn && <MilspecLed state="on" size={5} style={{ left: 19, top: 2, position: 'absolute', pointerEvents: 'none' }} />}
+        )}
+        {currentPlan && isOn && <MilspecLed state="on" size={5} style={{ left: 19, top: 2, position: 'absolute', pointerEvents: 'none' }} />}
         {currentPlanId && user && (
           <MilspecKey
             cap={com.caps[1]}

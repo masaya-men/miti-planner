@@ -3007,6 +3007,7 @@
         "show_bar": "顯示進度條",
         "empty_cta": "點選記錄攻略進度",
         "crt_title": "攻略軌跡",
+        "crt_record_hint": "點擊記錄",
         "record_title": "記錄進度",
         "record_cta": "記錄到達位置",
         "record_hint": "點選時間軸打點",

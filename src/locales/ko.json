@@ -3007,6 +3007,7 @@
         "show_bar": "진행도 바 표시",
         "empty_cta": "클릭하여 공략 기록을 남기세요",
         "crt_title": "공략 궤적",
+        "crt_record_hint": "클릭하여 기록",
         "record_title": "진행도 기록",
         "record_cta": "도달 지점 기록",
         "record_hint": "타임라인을 클릭해 점 찍기",

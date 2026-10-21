@@ -111,7 +111,7 @@ export function MilspecCrt({ className, style }: { className?: string; style?: C
         className={`milspec-crt${className ? ` ${className}` : ''}`}
         style={style}
         data-progress-hud-band
-        aria-label={t('progress.crt_title')}
+        aria-label={`${t('progress.crt_title')} - ${t('progress.crt_record_hint')}`}
         onClick={onClick}
       >
         <span className="scr-in">

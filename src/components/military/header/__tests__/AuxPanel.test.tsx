@@ -50,7 +50,14 @@ describe('AuxPanel', () => {
     expect(document.body.textContent).toContain('English');
   });
 
+  it('プランが無いときは共有キーを出さない(標準ヘッダーと同じ条件)', () => {
+    usePlanStore.setState({ plans: [], currentPlanId: null } as never);
+    const { queryByRole } = renderAux();
+    expect(queryByRole('button', { name: '共有' })).toBeNull();
+  });
+
   it('共有キーで共有フローが開く / 共同編集中は押し込まれたまま', () => {
+    usePlanStore.setState({ plans: [{ id: 'p1' }], currentPlanId: 'p1' } as never);
     const { getByRole, rerender } = renderAux();
     fireEvent.click(getByRole('button', { name: '共有' }));
     expect(h.openShareUI).toHaveBeenCalledTimes(1);
@@ -136,6 +143,21 @@ describe('ModeLever', () => {
     flush();
     expect(s).toHaveBeenCalledWith('standard');
     expect(useThemeStore.getState().themeStyle).toBe('standard');
+  });
+
+  it('runTransition が何もしなくても、1500ms 後にレバーは下へ戻り再操作できる', () => {
+    const s = spy();
+    s.mockImplementation(() => {}); // 切替が実行されず軍事のまま(lock 中の再現)
+    const { getByRole } = lever();
+    const sw = getByRole('switch');
+    fireEvent.click(sw);
+    expect(sw.getAttribute('aria-checked')).toBe('false');
+    flush();
+    act(() => { vi.advanceTimersByTime(1600); });
+    expect(sw.getAttribute('aria-checked')).toBe('true');
+    s.mockClear();
+    fireEvent.click(sw); // 再操作できる
+    expect(sw.getAttribute('aria-checked')).toBe('false');
   });
 
   it('ポインタのドラッグで上へ引き上げても標準へ / 中途半端なら戻って切り替えない', () => {

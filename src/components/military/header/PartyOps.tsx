@@ -76,7 +76,7 @@ export function PartyOps({ MW, partySortOrder, setPartySortOrder, onAutoPlan, on
 
       {/* PARTY OPS: パーティ編成 / ステータス設定 */}
       <div className="milspec-h4-kc" role="group" aria-label="PARTY OPS" style={{ left: party.x, top: party.y }}>
-        <MilspecKey cap={party.caps[0]} style={capPos(party.caps[0])} label={<>{MsIcon.party()}<b>{compName}</b></>} aria-label={compName} onClick={openPartySettings} />
+        <MilspecKey cap={party.caps[0]} style={capPos(party.caps[0])} label={<>{MsIcon.party()}<b>{compName}</b></>} aria-label={compName} data-tutorial="party-comp" onClick={openPartySettings} />
         <MilspecKey cap={party.caps[1]} style={capPos(party.caps[1])} label={<>{MsIcon.stat()}<b>{statName}</b></>} aria-label={statName}
           pressed={statusOpen} onClick={() => setStatusOpen(!statusOpen)} />
       </div>

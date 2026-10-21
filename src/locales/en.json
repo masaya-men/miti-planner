@@ -3042,6 +3042,7 @@
         "show_bar": "Show progress bar",
         "empty_cta": "Click to record your progress",
         "crt_title": "Progress Trail",
+        "crt_record_hint": "Click to record",
         "record_title": "Record progress",
         "record_cta": "Record reached point",
         "record_hint": "Click the timeline to add a point",

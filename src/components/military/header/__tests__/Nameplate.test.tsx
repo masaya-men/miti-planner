@@ -21,6 +21,15 @@ describe('Nameplate', () => {
     expect(container.querySelector('.milspec-sr')?.textContent).toContain('絶バハムート');
   });
 
+  it('<b>x</b> のような文字列はタグにならず、文字として出る', async () => {
+    const { container, rerender } = render(<Nameplate title="AB" sub="x" />);
+    rerender(<Nameplate title="<b>x</b>" sub="x" />);
+    await flush(0);
+    expect(ttl(container).querySelector('b')).toBeNull();
+    await flush(2000);
+    expect(ttl(container).textContent).toBe('<b>x</b>');
+  });
+
   it('title が変わると 1 文字ずつ <i> になり、最後は正しい文字列(sub は変わらない)', async () => {
     const { container, rerender } = render(<Nameplate title="AB" sub="x" />);
     rerender(<Nameplate title="零式 1" sub="x" />);

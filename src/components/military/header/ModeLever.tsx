@@ -66,6 +66,13 @@ export function ModeLever({ x, y, w, h }: ModeLeverProps) {
     busy.current = true;
     timer.current = window.setTimeout(() => {
       live.current.runTransition(() => useThemeStore.getState().setThemeStyle('standard'), 'theme');
+      // runTransition が lock 中などで何もしなかった場合の保険: 一定時間後も軍事のままなら、固まらないよう下へ戻す
+      timer.current = window.setTimeout(() => {
+        busy.current = false;
+        if (useThemeStore.getState().themeStyle !== 'military') return;
+        place(yDn);
+        setOn(true);
+      }, 1500);
     }, live.current.reduced ? 0 : 240);
   };
 
