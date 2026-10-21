@@ -48,6 +48,15 @@ export function stretchSpec(spec: PanelSpec, f: StretchFrame, w: number, h: numb
   return out;
 }
 
-export function stretchPlaced(p: PlacedPanel, f: StretchFrame, w: number, h: number): PlacedPanel {
-  return { ...p, w, h, spec: stretchSpec(p.spec, f, w, h) };
+/**
+ * 区画(ゾーン)内に置かれたパネルを、区画が W x H に伸びたときの形にする。
+ * f は区画の座標系(w0,h0 = 見本の区画の大きさ、sx,sy = 伸ばす境界線)。
+ * p.x,y,w,h は区画座標、p.spec の点はパネル内座標。
+ */
+export function stretchPlaced(p: PlacedPanel, f: StretchFrame, W: number, H: number): PlacedPanel {
+  const mvx = (v: number): number => (v > f.sx ? v + (W - f.w0) : v);
+  const mvy = (v: number): number => (v > f.sy ? v + (H - f.h0) : v);
+  const x = mvx(p.x), y = mvy(p.y), w = mvx(p.x + p.w) - x, h = mvy(p.y + p.h) - y;
+  const spec = stretchSpec(p.spec, { w0: p.w, h0: p.h, sx: f.sx - p.x, sy: f.sy - p.y }, w, h);
+  return { x, y, w, h, spec };
 }

@@ -43,7 +43,11 @@ export interface PanelSpec {
 
 export interface PlacedPanel { x: number; y: number; w: number; h: number; spec: PanelSpec }
 export interface CapSpec { pts: Pt[]; b?: number; lip?: boolean }
-/** 伸縮の基準: 元の大きさ(w0,h0)と、これより大きい座標を動かす境界(sx,sy) */
+/**
+ * 伸縮の基準。座標系は使う関数による:
+ * stretchSpec ではパネル内座標、stretchPlaced では区画(ゾーン)座標
+ * (w0,h0 = 元の大きさ、sx,sy = これより大きい座標を動かす境界)。
+ */
 export interface StretchFrame { w0: number; h0: number; sx: number; sy: number }
 
 export interface ToneColors { top: Rgb; bot: Rgb; hi: Rgb; lo: Rgb; face: Rgb }
