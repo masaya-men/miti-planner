@@ -4,12 +4,13 @@
  * 使い方: SP2_BASE_URL=http://localhost:4173 node scripts/milspec-polish/scroll-perf.mjs \
  *           [--theme=standard|military] [--cpu=4] [--save=<name>] [--compare=<name>]
  * 本番ビルド(npm run build → npx vite preview --port 4173 --strictPort)で測る。dev では測らない。
- * 条件: 1489×679 / deviceScaleFactor 1 / 300 行超(1・2・3 段混在)/ 3 秒 × 3 回の中央値。
+ * 条件: 1489×679 / deviceScaleFactor 1 / 300 行超(1・2・3 段混在)/ 3 秒 × 5 回の中央値。
  * 結果は scripts/milspec-polish/.perf/<name>.json(コミットしない)。
  * CPU は CDP Emulation.setCPUThrottlingRate で既定 4 倍に低速化(60Hz 上限で差が出ないため)。
  * 他に longtask(件数・ブロック時間=Σ(duration-50))と平均フレーム間隔も記録する。
  * --compare の規則: p95 フレーム間隔 または 総ブロック時間 が基準より 10% 超悪化したら exit 1。
  *   (基準のブロック時間が 0 の場合は +50ms 超で悪化とみなす)
+ * スクロールはプログラム的(rAF 内で scrollTop を更新)で、コンポジタのホイールスクロールではない。
  * 注: dev の store 注入(applyFixture)は本番ビルドで動かないため、localStorage 注入で表を作る。
  */
 import fs from 'node:fs';
@@ -84,8 +85,17 @@ async function measureOnce() {
       }
     }, { storage, military: theme === 'military' });
     await gotoMiti(page);
+    await page.waitForTimeout(1000); // 読み込み後の沈静化
+    const applied = await page.evaluate(() => ({
+      mil: document.documentElement.classList.contains('theme-military'),
+      shell: !!document.querySelector('[data-app-shell].milspec-app'),
+    }));
+    if (theme === 'military' ? !(applied.mil && applied.shell) : applied.mil) {
+      throw new Error(`テーマが意図どおり適用されていない(theme=${theme}): ${JSON.stringify(applied)}`);
+    }
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: CPU });
+    await page.waitForTimeout(500); // 低速化後の沈静化
     const setup = await page.evaluate(() => {
       const c = document.querySelector('.timeline-scroll-container');
       return {
@@ -148,11 +158,18 @@ if (typeof args.save === 'string') {
   console.log(`saved ${args.save}`);
 }
 if (typeof args.compare === 'string') {
-  const base = JSON.parse(fs.readFileSync(path.join(perfDir, `${args.compare}.json`), 'utf8'));
+  const bf = path.join(perfDir, `${args.compare}.json`);
+  if (!fs.existsSync(bf)) { console.error(`基準ファイルがありません: ${bf}(先に --save=${args.compare} で保存)`); process.exit(2); }
+  const base = JSON.parse(fs.readFileSync(bf, 'utf8'));
+  const diffs = [['theme', base.theme, result.theme], ['viewport', base.viewport, result.viewport],
+    ['speedPxPerS', base.speedPxPerS, result.speedPxPerS], ['cpu', base.cpu, result.cpu]].filter(([, a, b]) => a !== b);
+  if (diffs.length) {
+    console.error(`基準と測定条件が違うため比較できません: ${diffs.map(([k, a, b]) => `${k}(基準=${a} / 今回=${b})`).join(', ')}`);
+    process.exit(2);
+  }
   const ratio = result.p95 / base.p95 - 1;
   const bRatio = base.blocked > 0 ? result.blocked / base.blocked - 1 : (result.blocked > 50 ? 1 : 0);
   console.log(`compare ${args.compare}: p95 ${base.p95.toFixed(2)}->${result.p95.toFixed(2)} (${(ratio * 100).toFixed(1)}%) blocked ${base.blocked.toFixed(0)}->${result.blocked.toFixed(0)}ms (${(bRatio * 100).toFixed(1)}%)`);
-  if (base.cpu !== CPU) console.warn(`WARN: 基準は cpu=${base.cpu} / 今回 cpu=${CPU}`);
   if (ratio > THRESHOLD || bRatio > THRESHOLD) { console.error('FAIL: p95 または総ブロック時間が 10% 超悪化'); process.exit(1); }
   console.log('OK');
 }
