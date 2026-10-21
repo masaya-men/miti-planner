@@ -116,6 +116,8 @@ const MobileMitiIcons: React.FC<{
 export const PcTypeToggle: React.FC<{ event: TimelineEvent }> = ({ event }) => {
     const { t } = useTranslation();
     const updateEvent = useMitigationStore(state => state.updateEvent);
+    // 軍事の表の見た目用の印は軍事のときだけ付ける(標準の DOM は 1 文字も変えない)
+    const isMilspec = useThemeStore(state => state.themeStyle) === 'military';
     // enrage(時間切れ)はアイコンを持たない種別なので、空のクリック領域を作らないよう非表示。
     if (!event.damageType || event.damageType === 'enrage') return null;
     const stateLabel = event.ignoresDebuffMitigation ? 'ON' : 'OFF';
@@ -130,6 +132,7 @@ export const PcTypeToggle: React.FC<{ event: TimelineEvent }> = ({ event }) => {
         >
             <button
                 type="button"
+                data-damage-type={isMilspec ? event.damageType : undefined}
                 onClick={(e) => {
                     e.stopPropagation(); // 行クリック(編集モーダル)を抑止して即トグル
                     updateEvent(event.id, { damageType: nextDamageType(event.damageType) });
@@ -244,6 +247,23 @@ const PcAddEventButton: React.FC<{ time: number; onAddEventClick: (time: number,
     );
 };
 
+// 1 段(攻撃 1 つ)が致死か。挑発によるタンクスイッチ後の実効ターゲットの最大 HP と比べる
+const isEventLethal = (
+    event: TimelineEvent,
+    damage: DamageInfo | null | undefined,
+    partyMembers: PartyMember[],
+    swapMarkers: AppliedMitigation[],
+    phases: Phase[],
+): boolean => {
+    if (!damage || !(damage.unmitigated > 0 || damage.isInvincible)) return false;
+    const evtEff = getEffectiveTarget(event, swapMarkers, phases);
+    let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
+    if (evtEff === 'MT' || evtEff === 'ST') {
+        maxHp = partyMembers.find(m => m.id === evtEff)?.stats.hp || 1;
+    }
+    return damage.mitigated >= maxHp;
+};
+
 // PC用: 1 段ぶんの TAKEN(軽減後ダメージ)。致死判定は挑発によるタンクスイッチ後の実効ターゲットで行う
 const DamageTakenCell: React.FC<{
     event: TimelineEvent;
@@ -254,12 +274,7 @@ const DamageTakenCell: React.FC<{
 }> = ({ event, damage, partyMembers, swapMarkers, phases }) => {
     const { t } = useTranslation();
     if (!damage || !(damage.unmitigated > 0 || damage.isInvincible)) return null;
-    const evtEff = getEffectiveTarget(event, swapMarkers, phases);
-    let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-    if (evtEff === 'MT' || evtEff === 'ST') {
-        maxHp = partyMembers.find(m => m.id === evtEff)?.stats.hp || 1;
-    }
-    const isLethal = damage.mitigated >= maxHp;
+    const isLethal = isEventLethal(event, damage, partyMembers, swapMarkers, phases);
     const colorClass = isLethal ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400";
     return (
         <>
@@ -375,7 +390,8 @@ const TimelineRowContent = memo(({
     showRowBorders = false,
 }: TimelineRowContentProps) => {
     const { t } = useTranslation();
-    const { contentLanguage } = useThemeStore();
+    const { contentLanguage, themeStyle } = useThemeStore();
+    const isMilspec = themeStyle === 'military';
     const myMemberId = useMitigationStore(state => state.myMemberId);
     // 挑発スキル（isTankSwap）による実効ターゲット計算に必要なデータ
     const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
@@ -491,8 +507,9 @@ const TimelineRowContent = memo(({
                 <div className="w-[16px] min-w-[16px] max-w-[16px] border-r border-app-border h-full hidden md:block" />
             )}
 
-            {/* Time Column — スマホ: 軽減追加 */}
+            {/* Time Column — スマホ: 軽減追加(data-stack = 同時刻の攻撃数。軍事の表の括弧と ×N 用・標準の見た目には効かない) */}
             <div
+                data-stack={isMilspec && events.length > 1 ? events.length : undefined}
                 className={clsx(
                     "w-[36px] min-w-[36px] md:w-[var(--col-time-w)] md:min-w-[var(--col-time-w)] md:max-w-[var(--col-time-w)] border-r h-full flex items-center justify-center relative font-mono text-app-sm md:text-app-2xl group-hover:text-app-text group-hover:font-black",
                     "border-app-border text-app-text-sec hover:bg-app-surface2"
@@ -533,7 +550,7 @@ const TimelineRowContent = memo(({
                 ) : (
                     /* 1 件以上: 攻撃 1 つ = 1 段。段を攻撃の数だけ縦に並べる(行の高さ = 1 段 × 攻撃数・各段は flex-1 で等分) */
                     events.map((event, idx) => (
-                        <div key={event.id} className={clsx("flex-1 min-h-0 w-full relative group/slot", idx < events.length - 1 && showRowBorders && "border-b border-app-border")}>
+                        <div key={event.id} data-event-slot={isMilspec ? '' : undefined} data-lethal={isMilspec && isEventLethal(event, damages[idx], partyMembers, swapMarkers, phases) ? '' : undefined} className={clsx("flex-1 min-h-0 w-full relative group/slot", idx < events.length - 1 && showRowBorders && "border-b border-app-border")}>
                             <div
                                 className="w-full h-full flex items-center px-2 gap-1 md:gap-2 cursor-pointer hover:bg-app-surface2"
                                 onClick={(e) => {

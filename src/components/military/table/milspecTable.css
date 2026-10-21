@@ -40,3 +40,167 @@
 /* 刻印 T-DISP / SCOPE 1 · TL-FEED(見本 js:976) */
 .theme-military .milspec-tbl-id { position: absolute; left: 24px; bottom: 13px; z-index: 61; display: flex; gap: 6px; align-items: baseline; pointer-events: none; }
 .theme-military .milspec-dc { font: 400 4.4px/1 'Michroma', sans-serif; letter-spacing: 0.14em; color: var(--ma-leg); white-space: nowrap; text-transform: uppercase; }
+
+/* =====================================================================
+   表の見出し・行(見本 v11 css:455-507)。全規則 .theme-military .milspec-app 前置。
+   列の幅・行の高さ・セルの並びは本番のまま(色・線・文字・疑似要素だけ見本に合わせる)。
+   セルの並び: 1 フェーズ / 2 ラベル / 3 時刻 / 4 攻撃 / 5 元ダメージ / 6 軽減後 / 7+ メンバー
+   ===================================================================== */
+
+/* 表の中身の地(装甲の窪みが下地になるので沈み面は敷かない) */
+.theme-military .milspec-app .timeline-scroll-container { background: none; box-shadow: none; }
+
+/* ---------- 見出し(css:461-471)---------- */
+.theme-military .milspec-app div:has(> #timeline-header-inner) {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.008));
+  box-shadow: inset 0 -1px 0 var(--ma-row-line), inset 0 1px 0 rgba(255,255,255,0.03);
+  border-bottom-color: transparent;
+}
+.theme-military .milspec-app #timeline-header-inner { background: none; box-shadow: none; }
+.theme-military .milspec-app #timeline-header-inner > * { position: relative; height: 100%; align-self: stretch; }
+/* 各列の見出し: 左寄せ(時刻・ダメージは右寄せ)・文字は見本 .th の 7.4px */
+.theme-military .milspec-app #timeline-header-inner > * > * {
+  border-color: transparent;
+  justify-content: flex-start; padding: 9px 8px 0;
+  font: 500 7.4px/1 'IBM Plex Sans JP', sans-serif; letter-spacing: 0.05em;
+  color: var(--ma-th); white-space: nowrap; transition: color 140ms;
+}
+.theme-military .milspec-app #timeline-header-inner > :nth-child(3) > *,
+.theme-military .milspec-app #timeline-header-inner > :nth-child(n+5) > * { justify-content: flex-end; }
+.theme-military .milspec-app #timeline-header-inner > * > * > span[class*="md:inline"],
+.theme-military .milspec-app #timeline-header-inner > * > * > span.flex { display: inline-flex; align-items: center; gap: 3px; }
+.theme-military .milspec-app #timeline-header-inner svg {
+  width: 6px; height: 6px; stroke-width: 1.4; transition: transform 260ms cubic-bezier(.2,1.3,.35,1);
+}
+/* 見出しの上の刻印(見本 .th small・固定の英字なので翻訳外) */
+.theme-military .milspec-app #timeline-header-inner > *::before {
+  position: absolute; top: 11px; left: 8px; right: 8px; pointer-events: none;
+  font: 600 4.8px/1 'Saira Semi Condensed', sans-serif; letter-spacing: 0.22em; color: var(--ma-th); opacity: 0.75;
+}
+.theme-military .milspec-app #timeline-header-inner > :nth-child(1)::before { content: "PHS"; }
+.theme-military .milspec-app #timeline-header-inner > :nth-child(2)::before { content: "LBL"; }
+.theme-military .milspec-app #timeline-header-inner > :nth-child(3)::before { content: "T+"; text-align: right; }
+.theme-military .milspec-app #timeline-header-inner > :nth-child(4)::before { content: "HOSTILE ACT"; }
+.theme-military .milspec-app #timeline-header-inner > :nth-child(5)::before { content: "RAW"; text-align: right; }
+.theme-military .milspec-app #timeline-header-inner > :nth-child(6)::before { content: "NET"; text-align: right; }
+/* 押せる見出し(フェーズ・ラベル・時間・敵の攻撃)の下線(見本 button.th::after・300ms) */
+.theme-military .milspec-app #timeline-header-inner > :nth-child(-n+4)::after {
+  content: ""; position: absolute; left: 8px; right: 8px; bottom: 6px; height: 1px; pointer-events: none;
+  background: var(--ma-ink-2); transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform 300ms cubic-bezier(.2,.8,.2,1), background 120ms;
+}
+.theme-military .milspec-app #timeline-header-inner > :nth-child(-n+4):hover::after { transform: scaleX(1); }
+.theme-military .milspec-app #timeline-header-inner > :nth-child(-n+4):active::after { background: var(--ma-on); }
+.theme-military .milspec-app #timeline-header-inner > :nth-child(-n+4):hover > * { color: var(--ma-ink); }
+.theme-military .milspec-app #timeline-header-inner > :nth-child(-n+4):hover svg { transform: translateY(1px); }
+
+/* ---------- 行(css:477-482)---------- */
+.theme-military .milspec-app [data-time-row] {
+  background: none; box-shadow: inset 0 -1px 0 var(--ma-row-line); transition: background 160ms;
+}
+.theme-military .milspec-app [data-time-row]:nth-child(even) { background: var(--ma-row); }
+.theme-military .milspec-app [data-time-row]:hover { background: rgba(255,255,255,0.035); }
+.theme-military.theme-light .milspec-app [data-time-row]:hover { background: rgba(20,30,40,0.05); }
+/* 行の左の細いバー(ホバーで出る) */
+.theme-military .milspec-app [data-time-row]::after {
+  content: ""; position: absolute; left: 0; top: 5px; bottom: 5px; width: 2px; pointer-events: none;
+  background: var(--ma-ink-2); opacity: 0; transform: scaleY(0.3);
+  transition: opacity 140ms, transform 260ms cubic-bezier(.2,1.3,.35,1);
+}
+.theme-military .milspec-app [data-time-row]:hover::after { opacity: 1; transform: none; }
+/* セル: 縦の仕切りは見本どおり「左の 1px の線」(幅は本番のまま = 枠は透明にして残す) */
+.theme-military .milspec-app [data-time-row] > * {
+  border-color: transparent; box-shadow: inset 1px 0 0 var(--ma-cell-line); background: none;
+}
+.theme-military .milspec-app [data-time-row] > *:hover { background: none; }
+
+/* ---------- 時刻・同時刻の括弧と ×N(css:485-489)---------- */
+.theme-military .milspec-app [data-time-row] > :nth-child(3) {
+  flex-direction: column; align-items: flex-end; justify-content: flex-start; padding: 0 10px 0 0;
+  font: 500 10.5px/25px 'IBM Plex Mono', monospace; letter-spacing: 0.02em;
+  color: var(--ma-txt-num); transition: color 140ms;
+}
+.theme-military .milspec-app [data-time-row]:hover > :nth-child(3) { color: var(--ma-ink); font-weight: 500; }
+.theme-military .milspec-app [data-time-row] > [data-stack]::after {
+  content: "×" attr(data-stack); display: block; margin-top: -2px;
+  font: 600 5.4px/1 'Saira Semi Condensed', sans-serif; letter-spacing: 0.2em; color: var(--ma-ink-3);
+}
+.theme-military .milspec-app [data-time-row] > [data-stack]::before {
+  content: ""; position: absolute; right: 3px; top: 12.5px; bottom: 12.5px; width: 3px;
+  border: 1px solid var(--ma-ink-3); border-left: 0; opacity: 0.8; pointer-events: none;
+}
+
+/* ---------- 攻撃の段(css:491-501)---------- */
+.theme-military .milspec-app [data-time-row] > :nth-child(n+4):nth-child(-n+6) > div + div { box-shadow: inset 0 1px 0 var(--ma-row-line); }
+.theme-military .milspec-app [data-time-row] > :nth-child(4) > [data-event-slot]:hover { background: rgba(255,255,255,0.03); }
+.theme-military.theme-light .milspec-app [data-time-row] > :nth-child(4) > [data-event-slot]:hover { background: rgba(20,30,40,0.04); }
+.theme-military .milspec-app [data-event-slot] > div {
+  padding: 0 8px; gap: 6px;
+  font: 500 10px/1 'IBM Plex Sans JP', sans-serif; letter-spacing: 0.03em; color: var(--ma-txt-atk);
+}
+.theme-military .milspec-app [data-event-slot] > div > :is(span, div) { font: inherit; letter-spacing: inherit; }
+.theme-military .milspec-app [data-event-slot] [class*="text-app-"] { color: var(--ma-txt-atk); font-size: 10px; font-weight: 500; line-height: 1; }
+/* 攻撃の種類 = アイコンの代わりに 2.5×10 の色帯(物理=紫・魔法=青)。押す当たりは 10px 幅 */
+.theme-military .milspec-app [data-event-slot] button[data-damage-type] {
+  width: 10px; height: 14px; padding: 0; margin: 0; justify-content: center; background: none; flex: none;
+}
+.theme-military .milspec-app [data-event-slot] button[data-damage-type] > * { display: none; }
+.theme-military .milspec-app [data-event-slot] button[data-damage-type]::before {
+  content: ""; width: 2.5px; height: 10px; border-radius: 1px; background: var(--ma-ink-3);
+}
+.theme-military .milspec-app [data-event-slot] button[data-damage-type="physical"]::before { background: #a15ccb; }
+.theme-military .milspec-app [data-event-slot] button[data-damage-type="magical"]::before { background: #4c86d6; }
+.theme-military .milspec-app [data-event-slot] button[data-damage-type]:hover { background: none; }
+
+/* 数字(元ダメージ・軽減後): Plex Mono 10.5px・右寄せ */
+.theme-military .milspec-app [data-time-row] > :is(:nth-child(5), :nth-child(6)) {
+  font: 500 10.5px/1 'IBM Plex Mono', monospace; letter-spacing: 0.01em; color: var(--ma-txt-num);
+}
+.theme-military .milspec-app [data-time-row] > :is(:nth-child(5), :nth-child(6)) > div {
+  justify-content: flex-end; padding-right: 10px;
+}
+.theme-military .milspec-app [data-time-row]:hover > :is(:nth-child(5), :nth-child(6)) { color: var(--ma-txt-num); }
+.theme-military .milspec-app [data-time-row] > :nth-child(6) > div {
+  flex-direction: row-reverse; justify-content: flex-start; align-items: center; gap: 5px; overflow: hidden; min-width: 0;
+}
+.theme-military .milspec-app [data-time-row] .dmg-slot { flex: none; height: 16px; font-weight: 500; color: var(--ma-txt-ok); text-shadow: none; }
+.theme-military .milspec-app [data-time-row] .dmg-slot.lethal { color: var(--ma-dng); font-weight: 500; }
+/* 軽減の注記(▼15% など)は数字の左に小さく(見本 .nm small) */
+.theme-military .milspec-app [data-time-row] > :nth-child(6) > div > div:not(.dmg-slot) {
+  display: flex; width: auto; max-width: none; padding: 0; transform: none; opacity: 1; overflow: visible; flex: none;
+  font: 600 5.8px/1 'Saira Semi Condensed', sans-serif; letter-spacing: 0.1em; color: var(--ma-ink-3);
+}
+
+/* 致死の段だけ左に斜線の帯(見本 .ln.lethal::before・css:502-503)。段単位 = data-lethal の付いた段だけ */
+.theme-military .milspec-app [data-event-slot][data-lethal]::before {
+  content: ""; position: absolute; left: 3px; top: 4px; bottom: 4px; width: 4px; pointer-events: none;
+  background: repeating-linear-gradient(-45deg, var(--ma-dng) 0 2.5px, #111 2.5px 5px);
+  background-size: 7.07px 7.07px; animation: milspec-crawl-v 0.9s linear infinite;
+}
+@keyframes milspec-crawl-v { to { background-position: 0 7.07px; } }
+@media (prefers-reduced-motion: reduce) {
+  .theme-military .milspec-app [data-event-slot][data-lethal]::before { animation: none; }
+}
+
+/* ---------- フェーズ(縦書き・css:504-506)/ ラベルの帯 ---------- */
+.theme-military .milspec-app [data-phase-overlay],
+.theme-military .milspec-app [data-label-overlay] { background: none; border-color: transparent; box-shadow: none; }
+.theme-military .milspec-app [data-phase-overlay] > div > div > div { flex-direction: row; gap: 6px; align-items: center; filter: none; }
+.theme-military .milspec-app [data-phase-overlay] span {
+  font: 500 10px/1 'IBM Plex Sans JP', sans-serif; letter-spacing: 0.12em; color: #b9bec2;
+}
+.theme-military.theme-light .milspec-app [data-phase-overlay] span { color: #4a5259; }
+.theme-military .milspec-app [data-phase-overlay] span:first-child::after { content: " ·"; }
+
+/* ---------- リキャストの帯(位置はそのまま・質感だけ見本の「装甲の窪み」に寄せる)---------- */
+.theme-military .milspec-app .milspec-tbl-wrap [data-milspec-recast-band] {
+  background: linear-gradient(180deg, rgba(0,0,0,0.24), rgba(0,0,0,0.08));
+  box-shadow: inset 0 1px 0 rgba(0,0,0,0.4), inset 0 -1px 0 var(--ma-row-line);
+}
+.theme-military.theme-light .milspec-app .milspec-tbl-wrap [data-milspec-recast-band] {
+  background: linear-gradient(180deg, rgba(20,30,40,0.09), rgba(20,30,40,0.03));
+  box-shadow: inset 0 1px 0 rgba(20,30,40,0.14), inset 0 -1px 0 var(--ma-row-line);
+}
+.theme-military .milspec-app .milspec-tbl-wrap .milspec-rc-label {
+  font-family: 'Saira Semi Condensed', sans-serif; font-weight: 600; font-size: 5.4px; letter-spacing: 0.24em; color: var(--ma-th); opacity: 0.9;
+}
