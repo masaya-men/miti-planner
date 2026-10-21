@@ -84,6 +84,9 @@ export function capSVG(c: CapSpec, pal: ArmorPalette, id: string): string {
  */
 export function armorDefsSVG(noiseDataUrl = ''): string {
   return `<pattern id="grain" width="128" height="128" patternUnits="userSpaceOnUse"><image href="${noiseDataUrl}" width="128" height="128"/></pattern>` +
+    `<filter id="milspec-fxglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="0.55"/></filter>` +
+    `<filter id="milspec-fxglow2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1"/></filter>` +
+    `<filter id="milspec-fxglow3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.6"/></filter>` +
     `<filter id="wash" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="0.9"/></filter>` +
     `<linearGradient id="wx-grime" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ma-grime);stop-opacity:0"/><stop offset="1" style="stop-color:var(--ma-grime)"/></linearGradient>` +
     `<linearGradient id="wx-stk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ma-streak)"/><stop offset="1" style="stop-color:var(--ma-streak);stop-opacity:0"/></linearGradient>` +

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { useMilspecFonts } from './useMilspecFonts';
@@ -9,6 +9,7 @@ import { MilspecToolbar } from './MilspecToolbar';
 import { MilspecWorkspace } from './MilspecWorkspace';
 import { MilspecFooter } from './MilspecFooter';
 import { MilspecRail } from './MilspecRail';
+import { startAmbient } from './fx/engine';
 import { MilspecTunePanel } from '../dev/MilspecTunePanel';
 import { RenderPendingIndicator } from '../RenderPendingIndicator';
 import { AetherflowChainPromptModal } from '../AetherflowChainPromptModal';
@@ -49,6 +50,8 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   const { children, localImportProps } = props;
   const { t } = useTranslation();
   useMilspecFonts();
+  // 常時の光(見本どおり 0.8〜2.5 秒ごと)。アンマウントで止める
+  useEffect(() => startAmbient(), []);
   return (
     <div data-app-shell className="milspec-app" data-theme-military>
       <MilspecBackdropVideo />
