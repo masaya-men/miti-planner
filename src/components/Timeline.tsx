@@ -81,6 +81,7 @@ const MilspecControlDeck = React.lazy(() => import('./military/table/MilspecCont
 import { useSortSlide } from './military/table/useSortSlide';
 const MilspecJackBoard = React.lazy(() => import('./military/table/MilspecJackBoard').then(m => ({ default: m.MilspecJackBoard })));
 const MilspecReticle = React.lazy(() => import('./military/table/MilspecReticle').then(m => ({ default: m.MilspecReticle })));
+const MilspecRowPrinter = React.lazy(() => import('./military/table/MilspecRowPrinter').then(m => ({ default: m.MilspecRowPrinter })));
 const MilspecMemberHeads = React.lazy(() => import('./military/table/MilspecMemberHeads').then(m => ({ default: m.MilspecMemberHeads })));
 import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
@@ -3862,6 +3863,10 @@ const Timeline: React.FC = () => {
                         {/* 軍事の表: 指した所に吸い付く照準(見本 v11 js:1027-1053)。標準では出さない */}
                         {isMilspecTable && (
                             <React.Suspense fallback={null}><MilspecReticle rootRef={sheetContainerRef} /></React.Suspense>
+                        )}
+                        {/* 軍事の表: プラン・コンテンツの切替と電源投入で、見えている行を上から描き込む */}
+                        {isMilspecTable && (
+                            <React.Suspense fallback={null}><MilspecRowPrinter scrollRef={scrollContainerRef} /></React.Suspense>
                         )}
                         </div>
                     </div>
