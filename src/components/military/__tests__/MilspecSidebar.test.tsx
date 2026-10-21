@@ -75,6 +75,9 @@ describe('MilspecSidebar', () => {
     // すでに押されているキーをもう一度押しても energy は増えない(タブが変わったときだけ)
     fireEvent.click(target);
     expect(energy).toHaveBeenCalledTimes(1);
+    // 光(emit s1)は押すたびに出る: 1 回目 + 2 回目
+    expect(emit).toHaveBeenCalledTimes(2);
+    expect(emit).toHaveBeenCalledWith(target, 's1', { both: true, len: 14 });
   });
 
   it('新規作成キーが milspec:new-plan を出し、s1 に光を流す', () => {
@@ -149,6 +152,14 @@ describe('MilspecSidebar', () => {
     expect(container.querySelector('.milspec-sb-selbar')).not.toBeNull();
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(container.querySelector('.milspec-sb-selbar')).toBeNull();
+  });
+
+  it('バックアップのモーダルが開いている間は Escape で選択モードを抜けない', () => {
+    const { container } = r();
+    fireEvent.click(key(container, /まとめて共有|Share/));
+    fireEvent.click(key(container, /バックアップ|Backup/));
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(container.querySelector('.milspec-sb-selbar')).not.toBeNull();
   });
 
   it('取消キーで選択モードを抜ける', () => {

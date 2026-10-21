@@ -3055,8 +3055,9 @@
 /* 選択の帯(見本に無い。S2 の基板と同じ質感の黒い床に、Doto の件数とキー 2 つ) */
 .theme-military .milspec-sb-selbar { position: relative; flex: none; box-sizing: border-box; background: linear-gradient(180deg, #0b0e0f, #060808); box-shadow: inset 0 0 0 0.6px rgba(var(--ma-on-rgb), 0.28), inset 0 -1px 0 rgba(0,0,0,0.7); border-radius: 2px; }
 .theme-military .milspec-sb-selbar[data-mode="delete"] { box-shadow: inset 0 0 0 0.6px rgba(var(--ma-dng-rgb), 0.4), inset 0 -1px 0 rgba(0,0,0,0.7); }
-.theme-military .milspec-sb-selcount { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font: 900 8px/1 'Doto', monospace; letter-spacing: 0.08em; color: var(--ma-ink-3); white-space: nowrap; }
+.theme-military .milspec-sb-selcount { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font: 900 8px/1 'Doto', monospace; letter-spacing: 0.04em; color: var(--ma-ink-3); white-space: nowrap; }
 .theme-military .milspec-sb-sellimit { opacity: 0.6; }
+.theme-military .milspec-key-dng[data-armed] .milspec-key-lb { letter-spacing: 0.01em; }
 .theme-military .milspec-key-dng[data-armed] .milspec-key-lb { color: var(--ma-dng-hot); }
 .theme-military .milspec-key-dng[data-armed] .milspec-key-lb svg { stroke: var(--ma-dng-hot); }
 .theme-military .milspec-key:disabled { opacity: 0.55; }

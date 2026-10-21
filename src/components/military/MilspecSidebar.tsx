@@ -27,10 +27,12 @@ export type MilspecSidebarProps = Pick<MilspecLayoutProps, 'isSidebarOpen' | 'on
 
 /** 選択の帯(ツリー箱の上端)の高さと、その中のキーの形 */
 const SELBAR_H = 22;
-const SEL_EXEC_W = 124;
-const SEL_CANCEL_W = 54;
+// 実行キーの幅はモード別(共有は刻印が短いので件数に広く譲る・削除は武装中の長い刻印が入る幅)。
+// en/ko/zh の最長(件数「10/10」・武装「もう一度押すと 10 件」)で測って決めた値(task-7-report.md)。
+const SEL_EXEC_W = { share: 90, delete: 116 } as const;
+const SEL_CANCEL_W = 46;
 const selCap = (w: number): CapSpec => ({ pts: chamRect(w, 16, 3, 3, 3, 3) });
-const SEL_EXEC_CAP = selCap(SEL_EXEC_W);
+const SEL_EXEC_CAP = { share: selCap(SEL_EXEC_W.share), delete: selCap(SEL_EXEC_W.delete) };
 const SEL_CANCEL_CAP = selCap(SEL_CANCEL_W);
 
 /** 列の中のキー 1 個の位置(キーの左上 = 形の bbox。列の箱は幅高さ 0 で、見本の cluster と同じ) */
@@ -106,19 +108,21 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen })
   // 件数・モードが変わったら武装を外す(違う件数を巻き込んで消さない)
   React.useEffect(() => { setArmed(false); }, [selCount, selMode]);
 
-  // 選択モード中の Escape で抜ける(共有モーダルが開いている間は触らない)
+  // 選択モード中の Escape で抜ける(共有・バックアップ・復元のモーダルが開いている間は触らない)
   const { reset } = ms;
   React.useEffect(() => {
-    if (!multiSelect.isEnabled || ms.bundleOpen) return;
+    if (!multiSelect.isEnabled || ms.bundleOpen || backupExportOpen || backupRestoreOpen) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') reset(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [multiSelect.isEnabled, ms.bundleOpen, reset]);
+  }, [multiSelect.isEnabled, ms.bundleOpen, backupExportOpen, backupRestoreOpen, reset]);
 
   const handleTab = (id: MilspecTreeTab, el: Element) => {
+    // 押すたびに s1 へ光(見本 data-bus="s1" js:807, 1022-1023)。タブが変わらなくても流す
+    emit(el, 's1', { both: true, len: 14 });
     if (id === tab) return;
     setTab(id);
-    energy(el); // 切り替わったときだけ(見本 js:1017-1019)
+    energy(el); // energy は切り替わったときだけ(見本 js:1017-1019)
   };
   const handleNew = (e: React.MouseEvent<HTMLButtonElement>) => {
     window.dispatchEvent(new CustomEvent('milspec:new-plan'));
@@ -224,18 +228,18 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen })
                   </span>
                   {selMode === 'share' ? (
                     <MilspecKey
-                      cap={SEL_EXEC_CAP}
+                      cap={SEL_EXEC_CAP.share}
                       className="milspec-key-ic"
-                      style={{ left: 250 - SEL_CANCEL_W - 4 - SEL_EXEC_W, top: 3 }}
+                      style={{ left: 250 - SEL_CANCEL_W - 4 - SEL_EXEC_W.share, top: 3 }}
                       disabled={selCount === 0}
                       label={<>{MsIcon.share()}<b>{t('sidebar.share_together')}</b></>}
                       onClick={() => { void ms.openBundleShare(); }}
                     />
                   ) : (
                     <MilspecKey
-                      cap={SEL_EXEC_CAP}
+                      cap={SEL_EXEC_CAP.delete}
                       className="milspec-key-ic milspec-key-dng"
-                      style={{ left: 250 - SEL_CANCEL_W - 4 - SEL_EXEC_W, top: 3 }}
+                      style={{ left: 250 - SEL_CANCEL_W - 4 - SEL_EXEC_W.delete, top: 3 }}
                       disabled={selCount === 0}
                       data-armed={armed ? '' : undefined}
                       label={<>{MsIcon.close()}<b>{armed ? t('milspec.sb_bulk_delete_armed', { count: selCount }) : t('sidebar.select_delete')}</b></>}
