@@ -2432,6 +2432,55 @@
 .theme-military .milspec-hdr-collapse:active { transform: translateY(1px); }
 
 /* ============================================================
+ * v11 飾り — ランプ・刻印・ネジ・リベット・点検板・バーコード
+ * 正典: milspec-v11.css 97-141 / 604-609。位置は親が style で渡す(見本どおり全部品 absolute。ランプだけ並びの中でも使うので relative)。
+ * 見本の --on 等 → --ma-on 等、--leg / --ink-* → --ma-leg / --ma-ink-*。#app.pc → .theme-light。
+ * 旧 .milspec-lamp には触らない。blink は未使用のため移さない。
+ * ============================================================ */
+.theme-military .milspec-stencil { position: absolute; font: 600 5.6px/1 'Saira Semi Condensed', sans-serif; letter-spacing: 0.22em; color: var(--ma-leg); text-transform: uppercase; white-space: nowrap; }
+.theme-military .milspec-stencil.is-hi { color: var(--ma-ink-2); }
+.theme-military .milspec-stencil-sub { font: 500 5.6px/1 'IBM Plex Sans JP'; letter-spacing: 0.08em; margin-left: 0.5em; }
+.theme-military .milspec-mark { position: absolute; font: 900 7.5px/1 'Doto', monospace; letter-spacing: 0.06em; color: var(--ma-ink-3); opacity: 0.85; }
+
+/* ネジ(座金つき・すり割りの向きはネジごとに違う)。触ると少し回る */
+.theme-military .milspec-screw { position: absolute; width: 7px; height: 7px; border-radius: 50%; cursor: default; transition: transform .6s cubic-bezier(.2,1.7,.4,1);
+  background: radial-gradient(circle at 34% 28%, #b7bec4, #5c636a 50%, #22262a 92%);
+  box-shadow: 0 0 0 0.8px rgba(0,0,0,0.55), 0 0.8px 0 0.8px rgba(255,255,255,0.10), inset 0 -0.6px 0.8px rgba(0,0,0,0.4); }
+.theme-military.theme-light .milspec-screw { background: radial-gradient(circle at 34% 28%, #ffffff, #c9ced3 55%, #7d858c 94%); }
+.theme-military .milspec-screw::after { content: ""; position: absolute; left: 1px; right: 1px; top: 3px; height: 1px; background: rgba(0,0,0,0.72); transform: rotate(var(--r, 35deg)); }
+.theme-military .milspec-screw:hover { transform: rotate(28deg); }
+
+/* ランプ(穴の縁 → ガラスのレンズ → 奥の発光体。光はレンズの内側だけ) */
+.theme-military .milspec-led { position: relative; display: inline-block; width: var(--s, 8px); height: var(--s, 8px); border-radius: 50%; flex: none; background: #050505;
+  --c: var(--ma-on); --c-hot: var(--ma-on-hot); --c-rgb: var(--ma-on-rgb); --c-deep: var(--ma-on-deep);
+  box-shadow: inset 0 1px 1.2px #000, inset 0 -0.6px 0 rgba(255,255,255,0.22), 0 0.6px 0 rgba(255,255,255,0.10), 0 -0.5px 0 rgba(0,0,0,0.45); }
+.theme-military .milspec-led-lens { position: absolute; inset: 1.1px; border-radius: 50%; overflow: hidden;
+  background: radial-gradient(circle at 50% 62%, #2f3133 0%, #18191a 55%, #0a0a0b 100%);
+  box-shadow: inset 0 0.8px 1px rgba(0,0,0,0.9), inset 0 -0.4px 0.6px rgba(255,255,255,0.12); }
+.theme-military .milspec-led-src { position: absolute; left: 50%; top: 50%; width: 220%; height: 220%; margin: -110% 0 0 -110%; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, var(--c-hot) 0%, var(--c) 20%, rgba(var(--c-rgb),0.55) 36%, rgba(var(--c-rgb),0) 62%); transition: opacity 140ms linear; }
+.theme-military .milspec-led-lens::after { content: ""; position: absolute; left: 14%; top: 8%; width: 42%; height: 30%; border-radius: 50%; z-index: 2;
+  background: radial-gradient(ellipse at 50% 60%, rgba(255,255,255,0.75), rgba(255,255,255,0) 70%); }
+.theme-military .milspec-led.is-warn { --c: var(--ma-warn); --c-hot: var(--ma-warn-hot); --c-rgb: var(--ma-warn-rgb); --c-deep: var(--ma-warn-deep); }
+.theme-military .milspec-led.is-dng { --c: var(--ma-dng); --c-hot: var(--ma-dng-hot); --c-rgb: var(--ma-dng-rgb); --c-deep: var(--ma-dng-deep); }
+.theme-military .milspec-led.is-on .milspec-led-src,
+.theme-military .milspec-led.is-warn .milspec-led-src,
+.theme-military .milspec-led.is-dng .milspec-led-src { opacity: 1; }
+.theme-military .milspec-led.is-on .milspec-led-lens,
+.theme-military .milspec-led.is-warn .milspec-led-lens,
+.theme-military .milspec-led.is-dng .milspec-led-lens { background: radial-gradient(circle at 50% 55%, rgba(var(--c-rgb),0.9), var(--c-deep) 90%); }
+.theme-military .milspec-led.is-flick .milspec-led-src { animation: milspec-led-flick 170ms linear; }
+@keyframes milspec-led-flick { 0% { opacity: 0; } 30% { opacity: 1; } 45% { opacity: 0.35; } 60% { opacity: 1; } 100% { opacity: 1; } }
+
+/* リベット・点検記録の刻印板・バーコード */
+.theme-military .milspec-rivet { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c9d0d5, #6d757c 55%, #2b3035); box-shadow: 0 0.5px 0 rgba(255,255,255,0.14), 0 -0.4px 0 rgba(0,0,0,0.55), 0 0.6px 1.2px rgba(0,0,0,0.5); }
+.theme-military.theme-light .milspec-rivet { background: radial-gradient(circle at 35% 30%, #ffffff, #c3c9ce 55%, #7a828a); }
+.theme-military .milspec-maint { position: absolute; display: flex; flex-direction: column; gap: 1.3px; }
+.theme-military .milspec-maint b { font: 400 3.8px/1 'Michroma'; letter-spacing: 0.12em; color: var(--ma-leg); white-space: nowrap; }
+.theme-military .milspec-maint i { display: block; height: 0.8px; background: var(--ma-leg); opacity: 0.5; }
+.theme-military .milspec-barcode { position: absolute; fill: var(--ma-leg); opacity: 0.8; }
+
+/* ============================================================
  * SP1 Task 5: サイドバー — SCENARIO / PLANS / PHASES / DOCK / DEPLOYMENT
  * 正典: mockup DOM 1982-2060(<aside class="sidebar chan">) /
  *       CSS .sidebar 1305- / .scenario .s-hd .s-btns 1320- / .enc-name 1341- /

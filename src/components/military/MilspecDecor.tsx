@@ -1,0 +1,74 @@
+import type { CSSProperties } from 'react';
+
+// MIL-SPEC v11 の小さな飾り部品(見本 milspec-v11.js の lampH / idH / barH / lgH と css の .scr .rv .mp)。
+// 位置は親が style(left/top/width)で渡す。見た目は military.css の「v11 飾り」節。すべて装飾なので aria-hidden。
+
+type LedState = 'off' | 'on' | 'warn' | 'dng';
+
+/** ランプ(見本 lampH): 穴の縁 → レンズ → 奥の発光体の 3 層。flick = 点灯の瞬間のチラつき */
+export function MilspecLed({ state = 'off', size, flick, style }: { state?: LedState; size?: number; flick?: boolean; style?: CSSProperties }) {
+  const cls = ['milspec-led', state !== 'off' && `is-${state}`, flick && 'is-flick'].filter(Boolean).join(' ');
+  const st = size != null ? ({ ['--s' as string]: `${size}px`, ...style } as CSSProperties) : style;
+  return (
+    <span className={cls} style={st} aria-hidden="true">
+      <i className="milspec-led-lens"><i className="milspec-led-src" /></i>
+    </span>
+  );
+}
+
+/** 刻印の文字(見本 lgH)。sub が空なら副題を出さない */
+export function MilspecStencil({ en, sub, hi, style }: { en: string; sub?: string; hi?: boolean; style?: CSSProperties }) {
+  return (
+    <span className={hi ? 'milspec-stencil is-hi' : 'milspec-stencil'} style={style} aria-hidden="true">
+      {en}
+      {sub ? <span className="milspec-stencil-sub">{sub}</span> : null}
+    </span>
+  );
+}
+
+/** 識別コード(見本 idH。Doto の小さな ID 刻印) */
+export function MilspecMark({ text, style }: { text: string; style?: CSSProperties }) {
+  return <span className="milspec-mark" style={style} aria-hidden="true">{text}</span>;
+}
+
+/** ネジ(座金つき。すり割りの向きは rotate で変える。ホバーで少し回る) */
+export function MilspecScrew({ rotate, style }: { rotate?: string; style?: CSSProperties }) {
+  const st = rotate ? ({ ['--r' as string]: rotate, ...style } as CSSProperties) : style;
+  return <span className="milspec-screw" style={st} aria-hidden="true" />;
+}
+
+/** リベット */
+export function MilspecRivet({ style }: { style?: CSSProperties }) {
+  return <span className="milspec-rivet" style={style} aria-hidden="true" />;
+}
+
+/** 点検記録の刻印板(見本 js:849)。bars は各線の幅(%) */
+export function MilspecMaintPlate({ title, bars, width, style }: { title: string; bars: number[]; width: number; style?: CSSProperties }) {
+  return (
+    <div className="milspec-maint" style={{ width, ...style }} aria-hidden="true">
+      <b>{title}</b>
+      {bars.map((w, i) => <i key={i} style={{ width: `${w}%` }} />)}
+    </div>
+  );
+}
+
+/** バーコードの計算(見本 barH): 偶数番目だけ黒線、各線の幅 = 値×0.7、間隔 0.7。h は描画高さで幅計算には影響しない */
+export function barcodeRects(_h: number, bars: number[] = [2, 1, 1, 3, 1, 2, 1, 1, 2, 3, 1, 1, 2, 1, 3, 1, 2, 1]): { w: number; rects: { x: number; w: number }[] } {
+  let x = 0;
+  const rects: { x: number; w: number }[] = [];
+  bars.forEach((w, i) => {
+    if (i % 2 === 0) rects.push({ x, w: w * 0.7 });
+    x += w * 0.7 + 0.7;
+  });
+  return { w: x, rects };
+}
+
+/** バーコード */
+export function MilspecBarcode({ h = 6, style }: { h?: number; style?: CSSProperties }) {
+  const { w, rects } = barcodeRects(h);
+  return (
+    <svg className="milspec-barcode" width={w.toFixed(1)} height={h} viewBox={`0 0 ${w.toFixed(1)} ${h}`} style={style} aria-hidden="true">
+      {rects.map((r, i) => <rect key={i} x={r.x.toFixed(1)} y={0} width={r.w.toFixed(1)} height={h} />)}
+    </svg>
+  );
+}
