@@ -182,13 +182,13 @@
 .theme-military .milspec-app [data-phase-overlay],
 .theme-military .milspec-app [data-label-overlay] { background: var(--ma-screen-bg); }
 /* 区画 1 つ = 埋め込みの装甲板。縁の面取り(左上=光・右下=影)+ 下端のスジ彫り(区切り)+ その上の刻み "////" + 上端のビス。
-   色は --ms-* / --ma-* トークン(ダーク/ライトで切替)。描くのは区画ごとの擬似要素と背景だけ(行ごとの効果なし) */
+   色は --ms-* / --ma-* トークン(ダーク/ライトで切替)。描くのは区画ごとの擬似要素と背景だけ(行ごとの効果なし)。
+   ⚠ 面に斜めの陰影グラデを足さない: 板の高さで濃淡の位置がずれ、隣り合う板の境目で色が違って見える(masaya 指摘) */
 .theme-military .milspec-app [data-phase-overlay],
 .theme-military .milspec-app [data-label-overlay] {
   background:
     repeating-linear-gradient(-58deg, color-mix(in srgb, var(--ms-text-muted) 55%, transparent) 0 1px, transparent 1px 4px) center bottom 6px / 14px 5px no-repeat,
     linear-gradient(180deg, rgba(0,0,0,0.55) 0 1px, var(--ms-pl-dark) 1px 2px, var(--ms-edge-hi) 2px 3px) left bottom / 100% 3px no-repeat,
-    linear-gradient(161deg, rgba(255,255,255,0.03), transparent 40%, rgba(0,0,0,0.08)),
     var(--ma-screen-bg);
   box-shadow: inset 1px 1px 0 var(--ms-edge-hi), inset -1px 0 0 rgba(0,0,0,0.45);
 }
