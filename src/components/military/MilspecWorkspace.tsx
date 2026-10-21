@@ -1,42 +1,44 @@
 import React from 'react';
-import { useShallow } from 'zustand/react/shallow';
-import { useMitigationStore } from '../../store/useMitigationStore';
+import { MilspecArmor } from './MilspecArmor';
+import { MilspecMark } from './MilspecDecor';
+import type { PlacedPanel, StretchFrame } from './armor/types';
+import './table/milspecTable.css';
 
-/** モック .workspace = 浮いた raised 大装甲板。中の .milspec-ws-screen に既存 Timeline(SP1) を埋め込む。
- *  SP2 でこの中身を MilspecTable に差し替える。
- *  正典: docs/.private/theme-refs/milspec-mockup.html — .workspace(1048-1057) / .ws-screen(1063-1068) /
- *  .ws-cap/.ws-note(1191-1198) / DOM(2123-2213)。 */
-export const MilspecWorkspace: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 可視パーティメンバー数(Timeline.tsx:2595 の visiblePartyMembers と同じ定義)。
-  // useShallow で { partyMembers, hiddenPartyMemberIds } を浅く購読 → .filter() は component 内で
-  // 計算(bare selector から新配列を返すと毎レンダー再購読 → 無限ループになるため)。
-  const { partyMembers, hiddenPartyMemberIds } = useMitigationStore(
-    useShallow((s) => ({ partyMembers: s.partyMembers, hiddenPartyMemberIds: s.hiddenPartyMemberIds })),
-  );
-  const visibleCount = partyMembers.filter((m) => !hiddenPartyMemberIds.includes(m.id)).length;
-  // 分母はパーティ定員そのもの(現状 8 人固定でも「定員」の意図が式で読める形にする・レビュー M9)。
-  const rosterTotal = partyMembers.length;
-  // mockup .ws-note は "ROSTER 08 / 08" のゼロ埋め(計器のテレメトリ表記・レビュー A4)。
-  const pad2 = (n: number) => String(n).padStart(2, '0');
+/** 見本 v11 js:965-967 の表の装甲。区画の基準幅 tw=1189・高さ th=483(=657-3-171)。
+ *  横は x>600 の点・縦は y>300 の点が動く(右下の切り欠きと下辺が区画の実寸に追従する)。 */
+const TW = 1189;
+const TH = 483;
+const TABLE_FRAME: StretchFrame = { w0: TW, h0: TH, sx: 600, sy: 300 };
+const TABLE_PANELS: PlacedPanel[] = [{
+  x: 0, y: 0, w: TW, h: TH,
+  spec: {
+    tone: 'pri', b: 4,
+    pts: [[0, 0], [TW, 0], [TW, TH - 28], [TW - 28, TH], [18, TH], [0, TH - 18]],
+    pockets: [{ b: 2.2, fill: 'var(--ma-screen-bg)', pts: [[7, 7], [TW - 7, 7], [TW - 7, TH - 31], [TW - 31, TH - 7], [21, TH - 7], [7, TH - 21]] }],
+    wx: { chips: 0.7, grime: 0.5 },
+  },
+}];
 
-  return (
-    <div className="milspec-ws milspec-chan">
-      <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
-      <span className="milspec-bolt bl" /><span className="milspec-bolt br" />
-      <span className="milspec-sc tl milspec-ws-code-l">WKS-07</span>
-      <span className="milspec-sc br milspec-ws-code-r">RAID OPERATIONS PLOT · MITIGATION ARRAY</span>
-      <span className="milspec-hash" style={{ bottom: 8, top: 'auto', left: 16, right: 'auto' }} />
-      {/* モック .workspace 2128: 上端スジ彫り（水平パネルライン）。.milspec-pl.h は SP1 実装済プリミティブ。 */}
-      <span className="milspec-pl h" style={{ left: 16, right: 16, top: 6, opacity: 0.5 }} aria-hidden />
-      <div className="milspec-ws-screen">{children}</div>
-      {/* モック .ws-cap/.ws-note — 表の右端(埋まっていないメンバー枠の分)の空白を機能的に締める
-          端末キャップ + テレメトリ。固定英字デカール(i18n 外・SP1 Q6)。 */}
-      <span className="milspec-ws-cap" aria-hidden />
-      <div className="milspec-ws-note" aria-hidden>
-        {`ROSTER ${pad2(visibleCount)} / ${pad2(rosterTotal)}`}
-        <br />
-        {visibleCount >= rosterTotal ? 'FULL PARTY' : `SLOTS ${pad2(rosterTotal - visibleCount)} OPEN`}
-      </div>
+/**
+ * 表の区画(見本 v11 js:963-984 の zb)。
+ * 装甲は「操作列の下端 + 4px 〜 区画の下端」に敷く(上の 44px = 操作列 40 + すき間 4 は
+ * Timeline の外枠が占める)。表本体は Timeline がそのまま持つので、横スクロールは
+ * 操作列・見出しと一緒に動き、装甲は区画の幅に固定される。
+ */
+export const MilspecWorkspace: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <>
+    <div className="milspec-tbl-armor">
+      <MilspecArmor id="tbl" frame={TABLE_FRAME} panels={TABLE_PANELS} />
+      {/* 画面の縁の暗がり・四隅の印・刻印(見本 js:974-976 / css:543-546) */}
+      <div className="milspec-vig" aria-hidden="true" />
+      <span className="milspec-scr-mark tl" aria-hidden="true" />
+      <span className="milspec-scr-mark tr" aria-hidden="true" />
+      <span className="milspec-scr-mark bl" aria-hidden="true" />
+      <span className="milspec-tbl-id" aria-hidden="true">
+        <MilspecMark text="T-DISP" style={{ position: 'static' }} />
+        <span className="milspec-dc">SCOPE 1 · TL-FEED</span>
+      </span>
     </div>
-  );
-};
+    <div className="milspec-tbl-wrap">{children}</div>
+  </>
+);

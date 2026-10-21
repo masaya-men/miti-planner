@@ -1,59 +1,37 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
 import { MilspecWorkspace } from '../MilspecWorkspace';
-import { useMitigationStore } from '../../../store/useMitigationStore';
 
-/** テスト用の最小 PartyMember。MilspecWorkspace は id しか見ない(可視判定 = hiddenPartyMemberIds に無いか)。 */
-const mkMembers = (n: number) =>
-  Array.from({ length: n }, (_, i) => ({
-    id: `M${i}`, jobId: null, role: 'dps', stats: {}, computedValues: {},
-  }));
-
-beforeEach(() => {
-  // 既定 8 人 / 全員表示に戻す(他テストの set が残らないように)
-  useMitigationStore.setState({ partyMembers: mkMembers(8) as never, hiddenPartyMemberIds: [] });
-});
-
-describe('MilspecWorkspace', () => {
-  it('装甲板の枠 + .milspec-ws-screen に children を入れる', () => {
+/** 表の区画(見本 v11 js:963-984 の zb)。装甲・画面の窪み・四隅の印・縁の暗がり・刻印 */
+describe('MilspecWorkspace(表の区画)', () => {
+  it('子(Timeline)を表の器に入れる', () => {
     const { container } = render(<MilspecWorkspace><div data-testid="tl">TL</div></MilspecWorkspace>);
-    const screen = container.querySelector('.milspec-ws-screen');
-    expect(screen).not.toBeNull();
-    expect(screen!.querySelector('[data-testid="tl"]')).not.toBeNull();
-  });
-  it('四隅ビス + 刻印を持つ', () => {
-    const { container } = render(<MilspecWorkspace><span /></MilspecWorkspace>);
-    expect(container.querySelectorAll('.milspec-bolt').length).toBeGreaterThanOrEqual(4);
-    expect(container.querySelector('.milspec-sc')).not.toBeNull();
+    const wrap = container.querySelector('.milspec-tbl-wrap');
+    expect(wrap).not.toBeNull();
+    expect(wrap!.querySelector('[data-testid="tl"]')).not.toBeNull();
   });
 
-  it('端末キャップと ROSTER ノートを持つ', () => {
+  it('表の装甲を持つ(操作列の下端 + 4px より下に敷く器の中)', () => {
     const { container } = render(<MilspecWorkspace><span /></MilspecWorkspace>);
-    expect(container.querySelector('.milspec-ws-cap')).not.toBeNull();
-    const note = container.querySelector('.milspec-ws-note');
-    expect(note).not.toBeNull();
-    expect(note!.textContent).toMatch(/ROSTER\s+\d{2}\s*\/\s*\d{2}/);
+    const host = container.querySelector('.milspec-tbl-armor');
+    expect(host).not.toBeNull();
+    expect(host!.querySelector('[data-ms-armor="tbl"]')).not.toBeNull();
   });
 
-  it('ROSTER の人数は可視パーティメンバー数(hiddenPartyMemberIds を反映)', () => {
-    useMitigationStore.setState({ partyMembers: mkMembers(8) as never, hiddenPartyMemberIds: ['M0', 'M1'] });
+  it('画面の窪みの上に 四隅の印 3 個・縁の暗がり・刻印 T-DISP / SCOPE 1 · TL-FEED を持つ', () => {
     const { container } = render(<MilspecWorkspace><span /></MilspecWorkspace>);
-    const note = container.querySelector('.milspec-ws-note');
-    expect(note!.textContent).toMatch(/ROSTER\s+06\s*\/\s*08/);
-    expect(note!.textContent).toMatch(/SLOTS\s+02\s+OPEN/);
+    expect(container.querySelectorAll('.milspec-scr-mark').length).toBe(3);
+    expect(container.querySelector('.milspec-vig')).not.toBeNull();
+    expect(container.querySelector('.milspec-mark')!.textContent).toBe('T-DISP');
+    expect(container.querySelector('.milspec-dc')!.textContent).toBe('SCOPE 1 · TL-FEED');
   });
 
-  it('可視 8 人なら FULL PARTY', () => {
+  it('旧 SP1 の装甲板・ビス・ROSTER 表示は無い', () => {
     const { container } = render(<MilspecWorkspace><span /></MilspecWorkspace>);
-    const note = container.querySelector('.milspec-ws-note');
-    expect(note!.textContent).toMatch(/ROSTER\s+08\s*\/\s*08/);
-    expect(note!.textContent).toMatch(/FULL PARTY/);
-  });
-
-  it('.milspec-ws-cap / .milspec-ws-note は aria-hidden(装飾デカール)', () => {
-    const { container } = render(<MilspecWorkspace><span /></MilspecWorkspace>);
-    expect(container.querySelector('.milspec-ws-cap')!.getAttribute('aria-hidden')).toBe('true');
-    expect(container.querySelector('.milspec-ws-note')!.getAttribute('aria-hidden')).toBe('true');
+    expect(container.querySelector('.milspec-ws')).toBeNull();
+    expect(container.querySelector('.milspec-bolt')).toBeNull();
+    expect(container.querySelector('.milspec-ws-note')).toBeNull();
+    expect(container.querySelector('.milspec-ws-cap')).toBeNull();
   });
 });
