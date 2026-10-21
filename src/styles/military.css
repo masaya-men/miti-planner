@@ -2758,6 +2758,16 @@
 .theme-military .milspec-pcb .smd { fill: #1a1c1e; }
 .theme-military .milspec-pcb .smd-end { fill: #b7bcc0; }
 .theme-military .milspec-pcb .silk { fill: var(--ma-pcb-silk); font: 600 3.1px/1 'Saira Semi Condensed', sans-serif; letter-spacing: 0.14em; }
+
+/* ---- 使い込まれた質感(見本 css:584-591)。armor/weather.ts / svg.ts が出す SVG の class。
+ *  --chip 等 → --ma-chip 等。url(#wx-stk) / url(#wash) は armorDefsSVG の同名 id(svg.ts:90,92)。 */
+.theme-military .wx-chip { fill: var(--ma-chip); }
+.theme-military .wx-chip-sh { fill: var(--ma-chip-sh); }
+.theme-military .wx-scr { fill: none; stroke: var(--ma-scratch); stroke-width: 0.32; stroke-linecap: round; }
+.theme-military .wx-scr-sh { fill: none; stroke: var(--ma-scratch-sh); stroke-width: 0.32; stroke-linecap: round; }
+.theme-military .wx-stk { fill: url(#wx-stk); }
+.theme-military .wx-rim { fill: none; stroke: var(--ma-grime); stroke-width: 1.8; filter: url(#wash); }
+.theme-military .wash { fill: none; stroke: var(--ma-wash); stroke-width: 2.6; filter: url(#wash); }
 .theme-military .milspec-pcb .term { fill: #020403; stroke: var(--ma-gold); stroke-width: 0.45; }
 .theme-military .milspec-pcb .tp { fill: none; stroke: var(--ma-gold); stroke-width: 0.6; }
 .theme-military .milspec-pcb .xtal { fill: url(#stl-sh); stroke: rgba(0,0,0,0.6); stroke-width: 0.3; }
