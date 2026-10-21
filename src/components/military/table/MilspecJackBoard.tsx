@@ -23,7 +23,7 @@ export function lightPartyGap(members: PartyMember[], partySortOrder: 'role' | '
   return first2 > 0 ? first2 - 1 : null;
 }
 
-export function MilspecJackBoard({ members, partySortOrder, memberLayout }: MilspecJackBoardProps) {
+function MilspecJackBoardImpl({ members, partySortOrder, memberLayout }: MilspecJackBoardProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   const [box, setBox] = React.useState({ x: 0, w: 0 });
   React.useLayoutEffect(() => {
@@ -35,20 +35,29 @@ export function MilspecJackBoard({ members, partySortOrder, memberLayout }: Mils
     const ro = new ResizeObserver(apply);
     ro.observe(el);
     return () => ro.disconnect();
-  });
+  }, []);
 
+  const lpGap = lightPartyGap(members, partySortOrder);
   const centers: number[] = [];
   members.forEach((m) => {
     const l = memberLayout.get(m.id);
     if (l) centers.push(l.left + l.width / 2 - box.x);
   });
-  const html = box.w > 0 && centers.length === members.length
-    ? backplaneSVG({ centers, pw: box.w, lpGap: lightPartyGap(members, partySortOrder) })
-    : '';
+  const full = centers.length === members.length;
+  // SVG 文字列は入力(列中心・幅・境目)が同じなら作り直さない
+  const key = `${box.w}|${lpGap}|${centers.map((c) => c.toFixed(2)).join(',')}`;
+  const html = React.useMemo(
+    () => (box.w > 0 && full ? backplaneSVG({ centers, pw: box.w, lpGap }) : ''),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [key, full],
+  );
+  const inner = React.useMemo(() => ({ __html: html }), [html]);
   return (
     <div className="milspec-jackboard" ref={ref} aria-hidden="true">
       <svg className="milspec-pcb" width={box.w} height={BACKPLANE_H} viewBox={`0 0 ${box.w} ${BACKPLANE_H}`}
-        dangerouslySetInnerHTML={{ __html: html }} />
+        dangerouslySetInnerHTML={inner} />
     </div>
   );
 }
+
+export const MilspecJackBoard = React.memo(MilspecJackBoardImpl);

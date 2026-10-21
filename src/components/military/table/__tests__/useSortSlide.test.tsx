@@ -45,4 +45,19 @@ describe('useSortSlide(効果アイコンの滑り)', () => {
     rerender(<Probe left={220} sort="light_party" />);
     expect(anim).not.toHaveBeenCalled();
   });
+  it('enabled=false では matchMedia を購読しない', () => {
+    const add = vi.fn();
+    vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener: add, removeEventListener() {} }));
+    render(<Probe left={100} sort="role" enabled={false} />);
+    expect(add).not.toHaveBeenCalled();
+  });
+  it('再生中に再度 left が変わると前のアニメを cancel', () => {
+    const cancel = vi.fn();
+    anim.mockReturnValue({ playState: 'running', cancel });
+    const { rerender } = render(<Probe left={100} sort="role" />);
+    rerender(<Probe left={100} sort="a" />); rerender(<Probe left={220} sort="a" />);
+    rerender(<Probe left={220} sort="b" />); rerender(<Probe left={50} sort="b" />);
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(anim).toHaveBeenCalledTimes(2);
+  });
 });

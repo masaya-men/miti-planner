@@ -67,12 +67,15 @@ export const MilspecJackRow: React.FC<JobPickerRowProps> = ({
     return () => timers.forEach(clearTimeout);
   }, [partySortOrder, orderKey, reduced, measure]);
 
-  // 画面幅の変化で列中心が動いたら、次の並び替えの「前の位置」も更新しておく
+  // 列の実寸が変わったら(画面幅・文字サイズ・ジョブ変更など)、次の並び替えの「前の位置」も更新しておく
   React.useEffect(() => {
     const on = () => { prevCenters.current = measure(); };
     window.addEventListener('resize', on);
-    return () => window.removeEventListener('resize', on);
-  }, [measure]);
+    if (typeof ResizeObserver === 'undefined') return () => window.removeEventListener('resize', on);
+    const ro = new ResizeObserver(on);
+    cells.current.forEach((el) => ro.observe(el));
+    return () => { window.removeEventListener('resize', on); ro.disconnect(); };
+  }, [measure, orderKey]);
 
   return (
     <>

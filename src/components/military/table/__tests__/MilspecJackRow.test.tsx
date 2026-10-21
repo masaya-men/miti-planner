@@ -15,7 +15,10 @@ const tStub: any = (k: string, f?: string) => f ?? k;
 const mm = (matches: boolean) => (q: string) => ({ matches, media: q, addEventListener() {}, removeEventListener() {} });
 
 let anim: ReturnType<typeof vi.fn>;
+const protoDesc = (k: string) => Object.getOwnPropertyDescriptor(HTMLElement.prototype, k);
+let saved: Record<string, PropertyDescriptor | undefined>;
 beforeEach(() => {
+  saved = { offsetLeft: protoDesc('offsetLeft'), offsetWidth: protoDesc('offsetWidth'), animate: protoDesc('animate') };
   anim = vi.fn();
   (HTMLElement.prototype as any).animate = anim;
   // 列の中心: 並びの何番目か x 100(offsetLeft は兄弟の位置から)
@@ -23,7 +26,13 @@ beforeEach(() => {
   Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get() { return this.hasAttribute('data-member-id') ? 100 : 0; } });
   vi.stubGlobal('matchMedia', mm(false));
 });
-afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+afterEach(() => {
+  vi.unstubAllGlobals(); vi.restoreAllMocks();
+  // 上書きした prototype を元に戻す
+  for (const [k, desc] of Object.entries(saved)) {
+    if (desc) Object.defineProperty(HTMLElement.prototype, k, desc); else delete (HTMLElement.prototype as any)[k];
+  }
+});
 
 const ui = (members: PartyMember[], sort: 'role' | 'light_party', onClick: (id: string, e: unknown) => void = () => {}) => (
   <JobPickerRow variant="socket" partyMembers={members} partySortOrder={sort} getJobIcon={(j) => (j ? `/i/${j}.png` : null)} jobs={[]}
@@ -78,6 +87,19 @@ describe('JobPickerRow variant=socket', () => {
     act(() => { vi.advanceTimersByTime(1000); });
     expect(b).toHaveBeenCalled();
     vi.useRealTimers();
+  });
+});
+
+describe('アニメ途中の再並び替え', () => {
+  it('再生中の前のアニメを cancel してから新しく始める', () => {
+    const cancel = vi.fn();
+    anim.mockReturnValue({ playState: 'running', cancel });
+    const { rerender } = render(ui(ROLE, 'role'));
+    rerender(ui(LP, 'light_party'));
+    const first = anim.mock.calls.length;
+    rerender(ui(ROLE, 'role'));
+    expect(cancel).toHaveBeenCalled();
+    expect(anim.mock.calls.length).toBeGreaterThan(first);
   });
 });
 
