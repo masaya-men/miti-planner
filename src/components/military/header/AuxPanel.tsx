@@ -65,6 +65,7 @@ export function AuxPanel({ MW, theme, onToggleTheme }: AuxPanelProps) {
   const cloudStatus = usePlanStore((s) => s._cloudStatus);
   const user = useAuthStore((s) => s.user);
   const profileDisplayName = useAuthStore((s) => s.profileDisplayName);
+  const profileAvatarUrl = useAuthStore((s) => s.profileAvatarUrl);
   const handleSync = () => {
     if (!user) return;
     const planStore = usePlanStore.getState();
@@ -81,7 +82,7 @@ export function AuxPanel({ MW, theme, onToggleTheme }: AuxPanelProps) {
   const syncErr = cloudStatus === 'error';
   const syncing = cloudStatus === 'syncing';
 
-  // ログイン: 標準ヘッダーと同じく LoginModal を開く。ログイン中はアバターの頭文字を刻印に
+  // ログイン: 標準ヘッダーと同じく LoginModal を開く。ログイン中はアバター画像(未設定なら頭文字)を刻印に
   const [showLogin, setShowLogin] = React.useState(false);
   const initial = (profileDisplayName || 'U').charAt(0).toUpperCase();
 
@@ -154,7 +155,7 @@ export function AuxPanel({ MW, theme, onToggleTheme }: AuxPanelProps) {
           cap={com.caps[3]}
           style={capPos(com.caps[3])}
           className={iconCap}
-          label={user ? <b>{initial}</b> : MsIcon.login()}
+          label={user ? (profileAvatarUrl ? <img className="milspec-key-av" src={profileAvatarUrl} alt="" /> : <b>{initial}</b>) : MsIcon.login()}
           aria-label={t('app.sign_in')}
           title={t('app.sign_in')}
           onClick={() => setShowLogin(true)}
