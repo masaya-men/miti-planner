@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { MilspecLed, MilspecStencil, MilspecMark } from '../MilspecDecor';
 import { headerLayout } from '../headerGeometry';
 import { useTurbineCluster } from '../useTurbineCluster';
@@ -72,6 +73,7 @@ export function MeterPanel({ iw, showClock }: { ix: number; iw: number; showCloc
   // 区画の実幅 MW = iw + 879(headerGeometry と同じ関係)から座標表を引く
   const h3 = React.useMemo(() => headerLayout(iw + 879).decor.h3, [iw]);
   const turbine = useTurbineCluster(2, { motion: 'v11', onBeat: () => { pulse('h3', { cls: 'warn', len: 10 }); } });
+  const { t } = useTranslation();
 
   // SYNC: SyncButton と同じ store の値(クラウド状態・ログイン)+ 未保存の有無
   const loggedIn = useAuthStore((s) => !!s.user);
@@ -93,7 +95,7 @@ export function MeterPanel({ iw, showClock }: { ix: number; iw: number; showCloc
 
   return (
     <>
-      <button type="button" className="milspec-tsw" aria-label="タービン起動" style={{ left: h3.trb.x, top: h3.trb.y }} onClick={turbine.start} disabled={turbine.active}>
+      <button type="button" className="milspec-tsw" aria-label={t('milspec.hdr_turbine_start')} style={{ left: h3.trb.x, top: h3.trb.y }} onClick={turbine.start} disabled={turbine.active}>
         <span className="milspec-tsw-cap">
           <MilspecLed state={turbine.active ? 'warn' : 'off'} size={5} />
           <em>TRB</em>

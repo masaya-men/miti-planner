@@ -9,6 +9,9 @@
  *   (b) 中心点の document.elementFromPoint がその要素自身か子孫である(他の物に覆われていない)
  *  表の縦スクロール領域(.timeline-scroll-container)の中の要素は、スクロール領域の矩形の内側に
  *  あるものだけを対象にする。違反があれば要素の aria-label/テキストと幅を出して exit 1。
+ * 違反は要素の所属区画([data-ms-zone])別にも数える。
+ *  --gate=header,vent,sidebar,rail を付けると、その区画の違反だけを exit 1 の対象にする(他の区画は件数を出すだけ)。
+ *  付けないときは従来どおり全違反が対象。
  * 前提: dev サーバ http://localhost:5173。
  */
 import { launch, gotoMiti, applyFixture } from '../milspec-sp2/_fixture.mjs';
@@ -16,6 +19,10 @@ import { launch, gotoMiti, applyFixture } from '../milspec-sp2/_fixture.mjs';
 const WIDTHS = [[1280, 720], [1489, 679], [1920, 1080], [2560, 1440]];
 const SEL = 'button, a[href], [role="button"], [role="tab"], input, select';
 let fail = 0;
+const gateArg = process.argv.find((a) => a.startsWith('--gate='));
+const GATE = gateArg ? gateArg.slice(7).split(',').filter(Boolean) : null;
+/** @type {Record<string, number>} */
+const perZone = {};
 
 for (const [w, h] of WIDTHS) {
   const { browser, page } = await launch({ theme: 'dark', viewport: { width: w, height: h } });
@@ -53,7 +60,8 @@ for (const [w, h] of WIDTHS) {
         }
         if (clipped) continue;
         const name = el.getAttribute('aria-label') || (el.textContent || '').trim().slice(0, 24) || el.getAttribute('title') || el.tagName;
-        const info = { name, tag: el.tagName, cls: String(el.className).slice(0, 40), rect: [r.left, r.top, r.right, r.bottom].map(Math.round) };
+        const zone = el.closest('[data-ms-zone]')?.getAttribute('data-ms-zone') || '(区画外)';
+        const info = { zone, name, tag: el.tagName, cls: String(el.className).slice(0, 40), rect: [r.left, r.top, r.right, r.bottom].map(Math.round) };
         if (r.left < 0 || r.top < 0 || r.right > w || r.bottom > h) { out.push({ ...info, why: '矩形が viewport 外' }); continue; }
         const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
         if (!top || !(top === el || el.contains(top))) {
@@ -64,12 +72,17 @@ for (const [w, h] of WIDTHS) {
       return out;
     }, { SEL, w, h });
     const label = `${w}x${h} サイドバー${open ? '開' : '閉'}`;
+    const counted = bad.filter((b) => !GATE || GATE.includes(b.zone));
+    for (const b of bad) { perZone[b.zone] = (perZone[b.zone] || 0) + 1; }
     if (bad.length) {
-      fail++;
-      console.error('NG ' + label + ' ' + bad.length + ' 件');
-      for (const b of bad) console.error('   ', JSON.stringify(b));
+      const zs = {};
+      for (const b of bad) zs[b.zone] = (zs[b.zone] || 0) + 1;
+      if (counted.length) fail++;
+      console[counted.length ? 'error' : 'log']((counted.length ? 'NG ' : 'OK(対象外のみ) ') + label + ' ' + bad.length + ' 件 区画別 ' + JSON.stringify(zs));
+      for (const b of bad) console[(!GATE || GATE.includes(b.zone)) ? 'error' : 'log']('   ', JSON.stringify(b));
     } else console.log('OK ' + label);
   }
   await browser.close();
 }
+console.log('区画別の違反の延べ件数: ' + JSON.stringify(perZone));
 process.exit(fail ? 1 : 0);

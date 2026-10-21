@@ -8,7 +8,7 @@
  * Task 1 時点: 軍事モードの「見た目」は未実装。ここで見るのは
  *   「入口が残っている」「操作が壊れていない」「エラーを吐かない」だけ。
  *
- * 手順 (step 番号は実行順・全 18 ステップ):
+ * 手順 (step 番号は実行順・全 22 ステップ):
  *   1. 標準ヘッダーに MIL-SPEC 切替ボタン (button[aria-label*="MIL-SPEC"]) が
  *      表示されていることを assert (SP1 の失敗 = この入口を消したこと) →
  *      useThemeStore.setThemeStyle('military') で軍事へ + store 注入 fixture
@@ -35,6 +35,10 @@
  *  16. コンテンツキーで絶タブ (aria-pressed ちょうど 1 つ)。
  *  17. シリーズの開閉で aria-expanded 反転。
  *  18. まとめて共有キーで選択の帯が出て Escape で消える。
+ *  19. TRB でタービンが回り出す(ボタンが無効化・ランプが琥珀・羽根が回る。動きありの別ブラウザで検査)。
+ *  20. 通気口の取っ手でヘッダーが閉じて開く(aria-expanded)。
+ *  21. SORT の 2 キー(押したほうが沈み、もう片方が戻る)。
+ *  22. 縦ロッカーで昼夜が切り替わる(<html> の theme-light)。
  *
  * 各ステップ後に console エラー 0 を確認。1 件でも exit 1。
  */
@@ -42,7 +46,7 @@
 import { launch, gotoMiti, applyFixture, attachConsoleRecorder, MITIGATION_FIXTURE } from './_fixture.mjs';
 
 /** 実装済みステップ総数 (ファイル頭の手順コメントと一致させること)。 */
-const TOTAL_STEPS = 18;
+const TOTAL_STEPS = 22;
 
 let stepNum = 0;
 const results = [];
@@ -795,6 +799,88 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
       await page.waitForTimeout(500);
       if ((await page.locator('[data-ms-zone="sidebar"] .milspec-sb-selbar').count()) !== 0) fail('Escape で選択の帯が消えない');
       return '帯が出る → Escape で消える';
+    });
+
+    // ── step 19〜22: v11 ヘッダー(タービン / 取っ手の開閉 / SORT / 昼夜ロッカー) ──
+    await step('TRB でタービンが回り出す(ボタン無効化・ランプが琥珀・羽根が回る)', async () => {
+      // タービンは「動きを減らす」だと動かない(マウント時に判定)。この step だけ動きありの別ブラウザで検査する
+      const l2 = await launch({ theme: 'dark', viewport: { width: 1489, height: 900 }, motion: 'no-preference' });
+      let st;
+      try {
+        const pg = l2.page;
+        await gotoMiti(pg);
+        await applyFixture(pg, { military: true });
+        await pg.waitForTimeout(2000);
+        const trb = pg.locator('[data-ms-zone="header"] button.milspec-tsw');
+        if ((await trb.count()) !== 1) fail(`TRB ボタンが ${await trb.count()} 個 (期待 1 個)`);
+        if (await trb.isDisabled()) fail('押す前から TRB が無効化されている');
+        await trb.click();
+        await pg.waitForTimeout(500);
+        st = await pg.evaluate(() => {
+          const b = document.querySelector('[data-ms-zone="header"] button.milspec-tsw');
+          const led = b && b.querySelector('.milspec-led');
+          const vane = document.querySelector('[data-ms-zone="header"] .milspec-h3-vanes');
+          return { disabled: !!b && b.disabled, warn: !!led && led.classList.contains('is-warn'), vane: vane ? getComputedStyle(vane).transform : null };
+        });
+        if (!st.disabled) fail('TRB を押したのにボタンが無効化されない(回転中の表示)');
+        if (!st.warn) fail('TRB を押したのにランプが琥珀(is-warn)にならない');
+        if (!st.vane || st.vane === 'none') fail(`羽根が回っていない(transform ${st.vane})`);
+        // 回転が止まる(ボタンが戻る)まで待つ
+        await pg.waitForFunction(() => { const b = document.querySelector('[data-ms-zone="header"] button.milspec-tsw'); return !!b && !b.disabled; }, null, { timeout: 20000 });
+      } finally { await l2.browser.close(); }
+      return `無効化 → 琥珀 → vanes ${st.vane.slice(0, 24)} → 停止で復帰`;
+    });
+
+    await step('通気口の取っ手でヘッダーが閉じて開く(aria-expanded)', async () => {
+      const pull = page.locator('[data-ms-zone="vent"] button[data-vent-pull]');
+      if ((await pull.count()) !== 1) fail('通気口の取っ手が無い');
+      const a0 = await pull.getAttribute('aria-expanded');
+      await pull.click();
+      await page.waitForTimeout(1800);
+      const a1 = await pull.getAttribute('aria-expanded');
+      if (a1 === a0) fail(`ヘッダーが閉じない(aria-expanded ${a0} → ${a1})`);
+      await pull.click();
+      await page.waitForTimeout(1800);
+      const a2 = await pull.getAttribute('aria-expanded');
+      if (a2 !== a0) fail(`もう一度押しても開かない(${a0} → ${a1} → ${a2})`);
+      return `aria-expanded ${a0} → ${a1} → ${a2}`;
+    });
+
+    await step('SORT の 2 キー: 押したほうが沈み、もう片方が戻る', async () => {
+      const keys = page.locator('[data-ms-zone="header"] .milspec-h4-kc[role="group"]').filter({ has: page.locator('button[aria-pressed]') });
+      const groups = await keys.evaluateAll((gs) => gs.map((g) => g.querySelectorAll('button[aria-pressed]').length));
+      const gi = groups.findIndex((n) => n === 2);
+      if (gi < 0) fail(`SORT の 2 キーの組が見つからない(組ごとのキー数 ${groups.join(',')})`);
+      const btns = keys.nth(gi).locator('button[aria-pressed]');
+      const read = () => btns.evaluateAll((els) => els.map((e) => e.getAttribute('aria-pressed')));
+      const p0 = await read();
+      if (p0.filter((v) => v === 'true').length !== 1) fail(`最初から沈んでいるキーがちょうど 1 つではない: ${p0.join(',')}`);
+      const idx = p0.findIndex((v) => v === 'false');
+      await btns.nth(idx).click();
+      await page.waitForTimeout(400);
+      const p1 = await read();
+      if (p1[idx] !== 'true' || p1.filter((v) => v === 'true').length !== 1) fail(`押したキーだけが沈まない: ${p0.join(',')} → ${p1.join(',')}`);
+      await btns.nth(1 - idx).click(); // 元へ戻す
+      await page.waitForTimeout(400);
+      const p2 = await read();
+      if (p2.join(',') !== p0.join(',')) fail(`元へ戻らない: ${p0.join(',')} → ${p1.join(',')} → ${p2.join(',')}`);
+      return `${p0.join(',')} → ${p1.join(',')} → ${p2.join(',')}`;
+    });
+
+    await step('縦ロッカーで昼夜が切り替わる(<html> の theme-light)', async () => {
+      const rk = page.locator('[data-ms-zone="header"] button.milspec-vr');
+      if ((await rk.count()) !== 1) fail('縦ロッカーが無い');
+      const isLight = () => page.evaluate(() => document.documentElement.classList.contains('theme-light'));
+      const l0 = await isLight();
+      await rk.click();
+      await page.waitForTimeout(1500);
+      const l1 = await isLight();
+      if (l1 === l0) fail(`昼夜が切り替わらない(theme-light ${l0} → ${l1})`);
+      await rk.click();
+      await page.waitForTimeout(1500);
+      const l2 = await isLight();
+      if (l2 !== l0) fail(`もう一度押しても戻らない(${l0} → ${l1} → ${l2})`);
+      return `theme-light ${l0} → ${l1} → ${l2}`;
     });
 
     // ── 最終判定 (この viewport) ──────────────────────────────

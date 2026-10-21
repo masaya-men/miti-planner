@@ -679,7 +679,8 @@
         "sb_series_unfold": "シリーズを開く",
         "sb_content_sub": "コンテンツ",
         "sb_service_sub": "保守",
-        "sb_content_group": "コンテンツ種別"
+        "sb_content_group": "コンテンツ種別",
+        "hdr_turbine_start": "タービン起動"
     },
     "sidebar": {
         "new_plan": "新規作成",

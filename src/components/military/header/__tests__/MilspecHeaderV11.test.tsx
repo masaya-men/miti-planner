@@ -74,6 +74,7 @@ describe('H5 の機能', () => {
     const names = getAllByRole('button').map((b) => b.textContent + '|' + (b.getAttribute('aria-label') ?? ''));
     expect(names.some((n) => /取り込み|インポート/.test(n))).toBe(true);
     expect(names.some((n) => /表示メンバー/.test(n))).toBe(true);
+    expect(names.some((n) => /その他/.test(n))).toBe(true);
   });
   it('表示メンバー: 非表示の人がいるときだけ active(緑のランプ)', () => {
     const { container, rerender } = r();
@@ -113,6 +114,9 @@ describe('幅(MW)への追従', () => {
       const { container } = render(<MemoryRouter><div data-ms-zone="header"><MilspecHeaderV11 {...props} /></div></MemoryRouter>);
       const sort = [...container.querySelectorAll('.milspec-stencil')].find((e) => e.textContent?.includes('SORT')) as HTMLElement;
       expect(sort.style.left).toBe('1243px');
+      // H4(COM の刻印)も区画の右端に追従して右へ寄る(MW-99 = 1366)
+      const com = [...container.querySelectorAll('.milspec-stencil')].find((e) => e.textContent?.trim() === 'COM') as HTMLElement;
+      expect(com.style.left).toBe('1366px');
     } finally { spy.mockRestore(); vi.unstubAllGlobals(); }
   });
 });

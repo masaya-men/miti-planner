@@ -4,6 +4,7 @@ import { render, act, fireEvent } from '@testing-library/react';
 import { MeterPanel, syncLampState, resetMissionClock } from '../MeterPanel';
 import { usePlanStore } from '../../../../store/usePlanStore';
 import { useAuthStore } from '../../../../store/useAuthStore';
+import i18n from '../../../../i18n';
 
 const fx = vi.hoisted(() => ({ listener: null as (() => void) | null, pulse: vi.fn() }));
 vi.mock('../../fx/engine', () => ({
@@ -27,7 +28,8 @@ describe('syncLampState(SYNC ランプの 4 状態)', () => {
 });
 
 describe('MeterPanel', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('ja');
     vi.useFakeTimers();
     resetMissionClock();
     fx.listener = null;

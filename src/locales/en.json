@@ -675,7 +675,8 @@
         "sb_series_unfold": "Expand series",
         "sb_content_sub": "",
         "sb_service_sub": "",
-        "sb_content_group": "Content type"
+        "sb_content_group": "Content type",
+        "hdr_turbine_start": "Start turbine"
     },
     "sidebar": {
         "new_plan": "New",

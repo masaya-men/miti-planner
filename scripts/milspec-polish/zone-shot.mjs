@@ -3,7 +3,11 @@
  * zone-shot.mjs — 承認済み見本(v11)と本体の「同じ区画」を同条件で撮って並べて見られるようにする。
  *  条件: viewport 1489×(--height, 既定 679) / deviceScaleFactor 2 / reducedMotion なし(光の確認のため)。
  *  使い方:
- *    node scripts/milspec-polish/zone-shot.mjs --zone=sidebar --mock=<見本 html の絶対パス> --out=<出力フォルダ> [--theme=dark|light] [--lang=ja|en|ko|zh|zh-Hant] [--height=679]
+ *    node scripts/milspec-polish/zone-shot.mjs --zone=sidebar|header --mock=<見本 html の絶対パス> --out=<出力フォルダ> [--theme=dark|light] [--lang=ja|en|ko|zh|zh-Hant] [--height=679] [--width=1489] [--sb=open|closed]
+ *    --zone=header は 見本 #z-hdr 上端〜#z-vent 下端 / 本体 [data-ms-zone="header"] 上端〜[data-ms-zone="vent"] 下端 を全幅で 1 枚に撮る。
+ *      出力: header-mock-<theme>.png / header-app-<theme>-<lang>-<幅>x<高さ>-sb<open|closed>.png / header-menu-<名前>-....png
+ *      検査: 取り込み・その他・表示メンバー・言語・チュートリアルのメニューを順に開き、メニューの矩形がボタンの近く
+ *            (ボタンの下か上で、横位置がボタンと重なる・viewport 内)にあるかを DOM で確認する。
  *  出力: <out>/sidebar-mock-<theme>.png / <out>/sidebar-app-<theme>-<lang>.png / <out>/sidebar-app-energy.png
  *  検査(失敗なら exit 1):
  *   - 刻印はみ出し: 本体の .milspec-key-lb で scrollWidth > clientWidth + 1
@@ -26,14 +30,118 @@ const mock = arg('mock', '');
 const out = arg('out', '');
 const theme = arg('theme', 'dark') === 'light' ? 'light' : 'dark';
 const lang = arg('lang', 'ja');
-if (zone !== 'sidebar') { console.error(`未対応の zone: ${zone}(今は sidebar のみ)`); process.exit(2); }
+if (zone !== 'sidebar' && zone !== 'header') { console.error(`未対応の zone: ${zone}(sidebar / header)`); process.exit(2); }
 if (!out) { console.error('--out=<出力フォルダ> が必要'); process.exit(2); }
 fs.mkdirSync(out, { recursive: true });
 
 const height = Number(arg('height', '679')) || 679;
-const VP = { width: 1489, height };
+const width = Number(arg('width', '1489')) || 1489;
+const sbMode = arg('sb', 'open') === 'closed' ? 'closed' : 'open';
+const VP = { width, height };
 const tag = height === 679 ? '' : `-h${height}`;
 let failed = 0;
+
+if (zone === 'header') {
+  await runHeader();
+  process.exit(failed ? 1 : 0);
+}
+
+// ── ヘッダー + 通気口 ─────────────────────────────────
+async function runHeader() {
+  // 見本: #z-hdr 上端〜#z-vent 下端(全幅)
+  if (mock) {
+    const { browser, page } = await launch({ theme, viewport: VP, dsf: 2, motion: 'no-preference' });
+    await page.goto(mock.startsWith('file:') ? mock : pathToFileURL(path.resolve(mock)).href, { waitUntil: 'load' });
+    await page.waitForTimeout(3500);
+    if (theme === 'light') { await page.locator('.vr').first().click(); await page.waitForTimeout(1800); }
+    const a = await page.locator('#z-hdr').boundingBox();
+    const b = await page.locator('#z-vent').boundingBox();
+    if (!a || !b) { failed++; console.error('NG 見本の #z-hdr / #z-vent が見つからない'); }
+    else {
+      const x0 = Math.min(a.x, b.x), x1 = Math.max(a.x + a.width, b.x + b.width);
+      await page.screenshot({ path: path.join(out, `header-mock-${theme}.png`), fullPage: true,
+        clip: { x: x0, y: a.y, width: x1 - x0, height: b.y + b.height - a.y } });
+      console.log(`撮影: header-mock-${theme}.png`);
+    }
+    await browser.close();
+  }
+
+  const { browser, page } = await launch({ theme, viewport: VP, dsf: 2, motion: 'no-preference' });
+  await page.addInitScript((l) => {
+    try {
+      const raw = localStorage.getItem('theme-storage');
+      const j = raw ? JSON.parse(raw) : { state: {}, version: 2 };
+      j.state.contentLanguage = l;
+      localStorage.setItem('theme-storage', JSON.stringify(j));
+    } catch { /* 無視 */ }
+  }, lang);
+  await gotoMiti(page);
+  await applyFixture(page, { military: true });
+  await page.waitForTimeout(3500);
+  const handle = page.locator('.milspec-rail-handle');
+  if ((await handle.count()) > 0) {
+    const cur = await handle.getAttribute('aria-expanded');
+    if ((cur === 'true') !== (sbMode === 'open')) { await handle.click(); await page.waitForTimeout(600); }
+  }
+  const clip = await page.evaluate(() => {
+    const h = document.querySelector('[data-ms-zone="header"]')?.getBoundingClientRect();
+    const v = document.querySelector('[data-ms-zone="vent"]')?.getBoundingClientRect();
+    if (!h || !v) return null;
+    const x0 = Math.min(h.left, v.left), x1 = Math.max(h.right, v.right);
+    return { x: x0, y: h.top, width: x1 - x0, height: v.bottom - h.top };
+  });
+  const base = `header-app-${theme}-${lang}-${width}x${height}-sb${sbMode}`;
+  if (!clip) { failed++; console.error('NG 本体の header / vent 区画が見つからない'); }
+  else {
+    await page.screenshot({ path: path.join(out, `${base}.png`), clip });
+    console.log(`撮影: ${base}.png`);
+  }
+
+  // メニュー: 順に開き、メニューの矩形がボタンの近くにあるか(DOM の矩形で判定)
+  const slots = page.locator('[data-ms-zone="header"] .milspec-h4-slot button.milspec-keybtn');
+  const n = await slots.count();
+  if (n !== 5) { failed++; console.error(`NG メニューのボタンが 5 個でない(${n})`); }
+  else {
+    // DOM 順: AUX(チュートリアル)→ COM(言語)→ PARTY OPS(取り込み・その他)→ 表示メンバー
+    const names = ['tutorial', 'language', 'import', 'more', 'visibility'];
+    for (let i = 0; i < 5; i++) {
+      const btn = slots.nth(i);
+      const br = await btn.boundingBox();
+      // 押す前から出ている fixed 要素(トースト等)をメニューと取り違えないよう、印を付けておく
+      await page.evaluate(() => document.querySelectorAll('body *').forEach((e) => e.setAttribute('data-zs-pre', '1')));
+      // 表示メンバーは標準と同じくホバーで開く(クリックだと開いた直後に閉じ直す)
+      if (names[i] === 'visibility') await btn.hover(); else await btn.click();
+      await page.waitForTimeout(450);
+      const res = await page.evaluate((b) => {
+        const vw = innerWidth, vh = innerHeight;
+        const cands = Array.from(document.body.querySelectorAll('*')).filter((e) => {
+          const cs = getComputedStyle(e);
+          if (e.hasAttribute('data-zs-pre') || cs.position !== 'fixed') return false;
+          const r = e.getBoundingClientRect();
+          return r.width > 60 && r.height > 30 && r.width < vw * 0.8;
+        }).map((e) => { const r = e.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom }; });
+        if (!cands.length) return { found: false };
+        const m = cands.sort((p, q) => (q.r - q.l) * (q.b - q.t) - (p.r - p.l) * (p.b - p.t))[0];
+        const hOverlap = m.l < b.x + b.width && m.r > b.x;
+        const near = (m.t >= b.y + b.height - 6 && m.t <= b.y + b.height + 80) || (m.b <= b.y + 6 && m.b >= b.y - 80);
+        const inside = m.l >= -1 && m.t >= -1 && m.r <= vw + 1 && m.b <= vh + 1;
+        return { found: true, m, hOverlap, near, inside };
+      }, br);
+      await page.screenshot({ path: path.join(out, `header-menu-${names[i]}-${theme}-${lang}-${width}x${height}.png`) });
+      if (!res.found) { failed++; console.error(`NG メニュー ${names[i]}: 開いたメニューが見つからない`); }
+      else if (!res.hOverlap || !res.near || !res.inside) {
+        failed++; console.error(`NG メニュー ${names[i]}: ボタンの近くにない ` + JSON.stringify({ btn: br, ...res }));
+      } else console.log(`OK メニュー ${names[i]} はボタンの近く(${Math.round(res.m.l)},${Math.round(res.m.t)})`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(200);
+      await page.mouse.click(2, height - 2); // 閉じきらないものの保険
+      await page.waitForTimeout(250);
+      await page.evaluate(() => document.querySelectorAll('[data-zs-pre]').forEach((e) => e.removeAttribute('data-zs-pre')));
+    }
+  }
+  await browser.close();
+}
+
 
 // ── 見本 ──────────────────────────────────────────────
 if (mock) {

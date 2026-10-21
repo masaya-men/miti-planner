@@ -667,7 +667,8 @@
         "sb_series_unfold": "展开系列",
         "sb_content_sub": "内容",
         "sb_service_sub": "维护",
-        "sb_content_group": "内容类型"
+        "sb_content_group": "内容类型",
+        "hdr_turbine_start": "启动涡轮"
     },
     "sidebar": {
         "new_plan": "新建",

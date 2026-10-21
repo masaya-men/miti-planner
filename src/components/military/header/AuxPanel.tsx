@@ -161,7 +161,7 @@ export function AuxPanel({ MW, theme, onToggleTheme }: AuxPanelProps) {
       {/* 共同編集中だけ: 参加者ドットとカーソル操作(標準 ShareButtons と同じ出し方・条件)。
           銘板の窪み(H2)の右端に、暗い床を敷いて重ねる */}
       {isOn && (
-        <div className="milspec-collab-dots" style={{ left: decor.nameplate.x + 374, top: decor.nameplate.y + 21 }}>
+        <div className="milspec-collab-dots" style={{ left: decor.nameplate.x + decor.nameplate.w - 12, top: decor.nameplate.y + 21 }}>
           <ParticipantDots size={8} />
           {active && <PresenceControls compact />}
         </div>

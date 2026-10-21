@@ -667,7 +667,8 @@
         "sb_series_unfold": "展開系列",
         "sb_content_sub": "內容",
         "sb_service_sub": "維護",
-        "sb_content_group": "內容類型"
+        "sb_content_group": "內容類型",
+        "hdr_turbine_start": "啟動渦輪"
     },
     "sidebar": {
         "new_plan": "新建",
