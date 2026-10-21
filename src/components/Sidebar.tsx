@@ -19,6 +19,7 @@ import { ArchivePromptModal } from './ArchivePromptModal';
 import type { ContentLevel, ContentDefinition } from '../types';
 import { Tooltip } from './ui/Tooltip';
 import type { MultiSelectState } from '../types/sidebarTypes';
+import { usePlanMultiSelect } from '../hooks/usePlanMultiSelect';
 import type { ContentLanguage } from '../store/useThemeStore';
 import { usePlanStore } from '../store/usePlanStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -846,11 +847,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         return () => window.removeEventListener('tutorial:plan-restored', handleRestored);
     }, []);
 
-    const [multiSelect, setMultiSelect] = useState<MultiSelectState>({
-        isEnabled: false,
-        selectedIds: [],
-        mode: 'share',
-    });
+    // 複数選択(まとめて共有・選択削除)は usePlanMultiSelect に集約
+    const {
+        multiSelect, setMultiSelect,
+        toggleMode: toggleMultiSelectMode, toggleId: toggleItemId,
+        bundleOpen: bundleModalOpen, bundlePlans: bundlePlansForModal,
+        setBundleOpen: setBundleModalOpen, setBundlePlans: setBundlePlansForModal,
+        openBundleShare: handleShareBundle, closeBundleShare, deleteSelected,
+    } = usePlanMultiSelect();
     // 削除確認モーダル
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     // フローティングアクションバーの視線誘導アニメーション
@@ -1160,74 +1164,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             // lastOpenedAt を更新
             setLastOpened(planId, Date.now());
         }, 'plan');
-    };
-
-    const toggleMultiSelectMode = (mode: 'share' | 'delete' = 'share') => {
-        setMultiSelect(prev => {
-            if (prev.isEnabled && prev.mode === mode) {
-                // 同じモードを再度押した → オフにする
-                return { isEnabled: false, selectedIds: [], mode: 'share' };
-            }
-            // オフ→オン or 別モードに切り替え
-            return { isEnabled: true, selectedIds: [], mode };
-        });
-    };
-
-    const toggleItemId = (id: string) => {
-        setMultiSelect(prev => {
-            const isSelected = prev.selectedIds.includes(id);
-            if (isSelected) {
-                return { ...prev, selectedIds: prev.selectedIds.filter(i => i !== id) };
-            } else if (prev.mode === 'delete' || prev.selectedIds.length < 10) {
-                return { ...prev, selectedIds: [...prev.selectedIds, id] };
-            }
-            return prev;
-        });
-    };
-
-    // まとめて共有（バンドル） → モーダル経由
-    const [bundleModalOpen, setBundleModalOpen] = useState(false);
-    const [bundlePlansForModal, setBundlePlansForModal] = useState<{ contentId: string | null; title: string; planData: any }[]>([]);
-
-    const handleShareBundle = async () => {
-        if (multiSelect.selectedIds.length === 0) return;
-
-        // 現在のプランを保存
-        const planStore = usePlanStore.getState();
-        const mitiStore = useMitigationStore.getState();
-        if (currentPlanId) {
-            planStore.updatePlan(currentPlanId, { data: mitiStore.getSnapshot() });
-        }
-
-        // 選択されたプランIDからデータを収集（圧縮済みプランは解凍）
-        const bundlePlansRaw = await Promise.all(
-            multiSelect.selectedIds.map(async (planId) => {
-                const plan = planStore.plans.find(p => p.id === planId);
-                if (!plan) return null;
-                let planData = plan.data;
-                if ((!planData || Object.keys(planData).length === 0) && plan.compressedData) {
-                    try {
-                        planData = await decompressPlanData(plan.compressedData);
-                    } catch {
-                        return null;
-                    }
-                }
-                return {
-                    contentId: plan.contentId,
-                    title: plan.title,
-                    planData,
-                };
-            })
-        );
-        const bundlePlans = bundlePlansRaw.filter(Boolean) as { contentId: string | null; title: string; planData: any }[];
-
-        if (bundlePlans.length === 0) {
-            showToast(t('app.share_no_plans') || 'プランがありません');
-            return;
-        }
-
-        setBundlePlansForModal(bundlePlans);
-        setBundleModalOpen(true);
     };
 
     // チュートリアルのステップ1（コンテンツ選択）でサイドバーの最初のアイテムをハイライト
@@ -1692,10 +1628,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             }} />
             <ShareModal
                 isOpen={bundleModalOpen}
-                onClose={() => {
-                    setBundleModalOpen(false);
-                    setMultiSelect({ isEnabled: false, selectedIds: [] });
-                }}
+                onClose={closeBundleShare}
                 contentLabel={null}
                 currentPlan={undefined}
                 bundlePlans={bundlePlansForModal}
@@ -1824,18 +1757,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             </button>
                             <button
                                 onClick={() => {
-                                    const planStore = usePlanStore.getState();
-                                    const authUser = useAuthStore.getState().user;
-                                    for (const id of multiSelect.selectedIds) {
-                                        const plan = planStore.plans.find(p => p.id === id);
-                                        if (authUser) {
-                                            // ログイン中: Firestoreから即時削除
-                                            planStore.deleteFromFirestore(id, authUser.uid, plan?.contentId || null);
-                                        } else {
-                                            planStore.deletePlan(id);
-                                        }
-                                    }
-                                    setMultiSelect({ isEnabled: false, selectedIds: [], mode: 'share' });
+                                    void deleteSelected();
                                     setShowDeleteConfirm(false);
                                 }}
                                 className="flex-[2] py-3.5 rounded-2xl text-app-md font-black bg-app-red text-white hover:bg-app-red-hover transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95"
