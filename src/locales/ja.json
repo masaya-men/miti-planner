@@ -3061,6 +3061,7 @@
     "progress": {
         "show_bar": "進捗バーを表示",
         "empty_cta": "クリックして攻略の軌跡を記録",
+        "crt_title": "攻略の軌跡",
         "record_title": "進捗を記録",
         "record_cta": "到達点を記録",
         "record_hint": "タイムラインをクリックして打点",

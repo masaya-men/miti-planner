@@ -14,8 +14,7 @@ import { AnimatePresence } from 'framer-motion';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { usePlanStore } from '../../store/usePlanStore';
 import { useMitigations } from '../../hooks/useSkillsData';
-import { computeProgressPercent } from '../../lib/progressLogic';
-import { useProgressRecording } from './useProgressRecording';
+import { useProgressJourney } from './useProgressJourney';
 import { ProgressRecordPanel } from './ProgressRecordPanel';
 import { ProgressCelebration } from './ProgressCelebration';
 import { ProgressRecordToast } from './ProgressRecordToast';
@@ -226,14 +225,12 @@ function JourneyStrip({
 }
 
 /**
- * 進捗トラッキングHUD（props なし・store から読む）。
- * ConsolidatedHeader の中央スロットに組み込む。
- * クリックで到達点記録パネルを開く。
+ * お祝い演出(ProgressCelebration)と、その発火条件(クリア遷移 / マウント時クリア済み・dismiss 済みの記憶)。
+ * 標準の HUD と MIL-SPEC のブラウン管(MilspecCrt)が同じ条件で出せるよう小さな部品に分けた。
+ * 自分の DOM は AnimatePresence + ProgressCelebration だけ(ラッパーなし)。
  */
-export function ProgressTrackingHUD() {
-  const { t } = useTranslation();
+export function ProgressCelebrationHost() {
   const progress = useMitigationStore((s) => s.progress);
-  const timelineEvents = useMitigationStore((s) => s.timelineEvents);
   const partyMembers = useMitigationStore((s) => s.partyMembers);
   const currentPlanId = usePlanStore((s) => s.currentPlanId);
 
@@ -243,29 +240,6 @@ export function ProgressTrackingHUD() {
   const celebrationIcons = [...new Set(
     mitigations.filter((m) => jobIds.has(m.jobId)).map((m) => m.icon).filter(Boolean)
   )];
-
-  // タイムライン全長（秒）= timelineEvents の最大 time
-  // useMemo で参照安定化 → JourneyStrip / PulseTrail の再起動を防ぐ。
-  const total = useMemo(
-    () => timelineEvents.length ? Math.max(...timelineEvents.map((e) => e.time)) : 0,
-    [timelineEvents]
-  );
-
-  // 各打点の到達点を % に正規化した配列（並び順=クリック順）。
-  // 旧形式データが万一すり抜けても HUD(=ヘッダー全体)を巻き込んで落とさないよう ?? [] で防御。
-  const points = useMemo(
-    () => (progress.points ?? []).map((p) =>
-      total > 0 ? Math.max(0, Math.min(100, (p.reachedPos / total) * 100)) : 0
-    ),
-    [progress.points, total]
-  );
-
-  // spec 準拠の進捗 %（最高 reachedPos ÷ 全長）
-  const pct = useMemo(() => computeProgressPercent(progress, total), [progress, total]);
-
-  // 打点ゼロ(かつ未クリア)なら軌跡の代わりに誘導文言を表示する。
-  // 活動日数/時間を入れていても打点0なら誘導を出す（空の帯にしない）。1点でも記録すれば軌跡へ自動切替。
-  const isEmpty = points.length === 0 && !progress.cleared;
 
   // ─── お祝い演出の発火条件 ───────────────────────────────────────────────
   const [showCelebration, setShowCelebration] = useState(false);
@@ -305,17 +279,31 @@ export function ProgressTrackingHUD() {
   };
 
   return (
+    <AnimatePresence>
+      {showCelebration && (
+        <ProgressCelebration icons={celebrationIcons} onDismiss={handleDismiss} />
+      )}
+    </AnimatePresence>
+  );
+}
+
+/**
+ * 進捗トラッキングHUD（props なし・store から読む）。
+ * ConsolidatedHeader の中央スロットに組み込む。
+ * クリックで到達点記録パネルを開く。値の計算は useProgressJourney に切り出し済み(MIL-SPEC のブラウン管と共有)。
+ */
+export function ProgressTrackingHUD() {
+  const { t } = useTranslation();
+  const { empty: isEmpty, percents: points, pct, cleared, hasActivity, activeDays, activeHours, openPanel } = useProgressJourney();
+
+  return (
     <>
       {/* HUD 帯クリックで記録パネルを開く（空状態・軌跡表示どちらも同じクリック領域） */}
       {/* data-progress-hud-band: 記録ドロワーがこの帯の位置を測り、中央真下から降りるためのアンカー */}
       <div
         data-progress-hud-band
         className="group w-full cursor-pointer"
-        onClick={() => {
-          // 開いている時は開き直さない（再クリックは外側クリック判定=document mousedown が閉じる）。
-          const r = useProgressRecording.getState();
-          if (!r.panelOpen) r.openPanel();
-        }}
+        onClick={openPanel}
       >
         {isEmpty ? (
           /* 誘導型空状態: 軌跡の代わりに誘導文言を帯に出す。
@@ -328,21 +316,17 @@ export function ProgressTrackingHUD() {
         ) : (
           <JourneyStrip
             points={points}
-            pct={pct}
-            cleared={progress.cleared}
-            activeDays={progress.activeDays}
-            activeHours={progress.activeHours}
+            pct={pct ?? 0}
+            cleared={cleared}
+            activeDays={hasActivity ? activeDays : undefined}
+            activeHours={hasActivity ? activeHours : undefined}
           />
         )}
       </div>
       {/* 記録パネル（panelOpen false で自動的に null） */}
       <ProgressRecordPanel />
       {/* お祝い演出（framer-motion AnimatePresence でアンマウント時にフェードアウト） */}
-      <AnimatePresence>
-        {showCelebration && (
-          <ProgressCelebration icons={celebrationIcons} onDismiss={handleDismiss} />
-        )}
-      </AnimatePresence>
+      <ProgressCelebrationHost />
     </>
   );
 }

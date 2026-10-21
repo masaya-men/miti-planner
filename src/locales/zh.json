@@ -3005,6 +3005,7 @@
     "progress": {
         "show_bar": "显示进度条",
         "empty_cta": "点击记录攻略进度",
+        "crt_title": "攻略轨迹",
         "record_title": "记录进度",
         "record_cta": "记录到达位置",
         "record_hint": "点击时间轴打点",
