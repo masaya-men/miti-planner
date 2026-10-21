@@ -98,6 +98,7 @@ export function headerLayout(MW: number): {
   traces: { name: string; d: string; pc: 'seam' | 'leak' }[];
   meter: { ix: number; iw: number; showClock: boolean };
 } {
+  MW = Math.max(MW, HDR_BASE_MW); // 縮小時は layoutMW 済みの値を渡す約束。誤用しても 1189 未満では描かない
   const frame = { ...HDR_FRAME };
   const panels = basePanels().map((p) => stretchPlaced(p, frame, MW, HDR_H));
   const p4 = panels[4], p5 = panels[5];

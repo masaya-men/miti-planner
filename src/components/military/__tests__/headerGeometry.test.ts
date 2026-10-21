@@ -54,6 +54,44 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
     const xs = n('com').caps.map((c) => { const v = c.pts.map((p) => p[0]); return +((Math.min(...v) + Math.max(...v)) / 2).toFixed(1); });
     expect(xs).toEqual([12, 32.7, 53.3, 74]);
   });
+  it('MW=1465 の手計算リテラル', () => {
+    const l = headerLayout(1465);
+    expect(l.panels[5].spec.pts[1]).toEqual([1165, 0]);
+    expect(l.panels[5].spec.pts[2]).toEqual([1171, -4]);
+    expect(l.panels[5].spec.scribes?.[0]).toBe('M 1167 8 V 42');
+    expect(l.panels[3].spec.pts).toContainEqual([586, 18]);
+    expect(l.panels[3].spec.seams?.[0]).toBe('M 112 39 H 466');
+    expect(l.panels[5].spec.seams).toContain('M 690 5.6 H 951');
+  });
+  it('受け皿の先頭点(見本 cluster の式で手計算)', () => {
+    const l = headerLayout(1465);
+    const pk = (i: number, k: number) => l.panels[i].spec.pockets![k].pts[0];
+    expect(pk(4, 0)).toEqual([14, 11]);     // aux
+    expect(pk(4, 1)).toEqual([326, 11]);    // com(stadium 先頭 = [72,0] + [254,11])
+    expect(pk(5, 1)).toEqual([21, 11]);     // party
+    expect(pk(5, 2)).toEqual([324, 11]);    // io(stadium 先頭 = [48,0] + [276,11])
+    expect(pk(5, 3)).toEqual([973, 11]);    // mainstream = [10,0] + [963,11]
+    expect(pk(5, 4)[0]).toBeCloseTo(1212, 6); // gear = [19,0] + [1193,11]
+    expect(pk(5, 4)[1]).toBeCloseTo(11, 6);
+    expect(pk(5, 5)).toEqual([1287, 11]);   // sort = [12,0] + [1275,11]
+  });
+  it('COM 丸キーの y と半径', () => {
+    const com = headerLayout(1465).keyRows.find((r) => r.id === 'com')!;
+    com.caps.forEach((c) => {
+      const xs = c.pts.map((p) => p[0]), ys = c.pts.map((p) => p[1]);
+      expect((Math.min(...ys) + Math.max(...ys)) / 2).toBeCloseTo(14, 6);
+      expect((Math.max(...xs) - Math.min(...xs)) / 2).toBeCloseTo(9.6, 6);
+    });
+  });
+  it('h5b のしきい値', () => {
+    const has = (mw: number) => headerLayout(mw).traces.some((t) => t.name === 'h5b');
+    expect(has(1244)).toBe(false);
+    expect(has(1245)).toBe(true);
+  });
+  it('1189 未満を渡しても 1189 で描く', () => {
+    expect(headerLayout(980).panels).toEqual(headerLayout(1189).panels);
+    expect(headerLayout(980).meter.iw).toBe(310);
+  });
   it('パス命令が絶対座標だけ', () => {
     const l = headerLayout(1465);
     const ds = [...l.panels.flatMap((p) => [...(p.spec.scribes ?? []), ...(p.spec.seams ?? [])]), ...l.traces.map((t) => t.d), ventLayout(1465).leak];
