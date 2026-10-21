@@ -4,9 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { useMilspecFonts } from './useMilspecFonts';
 import { MilspecBackdropVideo } from './MilspecBackdropVideo';
-import { MilspecHeader } from './MilspecHeader';
+import { MilspecHeaderV11 } from './header/MilspecHeaderV11';
 import { MilspecSidebar } from './MilspecSidebar';
-import { MilspecToolbar } from './MilspecToolbar';
 import { MilspecWorkspace } from './MilspecWorkspace';
 import { MilspecFooter } from './MilspecFooter';
 import { MilspecVent } from './MilspecVent';
@@ -95,20 +94,12 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   return (
     <div ref={appRef} data-app-shell className="milspec-app" data-theme-military>
       <MilspecBackdropVideo />
-      {/* ゾーン: header(Task 4)/sidebar(Task 5)/toolbar(Task 6)/workspace(Task 3)/footer(Task 7)/rail は実装済。 */}
-      {/* masaya 2026-09-14 確定: header ゾーンの高さは今までどおり(clamp 76-90px)据え置きで、
-          その中を縦に 2 段(上=MilspecHeader を少し薄く/下=MilspecToolbar を薄い帯で)に積む。
-          標準 ConsolidatedHeader の Layer A(h-12)+ Layer B(h-12)を 1 つの折りたたみ容器に
-          収めているのと同じ形(横に並べるのではなく縦積み・合計高さを増やさない)。 */}
+      {/* ゾーン: header / vent / sidebar / rail / workspace / footer。ヘッダーは 1 つの v11 ヘッダー(H1〜H5)。 */}
       <div ref={headerRef} data-ms-zone="header" className="milspec-zone-header" data-collapsed={props.isHeaderCollapsed ? '' : undefined}>
         <div className="milspec-hs-box">
-        <MilspecHeader
+        <MilspecHeaderV11
           theme={props.theme}
           onToggleTheme={props.onToggleTheme}
-          isHeaderCollapsed={props.isHeaderCollapsed}
-          setIsHeaderCollapsed={setCollapsedAnimated}
-        />
-        <MilspecToolbar
           partySortOrder={props.partySortOrder}
           setPartySortOrder={props.setPartySortOrder}
           onAutoPlan={props.onAutoPlan}

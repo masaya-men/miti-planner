@@ -31,14 +31,15 @@ describe('MilspecLayout', () => {
 
   it('data-app-shell ルートと 5 ゾーン(rail 含む)を描画する', () => {
     // 2026-09-14 masaya 確定: toolbar(パーティ編成等)専用ゾーンは無く、header ゾーンの中に
-    // MilspecHeader(上段)/ MilspecToolbar(下段)を縦積みする(ゾーンの高さは header 側のまま)。
+    // v11 ヘッダー(MilspecHeaderV11・H1〜H5)が 1 つ入る(ゾーンの高さは header 側のまま)。
     const { container } = renderIt();
     expect(container.querySelector('[data-app-shell]')).not.toBeNull();
     for (const z of ['header', 'sidebar', 'rail', 'workspace', 'footer']) {
       expect(container.querySelector(`[data-ms-zone="${z}"]`)).not.toBeNull();
     }
     expect(container.querySelector('[data-ms-zone="toolbar"]')).toBeNull();
-    expect(container.querySelector('[data-ms-zone="header"] .milspec-tb')).not.toBeNull();
+    expect(container.querySelector('[data-ms-zone="header"] [data-milspec-header]')).not.toBeNull();
+    expect(container.querySelector('[data-ms-zone="header"] .milspec-tb')).toBeNull();
     expect(container.querySelector('[data-ms-zone="seam"]')).toBeNull();
     expect(container.querySelector('.milspec-console-frame')).toBeNull();
   });

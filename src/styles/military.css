@@ -3006,3 +3006,14 @@ html.theme-military[data-ms-power="off"] .milspec-led .milspec-led-src { opacity
   .theme-military .milspec-dr i { transition: none; }
   .theme-military .milspec-colon::before, .theme-military .milspec-colon::after { animation: none; }
 }
+
+/* ============================================================
+ * v11 ヘッダー(MilspecHeaderV11)の組み立て。見本の層: 装甲 -1 / 光 1 / 中身 2。
+ * 中身の箱は全面でクリックを受ける(装甲と光は見た目だけで、その下に押せるものは無い)。
+ * ============================================================ */
+.theme-military .milspec-hdrx { position: absolute; inset: 0; pointer-events: none; }
+.theme-military .milspec-hdrx-top { position: absolute; inset: 0; z-index: 2; pointer-events: auto; }
+.theme-military .milspec-hdrx-top > .milspec-decal,
+.theme-military .milspec-hdrx-top > .milspec-mark,
+.theme-military .milspec-hdrx-top > .milspec-rivet,
+.theme-military .milspec-hdrx-top > .milspec-barcode { position: absolute; }

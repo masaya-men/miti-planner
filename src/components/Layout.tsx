@@ -588,7 +588,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 isHeaderCollapsed={isHeaderCollapsed}
                 setIsHeaderCollapsed={setIsHeaderCollapsed}
                 theme={theme}
-                onToggleTheme={() => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme')}
+                onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                 partySortOrder={timelineSortOrder}
                 setPartySortOrder={setTimelineSortOrder}
                 onAutoPlan={() => window.dispatchEvent(new CustomEvent('timeline:autoplan'))}

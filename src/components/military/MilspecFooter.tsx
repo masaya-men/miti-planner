@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { MilspecHarness } from './svg/MilspecHarness';
 import { useTurbineCluster } from './useTurbineCluster';
-// 副作用 import: i18next の初期化(MilspecSidebar.tsx/MilspecToolbar.tsx と同じ理由 —
+// 副作用 import: i18next の初期化(MilspecSidebar.tsx と同じ理由 —
 // useTranslation() は initReactI18next 済みインスタンスが無いとキー文字列をそのまま返す)。
 import '../../i18n';
 

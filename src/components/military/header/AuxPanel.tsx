@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { TutorialMenu } from '../../tutorial/TutorialMenu';
 import { LanguageSwitcher } from '../../LanguageSwitcher';
 import { LoginModal } from '../../LoginModal';
+import { ParticipantDots } from '../../collab/ParticipantDots';
+import { PresenceControls } from '../../collab/PresenceControls';
 import { showToast } from '../../Toast';
 import { useShareFlow } from '../../collab/useShareFlow';
 import { MilspecKey, MilspecKeyCap, hitPolygon } from '../MilspecKey';
@@ -56,7 +58,7 @@ export function AuxPanel({ MW, theme, onToggleTheme }: AuxPanelProps) {
   const currentPlan = usePlanStore((s) => s.plans.find((p) => p.id === s.currentPlanId));
   const contentDef = currentPlan?.contentId ? getContentById(currentPlan.contentId) : null;
   const contentLabel = contentDef ? getPhaseName(contentDef.name, contentLanguage) : null;
-  const { openShareUI, isOn, liveCount, modals } = useShareFlow({ contentLabel, currentPlan });
+  const { openShareUI, isOn, liveCount, active, modals } = useShareFlow({ contentLabel, currentPlan });
 
   // 同期: SyncButton と同じ条件(プラン無し・未ログインは出さない)と同じ処理
   const currentPlanId = usePlanStore((s) => s.currentPlanId);
@@ -123,7 +125,7 @@ export function AuxPanel({ MW, theme, onToggleTheme }: AuxPanelProps) {
           label={MsIcon.share()}
           aria-label={shareLabel}
           title={shareLabel}
-          data-tutorial="share-copy-btn"
+          data-tutorial={isOn ? undefined : 'share-copy-btn'}
           onClick={openShareUI}
         />
         {isOn && <MilspecLed state="on" size={5} style={{ left: 19, top: 2, position: 'absolute', pointerEvents: 'none' }} />}
@@ -155,6 +157,15 @@ export function AuxPanel({ MW, theme, onToggleTheme }: AuxPanelProps) {
           onClick={() => setShowLogin(true)}
         />
       </div>
+
+      {/* 共同編集中だけ: 参加者ドットとカーソル操作(標準 ShareButtons と同じ出し方・条件)。
+          銘板の窪み(H2)の右端に、暗い床を敷いて重ねる */}
+      {isOn && (
+        <div className="milspec-collab-dots" style={{ left: decor.nameplate.x + 374, top: decor.nameplate.y + 21 }}>
+          <ParticipantDots size={8} />
+          {active && <PresenceControls compact />}
+        </div>
+      )}
 
       <MilspecMark text="H4" style={{ left: d.id.x, top: d.id.y }} />
       {modals}

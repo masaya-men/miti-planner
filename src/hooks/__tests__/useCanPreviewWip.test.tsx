@@ -3,13 +3,17 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { render, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { MilspecHeader } from '../../components/military/MilspecHeader';
+import { MilspecHeaderV11 } from '../../components/military/header/MilspecHeaderV11';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useThemeStore, applyThemeClasses, useEffectiveThemeStyle } from '../../store/useThemeStore';
 
-const props = { theme: 'dark' as const, onToggleTheme: vi.fn(), isHeaderCollapsed: false, setIsHeaderCollapsed: vi.fn() };
-const TOGGLE = 'button[aria-pressed]';
-const renderHeader = () => render(<MemoryRouter><MilspecHeader {...props} /></MemoryRouter>);
+const props = {
+  theme: 'dark' as const, onToggleTheme: vi.fn(), partySortOrder: 'light_party' as const, setPartySortOrder: vi.fn(),
+  onAutoPlan: vi.fn(), onImportLogs: vi.fn(), statusOpen: false, setStatusOpen: vi.fn(),
+};
+// スタイル切替 = MODE の T 字レバー(role=switch)
+const TOGGLE = 'button[role="switch"]';
+const renderHeader = () => render(<MemoryRouter><MilspecHeaderV11 {...props} /></MemoryRouter>);
 
 /** App.tsx / Layout.tsx と同じ「実際に使うスタイル」の使い方を再現する最小プローブ。 */
 const Probe: React.FC = () => {
