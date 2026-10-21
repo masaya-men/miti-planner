@@ -2,27 +2,45 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
 import { MilspecFooter } from '../MilspecFooter';
-// brief 記載のテストひな形は '../../store/useThemeStore'(2階層)だったが、
-// __tests__ から src/store/useThemeStore.ts への正しい相対パスは 3 階層上
-// (MilspecSidebar.test.tsx / MilspecSidebar.tsx の実インポートと同じ)。
 import { useThemeStore } from '../../../store/useThemeStore';
 
 beforeEach(() => useThemeStore.setState({ themeStyle: 'military' }));
 
-describe('MilspecFooter', () => {
-  it('著作権・免責・法的リンク・Discord・X を描画', () => {
+describe('MilspecFooter(v11 の 22px の帯)', () => {
+  it('著作権・免責・法的情報・Discord・X を描画', () => {
     const { container } = render(<MilspecFooter />);
-    expect(container.querySelector('a[href="/privacy"]')).toBeNull(); // ドロップダウン閉時は非表示
     expect(container.textContent).toMatch(/SQUARE ENIX/);
+    expect(container.textContent).toMatch(/MIL-SPEC/);
+    expect(container.querySelector('a[href="https://discord.gg/z7uypbJSnN"]')).not.toBeNull();
     expect(container.querySelector('a[href="https://x.com/lopoly_app"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-expanded]')).not.toBeNull();
   });
-  it('法的ボタンでドロップダウンが開く', () => {
-    const { getByRole, container } = render(<MilspecFooter />);
-    fireEvent.click(getByRole('button', { name: /legal|法的|規約/i }));
-    expect(container.querySelector('a[href="/terms"]')).not.toBeNull();
-  });
-  it('PCB ハーネス SVG を描画', () => {
+  it('一覧は閉じている間は無い', () => {
     const { container } = render(<MilspecFooter />);
-    expect(container.querySelector('svg.milspec-harness, .milspec-fp-harness svg')).not.toBeNull();
+    expect(container.querySelector('a[href="/privacy"]')).toBeNull();
+    expect(container.querySelector('button[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false');
+  });
+  it('法的情報で一覧が開閉し、4 項目のリンク先が正しい', () => {
+    const { container } = render(<MilspecFooter />);
+    const btn = container.querySelector('button[aria-expanded]') as HTMLButtonElement;
+    fireEvent.click(btn);
+    expect(btn.getAttribute('aria-expanded')).toBe('true');
+    for (const h of ['/privacy', '/terms', '/about', '/about#contact']) {
+      expect(container.querySelector(`a[href="${h}"]`)).not.toBeNull();
+    }
+    fireEvent.click(btn);
+    expect(btn.getAttribute('aria-expanded')).toBe('false');
+    expect(container.querySelector('a[href="/terms"]')).toBeNull();
+  });
+  it('外側クリックで一覧が閉じる', () => {
+    const { container } = render(<MilspecFooter />);
+    fireEvent.click(container.querySelector('button[aria-expanded]') as HTMLButtonElement);
+    fireEvent.click(container.querySelector('.milspec-ftr-backdrop') as HTMLElement);
+    expect(container.querySelector('a[href="/terms"]')).toBeNull();
+  });
+  it('旧ハーネス・ファン・計器は無く、装甲がある', () => {
+    const { container } = render(<MilspecFooter />);
+    expect(container.querySelector('.milspec-fp-harness, .milspec-harness, .milspec-tb-cluster2, .milspec-rollbank')).toBeNull();
+    expect(container.querySelector('[data-ms-armor="ftr"]')).not.toBeNull();
   });
 });

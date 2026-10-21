@@ -1,0 +1,25 @@
+/* フッター(見本 v11 css:549-562, 565-566)。22px の帯・法的情報の一覧・リンクの信号線の下線。 */
+.theme-military .milspec-ftr { position: relative; height: 100%; width: 100%; }
+.theme-military .milspec-ftr > * { position: absolute; }
+/* 骨組み(暗い台座)の上の刻印は明るい灰色(見本 css:565-566) */
+.theme-military .milspec-ftr .milspec-stencil { color: #7f878d !important; }
+.theme-military .milspec-ftr .milspec-stencil.is-hi { color: #a4abb0 !important; }
+
+.theme-military .milspec-ftr-right { right: 16px; top: 7.5px; display: flex; gap: 16px; align-items: center; z-index: 2; }
+.theme-military .milspec-ftr-legalwrap { position: relative; display: flex; }
+
+.theme-military .milspec-flink { position: relative; font: 400 7.4px/1 'IBM Plex Sans JP', sans-serif; letter-spacing: 0.04em; color: #858c92; text-decoration: none; border: 0; background: none; padding: 0; cursor: pointer; white-space: nowrap; transition: color 140ms; }
+.theme-military .milspec-flink::after { content: ""; position: absolute; left: 0; right: 0; bottom: -3px; height: 1px; background: linear-gradient(90deg, rgba(var(--ma-sig-rgb),0.25), var(--ma-sig)); transform: scaleX(0); transform-origin: 0 50%; transition: transform 260ms cubic-bezier(.2,.8,.2,1); }
+.theme-military .milspec-flink:hover { color: #e3e1d9; }
+.theme-military .milspec-flink:hover::after { transform: scaleX(1); }
+.theme-military .milspec-flink:active { color: var(--ma-sig-hot); }
+.theme-military .milspec-flink.static { position: absolute; cursor: default; }
+.theme-military .milspec-flink.static::after { display: none; }
+.theme-military .milspec-flink.static:hover { color: #858c92; }
+
+/* 法的情報の一覧(区画の上にはみ出す。外側クリックで閉じる透明層の上) */
+.theme-military .milspec-ftr-backdrop { position: fixed; inset: 0; z-index: 998; background: transparent; }
+.theme-military .milspec-legal-pop { position: absolute; bottom: 18px; left: -12px; z-index: 999; display: flex; flex-direction: column; gap: 6px; padding: 9px 12px; border-radius: 3px;
+  background: linear-gradient(180deg, #3b4045, #2c3034); box-shadow: 0 6px 14px rgba(0,0,0,0.6), inset 0 0.6px 0 rgba(255,255,255,0.18); }
+.theme-military .milspec-legal-pop a { font: 400 8.4px/1 'IBM Plex Sans JP', sans-serif; letter-spacing: 0.04em; color: #d9dcdf; text-decoration: none; white-space: nowrap; transition: color 120ms, transform 180ms cubic-bezier(.3,1.6,.5,1); }
+.theme-military .milspec-legal-pop a:hover { color: #fff; transform: translateX(2px); }
