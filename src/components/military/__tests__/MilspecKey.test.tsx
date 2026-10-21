@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MilspecKey, MilspecKeyCap } from '../MilspecKey';
 import type { CapSpec } from '../armor/types';
@@ -91,5 +91,54 @@ describe('MilspecKeyCap', () => {
     const root = container.firstElementChild as HTMLElement;
     expect(root.getAttribute('aria-hidden')).toBe('true');
     expect(root.querySelector('.milspec-key-cap')?.innerHTML).toContain('polygon');
+  });
+});
+
+describe('MilspecKey 追加', () => {
+  const frameTransforms = (call: unknown[]) => (call[0] as Keyframe[]).map((f) => f.transform);
+  const isKf = (c: unknown[]) => Array.isArray(c[0]) && (c[0] as Keyframe[]).some((f) => f.transform);
+
+  it('通常のクリック 1 回で沈む動き 1 回 + 戻る動き 1 回だけ', async () => {
+    const user = userEvent.setup();
+    render(<MilspecKey cap={cap} aria-label="k" />);
+    await user.click(screen.getByRole('button'));
+    const calls = animate.mock.calls.filter(isKf);
+    expect(calls).toHaveLength(2);
+    expect(frameTransforms(calls[0])[0]).toContain('translateY(0px)');
+    expect(frameTransforms(calls[1])[0]).toContain('1.45px');
+  });
+
+  it('latch キーのクリックは latch 姿勢へ戻る', async () => {
+    const user = userEvent.setup();
+    render(<MilspecKey cap={cap} aria-label="k" latch />);
+    await user.click(screen.getByRole('button'));
+    const calls = animate.mock.calls.filter(isKf);
+    const last = frameTransforms(calls[calls.length - 1]);
+    expect(last[last.length - 1]).toContain('0.9px');
+  });
+
+  it('latch キーの pressed が true から false になると弾かれて戻る(1 回)', () => {
+    const { rerender } = render(<MilspecKey cap={cap} aria-label="k" latch pressed />);
+    expect(animate.mock.calls.filter(isKf)).toHaveLength(0);
+    rerender(<MilspecKey cap={cap} aria-label="k" latch pressed={false} />);
+    const calls = animate.mock.calls.filter(isKf);
+    expect(calls).toHaveLength(1);
+    expect(frameTransforms(calls[0]).join()).toContain('-1.3px');
+  });
+
+  it('disabled になったあと再試行のタイマーが回り続けない', () => {
+    vi.useFakeTimers();
+    try {
+      const { rerender } = render(<MilspecKey cap={cap} aria-label="k" />);
+      const b = screen.getByRole('button');
+      act(() => { b.click(); });
+      rerender(<MilspecKey cap={cap} aria-label="k" disabled />);
+      act(() => { vi.advanceTimersByTime(200); });
+      const n = animate.mock.calls.length;
+      act(() => { vi.advanceTimersByTime(1000); });
+      expect(animate.mock.calls.length).toBe(n);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

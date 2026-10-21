@@ -4,7 +4,7 @@ import { capSVG } from './armor/svg';
 import { bbox, centroid, offsetPoly, P } from './armor/geom';
 import { readPalette } from './armor/palette';
 import { useHtmlClassTick } from './armor/useHtmlClassTick';
-import { ensureDefs } from './MilspecArmor';
+import { ensureDefs } from './armor/defs';
 import { useReducedMotion } from '../../lib/housing/useReducedMotion';
 import type { CapSpec, Pt } from './armor/types';
 
@@ -32,11 +32,22 @@ const UP_LATCH: Keyframe[] = [
   { transform: KP.latch },
 ];
 
+// 連動キー: 前のキーが機構に弾かれて戻る(見本 js:705)
+const POP: Keyframe[] = [
+  { transform: KP.latch },
+  { transform: 'translateY(-1.3px) scale(1.008, 1.012)', offset: 0.34, easing: 'cubic-bezier(.2,.9,.3,1)' },
+  { transform: 'translateY(0.45px) scale(0.997, 0.997)', offset: 0.6 },
+  { transform: 'translateY(-0.2px) scale(1, 1)', offset: 0.8 },
+  { transform: KP.rest },
+];
+
 type Props = {
   cap: CapSpec;
   label?: ReactNode;
   onClick?: () => void;
   pressed?: boolean;
+  /** 連動(ラジオ)キー。押すと沈んだまま止まり、pressed が外れると弾かれて戻る */
+  latch?: boolean;
   disabled?: boolean;
   className?: string;
   /** 刻印の中心からのずれ(見本の dx / dy) */
@@ -74,7 +85,7 @@ const labelPos = (cx: number, cy: number, bx: number, by: number, off?: Pt) => (
 });
 
 /** 押せるキー。位置は親が決める(自身は position:absolute にしない) */
-export function MilspecKey({ cap, label, onClick, pressed, disabled, className, labelOffset, style, onPointerDown, onKeyDown, ...rest }: Props) {
+export function MilspecKey({ cap, label, onClick, pressed, latch, disabled, className, labelOffset, style, onPointerDown, onKeyDown, ...rest }: Props) {
   const { ref, bb, cx, cy } = useCapDrawing(cap);
   const btnRef = useRef<HTMLButtonElement>(null);
   const kfRef = useRef<HTMLSpanElement>(null);
@@ -105,6 +116,7 @@ export function MilspecKey({ cap, label, onClick, pressed, disabled, className, 
     if (!st.current.down) {
       // 押下の途中を経ていない(キーボード等)ときは、いったん沈めてから戻す
       down();
+      if (!st.current.down) return; // 押せない状態(disabled 等)なら再試行しない
       window.clearTimeout(st.current.timer);
       st.current.timer = window.setTimeout(() => up(to), 150);
       return;
@@ -115,13 +127,24 @@ export function MilspecKey({ cap, label, onClick, pressed, disabled, className, 
     const a = run(latch ? UP_LATCH : UP_REST, latch ? 280 : 440, latch ? 0.3 : 1, 320);
     if (a) a.onfinish = () => { if (st.current.anims[0] === a) { a.cancel(); st.current.anims = []; } };
   };
+  // 連動キーの pressed が外れた = 別のキーが掛かった: 弾かれて戻る
+  const prevPressed = useRef(pressed);
+  useEffect(() => {
+    if (latch && prevPressed.current && !pressed) {
+      const a = run(POP, 480, 1, 420);
+      if (a) a.onfinish = () => { if (st.current.anims[0] === a) { a.cancel(); st.current.anims = []; } };
+    }
+    prevPressed.current = pressed;
+  });
   const upRef = useRef(up);
   upRef.current = up;
 
   // ポインタがキーの外で離されても戻す
   useEffect(() => {
-    const release = () => {
+    const release = (e: Event) => {
       if (!st.current.held) return;
+      // キー自身の上で離したときは click が戻しを担当する(二重に戻さない)
+      if (e.target instanceof Node && btnRef.current?.contains(e.target)) return;
       st.current.held = false;
       if (st.current.down) upRef.current('rest');
     };
@@ -146,15 +169,15 @@ export function MilspecKey({ cap, label, onClick, pressed, disabled, className, 
       aria-pressed={pressed}
       onPointerDown={(e) => { onPointerDown?.(e); if (e.button === 0) { st.current.held = true; down(); } }}
       onKeyDown={(e) => { onKeyDown?.(e); if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) down(); }}
-      onClick={() => { st.current.held = false; up(pressed ? 'latch' : 'rest'); onClick?.(); }}
+      onClick={() => { st.current.held = false; up(latch ? 'latch' : 'rest'); onClick?.(); }}
     >
       <span className="milspec-key-hov">
         <span className="milspec-key-kf" ref={kfRef}>
-          <svg className="milspec-key-cap" width={bb.w} height={bb.h} viewBox={vb} ref={ref} />
+          <svg className="milspec-key-cap" width={bb.w} height={bb.h} viewBox={vb} ref={ref} aria-hidden="true" />
           <span className="milspec-key-lb" style={labelPos(cx, cy, bb.x, bb.y, labelOffset)}>{label}</span>
         </span>
       </span>
-      <svg className="milspec-key-hitz" width={bb.w} height={bb.h} viewBox={vb}>
+      <svg className="milspec-key-hitz" aria-hidden="true" width={bb.w} height={bb.h} viewBox={vb}>
         <polygon className="milspec-key-hit" points={hit} />
       </svg>
     </button>
@@ -168,7 +191,7 @@ export function MilspecKeyCap({ cap, label, className }: { cap: CapSpec; label?:
     <span className={`milspec-key milspec-key-static${className ? ` ${className}` : ''}`} aria-hidden="true" style={{ width: bb.w, height: bb.h }}>
       <span className="milspec-key-hov">
         <span className="milspec-key-kf">
-          <svg className="milspec-key-cap" width={bb.w} height={bb.h} viewBox={`${bb.x} ${bb.y} ${bb.w} ${bb.h}`} ref={ref} />
+          <svg className="milspec-key-cap" width={bb.w} height={bb.h} viewBox={`${bb.x} ${bb.y} ${bb.w} ${bb.h}`} ref={ref} aria-hidden="true" />
           <span className="milspec-key-lb" style={labelPos(cx, cy, bb.x, bb.y)}>{label}</span>
         </span>
       </span>

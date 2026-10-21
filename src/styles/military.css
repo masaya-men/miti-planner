@@ -2956,5 +2956,5 @@
 .theme-military .milspec-key[aria-pressed="true"] .lip { stroke: var(--ma-on); filter: drop-shadow(0 0 1.2px rgba(var(--ma-on-rgb),0.9)); }
 .theme-military .milspec-key[aria-pressed="true"] .milspec-key-lb { color: var(--ma-kink-hot); }
 @media (prefers-reduced-motion: reduce) {
-  .theme-military .milspec-key-hov, .theme-military .milspec-key .sh, .theme-military .milspec-key .rim { transition: none; }
+  .theme-military .milspec-key-hov, .theme-military .milspec-key .sh, .theme-military .milspec-key .rim, .theme-military .milspec-key .lip, .theme-military .milspec-key-lb { transition: none; }
 }
