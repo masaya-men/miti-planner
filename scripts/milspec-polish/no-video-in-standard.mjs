@@ -20,7 +20,8 @@ if (process.argv.includes('--sw')) {
   for (const military of [false, true]) {
     const { browser, page } = await launch({ theme: 'dark' });
     const hits = [];
-    page.on('request', (r) => { if (isVideo(r.url())) hits.push(r.url()); });
+    // dev の `?import` はモジュール(resourceType=script)で URL 文字列を返すだけ。実ダウンロードは media/image のみ数える。
+    page.on('request', (r) => { if (['media', 'image'].includes(r.resourceType()) && isVideo(r.url())) hits.push(r.url()); });
     await gotoMiti(page);
     if (military) await applyFixture(page, { military: true });
     await page.waitForTimeout(2500);
