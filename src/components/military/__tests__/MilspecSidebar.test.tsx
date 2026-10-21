@@ -46,6 +46,14 @@ describe('MilspecSidebar', () => {
     expect(container.querySelector('[data-ms-tree]')).not.toBeNull();
   });
 
+  it('CONTENT SELECT と SERVICE の刻印は明るい(is-hi)、IDX-2 は通常', () => {
+    const { container } = r();
+    const st = (txt: string) => Array.from(container.querySelectorAll('.milspec-stencil')).find((e) => (e.textContent ?? '').includes(txt));
+    expect(st('CONTENT SELECT')?.classList.contains('is-hi')).toBe(true);
+    expect(st('SERVICE')?.classList.contains('is-hi')).toBe(true);
+    expect(st('IDX-2')?.classList.contains('is-hi')).toBe(false);
+  });
+
   it('折りたたみハンドルはレールへ移したので、サイドバー内には無い', () => {
     const { container } = r();
     expect(container.querySelector('.milspec-sb-collapse')).toBeNull();

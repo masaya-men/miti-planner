@@ -85,10 +85,11 @@ export function attachConsoleRecorder(page) {
  *
  * @param {{ theme?: 'dark'|'light', headed?: boolean, viewport?: { width: number, height?: number } }} [opts]
  *   viewport: 渡すと newContext の viewport に使う ({ width, height }・height 省略時 900)。
- *   未指定なら VIEWPORT (1489×900)。deviceScaleFactor は常に 1 固定 (比較安定優先・
- *   design-philosophy-sizing.md。多数派 DSR 再現ではない)。
+ *   未指定なら VIEWPORT (1489×900)。
+ *   dsf: deviceScaleFactor (既定 1 固定=比較安定優先。zone-shot だけ 2 を渡す)。
+ *   motion: reducedMotion ('reduce' 既定 | 'no-preference'。光の検査用に zone-shot だけ no-preference)。
  */
-export async function launch({ theme = 'dark', headed = false, viewport } = {}) {
+export async function launch({ theme = 'dark', headed = false, viewport, dsf = 1, motion = 'reduce' } = {}) {
   // headed=true: 実 Chrome を GUI 起動する。::-webkit-scrollbar は headless では描画されない
   // (project_sf_military_theme 追記11) ため、compare.mjs の scrollbar ゾーンだけ true にする。
   const browser = headed
@@ -99,9 +100,9 @@ export async function launch({ theme = 'dark', headed = false, viewport } = {}) 
     : VIEWPORT;
   const context = await browser.newContext({
     viewport: vp,
-    deviceScaleFactor: 1,
+    deviceScaleFactor: dsf,
     colorScheme: theme === 'light' ? 'light' : 'dark',
-    reducedMotion: 'reduce',
+    reducedMotion: motion,
   });
   const page = await context.newPage();
   await page.addInitScript(

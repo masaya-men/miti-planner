@@ -8,7 +8,7 @@
  * Task 1 時点: 軍事モードの「見た目」は未実装。ここで見るのは
  *   「入口が残っている」「操作が壊れていない」「エラーを吐かない」だけ。
  *
- * 手順 (step 番号は実行順・全 15 ステップ):
+ * 手順 (step 番号は実行順・全 18 ステップ):
  *   1. 標準ヘッダーに MIL-SPEC 切替ボタン (button[aria-label*="MIL-SPEC"]) が
  *      表示されていることを assert (SP1 の失敗 = この入口を消したこと) →
  *      useThemeStore.setThemeStyle('military') で軍事へ + store 注入 fixture
@@ -32,6 +32,9 @@
  *      (headless は ::-webkit-scrollbar 非描画のため幅の hard assert は WARN スキップ)
  *  15. CSS 構造前提の自己防衛 (レビュー M8 / T4 #4): sheetContainer 先頭の
  *      [data-time-row] 連続性 + :has() アンカーの一意性。
+ *  16. コンテンツキーで絶タブ (aria-pressed ちょうど 1 つ)。
+ *  17. シリーズの開閉で aria-expanded 反転。
+ *  18. まとめて共有キーで選択の帯が出て Escape で消える。
  *
  * 各ステップ後に console エラー 0 を確認。1 件でも exit 1。
  */
@@ -39,7 +42,7 @@
 import { launch, gotoMiti, applyFixture, attachConsoleRecorder, MITIGATION_FIXTURE } from './_fixture.mjs';
 
 /** 実装済みステップ総数 (ファイル頭の手順コメントと一致させること)。 */
-const TOTAL_STEPS = 15;
+const TOTAL_STEPS = 18;
 
 let stepNum = 0;
 const results = [];
@@ -743,6 +746,55 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
         fail(`div:has(> #timeline-header-inner) が ${r.headerOuterCount} 個 (期待 1 個) — Task 4/5/8/10 のアンカーが曖昧になる`);
       }
       return `sheetContainer 直下 ${r.childCount} 子 / 先頭から ${r.leadRun} 個連続で行 (全 ${r.totalRows} 行・行後に行なし) / ヘッダー外枠アンカー 1 個`;
+    });
+
+    // ── step 16〜18: v11 サイドバー(コンテンツキー / シリーズ開閉 / まとめて共有) ──
+    await step('コンテンツキーで絶タブ(aria-pressed がちょうど 1 つ・押したキーへ移る)', async () => {
+      const keys = page.locator('[data-ms-zone="sidebar"] [role="group"] button.milspec-key');
+      const n = await keys.count();
+      if (n !== 4) fail(`コンテンツのキーが ${n} 個 (期待 4 個)`);
+      // 押したあとに locator が別のキーへ解決し直されないよう、位置(nth)で固定する
+      const before = await keys.evaluateAll((els) => els.map((e) => e.getAttribute('aria-pressed')));
+      const idx = before.findIndex((v) => v === 'false');
+      if (idx < 0) fail('押せる(aria-pressed=false の)コンテンツキーが無い');
+      const target = keys.nth(idx);
+      const label = ((await target.textContent()) || '').trim();
+      await target.click();
+      await page.waitForTimeout(400);
+      const pressed = await keys.evaluateAll((els) => els.map((e) => e.getAttribute('aria-pressed')));
+      if (pressed.filter((v) => v === 'true').length !== 1) fail(`押された状態のキーがちょうど 1 つではない: ${pressed.join(',')}`);
+      if ((await target.getAttribute('aria-pressed')) !== 'true') fail(`押したキー「${label}」が押された状態にならない`);
+      // 後続 step のため元のタブへ戻す
+      const orig = before.findIndex((v) => v === 'true');
+      if (orig >= 0) { await keys.nth(orig).click(); await page.waitForTimeout(400); }
+      return `「${label}」へ切替 (${pressed.join(',')}) → 元のタブへ復帰`;
+    });
+
+    await step('シリーズの開閉で aria-expanded が反転する', async () => {
+      const fold = page.locator('[data-ms-zone="sidebar"] .milspec-tr-fold').first();
+      if ((await fold.count()) === 0) fail('シリーズの開閉ボタン (.milspec-tr-fold) が無い');
+      const a0 = await fold.getAttribute('aria-expanded');
+      await fold.click();
+      await page.waitForTimeout(700);
+      const a1 = await fold.getAttribute('aria-expanded');
+      if (a1 === a0) fail(`aria-expanded が反転しない (${a0} → ${a1})`);
+      await fold.click();
+      await page.waitForTimeout(700);
+      const a2 = await fold.getAttribute('aria-expanded');
+      if (a2 !== a0) fail(`もう一度押しても元に戻らない (${a0} → ${a1} → ${a2})`);
+      return `aria-expanded ${a0} → ${a1} → ${a2}`;
+    });
+
+    await step('まとめて共有キーで選択の帯が出て、Escape で消える', async () => {
+      const share = page.locator('[data-ms-zone="sidebar"] button.milspec-key').filter({ hasText: /まとめて共有|Share/ }).first();
+      if ((await share.count()) === 0) fail('まとめて共有キーが無い');
+      await share.click();
+      await page.waitForTimeout(500);
+      if ((await page.locator('[data-ms-zone="sidebar"] .milspec-sb-selbar').count()) !== 1) fail('選択の帯 (.milspec-sb-selbar) が出ない');
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(500);
+      if ((await page.locator('[data-ms-zone="sidebar"] .milspec-sb-selbar').count()) !== 0) fail('Escape で選択の帯が消えない');
+      return '帯が出る → Escape で消える';
     });
 
     // ── 最終判定 (この viewport) ──────────────────────────────

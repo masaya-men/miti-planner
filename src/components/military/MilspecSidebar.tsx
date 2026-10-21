@@ -171,6 +171,7 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen })
               <MilspecStencil
                 key={g.text}
                 en={g.text}
+                hi={i < 2}
                 sub={i === 0 ? t('milspec.sb_content_sub') : i === 1 ? t('milspec.sb_service_sub') : undefined}
                 style={{ left: g.x, top: sbY(g.y, H) }}
               />
