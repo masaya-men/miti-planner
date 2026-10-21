@@ -1,27 +1,48 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/react/shallow';
-import clsx from 'clsx';
 import { usePlanStore } from '../../store/usePlanStore';
-import { useAuthStore } from '../../store/useAuthStore';
 import { useLocalImportDialog } from '../../store/useLocalImportDialog';
 import { getContentById } from '../../data/contentRegistry';
 import { BackupExportModal } from '../BackupExportModal';
 import { BackupRestoreModal } from '../BackupRestoreModal';
+import { ShareModal } from '../ShareModal';
+import { usePlanMultiSelect, MULTI_SHARE_LIMIT } from '../../hooks/usePlanMultiSelect';
 import { MilspecContentTree, useMilspecTreeTabs, tabForPlanCategory, type MilspecTreeTab } from './MilspecContentTree';
+import { MilspecArmor } from './MilspecArmor';
+import { MilspecKey } from './MilspecKey';
+import { MilspecPlanCore } from './MilspecPlanCore';
+import { MilspecFxLayer } from './fx/MilspecFxLayer';
+import { energy, emit } from './fx/engine';
+import { MilspecStencil, MilspecMark, MilspecScrew, MilspecRivet, MilspecMaintPlate, MilspecBarcode } from './MilspecDecor';
+import { MsIcon } from './milspecIcons';
+import { bbox, chamRect } from './armor/geom';
+import type { CapSpec } from './armor/types';
+import { SB_FRAME, SB_PANELS, SB_KEY_ROWS, SB_TREE_BOX, SB_DECOR, SB_TRACES, sbY, sbPath } from './sidebarGeometry';
 import type { MilspecLayoutProps } from './MilspecLayout';
 // 副作用 import: i18next の初期化(標準 Sidebar.tsx:35 と同じ理由)。
 import '../../i18n';
 
 export type MilspecSidebarProps = Pick<MilspecLayoutProps, 'isSidebarOpen' | 'onToggleSidebar' | 'onCloseSidebar'>;
 
+/** 選択の帯(ツリー箱の上端)の高さと、その中のキーの形 */
+const SELBAR_H = 22;
+const SEL_EXEC_W = 124;
+const SEL_CANCEL_W = 54;
+const selCap = (w: number): CapSpec => ({ pts: chamRect(w, 16, 3, 3, 3, 3) });
+const SEL_EXEC_CAP = selCap(SEL_EXEC_W);
+const SEL_CANCEL_CAP = selCap(SEL_CANCEL_W);
+
+/** 列の中のキー 1 個の位置(キーの左上 = 形の bbox。列の箱は幅高さ 0 で、見本の cluster と同じ) */
+const capPos = (cap: CapSpec): React.CSSProperties => {
+  const b = bbox(cap.pts);
+  return { left: b.x, top: b.y };
+};
+
 /**
- * サイドバー — CONTENT(コンテンツ選択) / コンテンツツリー / DOCK(BACKUP・RESTORE) / DEPLOYMENT(開発支援リンク)。
- * 正典: docs/.private/theme-refs/milspec-mockup.html DOM 1982-2060。
- *
- * 2026-09-09 masaya 指摘で作り直し: 中央は「今開いてるプランのフェーズ一覧」ではなく
- * 標準 Sidebar.tsx と同じ **コンテンツツリー**(タブ 零式/絶/… → コンテンツ名が並ぶ →
- * プランがあるコンテンツは開いてプランが並ぶ)。実体は MilspecContentTree.tsx。
+ * サイドバー(v11 の S1〜S3)。区画の全面に装甲・基板・光の層を敷き、その上に
+ * キー(コンテンツ切替 / 新規作成・まとめて共有・選択削除 / 取り込み / バックアップ・復元)と
+ * プランツリーを置く。座標は見本どおり区画座標で、y が 300 より下のものは区画の実高 H に追従する。
  */
 export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen }) => {
   const { t } = useTranslation();
@@ -32,11 +53,10 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen })
   const currentPlan = plans.find((p) => p.id === currentPlanId) ?? null;
   const contentDef = currentPlan?.contentId ? getContentById(currentPlan.contentId) : null;
 
-  const [confirmScenarioDelete, setConfirmScenarioDelete] = React.useState(false);
   const [backupExportOpen, setBackupExportOpen] = React.useState(false);
   const [backupRestoreOpen, setBackupRestoreOpen] = React.useState(false);
 
-  // コンテンツツリーのタブ(零式/絶/その他/アーカイブ)。CONTENT パネル内に置く(masaya 指定)。
+  // コンテンツツリーのタブ(零式/絶/その他/アーカイブ)。S1 の 4 キーで切り替える。
   const tabs = useMilspecTreeTabs();
   const [tab, setTab] = React.useState<MilspecTreeTab>(() =>
     tabForPlanCategory(contentDef?.category ?? currentPlan?.category ?? null),
@@ -52,117 +72,226 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen })
     prevPlanIdRef.current = currentPlanId;
   }, [currentPlanId]);
 
+  // 区画の実高 H(0 は無視)。既定は基準の高さ
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const [H, setH] = React.useState(SB_FRAME.h0);
+  React.useLayoutEffect(() => {
+    const el = rootRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver((entries) => {
+      const en = entries[0];
+      if (!en) return;
+      const bb = Array.isArray(en.borderBoxSize) ? en.borderBoxSize[0] : en.borderBoxSize;
+      const h = bb ? bb.blockSize : en.contentRect.height;
+      if (h <= 0) return;
+      setH((prev) => (prev === h ? prev : h));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [isSidebarOpen]);
+
+  // 複数選択(まとめて共有・選択削除)
+  const ms = usePlanMultiSelect();
+  const { multiSelect } = ms;
+  const selMode = multiSelect.isEnabled ? (multiSelect.mode ?? 'share') : null;
+  const selCount = multiSelect.selectedIds.length;
+
+  // 選択削除のカバー付き 2 段(1 回目で武装・3 秒で解除・2 回目で実行)
+  const [armed, setArmed] = React.useState(false);
   React.useEffect(() => {
-    if (!confirmScenarioDelete) return;
-    const timer = setTimeout(() => setConfirmScenarioDelete(false), 3000);
+    if (!armed) return;
+    const timer = setTimeout(() => setArmed(false), 3000);
     return () => clearTimeout(timer);
-  }, [confirmScenarioDelete]);
+  }, [armed]);
+  // 件数・モードが変わったら武装を外す(違う件数を巻き込んで消さない)
+  React.useEffect(() => { setArmed(false); }, [selCount, selMode]);
 
-  // SCENARIO の DELETE = 現在選択中プランの削除。2 段階確認(標準 Sidebar と同じ「武装 → 3 秒以内に再クリック」)。
-  const handleScenarioDeleteClick = () => {
-    if (!currentPlanId) return;
-    if (!confirmScenarioDelete) {
-      setConfirmScenarioDelete(true);
-      return;
-    }
-    const ps = usePlanStore.getState();
-    const authUser = useAuthStore.getState().user;
-    if (authUser) ps.deleteFromFirestore(currentPlanId, authUser.uid, currentPlan?.contentId ?? null);
-    else ps.deletePlan(currentPlanId);
-    setConfirmScenarioDelete(false);
+  // 選択モード中の Escape で抜ける(共有モーダルが開いている間は触らない)
+  const { reset } = ms;
+  React.useEffect(() => {
+    if (!multiSelect.isEnabled || ms.bundleOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') reset(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [multiSelect.isEnabled, ms.bundleOpen, reset]);
+
+  const handleTab = (id: MilspecTreeTab, el: Element) => {
+    if (id === tab) return;
+    setTab(id);
+    energy(el); // 切り替わったときだけ(見本 js:1017-1019)
   };
-
-  const handleNew = () => window.dispatchEvent(new CustomEvent('milspec:new-plan'));
+  const handleNew = (e: React.MouseEvent<HTMLButtonElement>) => {
+    window.dispatchEvent(new CustomEvent('milspec:new-plan'));
+    emit(e.currentTarget, 's1', { both: true, len: 14 });
+  };
+  const handleMode = (mode: 'share' | 'delete') => (e: React.MouseEvent<HTMLButtonElement>) => {
+    ms.toggleMode(mode);
+    emit(e.currentTarget, 's1', { both: true, len: 14 });
+  };
+  const handleDeleteExec = () => {
+    if (selCount === 0) return;
+    if (!armed) { setArmed(true); return; }
+    setArmed(false);
+    void ms.deleteSelected();
+  };
   const handleImport = () => useLocalImportDialog.getState().open();
 
-  return (
-    <aside className="milspec-sb milspec-chan">
-      {isSidebarOpen && (
-        <>
-          <span className="milspec-sc" style={{ top: 3, right: 14, opacity: 0.35 }}>ENCOUNTER INDEX · RETRACTABLE</span>
+  const rowOf = (id: 'content' | 'actions' | 'service' | 'dock') => SB_KEY_ROWS.find((r) => r.id === id)!;
+  const colStyle = (id: 'content' | 'actions' | 'service' | 'dock'): React.CSSProperties => {
+    const row = rowOf(id);
+    return { left: row.x, top: sbY(row.y, H) };
+  };
+  const treeTop = SB_TREE_BOX.y;
+  const treeH = sbY(590, H) - treeTop;
+  const coreTop = 138.4;
+  const coreH = sbY(589.6, H) - coreTop;
+  const traces = React.useMemo(() => SB_TRACES.map((tr) => ({ ...tr, d: sbPath(tr.d, H) })), [H]);
 
-          {/* CONTENT — コンテンツ選択(タブ 零式/絶/… + プラン操作ボタン)。
-              mockup .scenario の位置。見出しは masaya 指定で「シナリオ」→「コンテンツ」。 */}
-          <div className="milspec-hp milspec-scenario recess stack" style={{ '--ms-sh': 'var(--ms-sh-br)' } as React.CSSProperties}>
-            <span className="milspec-ao-mark" /><span className="milspec-grime-mark" />
-            <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
-            <span className="milspec-sc bl">CNT-01</span>
-            <div className="milspec-s-hd">
-              <span className="en">Content</span><span className="jp">コンテンツ</span>
-              <span className="milspec-hash milspec-s-decal" style={{ top: 1, right: 0, left: 'auto', width: 36, height: 7 }} />
+  const tabKeyLabel = (label: string) => <b>{label}</b>;
+  const plate = SB_DECOR.plate;
+
+  return (
+    <>
+      {isSidebarOpen && (
+        <div ref={rootRef} className="milspec-sbx">
+          <MilspecArmor id="sb" frame={SB_FRAME} panels={SB_PANELS} />
+          {/* 基板 PLAN CORE(ツリー箱の下の黒い床) */}
+          <div className="milspec-sb-core" style={{ left: 12.4, top: coreTop, width: 249.2, height: coreH }}>
+            <MilspecPlanCore />
+          </div>
+          <MilspecFxLayer traces={traces} />
+
+          <div className="milspec-sbx-top">
+            {/* 飾り(刻印・型番・ネジ・リベット・点検板・バーコード) */}
+            {SB_DECOR.engraves.map((g, i) => (
+              <MilspecStencil
+                key={g.text}
+                en={g.text}
+                sub={i === 0 ? t('milspec.sb_content_sub') : i === 1 ? t('milspec.sb_service_sub') : undefined}
+                style={{ left: g.x, top: sbY(g.y, H) }}
+              />
+            ))}
+            {SB_DECOR.ids.map((g) => <MilspecMark key={g.text} text={g.text} style={{ left: g.x, top: sbY(g.y, H) }} />)}
+            {SB_DECOR.screws.map((s, i) => <MilspecScrew key={i} rotate={s.rot} style={{ left: s.x, top: sbY(s.y, H) }} />)}
+            {SB_DECOR.rivets.map((s, i) => <MilspecRivet key={i} style={{ left: s.x, top: sbY(s.y, H) }} />)}
+            <MilspecMaintPlate title="MAINT LOG · 07" bars={[88, 62, 76]} width={54} style={{ left: plate.x, top: sbY(plate.y, H) }} />
+            <MilspecBarcode h={6} style={{ left: SB_DECOR.barcode.x, top: sbY(SB_DECOR.barcode.y, H) }} />
+
+            {/* S1 コンテンツ種別(連動キー 4 つ) */}
+            <div className="milspec-sb-kc" role="group" aria-label={t('milspec.sb_content_group')} style={colStyle('content')}>
+              {tabs.map((tb, i) => {
+                const cap = rowOf('content').caps[i];
+                return (
+                  <MilspecKey
+                    key={tb.id}
+                    cap={cap}
+                    style={capPos(cap)}
+                    latch
+                    pressed={tab === tb.id}
+                    label={tabKeyLabel(tb.label)}
+                    onClick={(e) => handleTab(tb.id, e.currentTarget)}
+                  />
+                );
+              })}
             </div>
-            <div className="milspec-tree-tabs" role="tablist">
-              {tabs.map((tb) => (
-                <button
-                  key={tb.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={tab === tb.id}
-                  className={clsx('milspec-tree-tab', tab === tb.id && 'active')}
-                  onClick={() => setTab(tb.id)}
-                >
-                  {tb.label}
-                </button>
+
+            {/* S1 操作(新規作成 / まとめて共有 / 選択削除) */}
+            <div className="milspec-sb-kc" style={colStyle('actions')}>
+              {([
+                { cap: rowOf('actions').caps[0], icon: MsIcon.plus(), text: t('sidebar.new_plan'), onClick: handleNew, pressed: undefined },
+                { cap: rowOf('actions').caps[1], icon: MsIcon.share(), text: t('sidebar.multi_select_mode'), onClick: handleMode('share'), pressed: selMode === 'share' },
+                { cap: rowOf('actions').caps[2], icon: MsIcon.multi(), text: t('sidebar.select_delete'), onClick: handleMode('delete'), pressed: selMode === 'delete' },
+              ]).map((k, i) => (
+                <MilspecKey
+                  key={i}
+                  cap={k.cap}
+                  style={capPos(k.cap)}
+                  latch={k.pressed !== undefined}
+                  pressed={k.pressed}
+                  label={<>{k.icon}<b>{k.text}</b></>}
+                  onClick={k.onClick}
+                />
               ))}
             </div>
-            <div className="milspec-s-btns">
-              <button type="button" className="milspec-s-btn" onClick={handleNew}>
-                <span className="en milspec-echo" data-text={t('sidebar.new_plan', { lng: 'en' })}>{t('sidebar.new_plan', { lng: 'en' })}</span>
-                <span className="jp">{t('sidebar.new_plan', { lng: 'ja' })}</span>
-              </button>
-              <button type="button" className="milspec-s-btn imp" onClick={handleImport}>
-                <span className="en milspec-echo" data-text={t('nav.import', { lng: 'en' })}>{t('nav.import', { lng: 'en' })}</span>
-                <span className="jp">{t('nav.import', { lng: 'ja' })}</span>
-              </button>
-              {/* TEMPLATE: ユーザー向けテンプレート選択 UI が無いため見た目のみ(punch-list) */}
-              <button type="button" className="milspec-s-btn">
-                <span className="en milspec-echo" data-text="Template">Template</span>
-                <span className="jp">テンプレート</span>
-              </button>
-              <button
-                type="button"
-                className={clsx('milspec-s-btn', 'danger', confirmScenarioDelete && 'armed')}
-                onClick={handleScenarioDeleteClick}
-                disabled={!currentPlanId}
-              >
-                <span className="en milspec-echo" data-text={t(confirmScenarioDelete ? 'sidebar.delete_single_confirm_click' : 'sidebar.delete', { lng: 'en' })}>
-                  {t(confirmScenarioDelete ? 'sidebar.delete_single_confirm_click' : 'sidebar.delete', { lng: 'en' })}
-                </span>
-                <span className="jp">{t(confirmScenarioDelete ? 'sidebar.delete_single_confirm_click' : 'sidebar.delete', { lng: 'ja' })}</span>
-              </button>
+
+            {/* S2 プランツリー(選択モード中は上端に選択の帯) */}
+            <div className="milspec-sb-treebox" style={{ left: SB_TREE_BOX.x, top: treeTop, width: SB_TREE_BOX.w, height: treeH }}>
+              {selMode && (
+                <div className="milspec-sb-selbar" data-mode={selMode} style={{ height: SELBAR_H }}>
+                  <span className="milspec-sb-selcount">
+                    {t('milspec.sb_select_count', { count: selCount })}
+                    {selMode === 'share' && <span className="milspec-sb-sellimit">/{MULTI_SHARE_LIMIT}</span>}
+                  </span>
+                  {selMode === 'share' ? (
+                    <MilspecKey
+                      cap={SEL_EXEC_CAP}
+                      className="milspec-key-ic"
+                      style={{ left: 250 - SEL_CANCEL_W - 4 - SEL_EXEC_W, top: 3 }}
+                      disabled={selCount === 0}
+                      label={<>{MsIcon.share()}<b>{t('sidebar.share_together')}</b></>}
+                      onClick={() => { void ms.openBundleShare(); }}
+                    />
+                  ) : (
+                    <MilspecKey
+                      cap={SEL_EXEC_CAP}
+                      className="milspec-key-ic milspec-key-dng"
+                      style={{ left: 250 - SEL_CANCEL_W - 4 - SEL_EXEC_W, top: 3 }}
+                      disabled={selCount === 0}
+                      data-armed={armed ? '' : undefined}
+                      label={<>{MsIcon.close()}<b>{armed ? t('milspec.sb_bulk_delete_armed', { count: selCount }) : t('sidebar.select_delete')}</b></>}
+                      onClick={handleDeleteExec}
+                    />
+                  )}
+                  <MilspecKey
+                    cap={SEL_CANCEL_CAP}
+                    className="milspec-key-cancel"
+                    style={{ left: 250 - SEL_CANCEL_W, top: 3 }}
+                    label={<b>{t('sidebar.cancel')}</b>}
+                    onClick={reset}
+                  />
+                </div>
+              )}
+              <div className="milspec-sb-treebody" style={{ height: selMode ? treeH - SELBAR_H : treeH }}>
+                <MilspecContentTree
+                  tab={tab}
+                  select={selMode ? { mode: selMode, selectedIds: multiSelect.selectedIds, onToggle: ms.toggleId } : undefined}
+                />
+              </div>
+            </div>
+
+            {/* S3 取り込み(見本の「アップデート」の位置) */}
+            <div className="milspec-sb-kc" style={colStyle('service')}>
+              {(() => {
+                const cap = rowOf('service').caps[0];
+                return (
+                  <MilspecKey cap={cap} style={capPos(cap)} label={<>{MsIcon.imp()}<b>{t('nav.import')}</b></>} onClick={handleImport} />
+                );
+              })()}
+            </div>
+
+            {/* S3 バックアップ / 復元 */}
+            <div className="milspec-sb-kc" style={colStyle('dock')}>
+              {([
+                { cap: rowOf('dock').caps[0], icon: MsIcon.save(), text: t('backup.backup_button'), onClick: () => setBackupExportOpen(true) },
+                { cap: rowOf('dock').caps[1], icon: MsIcon.rest(), text: t('backup.restore_button'), onClick: () => setBackupRestoreOpen(true) },
+              ]).map((k, i) => (
+                <MilspecKey key={i} cap={k.cap} style={capPos(k.cap)} label={<>{k.icon}<b>{k.text}</b></>} onClick={k.onClick} />
+              ))}
             </div>
           </div>
-
-          {/* コンテンツツリー(コンテンツごとの沈んだサブプレート = 名前 + プラン)。
-              タブは上の CONTENT パネル側。単独の遭遇名表示はタブがあれば冗長なので撤去(masaya)。 */}
-          <MilspecContentTree tab={tab} />
-
-          {/* DOCK: BACKUP / RESTORE — mockup .dock(DOM 2038-2045) */}
-          <div className="milspec-hp milspec-dock recess" style={{ '--ms-sh': 'var(--ms-sh-slab)' } as React.CSSProperties}>
-            <span className="milspec-ao-mark" /><span className="milspec-grime-mark" />
-            <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
-            <span className="milspec-sc bl">DCK-02</span>
-            <span className="milspec-pl v" style={{ left: '50%', top: 8, bottom: 8, opacity: 0.55 }} />
-            <button type="button" onClick={() => setBackupExportOpen(true)}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="6" width="18" height="13" rx="1" /><path d="M3 11h18M3 15h18" /></svg>
-              <span className="tx">
-                <span className="en">{t('backup.backup_button', { lng: 'en' })}</span>
-                <span className="jp">{t('backup.backup_button', { lng: 'ja' })}</span>
-              </span>
-            </button>
-            <button type="button" onClick={() => setBackupRestoreOpen(true)}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 3v11M8 10l4 4 4-4M5 20h14" /></svg>
-              <span className="tx">
-                <span className="en">{t('backup.restore_button', { lng: 'en' })}</span>
-                <span className="jp">{t('backup.restore_button', { lng: 'ja' })}</span>
-              </span>
-            </button>
-          </div>
-
-          <BackupExportModal isOpen={backupExportOpen} onClose={() => setBackupExportOpen(false)} />
-          <BackupRestoreModal isOpen={backupRestoreOpen} onClose={() => setBackupRestoreOpen(false)} />
-        </>
+        </div>
       )}
-    </aside>
+
+      <BackupExportModal isOpen={backupExportOpen} onClose={() => setBackupExportOpen(false)} />
+      <BackupRestoreModal isOpen={backupRestoreOpen} onClose={() => setBackupRestoreOpen(false)} />
+      {/* まとめて共有(Sidebar.tsx と同じ渡し方) */}
+      <ShareModal
+        isOpen={ms.bundleOpen}
+        onClose={ms.closeBundleShare}
+        contentLabel={null}
+        currentPlan={undefined}
+        bundlePlans={ms.bundlePlans}
+      />
+    </>
   );
 };
