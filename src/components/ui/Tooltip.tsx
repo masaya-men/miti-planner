@@ -64,6 +64,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
             left = x - pw / 2;
             top = y + BELOW_OFFSET_Y;
             if (top + ph > vh - VIEWPORT_PADDING) top = y - BELOW_OFFSET_Y - ph;
+            // 右端のアイコンで画面外へはみ出さないよう右も画面内に収める(左は下の共通クランプ)
+            left = Math.min(left, vw - pw - VIEWPORT_PADDING);
         } else if (left + pw > vw - VIEWPORT_PADDING) {
             // 右端はみ出し → 左側に配置
             left = x - CURSOR_OFFSET_X - pw;
