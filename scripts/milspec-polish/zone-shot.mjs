@@ -8,6 +8,10 @@
  *      出力: header-mock-<theme>.png / header-app-<theme>-<lang>-<幅>x<高さ>-sb<open|closed>.png / header-menu-<名前>-....png
  *      検査: 取り込み・その他・表示メンバー・言語・チュートリアルのメニューを順に開き、メニューの矩形がボタンの近く
  *            (ボタンの下か上で、横位置がボタンと重なる・viewport 内)にあるかを DOM で確認する。
+ *    --zone=table は 見本 #z-tb + #z-tbl の外接矩形 / 本体 [data-ms-zone="workspace"](操作列+表)を撮る。電源投入の 1.5 秒後。
+ *      出力: table-mock-<theme>.png / table-app-<theme>-<lang>-<幅>x<高さ>.png
+ *      検査: 本体の区画が viewport 内で、見本の外接矩形と幅・高さが ±2px 以内(1489×679 のとき)/ 差込口の数 = 表示メンバー数 /
+ *            表の見出しの四隅の枠・効果アイコンが各 1 つ以上ある。
  *    --zone=footer|rail は 見本 #z-ftr / #z-rail と 本体 [data-ms-zone="footer"|"rail"] を撮る。電源投入の 1.5 秒後に撮る(--power=on 既定)。
  *      --power=off は電源断の状態(MODE レバーを上げ、電源断の暗転が終わった直後)で撮る。
  *      検査: 区画の矩形が viewport 内・幅と高さが 0 でない。footer は「法的情報」を開いた状態も撮り、一覧が viewport 内か確認する。
@@ -34,7 +38,7 @@ const mock = arg('mock', '');
 const out = arg('out', '');
 const theme = arg('theme', 'dark') === 'light' ? 'light' : 'dark';
 const lang = arg('lang', 'ja');
-if (!['sidebar', 'header', 'footer', 'rail'].includes(zone)) { console.error(`未対応の zone: ${zone}(sidebar / header / footer / rail)`); process.exit(2); }
+if (!['sidebar', 'header', 'footer', 'rail', 'table'].includes(zone)) { console.error(`未対応の zone: ${zone}(sidebar / header / footer / rail / table)`); process.exit(2); }
 if (!out) { console.error('--out=<出力フォルダ> が必要'); process.exit(2); }
 fs.mkdirSync(out, { recursive: true });
 
@@ -51,9 +55,75 @@ if (zone === 'header') {
   await runHeader();
   process.exit(failed ? 1 : 0);
 }
+if (zone === 'table') {
+  await runTable();
+  process.exit(failed ? 1 : 0);
+}
 if (zone === 'footer' || zone === 'rail') {
   await runFooterRail(zone);
   process.exit(failed ? 1 : 0);
+}
+
+// ── 表(操作列 + 表) ──────────────────────────────
+async function runTable() {
+  /** @type {{ w: number, h: number } | null} */
+  let mockSize = null;
+  if (mock) {
+    const { browser, page } = await launch({ theme, viewport: VP, dsf: 2, motion: 'no-preference' });
+    await page.goto(mock.startsWith('file:') ? mock : pathToFileURL(path.resolve(mock)).href, { waitUntil: 'load' });
+    await page.waitForTimeout(3500);
+    if (theme === 'light') { await page.locator('.vr').first().click(); await page.waitForTimeout(1800); }
+    const a = await page.locator('#z-tb').boundingBox();
+    const b = await page.locator('#z-tbl').boundingBox();
+    if (!a || !b) { failed++; console.error('NG 見本の #z-tb / #z-tbl が見つからない'); }
+    else {
+      const x0 = Math.min(a.x, b.x), x1 = Math.max(a.x + a.width, b.x + b.width);
+      const y0 = Math.min(a.y, b.y), y1 = Math.max(a.y + a.height, b.y + b.height);
+      mockSize = { w: x1 - x0, h: y1 - y0 };
+      await page.screenshot({ path: path.join(out, `table-mock-${theme}.png`), clip: { x: x0, y: y0, width: x1 - x0, height: y1 - y0 } });
+      console.log(`撮影: table-mock-${theme}.png (${Math.round(mockSize.w)}x${Math.round(mockSize.h)})`);
+    }
+    await browser.close();
+  }
+  const { browser, page } = await launch({ theme, viewport: VP, dsf: 2, motion: 'no-preference' });
+  await page.addInitScript((l) => {
+    try {
+      const raw = localStorage.getItem('theme-storage');
+      const j = raw ? JSON.parse(raw) : { state: {}, version: 2 };
+      j.state.contentLanguage = l;
+      localStorage.setItem('theme-storage', JSON.stringify(j));
+    } catch { /* 無視 */ }
+  }, lang);
+  await gotoMiti(page);
+  await applyFixture(page, { military: true });
+  try {
+    await page.waitForFunction(() => document.documentElement.dataset.msPower === 'on', null, { timeout: 4000 });
+  } catch { failed++; console.error('NG 電源が on にならない'); }
+  await page.waitForTimeout(1500 + 1200); // 行の描き込み(約 1 秒)が終わるまで待つ
+  const el = page.locator('[data-ms-zone="workspace"]');
+  const r = await el.boundingBox();
+  if (!r || r.x < -1 || r.y < -1 || r.x + r.width > width + 1 || r.y + r.height > height + 1) {
+    failed++; console.error(`NG 表の区画の矩形が不正: ${JSON.stringify(r)}`);
+  } else {
+    console.log(`OK 表の区画 ${Math.round(r.width)}x${Math.round(r.height)} @(${Math.round(r.x)},${Math.round(r.y)})`);
+    if (mockSize && width === 1489 && height === 679 && (Math.abs(r.width - mockSize.w) > 2 || Math.abs(r.height - mockSize.h) > 2)) {
+      failed++; console.error(`NG 見本との寸法差: 本体 ${Math.round(r.width)}x${Math.round(r.height)} / 見本 ${Math.round(mockSize.w)}x${Math.round(mockSize.h)}`);
+    }
+  }
+  const cnt = await page.evaluate(() => ({
+    jacks: document.querySelectorAll('.milspec-jack').length,
+    heads: document.querySelectorAll('#timeline-controls-inner [data-member-id]').length,
+    icons: document.querySelectorAll('[data-mit-icon]').length,
+    ret: document.querySelectorAll('.milspec-ret').length,
+  }));
+  if (cnt.jacks !== cnt.heads || cnt.jacks === 0) { failed++; console.error(`NG 差込口 ${cnt.jacks} 個 / 表示メンバー ${cnt.heads} 人`); }
+  else console.log(`OK 差込口 ${cnt.jacks} = 表示メンバー ${cnt.heads}`);
+  if (cnt.icons < 1 || cnt.ret < 1) { failed++; console.error(`NG 効果アイコン ${cnt.icons} / 照準 ${cnt.ret}`); }
+  else console.log(`OK 効果アイコン ${cnt.icons} 個 / 照準 ${cnt.ret} 個`);
+  const base = `table-app-${theme}-${lang}-${width}x${height}`;
+  await el.screenshot({ path: path.join(out, `${base}.png`) });
+  console.log(`撮影: ${base}.png`);
+  await browser.close();
 }
 
 // ── フッター / レール ─────────────────────────────────

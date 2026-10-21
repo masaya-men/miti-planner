@@ -8,7 +8,7 @@
  * Task 1 時点: 軍事モードの「見た目」は未実装。ここで見るのは
  *   「入口が残っている」「操作が壊れていない」「エラーを吐かない」だけ。
  *
- * 手順 (step 番号は実行順・全 26 ステップ):
+ * 手順 (step 番号は実行順・全 30 ステップ):
  *   1. 標準ヘッダーに MIL-SPEC 切替ボタン (button[aria-label*="MIL-SPEC"]) が
  *      表示されていることを assert (SP1 の失敗 = この入口を消したこと) →
  *      useThemeStore.setThemeStyle('military') で軍事へ + store 注入 fixture
@@ -42,7 +42,11 @@
  *  23. レールの取っ手でサイドバーが閉じて開く。
  *  24. フッターの法的情報の一覧(4 リンク・外側クリックで閉じる)。
  *  25. 電源が 2 秒以内に on になる(動きありの別ブラウザ)。
- *  26. MODE レバーで標準テーマへ戻る(最後の step)。
+ *  26. 操作列の削除キー: 押すとメニュー → 「すべての軽減」で確認ダイアログ → キャンセルで軽減は消えない。
+ *  27. 操作列の PiP ロッカー: 押すと PiP のメニューが出て、外へ出ると閉じる。
+ *  28. 並び替えで差込口が滑り、終わった後に差込口とリキャスト帯の列が揃う(dx≤1)。
+ *  29. 照準: 効果アイコンへ実マウスを載せると照準の枠がそのアイコンに乗る。
+ *  30. MODE レバーで標準テーマへ戻る(最後の step)。
  *
  * 各ステップ後に console エラー 0 を確認。1 件でも exit 1。
  */
@@ -50,7 +54,7 @@
 import { launch, gotoMiti, applyFixture, attachConsoleRecorder, MITIGATION_FIXTURE } from './_fixture.mjs';
 
 /** 実装済みステップ総数 (ファイル頭の手順コメントと一致させること)。 */
-const TOTAL_STEPS = 26;
+const TOTAL_STEPS = 30;
 
 let stepNum = 0;
 const results = [];
@@ -942,6 +946,102 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
         ms = Date.now() - t0;
       } finally { await l2.browser.close(); }
       return `fixture 適用から ${ms}ms で on`;
+    });
+
+    await step('操作列の削除キー: メニュー → 確認ダイアログ → キャンセルで軽減は消えない', async () => {
+      const before = await getState(MITI_STORE, 'timelineMitigations').then((m) => (Array.isArray(m) ? m.length : -1));
+      const key = page.locator('#timeline-controls-inner [data-deck="clear"]').first();
+      if ((await key.count()) === 0) fail('削除キー ([data-deck=clear]) が見つからない');
+      await key.click();
+      const menuRed = page.locator('div.fixed.z-\\[9999\\].w-\\[190px\\] button').first();
+      try { await menuRed.waitFor({ state: 'visible', timeout: 3000 }); } catch { fail('削除キーを押しても削除メニューが出ない ' + await page.evaluate(() => [...document.body.children].map((e) => e.tagName + '.' + String(e.className).slice(0, 50)).join(' / '))); }
+      await menuRed.click();
+      const dlg = page.locator('div.fixed.inset-0.z-\\[99999\\]');
+      try { await dlg.first().waitFor({ state: 'visible', timeout: 3000 }); } catch { fail('「すべての軽減」を押しても確認ダイアログが出ない'); }
+      await page.keyboard.press('Escape');
+      try { await dlg.first().waitFor({ state: 'detached', timeout: 3000 }); } catch { fail('Esc で確認ダイアログが閉じない'); }
+      const after = await getState(MITI_STORE, 'timelineMitigations').then((m) => (Array.isArray(m) ? m.length : -1));
+      if (after !== before) fail(`キャンセルしたのに軽減の数が変わった (${before} → ${after})`);
+      return `確認ダイアログを出してキャンセル・軽減 ${before} 件のまま`;
+    });
+
+    await step('操作列の PiP ロッカー: 押すとメニューが出て、外へ出ると閉じる', async () => {
+      const sw = page.locator('#timeline-controls-inner [data-deck="pip"]').first();
+      if ((await sw.count()) === 0) return 'WARN: PiP ロッカーが無い(この環境は PiP 非対応)';
+      const menu = page.locator('div.w-max.glass-tier3.rounded-xl');
+      await sw.click();
+      try { await menu.first().waitFor({ state: 'visible', timeout: 3000 }); } catch { fail('PiP ロッカーを押してもメニューが出ない'); }
+      await page.mouse.move(5, 5);
+      try { await menu.first().waitFor({ state: 'detached', timeout: 3000 }); } catch { fail('マウスが外へ出てもメニューが閉じない'); }
+      return 'メニュー開閉 OK';
+    });
+
+    await step('並び替えで差込口が滑り、終わった後に差込口とリキャスト帯の列が揃う(dx≤1)', async () => {
+      const keys = page.locator('[data-ms-zone="header"] .milspec-h4-kc[role="group"]').filter({ has: page.locator('button[aria-pressed]') });
+      const groups = await keys.evaluateAll((gs) => gs.map((g) => g.querySelectorAll('button[aria-pressed]').length));
+      const gi = groups.findIndex((n) => n === 2);
+      if (gi < 0) fail('SORT の 2 キーの組が見つからない');
+      const btns = keys.nth(gi).locator('button[aria-pressed]');
+      const measure = () => page.evaluate(() => {
+        const sc = document.querySelector('.timeline-scroll-container');
+        if (sc) sc.scrollLeft = 0;
+        const jacks = Array.from(document.querySelectorAll('#timeline-controls-inner [data-member-id]'));
+        return jacks.map((j) => {
+          const id = j.getAttribute('data-member-id');
+          const c = document.querySelector(`[data-milspec-recast-band] .recast-cell[data-member="${id}"]`);
+          return { id, x: j.getBoundingClientRect().left, dx: c ? c.getBoundingClientRect().left - j.getBoundingClientRect().left : null };
+        });
+      });
+      const settle = async () => {
+        // 動きが止まるまで(2 回続けて同じ位置)待つ
+        let prev = '';
+        for (let i = 0; i < 30; i += 1) {
+          const cur = JSON.stringify((await measure()).map((m) => Math.round(m.x)));
+          if (cur === prev) return;
+          prev = cur;
+          await page.waitForTimeout(100);
+        }
+      };
+      await settle();
+      const a = await measure();
+      const idx = await btns.evaluateAll((els) => els.findIndex((e) => e.getAttribute('aria-pressed') === 'false'));
+      await btns.nth(idx).click();
+      await settle();
+      const b = await measure();
+      const moved = b.some((m, i) => Math.abs(m.x - a[i].x) > 1);
+      const bad = b.filter((m) => m.dx !== null && Math.abs(m.dx) > 1);
+      await btns.nth(1 - idx).click(); // 元へ戻す
+      await settle();
+      if (!moved) fail('並び替えで差込口の位置が変わらない');
+      if (bad.length) fail(`並び替え後に差込口とリキャスト帯の列がずれる: ${JSON.stringify(bad)}`);
+      return `位置が変わり、列整合 dx≤1 (${b.length} 列)`;
+    });
+
+    await step('照準: 効果アイコンに実マウスを載せると照準の枠がそのアイコンに乗る', async () => {
+      await page.evaluate(() => { const sc = document.querySelector('.timeline-scroll-container'); if (sc) { sc.scrollTop = 0; sc.scrollLeft = 0; } });
+      await page.waitForTimeout(200);
+      const t = await page.evaluate(() => {
+        const sc = document.querySelector('.timeline-scroll-container').getBoundingClientRect();
+        for (const el of document.querySelectorAll('[data-mit-icon]')) {
+          const r = el.getBoundingClientRect();
+          if (r.width > 4 && r.left >= sc.left && r.right <= sc.right && r.top >= sc.top + 20 && r.bottom <= sc.bottom) return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+        }
+        return null;
+      });
+      if (!t) fail('画面内に効果アイコンが無い');
+      await page.mouse.move(t.x - 60, t.y);
+      await page.mouse.move(t.x, t.y, { steps: 4 });
+      try {
+        await page.waitForFunction(() => document.querySelector('.milspec-ret.on:not([data-head])'), null, { timeout: 2500 });
+      } catch { fail('効果アイコンを指しても照準が出ない'); }
+      await page.waitForTimeout(450); // 吸い付く動きが終わるまで
+      const d = await page.evaluate(({ x, y }) => {
+        const ret = document.querySelector('.milspec-ret.on:not([data-head])').getBoundingClientRect();
+        return { dx: ret.left + ret.width / 2 - x, dy: ret.top + ret.height / 2 - y, w: ret.width };
+      }, t);
+      if (Math.abs(d.dx) > 14 || Math.abs(d.dy) > 14) fail(`照準がアイコンに乗っていない (中心差 ${d.dx.toFixed(1)},${d.dy.toFixed(1)})`);
+      await page.mouse.move(5, 5);
+      return `中心差 ${d.dx.toFixed(1)},${d.dy.toFixed(1)}px`;
     });
 
     await step('MODE レバーで電源断 → 標準テーマへ戻る(<html> の data-ms-power も消える)', async () => {
