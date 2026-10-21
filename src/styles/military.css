@@ -1127,6 +1127,10 @@
   box-shadow: inset 0 8px 26px rgba(0,0,0,0.78), inset 0 2px 3px rgba(0,0,0,0.9), 0 0 0 1px rgba(0,0,0,0.65);
 }
 
+/* 区画に重ねる装甲パネル(MilspecArmor)。親は position:relative 前提 */
+.theme-military .milspec-armor { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.theme-military .milspec-armor-panel { position: absolute; overflow: visible; }
+
 /* ============================================================
  * SP2: TIMELINE TABLE — タイムライン表の軍事化
  * 正典: docs/.private/theme-refs/milspec-mockup.html
