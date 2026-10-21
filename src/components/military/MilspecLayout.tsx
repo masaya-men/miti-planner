@@ -12,6 +12,7 @@ import { MilspecFooter } from './MilspecFooter';
 import { MilspecRail } from './MilspecRail';
 import { startAmbient } from './fx/engine';
 import { relayoutZones } from './relayout';
+import { useHeaderCollapseAnimator } from './headerCollapseAnimator';
 import { headerScale } from './headerGeometry';
 import { useReducedMotion } from '../../lib/housing/useReducedMotion';
 import { MilspecTunePanel } from '../dev/MilspecTunePanel';
@@ -74,14 +75,21 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
 
   // ヘッダーの開閉は他の区画が滑る動き付きで行う(relayoutZones)。最新の畳み状態は ref で参照
   const collapsedRef = useRef(props.isHeaderCollapsed);
-  collapsedRef.current = props.isHeaderCollapsed;
+  useLayoutEffect(() => { collapsedRef.current = props.isHeaderCollapsed; });
   const { setIsHeaderCollapsed } = props;
   const setCollapsedAnimated: React.Dispatch<React.SetStateAction<boolean>> = useCallback((v) => {
     const next = typeof v === 'function' ? v(collapsedRef.current) : v;
+    if (next === collapsedRef.current) return; // 同じ値なら何もしない
     const app = appRef.current;
     if (!app) { setIsHeaderCollapsed(next); return; }
     relayoutZones(app, () => flushSync(() => setIsHeaderCollapsed(next)), 'hdr', reduced);
   }, [setIsHeaderCollapsed, reduced]);
+
+  // Layout のキーボード操作(H / F・フォーカスモード・チュートリアル)にも動きを付けるため、マウント中だけ登録する
+  useEffect(() => {
+    useHeaderCollapseAnimator.getState().set(setCollapsedAnimated);
+    return () => useHeaderCollapseAnimator.getState().set(null);
+  }, [setCollapsedAnimated]);
 
   return (
     <div ref={appRef} data-app-shell className="milspec-app" data-theme-military>

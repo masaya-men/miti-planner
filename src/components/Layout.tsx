@@ -1,3 +1,4 @@
+import { pickCollapseSetter } from './military/headerCollapseAnimator';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -110,7 +111,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     React.useEffect(() => {
         if (isTutorialActive) {
             setIsSidebarOpen(true);
-            setIsHeaderCollapsed(false);
+            pickCollapseSetter(setIsHeaderCollapsed)(false);
             // チュートリアル中はモバイル用シートをすべて閉じる
             setMobileMenuOpen(false);
             setMobilePartyOpen(false);
@@ -149,20 +150,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 handleToggleSidebar();
             } else if (key === 'h') {
                 e.preventDefault();
-                setIsHeaderCollapsed(prev => !prev);
+                pickCollapseSetter(setIsHeaderCollapsed)(prev => !prev);
             } else if (key === 'f') {
                 e.preventDefault();
                 if (!focusModeRef.current) {
                     // フォーカスモードに入る: サイドバー閉じ＋ヘッダー折りたたみ
                     setIsSidebarOpen(false);
                     localStorage.setItem('lopo_sidebar_open', 'false');
-                    setIsHeaderCollapsed(true);
+                    pickCollapseSetter(setIsHeaderCollapsed)(true);
                     focusModeRef.current = true;
                 } else {
                     // フォーカスモードから抜ける: 常にサイドバー開＋ヘッダー展開
                     setIsSidebarOpen(true);
                     localStorage.setItem('lopo_sidebar_open', 'true');
-                    setIsHeaderCollapsed(false);
+                    pickCollapseSetter(setIsHeaderCollapsed)(false);
                     focusModeRef.current = false;
                 }
             }
@@ -171,7 +172,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             if (focusModeRef.current) {
                 setIsSidebarOpen(true);
                 localStorage.setItem('lopo_sidebar_open', 'true');
-                setIsHeaderCollapsed(false);
+                pickCollapseSetter(setIsHeaderCollapsed)(false);
                 focusModeRef.current = false;
             }
         };
@@ -183,7 +184,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             if (!focusModeRef.current) {
                 setIsSidebarOpen(false);
                 localStorage.setItem('lopo_sidebar_open', 'false');
-                setIsHeaderCollapsed(true);
+                pickCollapseSetter(setIsHeaderCollapsed)(true);
                 focusModeRef.current = true;
             }
         };

@@ -1059,7 +1059,8 @@
 /* 閉じたヘッダー: 行が 0 になり、中身は見えず触れない。閉じる動きの残像は複製(.milspec-ghost)が担う */
 .theme-military .milspec-app:has(.milspec-zone-header[data-collapsed]) { --ms-hrow: 0px; }
 .theme-military .milspec-zone-header[data-collapsed] { visibility: hidden; pointer-events: none; }
-.theme-military .milspec-ghost { z-index: 5; }
+.theme-military .milspec-ghost { z-index: 20; pointer-events: none !important; }
+.theme-military .milspec-ghost * { pointer-events: none !important; }
 .theme-military .milspec-zone-sidebar   { grid-area: sidebar;   position: relative; overflow: visible; } /* 漏れ光 lk:s2rail が区画の右 1px 外を通る */
 .theme-military .milspec-zone-rail      { grid-area: rail;      position: relative; }
 .theme-military .milspec-zone-workspace { grid-area: workspace; position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }

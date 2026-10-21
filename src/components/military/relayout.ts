@@ -27,6 +27,11 @@ export function relayoutZones(app: HTMLElement, change: () => void, kind: 'hdr',
     ghost.removeAttribute('data-ms-zone');
     ghost.setAttribute('aria-hidden', 'true');
     ghost.classList.add('milspec-ghost');
+    ghost.setAttribute('inert', '');
+    // 光エンジンが経路として拾わないよう、識別属性を複製から外す(engine.ts の data-trace 系と bus)
+    ghost.querySelectorAll('[data-trace],[data-trace-pc],[data-trace-next],[data-trace-end],[data-bus]').forEach((e) => {
+      ['data-trace', 'data-trace-pc', 'data-trace-next', 'data-trace-end', 'data-bus'].forEach((a) => e.removeAttribute(a));
+    });
     Object.assign(ghost.style, {
       position: 'absolute', gridArea: 'auto', pointerEvents: 'none',
       left: `${r.left - a.left}px`, top: `${r.top - a.top}px`, width: `${r.width}px`, height: `${r.height}px`,
