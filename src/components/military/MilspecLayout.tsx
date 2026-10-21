@@ -10,6 +10,7 @@ import { MilspecWorkspace } from './MilspecWorkspace';
 import { MilspecFooter } from './MilspecFooter';
 import { MilspecVent } from './MilspecVent';
 import { MilspecRail } from './MilspecRail';
+import { MilspecTitleTooltip } from './MilspecTitleTooltip';
 import { startAmbient } from './fx/engine';
 import { initPower, disposePower } from './power/power';
 import { useLampSequence } from './power/lampSequence';
@@ -123,6 +124,8 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   return (
     <div ref={appRef} data-app-shell className="milspec-app" data-theme-military>
       <MilspecBackdropVideo />
+      {/* ボード内の title をブラウザの箱ではなく標準のツールチップで出す */}
+      <MilspecTitleTooltip rootRef={appRef} />
       {/* ゾーン: header / vent / sidebar / rail / workspace / footer。ヘッダーは 1 つの v11 ヘッダー(H1〜H5)。 */}
       <div ref={headerRef} data-ms-zone="header" className="milspec-zone-header" data-collapsed={props.isHeaderCollapsed ? '' : undefined}>
         <div className="milspec-hs-box">

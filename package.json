@@ -12,6 +12,7 @@
     "add-content": "node scripts/add-content.mjs",
     "generate-templates": "node scripts/generate-templates.mjs",
     "test": "vitest run",
+    "test:gate": "node scripts/test-gate.mjs",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:housing": "playwright test playwright/housing",
