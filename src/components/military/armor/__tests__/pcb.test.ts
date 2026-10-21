@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PLAN_CORE, planCoreSVG } from '../pcb';
+import { PLAN_CORE, planCoreSVG, ventChannelSVG, cu, via, silk, smd } from '../pcb';
 
 describe('planCoreSVG', () => {
   it('見本の高さでは IC が見本の位置', () => {
@@ -31,5 +31,31 @@ describe('planCoreSVG', () => {
   });
   it('PLAN_CORE の定数', () => {
     expect(PLAN_CORE).toEqual({ w: 249.2, h0: 451.2, sy: 161.6 });
+  });
+});
+
+describe('部品関数と ventChannelSVG', () => {
+  it('cu / via / silk / smd は文字列を返す純関数', () => {
+    expect(cu([[0, 0], [5, 5]], 'x')).toContain('data-trace="x"');
+    expect(via(1, 2, 0.4)).toContain('class="via"');
+    expect(silk(1, 2, 'A')).toContain('>A</text>');
+    expect(smd(1, 2, 2.4, 1)).toContain('class="smd"');
+  });
+  it('左の通気口に ventL:0〜4 の経路が付き、光の経路は milspec-cu', () => {
+    const s = ventChannelSVG({ w: 207, side: 'L', id: 'v' });
+    for (let k = 0; k < 5; k++) expect(s).toContain(`data-trace="ventL:${k}"`);
+    expect(s).toContain('class="brd"');
+    expect((s.match(/class="milspec-cu"/g) ?? []).length).toBe(5);
+  });
+  it('右は ventR、左は x が反転(右は始点が x=0・左は始点が x=w)', () => {
+    const r = ventChannelSVG({ w: 100, side: 'R', id: 'v' });
+    const l = ventChannelSVG({ w: 100, side: 'L', id: 'v' });
+    expect(r).toContain('data-trace="ventR:0"');
+    expect(r).toMatch(/<path d="M 0 [\d.]+ L[^"]*" class="milspec-cu" data-trace="ventR:2"/);
+    expect(l).toMatch(/<path d="M 100 [\d.]+ L[^"]*" class="milspec-cu" data-trace="ventL:2"/);
+  });
+  it('w が 30 未満なら空文字', () => {
+    expect(ventChannelSVG({ w: 20, side: 'L', id: 'v' })).toBe('');
+    expect(ventChannelSVG({ w: 29.9, side: 'R', id: 'v' })).toBe('');
   });
 });

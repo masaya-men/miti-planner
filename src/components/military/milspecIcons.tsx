@@ -14,4 +14,13 @@ export const MsIcon = {
   rename: () => <svg viewBox="0 0 10 10"><path d="M2 8l.5-2L7 1.5 8.5 3 4 7.5z" /></svg>,
   close: () => <svg viewBox="0 0 10 10"><path d="M2 2l6 6M8 2 2 8" /></svg>,
   fold: () => <svg viewBox="0 0 8 8"><path d="M1 2.5 4 5.5 7 2.5" /></svg>,
-} satisfies Record<'plus' | 'share' | 'multi' | 'imp' | 'save' | 'rest' | 'dup' | 'rename' | 'close' | 'fold', () => ReactElement>;
+  party: () => <svg viewBox="0 0 16 16"><circle cx="6" cy="5.5" r="2.5" /><path d="M1.5 14c0-3 2-4.5 4.5-4.5s4.5 1.5 4.5 4.5M11 3a2.3 2.3 0 0 1 0 4.6M12.5 9.6c1.3.5 2 1.7 2 4.4" /></svg>,
+  stat: () => <svg viewBox="0 0 16 16"><path d="M1.5 8h3l2-5 3 10 2-5h3" /></svg>,
+  more: () => <svg viewBox="0 0 16 16"><circle cx="3.5" cy="8" r="0.8" /><circle cx="8" cy="8" r="0.8" /><circle cx="12.5" cy="8" r="0.8" /></svg>,
+  gear: () => <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.3" /><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4" /></svg>,
+  tut: () => <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" /><path d="M6.3 6.2a1.8 1.8 0 1 1 2.4 1.7c-.5.2-.7.6-.7 1.1M8 11.3v.2" /></svg>,
+  globe: () => <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" /><path d="M2 8h12M8 2c2 2 2 10 0 12M8 2c-2 2-2 10 0 12" /></svg>,
+  login: () => <svg viewBox="0 0 16 16"><path d="M9 2h4v12H9M2 8h8M7 5l3 3-3 3" /></svg>,
+  // 同期(見本にない。円弧 2 本 + 矢じり。線の太さは他と同じ CSS 任せ)
+  sync: () => <svg viewBox="0 0 16 16"><path d="M3 8a5 5 0 0 1 8.6-3.4M12 2v3H9M13 8a5 5 0 0 1-8.6 3.4M4 14v-3h3" /></svg>,
+} satisfies Record<'plus' | 'share' | 'multi' | 'imp' | 'save' | 'rest' | 'dup' | 'rename' | 'close' | 'fold' | 'party' | 'stat' | 'more' | 'gear' | 'tut' | 'globe' | 'login' | 'sync', () => ReactElement>;

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { MilspecLed, MilspecStencil, MilspecMark, MilspecScrew, MilspecRivet, MilspecMaintPlate, MilspecBarcode, barcodeRects } from '../MilspecDecor';
+import { MilspecLed, MilspecStencil, MilspecMark, MilspecScrew, MilspecRivet, MilspecMaintPlate, MilspecBarcode, MilspecDecal, MilspecHazard, barcodeRects } from '../MilspecDecor';
 import { MsIcon } from '../milspecIcons';
 
 describe('MilspecDecor', () => {
@@ -47,6 +47,43 @@ describe('MilspecDecor', () => {
     for (const k of ['plus', 'share', 'multi', 'imp', 'save', 'rest', 'dup', 'rename', 'close', 'fold'] as const) {
       const { container } = render(MsIcon[k]());
       expect(container.querySelector('svg')).not.toBeNull();
+    }
+  });
+  it('MilspecLed blink は is-blink class になる', () => {
+    const { container } = render(<MilspecLed state="warn" blink />);
+    expect(container.querySelector('.milspec-led')!.classList.contains('is-blink')).toBe(true);
+    const { container: c2 } = render(<MilspecLed state="warn" />);
+    expect(c2.querySelector('.milspec-led')!.classList.contains('is-blink')).toBe(false);
+  });
+
+  it('MilspecDecal は文字を出し aria-hidden、style を受ける', () => {
+    const { container } = render(<MilspecDecal text="SN 0001" style={{ left: 3 }} />);
+    const e = container.querySelector('.milspec-decal') as HTMLElement;
+    expect(e.textContent).toBe('SN 0001');
+    expect(e.getAttribute('aria-hidden')).toBe('true');
+    expect(e.style.left).toBe('3px');
+  });
+
+  it('MilspecHazard は幅・高さを style に持つ', () => {
+    const { container } = render(<MilspecHazard w={30} h={5} />);
+    const e = container.querySelector('.milspec-hz') as HTMLElement;
+    expect(e.style.width).toBe('30px');
+    expect(e.style.height).toBe('5px');
+    expect(e.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('barcodeRects は係数 k で幅が変わる(ヘッダー SN: k=0.8・20 本・合計 32)', () => {
+    const bars20 = [2, 1, 1, 3, 1, 2, 1, 1, 2, 3, 1, 1, 2, 1, 3, 1, 2, 1, 1, 2];
+    const r = barcodeRects(8, bars20, 0.8);
+    expect(r.w).toBeCloseTo(41.6, 1);
+    expect(r.rects.length).toBe(10);
+    expect(r.rects[0].w).toBeCloseTo(1.6, 5);
+  });
+
+  it('アイコン party stat more gear tut globe login sync が svg(viewBox 16)', () => {
+    for (const k of ['party', 'stat', 'more', 'gear', 'tut', 'globe', 'login', 'sync'] as const) {
+      const { container } = render(MsIcon[k]());
+      expect(container.querySelector('svg')!.getAttribute('viewBox')).toBe('0 0 16 16');
     }
   });
 });

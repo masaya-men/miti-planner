@@ -7,6 +7,50 @@ export const PLAN_CORE = { w: 249.2, h0: 451.2, sy: 161.6 };
 const n2 = (v: number) => +v.toFixed(2);
 const OFFS = [-8, -4.8, -1.6, 1.6, 4.8, 8];
 
+const idY = (y: number) => y;
+
+/** 配線(銅箔の path)。Y = 縦伸びの座標変換(既定は恒等)。name で光の経路名、end で端子位置 */
+export function cu(pts: Pt[], name?: string, end?: Pt | null, Y: (y: number) => number = idY): string {
+  const YP = pts.map(([x, y]): Pt => [x, Y(y)]);
+  return `<path d="${pd(YP)}" class="milspec-cu"${name ? ` data-trace="${name}"` : ''}${end ? ` data-trace-end="${n2(end[0])},${n2(Y(end[1]))}"` : ''}/>`;
+}
+/** ビア(層間の穴) */
+export function via(x: number, y: number, r = 0.5, Y: (y: number) => number = idY): string {
+  return `<circle cx="${n2(x)}" cy="${n2(Y(y))}" r="${r}" class="via"/>`;
+}
+const rectSVG = (x: number, y: number, rw: number, rh: number, cls: string, rx: number | undefined, Y: (y: number) => number) =>
+  `<rect x="${n2(x)}" y="${n2(Y(y))}" width="${n2(rw)}" height="${n2(rh)}" class="${cls}"${rx != null ? ` rx="${rx}"` : ''}/>`;
+/** 基板の文字(シルク) */
+export function silk(x: number, y: number, t: string, anchor?: string, style?: string, Y: (y: number) => number = idY): string {
+  return `<text x="${n2(x)}" y="${n2(Y(y))}" class="silk"${anchor ? ` text-anchor="${anchor}"` : ''}${style ? ` style="${style}"` : ''}>${t}</text>`;
+}
+/** チップ部品(両端が金属)。vert = 縦向き */
+export function smd(x: number, y: number, sw: number, sh: number, vert?: boolean, Y: (y: number) => number = idY): string {
+  let o = rectSVG(x, y, sw, sh, 'smd', 0.15, Y);
+  if (vert) o += rectSVG(x, y, sw, sh * 0.26, 'smd-end', undefined, Y) + rectSVG(x, y + sh * 0.74, sw, sh * 0.26, 'smd-end', undefined, Y);
+  else o += rectSVG(x, y, sw * 0.26, sh, 'smd-end', undefined, Y) + rectSVG(x + sw * 0.74, y, sw * 0.26, sh, 'smd-end', undefined, Y);
+  return o;
+}
+const cuSVG = cu, viaSVG = via, silkSVG = silk, smdSVG = smd;
+
+/**
+ * 通気口の溝 1 本分(見本 buildVentChannels js:416-430)。返すのは <svg> の中身(rect.brd + 配線 5 本 + ビア + SMD)。
+ * 配線は光の経路 data-trace="vent{L|R}:{0..4}"(class は基板と同じ milspec-cu)。
+ * 左(L)は x を w - x に反転 = 光が玉から外へ走る。w < 30 は描かない(空文字)。
+ */
+export function ventChannelSVG(o: { w: number; side: 'L' | 'R'; id: string }): string {
+  const { w, side } = o;
+  if (w < 30) return '';
+  let out = `<rect x="0" y="0" width="${n2(w)}" height="8" class="brd" rx="1.5"/>`;
+  const j1 = w * 0.3, j2 = w * 0.66;
+  let C: Pt[] = [[0, 3.5], [j1, 3.5], [j1 + 1.1, 4.6], [j2, 4.6], [j2 + 1.1, 3.5], [w, 3.5]];
+  if (side === 'L') C = C.map(([x, y]): Pt => [w - x, y]);
+  busPaths(C, 5, 1.12).forEach((pts, k) => { out += cu(pts, `vent${side}:${k}`); });
+  [0.18, 0.45, 0.82].forEach((f, i) => { out += via(w * f, i % 2 ? 7.1 : 0.9, 0.36); });
+  out += smd(side === 'L' ? 2 : w - 4.4, 0.4, 2.4, 1);
+  return out;
+}
+
 /**
  * 見本 buildPlanCore(js:480-530)と、その部品(cu / via / silk / smd / qfp4)を文字列で組み立てる。
  * 返すのは <svg> の中身。縦の伸び縮みは Y() 1 か所に集約している
@@ -21,18 +65,12 @@ export function planCoreSVG(o: { h: number; id: string }): string {
   let out = '';
   const add = (s: string) => { out += s; };
 
-  const cu = (pts: Pt[], name?: string, end?: Pt | null) =>
-    add(`<path d="${pd(YP(pts))}" class="milspec-cu"${name ? ` data-trace="${name}"` : ''}${end ? ` data-trace-end="${n2(end[0])},${n2(Y(end[1]))}"` : ''}/>`);
-  const via = (x: number, y: number, r = 0.5) => add(`<circle cx="${n2(x)}" cy="${n2(Y(y))}" r="${r}" class="via"/>`);
-  const rect = (x: number, y: number, rw: number, rh: number, cls: string, rx?: number) =>
-    add(`<rect x="${n2(x)}" y="${n2(Y(y))}" width="${n2(rw)}" height="${n2(rh)}" class="${cls}"${rx != null ? ` rx="${rx}"` : ''}/>`);
-  const silk = (x: number, y: number, t: string, anchor?: string, style?: string) =>
-    add(`<text x="${n2(x)}" y="${n2(Y(y))}" class="silk"${anchor ? ` text-anchor="${anchor}"` : ''}${style ? ` style="${style}"` : ''}>${t}</text>`);
-  const smd = (x: number, y: number, sw: number, sh: number, vert?: boolean) => {
-    rect(x, y, sw, sh, 'smd', 0.15);
-    if (vert) { rect(x, y, sw, sh * 0.26, 'smd-end'); rect(x, y + sh * 0.74, sw, sh * 0.26, 'smd-end'); }
-    else { rect(x, y, sw * 0.26, sh, 'smd-end'); rect(x + sw * 0.74, y, sw * 0.26, sh, 'smd-end'); }
-  };
+  // 部品は下の export 関数(座標変換 Y は引数で渡す)。ここでは Y を束ねた薄い別名
+  const cu = (pts: Pt[], name?: string, end?: Pt | null) => add(cuSVG(pts, name, end, Y));
+  const via = (x: number, y: number, r = 0.5) => add(viaSVG(x, y, r, Y));
+  const rect = (x: number, y: number, rw: number, rh: number, cls: string, rx?: number) => add(rectSVG(x, y, rw, rh, cls, rx, Y));
+  const silk = (x: number, y: number, t: string, anchor?: string, style?: string) => add(silkSVG(x, y, t, anchor, style, Y));
+  const smd = (x: number, y: number, sw: number, sh: number, vert?: boolean) => add(smdSVG(x, y, sw, sh, vert, Y));
   const qfp4 = (x: number, y: number, sz: number) => {
     const c = [x + sz / 2, y + sz / 2];
     OFFS.forEach((f) => {

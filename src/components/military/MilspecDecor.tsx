@@ -5,9 +5,9 @@ import type { CSSProperties } from 'react';
 
 type LedState = 'off' | 'on' | 'warn' | 'dng';
 
-/** ランプ(見本 lampH): 穴の縁 → レンズ → 奥の発光体の 3 層。flick = 点灯の瞬間のチラつき */
-export function MilspecLed({ state = 'off', size, flick, style }: { state?: LedState; size?: number; flick?: boolean; style?: CSSProperties }) {
-  const cls = ['milspec-led', state !== 'off' && `is-${state}`, flick && 'is-flick'].filter(Boolean).join(' ');
+/** ランプ(見本 lampH): 穴の縁 → レンズ → 奥の発光体の 3 層。flick = 点灯の瞬間のチラつき / blink = 1.3s ごとの点滅(見本 .lamp.blink) */
+export function MilspecLed({ state = 'off', size, flick, blink, style }: { state?: LedState; size?: number; flick?: boolean; blink?: boolean; style?: CSSProperties }) {
+  const cls = ['milspec-led', state !== 'off' && `is-${state}`, flick && 'is-flick', blink && 'is-blink'].filter(Boolean).join(' ');
   const st = size != null ? ({ ['--s' as string]: `${size}px`, ...style } as CSSProperties) : style;
   return (
     <span className={cls} style={st} aria-hidden="true">
@@ -52,15 +52,25 @@ export function MilspecMaintPlate({ title, bars, width, style }: { title: string
   );
 }
 
-/** バーコードの計算(見本 barH): 偶数番目だけ黒線、各線の幅 = 値×0.7、間隔 0.7。h は描画高さで幅計算には影響しない */
-export function barcodeRects(_h: number, bars: number[] = [2, 1, 1, 3, 1, 2, 1, 1, 2, 3, 1, 1, 2, 1, 3, 1, 2, 1]): { w: number; rects: { x: number; w: number }[] } {
+/** バーコードの計算(見本 barH / ヘッダー SN js:876): 偶数番目だけ黒線、各線の幅 = 値×k、間隔 k(既定 k=0.7)。h は描画高さで幅計算には影響しない */
+export function barcodeRects(_h: number, bars: number[] = [2, 1, 1, 3, 1, 2, 1, 1, 2, 3, 1, 1, 2, 1, 3, 1, 2, 1], k = 0.7): { w: number; rects: { x: number; w: number }[] } {
   let x = 0;
   const rects: { x: number; w: number }[] = [];
   bars.forEach((w, i) => {
-    if (i % 2 === 0) rects.push({ x, w: w * 0.7 });
-    x += w * 0.7 + 0.7;
+    if (i % 2 === 0) rects.push({ x, w: w * k });
+    x += w * k + k;
   });
   return { w: x, rects };
+}
+
+/** デカール(見本 .dc。Michroma の極小文字の刻印) */
+export function MilspecDecal({ text, style }: { text: string; style?: CSSProperties }) {
+  return <span className="milspec-decal" style={style} aria-hidden="true">{text}</span>;
+}
+
+/** ハザードの縞(見本 .hz。ダークは琥珀、ライトは赤の斜線) */
+export function MilspecHazard({ w, h, style }: { w: number; h: number; style?: CSSProperties }) {
+  return <span className="milspec-hz" style={{ width: w, height: h, ...style }} aria-hidden="true" />;
 }
 
 /** バーコード */
