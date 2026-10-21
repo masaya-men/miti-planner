@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { useMilspecFonts } from './useMilspecFonts';
@@ -10,6 +11,9 @@ import { MilspecWorkspace } from './MilspecWorkspace';
 import { MilspecFooter } from './MilspecFooter';
 import { MilspecRail } from './MilspecRail';
 import { startAmbient } from './fx/engine';
+import { relayoutZones } from './relayout';
+import { headerScale } from './headerGeometry';
+import { useReducedMotion } from '../../lib/housing/useReducedMotion';
 import { MilspecTunePanel } from '../dev/MilspecTunePanel';
 import { RenderPendingIndicator } from '../RenderPendingIndicator';
 import { AetherflowChainPromptModal } from '../AetherflowChainPromptModal';
@@ -52,20 +56,48 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   useMilspecFonts();
   // 常時の光(見本どおり 0.8〜2.5 秒ごと)。アンマウントで止める
   useEffect(() => startAmbient(), []);
+
+  const appRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+
+  // ヘッダー区画の実幅を測って --ms-hs(縮小率)を .milspec-app に入れる(再描画せず直接書く)
+  useLayoutEffect(() => {
+    const app = appRef.current, hz = headerRef.current;
+    if (!app || !hz) return;
+    const apply = (w: number) => app.style.setProperty('--ms-hs', String(Number((w > 0 ? headerScale(w) : 1).toFixed(4))));
+    apply(hz.getBoundingClientRect().width);
+    const ro = new ResizeObserver((es) => { const w = es[es.length - 1]?.contentRect.width; if (typeof w === 'number') apply(w); });
+    ro.observe(hz);
+    return () => ro.disconnect();
+  }, []);
+
+  // ヘッダーの開閉は他の区画が滑る動き付きで行う(relayoutZones)。最新の畳み状態は ref で参照
+  const collapsedRef = useRef(props.isHeaderCollapsed);
+  collapsedRef.current = props.isHeaderCollapsed;
+  const { setIsHeaderCollapsed } = props;
+  const setCollapsedAnimated: React.Dispatch<React.SetStateAction<boolean>> = useCallback((v) => {
+    const next = typeof v === 'function' ? v(collapsedRef.current) : v;
+    const app = appRef.current;
+    if (!app) { setIsHeaderCollapsed(next); return; }
+    relayoutZones(app, () => flushSync(() => setIsHeaderCollapsed(next)), 'hdr', reduced);
+  }, [setIsHeaderCollapsed, reduced]);
+
   return (
-    <div data-app-shell className="milspec-app" data-theme-military>
+    <div ref={appRef} data-app-shell className="milspec-app" data-theme-military>
       <MilspecBackdropVideo />
       {/* ゾーン: header(Task 4)/sidebar(Task 5)/toolbar(Task 6)/workspace(Task 3)/footer(Task 7)/rail は実装済。 */}
       {/* masaya 2026-09-14 確定: header ゾーンの高さは今までどおり(clamp 76-90px)据え置きで、
           その中を縦に 2 段(上=MilspecHeader を少し薄く/下=MilspecToolbar を薄い帯で)に積む。
           標準 ConsolidatedHeader の Layer A(h-12)+ Layer B(h-12)を 1 つの折りたたみ容器に
           収めているのと同じ形(横に並べるのではなく縦積み・合計高さを増やさない)。 */}
-      <div data-ms-zone="header" className="milspec-zone-header">
+      <div ref={headerRef} data-ms-zone="header" className="milspec-zone-header" data-collapsed={props.isHeaderCollapsed ? '' : undefined}>
+        <div className="milspec-hs-box">
         <MilspecHeader
           theme={props.theme}
           onToggleTheme={props.onToggleTheme}
           isHeaderCollapsed={props.isHeaderCollapsed}
-          setIsHeaderCollapsed={props.setIsHeaderCollapsed}
+          setIsHeaderCollapsed={setCollapsedAnimated}
         />
         <MilspecToolbar
           partySortOrder={props.partySortOrder}
@@ -75,7 +107,10 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
           statusOpen={props.statusOpen}
           setStatusOpen={props.setStatusOpen}
         />
+        </div>
       </div>
+      {/* 通気口の区画(中身は Task 9 以降)。縮小用の内箱は区画ごとに持つ */}
+      <div data-ms-zone="vent" className="milspec-zone-vent"><div className="milspec-hs-box" /></div>
       <div data-ms-zone="sidebar" className="milspec-zone-sidebar" data-open={props.isSidebarOpen ? '' : undefined}>
         <MilspecSidebar
           isSidebarOpen={props.isSidebarOpen}

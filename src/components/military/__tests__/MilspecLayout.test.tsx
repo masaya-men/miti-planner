@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { MilspecLayout } from '../MilspecLayout';
 import { useThemeStore } from '../../../store/useThemeStore';
@@ -64,13 +64,42 @@ describe('MilspecLayout', () => {
     expect(sb.hasAttribute('data-open')).toBe(false);
   });
 
-  it('ヘッダー畳み時: header ゾーンの子孫 .milspec-hdr に data-collapsed が付く', () => {
-    // controller 訂正: data-collapsed は [data-ms-zone="header"] 自身ではなく、
-    // その子孫の MilspecHeader.tsx ルート要素(.milspec-hdr)に付与される(実装確認済み)。
+  it('ヘッダー畳み時: header ゾーン自身に data-collapsed が付く', () => {
     const { container } = render(
       <MemoryRouter><MilspecLayout {...baseProps} isHeaderCollapsed><div /></MilspecLayout></MemoryRouter>
     );
-    expect(container.querySelector('[data-ms-zone="header"] .milspec-hdr[data-collapsed]')).not.toBeNull();
+    expect(container.querySelector('[data-ms-zone="header"][data-collapsed]')).not.toBeNull();
+    const open = renderIt().container;
+    expect(open.querySelector('[data-ms-zone="header"][data-collapsed]')).toBeNull();
+  });
+
+  it('通気口の区画(vent)があり、ヘッダーと通気口の中身は縮小用の内箱に入る', () => {
+    const { container } = renderIt();
+    expect(container.querySelector('[data-ms-zone="vent"].milspec-zone-vent')).not.toBeNull();
+    expect(container.querySelector('[data-ms-zone="header"] > .milspec-hs-box')).not.toBeNull();
+    expect(container.querySelector('[data-ms-zone="vent"] > .milspec-hs-box')).not.toBeNull();
+  });
+
+  describe('--ms-hs(縮小率)', () => {
+    let fire: (w: number) => void;
+    beforeEach(() => {
+      vi.stubGlobal('ResizeObserver', class {
+        constructor(cb: (e: unknown[]) => void) { fire = (w) => cb([{ contentRect: { width: w } }]); }
+        observe() {} unobserve() {} disconnect() {}
+      });
+    });
+    const hs = (c: HTMLElement) => (c.querySelector('[data-app-shell]') as HTMLElement).style.getPropertyValue('--ms-hs');
+
+    it('幅 980 で 0.824 前後', () => {
+      const { container } = renderIt();
+      act(() => fire(980));
+      expect(Number(hs(container))).toBeCloseTo(0.824, 2);
+    });
+    it('幅 1189 以上で 1', () => {
+      const { container } = renderIt();
+      act(() => fire(1465));
+      expect(Number(hs(container))).toBe(1);
+    });
   });
 
   it('rail ゾーンにサイドバー開閉の取っ手が入る', () => {

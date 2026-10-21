@@ -1024,21 +1024,42 @@
      跨いで最上段を占めていた(標準とズレていた・masaya 指摘で訂正)。 */
   grid-template-columns: 274px 22px 1fr;
   column-gap: 2px; /* 区画の隙間から背景動画が見える */
+  /* 見本 v11: ヘッダー 102 / 隙間 2 / 通気口 19 / 隙間 4 / workspace / footer。
+     ヘッダーと通気口は --ms-hs(縮小率・MilspecLayout が区画幅から入れる)で縮む。
+     ヘッダーを閉じると --ms-hrow が 0 になり、通気口は y=2 に来る。 */
+  --ms-hrow: calc(102px * var(--ms-hs, 1));
   grid-template-rows:
-    clamp(76px, 6vw, 90px)   /* header(MilspecHeader + MilspecToolbar を縦積み) */
-    1fr                       /* workspace */
-    clamp(64px, 5.5vw, 82px); /* footer */
+    var(--ms-hrow)                 /* header */
+    2px
+    calc(19px * var(--ms-hs, 1))   /* vent */
+    4px
+    1fr                            /* workspace */
+    clamp(64px, 5.5vw, 82px);      /* footer */
   grid-template-areas:
-    "sidebar rail   header"
-    "sidebar rail   workspace"
-    "sidebar rail   footer";
+    "sidebar rail header"
+    "sidebar rail ."
+    "sidebar rail vent"
+    "sidebar rail ."
+    "sidebar rail workspace"
+    "sidebar rail footer";
   background: var(--ms-bg, #141b23);
   color: var(--ms-text);
   font-family: var(--ms-font-ui, system-ui, sans-serif);
 }
 /* header ゾーン = MilspecHeader(上段・flex:1 1 auto で残り高さを取る)+
    MilspecToolbar(下段・.milspec-tb 自身の中身なりの薄い高さ)の縦積み。 */
-.theme-military .milspec-zone-header    { grid-area: header;    position: relative; display: flex; flex-direction: column; overflow: hidden; }
+.theme-military .milspec-zone-header    { grid-area: header;    position: relative; overflow: visible; } /* 装甲の影・H5 の突起が区画の外へ出る */
+.theme-military .milspec-zone-vent      { grid-area: vent;      position: relative; overflow: visible; }
+/* 縮小用の内箱: 区画幅 MW が 1189 未満のとき中身を --ms-hs で縮める(幅は逆数で広げて 1189 を保つ) */
+.theme-military .milspec-hs-box {
+  display: flex; flex-direction: column;
+  transform: scale(var(--ms-hs, 1)); transform-origin: 0 0;
+  width: calc(100% / var(--ms-hs, 1)); height: calc(100% / var(--ms-hs, 1));
+}
+/* 閉じたヘッダー: 行が 0 になり、中身は見えず触れない。閉じる動きの残像は複製(.milspec-ghost)が担う */
+.theme-military .milspec-app:has(.milspec-zone-header[data-collapsed]) { --ms-hrow: 0px; }
+.theme-military .milspec-zone-header[data-collapsed] { visibility: hidden; pointer-events: none; }
+.theme-military .milspec-ghost { z-index: 5; }
 .theme-military .milspec-zone-sidebar   { grid-area: sidebar;   position: relative; overflow: visible; } /* 漏れ光 lk:s2rail が区画の右 1px 外を通る */
 .theme-military .milspec-zone-rail      { grid-area: rail;      position: relative; }
 .theme-military .milspec-zone-workspace { grid-area: workspace; position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
@@ -1057,6 +1078,9 @@
   grid-template-columns: 22px 1fr; /* 見本の閉じ状態: レールが x=0(レール 22 + 隙間 2 = 24 で本体) */
   grid-template-areas:
     "rail header"
+    "rail ."
+    "rail vent"
+    "rail ."
     "rail workspace"
     "rail footer";
 }
@@ -1108,6 +1132,7 @@
 .theme-military .milspec-zone-header,
 .theme-military .milspec-zone-sidebar,
 .theme-military .milspec-zone-workspace,
+.theme-military .milspec-zone-vent,
 .theme-military .milspec-zone-footer,
 .theme-military [data-ms-zone="rail"] { isolation: isolate; }
 .theme-military .milspec-armor { position: absolute; inset: 0; pointer-events: none; z-index: -1; }
@@ -2127,17 +2152,7 @@
 }
 .theme-military.theme-light .milspec-hdr .milspec-hp.recess { background: linear-gradient(180deg, #dbe3ec, #eef3f8); }
 
-/* ヘッダー折りたたみ: グリッド行高を細帯へ(brief 指示通り凝った意匠は不要)。
-   :has() は Task 1 の sidebar 折りたたみと同じ手法(既存 .milspec-app ルールは書き換えず追記)。
-   header 行が 1 本だけになった(2026-09-14・上下 2 段を縦積み)ので、この行を 26px にするだけで
-   両方まとめて畳まれる。.milspec-tb は 26px の細帯には収まらないので丸ごと隠す
-   (標準 ConsolidatedHeader の height:0 と同じ扱い)。 */
-.theme-military .milspec-app:has(.milspec-hdr[data-collapsed]) {
-  grid-template-rows: 26px 1fr clamp(64px, 5.5vw, 82px);
-}
-.theme-military .milspec-app:has(.milspec-hdr[data-collapsed]) .milspec-tb {
-  display: none;
-}
+/* ヘッダー折りたたみは区画属性 [data-ms-zone="header"][data-collapsed] と --ms-hrow で行う(区画の骨組みの節を参照)。 */
 
 /* ---------- LoPo ロゴプレート(mockup .hp-logo 798-810) ----------
    モックは 1666px キャンバス基準。本番は 1489px 上限のため、固定 px ゾーン(logo/title/share)は
