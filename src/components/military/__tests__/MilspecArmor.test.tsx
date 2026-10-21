@@ -2,7 +2,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, act } from '@testing-library/react';
 import { MilspecArmor } from '../MilspecArmor';
-import { useThemeStore } from '../../../store/useThemeStore';
 import type { PlacedPanel, StretchFrame } from '../armor/types';
 
 const frame: StretchFrame = { w0: 274, h0: 122, sx: 137, sy: 61 };
@@ -31,7 +30,7 @@ beforeEach(() => {
     disconnect() {}
   });
   setPal('#555b61');
-  useThemeStore.setState({ theme: 'dark' });
+  document.documentElement.className = '';
 });
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -56,17 +55,45 @@ describe('MilspecArmor', () => {
     expect(root.innerHTML).toContain('258,');
   });
 
-  it('テーマが変わると SVG を作り直す', () => {
+  it('テーマが変わると SVG を作り直す', async () => {
     const { container } = render(<div><MilspecArmor id="z" frame={frame} panels={panels} /></div>);
     const root = container.querySelector('.milspec-armor') as HTMLElement;
     const before = root.innerHTML;
     setPal('#d0d6dc');
-    act(() => { useThemeStore.setState({ theme: 'light' }); });
+    await act(async () => { document.documentElement.classList.add('light'); await Promise.resolve(); });
     expect(root.innerHTML).not.toBe(before);
   });
 
   it('共通 defs は 2 つ描いても 1 つ', () => {
     render(<div><MilspecArmor id="a" frame={frame} panels={panels} /><MilspecArmor id="b" frame={frame} panels={panels} /></div>);
     expect(document.querySelectorAll('svg#milspec-armor-defs')).toHaveLength(1);
+  });
+
+  it('中身が同じ配列を渡し直しても描き直さず、変われば描き直す', () => {
+    const clone = (): PlacedPanel[] => JSON.parse(JSON.stringify(panels));
+    const { container, rerender } = render(<div><MilspecArmor id="z" frame={{ ...frame }} panels={clone()} /></div>);
+    const first = container.querySelector('svg.milspec-armor-panel');
+    rerender(<div><MilspecArmor id="z" frame={{ ...frame }} panels={clone()} /></div>);
+    expect(container.querySelector('svg.milspec-armor-panel')).toBe(first);
+    const changed = clone();
+    changed[0].spec.pts[1] = [200, 0];
+    rerender(<div><MilspecArmor id="z" frame={{ ...frame }} panels={changed} /></div>);
+    expect(container.querySelector('svg.milspec-armor-panel')).not.toBe(first);
+  });
+
+  it('枠の大きさは border-box を優先して使う', () => {
+    const { container } = render(<div><MilspecArmor id="z" frame={frame} panels={panels} /></div>);
+    act(() => { roCbs.forEach((cb) => (cb as (e: unknown[]) => void)([{ contentRect: { width: 280, height: 122 }, borderBoxSize: [{ inlineSize: 300, blockSize: 122 }] }])); });
+    expect(container.querySelector('.milspec-armor')?.innerHTML).toContain('258,');
+  });
+
+  it('アンマウントで ResizeObserver と MutationObserver を止める', () => {
+    const rd = vi.fn(), md = vi.fn();
+    vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() { rd(); } });
+    vi.stubGlobal('MutationObserver', class { observe() {} disconnect() { md(); } });
+    const { unmount } = render(<div><MilspecArmor id="z" frame={frame} panels={panels} /></div>);
+    unmount();
+    expect(rd).toHaveBeenCalled();
+    expect(md).toHaveBeenCalled();
   });
 });

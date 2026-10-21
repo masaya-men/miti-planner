@@ -1,5 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
-import { useThemeStore } from '../../store/useThemeStore';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { armorDefsSVG, armorSVG } from './armor/svg';
 import { readPalette } from './armor/palette';
 import { stretchPlaced } from './armor/stretch';
@@ -41,7 +40,11 @@ interface Props { id: string; frame: StretchFrame; panels: PlacedPanel[]; classN
 /** 区画(親は position:relative 前提)の全面に、金属パネルの SVG を重ねて描く */
 export function MilspecArmor({ id, frame, panels, className }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const theme = useThemeStore((s) => s.theme);
+  // 中身が同じなら描き直さない(親が毎回新しい配列を渡しても innerHTML を入れ替えない)
+  const contentKey = useMemo(() => JSON.stringify([frame, panels]), [frame, panels]);
+  const latest = useRef({ frame, panels });
+  latest.current = { frame, panels };
+  const [paletteTick, setPaletteTick] = useState(0);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const [fontsTick, setFontsTick] = useState(0);
 
@@ -50,12 +53,25 @@ export function MilspecArmor({ id, frame, panels, className }: Props) {
     const parent = ref.current?.parentElement;
     if (!parent || typeof ResizeObserver === 'undefined') return;
     const ro = new ResizeObserver((entries) => {
-      const r = entries[0]?.contentRect;
-      if (!r || r.width <= 0 || r.height <= 0) return;
-      setSize((prev) => (prev && prev.w === r.width && prev.h === r.height ? prev : { w: r.width, h: r.height }));
+      const en = entries[0];
+      if (!en) return;
+      // inset:0 と同じ基準にそろえるため border-box を優先する
+      const bb = Array.isArray(en.borderBoxSize) ? en.borderBoxSize[0] : en.borderBoxSize;
+      const w = bb ? bb.inlineSize : en.contentRect.width;
+      const h = bb ? bb.blockSize : en.contentRect.height;
+      if (w <= 0 || h <= 0) return;
+      setSize((prev) => (prev && prev.w === w && prev.h === h ? prev : { w, h }));
     });
     ro.observe(parent);
     return () => ro.disconnect();
+  }, []);
+
+  // テーマ切替は <html> の class で色(--ma-*)が変わるので、class を監視して作り直す
+  useLayoutEffect(() => {
+    if (typeof MutationObserver === 'undefined') return;
+    const mo = new MutationObserver(() => setPaletteTick((n) => n + 1));
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => mo.disconnect();
   }, []);
 
   // 書体の読込完了で作り直す
@@ -70,6 +86,7 @@ export function MilspecArmor({ id, frame, panels, className }: Props) {
     const el = ref.current;
     if (!el) return;
     ensureDefs();
+    const { frame, panels } = latest.current;
     const pal = readPalette(document.documentElement);
     const W = size?.w ?? frame.w0;
     const H = size?.h ?? frame.h0;
@@ -77,7 +94,7 @@ export function MilspecArmor({ id, frame, panels, className }: Props) {
       const q = stretchPlaced(p, frame, W, H);
       return `<svg class="milspec-armor-panel" style="left:${q.x}px;top:${q.y}px" width="${q.w}" height="${q.h}" viewBox="0 0 ${q.w} ${q.h}">${armorSVG(q.spec, pal, `${id}-${i}`)}</svg>`;
     }).join('');
-  }, [id, frame, panels, size, theme, fontsTick]);
+  }, [id, contentKey, size, paletteTick, fontsTick]);
 
   return <div ref={ref} className={`milspec-armor${className ? ` ${className}` : ''}`} data-ms-armor={id} aria-hidden="true" />;
 }
