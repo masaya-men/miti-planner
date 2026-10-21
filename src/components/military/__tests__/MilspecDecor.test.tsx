@@ -86,4 +86,14 @@ describe('MilspecDecor', () => {
       expect(container.querySelector('svg')!.getAttribute('viewBox')).toBe('0 0 16 16');
     }
   });
+
+  it('MilspecBarcode は bars と k を渡せる(ヘッダー SN: bars 20・k0.8・高さ 8)', () => {
+    const bars = [2, 1, 1, 3, 1, 2, 1, 1, 2, 3, 1, 1, 2, 1, 3, 1, 2, 1, 1, 2];
+    const { container } = render(<MilspecBarcode h={8} bars={bars} k={0.8} />);
+    const svg = container.querySelector('svg.milspec-barcode') as SVGElement;
+    const exp = barcodeRects(8, bars, 0.8);
+    expect(svg.getAttribute('height')).toBe('8');
+    expect(svg.getAttribute('width')).toBe(exp.w.toFixed(1));
+    expect(svg.querySelectorAll('rect').length).toBe(10);
+  });
 });

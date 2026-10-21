@@ -74,8 +74,8 @@ export function MilspecHazard({ w, h, style }: { w: number; h: number; style?: C
 }
 
 /** バーコード */
-export function MilspecBarcode({ h = 6, style }: { h?: number; style?: CSSProperties }) {
-  const { w, rects } = barcodeRects(h);
+export function MilspecBarcode({ h = 6, bars, k, style }: { h?: number; bars?: number[]; k?: number; style?: CSSProperties }) {
+  const { w, rects } = barcodeRects(h, bars, k);
   return (
     <svg className="milspec-barcode" width={w.toFixed(1)} height={h} viewBox={`0 0 ${w.toFixed(1)} ${h}`} style={style} aria-hidden="true">
       {rects.map((r, i) => <rect key={i} x={r.x.toFixed(1)} y={0} width={r.w.toFixed(1)} height={h} />)}

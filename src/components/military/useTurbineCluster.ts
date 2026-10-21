@@ -116,7 +116,23 @@ interface UseTurbineClusterResult {
   start: () => void;
 }
 
-export function useTurbineCluster(fanCount: number): UseTurbineClusterResult {
+export interface UseTurbineClusterOptions {
+  /** 起動中、見本 js:1196 の間隔で呼ばれる拍(k = 0 始まりの通し番号)。H3 の継ぎ目の琥珀の光に使う */
+  onBeat?: (k: number) => void;
+}
+
+/** 拍の間隔(見本 js:1196: k < 6 ? 640 − k*70 : 280)。k = 次に打つ拍の番号 */
+export const beatInterval = (k: number): number => (k < 6 ? 640 - k * 70 : 280);
+
+export function useTurbineCluster(fanCount: number, opts: UseTurbineClusterOptions = {}): UseTurbineClusterResult {
+  const onBeatRef = React.useRef(opts.onBeat);
+  onBeatRef.current = opts.onBeat;
+  const timersRef = React.useRef<Set<number>>(new Set());
+  const activeRef = React.useRef(false);
+  const later = React.useCallback((fn: () => void, ms: number) => {
+    const id = window.setTimeout(() => { timersRef.current.delete(id); fn(); }, ms);
+    timersRef.current.add(id);
+  }, []);
   const vaneRefs = React.useMemo(
     () => Array.from({ length: fanCount }, () => React.createRef<HTMLSpanElement>()),
     [fanCount],
@@ -184,15 +200,31 @@ export function useTurbineCluster(fanCount: number): UseTurbineClusterResult {
         rig.angle = (rig.angle + v * dt) % 360;
         rig.vanes.style.transform = `rotate(${rig.angle}deg)`;
       }
+      if (rafRef.current != null) rafRef.current = requestAnimationFrame(frame);
+    };
+    // タブが隠れている間は rAF を止め、戻ったら再開する(経過時間の巻き戻し分は dt の上限 0.05s で吸収される)
+    const run = () => {
+      if (rafRef.current != null) return;
+      lastTRef.current = null;
       rafRef.current = requestAnimationFrame(frame);
     };
-    rafRef.current = requestAnimationFrame(frame);
-
-    return () => {
+    const halt = () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
+    };
+    const onVis = () => { if (document.hidden) halt(); else run(); };
+    document.addEventListener('visibilitychange', onVis);
+    if (!document.hidden) run();
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVis);
+      halt();
       lastTRef.current = null;
       rigsRef.current = [];
+      // 起動中のタイマー(拍・起動の遅延・終了)を全部止める
+      timersRef.current.forEach((id) => window.clearTimeout(id));
+      timersRef.current.clear();
+      activeRef.current = false;
     };
   }, [vaneRefs, frameRefs]);
 
@@ -206,7 +238,7 @@ export function useTurbineCluster(fanCount: number): UseTurbineClusterResult {
     rigs.forEach((rig, idx) => {
       const delay = idx === 0 ? 0 : Math.random() * 550;
       const host = frameRefs[idx]?.current;
-      window.setTimeout(() => {
+      later(() => {
         if (rig.mode !== 'idle') return;
         rig.cbs = {
           onProgress: host ? makeTrickle(host) : undefined,
@@ -220,8 +252,18 @@ export function useTurbineCluster(fanCount: number): UseTurbineClusterResult {
     });
 
     setActive(true);
-    window.setTimeout(() => setActive(false), maxFinish + 80);
-  }, [frameRefs]);
+    activeRef.current = true;
+    // 拍: 起動中だけ見本どおりの間隔で打つ(js:1196)
+    let k = 0;
+    const beat = () => {
+      if (!activeRef.current) return;
+      onBeatRef.current?.(k);
+      k++;
+      later(beat, beatInterval(k));
+    };
+    beat();
+    later(() => { activeRef.current = false; setActive(false); }, maxFinish + 80);
+  }, [frameRefs, later]);
 
   return { vaneRefs, frameRefs, active, start };
 }
