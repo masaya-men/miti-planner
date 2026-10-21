@@ -49,12 +49,13 @@ describe('MilspecVent', () => {
     expect(b.onToggle).toHaveBeenCalledTimes(1);
   });
 
-  it('光の玉の列(赤 11 個)・クリックで scanBall・ホバーで nudgeBall', () => {
+  it('光の玉の列(11 個・消灯レンズ)・クリックで scanBall・ホバーで nudgeBall', () => {
     const scan = vi.spyOn(engine, 'scanBall').mockImplementation(() => {});
     const nudge = vi.spyOn(engine, 'nudgeBall').mockImplementation(() => {});
     const { container } = setup();
     const row = container.querySelector('.milspec-lb-row') as HTMLElement;
-    expect(row.querySelectorAll('.milspec-led.is-dng').length).toBe(11);
+    expect(row.querySelectorAll('.milspec-led').length).toBe(11);
+    expect(row.querySelectorAll('.milspec-led.is-dng').length).toBe(0);
     fireEvent.click(row);
     expect(scan).toHaveBeenCalledWith(row);
     fireEvent.pointerEnter(row);

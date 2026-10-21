@@ -75,7 +75,7 @@ export function MilspecVent({ isHeaderCollapsed, onToggleHeader }: MilspecVentPr
       <div ref={rowRef} className="milspec-lb-row" data-scan style={{ left: v.xb0, top: 5.5 }}
         onClick={() => rowRef.current && scanBall(rowRef.current)}
         onPointerEnter={() => rowRef.current && nudgeBall(rowRef.current)}>
-        {Array.from({ length: 11 }, (_, i) => <MilspecLed key={i} state="dng" size={8} />)}
+        {Array.from({ length: 11 }, (_, i) => <MilspecLed key={i} size={8} />)}
       </div>
       <button ref={pullRef} type="button" className="milspec-pull" data-vent-pull
         style={{ left: v.pull.x, top: 2, width: v.pull.w, height: 15 }}

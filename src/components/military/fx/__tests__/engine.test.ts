@@ -159,11 +159,26 @@ describe('光の玉', () => {
     vi.advanceTimersByTime(10000);
   });
 
-  it('動きを減らす・タブ非表示では何もしない', () => {
-    const row = mkRow();
+  it('動きを減らす・タブ非表示・電源 off では何もしない', () => {
+    const none = ['', '', ''];
+    // 動きを減らす
+    let row = mkRow();
     window.matchMedia = ((q: string) => ({ matches: true, media: q })) as never;
     scanBall(row); nudgeBall(row);
-    expect(srcX(row)).toEqual(['', '', '']);
+    expect(srcX(row)).toEqual(none);
+    window.matchMedia = ((q: string) => ({ matches: false, media: q })) as never;
+    // タブ非表示
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    row = mkRow();
+    scanBall(row); nudgeBall(row);
+    expect(srcX(row)).toEqual(none);
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+    // 電源 off
+    document.documentElement.dataset.msPower = 'off';
+    row = mkRow();
+    scanBall(row); nudgeBall(row);
+    expect(srcX(row)).toEqual(none);
+    delete document.documentElement.dataset.msPower;
   });
 
   it('nudgeBall は身じろぎしてから右端に戻す', () => {
