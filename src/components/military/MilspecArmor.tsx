@@ -2,6 +2,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { armorDefsSVG, armorSVG } from './armor/svg';
 import { readPalette } from './armor/palette';
 import { stretchPlaced } from './armor/stretch';
+import { useHtmlClassTick } from './armor/useHtmlClassTick';
 import type { PlacedPanel, StretchFrame } from './armor/types';
 
 const DEFS_ID = 'milspec-armor-defs';
@@ -27,7 +28,7 @@ function makeNoiseUrl(): string {
 }
 
 /** 共通 defs は画面に 1 つだけ。無ければ body 直下に作る(消さない = 他の区画も使う) */
-function ensureDefs(): void {
+export function ensureDefs(): void {
   if (document.getElementById(DEFS_ID)) return;
   const wrap = document.createElement('div');
   wrap.innerHTML = `<svg id="${DEFS_ID}" width="0" height="0" aria-hidden="true" style="position:absolute"><defs>${armorDefsSVG(makeNoiseUrl())}</defs></svg>`;
@@ -44,7 +45,6 @@ export function MilspecArmor({ id, frame, panels, className }: Props) {
   const contentKey = useMemo(() => JSON.stringify([frame, panels]), [frame, panels]);
   const latest = useRef({ frame, panels });
   latest.current = { frame, panels };
-  const [paletteTick, setPaletteTick] = useState(0);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const [fontsTick, setFontsTick] = useState(0);
 
@@ -66,13 +66,8 @@ export function MilspecArmor({ id, frame, panels, className }: Props) {
     return () => ro.disconnect();
   }, []);
 
-  // テーマ切替は <html> の class で色(--ma-*)が変わるので、class を監視して作り直す
-  useLayoutEffect(() => {
-    if (typeof MutationObserver === 'undefined') return;
-    const mo = new MutationObserver(() => setPaletteTick((n) => n + 1));
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => mo.disconnect();
-  }, []);
+  // テーマ切替(<html> の class)で色が変わるので作り直す
+  const paletteTick = useHtmlClassTick();
 
   // 書体の読込完了で作り直す
   useLayoutEffect(() => {

@@ -2918,3 +2918,43 @@
       rgba(40,60,80,0.12) 5.5px 6.5px, transparent 6.5px 8px),
     linear-gradient(90deg, #8b98a3 0%, #aab5bf 8%, #cbd4dc 22%, #e9eff3 38%, #f3f6f9 40%, #d6dee4 52%, #b0bbc3 78%, #8b98a3 100%);
 }
+
+/* ---------------------------------------------------------------------
+   キー(MilspecKey / MilspecKeyCap)— 見本 css:143-180 の移植
+   hov = ホバーで浮く層 / kf = 押し込み層(押下の動きは WAAPI) / hit = 当たり判定(キーの形そのもの)
+   位置は親が決める。子を絶対配置するため relative にしてある(親側で上書き可)
+   --------------------------------------------------------------------- */
+.theme-military .milspec-key { position: relative; display: block; padding: 0; margin: 0; border: 0; background: none; pointer-events: none; cursor: pointer; }
+.theme-military .milspec-key:focus-visible { outline: 1.2px solid var(--ma-on); outline-offset: 2px; }
+.theme-military .milspec-key:disabled { cursor: default; }
+.theme-military .milspec-key-hov { position: absolute; inset: 0; transition: transform 320ms cubic-bezier(.2,1.25,.35,1); }
+.theme-military .milspec-key-kf { position: absolute; inset: 0; transform-origin: 50% 100%; }
+.theme-military .milspec-key svg { position: absolute; left: 0; top: 0; overflow: visible; }
+.theme-military .milspec-key-hitz { pointer-events: none; }
+.theme-military .milspec-key-hit { pointer-events: auto; fill: transparent; stroke: none; cursor: pointer; }
+.theme-military .milspec-key:disabled .milspec-key-hit { cursor: default; }
+.theme-military .milspec-key-static, .theme-military .milspec-key-static .milspec-key-hit { pointer-events: none; }
+.theme-military .milspec-key .sh { transform-box: fill-box; transform-origin: 50% 50%; transition: opacity 160ms, transform 190ms cubic-bezier(.3,1.75,.5,1); }
+.theme-military .milspec-key .rim { opacity: 0; transition: opacity 180ms ease-out; }
+.theme-military .milspec-key .lip { stroke: rgba(0,0,0,0.42); stroke-width: 1.3; stroke-linecap: round; transition: stroke 90ms; }
+.theme-military .milspec-key .lip-hi { stroke: rgba(255,255,255,0.10); stroke-width: 0.6; stroke-linecap: round; }
+.theme-military .milspec-key-lb { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 3.5px; white-space: nowrap; pointer-events: none; font: 500 7.8px/1 'IBM Plex Sans JP'; color: var(--ma-kink); letter-spacing: 0.04em; text-shadow: var(--ma-kts); transition: color 140ms; }
+.theme-military .milspec-key-lb svg { position: static; width: 9px; height: 9px; flex: none; fill: none; stroke: var(--ma-kicon); stroke-width: 1.5; stroke-linecap: square; transition: stroke 140ms; }
+.theme-military .milspec-key-ic .milspec-key-lb svg { width: 10px; height: 10px; }
+.theme-military .milspec-key-dng .milspec-key-lb svg { stroke: var(--ma-dng); }
+/* ホバー: わずかに浮く・縁が光を拾う・刻印が少し明るく */
+.theme-military .milspec-key:not(:disabled):hover .milspec-key-hov { transform: translateY(-0.6px); }
+.theme-military .milspec-key:not(:disabled):hover .sh { transform: translate(0, 0.7px) scale(1.015); }
+.theme-military .milspec-key:not(:disabled):hover .rim { opacity: 0.34; }
+.theme-military .milspec-key:not(:disabled):hover .milspec-key-lb { color: var(--ma-kink-hot); }
+.theme-military .milspec-key:not(:disabled):hover .milspec-key-lb svg { stroke: var(--ma-kink-hot); }
+.theme-military .milspec-key-dng:not(:disabled):hover .milspec-key-lb svg { stroke: var(--ma-dng-hot); }
+.theme-military .milspec-key-down .rim { opacity: 0; transition-duration: 60ms; }
+/* 連動キー(選んだものが沈んだまま = テープデッキ): 手前に倒れて沈み、下縁のランプが点く */
+.theme-military .milspec-key[aria-pressed="true"] .milspec-key-kf { transform: translateY(0.9px) scale(0.985, 0.925); }
+.theme-military .milspec-key[aria-pressed="true"] .sh { opacity: 0.3; transform: none; }
+.theme-military .milspec-key[aria-pressed="true"] .lip { stroke: var(--ma-on); filter: drop-shadow(0 0 1.2px rgba(var(--ma-on-rgb),0.9)); }
+.theme-military .milspec-key[aria-pressed="true"] .milspec-key-lb { color: var(--ma-kink-hot); }
+@media (prefers-reduced-motion: reduce) {
+  .theme-military .milspec-key-hov, .theme-military .milspec-key .sh, .theme-military .milspec-key .rim { transition: none; }
+}
