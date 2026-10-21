@@ -16,9 +16,15 @@ import type { HousingerProfile, HousingListing } from '../../types/housing';
 const mockGetHousingerProfile = vi.fn();
 const mockGetHousingerListings = vi.fn();
 const mockUpsertHousingerProfile = vi.fn();
+// 運営非表示の家 (hiddenListings)。 テストごとに beforeEach で空へ戻す。
+let mockHiddenListings: unknown[] = [];
 vi.mock('../../lib/housing/housingerProfileService', () => ({
   getHousingerProfile: (...args: unknown[]) => mockGetHousingerProfile(...args),
   getHousingerListings: (...args: unknown[]) => mockGetHousingerListings(...args),
+  getHousingerListingsWithHidden: async (...args: unknown[]) => ({
+    listings: await mockGetHousingerListings(...args),
+    hiddenListings: mockHiddenListings,
+  }),
   upsertHousingerProfile: (...args: unknown[]) => mockUpsertHousingerProfile(...args),
 }));
 
@@ -111,6 +117,7 @@ beforeAll(() => {
 beforeEach(() => {
   mockGetHousingerProfile.mockReset();
   mockGetHousingerListings.mockReset();
+  mockHiddenListings = [];
   mockUpsertHousingerProfile.mockReset();
   showToastMock.mockClear();
   authUid = null;
@@ -167,6 +174,44 @@ describe('HousingerPage', () => {
     expect(
       screen.getByRole('button', { name: 'この人の家をまとめてツアー' }),
     ).toBeInTheDocument();
+  });
+
+  it('運営非表示の家: 帯つきの非リンクカードが出て件数に含まれ、ツアー対象には含まれない', async () => {
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1')]);
+    mockHiddenListings = [
+      { ...rawListing('h-1', 'uid-1'), title: '隠された家', createdAt: 200, isHidden: true },
+    ];
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    // 通常カード 1 + 非表示カード 1 = 件数 2
+    expect(await screen.findAllByTestId('housing-listing-card')).toHaveLength(1);
+    const hidden = await screen.findAllByTestId('housing-hidden-listing-card');
+    expect(hidden).toHaveLength(1);
+    expect(screen.getByTestId('housing-hidden-band')).toHaveTextContent('規約違反のため非表示になりました');
+    expect(screen.getByText('2件')).toBeInTheDocument();
+    // 非リンク・写真なし
+    expect(hidden[0].getAttribute('role')).toBeNull();
+    expect(hidden[0].querySelector('img')).toBeNull();
+    // ツアー対象 (listings) は通常分のみ: クリックしても隠れた家は ID に含まれない
+    fireEvent.click(screen.getByRole('button', { name: 'この人の家をまとめてツアー' }));
+    fireEvent.click(screen.getByRole('button', { name: /はじめる/ }));
+    const tourIds = useHousingTourStore.getState().listingIds;
+    expect(tourIds).toContain('l-1');
+    expect(tourIds).not.toContain('h-1');
+  });
+
+  it('通常の家が0件でも運営非表示の家だけなら一覧(帯カード)が出て、ツアーボタンは出ない', async () => {
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([]);
+    mockHiddenListings = [{ ...rawListing('h-1', 'uid-1'), createdAt: 200, isHidden: true }];
+
+    renderPage('uid-1');
+
+    expect(await screen.findAllByTestId('housing-hidden-listing-card')).toHaveLength(1);
+    expect(screen.queryByRole('button', { name: 'この人の家をまとめてツアー' })).toBeNull();
   });
 
   // e: X共有 (A案)。 既存 HousingShareButton (housing.detail.share = 「シェア」・既存キー) を流用。

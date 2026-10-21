@@ -2,7 +2,7 @@ import React, { memo, useMemo } from 'react';
 import { Plus, Copy } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
+import type { PartyMember, TimelineEvent, AppliedMitigation, Phase } from '../types';
 import { getPhaseName } from '../types';
 import { formatEventName } from '../utils/eventName';
 import { getColumnCssVar } from '../utils/calculator';
@@ -17,6 +17,7 @@ import { AnimatedDamage } from './AnimatedDamage';
 import { DamageTypeIcon } from './DamageTypeIcon';
 import { nextDamageType } from '../utils/damageTypeLogic';
 import { EventNameSpan } from './EventNameSpan';
+import { rowPropsEqual } from './timeline/rowPropsEqual';
 
 interface DamageInfo {
     unmitigated: number;
@@ -30,6 +31,8 @@ interface DamageInfo {
 interface TimelineRowProps {
     time: number;
     top: number;
+    /** 行の高さ(px)= 1 段 × max(1, 攻撃数)。Timeline の rowLayout が決める */
+    height: number;
     damages: (DamageInfo | null)[];
     events: TimelineEvent[];
     partyMembers: PartyMember[];
@@ -53,6 +56,10 @@ interface TimelineRowProps {
     onTimelineSelectHover?: (time: number) => void;
     showRowBorders?: boolean;
 }
+
+// 外枠(TimelineRow)が持つ位置情報。中身(TimelineRowContent)は高さ・位置を使わないため
+// 受け取らない(行の高さ変化で位置だけズレた行は、外枠だけ描き直し中身は描き直さないため)。
+type TimelineRowContentProps = Omit<TimelineRowProps, 'top' | 'height'>;
 
 // スマホ用: 対象バッジ（AoE以外の場合に表示）
 // effTarget: 挑発によるタンクスイッチを反映した実効ターゲット（表示用）
@@ -195,9 +202,8 @@ const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: PartyMember
     );
 };
 
-// PC用: コピーボタン — 対象トグルの右隣に同サイズ(w-6 h-6)で並べる。
-// ホバー時のみ可視だが場所は常に確保(opacity 切替のみ)＝攻撃名のガタつきなし。
-// 対象アイコンが無い(AoE)行では親の ml-auto により右端へ寄る。
+// PC用: コピーボタン — 「+」の右隣、対象トグルの左に同サイズ(w-6 h-6)で並べる。
+// ホバー時だけ幅を開いて可視化(攻撃名はその分だけ縮む)。対象アイコンが無い(AoE)行では親の ml-auto により右端へ寄る。
 const PcCopyButton: React.FC<{ event: TimelineEvent }> = ({ event }) => {
     const { t } = useTranslation();
     const setClipboardEvent = useMitigationStore(state => state.setClipboardEvent);
@@ -217,9 +223,137 @@ const PcCopyButton: React.FC<{ event: TimelineEvent }> = ({ event }) => {
     );
 };
 
+// PC用: イベント追加ボタン — コピーの左隣。ホバー時だけ出る(コピーと同じ動き)。
+// 動きは空の行の「+」と同じ onAddEventClick(コピー中は貼り付け / AA モード中は AA 追加 / それ以外は追加モーダル)。
+const PcAddEventButton: React.FC<{ time: number; onAddEventClick: (time: number, e: React.MouseEvent) => void }> = ({ time, onAddEventClick }) => {
+    const { t } = useTranslation();
+    return (
+        <Tooltip content={t('timeline.event_add_here')} position="top">
+            <button
+                type="button"
+                aria-label={t('timeline.event_add_here')}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onAddEventClick(time, e);
+                }}
+                className="flex items-center justify-center w-6 h-6 rounded-sm text-app-text-muted hover:text-app-accent cursor-pointer opacity-0 pointer-events-none group-hover/slot:opacity-100 group-hover/slot:pointer-events-auto transition-opacity active:scale-95"
+            >
+                <Plus size={14} />
+            </button>
+        </Tooltip>
+    );
+};
+
+// PC用: 1 段ぶんの TAKEN(軽減後ダメージ)。致死判定は挑発によるタンクスイッチ後の実効ターゲットで行う
+const DamageTakenCell: React.FC<{
+    event: TimelineEvent;
+    damage: DamageInfo | null | undefined;
+    partyMembers: PartyMember[];
+    swapMarkers: AppliedMitigation[];
+    phases: Phase[];
+}> = ({ event, damage, partyMembers, swapMarkers, phases }) => {
+    const { t } = useTranslation();
+    if (!damage || !(damage.unmitigated > 0 || damage.isInvincible)) return null;
+    const evtEff = getEffectiveTarget(event, swapMarkers, phases);
+    let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
+    if (evtEff === 'MT' || evtEff === 'ST') {
+        maxHp = partyMembers.find(m => m.id === evtEff)?.stats.hp || 1;
+    }
+    const isLethal = damage.mitigated >= maxHp;
+    const colorClass = isLethal ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400";
+    return (
+        <>
+            <AnimatedDamage value={damage.mitigated} isLethal={isLethal} className={`${colorClass} !h-[16px]`} />
+            {damage.isInvincible ? (
+                <div className="text-app-sm text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">
+                    {t('timeline.invuln', 'Invuln')}
+                </div>
+            ) : (damage.mitigationPercent > 0 || damage.shieldTotal > 0) ? (
+                <div className="text-app-sm text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
+                    {damage.mitigationPercent > 0 && <span>▼ {damage.mitigationPercent}%</span>}
+                    {damage.mitigationPercent > 0 && damage.shieldTotal > 0 && <span className="opacity-50">|</span>}
+                    {damage.shieldTotal > 0 && (
+                        <span className="flex items-center gap-0.5">
+                            🛡️ {damage.shieldTotal.toLocaleString()}
+                        </span>
+                    )}
+                </div>
+            ) : null}
+        </>
+    );
+};
+
+// TimelineRow(外枠): 位置(top/height)だけを持つ一番外側の div。中身(TimelineRowContent)は
+// 別コンポーネントに分けてあるので、他の行の高さが変わって top だけがズレた行は、この外枠だけが
+// 描き直され、中身(列のセル群)は描き直されない(memo 比較で弾かれる)。
 export const TimelineRow = memo(({
-    time,
     top,
+    height,
+    ...contentProps
+}: TimelineRowProps) => {
+    const {
+        time,
+        showRowBorders = false,
+        timelineSelectMode,
+        labelSelectMode,
+        phaseColumnCollapsed,
+        labelColumnVisible,
+        onTimelineSelect,
+        onTimelineSelectHover,
+    } = contentProps;
+
+    return (
+        <div
+            data-time-row={time}
+            className={clsx(
+                "absolute left-0 w-full md:w-fit flex group duration-75",
+                "hover:bg-app-surface2",
+                // perf #59: ビューポート外行を style/layout/paint からスキップ。仮の高さ(contain-intrinsic-size)は style の height と一致させる
+                "[content-visibility:auto]",
+                showRowBorders && "border-b border-app-border",
+                (timelineSelectMode || labelSelectMode) && "cursor-pointer"
+            )}
+            style={{
+                height: `${height}px`,
+                containIntrinsicSize: `auto ${height}px`,
+                top: `${top}px`,
+                // hover line の left/width は CSS 変数 (viewport 連動 clamp) ベースで計算する。
+                // 旧実装は開発者画面 (1489) の max 値をハードコード (60+200+100+100=460px) して
+                // いたため、 1489 未満の viewport では実セル幅 < 460px となり罫線が右にはみ出していた。
+                // left = phase 列 + label 列 (collapsed/visible で切替)。 width = time + mechanic + counter ×2。
+                '--hover-line-left': `calc(${phaseColumnCollapsed ? 'var(--col-phase-collapsed-w)' : 'var(--col-phase-w)'} + ${labelColumnVisible ? 'var(--col-label-w)' : 'var(--col-label-collapsed-w)'})`,
+                '--hover-line-width': 'calc(var(--col-time-w) + var(--col-mechanic-w) + var(--col-counter-w) * 2)',
+            } as React.CSSProperties}
+            onMouseEnter={() => {
+                if (timelineSelectMode || labelSelectMode) {
+                    onTimelineSelectHover?.(time);
+                }
+            }}
+            onClickCapture={(e) => {
+                // 進捗記録モード中は「キャプチャ段階」で全クリックを横取りし、その行の time を打点。
+                // これで列(イベント/フェーズ/ラベル/メンバー)の個別 onClick が発火する前に止まり、
+                // モーダル等が開かず、行のどこをクリックしても確実に記録される（表全体が時間ピッカー）。
+                if (useProgressRecording.getState().recordMode) {
+                    useProgressRecording.getState().commitReachedPos(time);
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            }}
+            onClick={(e) => {
+                if (timelineSelectMode || labelSelectMode) {
+                    onTimelineSelect?.(time);
+                    e.stopPropagation();
+                }
+            }}
+        >
+            <TimelineRowContent {...contentProps} />
+        </div>
+    );
+}, (prevProps, nextProps) => rowPropsEqual(prevProps, nextProps, ['events', 'damages', 'activeMitigations']));
+
+// TimelineRowContent(中身): 列のセル群。top/height は受け取らない(使わない)。
+const TimelineRowContent = memo(({
+    time,
     damages,
     events,
     partyMembers,
@@ -239,7 +373,7 @@ export const TimelineRow = memo(({
     onTimelineSelect,
     onTimelineSelectHover,
     showRowBorders = false,
-}: TimelineRowProps) => {
+}: TimelineRowContentProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const myMemberId = useMitigationStore(state => state.myMemberId);
@@ -280,47 +414,7 @@ export const TimelineRow = memo(({
             displayTimeStr;
 
     return (
-        <div
-            data-time-row={time}
-            className={clsx(
-                "absolute left-0 w-full md:w-fit flex h-[50px] group  duration-75",
-                "hover:bg-app-surface2",
-                // perf #59: ビューポート外行を style/layout/paint からスキップ。 行 height は h-[50px] と一致
-                "[content-visibility:auto] [contain-intrinsic-size:auto_50px]",
-                showRowBorders && "border-b border-app-border",
-                (timelineSelectMode || labelSelectMode) && "cursor-pointer"
-            )}
-            style={{
-                top: `${top}px`,
-                // hover line の left/width は CSS 変数 (viewport 連動 clamp) ベースで計算する。
-                // 旧実装は開発者画面 (1489) の max 値をハードコード (60+200+100+100=460px) して
-                // いたため、 1489 未満の viewport では実セル幅 < 460px となり罫線が右にはみ出していた。
-                // left = phase 列 + label 列 (collapsed/visible で切替)。 width = time + mechanic + counter ×2。
-                '--hover-line-left': `calc(${phaseColumnCollapsed ? 'var(--col-phase-collapsed-w)' : 'var(--col-phase-w)'} + ${labelColumnVisible ? 'var(--col-label-w)' : 'var(--col-label-collapsed-w)'})`,
-                '--hover-line-width': 'calc(var(--col-time-w) + var(--col-mechanic-w) + var(--col-counter-w) * 2)',
-            } as React.CSSProperties}
-            onMouseEnter={() => {
-                if (timelineSelectMode || labelSelectMode) {
-                    onTimelineSelectHover?.(time);
-                }
-            }}
-            onClickCapture={(e) => {
-                // 進捗記録モード中は「キャプチャ段階」で全クリックを横取りし、その行の time を打点。
-                // これで列(イベント/フェーズ/ラベル/メンバー)の個別 onClick が発火する前に止まり、
-                // モーダル等が開かず、行のどこをクリックしても確実に記録される（表全体が時間ピッカー）。
-                if (useProgressRecording.getState().recordMode) {
-                    useProgressRecording.getState().commitReachedPos(time);
-                    e.stopPropagation();
-                    e.preventDefault();
-                }
-            }}
-            onClick={(e) => {
-                if (timelineSelectMode || labelSelectMode) {
-                    onTimelineSelect?.(time);
-                    e.stopPropagation();
-                }
-            }}
-        >
+        <>
             {/* Phase Column — スマホ: フェーズなし→非表示 / PC: フェーズ追加 */}
             {!phaseColumnCollapsed ? (
                 <div
@@ -436,107 +530,52 @@ export const TimelineRow = memo(({
                             )} />
                         </Tooltip>
                     </div>
-                ) : events.length === 1 ? (
-                    /* 1イベント */
-                    <div className="w-full h-full relative group/slot">
-                        <div
-                            className="w-full h-full flex items-center px-2 gap-1 md:gap-2 cursor-pointer hover:bg-app-surface2"
-                            onClick={(e) => {
-                                if (window.innerWidth < 768) {
-                                    handleMobileTap(e);
-                                } else {
-                                    onEventClick(events[0], e);
-                                }
-                            }}
-                        >
-                            {/* 種別: PC=クリックで循環 / モバイル=表示のみ(両方とも赤箱印あり) */}
-                            <PcTypeToggle event={events[0]} />
-                            <DamageTypeIcon damageType={events[0].damageType} ignoresDebuffMitigation={events[0].ignoresDebuffMitigation} size="w-3 h-3" className="md:hidden" />
-
-                            {/* 攻撃名（省略時にネイティブツールチップ表示） */}
-                            <EventNameSpan name={getEventName(events[0])} className="text-app-md md:text-app-lg" />
-
-                            {/* スマホ専用: 対象バッジ */}
-                            <div className="md:hidden flex-shrink-0">
-                                <MobileTargetBadge partyMembers={partyMembers} effTarget={getEffectiveTarget(events[0], swapMarkers, phases)} />
-                            </div>
-
-                            {/* スマホ専用: 軽減アイコン */}
-                            <MobileMitiIcons
-                                mitigations={activeMitigations}
-                                contentLanguage={contentLanguage}
-                                myMemberId={myMemberId}
-                            />
-
-                            {/* PC専用: Target(右端固定・クリックで MT⇄ST トグル)。コピーはホバー時だけ幅を開く
-                                (非ホバー=w-0で攻撃名フル幅 / ホバー=w-8で名前が縮みコピーが重ならず収まる)。対象が無い(AoE)行は右端に出る */}
-                            <div className="hidden md:flex items-center flex-shrink-0 ml-auto">
-                                <div className="w-0 overflow-hidden flex justify-start group-hover/slot:w-8 transition-[width] duration-150">
-                                    <PcCopyButton event={events[0]} />
-                                </div>
-                                <PcTargetToggle event={events[0]} partyMembers={partyMembers} effTarget={getEffectiveTarget(events[0], swapMarkers, phases)} />
-                            </div>
-                        </div>
-
-                        {/* PC専用: イベント追加ボタン */}
-                        <div
-                            className="absolute bottom-0 inset-x-0 h-[12px] items-center justify-center cursor-pointer hover:bg-app-surface2 transition-all opacity-0 group-hover/slot:opacity-100 z-10 hidden md:flex"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onAddEventClick(time, e);
-                            }}
-                        >
-                            <Plus size={10} className="text-app-text-muted scale-75" />
-                        </div>
-                    </div>
                 ) : (
-                    /* 2イベント */
-                    <>
-                        {[0, 1].map((idx) => (
-                            <div key={idx} className={clsx("flex-1 w-full relative group/slot", idx === 0 && showRowBorders && "border-b border-app-border")}>
-                                <div
-                                    className="w-full h-full flex items-center px-2 gap-1 md:gap-2 cursor-pointer hover:bg-app-surface2"
-                                    onClick={(e) => {
-                                        if (window.innerWidth < 768) {
-                                            handleMobileTap(e);
-                                        } else {
-                                            onEventClick(events[idx], e);
-                                        }
-                                    }}
-                                >
-                                    {/* 種別アイコン */}
-                                    {/* 種別: PC=クリックで循環 / モバイル=表示のみ(両方とも赤箱印あり) */}
-                                    <PcTypeToggle event={events[idx]} />
-                                    <DamageTypeIcon damageType={events[idx].damageType} ignoresDebuffMitigation={events[idx].ignoresDebuffMitigation} size="w-3 h-3" className="md:hidden" />
+                    /* 1 件以上: 攻撃 1 つ = 1 段。段を攻撃の数だけ縦に並べる(行の高さ = 1 段 × 攻撃数・各段は flex-1 で等分) */
+                    events.map((event, idx) => (
+                        <div key={event.id} className={clsx("flex-1 min-h-0 w-full relative group/slot", idx < events.length - 1 && showRowBorders && "border-b border-app-border")}>
+                            <div
+                                className="w-full h-full flex items-center px-2 gap-1 md:gap-2 cursor-pointer hover:bg-app-surface2"
+                                onClick={(e) => {
+                                    if (window.innerWidth < 768) {
+                                        handleMobileTap(e);
+                                    } else {
+                                        onEventClick(event, e);
+                                    }
+                                }}
+                            >
+                                {/* 種別: PC=クリックで循環 / モバイル=表示のみ(両方とも赤箱印あり) */}
+                                <PcTypeToggle event={event} />
+                                <DamageTypeIcon damageType={event.damageType} ignoresDebuffMitigation={event.ignoresDebuffMitigation} size="w-3 h-3" className="md:hidden" />
 
-                                    {/* 攻撃名（省略時にネイティブツールチップ表示） */}
-                                    <EventNameSpan name={getEventName(events[idx])} className="text-app-base md:text-app-lg" />
+                                {/* 攻撃名（省略時にネイティブツールチップ表示） */}
+                                <EventNameSpan name={getEventName(event)} className="text-app-base md:text-app-lg" />
 
-                                    {/* スマホ専用: 対象バッジ */}
-                                    <div className="md:hidden flex-shrink-0">
-                                        <MobileTargetBadge partyMembers={partyMembers} effTarget={getEffectiveTarget(events[idx], swapMarkers, phases)} />
+                                {/* スマホ専用: 対象バッジ */}
+                                <div className="md:hidden flex-shrink-0">
+                                    <MobileTargetBadge partyMembers={partyMembers} effTarget={getEffectiveTarget(event, swapMarkers, phases)} />
+                                </div>
+
+                                {/* スマホ専用: 軽減アイコン */}
+                                <MobileMitiIcons
+                                    mitigations={activeMitigations}
+                                    contentLanguage={contentLanguage}
+                                    myMemberId={myMemberId}
+                                    size="w-2.5 h-2.5"
+                                />
+
+                                {/* PC専用: Target(右端固定・クリックで MT⇄ST トグル)。「+」とコピーはホバー時だけ幅を開く
+                                    (非ホバー=w-0で攻撃名フル幅 / ホバー=w-16で名前が縮み「+」とコピーが重ならず収まる)。対象が無い(AoE)行は右端に出る */}
+                                <div className="hidden md:flex items-center flex-shrink-0 ml-auto">
+                                    <div className="w-0 overflow-hidden flex justify-start group-hover/slot:w-16 transition-[width] duration-150">
+                                        <PcAddEventButton time={time} onAddEventClick={onAddEventClick} />
+                                        <PcCopyButton event={event} />
                                     </div>
-
-                                    {/* スマホ専用: 軽減アイコン（2イベント時は小さめ） */}
-                                    <MobileMitiIcons
-                                        mitigations={activeMitigations}
-                                        contentLanguage={contentLanguage}
-                                        myMemberId={myMemberId}
-                                        size="w-2.5 h-2.5"
-                                    />
-
-                                    {/* PC専用: Target(右端固定・クリックで MT⇄ST トグル)。コピーはホバー時だけ幅を開く
-                                        (非ホバー=w-0で攻撃名フル幅 / ホバー=w-8で名前が縮みコピーが重ならず収まる)。対象が無い(AoE)行は右端に出る */}
-                                    <div className="hidden md:flex items-center flex-shrink-0 ml-auto">
-                                        <div className="w-0 overflow-hidden flex justify-start group-hover/slot:w-8 transition-[width] duration-150">
-                                            <PcCopyButton event={events[idx]} />
-                                        </div>
-                                        <PcTargetToggle event={events[idx]} partyMembers={partyMembers} effTarget={getEffectiveTarget(events[idx], swapMarkers, phases)} badgeTextClass="text-app-sm" />
-                                    </div>
+                                    <PcTargetToggle event={event} partyMembers={partyMembers} effTarget={getEffectiveTarget(event, swapMarkers, phases)} badgeTextClass="text-app-sm" />
                                 </div>
                             </div>
-                        ))}
-                    </>
+                        </div>
+                    ))
                 )}
             </div>
 
@@ -552,20 +591,11 @@ export const TimelineRow = memo(({
                     }
                 }}
             >
-                {events.length === 1 ? (
-                    <div className="w-full h-full flex items-center justify-center">
-                        {damages[0] && damages[0].unmitigated > 0 ? formatDmg(damages[0].unmitigated) : ''}
+                {events.map((event, idx) => (
+                    <div key={event.id} className={clsx("flex-1 min-h-0 w-full flex items-center justify-center", idx < events.length - 1 && showRowBorders && "border-b border-app-border")}>
+                        {damages[idx] && damages[idx]!.unmitigated > 0 ? formatDmg(damages[idx]!.unmitigated) : ''}
                     </div>
-                ) : (
-                    <>
-                        <div className={clsx("flex-1 w-full flex items-center justify-center", showRowBorders && "border-b border-app-border")}>
-                            {damages[0] && damages[0].unmitigated > 0 ? formatDmg(damages[0].unmitigated) : ''}
-                        </div>
-                        <div className="flex-1 w-full flex items-center justify-center">
-                            {damages[1] && damages[1].unmitigated > 0 ? formatDmg(damages[1].unmitigated) : ''}
-                        </div>
-                    </>
-                )}
+                ))}
             </div >
 
             {/* Dmg Column - With Mitigation Details */}
@@ -585,87 +615,13 @@ export const TimelineRow = memo(({
                     }
                 }}
             >
-                {events.length === 1 ? (
-                    <div className="w-full h-full flex flex-col items-center justify-center gap-0.5 leading-none">
-                        {damages[0] && (damages[0].unmitigated > 0 || damages[0].isInvincible) ? (
-                            <>
-                                {(() => {
-                                    const evt = events[0];
-                                    const dmg = damages[0];
-                                    // 致死判定は挑発によるタンクスイッチ後の実効ターゲットで行う
-                                    const evtEff = getEffectiveTarget(evt, swapMarkers, phases);
-                                    let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-                                    if (evtEff === 'MT' || evtEff === 'ST') {
-                                        maxHp = partyMembers.find(m => m.id === evtEff)?.stats.hp || 1;
-                                    }
-                                    const isLethal = dmg.mitigated >= maxHp;
-                                    const colorClass = isLethal
-                                        ? "text-red-600 dark:text-red-400"
-                                        : "text-green-600 dark:text-green-400";
-                                    return <AnimatedDamage value={dmg.mitigated} isLethal={isLethal} className={colorClass} />;
-                                })()}
-                                {damages[0].isInvincible ? (
-                                    <div className="text-app-sm text-app-text-sec font-black tracking-tighter scale-90 whitespace-nowrap">
-                                        {t('timeline.invuln', 'Invuln')}
-                                    </div>
-                                ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) ? (
-                                    <div className="text-app-sm text-app-text-sec font-black tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
-                                        {damages[0].mitigationPercent > 0 && <span>▼ {damages[0].mitigationPercent}%</span>}
-                                        {damages[0].mitigationPercent > 0 && damages[0].shieldTotal > 0 && <span className="opacity-50">|</span>}
-                                        {damages[0].shieldTotal > 0 && (
-                                            <span className="flex items-center gap-0.5">
-                                                🛡️ {damages[0].shieldTotal.toLocaleString()}
-                                            </span>
-                                        )}
-                                    </div>
-                                ) : null}
-                            </>
-                        ) : ''}
+                {events.map((event, idx) => (
+                    <div key={event.id} className={clsx("flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-0 leading-none",
+                        idx < events.length - 1 && showRowBorders && "border-b border-app-border"
+                    )}>
+                        <DamageTakenCell event={event} damage={damages[idx]} partyMembers={partyMembers} swapMarkers={swapMarkers} phases={phases} />
                     </div>
-                ) : (
-                    <>
-                        {[0, 1].map((idx) => (
-                            <div key={idx} className={clsx("flex-1 w-full flex flex-col items-center justify-center gap-0 leading-none",
-                                idx === 0 && showRowBorders && "border-b border-app-border"
-                            )}>
-                                {damages[idx] && (damages[idx].unmitigated > 0 || damages[idx].isInvincible) ? (
-                                    <>
-                                        {(() => {
-                                            const evt = events[idx];
-                                            const dmg = damages[idx];
-                                            // 致死判定は挑発によるタンクスイッチ後の実効ターゲットで行う
-                                            const evtEff = getEffectiveTarget(evt, swapMarkers, phases);
-                                            let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-                                            if (evtEff === 'MT' || evtEff === 'ST') {
-                                                maxHp = partyMembers.find(m => m.id === evtEff)?.stats.hp || 1;
-                                            }
-                                            const isLethal = dmg.mitigated >= maxHp;
-                                            const colorClass = isLethal
-                                                ? "text-red-600 dark:text-red-400"
-                                                : "text-green-600 dark:text-green-400";
-                                            return <AnimatedDamage value={dmg.mitigated} isLethal={isLethal} className={`${colorClass} !h-[16px]`} />;
-                                        })()}
-                                        {damages[idx].isInvincible ? (
-                                            <div className="text-app-sm text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">
-                                                {t('timeline.invuln', 'Invuln')}
-                                            </div>
-                                        ) : (damages[idx].mitigationPercent > 0 || damages[idx].shieldTotal > 0) ? (
-                                            <div className="text-app-sm text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
-                                                {damages[idx].mitigationPercent > 0 && <span>▼ {damages[idx].mitigationPercent}%</span>}
-                                                {damages[idx].mitigationPercent > 0 && damages[idx].shieldTotal > 0 && <span className="opacity-50">|</span>}
-                                                {damages[idx].shieldTotal > 0 && (
-                                                    <span className="flex items-center gap-0.5">
-                                                        🛡️ {damages[idx].shieldTotal.toLocaleString()}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        ) : null}
-                                    </>
-                                ) : ''}
-                            </div>
-                        ))}
-                    </>
-                )}
+                ))}
             </div >
 
             {/* Job Columns Cells — PC専用(表示/非表示スイッチで隠したメンバーの列は描画しない) */}
@@ -691,22 +647,6 @@ export const TimelineRow = memo(({
                     </div>
                 ))
             }
-        </div>
+        </>
     );
-}, (prevProps, nextProps) => {
-    if (prevProps.time !== nextProps.time) return false;
-    if (prevProps.top !== nextProps.top) return false;
-    if (prevProps.events !== nextProps.events) return false;
-    if (prevProps.damages !== nextProps.damages) return false;
-    if (prevProps.partyMembers !== nextProps.partyMembers) return false;
-    if (prevProps.visiblePartyMembers !== nextProps.visiblePartyMembers) return false;
-    if (prevProps.activeMitigations !== nextProps.activeMitigations) {
-        if (prevProps.activeMitigations.length !== nextProps.activeMitigations.length) return false;
-        for (let i = 0; i < prevProps.activeMitigations.length; i++) {
-            if (prevProps.activeMitigations[i] !== nextProps.activeMitigations[i]) return false;
-        }
-    }
-    if (prevProps.phaseColumnCollapsed !== nextProps.phaseColumnCollapsed) return false;
-    if (prevProps.labelColumnVisible !== nextProps.labelColumnVisible) return false;
-    return true;
-});
+}, (prevProps, nextProps) => rowPropsEqual(prevProps, nextProps, ['events', 'damages', 'activeMitigations']));

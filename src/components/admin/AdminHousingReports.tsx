@@ -44,6 +44,7 @@ interface ReportedListing {
   description: string;
   createdAt: number;
   isHidden: boolean;
+  adminHiddenScope?: 'listing' | 'owner' | null;
   reportCount: number;
   reports: ReportRecord[];
 }
@@ -80,6 +81,24 @@ export function AdminHousingReports() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const handleRestore = async (id: string) => {
+    if (!confirm(t('admin.housing_reports.restore_confirm'))) return;
+    setHidingId(id);
+    try {
+      const res = await apiFetch(
+        `/api/admin?resource=housing_reports&action=restore&listingId=${encodeURIComponent(id)}`,
+        { method: 'PATCH' },
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      showToast(t('admin.housing_reports.restore_success'));
+      await fetchData();
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : 'failed', 'error');
+    } finally {
+      setHidingId(null);
+    }
+  };
 
   const handleHide = async (id: string) => {
     if (!confirm(t('admin.housing_reports.hide_confirm'))) return;
@@ -239,6 +258,17 @@ export function AdminHousingReports() {
                   >
                     {t('admin.housing_reports.view')}
                   </Link>
+                  {/* 運営非表示の家には「元に戻す」 (restore) */}
+                  {l.adminHiddenScope && (
+                    <button
+                      type="button"
+                      onClick={() => handleRestore(l.id)}
+                      disabled={hidingId === l.id}
+                      className="px-3 py-1 text-app-base border border-app-text/30 rounded hover:bg-app-text/10 disabled:opacity-50"
+                    >
+                      {t('admin.housing_reports.restore')}
+                    </button>
+                  )}
                   {/* 非表示は isHidden=false 時のみ (既に非表示なら不要) */}
                   {!l.isHidden && (
                     <button

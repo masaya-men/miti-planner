@@ -40,10 +40,8 @@ describe('MilspecSidebar', () => {
     expect(props.onToggleSidebar).toHaveBeenCalled();
   });
 
-  // 2026-09-16: FFXIV著作物利用条件が「寄付を募ること」を商用・営利目的に明記しているため
-  // /support (Ko-fi) 導線を停止(SUPPORT_PAGE_ENABLED=false・constants/external.ts)。
-  // DEPLOYMENT パネルはその導線そのものだったため、パネルごと非表示になる。
-  it('DEPLOYMENT パネルは /support 停止中は描画されない', () => {
+  // 2026-10-05: 寄付導線は全撤去(SE 著作物利用条件 2026-09-16 改訂)。DEPLOYMENT パネルは出さない。
+  it('DEPLOYMENT パネル(旧・寄付導線)は描画されない', () => {
     const { container } = r();
     expect(container.querySelector('.milspec-deployment')).toBeNull();
     expect(container.querySelector('button.milspec-deployment-bd')).toBeNull();

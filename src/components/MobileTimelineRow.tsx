@@ -12,6 +12,7 @@ import { AnimatedDamage } from './AnimatedDamage';
 import { DamageTypeIcon } from './DamageTypeIcon';
 import { getEffectiveTarget } from '../utils/effectiveTarget';
 import { PARTY_MEMBER_IDS } from '../constants/party';
+import { rowPropsEqual } from './timeline/rowPropsEqual';
 
 interface DamageInfo {
     unmitigated: number;
@@ -39,11 +40,9 @@ interface MobileTimelineRowProps {
     onTimelineSelectHover?: (time: number) => void;
     /** 表示するイベントのインデックス（複数イベント時に1つだけ表示） */
     eventIndex?: number;
-    /** true の場合、背景を少し変える(同時刻2件目) */
-    isSecondEvent?: boolean;
-    /** true の場合、下部区切り線を出さない(同時刻2件の1件目・2件目との間の罫線を消すため) */
+    /** true の場合、下部区切り線を出さない(同時刻の複数カードのうち最後以外) */
     hideBottomDivider?: boolean;
-    /** 行の高さ (pixelsPerSecond) */
+    /** カード 1 枚の高さ (px)。呼び出し側が rowLayout の 1 段の高さを渡す */
     rowHeight?: number;
     /** 軽減アイコン専用行に横並びで入りきる最大アイコン数(画面幅から算出、呼び出し側が渡す)。
      * あふれた分は折り返さず「+N」バッジにする(2026-08-13ユーザー要望=行の高さが固定コマの
@@ -232,7 +231,6 @@ export const MobileTimelineRow = memo(({
     onTimelineSelect,
     onTimelineSelectHover,
     eventIndex,
-    isSecondEvent,
     hideBottomDivider,
     rowHeight = 80,
     maxMitiIcons,
@@ -315,7 +313,8 @@ export const MobileTimelineRow = memo(({
             setIsPressed(false);
             if (onLongPress) {
                 try { navigator.vibrate(10); } catch {}
-                onLongPress(events[0] ?? null, time);
+                // 押したカードの攻撃のメニューを開く(旧: 常に 1 件目が開く不具合)
+                onLongPress(event ?? null, time);
             }
         }, 300);
     };
@@ -392,18 +391,18 @@ export const MobileTimelineRow = memo(({
                     実機FB・2026-08-14)。合計7pxの枠内でtop/bottomへ再配分し、行の高さ(60px)は
                     不変のままコンテンツを縦方向にやや中央寄せする。 */}
                 <div className="flex-1 min-w-0 flex flex-col justify-start pt-[4px] pb-[3px] px-3 gap-1 relative">
-                    {/* 下部区切り線 (同時刻2件の1件目は2件目との間の罫線を出さない) */}
+                    {/* 下部区切り線 (同時刻の複数カードは最後のカード以外、間の罫線を出さない) */}
                     {!hideBottomDivider && (
                         <div className="absolute bottom-0 left-3 right-0 h-px bg-app-text/[0.06]" />
                     )}
                 {/* 1行目: 時間 + 種別アイコン + 攻撃名 + 対象バッジ + ダメージ */}
                 <div className="flex items-center gap-1.5 min-w-0">
-                    {/* 時間 — 同時刻2件目も実際の時刻をそのまま表示(固定幅で後続要素の開始位置を揃える)。
+                    {/* 時間 — 同時刻 2 件目以降も実際の時刻をそのまま表示(固定幅で後続要素の開始位置を揃える)。
                         mobile-row-dim-text: エフェクト表示中に濃さを一段上げる対象
                         (2026-08-13ユーザー要望=薄い文字が読みにくい。影は不採用、地の濃さで対応)。 */}
                     <span className={clsx(
                         "mobile-row-dim-text font-mono text-[15px] leading-none flex-shrink-0 w-[38px]",
-                        isSecondEvent ? "text-app-text-muted opacity-85" : "text-app-text opacity-85"
+                        idx > 0 ? "text-app-text-muted opacity-85" : "text-app-text opacity-85"
                     )}>
                         {formattedTime}
                     </span>
@@ -518,20 +517,4 @@ export const MobileTimelineRow = memo(({
             </div>{/* カード本体 end */}
         </motion.div>
     );
-}, (prevProps, nextProps) => {
-    if (prevProps.time !== nextProps.time) return false;
-    if (prevProps.top !== nextProps.top) return false;
-    if (prevProps.events !== nextProps.events) return false;
-    if (prevProps.damages !== nextProps.damages) return false;
-    if (prevProps.partyMembers !== nextProps.partyMembers) return false;
-    if (prevProps.eventIndex !== nextProps.eventIndex) return false;
-    if (prevProps.isSecondEvent !== nextProps.isSecondEvent) return false;
-    if (prevProps.onLongPress !== nextProps.onLongPress) return false;
-    if (prevProps.activeMitigations !== nextProps.activeMitigations) {
-        if (prevProps.activeMitigations.length !== nextProps.activeMitigations.length) return false;
-        for (let i = 0; i < prevProps.activeMitigations.length; i++) {
-            if (prevProps.activeMitigations[i] !== nextProps.activeMitigations[i]) return false;
-        }
-    }
-    return true;
-});
+}, (prevProps, nextProps) => rowPropsEqual(prevProps, nextProps, ['events', 'damages', 'activeMitigations']));

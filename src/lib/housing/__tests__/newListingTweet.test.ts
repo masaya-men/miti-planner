@@ -99,6 +99,58 @@ describe('buildNewListingNotification', () => {
     expect(discordContent).toContain('https://x.com/a/status/1');
   });
 
+  // 2026-10-12: HOUSING SNAP は twitter:card="photo"(X で廃止済み)のためカードが出ず、LoPo のカードが
+  // 目立ってしまう。X のポストが見つかればそれを最後(=引用先)にし、無ければ本文に制作者名を出す。
+  const bodyOf = (discordContent: string) =>
+    decodeURIComponent(discordContent.match(/intent\/tweet\?text=([^>]+)>/)![1]);
+
+  it('投稿元が HOUSING SNAP でも登録データに X のポストがあれば、それを最後の行(引用先)にする', () => {
+    const { discordContent } = buildNewListingNotification({
+      ...base, title: 'x',
+      postUrl: 'https://housingsnap.com/47813',
+      sourcePostUrls: ['https://housingsnap.com/47813', 'https://x.com/Ryndessa/status/2108137760611565932?s=20'],
+    });
+    const lines = bodyOf(discordContent).split('\n');
+    expect(lines.at(-1)).toBe('https://x.com/Ryndessa/status/2108137760611565932');
+    expect(bodyOf(discordContent)).not.toContain('housingsnap.com');
+    // 確認用には元の投稿元も残す
+    expect(discordContent).toContain('https://housingsnap.com/47813');
+  });
+
+  it('HOUSING SNAP のページから拾った本人の X ポスト (creatorPostUrl) を引用先にする', () => {
+    const { discordContent } = buildNewListingNotification({
+      ...base, title: 'x',
+      postUrl: 'https://housingsnap.com/47818',
+      creatorPostUrl: 'https://x.com/Ryndessa/status/2109303140176499156',
+      creatorName: 'Ryndessa',
+    });
+    const body = bodyOf(discordContent);
+    expect(body.split('\n').at(-1)).toBe('https://x.com/Ryndessa/status/2109303140176499156');
+    expect(body).not.toContain('housingsnap.com');
+    // 引用で本人が見えるので文字のクレジットは付けない
+    expect(body).not.toContain('制作:');
+  });
+
+  it('HOUSING SNAP で X ポストが無ければ、本文に「制作: ○○さん（HOUSING SNAP）」を入れる', () => {
+    const { discordContent } = buildNewListingNotification({
+      ...base, title: 'x',
+      postUrl: 'https://housingsnap.com/47818',
+      creatorName: 'Ryn#des@sa',
+    });
+    const body = bodyOf(discordContent);
+    expect(body).toContain('新しいハウジングが投稿されました🏠\n制作: Ryndessaさん（HOUSING SNAP）\n\n#FF14ハウジング');
+    expect(body.split('\n').at(-1)).toBe('https://housingsnap.com/47818');
+  });
+
+  it('カードが正しく出るサイト (studio-xiv 等) は従来どおり投稿元を最後にし、クレジットも付けない', () => {
+    const { discordContent } = buildNewListingNotification({
+      ...base, title: 'x', postUrl: 'https://studio-xiv.com/studio/101158/', creatorName: 'someone',
+    });
+    const body = bodyOf(discordContent);
+    expect(body.split('\n').at(-1)).toBe('https://studio-xiv.com/studio/101158/');
+    expect(body).not.toContain('制作:');
+  });
+
   it('生成されるツイート本文は280文字以内', () => {
     const { discordContent } = buildNewListingNotification({
       ...base, title: 'x', postUrl: 'https://x.com/verylongusername/status/1234567890123456789',

@@ -88,6 +88,14 @@ export async function getHousingerListings(uid: string): Promise<HousingListing[
   return fetchPublicHousinger(uid);
 }
 
+/** 公開分 + 運営非表示の家 (ハウジンガーページ専用。非表示分は画像なし・帯表示用)。 */
+export async function getHousingerListingsWithHidden(
+  uid: string,
+): Promise<{ listings: HousingListing[]; hiddenListings: HousingListing[] }> {
+  const { fetchPublicHousingerAll } = await import('./publicHousingWindow');
+  return fetchPublicHousingerAll(uid);
+}
+
 export async function upsertHousingerProfile(input: {
   isPublished?: boolean;
   bio?: string | null;

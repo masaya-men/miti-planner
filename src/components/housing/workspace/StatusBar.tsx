@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
-import { SUPPORT_PAGE_ENABLED } from '../../../constants/external';
 
 const LANGS = ['ja', 'en', 'ko', 'zh', 'zh-Hant'] as const;
 
@@ -15,7 +13,7 @@ const BUILD_VERSION = typeof __HOUSING_BUILD__ !== 'undefined' ? __HOUSING_BUILD
 
 /**
  * StatusBar — フッター (2026-07-10 刷新)。
- * 左: © LoPo + プライバシーポリシー / 利用規約 / Ko-fi (すべて別タブ)
+ * 左: © LoPo + プライバシーポリシー / 利用規約 (すべて別タブ)
  * 右: テーマ表示 · 言語スイッチャー
  *
  * BUILD / LAT・LON / STOPS / FPS のダミー数値表示は撤去。BUILD の診断価値は
@@ -45,13 +43,6 @@ export const StatusBar: React.FC = () => {
         <a href="/terms" target="_blank" rel="noopener">
           {t('footer.terms')}
         </a>
-        {/* 応援は LoPo 内の説明ページ /support を経由 (Ko-fi 直リンクは他フッター導線と不整合だった)。
-            2026-09-16: MUL 対応で /support 停止中は導線ごと非表示(constants/external.ts 参照)。 */}
-        {SUPPORT_PAGE_ENABLED && (
-          <Link to="/support">
-            {t('footer.kofi')}
-          </Link>
-        )}
       </div>
 
       <div className="housing-status-group">

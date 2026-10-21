@@ -7,8 +7,6 @@ import { SharePage } from './components/SharePage';
 // ⑤-3b: ジョイナーページは collabProvider(yjs/y-partyserver)を静的 import するため、
 // 遅延ロードしてソロ利用者の初期 bundle に yjs を載せない(設計の遅延ロード方針維持)。
 const CollabJoinerPage = lazy(() => import('./components/CollabJoinerPage'));
-import { SupportPage } from './components/SupportPage';
-import { SUPPORT_PAGE_ENABLED } from './constants/external';
 import StrategyBoardPastePage from './components/StrategyBoardPastePage';
 import { HousingDetailPage } from './components/housing/listing/HousingDetailPage';
 import { HousingShell } from './components/housing/shell/HousingShell';
@@ -27,7 +25,7 @@ import { AllmarksAnimationPreviewPage } from './components/housing/dev/AllmarksA
 import { isAppRoute, rememberAppRoute } from './lib/lastAppRoute';
 import { requestPersistentStorage } from './lib/requestPersistentStorage';
 
-import { PrivacyPolicyPage, TermsPage, CommercialDisclosurePage } from './components/LegalPage';
+import { PrivacyPolicyPage, TermsPage, AboutPage } from './components/LegalPage';
 import { AdminGuard } from './components/admin/AdminGuard';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { AdminDashboard } from './components/admin/AdminDashboard';
@@ -93,8 +91,9 @@ function AppRoutes() {
       <Route path="/share/:shareId" element={<SharePage />} />
       {/* ⑤-3b: ジョイナー読み取り専用ライブビュー(招待リンク専用・内部導線なし)。lazy chunk。 */}
       <Route path="/collab/:roomToken" element={<Suspense fallback={null}><CollabJoinerPage /></Suspense>} />
-      {/* 2026-09-16: MUL(寄付募集=商用・営利目的に該当)対応で一時停止。constants/external.ts 参照。 */}
-      <Route path="/support" element={SUPPORT_PAGE_ENABLED ? <SupportPage /> : <Navigate to="/" replace />} />
+      {/* 2026-10-05: SE 著作物利用条件(2026-09-16 改訂)で寄付募集が商用・営利目的と明記されたため、寄付導線と特商法ページを撤去。旧 URL はトップへ。 */}
+      <Route path="/support" element={<Navigate to="/" replace />} />
+      <Route path="/commercial" element={<Navigate to="/" replace />} />
       <Route path="/stgy" element={<StrategyBoardPastePage />} />
 
       {/* 再構築: URL タブで切り替わるシェル。子ルートは第1スパンで探すのみ、
@@ -139,9 +138,9 @@ function AppRoutes() {
       {import.meta.env.DEV && (
         <Route path="/housing/dev/routes" element={<RouteAuthoringPage />} />
       )}
+      <Route path="/about" element={<AboutPage />} />
       <Route path="/privacy" element={<PrivacyPolicyPage />} />
       <Route path="/terms" element={<TermsPage />} />
-      <Route path="/commercial" element={<CommercialDisclosurePage />} />
       {/* 管理画面 */}
       <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
         <Route index element={<AdminDashboard />} />

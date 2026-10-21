@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { REPORT_REASONS, type ReportReason } from '../../../types/housing';
 import { useHousingReport } from './useHousingReport';
 import { showToast } from '../../Toast';
+import { HousingPanelModal } from '../HousingPanelModal';
 
 export interface HousingReportModalProps {
   open: boolean;
@@ -51,62 +52,59 @@ export const HousingReportModal: React.FC<HousingReportModalProps> = ({
     }
   };
 
+  // 見た目は他の新しいモーダル (登録・ログイン等) と同じ HousingPanelModal 基盤 (2026-10-13)。
   return (
-    <div className="housing-modal-backdrop" onClick={onClose} role="presentation">
-      <div
-        role="dialog"
-        aria-modal="true"
-        className="housing-report-modal"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="housing-report-title">
-          {t('housing.report.modal.title')}
-        </h2>
-        <p className="housing-report-subtitle">
-          {t('housing.report.modal.subtitle')}
-        </p>
-        <ul className="housing-report-reasons">
-          {REPORT_REASONS.map((r) => (
-            <li key={r}>
-              <label>
-                <input
-                  type="radio"
-                  name="housing-report-reason"
-                  value={r}
-                  checked={reason === r}
-                  onChange={() => setReason(r)}
-                />
-                {t(`housing.report.reason.${r}`)}
-              </label>
-            </li>
-          ))}
-        </ul>
-        <textarea
-          className="housing-report-comment"
-          placeholder={
-            commentRequired
-              ? t('housing.report.comment.placeholder_required')
-              : t('housing.report.comment.placeholder')
-          }
-          value={comment}
-          onChange={(e) => setComment(e.target.value.slice(0, 500))}
-          maxLength={500}
-          rows={3}
-        />
-        <div className="housing-report-actions">
-          <button type="button" onClick={onClose} disabled={loading}>
-            {t('housing.report.cancel')}
-          </button>
-          <button
-            type="button"
-            onClick={submit}
-            disabled={!canSubmit || loading}
-            className="housing-btn-primary"
-          >
-            {t('housing.report.submit')}
-          </button>
-        </div>
+    <HousingPanelModal
+      open={open}
+      onClose={onClose}
+      title={t('housing.report.modal.title')}
+      closeLabel={t('housing.report.cancel')}
+      maxWidth={440}
+    >
+      <p className="housing-report-subtitle">
+        {t('housing.report.modal.subtitle')}
+      </p>
+      <ul className="housing-report-reasons">
+        {REPORT_REASONS.map((r) => (
+          <li key={r}>
+            <label>
+              <input
+                type="radio"
+                name="housing-report-reason"
+                value={r}
+                checked={reason === r}
+                onChange={() => setReason(r)}
+              />
+              {t(`housing.report.reason.${r}`)}
+            </label>
+          </li>
+        ))}
+      </ul>
+      <textarea
+        className="housing-report-comment"
+        placeholder={
+          commentRequired
+            ? t('housing.report.comment.placeholder_required')
+            : t('housing.report.comment.placeholder')
+        }
+        value={comment}
+        onChange={(e) => setComment(e.target.value.slice(0, 500))}
+        maxLength={500}
+        rows={3}
+      />
+      <div className="housing-report-actions">
+        <button type="button" onClick={onClose} disabled={loading}>
+          {t('housing.report.cancel')}
+        </button>
+        <button
+          type="button"
+          onClick={submit}
+          disabled={!canSubmit || loading}
+          className="housing-btn-primary"
+        >
+          {t('housing.report.submit')}
+        </button>
       </div>
-    </div>
+    </HousingPanelModal>
   );
 };

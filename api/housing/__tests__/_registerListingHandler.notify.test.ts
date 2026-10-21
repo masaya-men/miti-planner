@@ -107,6 +107,42 @@ beforeEach(() => {
 });
 
 describe('register-listing の新着通知', () => {
+  // 2026-10-12: HOUSING SNAP はカードが出ないため、ページ内の作者本人の X ポストを引用先にする
+  it('投稿元が HOUSING SNAP だけなら、ページから作者の X ポストを拾って下書きの引用先にする', async () => {
+    listingDocData = { ...listingDocData, postUrl: 'https://housingsnap.com/47818', sourcePostUrls: ['https://housingsnap.com/47818'] };
+    fetchMock.mockImplementation(async (url?: unknown) => (String(url) === 'https://housingsnap.com/47818'
+      ? ({ ok: true, text: async () => '<a href="/?user=T56">Ryndessa</a><a href="https://x.com/Ryndessa/status/2109303140176499156">X</a>' }) as unknown as Response
+      : ({ ok: true }) as Response));
+    const { req, res } = makeReqRes(validBody);
+    await handler(req, res);
+    expect(res.statusCode).toBe(200);
+    expect(fetchMock.mock.calls.some(([u]) => String(u) === 'https://housingsnap.com/47818')).toBe(true);
+    const content = decodeURIComponent(sendNotifyMock.mock.calls[0][0]);
+    expect(content).toContain('https://lopoly.app/housing/listing/');
+    expect(content).toMatch(/https:\/\/x\.com\/Ryndessa\/status\/2109303140176499156>/); // 本文の最後 = 引用先
+  });
+
+  it('登録データに X のポストがあれば HOUSING SNAP のページは取りに行かない', async () => {
+    listingDocData = { ...listingDocData, postUrl: 'https://housingsnap.com/47813', sourcePostUrls: ['https://housingsnap.com/47813', 'https://x.com/Ryndessa/status/2108137760611565932'] };
+    const { req, res } = makeReqRes(validBody);
+    await handler(req, res);
+    expect(res.statusCode).toBe(200);
+    expect(fetchMock.mock.calls.some(([u]) => String(u).includes('housingsnap.com'))).toBe(false);
+    expect(decodeURIComponent(sendNotifyMock.mock.calls[0][0])).toContain('https://x.com/Ryndessa/status/2108137760611565932');
+  });
+
+  it('HOUSING SNAP のページ取得が失敗しても登録は 200・通知も送られる', async () => {
+    listingDocData = { ...listingDocData, postUrl: 'https://housingsnap.com/47818' };
+    fetchMock.mockImplementation(async (url?: unknown) => {
+      if (String(url).includes('housingsnap.com')) throw new Error('network');
+      return ({ ok: true }) as Response;
+    });
+    const { req, res } = makeReqRes(validBody);
+    await handler(req, res);
+    expect(res.statusCode).toBe(200);
+    expect(sendNotifyMock).toHaveBeenCalledTimes(1);
+  });
+
   it('一般ユーザーの public 登録で通知が送られる', async () => {
     const { req, res } = makeReqRes(validBody);
     await handler(req, res);

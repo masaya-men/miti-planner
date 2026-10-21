@@ -32,12 +32,26 @@ export async function fetchPublicGallery(): Promise<HousingListing[]> {
   return Array.isArray(listings) ? listings : [];
 }
 
-export async function fetchPublicHousinger(uid: string): Promise<HousingListing[]> {
+/**
+ * ハウジンガーページ用: 公開分 (listings) + 運営非表示の家 (hiddenListings・画像系フィールドなし)。
+ * hiddenListings は「非表示の帯」付きカード表示専用 (一覧・検索・ツアー等には使わない)。
+ */
+export async function fetchPublicHousingerAll(
+  uid: string,
+): Promise<{ listings: HousingListing[]; hiddenListings: HousingListing[] }> {
   const v = await fetchVersion();
-  const { listings } = await getJson<{ listings: HousingListing[] }>(
-    `${BASE}?action=housinger&uid=${encodeURIComponent(uid)}&v=${v}`,
-  );
-  return Array.isArray(listings) ? listings : [];
+  const { listings, hiddenListings } = await getJson<{
+    listings: HousingListing[];
+    hiddenListings?: HousingListing[];
+  }>(`${BASE}?action=housinger&uid=${encodeURIComponent(uid)}&v=${v}`);
+  return {
+    listings: Array.isArray(listings) ? listings : [],
+    hiddenListings: Array.isArray(hiddenListings) ? hiddenListings : [],
+  };
+}
+
+export async function fetchPublicHousinger(uid: string): Promise<HousingListing[]> {
+  return (await fetchPublicHousingerAll(uid)).listings;
 }
 
 /**

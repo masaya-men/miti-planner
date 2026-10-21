@@ -354,7 +354,7 @@ export default async function handler(req: any, res: any) {
 
   // ビルド済みindex.htmlを取得してメタタグを差し替え (_sharePageHandler.ts と同じ手法)。
   try {
-    const indexRes = await fetch(`${origin}/index.html`);
+    const indexRes = await fetch(`${origin}/app.html`); // / 専用の SEO 区間を除いた土台 (vite.config.ts topOnlySeoPlugin)
 
     if (indexRes.ok) {
       let html = await indexRes.text();

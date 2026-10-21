@@ -29,6 +29,7 @@ import { pickRegionLocale } from '../../../data/housing/regionMap';
 import { isAddressHidden } from '../../../lib/housing/listingPublish';
 import { useHousingReport } from '../report/useHousingReport';
 import { showToast } from '../../Toast';
+import { LOPO_DISCORD_URL } from '../../../lib/systemNotifLinks';
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 
 /** 家主が通報通知から開いた時に詳細内へ出す案内 (任意) */
@@ -145,9 +146,22 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
       : [];
   const [viewOriginalOpen, setViewOriginalOpen] = useState(false);
 
+  // 運営が非表示にした自分の家: 通報案内 (自己解除ボタン付き) の代わりに運営からの案内 + Discord 導線。
+  const adminHiddenOwn = Boolean(listing.adminHiddenScope) && viewerUid !== null && viewerUid === listing.ownerUid;
+
   return (
     <div className="housing-detail-body">
-      {reportNotice && (
+      {adminHiddenOwn && (
+        <div className="housing-detail-report-banner" role="alert" data-testid="housing-admin-hidden-notice">
+          <p className="housing-detail-report-body">{t('housing.guide.admin_hidden_note')}</p>
+          <div className="housing-detail-report-actions">
+            <a href={LOPO_DISCORD_URL} target="_blank" rel="noopener noreferrer">
+              {t('housing.guide.admin_hidden_cta')}
+            </a>
+          </div>
+        </div>
+      )}
+      {reportNotice && !adminHiddenOwn && (
         <div className="housing-detail-report-banner" role="alert">
           <p className="housing-detail-report-title">{t('housing.guide.title')}</p>
           <p className="housing-detail-report-reason">

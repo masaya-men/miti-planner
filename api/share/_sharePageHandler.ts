@@ -121,7 +121,7 @@ export default async function handler(req: any, res: any) {
             || (previewPattern.test(rawHost) ? rawHost : null)
             || 'lopoly.app';
         const protocol = host.includes('localhost') ? 'http' : 'https';
-        const indexRes = await fetch(`${protocol}://${host}/index.html`);
+        const indexRes = await fetch(`${protocol}://${host}/app.html`); // / 専用の SEO 区間を除いた土台 (vite.config.ts topOnlySeoPlugin)
 
         if (indexRes.ok) {
             let html = await indexRes.text();

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Shuffle } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { ListingCard } from './ListingCard';
+import { HiddenListingCard } from './HiddenListingCard';
 import { BrowseSortSelect, type BrowseSortOrder } from './BrowseSortSelect';
 import { useHousingListOrderStore, type HousingListKey } from '../../../store/useHousingListOrderStore';
 import { useHousingHomeScrollSignal } from '../../../store/useHousingHomeScrollSignal';
@@ -116,7 +117,9 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
         </div>
       </div>
       <div className="housing-listing-grid" ref={containerRef}>
-        {listings.map((l) => (
+        {listings.map((l) => l.adminHidden ? (
+          <HiddenListingCard key={l.id} listing={l} />
+        ) : (
           <ListingCard
             key={l.id}
             listing={l}

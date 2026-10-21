@@ -189,6 +189,8 @@ phaseTransitions: [{ id: 1, startTime: 0 }, { id: 2, startTime: 180000 }, ...]
 
 ### Step 11: スケジューリング（現行維持）
 
+> **2026-09-26 廃止**: 同じ秒に 3 つ以上の攻撃を表示できるようになったため、ずらしをやめて本当の秒のまま取り込む(`docs/superpowers/specs/2026-09-26-multi-attack-rows-design.md`)。
+
 同秒に3イベント以上ある場合の競合解消。
 
 ```
