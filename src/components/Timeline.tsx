@@ -77,6 +77,8 @@ import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 import { RecastRow, type RecastRowHandle } from './RecastRow';
 import { JobPickerRow } from './JobPickerRow';
 import { MilspecControlDeck } from './military/table/MilspecControlDeck';
+import { useSortSlide } from './military/table/useSortSlide';
+import { MilspecJackBoard } from './military/table/MilspecJackBoard';
 import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
 import { MemoFloatingBar } from './Memo/MemoFloatingBar';
@@ -131,6 +133,8 @@ interface MitigationItemProps {
     // colStart=0 で左端に描画されて「左から飛んでくる」 のを防ぐ。
     // false の間はアイコンを visibility: hidden で隠す。
     layoutReady?: boolean;
+    /** 軍事テーマ: 並び替えで列が動いたとき滑る(標準では未指定) */
+    slideOnSort?: boolean;
     /** timelineMitigations から派生した競合フラグ（親が useMemo で算出して渡す） */
     isConflicting?: boolean;
     /** エフェクト棒クリック時、下にある配置マス目と同じ挙動にするための転送先(TimelineRowのonCellClickと同一関数)。
@@ -233,7 +237,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         top, height, left, partySortOrder,
         scrollContainerRef, activeMitigations, overlapOffset = 0,
         isVirtual = false, iconOverride, layoutReady = true, grayscale = false,
-        onCellClick
+        onCellClick, slideOnSort
     } = props;
 
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -246,6 +250,8 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const autoScrollRef = useRef<number | null>(null);
     const lastPointerYRef = useRef<number>(0);
     const containerRef = useRef<HTMLDivElement>(null);
+    // 軍事テーマ: 並び替えで列が動いたら効果アイコンが滑る(標準では何もしない)
+    useSortSlide(containerRef, { left, sortOrder: partySortOrder ?? 'role', enabled: !!slideOnSort, delay: 40 + (Math.round(top / 25) % 16) * 25 });
     const indicatorRef = useRef<HTMLDivElement>(null);
     const timeLabelRef = useRef<HTMLDivElement>(null);
 
@@ -3052,7 +3058,11 @@ const Timeline: React.FC = () => {
                             </>
                             )}
                             {/* セッション 18 案 C1 物理移動: ジョブアイコン行を controlBar の右端に */}
+                            {isMilspecTable && (
+                                <MilspecJackBoard members={visiblePartyMembers} partySortOrder={partySortOrder} memberLayout={memberLayout} />
+                            )}
                             <JobPickerRow
+                                variant={isMilspecTable ? 'socket' : undefined}
                                 partyMembers={visiblePartyMembers}
                                 partySortOrder={partySortOrder}
                                 getJobIcon={getJobIcon}
@@ -3783,6 +3793,7 @@ const Timeline: React.FC = () => {
                                                             layoutReady={layout !== undefined}
                                                             isConflicting={conflictingIds.has(mitigation.id) && mitigation.id !== lastPlacedMitigationId}
                                                             onCellClick={handleCellClick}
+                                                            slideOnSort={isMilspecTable}
                                                         />
                                                     );
                                                 });

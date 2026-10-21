@@ -1,0 +1,35 @@
+/* ジョブの差込口(見本 v11 css:379-392)。D-sub の金属シェル + 六角スタンドオフ。全規則 .theme-military 前置。
+   MilspecJackRow からだけ import する。 */
+
+/* 列の箱(実測の正典)。境界線・背景は持たない(差込口と基板が見える) */
+.theme-military .milspec-jack-cell { border: 0; background: none; box-shadow: none; }
+/* 差込口は列の中心・見本の区画の上から 5px */
+.theme-military .milspec-jack {
+  position: absolute; left: 50%; top: 5px; width: 34px; height: 26px; margin-left: -17px;
+  padding: 0; border: 0; background: none; cursor: pointer;
+  transition: transform 300ms cubic-bezier(.2,1.25,.35,1);
+}
+.theme-military .milspec-jack-sk { position: absolute; inset: 0; display: block; }
+.theme-military .milspec-jack svg { position: absolute; left: 0; top: 0; overflow: visible; }
+.theme-military .milspec-jack img {
+  position: absolute; left: 9px; top: 5px; width: 16px; height: 16px; border-radius: 1px;
+  object-fit: contain; transition: filter 160ms;
+}
+.theme-military .milspec-jack .fl { fill: url(#stl-fl); stroke: rgba(0,0,0,0.6); stroke-width: 0.5; }
+.theme-military .milspec-jack .shell { fill: url(#stl-sh); stroke: rgba(0,0,0,0.7); stroke-width: 0.5; }
+.theme-military .milspec-jack .mouth { fill: #050606; }
+.theme-military .milspec-jack .nut { fill: url(#stl-nut); stroke: rgba(0,0,0,0.6); stroke-width: 0.4; }
+.theme-military .milspec-jack .hole { fill: #060707; }
+.theme-military .milspec-jack .rimh { fill: none; stroke: rgba(255,255,255,0); stroke-width: 0.8; transition: stroke 180ms; }
+.theme-military .milspec-jack:hover { transform: translateY(-0.6px); }
+.theme-military .milspec-jack:hover img { filter: brightness(1.18) saturate(1.1); }
+.theme-military .milspec-jack:hover .rimh { stroke: rgba(255,255,255,0.45); }
+.theme-military .milspec-jack:active { transform: translateY(0.8px) scale(0.96); transition: transform 70ms cubic-bezier(.7,0,1,.6); }
+
+/* 基板(差込口の背面)。controlBar の内側に敷く = 横スクロールで一緒に動く。
+   左端 = 副装甲(.milspec-deck-bp)の左端 + 4px(見本 JX+4)、右端 = 右から 5px(pw = bw - 9) */
+.theme-military .milspec-jackboard {
+  position: absolute; top: 4px; height: 32px; z-index: -1; pointer-events: none;
+  left: calc(var(--col-member-start) - 2px); right: 5px;
+}
+.theme-military .milspec-jackboard > svg { position: absolute; left: 0; top: 0; overflow: visible; }

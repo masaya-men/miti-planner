@@ -6,8 +6,9 @@ import type { Job, PartyMember } from '../types';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { getColumnCssVar } from '../utils/calculator';
 import { Tooltip } from './ui/Tooltip';
+import { MilspecJackRow } from './military/table/MilspecJackRow';
 
-interface JobPickerRowProps {
+export interface JobPickerRowProps {
     partyMembers: PartyMember[];
     partySortOrder: 'role' | 'light_party';
     /** jobId → icon url の解決関数 (Timeline.tsx 内 getJobIcon と整合) */
@@ -19,6 +20,8 @@ interface JobPickerRowProps {
     /** メンバーセルの ref を取得する callback factory */
     getMemberRefCallback: (id: string) => (el: HTMLDivElement | null) => void;
     t: TFunction;
+    /** 'socket' = 軍事テーマの差込口(中身だけ差し替え。外側 div・ref・data 属性・クリックは同じ)。未指定 = 標準 */
+    variant?: 'socket';
 }
 
 /**
@@ -40,7 +43,12 @@ export const JobPickerRow: React.FC<JobPickerRowProps> = ({
     handleJobIconClick,
     getMemberRefCallback,
     t,
+    variant,
+    jobs,
 }) => {
+    if (variant === 'socket') {
+        return <MilspecJackRow partyMembers={partyMembers} partySortOrder={partySortOrder} getJobIcon={getJobIcon} jobs={jobs} handleJobIconClick={handleJobIconClick} getMemberRefCallback={getMemberRefCallback} t={t} />;
+    }
     return (
         <>
             {partyMembers.map((member, index) => (

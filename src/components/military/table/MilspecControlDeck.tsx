@@ -60,7 +60,8 @@ const capPos = (cap: CapSpec): React.CSSProperties => {
   return { left: b.x, top: b.y };
 };
 
-const TRACES = [{ name: 'lk:tb', d: `M 0 -2 H ${DECK_W}`, pc: 'leak' }];
+/** 漏れ光の経路(見本 js:962: 区画の幅いっぱい = 操作列 + ジョブ欄の右端まで) */
+export const leakTrace = (w: number) => [{ name: 'lk:tb', d: `M 0 -2 H ${w}`, pc: 'leak' }];
 
 export function MilspecControlDeck(p: MilspecControlDeckProps) {
   const { t } = useTranslation();
@@ -70,6 +71,17 @@ export function MilspecControlDeck(p: MilspecControlDeckProps) {
   // 見本の固定寸法(570px)を、表の左 6 列ぶんの実幅へ縮める(狭い画面で右のジョブ行に重ならないように)
   const wrapRef = React.useRef<HTMLDivElement>(null);
   const [scale, setScale] = React.useState(1);
+  // 漏れ光は操作列全体(= 親 #timeline-controls-inner)の幅 + 左右の張り出し 10px まで伸ばす
+  const [rowW, setRowW] = React.useState(0);
+  React.useLayoutEffect(() => {
+    const host = wrapRef.current?.parentElement;
+    if (!host || typeof ResizeObserver === 'undefined') return;
+    const apply = () => setRowW((prev) => (prev === host.clientWidth ? prev : host.clientWidth));
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(host);
+    return () => ro.disconnect();
+  }, []);
   React.useLayoutEffect(() => {
     const el = wrapRef.current;
     if (!el || typeof ResizeObserver === 'undefined') return;
@@ -105,7 +117,7 @@ export function MilspecControlDeck(p: MilspecControlDeckProps) {
         {/* 装甲の左上 = 見本の区画の原点(表の左端より 10px 左) */}
         <div className="milspec-deck-o" style={{ width: DECK_W, height: DECK_H, transform: scale < 1 ? `scale(${scale})` : undefined }}>
           <MilspecArmor id="deck" frame={DECK_FRAME} panels={panels} />
-          <MilspecFxLayer traces={TRACES} />
+          <MilspecFxLayer traces={leakTrace(Math.max(DECK_W, (rowW + 10) / scale))} />
 
           <div className="milspec-grp" style={{ left: 12, top: 2.5, width: 312 }}>
             <MilspecStencil en="TABLE DISPLAY" sub={t('milspec.tbl_display_sub')} hi style={{ position: 'static' }} />
