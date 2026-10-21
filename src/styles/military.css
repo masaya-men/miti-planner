@@ -2943,7 +2943,7 @@
 .theme-military .milspec-pcb .silk { fill: var(--ma-pcb-silk); font: 600 3.1px/1 'Saira Semi Condensed', sans-serif; letter-spacing: 0.14em; }
 .theme-military .milspec-pcb .term { fill: #020403; stroke: var(--ma-gold); stroke-width: 0.45; }
 .theme-military .milspec-pcb .tp { fill: none; stroke: var(--ma-gold); stroke-width: 0.6; }
-.theme-military .milspec-pcb .xtal { stroke: rgba(0,0,0,0.6); stroke-width: 0.3; }
+.theme-military .milspec-pcb .xtal { fill: url(#stl-sh); stroke: rgba(0,0,0,0.6); stroke-width: 0.3; }
 .theme-military .milspec-pcb .crt-yd { fill: none; stroke: var(--ma-pcb-silk); stroke-width: 0.3; stroke-dasharray: 1.2 1; opacity: 0.55; }
 .theme-military .milspec-pcb .hatch { fill: var(--ma-cu); }
 .theme-military .milspec-pcb .gnd { opacity: 0.6; }

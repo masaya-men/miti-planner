@@ -47,11 +47,11 @@ export function planCoreSVG(o: { h: number; id: string }): string {
   };
 
   const shape: Pt[] = [[0, 0], [w, 0], [w, 418.6], [216.6, h0], [0, h0]];
-  // 定義(クリップ・光だまりの放射グラデ・グラウンドの網目・水晶の金属グラデ)
+  // 定義(クリップ・光だまりの放射グラデ・グラウンドの網目。水晶の金属は共通 defs の stl-sh を CSS で参照)
   add(`<defs><clipPath id="${o.id}"><polygon points="${P(YP(shape))}"/></clipPath>` +
     `<radialGradient id="${o.id}g"><stop offset="0" style="stop-color:var(--ma-sig);stop-opacity:0.5"/><stop offset="0.45" style="stop-color:var(--ma-sig);stop-opacity:0.12"/><stop offset="1" style="stop-color:var(--ma-sig);stop-opacity:0"/></radialGradient>` +
     `<pattern id="${o.id}h" width="2.2" height="2.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="0.35" height="2.2" class="hatch"/></pattern>` +
-    `<linearGradient id="${o.id}x" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="0.35" stop-color="#c2c8cd"/><stop offset="1" stop-color="#7d858c"/></linearGradient></defs>`);
+    `</defs>`);
   add(`<g clip-path="url(#${o.id})">`);
   add(`<polygon points="${P(YP(shape))}" class="brd"/>`);
   // グラウンドの網目(左下)と、縁のビアの縫い目
@@ -85,7 +85,7 @@ export function planCoreSVG(o: { h: number; id: string }): string {
   rect(C[0] - half - 6, C[1] - half - 6, half * 2 + 12, half * 2 + 12, 'crt-yd');
   qfp4(C[0] - half, C[1] - half, half * 2);
   silk(C[0], C[1] + half + 10.5, 'PLAN CORE', 'middle');
-  add(`<rect x="${C[0] + 19}" y="${n2(Y(C[1] - 27))}" width="9" height="3.6" rx="1.8" class="xtal" fill="url(#${o.id}x)"/>`);
+  add(`<rect x="${C[0] + 19}" y="${n2(Y(C[1] - 27))}" width="9" height="3.6" rx="1.8" class="xtal"/>`);
   silk(C[0] + 19, C[1] - 29, 'Y1');
   ([[C[0] - 20, C[1] - 20], [C[0] + 17, C[1] - 20], [C[0] - 20, C[1] + 18.6], [C[0] + 17, C[1] + 18.6]] as Pt[]).forEach(([x, y]) => smd(x, y, 2.6, 1.2));
   ([[24, 312, 'TP1'], [w - 30, 312, 'TP2'], [62, 440, 'TP3']] as [number, number, string][]).forEach(([x, y, t]) => {
