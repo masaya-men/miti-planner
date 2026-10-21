@@ -59,4 +59,23 @@ describe('MilspecBackdropVideo', () => {
     setHidden(true); setHidden(false);
     expect(play).not.toHaveBeenCalled();
   });
+
+  it('動きを減らす設定では preload=none、通常は auto', () => {
+    const a = render(<MilspecBackdropVideo />);
+    expect(a.container.querySelector('video')!.getAttribute('preload')).toBe('auto');
+    a.unmount();
+    reduce = true;
+    const b = render(<MilspecBackdropVideo />);
+    expect(b.container.querySelector('video')!.getAttribute('preload')).toBe('none');
+  });
+
+  it('タブが非表示のままマウントされたら、マウント直後に pause し play しない', () => {
+    Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+    const pause = vi.mocked(HTMLMediaElement.prototype.pause);
+    const play = vi.mocked(HTMLMediaElement.prototype.play);
+    pause.mockClear(); play.mockClear();
+    render(<MilspecBackdropVideo />);
+    expect(pause).toHaveBeenCalled();
+    expect(play).not.toHaveBeenCalled();
+  });
 });

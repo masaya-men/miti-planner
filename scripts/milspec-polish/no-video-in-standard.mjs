@@ -17,8 +17,8 @@ if (process.argv.includes('--sw')) {
   if (/wall/.test(sw)) { console.error('NG C: dist/sw.js の precache に wall が含まれている'); fail++; }
   else console.log('OK C: SW precache に動画/poster なし');
 } else {
-  for (const military of [false, true]) {
-    const { browser, page } = await launch({ theme: 'dark' });
+  for (const [military, phone] of [[false, false], [true, false], [false, true], [true, true]]) {
+    const { browser, page } = await launch({ theme: 'dark', ...(phone ? { viewport: { width: 390, height: 844 } } : {}) });
     const hits = [];
     // dev の `?import` はモジュール(resourceType=script)で URL 文字列を返すだけ。実ダウンロードは media/image のみ数える。
     page.on('request', (r) => { if (['media', 'image'].includes(r.resourceType()) && isVideo(r.url())) hits.push(r.url()); });
@@ -26,6 +26,12 @@ if (process.argv.includes('--sw')) {
     if (military) await applyFixture(page, { military: true });
     await page.waitForTimeout(2500);
     await browser.close();
+    if (phone) {
+      const mode = military ? '軍事' : '標準';
+      if (hits.length) { console.error('NG D: スマホ幅(' + mode + ')で動画リクエスト', hits); fail++; }
+      else console.log('OK D: スマホ幅 ' + mode + 'モード 動画リクエスト 0 件');
+      continue;
+    }
     if (!military && hits.length) { console.error('NG A: 標準モードで動画リクエスト', hits); fail++; }
     if (!military && !hits.length) console.log('OK A: 標準モード 動画リクエスト 0 件');
     if (military && !hits.some((u) => u.includes('wall'))) { console.error('NG B: 軍事モードで wall 動画が要求されない'); fail++; }

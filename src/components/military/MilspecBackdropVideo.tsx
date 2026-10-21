@@ -19,6 +19,7 @@ export function MilspecBackdropVideo() {
     if (reduced) { v.pause(); return; }
     const sync = () => { if (document.hidden) v.pause(); else v.play().catch(() => {}); };
     document.addEventListener('visibilitychange', sync);
+    sync();
     return () => document.removeEventListener('visibilitychange', sync);
   }, [reduced]);
 
@@ -32,7 +33,7 @@ export function MilspecBackdropVideo() {
         loop
         muted
         playsInline
-        preload="auto"
+        preload={reduced ? 'none' : 'auto'}
         poster={wallPoster}
         disablePictureInPicture
         disableRemotePlayback
