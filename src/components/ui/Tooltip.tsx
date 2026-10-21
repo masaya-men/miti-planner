@@ -15,12 +15,16 @@ interface TooltipProps {
     invert?: boolean;
     /** true: glassの箱・余白・角丸を一切付けず content をそのまま浮かべる(アイコンだけのプレビュー等)。 */
     bare?: boolean;
+    /** true: カーソルの下に出す(既定はカーソルの右横)。軍事の表で照準のタグと重ならないための指定。未指定なら従来どおり。 */
+    below?: boolean;
 }
 
 // カーソル右横からの距離
 const CURSOR_OFFSET_X = 16;
 // 画面端からの最小マージン
 const VIEWPORT_PADDING = 8;
+// below 指定時: カーソルの下に出すときの距離(照準のタグはアイコンの上側右にあるので重ならない)
+const BELOW_OFFSET_Y = 26;
 
 export const Tooltip: React.FC<TooltipProps> = ({
     content,
@@ -29,6 +33,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     className,
     wrapperClassName,
     bare = false,
+    below = false,
 }) => {
     const [isVisible, setIsVisible] = useState(false);
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -54,8 +59,13 @@ export const Tooltip: React.FC<TooltipProps> = ({
         let left = x + CURSOR_OFFSET_X;
         let top = y - ph / 2;
 
-        // 右端はみ出し → 左側に配置
-        if (left + pw > vw - VIEWPORT_PADDING) {
+        if (below) {
+            // カーソルの真下(横は中心揃え)。下にはみ出すときだけ上へ
+            left = x - pw / 2;
+            top = y + BELOW_OFFSET_Y;
+            if (top + ph > vh - VIEWPORT_PADDING) top = y - BELOW_OFFSET_Y - ph;
+        } else if (left + pw > vw - VIEWPORT_PADDING) {
+            // 右端はみ出し → 左側に配置
             left = x - CURSOR_OFFSET_X - pw;
         }
 
@@ -65,7 +75,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
         popup.style.left = `${left}px`;
         popup.style.top = `${top}px`;
-    }, []);
+    }, [below]);
 
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
         cursorRef.current = { x: e.clientX, y: e.clientY };

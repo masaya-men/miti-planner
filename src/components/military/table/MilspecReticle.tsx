@@ -76,7 +76,7 @@ function resolveHead(t: Element): Hit | null {
   const th = t.closest('#timeline-header-inner > :nth-child(-n+4)');
   if (!th) return null;
   return {
-    key: th, box: th, pad: CELL_PAD,
+    key: th, box: th, pad: 0, // 見出しの上端で切れないよう枠は内側に収める
     text: () => 'SORT · ' + (HEAD_STAMPS[Array.from(th.parentElement?.children ?? []).indexOf(th)] ?? ''),
   };
 }
@@ -177,7 +177,7 @@ function MilspecReticleImpl({ rootRef }: MilspecReticleProps) {
     <>
       <div ref={sheetRet} className="milspec-ret" data-reduced={reduced || undefined} aria-hidden="true"><RetBody /></div>
       {head && createPortal(
-        <div ref={headRet} className="milspec-ret" data-reduced={reduced || undefined} aria-hidden="true"><RetBody /></div>,
+        <div ref={headRet} className="milspec-ret" data-head="" data-reduced={reduced || undefined} aria-hidden="true"><RetBody /></div>,
         head,
       )}
     </>

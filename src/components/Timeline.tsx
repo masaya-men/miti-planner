@@ -556,7 +556,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                     onTouchEnd={handleTouchEnd}
                     onTouchMove={handleTouchMove}
                 >
-                    <Tooltip content={`${nameStr || t('timeline.mitigation')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint')}`} wrapperClassName="w-full h-full">
+                    <Tooltip content={`${nameStr || t('timeline.mitigation')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint')}`} wrapperClassName="w-full h-full" below={slideOnSort || undefined}>
                         <div
                             data-mit-icon=""
                             data-mit-t={slideOnSort ? mitigation.time : undefined}
@@ -637,6 +637,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                         <Tooltip
                             content={<img src={iconUrl} alt="" className="w-4 h-4 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" />}
                             bare
+                            below={slideOnSort || undefined}
                             // Tooltipのデフォルトwrapperはw-fit/h-fit(fit-content)なので、left+rightだけ
                             // 指定してもfit-contentが優先されてしまい伸びない(実機で「ホバーしても
                             // 何も出ない」不具合の原因=中身が事実上0サイズに潰れていた)。w-auto/h-autoで

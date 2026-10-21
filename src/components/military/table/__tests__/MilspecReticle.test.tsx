@@ -129,4 +129,23 @@ describe('MilspecReticle(表の照準)', () => {
     act(() => { q('icon').dispatchEvent(Object.assign(new Event('pointerover', { bubbles: true }), { buttons: 1 })); });
     expect(ret.classList.contains('on')).toBe(false);
   });
+
+  it('unmount で listener と待機中の rAF が解除される', () => {
+    const cancel = vi.fn();
+    vi.stubGlobal('requestAnimationFrame', () => 5); // 実行せず待機のまま
+    vi.stubGlobal('cancelAnimationFrame', cancel);
+    const removed: string[] = [];
+    const orig = HTMLElement.prototype.removeEventListener;
+    HTMLElement.prototype.removeEventListener = function (this: HTMLElement, t: string, ...rest: any[]) { removed.push(t); return (orig as any).call(this, t, ...rest); } as any;
+    try {
+      const { q } = setup();
+      over(q('icon'));
+      cleanup();
+    } finally {
+      HTMLElement.prototype.removeEventListener = orig;
+    }
+    expect(removed).toContain('pointerover');
+    expect(removed).toContain('pointerleave');
+    expect(cancel).toHaveBeenCalledWith(5);
+  });
 });
