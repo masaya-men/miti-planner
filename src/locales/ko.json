@@ -670,6 +670,8 @@
         "sb_content_group": "콘텐츠 종류",
         "hdr_lever_power_on": "전원 켜기",
         "hdr_turbine_start": "터빈 가동",
+        "com_sync_na": "로그인하고 표를 열면 동기화할 수 있습니다",
+        "com_share_na": "표를 열면 공유할 수 있습니다",
         "tbl_display_sub": "표시",
         "tbl_edit_sub": "편집",
         "tbl_borders": "구분선",

@@ -670,6 +670,8 @@
         "sb_content_group": "內容類型",
         "hdr_lever_power_on": "接通電源",
         "hdr_turbine_start": "啟動渦輪",
+        "com_sync_na": "登入並開啟減傷表後即可同步",
+        "com_share_na": "開啟減傷表後即可分享",
         "tbl_display_sub": "顯示",
         "tbl_edit_sub": "編輯",
         "tbl_borders": "分隔線",

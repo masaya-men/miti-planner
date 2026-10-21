@@ -682,6 +682,8 @@
         "sb_content_group": "コンテンツ種別",
         "hdr_lever_power_on": "電源を入れる",
         "hdr_turbine_start": "タービン起動",
+        "com_sync_na": "ログインして表を開くと同期できます",
+        "com_share_na": "表を開くと共有できます",
         "tbl_display_sub": "表示",
         "tbl_edit_sub": "編集",
         "tbl_borders": "罫線",

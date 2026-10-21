@@ -23,26 +23,34 @@ export function syncLampState(s: { loggedIn: boolean; status: 'idle' | 'syncing'
 
 const isPowered = () => document.documentElement.dataset.msPower !== 'off';
 const pad2 = (n: number) => String(n).padStart(2, '0');
-/** 経過秒 → 6 桁(時 2 + 分 2 + 秒 2。見本 tick) */
-const digitsOf = (s: number): number[] =>
-  (pad2(Math.floor(s / 3600) % 100) + pad2(Math.floor(s / 60) % 60) + pad2(s % 60)).split('').map(Number);
-// 時計の起点 = 画面を開いた時刻(幅の変化などで MeterPanel が作り直されても 0 に戻らない)
-let T0 = Date.now();
-/** テスト用: 時計の起点を今に戻す */
-export const resetMissionClock = () => { T0 = Date.now(); };
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+/** 軍隊式の日時(DTG)。端末のローカル時刻 → 日 2 + 時 2 + 分 2 の 6 桁と、月・曜日の英字 3 文字(言語設定に関係なく英語大文字) */
+export function dtgOf(d: Date): { digits: number[]; month: string; dow: string } {
+  return {
+    digits: (pad2(d.getDate()) + pad2(d.getHours()) + pad2(d.getMinutes())).split('').map(Number),
+    month: MONTHS[d.getMonth()],
+    dow: WEEKDAYS[d.getDay()],
+  };
+}
+const ZERO_DTG = { digits: [0, 0, 0, 0, 0, 0], month: '---', dow: '---' };
 const DRUM_NUMS = Array.from({ length: 10 }, (_, n) => n);
 
-/** ドラム時計(MSN CLOCK)。画面を開いてからの経過時間。1 秒ごと・タブ非表示で止め、戻ったら追いつく */
+/** ドラム時計(DTG)。今の日時 211405 OCT TUE。値が変わるのは分が変わるときだけ。1 秒ごとに見て変化時のみ setState・タブ非表示で止め、戻ったら現在値へ */
 function MissionClock({ x, y }: { x: number; y: number }) {
-  const [d, setD] = React.useState<number[]>(() => digitsOf(0));
+  const [dtg, setDtg] = React.useState<{ digits: number[]; month: string; dow: string }>(() => ZERO_DTG);
+  const keyRef = React.useRef('');
   // 電源投入の転がり(見本 js:1168-1169): 'zero' = transition なしで 0 / 'run' = 桁ごとに長い transition で現在値へ
   const [roll, setRoll] = React.useState<'zero' | 'run' | null>(null);
   const rollRef = React.useRef<'zero' | 'run' | null>(null);
   React.useEffect(() => {
     let id: number | null = null;
     const tick = () => {
-      const s = Math.max(0, Math.floor((Date.now() - T0) / 1000));
-      setD(isPowered() && rollRef.current !== 'zero' ? digitsOf(s) : digitsOf(0)); // 見本: 電源 off・転がり前は全部 0
+      const v = isPowered() && rollRef.current !== 'zero' ? dtgOf(new Date()) : ZERO_DTG; // 見本: 電源 off・転がり前は全部 0
+      const k = v.digits.join('') + v.month + v.dow;
+      if (k === keyRef.current) return; // 分が変わるまで setState しない
+      keyRef.current = k;
+      setDtg(v);
     };
     const run = () => { if (id == null) { tick(); id = window.setInterval(tick, 1000); } };
     const halt = () => { if (id != null) { window.clearInterval(id); id = null; } };
@@ -66,15 +74,22 @@ function MissionClock({ x, y }: { x: number; y: number }) {
     });
     return () => { offPower(); timers.forEach((t) => window.clearTimeout(t)); document.removeEventListener('visibilitychange', onVis); halt(); };
   }, []);
+  const d = dtg.digits;
   const drum = (k: number) => (
     <span className="milspec-dr" key={k}>
       <i style={{ ['--v' as string]: d[k], ...(roll === 'zero' ? { transition: 'none' } : roll === 'run' ? { transition: `transform ${1.1 + k * 0.12}s cubic-bezier(.7,0,.2,1)` } : null) } as React.CSSProperties}>{DRUM_NUMS.map((n) => <span key={n}>{n}</span>)}</i>
     </span>
   );
   return (
-    <div className="milspec-drums" style={{ left: x, top: y }} aria-hidden="true">
-      {drum(0)}{drum(1)}<span className="milspec-colon" />{drum(2)}{drum(3)}<span className="milspec-colon" />{drum(4)}{drum(5)}
-    </div>
+    <>
+      <div className="milspec-drums" style={{ left: x, top: y }} aria-hidden="true">
+        {drum(0)}{drum(1)}<span className="milspec-dr-gap" />{drum(2)}{drum(3)}{drum(4)}{drum(5)}
+      </div>
+      <div className="milspec-dtg-txt" style={{ left: x + 66, top: y + 2 }} aria-hidden="true">
+        <span className="milspec-dtg-mon">{dtg.month}</span>
+        <span className="milspec-dtg-dow">{dtg.dow}</span>
+      </div>
+    </>
   );
 }
 
@@ -147,7 +162,7 @@ export function MeterPanel({ iw, showClock }: { ix: number; iw: number; showCloc
       {showClock && h3.clock && h3.clockLabel && (
         <>
           <MissionClock x={h3.clock.x} y={h3.clock.y} />
-          <MilspecStencil en="MSN CLOCK" style={{ left: h3.clockLabel.x, top: h3.clockLabel.y }} />
+          <MilspecStencil en="DTG" style={{ left: h3.clockLabel.x, top: h3.clockLabel.y }} />
         </>
       )}
       <MilspecMark text="H3" style={{ left: h3.id.x, top: h3.id.y }} />

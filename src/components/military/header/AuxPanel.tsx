@@ -81,6 +81,7 @@ export function AuxPanel({ MW, theme, onToggleTheme }: AuxPanelProps) {
   };
   const syncErr = cloudStatus === 'error';
   const syncing = cloudStatus === 'syncing';
+  const syncOk = !!(currentPlanId && user);
 
   // ログイン: 標準ヘッダーと同じく LoginModal を開く。ログイン中はアバター画像(未設定なら頭文字)を刻印に
   const [showLogin, setShowLogin] = React.useState(false);
@@ -117,34 +118,32 @@ export function AuxPanel({ MW, theme, onToggleTheme }: AuxPanelProps) {
 
       {/* COM: 共有 / 同期 / 言語 / ログイン(丸キー 4 つ) */}
       <div className="milspec-h4-kc" role="group" aria-label="COM" style={{ left: com.x, top: com.y }}>
-        {/* 標準ヘッダーと同じく、プランが無いときは共有キーを出さない */}
-        {currentPlan && (
+        {/* プランが無いときも共有キーは置いたまま、押せない暗い状態にする(列が歯抜けにならない) */}
         <MilspecKey
           cap={com.caps[0]}
           style={capPos(com.caps[0])}
-          className={iconCap}
+          className={`${iconCap}${currentPlan ? '' : ' milspec-key-na'}`}
           latch
           pressed={isOn}
           label={MsIcon.share()}
-          aria-label={shareLabel}
-          title={shareLabel}
+          aria-label={currentPlan ? shareLabel : t('milspec.com_share_na')}
+          title={currentPlan ? shareLabel : t('milspec.com_share_na')}
+          disabled={!currentPlan}
           data-tutorial={isOn ? undefined : 'share-copy-btn'}
           onClick={openShareUI}
         />
-        )}
         {currentPlan && isOn && <MilspecLed state="on" size={5} style={{ left: 19, top: 2, position: 'absolute', pointerEvents: 'none' }} />}
-        {currentPlanId && user && (
-          <MilspecKey
-            cap={com.caps[1]}
-            style={capPos(com.caps[1])}
-            className={`${iconCap}${syncErr ? ' milspec-key-dng' : ''}`}
-            label={MsIcon.sync()}
-            aria-label={syncErr ? t('app.sync_error_label') : t('app.sync_saved')}
-            title={syncErr ? t('app.sync_error_label') : t('app.sync_saved')}
-            disabled={syncing}
-            onClick={handleSync}
-          />
-        )}
+        {/* 同期: 未ログイン・プラン無しは押せない暗い状態で置く */}
+        <MilspecKey
+          cap={com.caps[1]}
+          style={capPos(com.caps[1])}
+          className={`${iconCap}${syncErr ? ' milspec-key-dng' : ''}${syncOk ? '' : ' milspec-key-na'}`}
+          label={MsIcon.sync()}
+          aria-label={!syncOk ? t('milspec.com_sync_na') : syncErr ? t('app.sync_error_label') : t('app.sync_saved')}
+          title={!syncOk ? t('milspec.com_sync_na') : syncErr ? t('app.sync_error_label') : t('app.sync_saved')}
+          disabled={!syncOk || syncing}
+          onClick={handleSync}
+        />
         <div className="milspec-h4-slot" style={slotStyle(com.caps[2])}>
           <LanguageSwitcher btnClassName="milspec-keybtn">
             <MilspecKeyCap cap={com.caps[2]} className={iconCap} label={MsIcon.globe()} />

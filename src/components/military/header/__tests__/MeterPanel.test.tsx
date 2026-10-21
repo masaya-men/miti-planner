@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, act, fireEvent } from '@testing-library/react';
-import { MeterPanel, syncLampState, resetMissionClock } from '../MeterPanel';
+import { MeterPanel, syncLampState, dtgOf } from '../MeterPanel';
 import { usePlanStore } from '../../../../store/usePlanStore';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import i18n from '../../../../i18n';
@@ -33,7 +33,6 @@ describe('MeterPanel', () => {
   beforeEach(async () => {
     await i18n.changeLanguage('ja');
     vi.useFakeTimers();
-    resetMissionClock();
     fx.listener = null;
     fx.pulse.mockClear();
     setUser({ uid: 'u1' });
@@ -47,7 +46,7 @@ describe('MeterPanel', () => {
     expect(getByRole('button', { name: 'タービン起動' })).toBeTruthy();
     expect(container.querySelectorAll('[data-lamp]').length).toBe(4);
     expect(container.textContent).toContain('⚠ ROTATING');
-    expect(container.textContent).toContain('MSN CLOCK');
+    expect(container.textContent).toContain('DTG');
     expect(container.textContent).toContain('H3');
   });
 
@@ -88,34 +87,49 @@ describe('MeterPanel', () => {
     expect(fx.pulse.mock.calls.length).toBe(n + 1);
   });
 
-  it('ドラム時計: 画面を開いてからの経過時間(61 秒で 00:01:01)', () => {
+  it('ドラム時計(DTG): 今の日時 DDHHMM + 月 + 曜日。分が変わるときだけ値が変わる', () => {
+    vi.setSystemTime(new Date(2026, 9, 21, 14, 5, 30));
     const { container } = render(<MeterPanel ix={518} iw={310} showClock />);
-    expect(drums(container)).toEqual(['0', '0', '0', '0', '0', '0']);
-    act(() => { vi.advanceTimersByTime(61_000); });
-    expect(drums(container)).toEqual(['0', '0', '0', '1', '0', '1']);
+    expect(drums(container)).toEqual(['2', '1', '1', '4', '0', '5']);
+    expect(container.querySelector('.milspec-dtg-mon')?.textContent).toBe('OCT');
+    expect(container.querySelector('.milspec-dtg-dow')?.textContent).toBe('WED');
+    expect(container.querySelector('.milspec-colon')).toBeNull();
+    act(() => { vi.advanceTimersByTime(20_000); });
+    expect(drums(container).join('')).toBe('211405');
+    act(() => { vi.advanceTimersByTime(10_000); });
+    expect(drums(container).join('')).toBe('211406');
     expect(container.querySelectorAll('.milspec-dr i span').length).toBe(60);
   });
 
-  it('時計はタブ非表示で止まり、戻ったら追いつく', () => {
+  it('時計はタブ非表示で止まり、戻ったら現在値に合わせる', () => {
+    vi.setSystemTime(new Date(2026, 9, 21, 14, 5, 0));
     const { container } = render(<MeterPanel ix={518} iw={310} showClock />);
     const setHidden = (v: boolean) => {
       Object.defineProperty(document, 'hidden', { configurable: true, get: () => v });
       document.dispatchEvent(new Event('visibilitychange'));
     };
     act(() => setHidden(true));
-    const timers = vi.getTimerCount();
     act(() => { vi.advanceTimersByTime(125_000); });
-    expect(drums(container).join('')).toBe('000000'); // 止まっている
+    expect(drums(container).join('')).toBe('211405'); // 止まっている
     act(() => setHidden(false));
-    expect(drums(container).join('')).toBe('000205'); // 追いついた
-    expect(timers).toBeLessThan(vi.getTimerCount() + 1);
+    expect(drums(container).join('')).toBe('211407'); // 現在値に合った
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
   });
 
   it('showClock が false なら時計と MSN CLOCK を出さない', () => {
     const { container } = render(<MeterPanel ix={518} iw={250} showClock={false} />);
     expect(container.querySelector('.milspec-drums')).toBeNull();
-    expect(container.textContent).not.toContain('MSN CLOCK');
+    expect(container.textContent).not.toContain('DTG');
+  });
+});
+
+describe('dtgOf(日時 → 桁・月・曜日)', () => {
+  it('2026-10-21 14:05 → [2,1,1,4,0,5] OCT WED / 日付・月の変わり目 / 曜日', () => {
+    expect(dtgOf(new Date(2026, 9, 21, 14, 5))).toEqual({ digits: [2, 1, 1, 4, 0, 5], month: 'OCT', dow: 'WED' });
+    expect(dtgOf(new Date(2026, 9, 20, 0, 0))).toEqual({ digits: [2, 0, 0, 0, 0, 0], month: 'OCT', dow: 'TUE' });
+    expect(dtgOf(new Date(2026, 9, 31, 23, 59))).toEqual({ digits: [3, 1, 2, 3, 5, 9], month: 'OCT', dow: 'SAT' });
+    expect(dtgOf(new Date(2026, 10, 1, 0, 0))).toEqual({ digits: [0, 1, 0, 0, 0, 0], month: 'NOV', dow: 'SUN' });
+    expect(dtgOf(new Date(2027, 0, 1, 9, 7))).toEqual({ digits: [0, 1, 0, 9, 0, 7], month: 'JAN', dow: 'FRI' });
   });
 });
 
@@ -123,7 +137,6 @@ describe('MeterPanel 電源投入の演出', () => {
   beforeEach(async () => {
     await i18n.changeLanguage('ja');
     vi.useFakeTimers();
-    resetMissionClock();
     setUser(null);
     usePlanStore.setState({ _cloudStatus: 'idle', _dirtyPlanIds: new Set(), _deletedPlanIds: new Set() });
     initPower();
@@ -159,7 +172,7 @@ describe('MeterPanel 電源投入の演出', () => {
     act(() => { powerOn({ reduced: true }); });
     act(() => { vi.advanceTimersByTime(5000); });
     expect((container.querySelector('.milspec-tsw') as HTMLButtonElement).disabled).toBe(false);
-    expect(drums(container)[5]).toBe('5');
+    expect(drums(container).join('')).not.toBe('000000');
     act(() => { void powerOff({ reduced: true }); });
     expect(drums(container)).toEqual(['0', '0', '0', '0', '0', '0']);
   });

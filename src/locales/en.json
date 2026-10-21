@@ -678,6 +678,8 @@
         "sb_content_group": "Content type",
         "hdr_lever_power_on": "Power on",
         "hdr_turbine_start": "Start turbine",
+        "com_sync_na": "Sign in and open a plan to sync",
+        "com_share_na": "Open a plan to share",
         "tbl_display_sub": "Display",
         "tbl_edit_sub": "Edit",
         "tbl_borders": "Borders",

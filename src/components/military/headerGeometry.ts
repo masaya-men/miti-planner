@@ -139,8 +139,8 @@ export function headerLayout(MW: number): {
       turbines: [{ x: ix + 18, y: 6 }, { x: ix + 58, y: 6 }],
       lamps: { x: ix + 124, y: 12 },
       rotating: { x: ix + 8, y: 42.5 },
-      clock: showClock ? { x: ix + iw - 110, y: 18 } : null,
-      clockLabel: showClock ? { x: ix + iw - 110, y: 9.5 } : null,
+      clock: showClock ? { x: ix + iw - 107, y: 18 } : null,
+      clockLabel: showClock ? { x: ix + iw - 107, y: 9.5 } : null,
       id: { x: ix + iw - 26, y: 6 },
     },
     h4: {

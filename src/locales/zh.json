@@ -670,6 +670,8 @@
         "sb_content_group": "内容类型",
         "hdr_lever_power_on": "接通电源",
         "hdr_turbine_start": "启动涡轮",
+        "com_sync_na": "登录并打开轻减表后即可同步",
+        "com_share_na": "打开轻减表后即可分享",
         "tbl_display_sub": "显示",
         "tbl_edit_sub": "编辑",
         "tbl_borders": "分隔线",
