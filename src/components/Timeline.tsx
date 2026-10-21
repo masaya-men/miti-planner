@@ -14,7 +14,7 @@ import { useCollabJoinerSession } from '../store/useCollabJoinerSession';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useThemeStore, useEffectiveThemeStyle } from '../store/useThemeStore';
 import { useStableCallback } from '../hooks/useStableCallback';
-import type { TimelineEvent, Mitigation, AppliedMitigation, LocalizedString, Phase, Label, PlanMemo } from '../types';
+import type { TimelineEvent, Mitigation, PartyMember, AppliedMitigation, LocalizedString, Phase, Label, PlanMemo } from '../types';
 import { getPhaseName } from '../types';
 import { EventModal } from './EventModal';
 import { ClearMitigationsPopover } from './ClearMitigationsPopover';
@@ -82,7 +82,6 @@ import { useSortSlide } from './military/table/useSortSlide';
 const MilspecJackBoard = React.lazy(() => import('./military/table/MilspecJackBoard').then(m => ({ default: m.MilspecJackBoard })));
 const MilspecReticle = React.lazy(() => import('./military/table/MilspecReticle').then(m => ({ default: m.MilspecReticle })));
 const MilspecRowPrinter = React.lazy(() => import('./military/table/MilspecRowPrinter').then(m => ({ default: m.MilspecRowPrinter })));
-const MilspecMemberHeads = React.lazy(() => import('./military/table/MilspecMemberHeads').then(m => ({ default: m.MilspecMemberHeads })));
 import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
 import { MemoFloatingBar } from './Memo/MemoFloatingBar';
@@ -767,9 +766,7 @@ const Timeline: React.FC = () => {
     const [labelSelectMode, setLabelSelectMode] = useState<{ labelId: string; startTime: number; field: 'startTime' | 'endTime' } | null>(null);
     const [showPreStart] = useState(true);
     const isMobileTimeline = typeof window !== 'undefined' && window.innerWidth < 768;
-    // MIL-SPEC SP2 Task 7: PC 軍事モードのときだけ、リキャストを列見出し行から切り離して
-    // 独立した帯 ([data-milspec-recast-band]) にマウントする (モックの .recast-row 再現)。
-    // standard では常に false → 分岐は全て else = 従来 DOM のまま (標準モード不変)。
+    // PC 軍事モードのときだけ true。標準では常に false = 従来 DOM のまま (標準モード不変)。
     const themeStyle = useEffectiveThemeStyle();
     const isMilspecTable = themeStyle === 'military' && !isMobileTimeline;
     // 1 段の高さ(PC=攻撃 1 つ分 / スマホ=カード 1 枚)。縦位置は rowLayout(下で計算)から得る
@@ -1424,16 +1421,10 @@ const Timeline: React.FC = () => {
     // querySelector していたのをキャッシュする(2026-08-14、実測プロファイルでスクロール毎の
     // 負荷の一因と判明)。要素が差し替わった場合のみ(isConnected/contains チェックで検知して)
     // 再検索するので、挙動(idヒット→firstElementChildフォールバック)は変えていない。
-    const scrollSyncInnerElsRef = useRef<{ header: HTMLElement | null; controls: HTMLElement | null; recast: HTMLElement | null }>({ header: null, controls: null, recast: null });
+    const scrollSyncInnerElsRef = useRef<{ header: HTMLElement | null; controls: HTMLElement | null }>({ header: null, controls: null });
     // 表の展開/折りたたみ前後でスクロールアンカーを維持するため、直近のビューポート中央の時刻を保持
     const lastCenterTimeRef = useRef<number | null>(null);
     const recastRowRef = useRef<RecastRowHandle>(null);
-    // Task 7: 軍事モードのリキャスト帯の外枠。headerRef / controlBarRef と同じ契約で
-    // 「外枠 ref + 内側 #timeline-recast-inner を id で引く」形にする
-    // (handleScrollSync は ref.current.querySelector(`#${id}`) を探すため、
-    //  内側要素そのものを ref にすると自分自身を見つけられず label にフォールバックする)。
-    // standard では帯自体が render されないので常に null = 参照されない。
-    const recastBandRef = useRef<HTMLDivElement>(null);
 
     // ④-b-2: 他者カーソル描画は CursorOverlay に隔離。Timeline は roster も byClient(高頻度)も購読しない。
     // (ここで byClient を購読すると「カーソル1パケットごとに Timeline 全体が再描画」され激重になる。)
@@ -1497,8 +1488,6 @@ const Timeline: React.FC = () => {
         const containers = [
             { ref: headerRef, id: 'timeline-header-inner', cacheKey: 'header' as const },
             { ref: controlBarRef, id: 'timeline-controls-inner', cacheKey: 'controls' as const },
-            // Task 7: 軍事モードのみリキャスト帯も同じ translateX で追従させる (standard では 0 件追加)
-            ...(isMilspecTable ? [{ ref: recastBandRef, id: 'timeline-recast-inner', cacheKey: 'recast' as const }] : []),
         ];
 
         containers.forEach(({ ref, id, cacheKey }) => {
@@ -1532,17 +1521,13 @@ const Timeline: React.FC = () => {
                 const scrollbarWidth = scrollContainerRef.current.offsetWidth - scrollContainerRef.current.clientWidth;
                 headerRef.current.style.paddingRight = `${scrollbarWidth}px`;
                 if (controlBarRef.current) controlBarRef.current.style.paddingRight = `${scrollbarWidth}px`;
-                // Task 7: リキャスト帯 (軍事モードのみ mount) も同じ右パディングを持たせる。
-                // ref ガードで standard では自動的に no-op。
-                if (recastBandRef.current) recastBandRef.current.style.paddingRight = `${scrollbarWidth}px`;
             }
         };
 
         syncPadding();
         window.addEventListener('resize', syncPadding);
         return () => window.removeEventListener('resize', syncPadding);
-        // Task 7: 軍事/標準の切替で帯が mount/unmount するため再計測が要る。
-    }, [isMilspecTable]);
+    }, []);
 
     // リキャスト行: スクロールに連動して current time を更新 (GPU 描画、 React 再レンダーなし)
     // セッション 18 案 C1: RecastRow は header (scroll container の外) に物理移動したので、
@@ -2692,6 +2677,17 @@ const Timeline: React.FC = () => {
         [sortedPartyMembers, hiddenPartyMemberIds]
     );
 
+    // 軍事の表: リキャスト中のアイコンが無い列の見出し = ロール色の短い線 + ジョブ略号(見本 v11 css:472-475)
+    const renderMilspecIdle = useCallback((m: PartyMember) => {
+        const job = m.jobId ? JOBS.find((j) => j.id === m.jobId) : null;
+        return (
+            <>
+                <i className="milspec-mh-rl" />
+                <small>{job ? job.id.toUpperCase() : ''}</small>
+            </>
+        );
+    }, [JOBS]);
+
     // DOM 計測ベースの memberLayout (CSS clamp() に追従)
     const [refVersion, setRefVersion] = useState(0);
     const memberHeaderRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
@@ -3205,59 +3201,20 @@ const Timeline: React.FC = () => {
                                 <span className="md:hidden">{t('timeline.header_taken_short')}</span>
                                 <span className="hidden md:inline">{t('timeline.header_taken')}</span>
                             </div>
-                            {/* 軍事の表: メンバー列の見出し(ロール色の線 + ジョブ略号・見本 v11 css:472-475)。標準では出さない */}
-                            {isMilspecTable && (
-                                <React.Suspense fallback={null}><MilspecMemberHeads members={visiblePartyMembers} jobs={JOBS} memberLayout={memberLayout} /></React.Suspense>
-                            )}
-
                             {/* セッション 18 案 C1: ヘッダーのメンバー列領域はリキャストアイコン専用に。
                                 旧ジョブアイコン行は controlBar に移動 (JobPickerRow)。
                                 OFF 時もセルは render する (= 罫線は維持)。 中のアイコンだけ scroll handler で hideAll。
-                                Task 7: PC 軍事モードのときだけ下の独立帯へ移す (isMilspecTable)。 */}
-                            {!isMilspecTable && (
-                                <RecastRow
-                                    ref={recastRowRef}
-                                    partyMembers={visiblePartyMembers}
-                                    placements={timelineMitigations}
-                                    mitigationDefs={MITIGATIONS}
-                                />
-                            )}
+                                軍事の表だけ renderIdle で「アイコンが 1 つも出ていない列」にロール色の線 + ジョブ略号を描く
+                                (出し分けは RecastRow が data-recast-active に直書き + CSS)。 */}
+                            <RecastRow
+                                ref={recastRowRef}
+                                partyMembers={visiblePartyMembers}
+                                placements={timelineMitigations}
+                                mitigationDefs={MITIGATIONS}
+                                renderIdle={isMilspecTable ? renderMilspecIdle : undefined}
+                            />
                         </div>
                     </div>
-
-                    {/* MIL-SPEC SP2 Task 7: リキャスト帯 (軍事 PC 限定・mockup .recast-row 2151-2168)。
-                        列見出し行と表本体の間に挟まる独立した沈みプレート。左ラベルが
-                        --col-member-start (= PHASE+LABEL+TIME+MECHANIC+RAW+TAKEN) ぶんを占有するので、
-                        続く .recast-cell はメンバー列と同じ x に並ぶ。
-                        recastRowRef は 2 分岐のうち片方しか render されない = 常に一意。 */}
-                    {isMilspecTable && (
-                        <div
-                            ref={recastBandRef}
-                            data-milspec-recast-band
-                            className={clsx(
-                                "flex-shrink-0 relative overflow-hidden",
-                                !recastRowVisible && "hidden"
-                            )}
-                        >
-                            <div
-                                id="timeline-recast-inner"
-                                className="flex items-stretch w-max min-w-max will-change-transform"
-                            >
-                                <div
-                                    className="milspec-rc-label flex-none flex items-center"
-                                    style={{ width: 'var(--col-member-start)' }}
-                                >
-                                    {t('timeline.recast_row.label')}
-                                </div>
-                                <RecastRow
-                                    ref={recastRowRef}
-                                    partyMembers={visiblePartyMembers}
-                                    placements={timelineMitigations}
-                                    mitigationDefs={MITIGATIONS}
-                                />
-                            </div>
-                        </div>
-                    )}
 
                     {/* MYジョブハイライト: 親コンテナに data-myjob-highlight を立てるだけ(CSS で薄暗く) */}
                     <MyJobHighlightAttrBridge targetRef={scrollContainerRef} />

@@ -405,28 +405,24 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
     });
 
     // ── step 11: リキャスト帯 (Task 7) のジオメトリ ─────────────
-    await step('リキャスト帯 [data-milspec-recast-band] の位置・列整合・スクロール同期', async () => {
+    await step('リキャスト(見出しのメンバー列)の位置・列整合・帯が無いこと・待機表示', async () => {
       const r = await page.evaluate(async () => {
         const sc = document.querySelector('.timeline-scroll-container');
         sc.scrollTo({ top: 0, left: 0 });
         await new Promise((res) => setTimeout(res, 250));
 
-        const band = document.querySelector('[data-milspec-recast-band]');
-        if (!band) return { err: '[data-milspec-recast-band] が存在しない (軍事 PC で帯が mount されていない)' };
+        if (document.querySelector('[data-milspec-recast-band]')) return { err: '撤去したはずの [data-milspec-recast-band] が残っている' };
         const header = document.querySelector('#timeline-header-inner');
-        const inner = document.querySelector('#timeline-recast-inner');
-        const label = band.querySelector('.milspec-rc-label');
         if (!header) return { err: '#timeline-header-inner が無い' };
-        if (!inner) return { err: '#timeline-recast-inner が無い' };
-        if (!label) return { err: '.milspec-rc-label が無い' };
-
-        const bandR = band.getBoundingClientRect();
+        const idleN = header.querySelectorAll('.recast-cell > .recast-idle').length;
+        const idleShown = Array.from(header.querySelectorAll('.recast-cell')).filter((c) => getComputedStyle(c.querySelector('.recast-idle')).display !== 'none').length;
+        const sc0 = sc.getBoundingClientRect();
+        const scR = sc0;
         const headR = header.getBoundingClientRect();
-        const scR = sc.getBoundingClientRect();
 
         // (b) 先頭 .recast-cell の left が、対応するメンバー列 (JobPickerRow の
         //     [data-member-id] = MitigationItem が実測に使う正典) と一致するか。
-        const cells = Array.from(band.querySelectorAll('.recast-cell'));
+        const cells = Array.from(header.querySelectorAll('.recast-cell'));
         const cols = Array.from(document.querySelectorAll('#timeline-controls-inner [data-member-id]'));
         const pairs = [];
         for (let i = 0; i < Math.min(cells.length, cols.length); i += 1) {
@@ -446,30 +442,23 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
         const tf = (el) => (el && el.style ? el.style.transform : '');
 
         return {
-          bandTop: bandR.top,
-          bandBottom: bandR.bottom,
-          bandHeight: bandR.height,
           headerBottom: headR.bottom,
           scTop: scR.top,
-          labelWidth: label.getBoundingClientRect().width,
           cellCount: cells.length,
           colCount: cols.length,
           pairs,
-          headerTf: tf(header),
-          recastTf: tf(inner),
+          idleN,
+          idleShown,
+          headerTf: tf(header.firstElementChild ? header : header),
           scrollLeft: sc.scrollLeft,
         };
       });
 
       if (r.err) fail(r.err);
 
-      // (a) 帯は列見出しの下・表本体の上
-      if (r.bandTop < r.headerBottom - 1) {
-        fail(`帯の top (${r.bandTop.toFixed(1)}) が #timeline-header-inner の bottom (${r.headerBottom.toFixed(1)}) より上`);
-      }
-      if (r.bandBottom > r.scTop + 1) {
-        fail(`帯の bottom (${r.bandBottom.toFixed(1)}) が .timeline-scroll-container の top (${r.scTop.toFixed(1)}) より下`);
-      }
+      // (a) 各セルに待機表示があり、scrollTop 0(リキャスト中の技が無い)では全列が待機表示
+      if (r.idleN !== r.cellCount) fail(`待機表示 .recast-idle が ${r.idleN} 個 / セル ${r.cellCount} 個`);
+      if (r.idleShown !== r.cellCount) fail(`scrollTop 0 で待機表示が出ている列が ${r.idleShown}/${r.cellCount}`);
 
       // (b) メンバー列との x 整合 (±3px)
       if (r.pairs.length === 0) fail('.recast-cell / [data-member-id] のどちらかが 0 件で列整合を検証できない');
@@ -481,14 +470,6 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
         );
       }
       const maxDx = Math.max(...r.pairs.map((p) => Math.abs(p.dx)));
-
-      // (c) 横スクロール同期
-      if (r.headerTf !== r.recastTf) {
-        fail(`横スクロール後の transform 不一致: header "${r.headerTf}" / recast "${r.recastTf}"`);
-      }
-      if (!/translateX\(-\d/.test(r.recastTf)) {
-        fail(`リキャスト帯が translateX で追従していない: "${r.recastTf}" (scrollLeft=${r.scrollLeft})`);
-      }
 
       // ── (d) 列折りたたみ (Shift+P / Shift+L) 後も帯がチップ陣営に留まる (C1 の回帰検知) ──
       // Task 10 の実測 (report §C1): 軍事 PC で列を折りたたむと「表の実セル」だけが左へ動き
@@ -504,7 +485,7 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
       await page.keyboard.press('Shift+L');
       await page.waitForTimeout(450);
       const rc = await page.evaluate(() => {
-        const cells = Array.from(document.querySelectorAll('[data-milspec-recast-band] .recast-cell'));
+        const cells = Array.from(document.querySelectorAll('#timeline-header-inner .recast-cell'));
         const cols = Array.from(document.querySelectorAll('#timeline-controls-inner [data-member-id]'));
         const bar = document.querySelector('[data-mit-bar]');
         const tableCell = document.querySelector('[data-time-row]:first-child > *:nth-child(7)');
@@ -536,19 +517,15 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
 
       if (!rc.collapsed) fail('Shift+P / Shift+L で列折りたたみ state が true にならない (ショートカットの回帰)');
       if (rc.pairs.length === 0) fail('折りたたみ後に .recast-cell / [data-member-id] が 0 件');
-      const badC = rc.pairs.filter((p) => Math.abs(p.dx) > 3);
-      if (badC.length) {
-        fail(
-          `列折りたたみ後にリキャストセルがメンバー列 (チップ) と ±3px で揃っていない: ` +
-            badC.map((p) => `#${p.i}(${p.cellId}/${p.colId}) dx=${p.dx.toFixed(1)}px`).join(', '),
-        );
-      }
-      const maxDxC = Math.max(...rc.pairs.map((p) => Math.abs(p.dx)));
+      // リキャストは標準と同じ見出しの中 = 表の実セルと同じ側に動く(折りたたみ後も表の 7 列目と x が揃う)
+      if (rc.firstCellLeft === null || rc.tableCellLeft === null) fail('折りたたみ後に recast-cell / 表の 7 列目セルが取れない');
+      const dxT = rc.firstCellLeft - rc.tableCellLeft;
+      if (Math.abs(dxT) > 3) fail(`折りたたみ後にリキャストセルが表の実セルと ±3px で揃っていない: dx=${dxT.toFixed(1)}px`);
+      const maxDxC = Math.abs(dxT);
 
       return (
-        `帯 top ${r.bandTop.toFixed(1)} (header bottom ${r.headerBottom.toFixed(1)} / body top ${r.scTop.toFixed(1)}) ` +
-        `h=${r.bandHeight.toFixed(1)} / label w=${r.labelWidth.toFixed(1)} / ` +
-        `列整合 ${r.pairs.length} 組 最大 dx ${maxDx.toFixed(1)}px (±3px) / transform ${r.recastTf} 一致 / ` +
+        `帯なし / 待機表示 ${r.idleShown}/${r.cellCount} 列 / ` +
+        `列整合 ${r.pairs.length} 組 最大 dx ${maxDx.toFixed(1)}px (±3px) / ` +
         `折りたたみ後も最大 dx ${maxDxC.toFixed(1)}px ` +
         `(帯 ${rc.firstCellLeft === null ? '-' : rc.firstCellLeft.toFixed(1)} / ` +
         `チップ ${rc.firstColLeft === null ? '-' : rc.firstColLeft.toFixed(1)} / ` +
@@ -591,7 +568,7 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
         useMitigationStore.setState({ timelineMitigations: [...s.timelineMitigations, ...extra] });
         await new Promise((res) => setTimeout(res, 500));
 
-        const cell = document.querySelector(`[data-milspec-recast-band] .recast-cell[data-member="${tank.id}"]`);
+        const cell = document.querySelector(`#timeline-header-inner .recast-cell[data-member="${tank.id}"]`);
         if (!cell) return { err: '帯の中に tank の .recast-cell が無い' };
         const icons = Array.from(cell.querySelectorAll('.recast-icon'));
         if (icons.length < 6) return { err: `tank セルのアイコンが ${icons.length} 個しか mount されていない (6 個必要)` };
@@ -607,8 +584,7 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
         const rects = probe.map((el) => el.getBoundingClientRect());
         const rowCount = new Set(tops).size;
         const maxBottom = Math.max(...rects.map((x) => x.bottom));
-        const band = document.querySelector('[data-milspec-recast-band]');
-        const bandRect = band.getBoundingClientRect();
+        const bandRect = document.querySelector('#timeline-header-inner').getBoundingClientRect();
 
         // 後片付け: 強制表示を解除して store も元に戻す (以降のステップに影響させない)
         for (const el of probe) el.style.removeProperty('--cd-display');
@@ -635,7 +611,7 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
         fail(
           `T/H セルで 6 アイコンが ${r.rowCount} 行に折り返している ` +
             `(gap=${r.gap} / flex-wrap=${r.flexWrap} / セル幅 ${r.cellWidth.toFixed(1)}px ` +
-            `padding-left ${r.cellPaddingLeft} / アイコン ${r.iconW}px) — 帯は overflow:hidden なので 2 行目が切れる`,
+            `padding-left ${r.cellPaddingLeft} / アイコン ${r.iconW}px) — 見出しは高さが決まっているので 2 行目が切れる`,
         );
       }
       // 帯の下端から溢れていない
@@ -670,7 +646,6 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
         await new Promise((res) => setTimeout(res, 200));
         const headerOuter = document.querySelector('#timeline-header-inner')?.parentElement;
         const controlsOuter = document.querySelector('#timeline-controls-inner')?.parentElement;
-        const band = document.querySelector('[data-milspec-recast-band]');
         const px = (v) => parseFloat(v) || 0;
         const capOf = (el) => {
           if (!el) return null;
@@ -682,14 +657,12 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
           scrollable: sc.scrollHeight > sc.clientHeight,
           headerPadR: headerOuter ? px(getComputedStyle(headerOuter).paddingRight) : null,
           controlsPadR: controlsOuter ? px(getComputedStyle(controlsOuter).paddingRight) : null,
-          bandPadR: band ? px(getComputedStyle(band).paddingRight) : null,
           headerCap: capOf(headerOuter),
-          bandCap: capOf(band),
         };
       });
 
       // (1) 目盛りキャップ ::after — headless でも計算される (通常の疑似要素)。CSS 構文/セレクタの機械確認。
-      for (const [name, cap] of [['header', r.headerCap], ['recast-band', r.bandCap]]) {
+      for (const [name, cap] of [['header', r.headerCap]]) {
         if (!cap) fail(`${name} の外枠が見つからない`);
         if (cap.pos !== 'relative') fail(`${name} 外枠が position:relative でない (${cap.pos}) — ::after の基準が壊れる`);
         if (!(cap.w >= 12 && cap.w <= 16)) fail(`${name} の目盛りキャップ ::after 幅が 14px 近傍でない (${cap.w}px)`);
@@ -701,20 +674,20 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
         return (
           `WARN: headless で縦スクロールバー幅 = ${r.barWidth} (overlay 型・::-webkit-scrollbar 非描画)。` +
           `実機 Chrome / headed で 14px + paddingRight 一致を要確認。` +
-          `目盛りキャップ ::after は生成確認済 (header ${r.headerCap.w}px / band ${r.bandCap.w}px)`
+          `目盛りキャップ ::after は生成確認済 (header ${r.headerCap.w}px)`
         );
       }
       if (!(r.barWidth >= 10 && r.barWidth <= 20)) {
         fail(`縦スクロールバー幅が 14px 近傍でない (${r.barWidth}px)`);
       }
       // syncPadding: header / controls / recast 帯が同じバー幅で揃う (±1.5px)
-      for (const [name, v] of [['header', r.headerPadR], ['controls', r.controlsPadR], ['recast', r.bandPadR]]) {
+      for (const [name, v] of [['header', r.headerPadR], ['controls', r.controlsPadR]]) {
         if (v === null) continue;
         if (Math.abs(v - r.barWidth) > 1.5) {
           fail(`${name} の paddingRight (${v}px) がスクロールバー幅 (${r.barWidth}px) と一致しない — syncPadding 未反映`);
         }
       }
-      return `縦バー幅 ${r.barWidth}px / paddingRight header ${r.headerPadR} controls ${r.controlsPadR} recast ${r.bandPadR} / 目盛りキャップ ::after OK`;
+      return `縦バー幅 ${r.barWidth}px / paddingRight header ${r.headerPadR} controls ${r.controlsPadR} / 目盛りキャップ ::after OK`;
     });
 
     // ── step 15: CSS セレクタの構造前提を自己防衛 (レビュー M8 / T4 #4) ──
@@ -988,7 +961,7 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
         const jacks = Array.from(document.querySelectorAll('#timeline-controls-inner [data-member-id]'));
         return jacks.map((j) => {
           const id = j.getAttribute('data-member-id');
-          const c = document.querySelector(`[data-milspec-recast-band] .recast-cell[data-member="${id}"]`);
+          const c = document.querySelector(`#timeline-header-inner .recast-cell[data-member="${id}"]`);
           return { id, x: j.getBoundingClientRect().left, dx: c ? c.getBoundingClientRect().left - j.getBoundingClientRect().left : null };
         });
       });

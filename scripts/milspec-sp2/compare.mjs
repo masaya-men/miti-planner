@@ -36,7 +36,7 @@ const MOCKUP_PATH = join(__dirname, '..', '..', 'docs', '.private', 'theme-refs'
 const ZONES = {
   controlbar: { mock: '.subtoolbar', app: '#timeline-controls-inner', outer: true },
   header: { mock: '.thead', app: '#timeline-header-inner', outer: true },
-  recast: { mock: '.recast-row', app: '[data-milspec-recast-band]' },
+  recast: { mock: '.recast-row', app: '#timeline-header-inner' },
   tbody: { mock: '.tbody', app: '.timeline-scroll-container' },
   // Task 6: mit-bar/mit-icon の意匠は 6px 幅の細片なので、全体表ではなく MitigationItem 1 個
   // (icon チップ + 効果棒パイプ) を接写する。captureApp が clip を自前計算する。
@@ -168,7 +168,7 @@ async function captureApp(zone, cfg) {
         const sc = document.querySelector('.timeline-scroll-container');
         if (!sc) return null;
         const visible = () =>
-          Array.from(document.querySelectorAll('[data-milspec-recast-band] .recast-icon')).filter(
+          Array.from(document.querySelectorAll('#timeline-header-inner .recast-icon')).filter(
             (el) => getComputedStyle(el).display !== 'none',
           ).length;
         let bestTop = 0;
@@ -181,7 +181,7 @@ async function captureApp(zone, cfg) {
         }
         sc.scrollTo({ top: bestTop, left: 0 });
         await new Promise((r) => setTimeout(r, 350));
-        return { bestTop, bestN, total: document.querySelectorAll('[data-milspec-recast-band] .recast-icon').length };
+        return { bestTop, bestN, total: document.querySelectorAll('#timeline-header-inner .recast-icon').length };
       });
       if (info) console.log(`  · リキャスト最大可視位置: scrollTop ${info.bestTop} → アイコン ${info.bestN}/${info.total} 個`);
     }

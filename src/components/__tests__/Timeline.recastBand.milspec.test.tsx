@@ -1,13 +1,11 @@
 // @vitest-environment happy-dom
 /**
- * MIL-SPEC SP2 Task 7 — リキャスト行の独立（軍事モード限定の構造変更）DOM 契約テスト。
+ * リキャスト表示の置き場所 DOM 契約テスト(軍事でも標準と同じ見出しのメンバー列に置く)。
  *
  * 契約:
- *   - `themeStyle === 'military'` かつ PC（`window.innerWidth >= 768`）のとき
- *     リキャストは `#timeline-header-inner` の外、独立した `[data-milspec-recast-band]` に出る
- *     （中身 = `#timeline-recast-inner` > `.milspec-rc-label` + `.recast-cell` × メンバー数）。
- *   - `themeStyle === 'standard'`（既定）のときは従来どおり `#timeline-header-inner` 内に
- *     `.recast-cell` が並び、帯は一切描画されない（＝標準モード不変）。
+ *   - 軍事(PC)でも標準でも `.recast-cell` は `#timeline-header-inner` の中に並ぶ。
+ *     独立した帯 `[data-milspec-recast-band]` は存在しない。
+ *   - 軍事(PC)のときだけ各セルに待機表示 `.recast-idle`(線 + ジョブ略号)が入る。標準・モバイルでは入らない。
  *
  * ハーネスは Task 6 の `MitigationItem.milspec.test.tsx` と同じ作法
  * （Firebase 実初期化の遮断 + react-i18next スタブ + store 最小セットアップ）。
@@ -102,8 +100,8 @@ afterEach(() => {
   vi.clearAllTimers();
 });
 
-describe('リキャスト帯（MIL-SPEC SP2 Task 7）', () => {
-  it('themeStyle=military のとき、リキャストはヘッダー外の独立帯に出る', () => {
+describe('リキャスト表示の置き場所（軍事の表）', () => {
+  it('themeStyle=military のとき、リキャストは見出し内に出て、帯は無く、待機表示が入る', () => {
     useThemeStore.setState({ themeStyle: 'military' });
 
     const { container } = render(
@@ -112,13 +110,10 @@ describe('リキャスト帯（MIL-SPEC SP2 Task 7）', () => {
       </MemoryRouter>,
     );
 
-    const band = container.querySelector('[data-milspec-recast-band]');
-    expect(band).not.toBeNull();
-    expect(band!.querySelector('#timeline-recast-inner')).not.toBeNull();
-    expect(band!.querySelector('.milspec-rc-label')).not.toBeNull();
-    expect(band!.querySelectorAll('.recast-cell').length).toBeGreaterThan(0);
-    // ヘッダー内には recast-cell が無い（＝帯へ物理移動している）
-    expect(container.querySelector('#timeline-header-inner .recast-cell')).toBeNull();
+    expect(container.querySelector('[data-milspec-recast-band]')).toBeNull();
+    const cells = container.querySelectorAll('#timeline-header-inner .recast-cell');
+    expect(cells.length).toBeGreaterThan(0);
+    expect(container.querySelectorAll('#timeline-header-inner .recast-cell > .recast-idle').length).toBe(cells.length);
   });
 
   it('themeStyle=standard のとき、リキャストは従来どおりヘッダー内（標準モード不変）', () => {
@@ -132,6 +127,7 @@ describe('リキャスト帯（MIL-SPEC SP2 Task 7）', () => {
 
     expect(container.querySelector('[data-milspec-recast-band]')).toBeNull();
     expect(container.querySelector('#timeline-header-inner .recast-cell')).not.toBeNull();
+    expect(container.querySelector('.recast-idle')).toBeNull();
   });
 
   // SP2 の CSS は全て `.theme-military .milspec-app` スコープだが、`.milspec-app` は
@@ -139,7 +135,7 @@ describe('リキャスト帯（MIL-SPEC SP2 Task 7）', () => {
   // `.theme-military` は **モバイルでも `<html>` に付く** (useThemeStore.ts:71-73)。
   // よって `isMilspecTable` のモバイル条件が将来外れると「CSS が 1 行も当たらない素の帯」が
   // モバイル軍事 (= SP3 の領域) に出る。このテストが JS 側の最後の砦 (レビュー I2)。
-  it('モバイル幅では軍事でも帯を出さない (SP3 境界)', () => {
+  it('モバイル幅では軍事でも待機表示を出さない (SP3 境界)', () => {
     (window as unknown as { innerWidth: number }).innerWidth = 500;
     useThemeStore.setState({ themeStyle: 'military' });
 
@@ -150,5 +146,6 @@ describe('リキャスト帯（MIL-SPEC SP2 Task 7）', () => {
     );
 
     expect(container.querySelector('[data-milspec-recast-band]')).toBeNull();
+    expect(container.querySelector('.recast-idle')).toBeNull();
   });
 });

@@ -143,18 +143,6 @@
 }
 .theme-military .milspec-app [data-event-slot] > div > :is(span, div) { font: inherit; letter-spacing: inherit; }
 .theme-military .milspec-app [data-event-slot] [class*="text-app-"] { color: var(--ma-txt-atk); font-size: 10px; font-weight: 500; line-height: 1; }
-/* 攻撃の種類 = アイコンの代わりに 2.5×10 の色帯(物理=紫・魔法=青)。押す当たりは 10px 幅 */
-.theme-military .milspec-app [data-event-slot] button[data-damage-type] {
-  width: 10px; height: 14px; padding: 0; margin: 0; justify-content: center; background: none; flex: none;
-}
-.theme-military .milspec-app [data-event-slot] button[data-damage-type] > * { display: none; }
-.theme-military .milspec-app [data-event-slot] button[data-damage-type]::before {
-  content: ""; width: 2.5px; height: 10px; border-radius: 1px; background: var(--ma-ink-3);
-}
-.theme-military .milspec-app [data-event-slot] button[data-damage-type="physical"]::before { background: #a15ccb; }
-.theme-military .milspec-app [data-event-slot] button[data-damage-type="magical"]::before { background: #4c86d6; }
-.theme-military .milspec-app [data-event-slot] button[data-damage-type]:hover { background: none; }
-
 /* 数字(元ダメージ・軽減後): Plex Mono 10.5px・右寄せ */
 .theme-military .milspec-app [data-time-row] > :is(:nth-child(5), :nth-child(6)) {
   font: 500 10.5px/1 'IBM Plex Mono', monospace; letter-spacing: 0.01em; color: var(--ma-txt-num);
@@ -164,13 +152,15 @@
 }
 .theme-military .milspec-app [data-time-row]:hover > :is(:nth-child(5), :nth-child(6)) { color: var(--ma-txt-num); }
 .theme-military .milspec-app [data-time-row] > :nth-child(6) > div {
-  flex-direction: row-reverse; justify-content: flex-start; align-items: center; gap: 5px; overflow: hidden; min-width: 0;
+  /* 数値 + 注記は 1 行に収まれば「注記 | 数値」・収まらなければ注記が数値の下の行へ折り返す(切らない) */
+  flex-direction: row-reverse; flex-wrap: wrap; justify-content: flex-start; align-content: center; align-items: center;
+  gap: 1px 5px; min-width: 0; max-width: 100%; padding-left: 4px; overflow: visible;
 }
 .theme-military .milspec-app [data-time-row] .dmg-slot { flex: none; height: 16px; font-weight: 500; color: var(--ma-txt-ok); text-shadow: none; }
 .theme-military .milspec-app [data-time-row] .dmg-slot.lethal { color: var(--ma-dng); font-weight: 500; }
 /* 軽減の注記(▼15% など)は数字の左に小さく(見本 .nm small) */
 .theme-military .milspec-app [data-time-row] > :nth-child(6) > div > div:not(.dmg-slot) {
-  display: flex; width: auto; max-width: none; padding: 0; transform: none; opacity: 1; overflow: visible; flex: none;
+  display: flex; width: auto; max-width: 100%; padding: 0; transform: none; opacity: 1; overflow: visible; text-overflow: clip; white-space: nowrap; flex: none;
   font: 600 5.8px/1 'Saira Semi Condensed', sans-serif; letter-spacing: 0.1em; color: var(--ma-ink-3);
 }
 
@@ -188,6 +178,9 @@
 /* ---------- フェーズ(縦書き・css:504-506)/ ラベルの帯 ---------- */
 .theme-military .milspec-app [data-phase-overlay],
 .theme-military .milspec-app [data-label-overlay] { background: none; border-color: transparent; box-shadow: none; }
+/* フェーズ・ラベルの列は不透明な面で覆う(下の表の文字を透かさない)。面の色 = 表の窪みの地(--ma-screen-bg・ダーク/ライトで切替) */
+.theme-military .milspec-app [data-phase-overlay],
+.theme-military .milspec-app [data-label-overlay] { background: var(--ma-screen-bg); }
 .theme-military .milspec-app [data-phase-overlay] > div > div > div { flex-direction: row; gap: 6px; align-items: center; filter: none; }
 .theme-military .milspec-app [data-phase-overlay] span {
   font: 500 10px/1 'IBM Plex Sans JP', sans-serif; letter-spacing: 0.12em; color: #b9bec2;
@@ -195,43 +188,30 @@
 .theme-military.theme-light .milspec-app [data-phase-overlay] span { color: #4a5259; }
 .theme-military .milspec-app [data-phase-overlay] span:first-child::after { content: " ·"; }
 
-/* ---------- リキャストの帯(位置はそのまま・質感だけ見本の「装甲の窪み」に寄せる)---------- */
-.theme-military .milspec-app .milspec-tbl-wrap [data-milspec-recast-band] {
-  background: linear-gradient(180deg, rgba(0,0,0,0.24), rgba(0,0,0,0.08));
-  box-shadow: inset 0 1px 0 rgba(0,0,0,0.4), inset 0 -1px 0 var(--ma-row-line);
-}
-.theme-military.theme-light .milspec-app .milspec-tbl-wrap [data-milspec-recast-band] {
-  background: linear-gradient(180deg, rgba(20,30,40,0.09), rgba(20,30,40,0.03));
-  box-shadow: inset 0 1px 0 rgba(20,30,40,0.14), inset 0 -1px 0 var(--ma-row-line);
-}
-.theme-military .milspec-app .milspec-tbl-wrap .milspec-rc-label {
-  font-family: 'Saira Semi Condensed', sans-serif; font-weight: 600; font-size: 5.4px; letter-spacing: 0.24em; color: var(--ma-th); opacity: 0.9;
-}
-
-/* ---------- 見出しのメンバー列(見本 css:472-475 の .jc / .rl)。列の x は Timeline の実測 ---------- */
+/* ---------- 見出しのメンバー列(見本 css:472-475 の .jc / .rl)----------
+   リキャストのセル(.recast-cell)の中の待機表示 = ロール色の短い線 + ジョブ略号。
+   セルに表示中のアイコンが 1 つも無い(data-recast-active が 1 でない)ときだけ出す。
+   出し分けは RecastRow が data-recast-active に直書き(スクロール毎に React を再描画しない)。 */
 .theme-military { --ma-role-tank: #4d79c6; --ma-role-healer: #4ea669; --ma-role-dps: #bf5049; }
 .theme-military .milspec-app #timeline-header-inner { position: relative; }
-.theme-military .milspec-app #timeline-header-inner > .milspec-mh {
-  position: absolute; left: 0; top: 0; bottom: 0; width: 0; height: auto; pointer-events: none;
-}
-.theme-military .milspec-app #timeline-header-inner > .milspec-mh::before,
-.theme-military .milspec-app #timeline-header-inner > .milspec-mh::after { content: none; }
-.theme-military .milspec-app #timeline-header-inner > .milspec-mh > .milspec-mh-item {
-  position: absolute; top: 0; bottom: 0; transform: translateX(-50%);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3.5px;
+.theme-military .milspec-app #timeline-header-inner > .recast-cell { position: relative; }
+.theme-military .milspec-app .recast-idle {
+  position: absolute; inset: 0; display: none; pointer-events: none;
+  flex-direction: column; align-items: center; justify-content: center; gap: 3.5px;
   padding: 0; font: 600 5.4px/1 'Saira Semi Condensed', sans-serif;
 }
+.theme-military .milspec-app .recast-cell:not([data-recast-active="1"]) > .recast-idle { display: flex; }
 .theme-military .milspec-app .milspec-mh-rl {
   display: block; width: 14px; height: 2px; border-radius: 1px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.35);
   background: var(--ma-rc, var(--ma-ink-3));
 }
-.theme-military .milspec-app .milspec-mh-item small {
+.theme-military .milspec-app .recast-idle small {
   font: 600 5.4px/1 'Saira Semi Condensed', sans-serif; letter-spacing: 0.24em; padding-left: 0.24em;
   color: var(--ma-th); min-height: 5.4px;
 }
-.theme-military .milspec-app .milspec-mh-item[data-role="tank"] { --ma-rc: var(--ma-role-tank); }
-.theme-military .milspec-app .milspec-mh-item[data-role="healer"] { --ma-rc: var(--ma-role-healer); }
-.theme-military .milspec-app .milspec-mh-item[data-role="dps"] { --ma-rc: var(--ma-role-dps); }
+.theme-military .milspec-app .recast-idle[data-role="tank"] { --ma-rc: var(--ma-role-tank); }
+.theme-military .milspec-app .recast-idle[data-role="healer"] { --ma-rc: var(--ma-role-healer); }
+.theme-military .milspec-app .recast-idle[data-role="dps"] { --ma-rc: var(--ma-role-dps); }
 
 /* =====================================================================
    効果アイコン・効果帯・終点の目盛り(見本 v11 css:507-517)と照準(css:518-539)。

@@ -1135,7 +1135,66 @@
   box-shadow: 0 0 0 1px var(--ms-cham-silhouette), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 
-/* light: 淡い金属色へ(Task 3/4/5/6 と同じ作法)。 */
+/* light: dark 固定 hex / 重い黒 rgba を淡い金属色へ(Task 3/4/5 と同じ作法・最終調整は SP2 後)。 */
+.theme-military.theme-light .milspec-app #timeline-controls-inner [data-member-id] [class~="cursor-pointer"] {
+  background: linear-gradient(180deg, #d9e0e7, #c0c9d2);
+  box-shadow: 0 0 0 1px var(--ms-cham-silhouette), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+/* ---------- リキャストのアイコン(軍事の表・見出しのメンバー列の中)
+   RecastRow はメンバー列(見出し #timeline-header-inner の直下の .recast-cell)に出る。
+   ⚠ .recast-cell の padding-left / justify-content(index.css)は触らない(本文の軽減バーと x を揃える実測値)。
+   ⚠ --cd-display / --cd-order / --cd-angle は RecastRow.update() が書く動作契約。ここでは色・形だけ skin する。
+   セルの罫線は幅を保ったまま透明に落とす。待機表示(線 + 略号)の規則は milspecTable.css。 ---------- */
+.theme-military .milspec-app #timeline-header-inner > .recast-cell {
+  background: transparent;
+  border-right-color: transparent;
+}
+
+/* アイコン = 円形の金属ソケットに沈んだレンズ(mockup .rc-icon 1292-1296)。
+   padding:2px(border-box なので 24px 幅は不変)で img を内側に落とし、
+   外周 2px を金属ベゼルとして見せる。overflow を visible に戻して残秒を下へ出す。 */
+.theme-military .milspec-app #timeline-header-inner .recast-icon {
+  padding: 2px;
+  border-radius: 50%;
+  overflow: visible;
+  background: radial-gradient(circle at 34% 28%, #454f5a, #1c232a 60%, #0a0d11 90%);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.6),
+    inset 0 1.5px 3px rgba(0,0,0,0.7),
+    0 1px 0 rgba(255,255,255,0.07);
+}
+.theme-military .milspec-app #timeline-header-inner .recast-icon img {
+  border-radius: 50%;
+  object-fit: cover;
+  filter: saturate(0.82) brightness(0.86);
+}
+/* clockswipe(mockup .rc-icon::after 1297-1299)。実アプリの ::before は
+   「transparent 0→--cd-angle / 暗幕 --cd-angle→360deg」という向きの契約なので
+   向きは変えず、円形化と暗幕の色だけ mockup(rgba(4,6,9,0.84))へ寄せる。 */
+.theme-military .milspec-app #timeline-header-inner .recast-icon::before {
+  inset: 2px;
+  border-radius: 50%;
+  background: conic-gradient(
+    transparent 0 var(--cd-angle, 0deg),
+    rgba(4,6,9,0.84) var(--cd-angle, 0deg) 360deg
+  );
+}
+/* 残秒(mockup .rc-num 1300)= アイコンの下にシアンの小数字。
+   実アプリの inset:0 中央配置(アイコン絵柄の上に白字)を解除して下へ出す。 */
+.theme-military .milspec-app #timeline-header-inner .recast-num {
+  inset: auto auto -7px 50%;
+  transform: translateX(-50%);
+  display: block;
+  width: auto;
+  white-space: nowrap;
+  font: 700 7px/1 'Share Tech Mono', ui-monospace, monospace;
+  color: var(--ms-cyan);
+  text-shadow: 0 0 3px var(--ms-cyan-glow);
+}
+
+/* light: dark 固定 hex / 重い黒 rgba を淡い金属色へ(Task 3/4/5/6 と同じ作法)。
+   --ms-recess-* / --ms-text-muted / --ms-cyan* は light 定義済 → 帯の地色は上書き不要。 */
 .theme-military.theme-light .milspec-app #timeline-header-inner .recast-icon {
   background: radial-gradient(circle at 34% 28%, #ffffff, #ccd6df 60%, #a8b5c1 90%);
   box-shadow:
@@ -1702,18 +1761,19 @@
 .theme-military .milspec-h3-lamp { display: flex; align-items: center; gap: 5px; }
 .theme-military .milspec-h3-lamp .milspec-stencil { position: static; }
 /* ドラム時計 */
-.theme-military .milspec-drums { position: absolute; display: flex; align-items: center; gap: 2px; padding: 3px 5px; border-radius: 3px; background: linear-gradient(180deg, var(--ma-pit-hi), var(--ma-pit-lo)); box-shadow: inset 0 1.4px 2px #000, 0 0.6px 0 rgba(255,255,255,0.1); }
-.theme-military .milspec-dr { position: relative; width: 10px; height: 16px; overflow: hidden; border-radius: 1.5px; background: #0b0c0d; box-shadow: inset 0 4px 5px rgba(0,0,0,0.95), inset 0 -3px 4px rgba(0,0,0,0.8); }
+.theme-military .milspec-drums { position: absolute; display: flex; align-items: center; gap: 1.5px; padding: 3px 2px; border-radius: 3px; background: linear-gradient(180deg, var(--ma-pit-hi), var(--ma-pit-lo)); box-shadow: inset 0 1.4px 2px #000, 0 0.6px 0 rgba(255,255,255,0.1); }
+.theme-military .milspec-dr { position: relative; width: 8px; height: 16px; overflow: hidden; border-radius: 1.5px; background: #0b0c0d; box-shadow: inset 0 4px 5px rgba(0,0,0,0.95), inset 0 -3px 4px rgba(0,0,0,0.8); }
 .theme-military .milspec-dr::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.55), transparent 30%, transparent 46%, rgba(0,0,0,0.9) 49%, rgba(255,255,255,0.07) 52%, transparent 55%, transparent 70%, rgba(0,0,0,0.55)); }
 .theme-military .milspec-dr i { display: block; font: 400 12px/16px 'Share Tech Mono', monospace; color: #e6e4dc; text-align: center; font-style: normal; transform: translateY(calc(var(--v, 0) * -16px)); transition: transform .55s cubic-bezier(.85,0,.15,1); }
 .theme-military .milspec-dr i span { display: block; height: 16px; }
-.theme-military .milspec-colon { width: 3px; height: 9px; display: flex; flex-direction: column; justify-content: space-between; }
-.theme-military .milspec-colon::before, .theme-military .milspec-colon::after { content: ""; width: 2.5px; height: 2.5px; border-radius: 50%; background: var(--ma-on); box-shadow: 0 0 2px rgba(var(--ma-on-rgb),0.7); animation: milspec-led-blink 1s steps(2, jump-none) infinite; }
-html.theme-military[data-ms-power="off"] .milspec-colon::before, html.theme-military[data-ms-power="off"] .milspec-colon::after { background: #222; box-shadow: none; animation: none; }
+.theme-military .milspec-dr-gap { width: 2px; flex: none; }
+.theme-military .milspec-dtg-txt { position: absolute; display: flex; flex-direction: column; gap: 3px; font: 600 5.6px/1 'Saira Semi Condensed', sans-serif; letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap; }
+.theme-military .milspec-dtg-mon { color: var(--ma-ink-2); }
+.theme-military .milspec-dtg-dow { color: var(--ma-leg); font-size: 4.8px; }
+.theme-military .milspec-key-na { opacity: 0.38; }
 html.theme-military[data-ms-power="off"] .milspec-led .milspec-led-src { opacity: 0 !important; animation: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .theme-military .milspec-dr i { transition: none; }
-  .theme-military .milspec-colon::before, .theme-military .milspec-colon::after { animation: none; }
 }
 
 /* ============================================================

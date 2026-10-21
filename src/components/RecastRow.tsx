@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, type ReactNode, useImperativeHandle, useMemo, useRef } from 'react';
 import type { AppliedMitigation, Mitigation, PartyMember } from '../types';
 import { RecastIcon } from './RecastIcon';
 import { getActiveRecasts, selectVisibleByLimit, calculateAngle, EXCLUDED_FROM_RECAST_ROW } from '../utils/recastRow';
@@ -23,6 +23,12 @@ interface RecastRowProps {
     partyMembers: PartyMember[];
     placements: AppliedMitigation[];
     mitigationDefs: Mitigation[];
+    /**
+     * 任意: 「いまリキャスト中のアイコンが 1 つも出ていない列」の待機表示 (軍事の表の線 + ジョブ略号)。
+     * 各セルに .recast-idle として常駐させ、出し分けは update()/hideAll() が書く
+     * セルの data-recast-active と CSS だけで行う (再レンダーなし)。標準テーマでは渡さない。
+     */
+    renderIdle?: (member: PartyMember) => ReactNode;
 }
 
 /** T (tank) / H (healer) の表示上限 (1 メンバーあたり同時可視数) */
@@ -53,7 +59,7 @@ const LIMIT_DPS = 2;
  *   左側の列ヘッダー (敵の攻撃 / ラベル / Time / ...) は触らず、 そのまま残す
  */
 export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
-    ({ partyMembers, placements, mitigationDefs }, ref) => {
+    ({ partyMembers, placements, mitigationDefs, renderIdle }, ref) => {
         // 各メンバーごとに 「過去に一度でも配置された mitigationId 一覧」 を構築。
         // これが各セルに mount するアイコンの集合 (静的)。
         const speciesByMember = useMemo(() => {
@@ -83,8 +89,14 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
         // (ownerId, mitigationId) → DOM 要素の参照。 update() で直接書き換える。
         const iconRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
 
+        // member.id → セル要素。表示中アイコンの有無を data-recast-active に直書きする。
+        const cellRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
+
         useImperativeHandle(ref, () => ({
             hideAll: () => {
+                cellRefs.current.forEach((cell) => {
+                    if (cell) cell.dataset.recastActive = '0';
+                });
                 iconRefs.current.forEach((el) => {
                     if (el) el.style.setProperty('--cd-display', 'none');
                 });
@@ -121,6 +133,7 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
                     });
 
                     const species = speciesByMember.get(member.id) ?? [];
+                    let shown = 0;
                     for (const mitId of species) {
                         const key = member.id + '|' + mitId;
                         const el = iconRefs.current.get(key);
@@ -131,6 +144,7 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
                             el.style.setProperty('--cd-display', 'none');
                             continue;
                         }
+                        shown++;
                         el.style.setProperty('--cd-display', 'flex');
                         el.style.setProperty(
                             '--cd-angle',
@@ -140,6 +154,8 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
                         const num = el.querySelector('.recast-num');
                         if (num) num.textContent = String(Math.ceil(entry.remaining));
                     }
+                    const cell = cellRefs.current.get(member.id);
+                    if (cell) cell.dataset.recastActive = shown > 0 ? '1' : '0';
                 }
             },
         }), [partyMembers, placements, mitigationDefs, speciesByMember]);
@@ -153,6 +169,7 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
                         <div
                             key={member.id}
                             className="recast-cell"
+                            ref={(el) => { cellRefs.current.set(member.id, el); }}
                             data-member={member.id}
                             data-role={member.role}
                             style={{
@@ -180,6 +197,11 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
                                     </Tooltip>
                                 );
                             })}
+                            {renderIdle && (
+                                <span className="recast-idle" data-role={member.role} aria-hidden="true">
+                                    {renderIdle(member)}
+                                </span>
+                            )}
                         </div>
                     );
                 })}
