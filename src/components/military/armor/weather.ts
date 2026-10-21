@@ -48,7 +48,7 @@ const streakSVG = (x: number, y: number, len: number, w = 0.9): string =>
 
 /** パネル 1 枚分の汚し(装甲の描画の最後に重ねる。パネルの形で切り抜く) */
 export function weatherSVG(spec: PanelSpec, pts: Pt[], inner: Pt[], id: string): string {
-  const wx: WeatherSpec = spec.wx ?? {}, R = rng(seedOf(pts) + (wx.seed ?? 0));
+  const wx: WeatherSpec = spec.wx ?? {}, R = rng((spec.seed ?? seedOf(pts)) + (wx.seed ?? 0));
   let s = `<clipPath id="${id}c"><polygon points="${P(pts)}"/></clipPath><g clip-path="url(#${id}c)">`;
   const bb = bbox(inner);
   if (wx.grime !== 0) s += `<rect x="${bb.x}" y="${bb.y + bb.h * 0.45}" width="${bb.w}" height="${bb.h * 0.55}" fill="url(#wx-grime)" opacity="${wx.grime ?? 1}"/>`;

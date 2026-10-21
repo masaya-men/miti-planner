@@ -1,3 +1,5 @@
+import { dedupe } from './geom';
+import { seedOf } from './weather';
 import type { PanelSpec, PlacedPanel, Pt, StretchFrame } from './types';
 
 /** 境界(sx, sy)より大きい座標だけを、伸びた量(w - w0, h - h0)ぶん動かす */
@@ -31,7 +33,14 @@ const stretchPts = (pts: Pt[], f: StretchFrame, w: number, h: number): Pt[] => p
 
 /** パネルを w x h に伸ばした形にする(境界より大きい座標だけが動く) */
 export function stretchSpec(spec: PanelSpec, f: StretchFrame, w: number, h: number): PanelSpec {
-  const out: PanelSpec = { ...spec, pts: stretchPts(spec.pts, f, w, h) };
+  const out: PanelSpec = { ...spec, pts: stretchPts(spec.pts, f, w, h), seed: spec.seed ?? seedOf(dedupe(spec.pts)) };
+  if (spec.wx) {
+    const wx = { ...spec.wx };
+    if (wx.heat) wx.heat = wx.heat.map(([cx, cy, r]): [number, number, number] => { const [x, y] = mv(cx, cy, f, w, h); return [x, y, r]; });
+    if (wx.wear) wx.wear = wx.wear.map(([cx, cy, r, n]): [number, number, number, number] => { const [x, y] = mv(cx, cy, f, w, h); return [x, y, r, n]; });
+    if (wx.streaks) wx.streaks = wx.streaks.map(([sx, sy, len]): [number, number, number] => { const [x, y] = mv(sx, sy, f, w, h); return [x, y, len]; });
+    out.wx = wx;
+  }
   if (spec.pockets) out.pockets = spec.pockets.map((pk) => ({ ...pk, pts: stretchPts(pk.pts, f, w, h) }));
   if (spec.circles) out.circles = spec.circles.map(([cx, cy, r]): [number, number, number] => { const [x, y] = mv(cx, cy, f, w, h); return [x, y, r]; });
   if (spec.scribes) out.scribes = spec.scribes.map((d) => stretchPath(d, f, w, h));

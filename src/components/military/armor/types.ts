@@ -37,6 +37,8 @@ export interface PanelSpec {
   /** ボルト [cx, cy, r] */
   circles?: [number, number, number][];
   wx?: WeatherSpec;
+  /** 傷模様の乱数の種。未指定なら形(pts)から決める。伸縮しても傷模様が変わらないよう stretchSpec が固定する */
+  seed?: number;
 }
 
 export interface PlacedPanel { x: number; y: number; w: number; h: number; spec: PanelSpec }
