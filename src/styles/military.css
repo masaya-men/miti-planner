@@ -2791,7 +2791,7 @@
 .theme-military .milspec-key-active .lip { stroke: var(--ma-on); filter: drop-shadow(0 0 1.2px rgba(var(--ma-on-rgb),0.9)); }
 .theme-military .milspec-key-active .milspec-key-lb { color: var(--ma-kink-hot); }
 /* 視覚的に隠す(スクリーンリーダー用の名前) */
-.milspec-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+.theme-military .milspec-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
 @media (prefers-reduced-motion: reduce) {
   .theme-military .milspec-key-hov, .theme-military .milspec-keybtn .milspec-key-hov, .theme-military .milspec-key .sh, .theme-military .milspec-key .rim, .theme-military .milspec-key .lip, .theme-military .milspec-key-lb { transition: none; }
 }
