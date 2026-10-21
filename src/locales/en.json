@@ -668,6 +668,15 @@
             "replace_all_warning": "Placed mitigations will also be deleted"
         }
     },
+    "milspec": {
+        "sb_select_count": "Selected {{count}}",
+        "sb_bulk_delete_armed": "Press again to delete {{count}}",
+        "sb_series_fold": "Collapse series",
+        "sb_series_unfold": "Expand series",
+        "sb_content_sub": "",
+        "sb_service_sub": "",
+        "sb_content_group": "Content type"
+    },
     "sidebar": {
         "new_plan": "New",
         "create_new_list": "Create New List",

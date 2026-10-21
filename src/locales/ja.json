@@ -672,6 +672,15 @@
             "replace_all_warning": "配置済みの軽減も削除されます"
         }
     },
+    "milspec": {
+        "sb_select_count": "選択 {{count}}",
+        "sb_bulk_delete_armed": "もう一度押すと{{count}}件を削除",
+        "sb_series_fold": "シリーズを畳む",
+        "sb_series_unfold": "シリーズを開く",
+        "sb_content_sub": "コンテンツ",
+        "sb_service_sub": "保守",
+        "sb_content_group": "コンテンツ種別"
+    },
     "sidebar": {
         "new_plan": "新規作成",
         "create_new_list": "新規リスト作成",

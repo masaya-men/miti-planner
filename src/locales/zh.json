@@ -660,6 +660,15 @@
             "replace_all_warning": "已放置的减伤也会被删除"
         }
     },
+    "milspec": {
+        "sb_select_count": "已选 {{count}}",
+        "sb_bulk_delete_armed": "再按一次删除 {{count}} 项",
+        "sb_series_fold": "折叠系列",
+        "sb_series_unfold": "展开系列",
+        "sb_content_sub": "内容",
+        "sb_service_sub": "维护",
+        "sb_content_group": "内容类型"
+    },
     "sidebar": {
         "new_plan": "新建",
         "create_new_list": "创建新列表",

@@ -20,6 +20,10 @@ import { loadPlanDataIntoStore } from '../../lib/planLoad';
 import { setLastOpened } from '../../utils/lastOpenedStore';
 import { showToast } from '../Toast';
 import { NewPlanModal } from '../NewPlanModal';
+import { useReducedMotion } from '../../lib/housing/useReducedMotion';
+import { MilspecLed } from './MilspecDecor';
+import { MsIcon } from './milspecIcons';
+import { energy } from './fx/engine';
 import '../../i18n';
 
 export type MilspecTreeTab = 'savage' | 'ultimate' | 'other' | 'archive';
@@ -44,24 +48,79 @@ export function tabForPlanCategory(cat: string | null | undefined): Tab {
   return 'savage';
 }
 
+/** ツリーの選択モード(まとめて共有 / 選択削除)。無いときは通常のツリー。 */
+export interface MilspecTreeSelect {
+  mode: 'share' | 'delete';
+  selectedIds: string[];
+  onToggle: (id: string) => void;
+}
+
 /**
- * サイドバー中央 = コンテンツツリー。masaya 2026-09-09 の指定:
- *  「上部にタブ(零式/絶/その他/アーカイブ) → コンテンツ名が縦に並ぶ(独立してへこんだプレート)
- *   → プランがあるコンテンツは開いてプランが並ぶ(＋追加)」= 標準 Sidebar.tsx と同じ木。
- * SP1 実装(フェーズ表示 + 平置きプラン一覧)は誤りだったので撤去して作り直したもの。
+ * 引き出しの開閉(見本 milspec-v11.js の foldTo / js:1120-1134 をそのまま)。
+ * 開く = 460ms で高さ 0 → +5px の行き過ぎ → 本来の高さ、子は 110ms + 45ms*i 遅れて左から滑り込む。
+ * 閉じる = 340ms で +3px 膨らんでから 0 へ。reduced(または animate 非対応)なら hidden を切り替えるだけ。
+ */
+export function foldDrawer(list: HTMLElement, open: boolean, reduced: boolean): void {
+  if (reduced || typeof list.animate !== 'function') { list.hidden = !open; return; }
+  if (open) {
+    list.hidden = false;
+    const h = list.scrollHeight;
+    list.style.overflow = 'hidden';
+    const a = list.animate([
+      { height: '0px', easing: 'cubic-bezier(.7,0,.2,1)' },
+      { height: h + 5 + 'px', offset: 0.78, easing: 'ease-in-out' },
+      { height: h + 'px' },
+    ], { duration: 460 });
+    a.onfinish = () => { list.style.overflow = ''; };
+    [...list.children].forEach((c, i) => c.animate([
+      { transform: 'translateX(-10px)', opacity: 0 },
+      { transform: 'translateX(1px)', opacity: 1, offset: 0.7 },
+      { transform: 'none', opacity: 1 },
+    ], { duration: 360, delay: 110 + i * 45, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
+  } else {
+    const h = list.offsetHeight;
+    list.style.overflow = 'hidden';
+    const a = list.animate([
+      { height: h + 'px', easing: 'cubic-bezier(.5,0,.9,.5)' },
+      { height: h + 3 + 'px', offset: 0.15, easing: 'cubic-bezier(.6,0,.9,.4)' },
+      { height: '0px' },
+    ], { duration: 340 });
+    a.onfinish = () => { list.hidden = true; list.style.overflow = ''; };
+  }
+}
+
+/** 開閉の状態 + 引き出しの実体(hidden は初期値だけ React が決め、以後は foldDrawer が直接動かす) */
+function useDrawer(initialOpen: boolean) {
+  const reduced = useReducedMotion();
+  const [open, setOpenState] = React.useState(initialOpen);
+  const openRef = React.useRef(initialOpen);
+  const initialHidden = React.useRef(!initialOpen).current;
+  const listRef = React.useRef<HTMLDivElement>(null);
+  const setOpen = React.useCallback((next: boolean) => {
+    if (openRef.current === next) return;
+    openRef.current = next;
+    setOpenState(next);
+    if (listRef.current) foldDrawer(listRef.current, next, reduced);
+  }, [reduced]);
+  return { open, setOpen, listRef, initialHidden, reduced };
+}
+
+/**
+ * サイドバー中央 = コンテンツツリー(MIL-SPEC v11 見本の .tree)。
+ * 外枠の data-ms-tree は fx の energy() が「ツリー内の行か」を見分けて幹線から光を流すための目印。
  *
  * データを触る処理(プラン選択の保存→解凍→切替、作成、削除)は標準の実績コードと同じ手順:
  *  - 選択: 標準 Sidebar.tsx / ContentTreeItem と同じ「保存→再圧縮判定→await 解凍→書き戻し→切替」
  *  - 作成: NewPlanModal(共同編集切断・clearAllMitigations・commitNewPlan の安全な順序を持つ)
  *  - 削除: usePlanStore.deleteFromFirestore / deletePlan
- * 見た目だけ mockup の .enc-name(コンテンツ名) / .pi(プラン行) 意匠に寄せる。
  */
-export const MilspecContentTree: React.FC<{ tab: Tab }> = ({ tab }) => {
+export const MilspecContentTree: React.FC<{ tab: Tab; select?: MilspecTreeSelect }> = ({ tab, select }) => {
   const contentLanguage = useThemeStore((s) => s.contentLanguage);
   const { plans, currentPlanId } = usePlanStore(
     useShallow((s) => ({ plans: s.plans, currentPlanId: s.currentPlanId })),
   );
   const currentPlan = plans.find((p) => p.id === currentPlanId) ?? null;
+  const currentContentId = currentPlan?.contentId ?? null;
 
   const [newPlanContentId, setNewPlanContentId] = React.useState<string | null | undefined>(undefined);
   const openNewPlan = (contentId?: string | null) => setNewPlanContentId(contentId ?? null);
@@ -74,21 +133,21 @@ export const MilspecContentTree: React.FC<{ tab: Tab }> = ({ tab }) => {
   }, []);
 
   return (
-    // 他のサイドバーパネル(CONTENT / BACKUP / DEPLOYMENT)と同じ縦フローに、コンテンツ 1 件ずつを
-    // 独立した .milspec-hp パネル(くぼみ)として積む。ここはスクロール枠のみ(自身は装飾なし)。
-    <div className="milspec-tree-scroll">
-      {tab === 'savage' && <SavageTree lang={contentLanguage} currentContentId={currentPlan?.contentId ?? null} onAdd={openNewPlan} />}
-      {tab === 'ultimate' && getAllUltimates().map((c) => (
+    <div className="milspec-tree-scroll milspec-tr" data-ms-tree>
+      {tab === 'savage' && <SavageTree lang={contentLanguage} currentContentId={currentContentId} onAdd={openNewPlan} select={select} />}
+      {tab === 'ultimate' && getAllUltimates().map((c, i) => (
         <MilspecContentGroup
           key={c.id}
           content={c}
+          index={i}
           displayName={getPhaseName(c.name, contentLanguage)}
-          currentContentId={currentPlan?.contentId ?? null}
+          currentContentId={currentContentId}
           onAdd={openNewPlan}
+          select={select}
         />
       ))}
-      {tab === 'other' && <OtherTree lang={contentLanguage} currentContentId={currentPlan?.contentId ?? null} onAdd={openNewPlan} />}
-      {tab === 'archive' && <ArchiveList lang={contentLanguage} />}
+      {tab === 'other' && <OtherTree lang={contentLanguage} currentContentId={currentContentId} onAdd={openNewPlan} select={select} />}
+      {tab === 'archive' && <ArchiveList select={select} />}
 
       <NewPlanModal
         isOpen={newPlanContentId !== undefined}
@@ -99,10 +158,14 @@ export const MilspecContentTree: React.FC<{ tab: Tab }> = ({ tab }) => {
   );
 };
 
-// ── 零式タブ: シリーズ見出し + 各層(shortName) ──────────────────────
-const SavageTree: React.FC<{ lang: string; currentContentId: string | null; onAdd: (id?: string | null) => void }> = ({ lang, currentContentId, onAdd }) => {
+type TreeProps = { lang: string; currentContentId: string | null; onAdd: (id?: string | null) => void; select?: MilspecTreeSelect };
+
+// ── 零式タブ: シリーズ見出し(fold ボタン + 文字) + 各層 ──────────────
+const SavageTree: React.FC<TreeProps> = ({ lang, currentContentId, onAdd, select }) => {
   const contents = getSavageForCurrentExpansion();
   const seriesIds = [...new Set(contents.map((c) => c.seriesId))];
+  // 初期 = 現在プランのシリーズだけ開く(現在のものが無ければ先頭)
+  const currentSeriesId = contents.find((c) => c.id === currentContentId)?.seriesId ?? seriesIds[0];
   return (
     <>
       {seriesIds.map((sid) => {
@@ -113,26 +176,56 @@ const SavageTree: React.FC<{ lang: string; currentContentId: string | null; onAd
         const proj = getProjectLabel(inSeries[0].level, 'savage');
         const sectionLabel = proj ? `${proj[lang as keyof typeof proj] || proj.ja}：${seriesName}` : String(seriesName);
         return (
-          <React.Fragment key={sid}>
-            <div className="milspec-tree-series-hd">{sectionLabel}</div>
-            {inSeries.map((c) => (
+          <SeriesBlock key={sid} label={sectionLabel} isCurrent={sid === currentSeriesId}>
+            {inSeries.map((c, i) => (
               <MilspecContentGroup
                 key={c.id}
                 content={c}
+                index={i}
                 displayName={(c.shortName[lang as keyof typeof c.shortName] || c.shortName.ja || '').replace('\n', ' ')}
                 currentContentId={currentContentId}
                 onAdd={onAdd}
+                select={select}
               />
             ))}
-          </React.Fragment>
+          </SeriesBlock>
         );
       })}
     </>
   );
 };
 
+/** シリーズ 1 つ = 見出し(.hd + fold ボタン、見本 js:825-827) + 引き出し(.grp-list) */
+const SeriesBlock: React.FC<{ label: string; isCurrent: boolean; children: React.ReactNode }> = ({ label, isCurrent, children }) => {
+  const { t } = useTranslation();
+  const { open, setOpen, listRef, initialHidden } = useDrawer(isCurrent);
+  // 現在のプランがこのシリーズに移ってきたら開く(閉じていて選択中が見えない状態を避ける)
+  const prevCurrent = React.useRef(isCurrent);
+  React.useEffect(() => {
+    if (isCurrent && !prevCurrent.current) setOpen(true);
+    prevCurrent.current = isCurrent;
+  }, [isCurrent, setOpen]);
+  return (
+    <>
+      <div className="milspec-tr-hd">
+        <button
+          type="button"
+          className="milspec-tr-fold"
+          aria-expanded={open}
+          aria-label={open ? t('milspec.sb_series_fold') : t('milspec.sb_series_unfold')}
+          onClick={() => setOpen(!open)}
+        >
+          <MsIcon.fold />
+        </button>
+        <span onClick={() => setOpen(!open)}>{label}</span>
+      </div>
+      <div className="milspec-tr-list" ref={listRef} hidden={initialHidden}>{children}</div>
+    </>
+  );
+};
+
 // ── その他タブ: プランを contentId ごとにまとめる(登録の無いものは「フリープラン」) ─
-const OtherTree: React.FC<{ lang: string; currentContentId: string | null; onAdd: (id?: string | null) => void }> = ({ lang, currentContentId, onAdd }) => {
+const OtherTree: React.FC<TreeProps> = ({ lang, currentContentId, onAdd, select }) => {
   const { t } = useTranslation();
   const plans = usePlanStore((s) => s.plans);
   const otherPlans = plans.filter((p) => {
@@ -151,14 +244,16 @@ const OtherTree: React.FC<{ lang: string; currentContentId: string | null; onAdd
   }
   return (
     <>
-      {[...byContent.entries()].map(([key, list]) => {
+      {[...byContent.entries()].map(([key, list], i) => {
         if (key === '__free__') {
           return (
-            <div className="milspec-hp milspec-tree-group recess stack" style={{ '--ms-sh': 'var(--ms-sh-tl-tr)' } as React.CSSProperties} key={key}>
-              <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
-              <div className="milspec-tree-head" aria-hidden><span className="milspec-tree-head-name">{t('sidebar.custom_plans')}</span></div>
-              <div className="milspec-tree-plans">
-                {list.map((p) => (<PlanRow key={p.id} plan={p} />))}
+            <div className="milspec-tr-grp" key={key}>
+              <div className="milspec-tr-it is-static">
+                <span className="milspec-tr-n">{String(i + 1).padStart(2, '0')}</span>
+                <span className="milspec-tr-nm">{t('sidebar.custom_plans')}</span>
+              </div>
+              <div className="milspec-tr-plans">
+                {list.map((p) => (<PlanRow key={p.id} plan={p} select={select} />))}
               </div>
             </div>
           );
@@ -168,9 +263,11 @@ const OtherTree: React.FC<{ lang: string; currentContentId: string | null; onAdd
           <MilspecContentGroup
             key={key}
             content={c}
+            index={i}
             displayName={getPhaseName(c.name, lang)}
             currentContentId={currentContentId}
             onAdd={onAdd}
+            select={select}
           />
         );
       })}
@@ -178,74 +275,85 @@ const OtherTree: React.FC<{ lang: string; currentContentId: string | null; onAdd
   );
 };
 
-const ArchiveList: React.FC<{ lang: string }> = () => {
+const ArchiveList: React.FC<{ select?: MilspecTreeSelect }> = ({ select }) => {
   const { t } = useTranslation();
   const plans = usePlanStore((s) => s.plans);
   const archived = plans.filter((p) => p.archived);
   if (!archived.length) return <div className="milspec-tree-empty">{t('sidebar.archive_empty')}</div>;
+  // アーカイブはシリーズ・層の見出しなしでプラン行を直接並べる
   return (
-    <div className="milspec-hp milspec-tree-group recess stack" style={{ '--ms-sh': 'var(--ms-sh-slab)' } as React.CSSProperties}>
-      <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
-      <div className="milspec-tree-plans">
-        {archived.map((p) => (<PlanRow key={p.id} plan={p} />))}
-      </div>
+    <div className="milspec-tr-plans is-flat">
+      {archived.map((p) => (<PlanRow key={p.id} plan={p} select={select} />))}
     </div>
   );
 };
 
-// ── コンテンツ 1 件 = へこんだ名前プレート + 展開したプラン行 ────────────
+// ── コンテンツ 1 件 = 層の行(.it) + 引き出しに入ったプラン行 ──────────
 const MilspecContentGroup: React.FC<{
   content: ContentDefinition;
+  index: number;
   displayName: string;
   currentContentId: string | null;
   onAdd: (id?: string | null) => void;
-}> = ({ content, displayName, currentContentId, onAdd }) => {
+  select?: MilspecTreeSelect;
+}> = ({ content, index, displayName, currentContentId, onAdd, select }) => {
   const { t } = useTranslation();
   const plans = usePlanStore(useShallow((s) => s.plans.filter((p) => p.contentId === content.id && !p.archived)));
   const isCurrent = currentContentId === content.id;
-  const [expanded, setExpanded] = React.useState(plans.length > 0 && isCurrent);
+  const { open: expanded, setOpen, listRef, initialHidden, reduced } = useDrawer(plans.length > 0 && isCurrent);
+  const [flickN, setFlickN] = React.useState(0);
 
   // プラン 0→1 で自動展開
   const prev = React.useRef(plans.length);
   React.useEffect(() => {
-    if (prev.current === 0 && plans.length > 0) setExpanded(true);
+    if (prev.current === 0 && plans.length > 0) setOpen(true);
     prev.current = plans.length;
-  }, [plans.length]);
+  }, [plans.length, setOpen]);
   React.useEffect(() => {
-    if (isCurrent && plans.length > 0) setExpanded(true);
-  }, [isCurrent, plans.length]);
+    if (isCurrent && plans.length > 0) setOpen(true);
+  }, [isCurrent, plans.length, setOpen]);
 
   const atLimit = plans.length >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT;
 
-  const onHeadClick = () => {
-    if (plans.length > 0) setExpanded((v) => !v);
+  // 見本 js:1102-1106: ランプのチラつき + 横の揺れ(460ms) + 光
+  const onHeadClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const row = e.currentTarget;
+    setFlickN((n) => n + 1);
+    if (!reduced && typeof row.animate === 'function') {
+      row.animate([
+        { transform: 'translateX(2px)' },
+        { transform: 'translateX(5px)', offset: 0.3, easing: 'cubic-bezier(.3,0,.2,1)' },
+        { transform: 'translateX(-1px)', offset: 0.62 },
+        { transform: 'translateX(0.4px)', offset: 0.82 },
+        { transform: 'none' },
+      ], { duration: 460 });
+    }
+    energy(row);
+    if (plans.length > 0) setOpen(!expanded);
     else onAdd(content.id);
   };
 
-  const open = expanded && plans.length > 0;
   return (
-    <div
-      className={clsx('milspec-hp milspec-tree-group recess stack', isCurrent && 'current', open && 'open')}
-      style={{ '--ms-sh': 'var(--ms-sh-tl)' } as React.CSSProperties}
-    >
-      <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
-      <button type="button" className="milspec-tree-head" onClick={onHeadClick}>
-        <span className="milspec-tree-head-name">{displayName || content.id}</span>
-        {plans.length > 0 && <span className="milspec-tree-head-count">{plans.length}</span>}
-        {plans.length > 0 && <span className={clsx('milspec-tree-head-cv', expanded && 'open')}>›</span>}
+    <div className="milspec-tr-grp">
+      <button
+        type="button"
+        className={clsx('milspec-tr-it', isCurrent && 'is-sel')}
+        onClick={onHeadClick}
+      >
+        <span className="milspec-tr-n">{String(index + 1).padStart(2, '0')}</span>
+        <span className="milspec-tr-nm">{displayName || content.id}</span>
+        <MilspecLed key={flickN} state={isCurrent ? 'on' : 'off'} size={6} flick={flickN > 0} />
       </button>
-      {open && (
-        <div className="milspec-tree-plans">
-          {plans.map((p) => (
-            <PlanRow key={p.id} plan={p} />
-          ))}
-          {!atLimit && (
-            <button type="button" className="milspec-pi add" onClick={() => onAdd(content.id)}>
-              <span className="bl" />+ {t('sidebar.add_plan')}
-            </button>
-          )}
-        </div>
-      )}
+      <div className="milspec-tr-plans" ref={listRef} hidden={initialHidden}>
+        {plans.map((p) => (
+          <PlanRow key={p.id} plan={p} select={select} />
+        ))}
+        {plans.length > 0 && !atLimit && (
+          <button type="button" className="milspec-tr-add" onClick={() => onAdd(content.id)}>
+            <i>＋</i> {t('sidebar.add_plan')}
+          </button>
+        )}
+      </div>
     </div>
   );
 };
@@ -291,7 +399,7 @@ function usePlanRowActions() {
   return { selectPlan, duplicate, remove };
 }
 
-const PlanRow: React.FC<{ plan: SavedPlan }> = ({ plan }) => {
+const PlanRow: React.FC<{ plan: SavedPlan; select?: MilspecTreeSelect }> = ({ plan, select }) => {
   const { t } = useTranslation();
   const currentPlanId = usePlanStore((s) => s.currentPlanId);
   const { selectPlan, duplicate, remove } = usePlanRowActions();
@@ -300,6 +408,7 @@ const PlanRow: React.FC<{ plan: SavedPlan }> = ({ plan }) => {
   const [confirmDel, setConfirmDel] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const sel = currentPlanId === plan.id;
+  const picked = !!select && select.selectedIds.includes(plan.id);
 
   React.useEffect(() => {
     if (!confirmDel) return;
@@ -312,15 +421,24 @@ const PlanRow: React.FC<{ plan: SavedPlan }> = ({ plan }) => {
     setEditing(false);
   };
 
+  // 選択モードではプランを切り替えず、選択の入/切だけ。通常時は見本 js:1097-1100(光 + 切替)
+  const activate = (row: HTMLElement) => {
+    if (editing) return;
+    if (select) { select.onToggle(plan.id); return; }
+    energy(row);
+    void selectPlan(plan);
+  };
+
   return (
     <div
-      role="button"
+      role={select ? 'checkbox' : 'button'}
+      aria-checked={select ? picked : undefined}
       tabIndex={0}
-      className={clsx('milspec-pi', sel && 'sel')}
-      onClick={() => { if (!editing) void selectPlan(plan); }}
-      onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !editing) { e.preventDefault(); void selectPlan(plan); } }}
+      className={clsx('milspec-tr-plan', (select ? picked : sel) && 'is-sel', select && 'is-pick')}
+      onClick={(e) => activate(e.currentTarget)}
+      onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !editing) { e.preventDefault(); activate(e.currentTarget); } }}
     >
-      <span className="bl" />
+      {select && <MilspecLed state={picked ? 'on' : 'off'} size={6} />}
       {editing ? (
         <input
           ref={inputRef}
@@ -330,27 +448,30 @@ const PlanRow: React.FC<{ plan: SavedPlan }> = ({ plan }) => {
           onBlur={finish}
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter') finish(); if (e.key === 'Escape') { setTitle(plan.title); setEditing(false); } }}
-          className="milspec-pi-rename-input"
+          className="milspec-tr-rename"
         />
       ) : (
-        <span className="lbl">{plan.title}</span>
+        <span className="milspec-tr-pn">{plan.title}</span>
       )}
-      <span className="ac">
-        <button type="button" title={t('app.rename')} onClick={(e) => { e.stopPropagation(); setTitle(plan.title); setEditing(true); setTimeout(() => inputRef.current?.select(), 0); }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" /></svg>
-        </button>
-        <button type="button" title={t('sidebar.duplicate_plan')} onClick={(e) => { e.stopPropagation(); void duplicate(plan.id); }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="9" y="9" width="11" height="11" rx="1" /><path d="M5 15V5a1 1 0 011-1h10" /></svg>
-        </button>
-        <button
-          type="button"
-          className={clsx(confirmDel && 'armed')}
-          title={confirmDel ? t('sidebar.delete_single_confirm_click') : t('sidebar.delete_single')}
-          onClick={(e) => { e.stopPropagation(); if (confirmDel) { remove(plan.id); setConfirmDel(false); } else setConfirmDel(true); }}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" /></svg>
-        </button>
-      </span>
+      {!select && (
+        <span className="milspec-tr-ops">
+          <button type="button" aria-label={t('sidebar.duplicate_plan')} title={t('sidebar.duplicate_plan')} onClick={(e) => { e.stopPropagation(); void duplicate(plan.id); }}>
+            <MsIcon.dup />
+          </button>
+          <button type="button" aria-label={t('app.rename')} title={t('app.rename')} onClick={(e) => { e.stopPropagation(); setTitle(plan.title); setEditing(true); setTimeout(() => inputRef.current?.select(), 0); }}>
+            <MsIcon.rename />
+          </button>
+          <button
+            type="button"
+            className={clsx('is-del', confirmDel && 'is-armed')}
+            aria-label={confirmDel ? t('sidebar.delete_single_confirm_click') : t('sidebar.delete_single')}
+            title={confirmDel ? t('sidebar.delete_single_confirm_click') : t('sidebar.delete_single')}
+            onClick={(e) => { e.stopPropagation(); if (confirmDel) { remove(plan.id); setConfirmDel(false); } else setConfirmDel(true); }}
+          >
+            <MsIcon.close />
+          </button>
+        </span>
+      )}
     </div>
   );
 };

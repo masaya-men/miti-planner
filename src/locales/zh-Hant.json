@@ -660,6 +660,15 @@
             "replace_all_warning": "已放置的減傷也會被刪除"
         }
     },
+    "milspec": {
+        "sb_select_count": "已選 {{count}}",
+        "sb_bulk_delete_armed": "再按一次刪除 {{count}} 項",
+        "sb_series_fold": "摺疊系列",
+        "sb_series_unfold": "展開系列",
+        "sb_content_sub": "內容",
+        "sb_service_sub": "維護",
+        "sb_content_group": "內容類型"
+    },
     "sidebar": {
         "new_plan": "新建",
         "create_new_list": "建立新列表",
