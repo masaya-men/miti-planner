@@ -1,7 +1,8 @@
 /** ヘッダー / サイドバーの開閉で他の区画を滑らせる動き(見本 milspec-v11.js の relayout js:763-781 をそのまま移植)。
- *  閉じるとき: 対象区画の複製(残像)が元の位置から重く抜けていく(ヘッダーは上へ -112px・サイドバーは左へ -290px)。
- *  開くとき: 対象区画自身が上(左)から入って収まる(少し行き過ぎて止まる)。
- *  どちらも 通気口・workspace・footer・rail は元の位置から滑って収まる(FLIP)。 */
+ *  閉じるとき: 対象区画の複製(残像)が、隣の区画と同じ距離だけ抜けていく(隣の縁にくっついたまま)。
+ *  開くとき: 対象区画自身が、隣の区画と同じ距離だけ手前から入って収まる。
+ *  残像/対象区画と 通気口・workspace・footer・rail は 同じ 620ms・同じ easing・同じ開始時刻で一体に動く
+ *  (取っ手のある vent / rail が別の区画の上に重ならない)。少し行き過ぎて止まる質感は共通の keyframe で保つ。 */
 
 /** 滑らせる区画(見本 keep の #z-vent / #z-ftr / #z-rail と、本番の workspace)。 */
 const KEEP_ZONES = ['vent', 'workspace', 'footer', 'rail'] as const;
@@ -41,35 +42,45 @@ export function relayoutZones(app: HTMLElement, change: () => void, kind: 'hdr' 
 
   change();
 
-  const ax = kind === 'hdr' ? 'Y' : 'X', far = kind === 'hdr' ? -112 : -290;
-  if (ghost) {
-    const g = ghost;
-    const a = g.animate([
-      { transform: 'none', easing: 'cubic-bezier(.4,0,.8,.3)' },
-      { transform: `translate${ax}(1.4px)`, offset: 0.16, easing: 'cubic-bezier(.6,0,.9,.5)' },
-      { transform: `translate${ax}(${far}px)` },
-    ], { duration: 440 });
-    a.onfinish = () => g.remove();
-  } else {
-    src.animate([
-      { transform: `translate${ax}(${far}px)`, easing: 'cubic-bezier(.2,0,.15,1)' },
-      { transform: `translate${ax}(1.8px)`, offset: 0.72, easing: 'ease-in-out' },
-      { transform: `translate${ax}(-0.5px)`, offset: 0.87 },
-      { transform: 'none' },
-    ], { duration: 620 });
-  }
+  const far = kind === 'hdr' ? -112 : -290;
 
+  // 動く距離 D: 隣の区画が実際に動く量(ヘッダー=縦・サイドバー=横)。取れなければ従来値で代用
+  const moved = new Map<string, { dx: number; dy: number }>();
   before.forEach((a, n) => {
     const z = zoneOf(app, n);
     if (!z) return;
-    const b = z.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
-    if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
-    const ox = -Math.sign(dx) * 1.5, oy = -Math.sign(dy) * 1.5;
-    z.animate([
-      { transform: `translate(${dx}px, ${dy}px)`, easing: 'cubic-bezier(.65,0,.2,1)' },
-      { transform: `translate(${ox}px, ${oy}px)`, offset: 0.78, easing: 'ease-in-out' },
-      { transform: `translate(${-ox * 0.3}px, ${-oy * 0.3}px)`, offset: 0.9 },
-      { transform: 'none' },
-    ], { duration: 640, delay: closing ? 70 : 0, fill: 'backwards' });
+    const b = z.getBoundingClientRect();
+    moved.set(n, { dx: a.left - b.left, dy: a.top - b.top });
+  });
+  let dist = 0;
+  moved.forEach((m) => { const v = Math.abs(kind === 'hdr' ? m.dy : m.dx); if (v > dist) dist = v; });
+  if (dist < 0.5) dist = Math.abs(far);
+
+  // 全員が同じ時間・同じ easing・同じ開始時刻で動く(ひとかたまり)。
+  // 区画の進み = 開始のずれ s から 0 へ。途中で 1.8px 行き過ぎて 0.5px 戻って止まる(重く抜けて少し行き過ぎる質感)。
+  const DUR = 620, EASE = 'cubic-bezier(.2,0,.15,1)';
+  const frames = (sx: number, sy: number, endX: number, endY: number): Keyframe[] => {
+    const ox = -Math.sign(sx - endX) * 1.8, oy = -Math.sign(sy - endY) * 1.8;
+    return [
+      { transform: `translate(${sx}px, ${sy}px)`, easing: EASE },
+      { transform: `translate(${endX + ox}px, ${endY + oy}px)`, offset: 0.72, easing: 'ease-in-out' },
+      { transform: `translate(${endX - ox * 0.28}px, ${endY - oy * 0.28}px)`, offset: 0.87 },
+      { transform: `translate(${endX}px, ${endY}px)` },
+    ];
+  };
+  const dirX = kind === 'sb' ? 1 : 0, dirY = kind === 'hdr' ? 1 : 0;
+  if (ghost) {
+    // 残像は「隣と同じ量」だけ抜ける(隣の縁にくっついたまま・重ならない)
+    const g = ghost;
+    const a = g.animate(frames(0, 0, -dirX * dist, -dirY * dist), { duration: DUR });
+    a.onfinish = () => g.remove();
+  } else {
+    src.animate(frames(-dirX * dist, -dirY * dist, 0, 0), { duration: DUR });
+  }
+
+  moved.forEach((m, n) => {
+    const z = zoneOf(app, n);
+    if (!z || (Math.abs(m.dx) < 0.5 && Math.abs(m.dy) < 0.5)) return;
+    z.animate(frames(m.dx, m.dy, 0, 0), { duration: DUR, fill: 'backwards' });
   });
 }

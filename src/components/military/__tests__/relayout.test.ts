@@ -33,7 +33,7 @@ describe('relayoutZones', () => {
     expect(anim).not.toHaveBeenCalled();
   });
 
-  it('閉じるとき: 残像を置いて 440ms で抜け、動いた区画だけ 640ms で滑る', () => {
+  it('閉じるとき: 残像と動いた区画が同じ 620ms・同じ開始で一体に動く', () => {
     const { app, zones, anim, collapse } = setup();
     zones.header.innerHTML = '<svg><path data-trace="a"/></svg><i data-bus="s1"></i>';
     document.body.append(app);
@@ -47,12 +47,13 @@ describe('relayoutZones', () => {
     // 光エンジンが拾う属性は複製から外れている(元は残る)
     expect(ghost.querySelector('[data-trace],[data-bus]')).toBeNull();
     expect(zones.header.querySelector('[data-trace]')).not.toBeNull();
-    const delays = anim.mock.calls.map((c: unknown[]) => (c[1] as { delay?: number }).delay);
-    expect(delays.filter((d) => d === 70)).toHaveLength(2);
-    const durations = anim.mock.calls.map((c: unknown[]) => (c[1] as { duration: number }).duration);
-    expect(durations.filter((d) => d === 440)).toHaveLength(1);
-    // vent / workspace は動く・footer / rail は動かない
-    expect(durations.filter((d) => d === 640)).toHaveLength(2);
+    // 残像 + 動いた区画(vent / workspace)が全員 620ms・delay なしで一体に動く(footer / rail は動かない)
+    const opts = anim.mock.calls.map((c: unknown[]) => c[1] as { duration: number; delay?: number });
+    expect(opts).toHaveLength(3);
+    expect(opts.every((o) => o.duration === 620 && !o.delay)).toBe(true);
+    // 残像は隣と同じ距離(vent の動き 102px)だけ上へ抜ける
+    const gframes = anim.mock.calls[0][0] as { transform: string }[];
+    expect(gframes[gframes.length - 1].transform).toBe('translate(0px, -102px)');
   });
 
   it('開くとき: 残像は作らず、ヘッダー自身が 620ms で降りてくる', () => {
@@ -63,9 +64,10 @@ describe('relayoutZones', () => {
     expect(app.querySelector('.milspec-ghost')).toBeNull();
     const durations = anim.mock.calls.map((c: unknown[]) => (c[1] as { duration: number }).duration);
     expect(durations).toContain(620);
-    const flips = anim.mock.calls.filter((c: unknown[]) => (c[1] as { duration: number }).duration === 640);
-    expect(flips).toHaveLength(2);
-    expect(flips.every((c: unknown[]) => ((c[1] as { delay?: number }).delay ?? 0) === 0)).toBe(true);
+    // ヘッダー自身 + vent + workspace がすべて 620ms・delay なし
+    expect(anim.mock.calls).toHaveLength(3);
+    expect(durations.every((d) => d === 620)).toBe(true);
+    expect(anim.mock.calls.every((c: unknown[]) => ((c[1] as { delay?: number }).delay ?? 0) === 0)).toBe(true);
   });
 
   describe("kind = 'sb'(サイドバー)", () => {
@@ -94,7 +96,7 @@ describe('relayoutZones', () => {
       expect(anim).not.toHaveBeenCalled();
     });
 
-    it('閉じるとき: サイドバーの残像が 440ms で左へ(-290px)抜け、他の区画が 640ms・delay 70 で滑る', () => {
+    it('閉じるとき: サイドバーの残像が隣と同じ距離(276px)だけ左へ抜け、全員 620ms・delay なしで一体に動く', () => {
       const { app, sb, anim, lefts } = setupSb(true);
       sb.innerHTML = '<svg><path data-trace="a"/></svg>';
       document.body.append(app);
@@ -103,20 +105,20 @@ describe('relayoutZones', () => {
       expect(ghost).not.toBeNull();
       expect(ghost.hasAttribute('data-ms-zone')).toBe(false);
       expect(ghost.querySelector('[data-trace]')).toBeNull();
-      const gcall = anim.mock.calls.find((c: unknown[]) => (c[1] as { duration: number }).duration === 440)!;
-      const frames = gcall[0] as { transform: string }[];
-      expect(frames[frames.length - 1].transform).toBe('translateX(-290px)');
-      const flips = anim.mock.calls.filter((c: unknown[]) => (c[1] as { duration: number }).duration === 640);
-      expect(flips).toHaveLength(4);
-      expect(flips.every((c: unknown[]) => (c[1] as { delay?: number }).delay === 70)).toBe(true);
+      const frames = anim.mock.calls[0][0] as { transform: string }[];
+      expect(frames[frames.length - 1].transform).toBe('translate(-276px, 0px)');
+      // 残像 + vent / workspace / footer / rail
+      expect(anim.mock.calls).toHaveLength(5);
+      expect(anim.mock.calls.every((c: unknown[]) => (c[1] as { duration: number; delay?: number }).duration === 620 && !(c[1] as { delay?: number }).delay)).toBe(true);
     });
 
-    it('開くとき: 残像なし・サイドバー自身が -290px から 620ms で入る', () => {
+    it('開くとき: 残像なし・サイドバー自身が -276px から 620ms で入る', () => {
       const { app, sb, anim, lefts } = setupSb(false);
       relayoutZones(app, () => { sb.setAttribute('data-open', ''); lefts.vent = lefts.workspace = lefts.footer = 300; lefts.rail = 276; }, 'sb', false);
       expect(app.querySelector('.milspec-ghost')).toBeNull();
-      const scall = anim.mock.calls.find((c: unknown[]) => (c[1] as { duration: number }).duration === 620)!;
-      expect((scall[0] as { transform: string }[])[0].transform).toBe('translateX(-290px)');
+      const scall = anim.mock.calls.find((c: unknown[]) => (c[0] as { transform: string }[])[0].transform === 'translate(-276px, 0px)');
+      expect(scall).toBeDefined();
+      expect((scall![1] as { duration: number }).duration).toBe(620);
     });
   });
 });
