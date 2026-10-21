@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, act, fireEvent } from '@testing-library/react';
-import { MeterPanel, syncLampState } from '../MeterPanel';
+import { MeterPanel, syncLampState, resetMissionClock } from '../MeterPanel';
 import { usePlanStore } from '../../../../store/usePlanStore';
 import { useAuthStore } from '../../../../store/useAuthStore';
 
@@ -29,6 +29,7 @@ describe('syncLampState(SYNC ランプの 4 状態)', () => {
 describe('MeterPanel', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    resetMissionClock();
     fx.listener = null;
     fx.pulse.mockClear();
     setUser({ uid: 'u1' });

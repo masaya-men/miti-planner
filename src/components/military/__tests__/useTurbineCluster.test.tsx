@@ -5,8 +5,9 @@ import { useTurbineCluster, beatInterval } from '../useTurbineCluster';
 
 let api: ReturnType<typeof useTurbineCluster>;
 const beats: number[] = [];
+let motion: 'footer' | 'v11' | undefined;
 function Harness() {
-  api = useTurbineCluster(2, { onBeat: (k) => beats.push(k) });
+  api = useTurbineCluster(2, { onBeat: (k) => beats.push(k), motion });
   return (
     <div>
       <div ref={api.frameRefs[0]}><span ref={api.vaneRefs[0]} /></div>
@@ -21,7 +22,7 @@ const setHidden = (v: boolean) => {
 };
 
 describe('useTurbineCluster', () => {
-  beforeEach(() => { vi.useFakeTimers(); beats.length = 0; });
+  beforeEach(() => { vi.useFakeTimers(); beats.length = 0; motion = undefined; });
   afterEach(() => { setHidden(false); vi.useRealTimers(); vi.restoreAllMocks(); });
 
   it('beatInterval は見本 js:1196 の式(k<6 で 640-k*70、以降 280)', () => {
@@ -64,5 +65,28 @@ describe('useTurbineCluster', () => {
     raf.mockClear();
     act(() => setHidden(false));
     expect(raf).toHaveBeenCalledTimes(1);
+  });
+
+  it("motion 別の飛距離: 'v11' は 10+rand*22、既定は 12+rand*26", () => {
+    for (const [m, lo, hi] of [['v11', 10, 32], [undefined, 12, 38]] as const) {
+      motion = m;
+      const { container, unmount } = render(<Harness />);
+      const host = container.querySelector('div > div') as HTMLElement;
+      // onMax(火花バースト)を直接起こす: 全 rig を最高速まで回す
+      act(() => api.start());
+      act(() => { vi.advanceTimersByTime(6000); });
+      const sparks = [...host.querySelectorAll('.milspec-tb-spark')] as HTMLElement[];
+      expect(sparks.length).toBeGreaterThan(0);
+      const steams = [...host.querySelectorAll('.milspec-tb-steam')] as HTMLElement[];
+      expect(steams.length).toBeGreaterThan(0);
+      for (const st of steams) {
+        const sc = parseFloat(st.style.getPropertyValue('--ms-puff-scale'));
+        expect(sc).toBeGreaterThanOrEqual(m === 'v11' ? 0.8 : 0.9);
+        expect(sc).toBeLessThanOrEqual(m === 'v11' ? 1.8 : 1.9);
+      }
+      const steamStyle = (el: HTMLElement) => parseFloat(el.style.getPropertyValue('--ms-dist'));
+      for (const sp of sparks) { expect(steamStyle(sp)).toBeGreaterThanOrEqual(lo); expect(steamStyle(sp)).toBeLessThanOrEqual(hi); }
+      unmount();
+    }
   });
 });

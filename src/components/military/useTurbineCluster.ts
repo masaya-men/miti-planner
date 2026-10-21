@@ -61,12 +61,14 @@ function makeRig(vanes: HTMLElement, idleV: number, maxV: number, totalMs: numbe
 }
 
 /** count 個の火花を今すぐ(spreadMs の範囲でごくわずかにばらけて)まき散らす。 */
-function spawnSparks(host: HTMLElement, count: number, spreadMs: number) {
+type Motion = 'footer' | 'v11';
+
+function spawnSparks(host: HTMLElement, count: number, spreadMs: number, motion: Motion = 'footer') {
   for (let i = 0; i < count; i++) {
     const s = document.createElement('span');
     s.className = 'milspec-tb-spark';
     s.style.setProperty('--ms-ang', `${Math.random() * 360}deg`);
-    s.style.setProperty('--ms-dist', `${12 + Math.random() * 26}px`);
+    s.style.setProperty('--ms-dist', `${motion === 'v11' ? 10 + Math.random() * 22 : 12 + Math.random() * 26}px`);
     s.style.setProperty('--ms-delay', `${Math.round(Math.random() * (spreadMs || 0))}ms`);
     host.appendChild(s);
     s.addEventListener('animationend', () => s.remove());
@@ -74,14 +76,14 @@ function spawnSparks(host: HTMLElement, count: number, spreadMs: number) {
 }
 
 /** スピンダウン開始時に 5〜9 個の蒸気を時間差で積み重ねる。 */
-function spawnSteam(host: HTMLElement) {
+function spawnSteam(host: HTMLElement, motion: Motion = 'footer') {
   const puffs = 5 + Math.floor(Math.random() * 5);
   for (let i = 0; i < puffs; i++) {
-    const delay = i * (70 + Math.random() * 90) + Math.random() * 60;
+    const delay = i * (70 + Math.random() * 90) + (motion === 'v11' ? 0 : Math.random() * 60);
     window.setTimeout(() => {
       const puff = document.createElement('span');
       puff.className = 'milspec-tb-steam';
-      puff.style.setProperty('--ms-puff-scale', (0.9 + Math.random() * 1.0).toFixed(2));
+      puff.style.setProperty('--ms-puff-scale', (motion === 'v11' ? 0.8 + Math.random() : 0.9 + Math.random() * 1.0).toFixed(2));
       puff.style.left = `${28 + Math.random() * 44}%`;
       host.appendChild(puff);
       puff.addEventListener('animationend', () => puff.remove());
@@ -90,7 +92,7 @@ function spawnSteam(host: HTMLElement) {
 }
 
 /** 加速の前半 55% は無音、後半だけ確率 0→ほぼ確実で立ち上がる「じわじわ」トリクル。 */
-function makeTrickle(host: HTMLElement) {
+function makeTrickle(host: HTMLElement, motion: Motion = 'footer') {
   let last = -9999;
   const START_AT = 0.55;
   return function onProgress(p: number) {
@@ -100,7 +102,7 @@ function makeTrickle(host: HTMLElement) {
     if (now - last < 300 - q * 240) return;
     if (Math.random() < q * q * 0.9) {
       last = now;
-      spawnSparks(host, Math.random() < 0.3 ? 2 : 1, 0);
+      spawnSparks(host, Math.random() < 0.3 ? 2 : 1, 0, motion);
     }
   };
 }
@@ -119,6 +121,8 @@ interface UseTurbineClusterResult {
 export interface UseTurbineClusterOptions {
   /** 起動中、見本 js:1196 の間隔で呼ばれる拍(k = 0 始まりの通し番号)。H3 の継ぎ目の琥珀の光に使う */
   onBeat?: (k: number) => void;
+  /** 火花・蒸気の値。'footer' = 既存(フッター不変・既定)/ 'v11' = 見本 js:1190-1191 の値 */
+  motion?: Motion;
 }
 
 /** 拍の間隔(見本 js:1196: k < 6 ? 640 − k*70 : 280)。k = 次に打つ拍の番号 */
@@ -127,6 +131,7 @@ export const beatInterval = (k: number): number => (k < 6 ? 640 - k * 70 : 280);
 export function useTurbineCluster(fanCount: number, opts: UseTurbineClusterOptions = {}): UseTurbineClusterResult {
   const onBeatRef = React.useRef(opts.onBeat);
   onBeatRef.current = opts.onBeat;
+  const motion: Motion = opts.motion ?? 'footer';
   const timersRef = React.useRef<Set<number>>(new Set());
   const activeRef = React.useRef(false);
   const later = React.useCallback((fn: () => void, ms: number) => {
@@ -232,7 +237,7 @@ export function useTurbineCluster(fanCount: number, opts: UseTurbineClusterOptio
     if (reducedRef.current) return;
     const rigs = rigsRef.current;
     if (!rigs.length) return;
-    if (rigs.some((r) => r.mode !== 'idle')) return; // 既に回っている
+    if (rigs.some((r) => r.mode !== 'idle') || activeRef.current) return; // 既に回っている(終了直前の再起動も弾く)
 
     let maxFinish = 0;
     rigs.forEach((rig, idx) => {
@@ -241,9 +246,9 @@ export function useTurbineCluster(fanCount: number, opts: UseTurbineClusterOptio
       later(() => {
         if (rig.mode !== 'idle') return;
         rig.cbs = {
-          onProgress: host ? makeTrickle(host) : undefined,
-          onMax: host ? () => spawnSparks(host, 20 + Math.floor(Math.random() * 16), 90) : undefined,
-          onSpindown: host ? () => spawnSteam(host) : undefined,
+          onProgress: host ? makeTrickle(host, motion) : undefined,
+          onMax: host ? () => spawnSparks(host, 20 + Math.floor(Math.random() * 16), 90, motion) : undefined,
+          onSpindown: host ? () => spawnSteam(host, motion) : undefined,
         };
         rig.mode = 'spinup';
         rig.modeStart = performance.now();
@@ -263,7 +268,7 @@ export function useTurbineCluster(fanCount: number, opts: UseTurbineClusterOptio
     };
     beat();
     later(() => { activeRef.current = false; setActive(false); }, maxFinish + 80);
-  }, [frameRefs, later]);
+  }, [frameRefs, later, motion]);
 
   return { vaneRefs, frameRefs, active, start };
 }

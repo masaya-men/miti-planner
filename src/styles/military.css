@@ -3000,8 +3000,8 @@
 .theme-military .milspec-dr i span { display: block; height: 16px; }
 .theme-military .milspec-colon { width: 3px; height: 9px; display: flex; flex-direction: column; justify-content: space-between; }
 .theme-military .milspec-colon::before, .theme-military .milspec-colon::after { content: ""; width: 2.5px; height: 2.5px; border-radius: 50%; background: var(--ma-on); box-shadow: 0 0 2px rgba(var(--ma-on-rgb),0.7); animation: milspec-led-blink 1s steps(2, jump-none) infinite; }
-html[data-ms-power="off"] .theme-military .milspec-colon::before, html[data-ms-power="off"] .theme-military .milspec-colon::after { background: #222; box-shadow: none; animation: none; }
-html[data-ms-power="off"] .theme-military .milspec-led .milspec-led-src { opacity: 0 !important; animation: none !important; }
+html.theme-military[data-ms-power="off"] .milspec-colon::before, html.theme-military[data-ms-power="off"] .milspec-colon::after { background: #222; box-shadow: none; animation: none; }
+html.theme-military[data-ms-power="off"] .milspec-led .milspec-led-src { opacity: 0 !important; animation: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .theme-military .milspec-dr i { transition: none; }
   .theme-military .milspec-colon::before, .theme-military .milspec-colon::after { animation: none; }

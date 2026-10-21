@@ -24,16 +24,19 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
 /** 経過秒 → 6 桁(時 2 + 分 2 + 秒 2。見本 tick) */
 const digitsOf = (s: number): number[] =>
   (pad2(Math.floor(s / 3600) % 100) + pad2(Math.floor(s / 60) % 60) + pad2(s % 60)).split('').map(Number);
+// 時計の起点 = 画面を開いた時刻(幅の変化などで MeterPanel が作り直されても 0 に戻らない)
+let T0 = Date.now();
+/** テスト用: 時計の起点を今に戻す */
+export const resetMissionClock = () => { T0 = Date.now(); };
 const DRUM_NUMS = Array.from({ length: 10 }, (_, n) => n);
 
 /** ドラム時計(MSN CLOCK)。画面を開いてからの経過時間。1 秒ごと・タブ非表示で止め、戻ったら追いつく */
 function MissionClock({ x, y }: { x: number; y: number }) {
-  const t0 = React.useRef(Date.now());
   const [d, setD] = React.useState<number[]>(() => digitsOf(0));
   React.useEffect(() => {
     let id: number | null = null;
     const tick = () => {
-      const s = Math.max(0, Math.floor((Date.now() - t0.current) / 1000));
+      const s = Math.max(0, Math.floor((Date.now() - T0) / 1000));
       setD(isPowered() ? digitsOf(s) : digitsOf(0)); // 見本: 電源 off では全部 0
     };
     const run = () => { if (id == null) { tick(); id = window.setInterval(tick, 1000); } };
@@ -68,7 +71,7 @@ function Lamp({ id, state, label, blink }: { id: string; state: LedState; label:
 export function MeterPanel({ iw, showClock }: { ix: number; iw: number; showClock: boolean }) {
   // 区画の実幅 MW = iw + 879(headerGeometry と同じ関係)から座標表を引く
   const h3 = React.useMemo(() => headerLayout(iw + 879).decor.h3, [iw]);
-  const turbine = useTurbineCluster(2, { onBeat: () => { pulse('h3', { cls: 'warn', len: 10 }); } });
+  const turbine = useTurbineCluster(2, { motion: 'v11', onBeat: () => { pulse('h3', { cls: 'warn', len: 10 }); } });
 
   // SYNC: SyncButton と同じ store の値(クラウド状態・ログイン)+ 未保存の有無
   const loggedIn = useAuthStore((s) => !!s.user);
@@ -90,7 +93,7 @@ export function MeterPanel({ iw, showClock }: { ix: number; iw: number; showCloc
 
   return (
     <>
-      <button type="button" className="milspec-tsw" aria-label="タービン起動" style={{ left: h3.trb.x, top: h3.trb.y }} onClick={turbine.start}>
+      <button type="button" className="milspec-tsw" aria-label="タービン起動" style={{ left: h3.trb.x, top: h3.trb.y }} onClick={turbine.start} disabled={turbine.active}>
         <span className="milspec-tsw-cap">
           <MilspecLed state={turbine.active ? 'warn' : 'off'} size={5} />
           <em>TRB</em>
