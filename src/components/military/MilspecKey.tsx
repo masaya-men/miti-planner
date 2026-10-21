@@ -1,5 +1,5 @@
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef } from 'react';
+import type { ButtonHTMLAttributes, MouseEvent, ReactNode, Ref } from 'react';
 import { capSVG } from './armor/svg';
 import { bbox, centroid, offsetPoly, P } from './armor/geom';
 import { readPalette } from './armor/palette';
@@ -44,7 +44,9 @@ const POP: Keyframe[] = [
 type Props = {
   cap: CapSpec;
   label?: ReactNode;
-  onClick?: () => void;
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
+  /** React 19 の ref-as-prop。内部の button ref と合成する */
+  ref?: Ref<HTMLButtonElement>;
   pressed?: boolean;
   /** 連動(ラジオ)キー。押すと沈んだまま止まり、pressed が外れると弾かれて戻る */
   latch?: boolean;
@@ -59,21 +61,15 @@ function useCapDrawing(cap: CapSpec) {
   const ref = useRef<SVGSVGElement>(null);
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const tick = useHtmlClassTick();
-  const [fontsTick, setFontsTick] = useState(0);
   const capKey = useMemo(() => JSON.stringify(cap), [cap]);
   const latest = useRef(cap);
   latest.current = cap;
-  useLayoutEffect(() => {
-    let alive = true;
-    document.fonts?.ready?.then(() => { if (alive) setFontsTick((n) => n + 1); });
-    return () => { alive = false; };
-  }, []);
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     ensureDefs();
     el.innerHTML = capSVG(latest.current, readPalette(document.documentElement), `mk${uid}`);
-  }, [capKey, tick, fontsTick, uid]);
+  }, [capKey, tick, uid]);
   const bb = useMemo(() => bbox(cap.pts), [cap]);
   const [cx, cy] = useMemo(() => centroid(cap.pts), [cap]);
   return { ref, bb, cx, cy };
@@ -85,9 +81,14 @@ const labelPos = (cx: number, cy: number, bx: number, by: number, off?: Pt) => (
 });
 
 /** 押せるキー。位置は親が決める(自身は position:absolute にしない) */
-export function MilspecKey({ cap, label, onClick, pressed, latch, disabled, className, labelOffset, style, onPointerDown, onKeyDown, ...rest }: Props) {
+export function MilspecKey({ cap, label, onClick, pressed, latch, disabled, className, labelOffset, style, onPointerDown, onKeyDown, onBlur, ref: extRef, role, ...rest }: Props) {
   const { ref, bb, cx, cy } = useCapDrawing(cap);
-  const btnRef = useRef<HTMLButtonElement>(null);
+  const btnRef = useRef<HTMLButtonElement | null>(null);
+  const setBtnRef = useCallback((el: HTMLButtonElement | null) => {
+    btnRef.current = el;
+    if (typeof extRef === 'function') extRef(el);
+    else if (extRef) (extRef as { current: HTMLButtonElement | null }).current = el;
+  }, [extRef]);
   const kfRef = useRef<HTMLSpanElement>(null);
   const reduced = useReducedMotion();
   const st = useRef<{ down: boolean; held: boolean; anims: Animation[]; timer?: number }>({ down: false, held: false, anims: [] });
@@ -161,15 +162,24 @@ export function MilspecKey({ cap, label, onClick, pressed, latch, disabled, clas
   return (
     <button
       type="button"
+      role={role}
+      // 視覚状態は data-pressed。ARIA は呼び出し側の指定を潰さない(rest が後勝ち)。
+      // ラジオ(連動)キーは aria-checked、それ以外は pressed があるときだけ aria-pressed
+      data-pressed={pressed ? '' : undefined}
+      {...(role === 'radio' ? { 'aria-checked': !!pressed } : pressed !== undefined ? { 'aria-pressed': pressed } : {})}
       {...rest}
-      ref={btnRef}
+      ref={setBtnRef}
       className={`milspec-key${className ? ` ${className}` : ''}`}
       style={{ width: bb.w, height: bb.h, ...style }}
       disabled={disabled}
-      aria-pressed={pressed}
       onPointerDown={(e) => { onPointerDown?.(e); if (e.button === 0) { st.current.held = true; down(); } }}
       onKeyDown={(e) => { onKeyDown?.(e); if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) down(); }}
-      onClick={() => { st.current.held = false; up(latch ? 'latch' : 'rest'); onClick?.(); }}
+      onBlur={(e) => {
+        onBlur?.(e);
+        // フォーカスが外れたら沈めたままにしない(キーボード押下中の blur 対策)
+        if (st.current.down) { st.current.held = false; window.clearTimeout(st.current.timer); up(latch && pressed ? 'latch' : 'rest'); }
+      }}
+      onClick={(e) => { st.current.held = false; up(latch ? 'latch' : 'rest'); onClick?.(e); }}
     >
       <span className="milspec-key-hov">
         <span className="milspec-key-kf" ref={kfRef}>

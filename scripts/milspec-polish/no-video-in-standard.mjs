@@ -4,6 +4,7 @@
  *  A. 標準モードの /miti で .mp4 / .webm / wall-poster へのリクエストが 0 件
  *  B. 軍事モードでは wall 動画がリクエストされる(配線されていることの確認)
  *  E. MIL-SPEC の書体(IBM Plex Sans JP)は軍事×PC のときだけ要求される
+ *  F. MIL-SPEC のコード(MilspecLayout チャンク等)は軍事×PC のときだけ script として要求される(設定画面の切替ボタンと開発用チューニング盤は標準側にも常駐するので除外)
  *  C. --sw 指定時: dist/sw.js の precache に wall が含まれない(事前に npm run build)
  * 前提: dev サーバ http://localhost:5173(C は不要)。exit 0 = 全 OK。
  */
@@ -22,9 +23,11 @@ if (process.argv.includes('--sw')) {
     const { browser, page } = await launch({ theme: 'dark', ...(phone ? { viewport: { width: 390, height: 844 } } : {}) });
     const hits = [];
     const fontHits = [];
+    const codeHits = [];
     // dev の `?import` はモジュール(resourceType=script)で URL 文字列を返すだけ。実ダウンロードは media/image のみ数える。
     page.on('request', (r) => { if (['media', 'image'].includes(r.resourceType()) && isVideo(r.url())) hits.push(r.url()); });
     page.on('request', (r) => { const u = r.url(); if (u.includes('fonts.googleapis.com/css2') && u.includes('IBM+Plex+Sans+JP')) fontHits.push(u); });
+    page.on('request', (r) => { if (r.resourceType() === 'script' && /MilspecLayout|milspec/i.test(r.url()) && !/MilspecStyleToggle|MilspecTunePanel/.test(r.url())) codeHits.push(r.url()); });
     await gotoMiti(page);
     if (military) await applyFixture(page, { military: true });
     await page.waitForTimeout(2500);
@@ -34,6 +37,9 @@ if (process.argv.includes('--sw')) {
     const labelE = (military ? '軍事' : '標準') + (phone ? 'スマホ' : 'PC');
     if (wantFont ? fontHits.length >= 1 : fontHits.length === 0) console.log('OK E: ' + labelE + ' 書体リクエスト ' + fontHits.length + ' 件');
     else { console.error('NG E: ' + labelE + ' 書体リクエスト ' + fontHits.length + ' 件'); fail++; }
+    // F. MIL-SPEC のコードは軍事かつ PC のときだけ読む(標準 PC・スマホには配信しない)
+    if (wantFont ? codeHits.length >= 1 : codeHits.length === 0) console.log('OK F: ' + labelE + ' MIL-SPEC チャンク要求 ' + codeHits.length + ' 件');
+    else { console.error('NG F: ' + labelE + ' MIL-SPEC チャンク要求 ' + codeHits.length + ' 件', codeHits.slice(0, 3)); fail++; }
     if (phone) {
       const mode = military ? '軍事' : '標準';
       if (hits.length) { console.error('NG D: スマホ幅(' + mode + ')で動画リクエスト', hits); fail++; }

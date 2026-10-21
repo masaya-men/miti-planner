@@ -32,7 +32,7 @@ export function armorSVG(spec: PanelSpec, pal: ArmorPalette, id: string): string
          `<path d="${d}" fill="none" stroke="${pal.seamCore}" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round"/>`;
   });
   (spec.pockets ?? []).forEach((pk) => {
-    const pp = dedupe(pk.pts), pb = pk.b ?? 2.2, pin = offsetPoly(pp, pb), m = pp.length;
+    const pp = dedupe(pk.pts), pb = pk.b ?? 1.8, pin = offsetPoly(pp, pb), m = pp.length;
     for (let i = 0; i < m; i++) {
       const a = pp[i], c = pp[(i + 1) % m], dx = c[0] - a[0], dy = c[1] - a[1], l = Math.hypot(dx, dy);
       s += `<polygon points="${P([a, c, pin[(i + 1) % m], pin[i]])}" fill="${css(facetCol(shade(dy / l, -dx / l, false), t))}"/>`;

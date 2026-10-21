@@ -2,6 +2,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { createRef } from 'react';
+import { fireEvent } from '@testing-library/react';
 import { MilspecKey, MilspecKeyCap } from '../MilspecKey';
 import type { CapSpec } from '../armor/types';
 
@@ -142,3 +144,50 @@ describe('MilspecKey 追加', () => {
     }
   });
 });
+
+describe('MilspecKey ARIA / ref / blur', () => {
+  it('role=radio は aria-checked(true/false)で aria-pressed を出さない', () => {
+    const { rerender } = render(<MilspecKey cap={cap} role="radio" pressed aria-label="r" />);
+    let b = screen.getByRole('radio');
+    expect(b.getAttribute('aria-checked')).toBe('true');
+    expect(b.hasAttribute('aria-pressed')).toBe(false);
+    rerender(<MilspecKey cap={cap} role="radio" pressed={false} aria-label="r" />);
+    b = screen.getByRole('radio');
+    expect(b.getAttribute('aria-checked')).toBe('false');
+    expect(b.hasAttribute('aria-pressed')).toBe(false);
+  });
+  it('既定は aria-pressed(pressed 未指定なら出さない)・data-pressed が状態を映す', () => {
+    const { rerender } = render(<MilspecKey cap={cap} aria-label="k" pressed />);
+    let b = screen.getByRole('button');
+    expect(b.getAttribute('aria-pressed')).toBe('true');
+    expect(b.hasAttribute('data-pressed')).toBe(true);
+    rerender(<MilspecKey cap={cap} aria-label="k" pressed={false} />);
+    b = screen.getByRole('button');
+    expect(b.getAttribute('aria-pressed')).toBe('false');
+    expect(b.hasAttribute('data-pressed')).toBe(false);
+    rerender(<MilspecKey cap={cap} aria-label="k" />);
+    expect(screen.getByRole('button').hasAttribute('aria-pressed')).toBe(false);
+  });
+  it('呼び出し側の aria-* を潰さない', () => {
+    render(<MilspecKey cap={cap} aria-label="k" pressed aria-pressed="mixed" />);
+    expect(screen.getByRole('button').getAttribute('aria-pressed')).toBe('mixed');
+  });
+  it('ref は button を指し、onClick は MouseEvent を受ける', async () => {
+    const user = userEvent.setup();
+    const ref = createRef<HTMLButtonElement>();
+    const onClick = vi.fn();
+    render(<MilspecKey cap={cap} aria-label="k" ref={ref} onClick={onClick} />);
+    expect(ref.current).toBe(screen.getByRole('button'));
+    await user.click(screen.getByRole('button'));
+    expect(onClick.mock.calls[0][0].type).toBe('click');
+  });
+  it('押下中に blur したら沈みを戻す', () => {
+    render(<MilspecKey cap={cap} aria-label="k" />);
+    const b = screen.getByRole('button');
+    fireEvent.pointerDown(b, { button: 0 });
+    expect(b.classList.contains('milspec-key-down')).toBe(true);
+    fireEvent.blur(b);
+    expect(b.classList.contains('milspec-key-down')).toBe(false);
+  });
+});
+

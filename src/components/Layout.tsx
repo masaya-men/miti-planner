@@ -32,7 +32,6 @@ import clsx from 'clsx';
 import { MobileHeader } from './MobileHeader';
 import { MobileFAB } from './MobileFab';
 import { GridOverlay } from './GridOverlay';
-import { MilspecLayout } from './military/MilspecLayout';
 import { MobilePartyWithTabs, MobileAccountMenu } from './MobilePartySettings';
 import { AetherflowChainPromptModal } from './AetherflowChainPromptModal';
 import { AstrologianDrawChainPromptModal } from './AstrologianDrawChainPromptModal';
@@ -46,6 +45,8 @@ import { ensureAppCheck, auth } from '../lib/firebase';
 import { useIOSViewportFix } from '../hooks/useIOSViewportFix';
 
 const PipView = React.lazy(() => import('./PipView'));
+// 軍事テーマの PC だけが使うので、標準/スマホには配信しない
+const MilspecLayout = React.lazy(() => import('./military/MilspecLayout').then(m => ({ default: m.MilspecLayout })));
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -577,6 +578,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     if (themeStyle === 'military' && !isMobile) {
         return (
+            <React.Suspense fallback={null}>
             <MilspecLayout
                 isSidebarOpen={isSidebarOpen}
                 onToggleSidebar={handleToggleSidebar}
@@ -597,6 +599,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
                 {children}
             </MilspecLayout>
+            </React.Suspense>
         );
     }
 

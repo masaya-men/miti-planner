@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, act } from '@testing-library/react';
 import { MilspecArmor } from '../MilspecArmor';
+import { readFileSync } from 'node:fs';
 import type { PlacedPanel, StretchFrame } from '../armor/types';
 
 const frame: StretchFrame = { w0: 274, h0: 122, sx: 137, sy: 61 };
@@ -95,5 +96,12 @@ describe('MilspecArmor', () => {
     unmount();
     expect(rd).toHaveBeenCalled();
     expect(md).toHaveBeenCalled();
+  });
+
+  it('積み順の規則: ゾーンは isolation:isolate、装甲は z-index:-1', () => {
+    const css = readFileSync('src/styles/military.css', 'utf8');
+    expect(css).toMatch(/\.milspec-zone-workspace[^{]*\{ isolation: isolate; \}/);
+    expect(css).toContain('[data-ms-zone="rail"]');
+    expect(css).toMatch(/\.theme-military \.milspec-armor \{[^}]*z-index: -1;/);
   });
 });

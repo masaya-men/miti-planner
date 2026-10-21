@@ -17,7 +17,6 @@ export function MilspecArmor({ id, frame, panels, className }: Props) {
   const latest = useRef({ frame, panels });
   latest.current = { frame, panels };
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
-  const [fontsTick, setFontsTick] = useState(0);
 
   // 親の実寸を監視
   useLayoutEffect(() => {
@@ -40,14 +39,7 @@ export function MilspecArmor({ id, frame, panels, className }: Props) {
   // テーマ切替(<html> の class)で色が変わるので作り直す
   const paletteTick = useHtmlClassTick();
 
-  // 書体の読込完了で作り直す
-  useLayoutEffect(() => {
-    let alive = true;
-    document.fonts?.ready?.then(() => { if (alive) setFontsTick((n) => n + 1); });
-    return () => { alive = false; };
-  }, []);
-
-  // 描画(実寸・テーマ・書体のどれかが変わるたび)
+  // 描画(実寸・テーマのどれかが変わるたび。SVG に文字は無いので書体は無関係)
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -60,7 +52,7 @@ export function MilspecArmor({ id, frame, panels, className }: Props) {
       const q = stretchPlaced(p, frame, W, H);
       return `<svg class="milspec-armor-panel" style="left:${q.x}px;top:${q.y}px" width="${q.w}" height="${q.h}" viewBox="0 0 ${q.w} ${q.h}">${armorSVG(q.spec, pal, `${id}-${i}`)}</svg>`;
     }).join('');
-  }, [id, contentKey, size, paletteTick, fontsTick]);
+  }, [id, contentKey, size, paletteTick]);
 
   return <div ref={ref} className={`milspec-armor${className ? ` ${className}` : ''}`} data-ms-armor={id} aria-hidden="true" />;
 }

@@ -3,10 +3,15 @@ import { seedOf } from './weather';
 import type { PanelSpec, PlacedPanel, Pt, StretchFrame } from './types';
 
 /** 境界(sx, sy)より大きい座標だけを、伸びた量(w - w0, h - h0)ぶん動かす */
-const mv = (x: number, y: number, f: StretchFrame, w: number, h: number): Pt => [
-  x > f.sx ? x + (w - f.w0) : x,
-  y > f.sy ? y + (h - f.h0) : y,
-];
+const mv = (x: number, y: number, f: StretchFrame, w: number, h: number): Pt => {
+  const nx = x > f.sx ? x + (w - f.w0) : x;
+  const ny = y > f.sy ? y + (h - f.h0) : y;
+  // 縮める方向(w < w0 など)では、線より右の点が線を越えて左へ入り、形が反転しうる
+  if (import.meta.env.DEV && ((x > f.sx && nx < f.sx) || (y > f.sy && ny < f.sy))) {
+    console.error(`stretch: 点が伸縮線を越えました(縮め過ぎ): (${x}, ${y}) -> (${nx}, ${ny}) 線=(${f.sx}, ${f.sy})`);
+  }
+  return [nx, ny];
+};
 
 const isCmd = (t: string): boolean => /^[A-Za-z]$/.test(t);
 
@@ -57,6 +62,9 @@ export function stretchPlaced(p: PlacedPanel, f: StretchFrame, W: number, H: num
   const mvx = (v: number): number => (v > f.sx ? v + (W - f.w0) : v);
   const mvy = (v: number): number => (v > f.sy ? v + (H - f.h0) : v);
   const x = mvx(p.x), y = mvy(p.y), w = mvx(p.x + p.w) - x, h = mvy(p.y + p.h) - y;
+  if (import.meta.env.DEV && (w <= 0 || h <= 0)) {
+    console.error(`stretch: 伸縮後の大きさが 0 以下です: w=${w}, h=${h}(W=${W}, H=${H})`);
+  }
   const spec = stretchSpec(p.spec, { w0: p.w, h0: p.h, sx: f.sx - p.x, sy: f.sy - p.y }, w, h);
   return { x, y, w, h, spec };
 }

@@ -1,9 +1,31 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { stretchSpec, stretchPlaced } from '../stretch';
 import { seedOf } from '../weather';
 import type { PanelSpec, StretchFrame } from '../types';
 
 const f: StretchFrame = { w0: 274, h0: 122, sx: 137, sy: 61 };
+
+afterEach(() => { vi.restoreAllMocks(); });
+
+describe('stretch(縮める方向の検知)', () => {
+  const zf: StretchFrame = { w0: 274, h0: 679, sx: 137, sy: 300 };
+  it('右端が線に近いパネルを縮めると dev でエラーを出す', () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    stretchPlaced({ x: 120, y: 0, w: 30, h: 50, spec: { pts: [[0, 0], [30, 0], [30, 50]] } }, zf, 250, 679);
+    expect(err).toHaveBeenCalled();
+  });
+  it('幅が 0 以下になるとエラーを出す', () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    stretchPlaced({ x: 100, y: 0, w: 40, h: 50, spec: { pts: [[0, 0]] } }, zf, 100, 679);
+    expect(err).toHaveBeenCalled();
+  });
+  it('線より右にあるパネルの通常の縮小はエラーなしで x - 24', () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const r = stretchPlaced({ x: 200, y: 0, w: 74, h: 110, spec: { pts: [[10, 5], [60, 5]] } }, zf, 250, 679);
+    expect(r.x).toBe(176);
+    expect(err).not.toHaveBeenCalled();
+  });
+});
 
 describe('stretch', () => {
   it('点と path を伸ばす', () => {
