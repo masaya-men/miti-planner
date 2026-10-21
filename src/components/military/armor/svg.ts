@@ -80,7 +80,7 @@ export function capSVG(c: CapSpec, pal: ArmorPalette, id: string): string {
 
 /**
  * 共有 defs の中身(粒子ノイズ・汚れ・鋼のグラデ)。noiseDataUrl は canvas で作った 128x128 のノイズ画像
- * (ブラウザ側で 1 回作って渡す)。見本の fxglow 系(光の段階)は含めない。
+ * (ブラウザ側で 1 回作って渡す)。光の粒用の milspec-fxglow / 2 / 3(見本 js:1209-1211)も含む。
  */
 export function armorDefsSVG(noiseDataUrl = ''): string {
   return `<pattern id="grain" width="128" height="128" patternUnits="userSpaceOnUse"><image href="${noiseDataUrl}" width="128" height="128"/></pattern>` +

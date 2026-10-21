@@ -107,9 +107,9 @@ export function lenAt(p: SVGPathElement, x: number, y: number): number {
 }
 
 /** 画面座標 → その path の座標(getScreenCTM の逆行列) */
-export function toPathSpace(path: SVGPathElement, clientX: number, clientY: number): { x: number; y: number } {
+export function toPathSpace(path: SVGPathElement, clientX: number, clientY: number): { x: number; y: number } | null {
   const ctm = path.getScreenCTM?.();
-  if (!ctm) return { x: clientX, y: clientY };
+  if (!ctm) return null; // 変換できないときは誤った位置を返さない
   const m = ctm.inverse();
   return { x: m.a * clientX + m.c * clientY + m.e, y: m.b * clientX + m.d * clientY + m.f };
 }
@@ -119,6 +119,7 @@ export function emit(node: Element | null, name: string, o: PulseOpts & { both?:
   if (!t || !node) return 0;
   const r = node.getBoundingClientRect();
   const c = toPathSpace(t.p, r.left + r.width / 2, r.top + r.height / 2);
+  if (!c) return 0;
   const from = lenAt(t.p, c.x, c.y);
   if (o.both) { const L = t.p.getTotalLength(); pulse(name, { ...o, from, to: L }); return pulse(name, { ...o, from, to: 0 }); }
   return pulse(name, { ...o, from });
@@ -177,8 +178,9 @@ export function energy(src: Element | null): void {
     const t = getTrace('s2k0');
     if (t) {
       const r = src!.getBoundingClientRect();
-      const y = toPathSpace(t.p, 0, r.top + r.height / 2).y;
-      const from = lenAt(t.p, 3.6, y);
+      const c = toPathSpace(t.p, r.left + r.width / 2, r.top + r.height / 2);
+      if (!c) return;
+      const from = lenAt(t.p, 3.6, c.y);
       for (let k = 0; k < 4; k++) pulse('s2k' + k, { from, delay: k * 28, len: 12, speed: 1.3 });
       d = Math.max(360, (t.p.getTotalLength() - from) * 1.3) + 40;
     }
@@ -223,6 +225,6 @@ export function startAmbient(): () => void {
     }
     timer = setTimeout(tick, 800 + Math.random() * 1700);
   };
-  timer = setTimeout(tick, 800 + Math.random() * 1700);
+  timer = setTimeout(tick, 1600); // 最初の 1 発は見本 js:1227 と同じ 1600ms 固定
   return () => { stopped = true; if (timer !== undefined) clearTimeout(timer); };
 }

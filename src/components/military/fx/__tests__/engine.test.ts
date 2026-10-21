@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { pulse, burst, startAmbient, energy } from '../engine';
+import { pulse, burst, startAmbient, energy, emit } from '../engine';
 
 const NS = 'http://www.w3.org/2000/svg';
 let animateSpy: ReturnType<typeof vi.fn>;
@@ -86,16 +86,34 @@ describe('光エンジン', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  it('startAmbient の最初の発火は 1600ms 後', () => {
+    vi.useFakeTimers();
+    ['rail:a0', 'rail:b0', 'ventR:0', 'ventL:0', 'bp:b0', 'bp:f0', 'bp:m0', 's2L0', 's2R0', 's2T0', 's2B0', 's2k0', 's2x0', 's1', 'h3', 'h5a', 's3'].forEach((n) => addPath(n));
+    const stop = startAmbient();
+    vi.advanceTimersByTime(1599);
+    expect(animateSpy).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(2);
+    expect(animateSpy).toHaveBeenCalled();
+    stop();
+  });
+
+  it('getScreenCTM が無いとき emit は何もせず 0', () => {
+    addPath('s1');
+    (SVGPathElement.prototype as unknown as { getScreenCTM: () => unknown }).getScreenCTM = () => null;
+    expect(emit(document.body, 's1')).toBe(0);
+    expect(document.querySelectorAll('.milspec-pz-g').length).toBe(0);
+  });
+
   it('startAmbient は表示中なら光を出す', () => {
     vi.useFakeTimers();
-    ['rail:a0', 'ventL:0', 'bp:b0', 'bp:f0', 'bp:m0', 's2L0', 's2R0', 's2T0', 's2B0', 's2k0', 's2x0', 's1', 'h3', 'h5a', 's3'].forEach((n) => addPath(n));
+    ['rail:a0', 'rail:b0', 'ventR:0', 'ventL:0', 'bp:b0', 'bp:f0', 'bp:m0', 's2L0', 's2R0', 's2T0', 's2B0', 's2k0', 's2x0', 's1', 'h3', 'h5a', 's3'].forEach((n) => addPath(n));
     const stop = startAmbient();
     vi.advanceTimersByTime(5000);
     expect(document.querySelectorAll('.milspec-pz-g').length).toBeGreaterThan(0);
     stop();
   });
 
-  it('energy はツリー内の要素から幹線 s2k0〜s2k3 に流し、そのあと IC を光らせる', () => {
+  it('energy はツリー内の要素から幹線 s2k0〜s2k3 に流し、同時に IC(s2L0)も光らせる', () => {
     vi.useFakeTimers();
     const svg = document.querySelector('.milspec-app svg')!;
     svg.classList.add('milspec-plan-core');
