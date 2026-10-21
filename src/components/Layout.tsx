@@ -111,7 +111,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     React.useEffect(() => {
         if (isTutorialActive) {
             setIsSidebarOpen(true);
-            pickCollapseSetter(setIsHeaderCollapsed)(false);
+            // effect 内から動き付き setter(flushSync)を呼ぶと反映が遅れて動きがずれるため、ここだけ即時展開
+            setIsHeaderCollapsed(false);
             // チュートリアル中はモバイル用シートをすべて閉じる
             setMobileMenuOpen(false);
             setMobilePartyOpen(false);
