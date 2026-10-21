@@ -2164,3 +2164,18 @@ build PASS、 vitest 636/636 PASS、 tsc clean、 Playwright 6/6 PASS (5 viewpor
 - 2026-09-26 サイドバー最下部の余白(Ko-fi 停止中)= 本番反映済(`504ff28e`)・masaya 確認済。(2026-10-05 TODO.md から移動)
 
 - 2026-10-13 通報まわり割り込み: 運営の「この人の家を全部非表示」(adminHiddenScope・自己解除不可・ハウジンガーページのみ帯表示) / 「ちがった」→「報告」 / 通報モーダル2種を HousingPanelModal 化 / …メニュー不透明化+折返し防止。
+
+## 2026-10-21 TODO.md から移動: MIL-SPEC SP2/ブラッシュアップ開始時点の経過メモ(v11 承認・土台完了で置き換え)
+### 🔴 次セッション最優先 = **MIL-SPEC 全体ブラッシュアップ**(2026-09-25 brainstorm 完了)。ブランチ `milspec-polish`(`milspec-sp2-table` から分岐)。設計書=`docs/superpowers/specs/2026-09-25-milspec-polish-design.md`(masaya レビュー待ち→writing-plans)。ブレスト記録=`docs/.private/2026-09-25-milspec-polish-brainstorm.md`。要点=背景動画(隙間から覗く・コスト対策10項目)/MGEX×Nothing パネル形状/赤1色の光/機械スイッチ5種/大レバー電源投入。Phase 0 見本 HTML → masaya 承認ゲート。下の SP2 残候補1〜3 はこの中で解消。
+### (前段)MIL-SPEC SP2(タイムライン表の軍事化)**実装完了、masaya が実機で見た目を1つずつ手直し中**。
+  ブランチ `milspec-sp2-table`(main 未マージ)。全 10 タスク実装 → タスクごとレビュー → whole-branch 敵対レビュー(opus)→ fix wave → 再レビュー、まで完了。**標準モード(通常の見た目)は main と完全一致を機械検証済み**(壊れていない)。
+  **2026-09-14〜21 masaya 目視フィードバック対応(進行中・一つずつ丁寧に)**: ①ヘッダー下段にボタン帯縦積み+サイドバー独立1列化(`b68cd6ec`) ②サイドバーDOCK/DEPLOYMENTパネル縮小 ③参考画像を踏まえ質感ノブ調整+配線グリッド/LED風発光スリット背景(サイドバー下地・ヘッダー・フッター。表本体/ツールバーは可読性優先で対象外)。②③は同一commit `ea9a2994`。**試したが不採用**: Claude Designキャンバス試作(スコープ超過で中止)/ Allmarksローディングの棒→文字化(「かわいくならなそう」で元に戻し済)。
+  **次回続きの候補(masaya から指示を受けてから着手・先読みしない)**:
+  1. フェーズ/ラベル列を折りたたんだ時、リキャスト帯の位置がズレないか(表のセルだけ動くのは仕様上の判断=既存の作りに合わせた。詳細は `notes.md` §C1)
+  2. リキャスト行を OFF にした状態の見た目(帯が消えると計器の目盛りも一緒に消える)
+  3. ライトモードの軍事テーマ(コントラストは SP2 後にまとめて調整予定)
+  4. `scripts/milspec-sp2/notes.md` に非公開モックアップの HTML 断片・色コードを一部引用している(画像は gitignore 済で公開されない)→ **✅ 2026-09-25 masaya OK(このまま公開で可)**
+  承認後: masaya 最終ゲート → `main` へマージ → 次の実務 push にまとめて同梱。
+  正典=`docs/.private/theme-refs/milspec-mockup.html`(GITIGNORE)。設計書=`docs/superpowers/specs/2026-09-09-milspec-sp2-table-design.md`(実装内容を反映済み)。ledger=`.superpowers/sdd/2026-09-09-milspec-sp2-table/progress.md`。
+  **✅ SP1 は 2026-09-09 main に FF マージ済(`4076d277`)**。punch-list=`docs/.private/2026-09-08-milspec-sp1-punch-list.md`。
+  **🔵 SP1 の細かい見た目詰め(フォント/余白/立体感/ロールカウンター等)は SP2 マージ後にまとめて**(2026-09-09 masaya 決定・理由=中央の標準UI表が統一感の主因)。SP3(スマホ)/SP4(編集モーダル)は SP2 マージ後に着手。
