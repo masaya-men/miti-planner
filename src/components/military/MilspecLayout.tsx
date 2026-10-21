@@ -9,6 +9,7 @@ import { MilspecSidebar } from './MilspecSidebar';
 import { MilspecToolbar } from './MilspecToolbar';
 import { MilspecWorkspace } from './MilspecWorkspace';
 import { MilspecFooter } from './MilspecFooter';
+import { MilspecVent } from './MilspecVent';
 import { MilspecRail } from './MilspecRail';
 import { startAmbient } from './fx/engine';
 import { relayoutZones } from './relayout';
@@ -117,8 +118,12 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
         />
         </div>
       </div>
-      {/* 通気口の区画(中身は Task 9 以降)。縮小用の内箱は区画ごとに持つ */}
-      <div data-ms-zone="vent" className="milspec-zone-vent"><div className="milspec-hs-box" /></div>
+      {/* 通気口の区画。取っ手でヘッダーを開閉する(閉じていても押せる)。縮小用の内箱は区画ごとに持つ */}
+      <div data-ms-zone="vent" className="milspec-zone-vent">
+        <div className="milspec-hs-box">
+          <MilspecVent isHeaderCollapsed={props.isHeaderCollapsed} onToggleHeader={() => setCollapsedAnimated((v) => !v)} />
+        </div>
+      </div>
       <div data-ms-zone="sidebar" className="milspec-zone-sidebar" data-open={props.isSidebarOpen ? '' : undefined}>
         <MilspecSidebar
           isSidebarOpen={props.isSidebarOpen}

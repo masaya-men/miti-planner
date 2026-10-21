@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { pulse, burst, startAmbient, energy, emit } from '../engine';
+import { pulse, burst, startAmbient, energy, emit, scanBall, nudgeBall } from '../engine';
 
 const NS = 'http://www.w3.org/2000/svg';
 let animateSpy: ReturnType<typeof vi.fn>;
@@ -129,5 +129,51 @@ describe('光エンジン', () => {
     expect(svg.querySelectorAll('.milspec-pz-c').length).toBe(5);
     // IC の発火(coreFire)で s2L0 にも複製ができる(幹線 4 本 + s2L0 = 5)
     expect(svg.querySelectorAll('.milspec-pz-g').length).toBeGreaterThanOrEqual(5);
+  });
+});
+
+describe('光の玉', () => {
+  const mkRow = () => {
+    const row = document.createElement('div');
+    for (let i = 0; i < 3; i++) { const l = document.createElement('span'); l.className = 'milspec-led'; l.innerHTML = '<i class="milspec-led-src"></i>'; row.appendChild(l); }
+    document.querySelector('.milspec-app')!.appendChild(row);
+    return row;
+  };
+  const srcX = (row: HTMLElement) => [...row.querySelectorAll<HTMLElement>('.milspec-led-src')].map((s) => s.style.getPropertyValue('--x'));
+
+  it('右端で ventR、左端に戻って ventL を burst し、往復中の二重起動はしない', () => {
+    vi.useFakeTimers();
+    const svg = document.querySelector('.milspec-app svg')!;
+    addPath('ventR:0', {}, svg); addPath('ventL:0', {}, svg);
+    const row = mkRow();
+    scanBall(row);
+    expect(srcX(row)).toEqual(['14px', '14px', '0px']); // 玉が右端へ
+    scanBall(row); // 二重起動: 何も変わらない
+    vi.advanceTimersByTime(2 * 38 + 200 + 5);
+    expect(svg.querySelectorAll('.milspec-pz-g').length).toBeGreaterThanOrEqual(1); // ventR の光
+    expect(srcX(row)).toEqual(['0px', '-14px', '-14px']); // 左端へ戻る
+    vi.advanceTimersByTime(2 * 38 + 200 + 400);
+    expect(svg.querySelectorAll('.milspec-pz-g').length).toBeGreaterThanOrEqual(2); // ventL の光
+    scanBall(row); // 往復が終われば再び動く
+    expect(srcX(row)[2]).toBe('0px');
+    vi.advanceTimersByTime(10000);
+  });
+
+  it('動きを減らす・タブ非表示では何もしない', () => {
+    const row = mkRow();
+    window.matchMedia = ((q: string) => ({ matches: true, media: q })) as never;
+    scanBall(row); nudgeBall(row);
+    expect(srcX(row)).toEqual(['', '', '']);
+  });
+
+  it('nudgeBall は身じろぎしてから右端に戻す', () => {
+    vi.useFakeTimers();
+    const row = mkRow();
+    nudgeBall(row);
+    expect(srcX(row)).toEqual(['14px', '0px', '-14px']);
+    vi.advanceTimersByTime(171);
+    expect(srcX(row)).toEqual(['0px', '-14px', '-14px']);
+    vi.advanceTimersByTime(200);
+    expect(srcX(row)).toEqual(['14px', '14px', '14px']);
   });
 });

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, act } from '@testing-library/react';
+import { render, act, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { MilspecLayout } from '../MilspecLayout';
 import { useThemeStore } from '../../../store/useThemeStore';
@@ -71,6 +71,25 @@ describe('MilspecLayout', () => {
     expect(container.querySelector('[data-ms-zone="header"][data-collapsed]')).not.toBeNull();
     const open = renderIt().container;
     expect(open.querySelector('[data-ms-zone="header"][data-collapsed]')).toBeNull();
+  });
+
+  it('通気口の取っ手を引くと(260ms 後)ヘッダーの開閉 setter が呼ばれる・閉じていても取っ手はある', () => {
+    vi.useFakeTimers();
+    try {
+      const set = vi.fn();
+      const { container } = render(
+        <MemoryRouter><MilspecLayout {...baseProps} setIsHeaderCollapsed={set}><div /></MilspecLayout></MemoryRouter>
+      );
+      const pull = container.querySelector('[data-ms-zone="vent"] button.milspec-pull') as HTMLElement;
+      expect(pull).not.toBeNull();
+      fireEvent.click(pull);
+      act(() => { vi.advanceTimersByTime(300); });
+      expect(set).toHaveBeenCalledWith(true);
+      const closed = render(
+        <MemoryRouter><MilspecLayout {...baseProps} isHeaderCollapsed><div /></MilspecLayout></MemoryRouter>
+      ).container;
+      expect(closed.querySelector('[data-ms-zone="vent"] button.milspec-pull')).not.toBeNull();
+    } finally { vi.useRealTimers(); }
   });
 
   it('通気口の区画(vent)があり、ヘッダーと通気口の中身は縮小用の内箱に入る', () => {

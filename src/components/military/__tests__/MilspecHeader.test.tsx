@@ -26,10 +26,9 @@ describe('MilspecHeader', () => {
     fireEvent.click(getAllByRole('button', { name: /theme|テーマ/i })[0]);
     expect(props.onToggleTheme).toHaveBeenCalled();
   });
-  it('折りたたみボタンで setIsHeaderCollapsed が呼ばれる', () => {
-    const { getByRole } = r();
-    fireEvent.click(getByRole('button', { name: /collapse|折りたた/i }));
-    expect(props.setIsHeaderCollapsed).toHaveBeenCalled();
+  it('折りたたみボタンは無い(開閉は通気口の取っ手に一本化)', () => {
+    const { container } = r();
+    expect(container.querySelector('.milspec-hdr-collapse')).toBeNull();
   });
   it('preview ゲート ON で StyleToggle が出る', () => {
     const { container } = r();

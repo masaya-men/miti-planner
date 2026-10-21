@@ -203,6 +203,42 @@ export function energy(src: Element | null): void {
   trafficBp(d2 + 1100, { cls: 'faint' });
 }
 
+// ---- 光の玉(通気口のランプ列。見本 js:1054-1069)----
+let ballIdx = 0;
+let ballBusy = false;
+/** ランプ列の光の玉を端から端へ往復させる。端に着くたびに溝へ光を流す。動きを減らす・電源 off・往復中は何もしない */
+export function scanBall(row: HTMLElement): void {
+  if (!row || !isFxActive() || ballBusy) return;
+  ballBusy = true;
+  const lamps = [...row.querySelectorAll<HTMLElement>('.milspec-led')];
+  const n = lamps.length;
+  const go = (from: number, to: number, cb: () => void) => {
+    const dir = Math.sign(to - from);
+    lamps.forEach((lp, k) => {
+      const x = k < to ? 14 : k > to ? -14 : 0;
+      const s = lp.querySelector<HTMLElement>('.milspec-led-src');
+      if (!s) return;
+      s.style.setProperty('--dl', Math.max(0, (k - from) * dir) * 38 + 'ms');
+      s.style.setProperty('--x', x + 'px');
+    });
+    setTimeout(cb, Math.abs(to - from) * 38 + 200);
+  };
+  go(ballIdx, n - 1, () => {
+    burst('ventR:', { stagger: 22, len: 9, speed: 2 });
+    go(n - 1, 0, () => { ballIdx = 0; ballBusy = false; burst('ventL:', { stagger: 22, len: 9, speed: 2 }); });
+  });
+}
+
+/** ホバーで光の玉が軽く身じろぎする(往復中は何もしない) */
+export function nudgeBall(row: HTMLElement): void {
+  if (!row || !isFxActive() || ballBusy) return;
+  const srcs = [...row.querySelectorAll<HTMLElement>('.milspec-led-src')];
+  const set = (i: number) => srcs.forEach((s, k) => { s.style.setProperty('--dl', '0ms'); s.style.setProperty('--x', (k < i ? 14 : k > i ? -14 : 0) + 'px'); });
+  set(1);
+  setTimeout(() => set(0), 170);
+  setTimeout(() => srcs.forEach((s) => s.style.setProperty('--x', '14px')), 340);
+}
+
 const AMB: [string, number][] = [['rail:a', 3], ['rail:b', 3], ['ventL:', 2], ['ventR:', 2], ['bp:b', 1.5], ['bp:f', 3], ['bp:m', 2], ['s2L', 1], ['s2R', 1], ['s2T', 1], ['s2B', 1], ['s2k', 0.8], ['s2x', 0.8], ['s1', 0.5], ['h3', 0.4], ['h5a', 0.3], ['s3', 0.3]];
 
 /** 常時: どこかの束を数本、細い光が走る(0.8〜2.5 秒ごと)。戻り値で停止 */

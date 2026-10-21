@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sun, Moon, LogIn, ChevronUp, ChevronDown } from 'lucide-react';
+import { Sun, Moon, LogIn } from 'lucide-react';
 import { TutorialMenu } from '../tutorial/TutorialMenu';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { LoginModal } from '../LoginModal';
@@ -29,7 +29,7 @@ export type MilspecHeaderProps = Pick<
  *  .hp-logo(ロゴプレート) / .seam-diag / .hp-title(遭遇名) / .hp-fill(銘板+ハザード+タービン) /
  *  .hp-share(共有) / .hp-tools(ツールボタン群) を1枚のパネル群として並べる。 */
 export const MilspecHeader: React.FC<MilspecHeaderProps> = (props) => {
-  const { theme, onToggleTheme, isHeaderCollapsed, setIsHeaderCollapsed } = props;
+  const { theme, onToggleTheme, isHeaderCollapsed } = props;
   const navigate = useNavigate();
   const { t } = useTranslation();
   const showStyleToggle = useCanPreviewWip();
@@ -214,18 +214,6 @@ export const MilspecHeader: React.FC<MilspecHeaderProps> = (props) => {
           <MilspecStyleToggle compact className="milspec-hud-btn" />
         </span>
       )}
-
-      {/* ヘッダー折りたたみ — mockup 側には対応 DOM が無い(サイドバー上部の sb-collapse とは別物)。
-          Task 5(Sidebar)未実装の SP1 時点ではヘッダー自身が担う。凝った意匠は不要(brief 指示通り)。 */}
-      <button
-        type="button"
-        className="milspec-hdr-collapse"
-        onClick={() => setIsHeaderCollapsed((v) => !v)}
-        aria-label={t(isHeaderCollapsed ? 'sidebar.expand_header' : 'sidebar.collapse_header')}
-        title={t(isHeaderCollapsed ? 'sidebar.expand_header' : 'sidebar.collapse_header')}
-      >
-        {isHeaderCollapsed ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
-      </button>
 
       <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
     </header>
