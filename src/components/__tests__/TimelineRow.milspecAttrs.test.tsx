@@ -63,8 +63,12 @@ describe('TimelineRow: 軍事の表の見た目用の data 属性', () => {
     });
     it('標準テーマでは印を一切付けない(標準の DOM 不変)', () => {
         themeStyle = 'standard';
-        const { container } = renderRow([ev('a', 'physical'), ev('b', 'magical')], [dmg(1), dmg(150000)]);
-        themeStyle = 'military';
+        let container: HTMLElement;
+        try {
+            ({ container } = renderRow([ev('a', 'physical'), ev('b', 'magical')], [dmg(1), dmg(150000)]));
+        } finally {
+            themeStyle = 'military';
+        }
         expect(container.querySelector('[data-event-slot],[data-lethal],[data-stack],[data-damage-type]')).toBeNull();
     });
     it('種類の切替ボタンに data-damage-type が付く', () => {

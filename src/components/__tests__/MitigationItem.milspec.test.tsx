@@ -115,5 +115,7 @@ describe('MitigationItem inert フック（MIL-SPEC SP2 Task 6）', () => {
     // 属性は値なし（inert）
     expect(bar?.getAttribute('data-mit-bar')).toBe('');
     expect(icon?.getAttribute('data-mit-icon')).toBe('');
+    // 標準テーマでは軍事の照準・終点用の印を一切付けない(標準の DOM 不変)
+    expect(container.querySelector('[data-mit-t],[data-mit-owner],[data-mit-dur],[data-mit-end]')).toBeNull();
   });
 });

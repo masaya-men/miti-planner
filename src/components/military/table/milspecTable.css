@@ -85,7 +85,7 @@
 .theme-military .milspec-app #timeline-header-inner > :nth-child(6)::before { content: "NET"; text-align: right; }
 /* 押せる見出し(フェーズ・ラベル・時間・敵の攻撃)の下線(見本 button.th::after・300ms) */
 .theme-military .milspec-app #timeline-header-inner > :nth-child(-n+4)::after {
-  content: ""; position: absolute; left: 8px; right: 8px; bottom: 6px; height: 1px; pointer-events: none;
+  content: ""; position: absolute; left: 8px; right: 8px; bottom: 4px; height: 1px; pointer-events: none;
   background: var(--ma-ink-2); transform: scaleX(0); transform-origin: 0 50%;
   transition: transform 300ms cubic-bezier(.2,.8,.2,1), background 120ms;
 }
@@ -112,7 +112,10 @@
 .theme-military .milspec-app [data-time-row] > * {
   border-color: transparent; box-shadow: inset 1px 0 0 var(--ma-cell-line); background: none;
 }
+/* メンバー列のセルは標準どおりホバーで面を出す(効果を置く場所の手がかり・色だけ軍事の淡い面) */
 .theme-military .milspec-app [data-time-row] > *:hover { background: none; }
+.theme-military .milspec-app [data-time-row] > :nth-child(n+7):hover { background: rgba(255,255,255,0.045); }
+.theme-military.theme-light .milspec-app [data-time-row] > :nth-child(n+7):hover { background: rgba(20,30,40,0.06); }
 
 /* ---------- 時刻・同時刻の括弧と ×N(css:485-489)---------- */
 .theme-military .milspec-app [data-time-row] > :nth-child(3) {
@@ -229,3 +232,94 @@
 .theme-military .milspec-app .milspec-mh-item[data-role="tank"] { --ma-rc: var(--ma-role-tank); }
 .theme-military .milspec-app .milspec-mh-item[data-role="healer"] { --ma-rc: var(--ma-role-healer); }
 .theme-military .milspec-app .milspec-mh-item[data-role="dps"] { --ma-rc: var(--ma-role-dps); }
+
+/* =====================================================================
+   効果アイコン・効果帯・終点の目盛り(見本 v11 css:507-517)と照準(css:518-539)。
+   アイコンの大きさ・帯の位置は本番のまま(24px・アイコン中心から伸びる)。見た目だけ見本に合わせる。
+   効果の入れ物 = div.group(軍事の表の MitigationItem)。:has で「アイコンを直接持つ入れ物」だけに絞る。
+   ===================================================================== */
+
+/* アイコン枠の外側(標準の hover:scale-110 と shadow-md を消す。競合の輪 ring-2 は残す) */
+.theme-military .milspec-app div.group > div:has(> * > [data-mit-icon]) { scale: none; }
+.theme-military .milspec-app div.group > div:has(> * > [data-mit-icon]):not(.ring-2) { box-shadow: none; }
+/* アイコン: 角丸 2px・影・ホバーで浮く(300ms の跳ねるイージング) */
+.theme-military .milspec-app [data-mit-icon]:not(.bg-transparent) {
+  border: 0; background: none; border-radius: 2px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 2px 3px rgba(0,0,0,0.4);
+  transition: transform 300ms cubic-bezier(.2,1.3,.35,1), filter 160ms;
+}
+.theme-military .milspec-app [data-mit-icon]:not(.bg-transparent) img { border-radius: 2px; }
+.theme-military .milspec-app div.group:has(> div > * > [data-mit-icon]):hover [data-mit-icon]:not(.bg-transparent) {
+  transform: translateY(-0.8px) scale(1.06); filter: brightness(1.12);
+}
+/* 効果帯: 幅 4px・水色のグラデ・縁 1px。ホバーで charge の光が 1 秒周期で流れる */
+.theme-military .milspec-app [data-mit-bar] {
+  width: 4px; border-width: 0; border-radius: 0 0 1px 1px; overflow: hidden;
+  background: linear-gradient(90deg, #1e8fb0, #3ec4e6 50%, #1e8fb0);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.45);
+}
+.theme-military .milspec-app [data-mit-bar]::after {
+  content: ""; position: absolute; left: 0; right: 0; top: -30px; height: 30px; pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(235,252,255,0.85), transparent); opacity: 0;
+}
+.theme-military .milspec-app div.group:has(> div > * > [data-mit-icon]):hover > [data-mit-bar]::after {
+  opacity: 1; animation: milspec-charge 1s cubic-bezier(.5,0,.3,1) infinite;
+}
+@keyframes milspec-charge { to { top: 100%; } }
+/* 終点の目盛り(10×1) */
+.theme-military .milspec-app [data-mit-end] { background: #9fe6f7; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.5); }
+
+/* ---------- 照準(MilspecReticle)。四隅 + 十字 + タグ。位置は器基準の transform ---------- */
+.theme-military .milspec-ret {
+  position: absolute; left: 0; top: 0; width: 10px; height: 10px; pointer-events: none; z-index: 60; opacity: 0;
+  --ret-c: var(--ma-sig);
+  transition: transform 190ms cubic-bezier(.2,.9,.25,1), width 190ms cubic-bezier(.2,.9,.25,1), height 190ms cubic-bezier(.2,.9,.25,1), opacity 140ms;
+}
+.theme-military.theme-light .milspec-ret { --ret-c: #0e8f55; }
+/* 見出しの中に置く枠(見出しの子への一括規則 > * に負けない) */
+.theme-military .milspec-app #timeline-header-inner > .milspec-ret { position: absolute; align-self: auto; }
+/* 見出しの「孫」への一括規則(余白・色・字・縁の透明化)が枠の部品に効かないよう戻す */
+.theme-military .milspec-app #timeline-header-inner > .milspec-ret > * { padding: 0; justify-content: normal; }
+.theme-military .milspec-app #timeline-header-inner > .milspec-ret > i { border-color: var(--ret-c); }
+.theme-military .milspec-app #timeline-header-inner > .milspec-ret > .milspec-ret-tag {
+  padding: 2px 4px 2px 3px; font: 400 6.4px/1 'Share Tech Mono', monospace; letter-spacing: 0.08em; color: var(--ret-c);
+}
+.theme-military.theme-light .milspec-app #timeline-header-inner > .milspec-ret > .milspec-ret-tag { color: #0b7a47; }
+.theme-military .milspec-ret.on { opacity: 1; }
+.theme-military .milspec-ret i { position: absolute; width: 7px; height: 7px; border: 0 solid var(--ret-c); }
+.theme-military .milspec-ret i:nth-child(1) { left: 0; top: 0; border-width: 1.2px 0 0 1.2px; }
+.theme-military .milspec-ret i:nth-child(2) { right: 0; top: 0; border-width: 1.2px 1.2px 0 0; }
+.theme-military .milspec-ret i:nth-child(3) { right: 0; bottom: 0; border-width: 0 1.2px 1.2px 0; }
+.theme-military .milspec-ret i:nth-child(4) { left: 0; bottom: 0; border-width: 0 0 1.2px 1.2px; }
+.theme-military .milspec-ret u { position: absolute; background: var(--ret-c); opacity: 0.7; }
+.theme-military .milspec-ret u:nth-of-type(1) { left: -5px; top: 50%; width: 3px; height: 1px; }
+.theme-military .milspec-ret u:nth-of-type(2) { right: -5px; top: 50%; width: 3px; height: 1px; }
+.theme-military .milspec-ret u:nth-of-type(3) { top: -5px; left: 50%; width: 1px; height: 3px; }
+.theme-military .milspec-ret u:nth-of-type(4) { bottom: -5px; left: 50%; width: 1px; height: 3px; }
+.theme-military .milspec-ret-tag {
+  position: absolute; left: calc(100% + 7px); top: -1px; padding: 2px 4px 2px 3px; border-radius: 1px; white-space: nowrap;
+  font: 400 6.4px/1 'Share Tech Mono', monospace; letter-spacing: 0.08em; color: var(--ret-c);
+  background: rgba(3,8,6,0.82); box-shadow: inset 1.5px 0 0 var(--ret-c);
+}
+.theme-military.theme-light .milspec-ret-tag { color: #0b7a47; background: rgba(255,255,255,0.92); box-shadow: inset 1.5px 0 0 #0e8f55, 0 1px 2px rgba(0,0,0,0.15); }
+.theme-military .milspec-ret.flip .milspec-ret-tag { left: auto; right: calc(100% + 7px); }
+/* 狙いを定めた瞬間: 四隅が外から寄る・タグが左から開く */
+.theme-military .milspec-ret.lock i:nth-child(1) { animation: milspec-rl1 .26s cubic-bezier(.2,.9,.25,1.3); }
+.theme-military .milspec-ret.lock i:nth-child(2) { animation: milspec-rl2 .26s cubic-bezier(.2,.9,.25,1.3); }
+.theme-military .milspec-ret.lock i:nth-child(3) { animation: milspec-rl3 .26s cubic-bezier(.2,.9,.25,1.3); }
+.theme-military .milspec-ret.lock i:nth-child(4) { animation: milspec-rl4 .26s cubic-bezier(.2,.9,.25,1.3); }
+.theme-military .milspec-ret.lock .milspec-ret-tag { animation: milspec-tagin .32s steps(8, end); }
+@keyframes milspec-rl1 { from { transform: translate(-7px,-7px); opacity: 0; } }
+@keyframes milspec-rl2 { from { transform: translate(7px,-7px); opacity: 0; } }
+@keyframes milspec-rl3 { from { transform: translate(7px,7px); opacity: 0; } }
+@keyframes milspec-rl4 { from { transform: translate(-7px,7px); opacity: 0; } }
+@keyframes milspec-tagin { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* 動きを減らす設定: 効果帯の光・照準の動きを止める(見本 css:619 の全称指定は .theme-military 配下に閉じる) */
+@media (prefers-reduced-motion: reduce) {
+  .theme-military .milspec-app div.group:has(> div > * > [data-mit-icon]):hover > [data-mit-bar]::after { animation: none; opacity: 0; }
+  .theme-military .milspec-app [data-mit-icon]:not(.bg-transparent) { transition: none; }
+  .theme-military .milspec-ret { transition: none; }
+  .theme-military .milspec-ret.lock i, .theme-military .milspec-ret.lock .milspec-ret-tag { animation: none; }
+}
+.theme-military .milspec-ret[data-reduced] { transition: none; }

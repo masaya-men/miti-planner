@@ -80,6 +80,7 @@ import { JobPickerRow } from './JobPickerRow';
 const MilspecControlDeck = React.lazy(() => import('./military/table/MilspecControlDeck').then(m => ({ default: m.MilspecControlDeck })));
 import { useSortSlide } from './military/table/useSortSlide';
 const MilspecJackBoard = React.lazy(() => import('./military/table/MilspecJackBoard').then(m => ({ default: m.MilspecJackBoard })));
+const MilspecReticle = React.lazy(() => import('./military/table/MilspecReticle').then(m => ({ default: m.MilspecReticle })));
 const MilspecMemberHeads = React.lazy(() => import('./military/table/MilspecMemberHeads').then(m => ({ default: m.MilspecMemberHeads })));
 import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
@@ -558,6 +559,9 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                     <Tooltip content={`${nameStr || t('timeline.mitigation')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint')}`} wrapperClassName="w-full h-full">
                         <div
                             data-mit-icon=""
+                            data-mit-t={slideOnSort ? mitigation.time : undefined}
+                            data-mit-owner={slideOnSort ? mitigation.ownerId : undefined}
+                            data-mit-dur={slideOnSort ? mitigation.duration : undefined}
                             className={clsx(
                             "w-full h-full bg-black/50 overflow-hidden rounded border border-app-border flex items-center justify-center",
                             isVirtual && "bg-transparent border-none shadow-none"
@@ -642,6 +646,19 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                             <div className="w-full h-full" />
                         </Tooltip>
                     </div>
+                )}
+
+                {/* 軍事の表だけ: 効果帯の終点の目盛り(見本 v11 css:513・10×1)。標準では出さない */}
+                {slideOnSort && mitigation.duration > 1 && (
+                    <div
+                        data-mit-end=""
+                        className="absolute pointer-events-none"
+                        style={{
+                            top: `${MITI_ICON_PX / 2 + Math.max(0, durationHeight)}px`,
+                            left: `calc(50% + ${overlapOffset}px)`,
+                            width: '10px', height: '1px', transform: 'translateX(-50%)',
+                        }}
+                    />
                 )}
 
                 {/* リキャスト残時間点線は廃止 (セッション 18 のリキャスト専用行で代替可能)。 */}
@@ -3840,6 +3857,10 @@ const Timeline: React.FC = () => {
                                 onSave={handleMemoSave}
                                 onCancel={() => setMemoInput(null)}
                             />
+                        )}
+                        {/* 軍事の表: 指した所に吸い付く照準(見本 v11 js:1027-1053)。標準では出さない */}
+                        {isMilspecTable && (
+                            <React.Suspense fallback={null}><MilspecReticle rootRef={sheetContainerRef} /></React.Suspense>
                         )}
                         </div>
                     </div>
