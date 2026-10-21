@@ -12,6 +12,7 @@ import { MilspecContentTree, useMilspecTreeTabs, tabForPlanCategory, type Milspe
 import { MilspecArmor } from './MilspecArmor';
 import { MilspecKey } from './MilspecKey';
 import { MilspecPlanCore } from './MilspecPlanCore';
+import { MilspecNotifBeacon } from './MilspecNotifBeacon';
 import { MilspecFxLayer } from './fx/MilspecFxLayer';
 import { energy, emit } from './fx/engine';
 import { MilspecStencil, MilspecMark, MilspecScrew, MilspecRivet, MilspecMaintPlate, MilspecBarcode } from './MilspecDecor';
@@ -290,6 +291,9 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen })
                 <MilspecKey key={i} cap={k.cap} style={capPos(k.cap)} label={<>{k.icon}<b>{k.text}</b></>} onClick={k.onClick} />
               ))}
             </div>
+
+            {/* 運営通知のマーク(未読があるときだけ。ツリー箱の右下と S3 右上の隙間) */}
+            <MilspecNotifBeacon H={H} />
           </div>
         </div>
       )}

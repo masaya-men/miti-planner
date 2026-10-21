@@ -1,0 +1,21 @@
+/* 運営通知のマーク(MilspecNotifBeacon)。位置・大きさは sidebarGeometry の SB_NOTIF から style で来る */
+.theme-military .milspec-notif { position: absolute; padding: 0; border: 0; background: none; cursor: pointer; pointer-events: auto;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding-top: 2px;
+  animation: milspec-notif-in 420ms cubic-bezier(0.2, 0.9, 0.25, 1) both; }
+.theme-military .milspec-notif-plate { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.theme-military .milspec-notif-body { fill: var(--ma-sec-top); stroke: var(--ma-sec-lo); stroke-width: 1; }
+.theme-military .milspec-notif-rim { fill: rgba(var(--ma-warn-rgb), 0.16); stroke: var(--ma-warn); stroke-width: 1.2; stroke-linejoin: round;
+  animation: milspec-notif-rim 1.8s ease-in-out infinite; }
+.theme-military .milspec-notif:hover .milspec-notif-rim,
+.theme-military .milspec-notif:focus-visible .milspec-notif-rim { fill: rgba(var(--ma-warn-rgb), 0.34); animation: none; }
+.theme-military .milspec-notif:focus-visible { outline: none; }
+.theme-military .milspec-notif:focus-visible .milspec-notif-rim { stroke: var(--ma-warn-hot); stroke-width: 1.8; }
+.theme-military .milspec-notif-row { position: relative; display: flex; align-items: center; gap: 3px; }
+.theme-military .milspec-notif-bell { width: 10px; height: 10px; fill: none; stroke: var(--ma-warn); stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+.theme-military.theme-light .milspec-notif-bell { stroke: var(--ma-warn-deep); }
+.theme-military .milspec-notif .milspec-stencil { position: relative; color: var(--ma-ink); }
+@keyframes milspec-notif-in { 0% { opacity: 0; transform: translateX(14px); } 100% { opacity: 1; transform: translateX(0); } }
+@keyframes milspec-notif-rim { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) {
+  .theme-military .milspec-notif, .theme-military .milspec-notif-rim { animation: none; }
+}
