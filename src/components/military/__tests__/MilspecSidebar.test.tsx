@@ -34,10 +34,10 @@ describe('MilspecSidebar', () => {
     expect(container.querySelector('.milspec-phase')).toBeNull();
   });
 
-  it('折りたたみハンドルで onToggleSidebar', () => {
-    const { getByRole } = r();
-    fireEvent.click(getByRole('button', { name: /collapse|折りたた|‹/i }));
-    expect(props.onToggleSidebar).toHaveBeenCalled();
+  it('折りたたみハンドルはレールへ移したので、サイドバー内には無い', () => {
+    const { container } = r();
+    expect(container.querySelector('.milspec-sb-collapse')).toBeNull();
+    expect(container.querySelector('[aria-expanded]')).toBeNull();
   });
 
   // 2026-10-05: 寄付導線は全撤去(SE 著作物利用条件 2026-09-16 改訂)。DEPLOYMENT パネルは出さない。

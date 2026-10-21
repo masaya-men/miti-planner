@@ -2,14 +2,13 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { useMilspecFonts } from './useMilspecFonts';
-import { MilspecChrome } from './MilspecChrome';
 import { MilspecBackdropVideo } from './MilspecBackdropVideo';
 import { MilspecHeader } from './MilspecHeader';
 import { MilspecSidebar } from './MilspecSidebar';
 import { MilspecToolbar } from './MilspecToolbar';
 import { MilspecWorkspace } from './MilspecWorkspace';
 import { MilspecFooter } from './MilspecFooter';
-import { MilspecSeam } from './MilspecSeam';
+import { MilspecRail } from './MilspecRail';
 import { MilspecTunePanel } from '../dev/MilspecTunePanel';
 import { RenderPendingIndicator } from '../RenderPendingIndicator';
 import { AetherflowChainPromptModal } from '../AetherflowChainPromptModal';
@@ -53,8 +52,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   return (
     <div data-app-shell className="milspec-app" data-theme-military>
       <MilspecBackdropVideo />
-      <MilspecChrome />
-      {/* ゾーン: header(Task 4)/sidebar(Task 5)/toolbar(Task 6)/workspace(Task 3)/footer(Task 7)/seam(Task 8)は実装済。 */}
+      {/* ゾーン: header(Task 4)/sidebar(Task 5)/toolbar(Task 6)/workspace(Task 3)/footer(Task 7)/rail は実装済。 */}
       {/* masaya 2026-09-14 確定: header ゾーンの高さは今までどおり(clamp 76-90px)据え置きで、
           その中を縦に 2 段(上=MilspecHeader を少し薄く/下=MilspecToolbar を薄い帯で)に積む。
           標準 ConsolidatedHeader の Layer A(h-12)+ Layer B(h-12)を 1 つの折りたたみ容器に
@@ -82,7 +80,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
           onCloseSidebar={props.onCloseSidebar}
         />
       </div>
-      <div data-ms-zone="seam" className="milspec-zone-seam"><MilspecSeam /></div>
+      <div data-ms-zone="rail" className="milspec-zone-rail"><MilspecRail isSidebarOpen={props.isSidebarOpen} onToggleSidebar={props.onToggleSidebar} /></div>
       <div data-ms-zone="workspace" className="milspec-zone-workspace"><MilspecWorkspace>{children}</MilspecWorkspace></div>
       <div data-ms-zone="footer" className="milspec-zone-footer"><MilspecFooter /></div>
 

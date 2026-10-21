@@ -841,38 +841,6 @@
   opacity: calc(0.7 * var(--ms-tune-wear));
 }
 
-/* ---------- 全体の外枠コンソール (mockup 683-710) ---------- */
-.theme-military .milspec-console-frame { position: absolute; inset: 0; pointer-events: none; z-index: 50; }
-.theme-military .milspec-console-frame::before {
-  content: ""; position: absolute; inset: 0;
-  box-shadow:
-    inset 0 0 0 3px var(--ms-channel-col),
-    inset 0 0 0 5px rgba(255,255,255,0.05),
-    inset 0 0 3px 5px rgba(0,0,0,0.6),
-    inset 0 0 110px rgba(0,0,0, calc(0.62 * var(--ms-tune-channel)));
-}
-.theme-military .milspec-console-frame > i {
-  position: absolute; width: 20px; height: 20px; border: 2px solid var(--ms-bracket); opacity: 0.7;
-}
-.theme-military .milspec-console-frame > i.tl { top: 6px; left: 6px; border-right: 0; border-bottom: 0; }
-.theme-military .milspec-console-frame > i.tr { top: 6px; right: 6px; border-left: 0; border-bottom: 0; }
-.theme-military .milspec-console-frame > i.bl { bottom: 6px; left: 6px; border-right: 0; border-top: 0; }
-.theme-military .milspec-console-frame > i.br { bottom: 6px; right: 6px; border-left: 0; border-top: 0; }
-.theme-military .milspec-console-frame > b {
-  position: absolute; width: 5px; height: 5px; border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, #5a656e, #262d34 55%, #0f131a);
-  box-shadow: inset 0 0 2px rgba(0,0,0,0.9), 0 1px 0 rgba(255,255,255,0.08);
-}
-.theme-military .milspec-console-frame > b.tl { top: 12px; left: 12px; }
-.theme-military .milspec-console-frame > b.tr { top: 12px; right: 12px; }
-.theme-military .milspec-console-frame > b.bl { bottom: 12px; left: 12px; }
-.theme-military .milspec-console-frame > b.br { bottom: 12px; right: 12px; }
-.theme-military .milspec-console-frame > .code {
-  position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
-  font: 400 6px/1 'Share Tech Mono', monospace; letter-spacing: 0.3em; text-transform: uppercase;
-  color: var(--ms-text-muted); opacity: 0.45;
-}
-
 /* ---------- 見出し (mockup 712-715) ---------- */
 .theme-military .milspec-hdg { display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap; }
 .theme-military .milspec-fb > .milspec-hdg { flex-wrap: nowrap; white-space: nowrap; }
@@ -1060,18 +1028,16 @@
      同じく画面の最上段から最下段まで独立した1列として通す(標準は Sidebar がヘッダーの左に
      並ぶ flex 兄弟・ヘッダーはサイドバーの右側だけを占める)。旧: header 行がサイドバー列も
      跨いで最上段を占めていた(標準とズレていた・masaya 指摘で訂正)。 */
-  grid-template-columns:
-    clamp(232px, 19.1vw, 285px)
-    clamp(16px, 1.5vw, 22px)
-    1fr;
+  grid-template-columns: 274px 22px 1fr;
+  column-gap: 2px; /* 区画の隙間から背景動画が見える */
   grid-template-rows:
     clamp(76px, 6vw, 90px)   /* header(MilspecHeader + MilspecToolbar を縦積み) */
     1fr                       /* workspace */
     clamp(64px, 5.5vw, 82px); /* footer */
   grid-template-areas:
-    "sidebar seam   header"
-    "sidebar seam   workspace"
-    "sidebar seam   footer";
+    "sidebar rail   header"
+    "sidebar rail   workspace"
+    "sidebar rail   footer";
   background: var(--ms-bg, #141b23);
   color: var(--ms-text);
   font-family: var(--ms-font-ui, system-ui, sans-serif);
@@ -1080,7 +1046,7 @@
    MilspecToolbar(下段・.milspec-tb 自身の中身なりの薄い高さ)の縦積み。 */
 .theme-military .milspec-zone-header    { grid-area: header;    position: relative; display: flex; flex-direction: column; overflow: hidden; }
 .theme-military .milspec-zone-sidebar   { grid-area: sidebar;   position: relative; overflow: hidden; }
-.theme-military .milspec-zone-seam      { grid-area: seam;      position: relative; }
+.theme-military .milspec-zone-rail      { grid-area: rail;      position: relative; }
 .theme-military .milspec-zone-workspace { grid-area: workspace; position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
 .theme-military .milspec-zone-footer    { grid-area: footer;    position: relative; }
 
@@ -1091,13 +1057,23 @@
 .theme-military .milspec-backdrop video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .theme-military .milspec-backdrop-veil { position: absolute; inset: 0; background: var(--ms-backdrop-veil, rgba(6, 8, 10, 0.55)); }
 
-/* サイドバー畳み: 列幅を 0 ではなく 28px の「レール」に。列は .milspec-app 側で制御(:has で)。
- * whole-branch レビュー Important#1: 0 にすると折りたたみハンドル(.milspec-sb-collapse・
- * width:18px; right:8px = 18+8=26px 必要)ごと画面から消え、復元手段が無い「行き止まり」になる。
- * 28px はハンドルの必要幅に余裕を足した値(標準 Sidebar.tsx の isOpen?300:24 と同じ二層構造)。 */
+/* サイドバー畳み: サイドバー列を 0 に。開閉の取っ手は rail 列(22px)に移したので復元手段は残る。
+ * 閉じたサイドバーの中身は visibility:hidden でタブ移動・クリックの対象から外す。 */
 .theme-military .milspec-app:has(.milspec-zone-sidebar:not([data-open])) {
-  grid-template-columns: 28px clamp(16px, 1.5vw, 22px) 1fr;
+  grid-template-columns: 0 22px 1fr;
 }
+.theme-military .milspec-zone-sidebar:not([data-open]) { visibility: hidden; }
+
+/* レール: サイドバー開閉の取っ手を載せる縦の細い列(最終的な見た目は後続の計画で作る) */
+.theme-military .milspec-rail { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: stretch; }
+.theme-military .milspec-rail-handle {
+  flex: none; margin-top: 12px; height: 96px; padding: 0; border: 0;
+  background: var(--ms-raised, #1b2530); color: var(--ms-text-muted);
+  font: 400 13px/1 'Share Tech Mono', monospace; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.theme-military .milspec-rail-handle:hover { color: var(--ms-cyan); }
+.theme-military .milspec-rail-handle:active { transform: translateY(1px); }
 
 /* ---------- Task 3: workspace — 装甲板本体 + 沈んだスクリーン
    正典: mockup .workspace(1048-1057) / .ws-screen(1063-1068) / DOM(2123-2213)。
@@ -2475,14 +2451,6 @@
   background-image: repeating-linear-gradient(-52deg, var(--ms-text-muted) 0 1px, transparent 1px 5px);
   opacity: 0.3; pointer-events: none;
 }
-.theme-military .milspec-sb-collapse {
-  position: absolute; right: 8px; top: 45%; z-index: 5;
-  width: 18px; height: 22px; padding: 0; border: 0; background: none;
-  color: var(--ms-text-muted); font: 400 13px/1 'Share Tech Mono', monospace;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-}
-.theme-military .milspec-sb-collapse:hover { color: var(--ms-cyan); }
-.theme-military .milspec-sb-collapse:active { transform: translateY(1px); }
 
 /* ---------- CONTENT(旧 SCENARIO・mockup .scenario 1320-1339)。タブ + プラン操作ボタン ---------- */
 .theme-military .milspec-scenario { padding: 10px 13px 12px; flex: none; }
@@ -2857,67 +2825,6 @@
   font: 400 9.5px/12px 'Share Tech Mono', monospace; color: #737f89; text-shadow: 0 1px 0 rgba(0,0,0,0.55);
 }
 .theme-military.theme-light .milspec-rc-digits { background: linear-gradient(180deg, #dfe6ec, #edf2f6); color: #2b3a48; text-shadow: 0 1px 0 rgba(255,255,255,0.55); }
-
-/* ============================================================
- * SP1 Task 8: 構造シーム — サイドバー(可変ハル)と本体(固定ハル)を隔てる溝 + 動力導管
- * 正典: mockup CSS .seam(254-263)/ .conduit(1710-1789) / DOM(1909 <div class="conduit">)。
- * ============================================================ */
-
-/* ---------- 溝本体(mockup .seam 254-263)。.milspec-zone-seam(Task 1)を書き換えず、
-   自身を position:absolute; inset:0 で満たす(他ゾーンと同じ手法)。
-   溝の左右の壁のリベットは各ゾーン自身の .milspec-chan::after が担当済み(mockup 側コメント同旨)
-   のため、ここは溝底のグラデーションのみ。 ---------- */
-.theme-military .milspec-seam {
-  position: absolute; inset: 0; z-index: 3;
-  background: linear-gradient(90deg, #04060a 0%, var(--ms-well) 30%, var(--ms-well) 70%, #04060a 100%);
-  box-shadow: inset 7px 0 12px rgba(0,0,0,0.65), inset -7px 0 12px rgba(0,0,0,0.65);
-}
-.theme-military.theme-light .milspec-seam {
-  background: linear-gradient(90deg, #7c8ea0 0%, var(--ms-well) 30%, var(--ms-well) 70%, #7c8ea0 100%);
-}
-
-/* ---------- 動力導管(mockup .conduit 1710-1736)。mockup は `.app` グリッド全体基準の
-   絶対 px 配置(left:296px)だが、SP1 は clamp() ベースの流動幅グリッドのためその値が
-   意味を持たない → `.milspec-seam`(position:relative の親を持つ seam 列自身)を基準にした
-   列内中央寄せ(left:50%; transform:translateX(-50%))に変更する(Task 7 の PCB ハーネスを
-   `.app` 全体基準の絶対配置から専用列内配置へ変更したのと同じ考え方の延長・MilspecSeam.tsx
-   冒頭コメント参照)。蛇腹リング + 円筒シェーディングの3層グラデーションはモック値をそのまま移植、
-   バルクヘッド継手(cd-fit)/P クリップ(cd-clip)/冷却バンド(cd-band)等の付帯装飾サブパーツは
-   凝りすぎない範囲という brief の指示に従い今回は非実装(自己申告・punch-list 候補)。 ---------- */
-.theme-military .milspec-seam-conduit {
-  position: absolute; left: 50%; top: 0; bottom: 0; width: 15px;
-  transform: translateX(-50%); z-index: 4; pointer-events: none;
-  background:
-    linear-gradient(90deg,
-      rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.13) 17%, transparent 36%,
-      transparent 52%, rgba(0,0,0,0.17) 68%, rgba(0,0,0,0.64) 100%),
-    repeating-linear-gradient(0deg,
-      rgba(255,255,255,0.15) 0 1.5px,
-      rgba(255,255,255,0.03) 1.5px 3px,
-      rgba(0,0,0,0.07) 3px 4px,
-      rgba(0,0,0,0.4) 4px 5.5px,
-      rgba(0,0,0,0.13) 5.5px 6.5px,
-      rgba(0,0,0,0.02) 6.5px 8px),
-    linear-gradient(90deg,
-      #04070a 0%, #0d131a 8%, #26303a 22%, #454f5a 33%,
-      #626d79 40%, #4b555f 49%, #343d46 63%, #141a20 84%, #04070a 100%);
-  box-shadow:
-    inset 0 0 0 1px rgba(0,0,0,0.35),
-    inset 0 2px 4px rgba(0,0,0,0.6),
-    inset 0 -2px 4px rgba(0,0,0,0.6);
-  filter: drop-shadow(2px 0 3px rgba(0,0,0,0.48)) drop-shadow(-1px 0 2px rgba(0,0,0,0.42));
-}
-.theme-military.theme-light .milspec-seam-conduit {
-  background:
-    linear-gradient(90deg,
-      rgba(40,60,80,0.4) 0%, rgba(40,60,80,0.1) 17%, transparent 36%,
-      transparent 52%, rgba(40,60,80,0.12) 68%, rgba(40,60,80,0.42) 100%),
-    repeating-linear-gradient(0deg,
-      rgba(255,255,255,0.55) 0 1.5px, rgba(255,255,255,0.12) 1.5px 3px,
-      rgba(40,60,80,0.08) 3px 4px, rgba(40,60,80,0.34) 4px 5.5px,
-      rgba(40,60,80,0.12) 5.5px 6.5px, transparent 6.5px 8px),
-    linear-gradient(90deg, #8b98a3 0%, #aab5bf 8%, #cbd4dc 22%, #e9eff3 38%, #f3f6f9 40%, #d6dee4 52%, #b0bbc3 78%, #8b98a3 100%);
-}
 
 /* ---------------------------------------------------------------------
    キー(MilspecKey / MilspecKeyCap)— 見本 css:143-180 の移植

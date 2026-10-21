@@ -23,7 +23,7 @@ export type MilspecSidebarProps = Pick<MilspecLayoutProps, 'isSidebarOpen' | 'on
  * 標準 Sidebar.tsx と同じ **コンテンツツリー**(タブ 零式/絶/… → コンテンツ名が並ぶ →
  * プランがあるコンテンツは開いてプランが並ぶ)。実体は MilspecContentTree.tsx。
  */
-export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, onToggleSidebar }) => {
+export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen }) => {
   const { t } = useTranslation();
 
   const { plans, currentPlanId } = usePlanStore(
@@ -77,14 +77,6 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
 
   return (
     <aside className="milspec-sb milspec-chan">
-      <button
-        type="button"
-        className="milspec-sb-collapse"
-        title={t(isSidebarOpen ? 'sidebar.close_menu' : 'sidebar.open_menu')}
-        onClick={onToggleSidebar}
-      >
-        {isSidebarOpen ? '‹' : '›'}
-      </button>
       {isSidebarOpen && (
         <>
           <span className="milspec-sc" style={{ top: 3, right: 14, opacity: 0.35 }}>ENCOUNTER INDEX · RETRACTABLE</span>
