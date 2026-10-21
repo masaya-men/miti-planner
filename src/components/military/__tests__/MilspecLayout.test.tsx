@@ -126,4 +126,35 @@ describe('MilspecLayout', () => {
     const { container } = renderIt();
     expect(container.querySelector('[data-ms-zone="rail"] button[aria-expanded="true"]')).not.toBeNull();
   });
+
+  it('レールの取っ手を引くと(260ms 後)サイドバー開閉が呼ばれる(動き付きの配線)', () => {
+    vi.useFakeTimers();
+    try {
+      const toggle = vi.fn();
+      const { container } = render(
+        <MemoryRouter><MilspecLayout {...baseProps} onToggleSidebar={toggle}><div /></MilspecLayout></MemoryRouter>
+      );
+      fireEvent.click(container.querySelector('[data-ms-zone="rail"] button.milspec-pull') as HTMLElement);
+      expect(toggle).not.toHaveBeenCalled();
+      act(() => { vi.advanceTimersByTime(300); });
+      expect(toggle).toHaveBeenCalledTimes(1);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('キーボード用の動き付きサイドバー setter が登録され、同じ値なら何もしない・アンマウントで外れる', async () => {
+    const { useSidebarToggleAnimator } = await import('../sidebarToggleAnimator');
+    const toggle = vi.fn();
+    const { unmount } = render(
+      <MemoryRouter><MilspecLayout {...baseProps} onToggleSidebar={toggle}><div /></MilspecLayout></MemoryRouter>
+    );
+    const set = useSidebarToggleAnimator.getState().animated!;
+    expect(set).toBeTypeOf('function');
+    set(true); // 既に開いている → 何もしない
+    expect(toggle).not.toHaveBeenCalled();
+    set(false);
+    expect(toggle).toHaveBeenCalledTimes(1);
+    unmount();
+    expect(useSidebarToggleAnimator.getState().animated).toBeNull();
+  });
 });
+

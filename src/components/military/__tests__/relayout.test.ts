@@ -13,7 +13,7 @@ function setup() {
     z.getBoundingClientRect = () => ({ left: 0, top: rects[n], width: 100, height: 20, right: 100, bottom: rects[n] + 20, x: 0, y: rects[n], toJSON() {} }) as DOMRect;
     app.append(z); zones[n] = z;
   }
-  const anim = vi.fn(() => ({ onfinish: null as null | (() => void) }));
+  const anim = vi.fn((_k?: unknown, _o?: unknown) => ({ onfinish: null as null | (() => void) }));
   for (const z of Object.values(zones)) (z as unknown as { animate: unknown }).animate = anim;
   (HTMLElement.prototype as unknown as { animate: unknown }).animate = anim;
   const collapse = () => { zones.header.setAttribute('data-collapsed', ''); rects.vent = 2; rects.workspace = 48; rects.footer = 600; };
@@ -66,5 +66,57 @@ describe('relayoutZones', () => {
     const flips = anim.mock.calls.filter((c: unknown[]) => (c[1] as { duration: number }).duration === 640);
     expect(flips).toHaveLength(2);
     expect(flips.every((c: unknown[]) => ((c[1] as { delay?: number }).delay ?? 0) === 0)).toBe(true);
+  });
+
+  describe("kind = 'sb'(サイドバー)", () => {
+    /** sidebar 区画を足し、開閉で他の区画の left が動くよう偽装する */
+    function setupSb(open: boolean) {
+      const base = setup();
+      const lefts: Record<string, number> = { sidebar: 0, vent: open ? 300 : 24, workspace: open ? 300 : 24, footer: open ? 300 : 24, rail: open ? 276 : 0 };
+      const sb = document.createElement('div');
+      sb.setAttribute('data-ms-zone', 'sidebar');
+      if (open) sb.setAttribute('data-open', '');
+      sb.getBoundingClientRect = () => ({ left: 0, top: 0, width: 274, height: 600, right: 274, bottom: 600, x: 0, y: 0, toJSON() {} }) as DOMRect;
+      (sb as unknown as { animate: unknown }).animate = base.anim;
+      base.app.append(sb);
+      for (const n of ['vent', 'workspace', 'footer', 'rail']) {
+        const z = base.zones[n];
+        z.getBoundingClientRect = () => ({ left: lefts[n], top: 0, width: 100, height: 20, right: lefts[n] + 100, bottom: 20, x: lefts[n], y: 0, toJSON() {} }) as DOMRect;
+      }
+      return { ...base, sb, lefts };
+    }
+
+    it('動きを減らす設定では animate を呼ばず change だけ実行する', () => {
+      const { app, anim } = setupSb(true);
+      const change = vi.fn();
+      relayoutZones(app, change, 'sb', true);
+      expect(change).toHaveBeenCalledTimes(1);
+      expect(anim).not.toHaveBeenCalled();
+    });
+
+    it('閉じるとき: サイドバーの残像が 440ms で左へ(-290px)抜け、他の区画が 640ms・delay 70 で滑る', () => {
+      const { app, sb, anim, lefts } = setupSb(true);
+      sb.innerHTML = '<svg><path data-trace="a"/></svg>';
+      document.body.append(app);
+      relayoutZones(app, () => { sb.removeAttribute('data-open'); lefts.vent = lefts.workspace = lefts.footer = 24; lefts.rail = 0; }, 'sb', false);
+      const ghost = app.querySelector('.milspec-ghost') as HTMLElement;
+      expect(ghost).not.toBeNull();
+      expect(ghost.hasAttribute('data-ms-zone')).toBe(false);
+      expect(ghost.querySelector('[data-trace]')).toBeNull();
+      const gcall = anim.mock.calls.find((c: unknown[]) => (c[1] as { duration: number }).duration === 440)!;
+      const frames = gcall[0] as { transform: string }[];
+      expect(frames[frames.length - 1].transform).toBe('translateX(-290px)');
+      const flips = anim.mock.calls.filter((c: unknown[]) => (c[1] as { duration: number }).duration === 640);
+      expect(flips).toHaveLength(4);
+      expect(flips.every((c: unknown[]) => (c[1] as { delay?: number }).delay === 70)).toBe(true);
+    });
+
+    it('開くとき: 残像なし・サイドバー自身が -290px から 620ms で入る', () => {
+      const { app, sb, anim, lefts } = setupSb(false);
+      relayoutZones(app, () => { sb.setAttribute('data-open', ''); lefts.vent = lefts.workspace = lefts.footer = 300; lefts.rail = 276; }, 'sb', false);
+      expect(app.querySelector('.milspec-ghost')).toBeNull();
+      const scall = anim.mock.calls.find((c: unknown[]) => (c[1] as { duration: number }).duration === 620)!;
+      expect((scall[0] as { transform: string }[])[0].transform).toBe('translateX(-290px)');
+    });
   });
 });

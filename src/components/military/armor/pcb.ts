@@ -21,14 +21,25 @@ export function via(x: number, y: number, r = 0.5, Y: (y: number) => number = id
 const rectSVG = (x: number, y: number, rw: number, rh: number, cls: string, rx: number | undefined, Y: (y: number) => number) =>
   `<rect x="${n2(x)}" y="${n2(Y(y))}" width="${n2(rw)}" height="${n2(rh)}" class="${cls}"${rx != null ? ` rx="${rx}"` : ''}/>`;
 /** 基板の文字(シルク) */
-export function silk(x: number, y: number, t: string, anchor?: string, style?: string, Y: (y: number) => number = idY): string {
-  return `<text x="${n2(x)}" y="${n2(Y(y))}" class="silk"${anchor ? ` text-anchor="${anchor}"` : ''}${style ? ` style="${style}"` : ''}>${t}</text>`;
+export function silk(x: number, y: number, t: string, anchor?: string, style?: string, Y: (y: number) => number = idY, rot?: number): string {
+  const yy = n2(Y(y));
+  return `<text x="${n2(x)}" y="${yy}" class="silk"${rot ? ` transform="rotate(${rot} ${n2(x)} ${yy})"` : ''}${anchor ? ` text-anchor="${anchor}"` : ''}${style ? ` style="${style}"` : ''}>${t}</text>`;
 }
 /** チップ部品(両端が金属)。vert = 縦向き */
 export function smd(x: number, y: number, sw: number, sh: number, vert?: boolean, Y: (y: number) => number = idY): string {
   let o = rectSVG(x, y, sw, sh, 'smd', 0.15, Y);
   if (vert) o += rectSVG(x, y, sw, sh * 0.26, 'smd-end', undefined, Y) + rectSVG(x, y + sh * 0.74, sw, sh * 0.26, 'smd-end', undefined, Y);
   else o += rectSVG(x, y, sw * 0.26, sh, 'smd-end', undefined, Y) + rectSVG(x + sw * 0.74, y, sw * 0.26, sh, 'smd-end', undefined, Y);
+  return o;
+}
+/** 多ピンの IC(見本 qfp js:379-385)。side 'tb' = 上下にピン / 'lr' = 左右にピン(pins = 位置の配列)。mark = 中央の刻印 */
+export function qfp(x: number, y: number, w: number, h: number, pins: number[], side: 'tb' | 'lr', mark?: string, Y: (y: number) => number = idY): string {
+  let o = '';
+  if (side === 'tb') pins.forEach((px) => { o += rectSVG(px - 0.25, y - 1.2, 0.5, 1.2, 'pin', undefined, Y) + rectSVG(px - 0.25, y + h, 0.5, 1.2, 'pin', undefined, Y); });
+  else pins.forEach((py) => { o += rectSVG(x - 1.2, py - 0.25, 1.2, 0.5, 'pin', undefined, Y) + rectSVG(x + w, py - 0.25, 1.2, 0.5, 'pin', undefined, Y); });
+  o += rectSVG(x, y, w, h, 'ic', 0.35, Y);
+  o += `<circle cx="${n2(x + 1.1)}" cy="${n2(Y(y + 1.1))}" r="0.4" class="ic-dot"/>`;
+  if (mark) o += silk(x + w / 2, y + h / 2 + 1.1, mark, 'middle', 'fill:#3a3f43', Y);
   return o;
 }
 const cuSVG = cu, viaSVG = via, silkSVG = silk, smdSVG = smd;

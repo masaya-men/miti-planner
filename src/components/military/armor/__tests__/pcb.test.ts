@@ -59,3 +59,18 @@ describe('部品関数と ventChannelSVG', () => {
     expect(ventChannelSVG({ w: 29.9, side: 'R', id: 'v' })).toBe('');
   });
 });
+
+describe('qfp / silk 回転', () => {
+  it('qfp は上下ピン + 本体 + 目印 + 刻印を返す', async () => {
+    const { qfp } = await import('../pcb');
+    const s = qfp(1.4, 251.2, 11.2, 18, [2, 4], 'tb', 'U7');
+    expect(s.match(/class="pin"/g)).toHaveLength(4);
+    expect(s).toContain('class="ic"');
+    expect(s).toContain('class="ic-dot"');
+    expect(s).toContain('>U7</text>');
+  });
+  it('silk は rot で回転する', async () => {
+    const { silk } = await import('../pcb');
+    expect(silk(7, 300, 'PULL', 'middle', undefined, (y) => y, 90)).toContain('rotate(90 7 300)');
+  });
+});

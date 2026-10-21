@@ -13,6 +13,7 @@ import { MilspecRail } from './MilspecRail';
 import { startAmbient } from './fx/engine';
 import { relayoutZones } from './relayout';
 import { useHeaderCollapseAnimator } from './headerCollapseAnimator';
+import { useSidebarToggleAnimator } from './sidebarToggleAnimator';
 import { headerScale } from './headerGeometry';
 import { useReducedMotion } from '../../lib/housing/useReducedMotion';
 import { MilspecTunePanel } from '../dev/MilspecTunePanel';
@@ -91,6 +92,23 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
     return () => useHeaderCollapseAnimator.getState().set(null);
   }, [setCollapsedAnimated]);
 
+  // サイドバーの開閉も同じ作り: 残像が左へ抜け、他の区画が滑る。最新の開閉状態と親の toggle は ref で参照
+  const sbOpenRef = useRef(props.isSidebarOpen);
+  const toggleRef = useRef(props.onToggleSidebar);
+  useLayoutEffect(() => { sbOpenRef.current = props.isSidebarOpen; toggleRef.current = props.onToggleSidebar; });
+  const setSidebarAnimated = useCallback((open: boolean) => {
+    if (open === sbOpenRef.current) return; // 同じ値なら何もしない
+    const app = appRef.current;
+    if (!app) { toggleRef.current(); return; }
+    relayoutZones(app, () => flushSync(() => toggleRef.current()), 'sb', reduced);
+  }, [reduced]);
+  const toggleSidebarAnimated = useCallback(() => setSidebarAnimated(!sbOpenRef.current), [setSidebarAnimated]);
+  // Layout のキーボード操作(S / F・フォーカスモード・チュートリアル)にも動きを付ける
+  useEffect(() => {
+    useSidebarToggleAnimator.getState().set(setSidebarAnimated);
+    return () => useSidebarToggleAnimator.getState().set(null);
+  }, [setSidebarAnimated]);
+
   return (
     <div ref={appRef} data-app-shell className="milspec-app" data-theme-military>
       <MilspecBackdropVideo />
@@ -118,11 +136,11 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
       <div data-ms-zone="sidebar" className="milspec-zone-sidebar" data-open={props.isSidebarOpen ? '' : undefined}>
         <MilspecSidebar
           isSidebarOpen={props.isSidebarOpen}
-          onToggleSidebar={props.onToggleSidebar}
+          onToggleSidebar={toggleSidebarAnimated}
           onCloseSidebar={props.onCloseSidebar}
         />
       </div>
-      <div data-ms-zone="rail" className="milspec-zone-rail"><MilspecRail isSidebarOpen={props.isSidebarOpen} onToggleSidebar={props.onToggleSidebar} /></div>
+      <div data-ms-zone="rail" className="milspec-zone-rail"><MilspecRail isSidebarOpen={props.isSidebarOpen} onToggleSidebar={toggleSidebarAnimated} /></div>
       <div data-ms-zone="workspace" className="milspec-zone-workspace"><MilspecWorkspace>{children}</MilspecWorkspace></div>
       <div data-ms-zone="footer" className="milspec-zone-footer"><MilspecFooter /></div>
 

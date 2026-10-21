@@ -1,6 +1,6 @@
-/** ヘッダーの開閉で他の区画を滑らせる動き(見本 milspec-v11.js の relayout js:763-781 をそのまま移植)。
- *  閉じるとき: ヘッダー区画の複製(残像)が元の位置から重く抜けていく。
- *  開くとき: ヘッダー区画自身が上から降りて収まる(少し行き過ぎて止まる)。
+/** ヘッダー / サイドバーの開閉で他の区画を滑らせる動き(見本 milspec-v11.js の relayout js:763-781 をそのまま移植)。
+ *  閉じるとき: 対象区画の複製(残像)が元の位置から重く抜けていく(ヘッダーは上へ -112px・サイドバーは左へ -290px)。
+ *  開くとき: 対象区画自身が上(左)から入って収まる(少し行き過ぎて止まる)。
  *  どちらも 通気口・workspace・footer・rail は元の位置から滑って収まる(FLIP)。 */
 
 /** 滑らせる区画(見本 keep の #z-vent / #z-ftr / #z-rail と、本番の workspace)。 */
@@ -9,15 +9,15 @@ const KEEP_ZONES = ['vent', 'workspace', 'footer', 'rail'] as const;
 const zoneOf = (app: HTMLElement, name: string): HTMLElement | null =>
   app.querySelector<HTMLElement>(`[data-ms-zone="${name}"]`);
 
-export function relayoutZones(app: HTMLElement, change: () => void, kind: 'hdr', reduced: boolean): void {
-  void kind; // 今はヘッダーだけ(見本のサイドバー側は区画③で足す)
-  const src = zoneOf(app, 'header');
+export function relayoutZones(app: HTMLElement, change: () => void, kind: 'hdr' | 'sb', reduced: boolean): void {
+  const src = zoneOf(app, kind === 'hdr' ? 'header' : 'sidebar');
   // 動きを減らす / 区画が無い: 即時に切り替えるだけ
   if (reduced || !src) { change(); return; }
 
   const before = new Map<string, DOMRect>();
   for (const n of KEEP_ZONES) { const z = zoneOf(app, n); if (z) before.set(n, z.getBoundingClientRect()); }
-  const closing = !src.hasAttribute('data-collapsed');
+  // 閉じる側か: ヘッダーは data-collapsed が無い(= 開いている)、サイドバーは data-open がある(= 開いている)
+  const closing = kind === 'hdr' ? !src.hasAttribute('data-collapsed') : src.hasAttribute('data-open');
 
   // 閉じるとき: 元の位置に複製(残像)を置く。複製は格子に乗らないよう絶対配置にする
   let ghost: HTMLElement | null = null;
@@ -41,20 +41,20 @@ export function relayoutZones(app: HTMLElement, change: () => void, kind: 'hdr',
 
   change();
 
-  const far = -112;
+  const ax = kind === 'hdr' ? 'Y' : 'X', far = kind === 'hdr' ? -112 : -290;
   if (ghost) {
     const g = ghost;
     const a = g.animate([
       { transform: 'none', easing: 'cubic-bezier(.4,0,.8,.3)' },
-      { transform: 'translateY(1.4px)', offset: 0.16, easing: 'cubic-bezier(.6,0,.9,.5)' },
-      { transform: `translateY(${far}px)` },
+      { transform: `translate${ax}(1.4px)`, offset: 0.16, easing: 'cubic-bezier(.6,0,.9,.5)' },
+      { transform: `translate${ax}(${far}px)` },
     ], { duration: 440 });
     a.onfinish = () => g.remove();
   } else {
     src.animate([
-      { transform: `translateY(${far}px)`, easing: 'cubic-bezier(.2,0,.15,1)' },
-      { transform: 'translateY(1.8px)', offset: 0.72, easing: 'ease-in-out' },
-      { transform: 'translateY(-0.5px)', offset: 0.87 },
+      { transform: `translate${ax}(${far}px)`, easing: 'cubic-bezier(.2,0,.15,1)' },
+      { transform: `translate${ax}(1.8px)`, offset: 0.72, easing: 'ease-in-out' },
+      { transform: `translate${ax}(-0.5px)`, offset: 0.87 },
       { transform: 'none' },
     ], { duration: 620 });
   }
