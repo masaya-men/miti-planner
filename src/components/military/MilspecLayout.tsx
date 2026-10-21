@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
+import { useMilspecFonts } from './useMilspecFonts';
 import { MilspecChrome } from './MilspecChrome';
 import { MilspecBackdropVideo } from './MilspecBackdropVideo';
 import { MilspecHeader } from './MilspecHeader';
@@ -48,6 +49,7 @@ export interface MilspecLayoutProps {
 export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   const { children, localImportProps } = props;
   const { t } = useTranslation();
+  useMilspecFonts();
   return (
     <div data-app-shell className="milspec-app" data-theme-military>
       <MilspecBackdropVideo />
