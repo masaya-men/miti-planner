@@ -152,8 +152,8 @@
 }
 .theme-military .milspec-app [data-time-row]:hover > :is(:nth-child(5), :nth-child(6)) { color: var(--ma-txt-num); }
 .theme-military .milspec-app [data-time-row] > :nth-child(6) > div {
-  /* 数値 + 注記は 1 行に収まれば「注記 | 数値」・収まらなければ注記が数値の下の行へ折り返す(切らない) */
-  flex-direction: row-reverse; flex-wrap: wrap; justify-content: flex-start; align-content: center; align-items: center;
+  /* 数値 + 注記は常に 2 行(上 = 数値・下 = 注記・右揃え)。行ごとに 1 行/2 行が混ざると並びが揃わない(masaya 指摘) */
+  flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: flex-end;
   gap: 1px 5px; min-width: 0; max-width: 100%; padding-left: 4px; overflow: visible;
 }
 .theme-military .milspec-app [data-time-row] .dmg-slot { flex: none; height: 16px; font-weight: 500; color: var(--ma-txt-ok); text-shadow: none; }

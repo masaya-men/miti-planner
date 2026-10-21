@@ -28,5 +28,6 @@ export const MsIcon = {
   undo: () => <svg viewBox="0 0 16 16"><path d="M5.5 3 2.5 6l3 3M3 6h7a3.8 3.8 0 0 1 0 7.6H7" /></svg>,
   redo: () => <svg viewBox="0 0 16 16"><path d="m10.5 3 3 3-3 3M13 6H6a3.8 3.8 0 0 0 0 7.6h3" /></svg>,
   trash: () => <svg viewBox="0 0 16 16"><path d="M2.5 4h9M5.5 4V2.5h3V4M3.5 4l.7 9.5h5.6l.7-9.5" /><path d="M12.5 9.5l1.5 1.5 1.5-1.5" strokeWidth="1.3" /></svg>,
-  aa: () => <svg viewBox="0 0 16 16"><path d="M2 13 6 3l4 10M3.5 9.5h5M12.5 5v6M9.5 8h6" /></svg>,
+  // AA 追加 = 剣(標準テーマの Sword と同じ意味)。刃は右上へ・鍔は斜め・柄頭は左下
+  aa: () => <svg viewBox="0 0 16 16"><path d="M13.5 2.5h-2.6L5.2 8.2l2.6 2.6 5.7-5.7Z" /><path d="M3.6 7.6l4.8 4.8M5.6 10.4 2.4 13.6" /></svg>,
 } satisfies Record<'plus' | 'share' | 'multi' | 'imp' | 'save' | 'rest' | 'dup' | 'rename' | 'close' | 'fold' | 'party' | 'stat' | 'more' | 'gear' | 'tut' | 'globe' | 'login' | 'sync' | 'undo' | 'redo' | 'trash' | 'aa', () => ReactElement>;

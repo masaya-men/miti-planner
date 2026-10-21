@@ -1566,6 +1566,13 @@
 
 /* ---- サイドバーの基板 PLAN CORE(見本 css:358-369, 593-598)。SVG 内の部品 class は .milspec-pcb 配下に閉じる ---- */
 .theme-military .milspec-plan-core { position: absolute; left: 0; top: 0; pointer-events: none; overflow: hidden; }
+/* PLAN CORE だけ基板の線・金具を一段暗く(暗い床で光の粒が不意にキラッと見えるように・masaya 2026-10-22)。
+   光(.milspec-fx の粒・.milspec-core-glow)はこのトークンを使わないので明るさそのまま */
+.theme-military .milspec-plan-core {
+  --ma-cu: #1e3d32; --ma-cu-dim: #132920; --ma-gold: #76643a; --ma-pcb-silk: #4b5d53;
+}
+.theme-military .milspec-plan-core .pin { fill: #61666a; }
+.theme-military .milspec-plan-core .smd-end { fill: #7f8386; }
 .theme-military .milspec-pcb .brd { fill: var(--ma-pcb); }
 .theme-military .milspec-pcb .milspec-cu { fill: none; stroke: var(--ma-cu); stroke-width: 0.42; stroke-linejoin: miter; stroke-linecap: butt; }
 .theme-military .milspec-pcb .milspec-cu.dim { stroke: var(--ma-cu-dim); }

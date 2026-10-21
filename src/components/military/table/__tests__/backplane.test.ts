@@ -35,6 +35,30 @@ describe('backplaneSVG', () => {
   });
 });
 
+describe('扇の配線の形', () => {
+  // 扇 1 本の <path d> を経路名で取り出す
+  const pathOf = (s: string, name: string) => s.match(new RegExp(`d="([^"]+)" class="milspec-cu" data-trace="${name}"`))?.[1] ?? '';
+  // 扇 6 本の点列を、1 本目の始点の x を引いた相対座標にして並べる(差込口の位置の違いを消して形だけ比べる)
+  const fanShape = (s: string, j: number) => {
+    const ds = [0, 1, 2, 3, 4, 5].map((k) => pathOf(s, `bp:f${j}r${k}`));
+    const x0 = Number(ds[0].match(/-?[\d.]+/)?.[0]);
+    return ds.map((d) => (d.match(/-?[\d.]+/g) ?? []).map(Number).map((v, i) => (i % 2 === 0 ? +(v - x0).toFixed(2) : v)).join(',')).join('|');
+  };
+  it('扇の経路が取り出せる(テスト自身の確認)', () => {
+    const s = backplaneSVG({ centers: cents(8), pw: 1000, lpGap: null });
+    expect(fanShape(s, 0).split('|').every((p) => p.length > 0)).toBe(true);
+  });
+  it('差込口ごとに曲がり方が違う(全部同じ形の繰り返しにしない)', () => {
+    const s = backplaneSVG({ centers: cents(8), pw: 1000, lpGap: null });
+    const shapes = new Set([0, 1, 2, 3, 4, 5, 6].map((j) => fanShape(s, j)));
+    expect(shapes.size).toBeGreaterThan(3);
+  });
+  it('同じ入力なら毎回同じ形(再描画でチラつかない)', () => {
+    const o = { centers: cents(8), pw: 1000, lpGap: 3 };
+    expect(backplaneSVG(o)).toBe(backplaneSVG(o));
+  });
+});
+
 describe('meander', () => {
   it('始点と終点が x0 / x1', () => {
     const p = meander(10, 90, 3, 2.4, 2, 1.25);
