@@ -15,6 +15,10 @@ export interface TourTrayRowProps {
   isPinned: boolean;
   onRemove: (id: string) => void;
   onTogglePin: (id: string) => void;
+  /** false で削除ボタンを出さない (ナビ中の並び替え用)。既定 true。 */
+  removable?: boolean;
+  /** true で「向かっている」タグを出す (ナビ中の並び替え用)。 */
+  isCurrent?: boolean;
 }
 
 /**
@@ -27,6 +31,8 @@ export function TourTrayRow({
   isPinned,
   onRemove,
   onTogglePin,
+  removable = true,
+  isCurrent = false,
 }: TourTrayRowProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -65,6 +71,7 @@ export function TourTrayRow({
       className="housing-tour-tray-item"
       data-dragging={isDragging}
       title={title}
+      data-current={isCurrent || undefined}
     >
       <button
         type="button"
@@ -90,6 +97,9 @@ export function TourTrayRow({
       <span className="housing-tour-tray-info">
         <span className="housing-tour-tray-title">{title}</span>
       </span>
+      {isCurrent && (
+        <span className="housing-tour-tray-current-tag">{t('housing.tour.replan.current_tag')}</span>
+      )}
       {isEphemeral && (
         <span className="housing-ephemeral-badge">{t('housing.ephemeral.badge')}</span>
       )}
@@ -103,14 +113,16 @@ export function TourTrayRow({
       >
         <Pin size={14} aria-hidden="true" fill={isPinned ? 'currentColor' : 'none'} />
       </button>
-      <button
-        type="button"
-        className="housing-tour-tray-remove"
-        aria-label={t('housing.tray.remove')}
-        onClick={() => onRemove(listing.id)}
-      >
-        <X size={14} aria-hidden="true" />
-      </button>
+      {removable && (
+        <button
+          type="button"
+          className="housing-tour-tray-remove"
+          aria-label={t('housing.tray.remove')}
+          onClick={() => onRemove(listing.id)}
+        >
+          <X size={14} aria-hidden="true" />
+        </button>
+      )}
     </li>
   );
 }

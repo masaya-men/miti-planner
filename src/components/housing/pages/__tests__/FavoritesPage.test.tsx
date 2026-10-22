@@ -145,7 +145,7 @@ describe('FavoritesPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /すべてツアーに追加/ }));
 
     // 開始ボタン → マナーダイアログが開くだけで、まだ tourStore は変化しない(毎回確認・#4)
-    fireEvent.click(screen.getByRole('button', { name: /この内容でツアーを開始/ }));
+    fireEvent.click(screen.getByRole('button', { name: /このまま開始/ }));
     expect(screen.getByRole('button', { name: /はじめる/ })).toBeInTheDocument();
     expect(useHousingTourStore.getState().listingIds).toHaveLength(0);
   });
@@ -163,7 +163,7 @@ describe('FavoritesPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /すべてツアーに追加/ }));
 
     // 開始ボタンをクリック → マナーダイアログが開く
-    fireEvent.click(screen.getByRole('button', { name: /この内容でツアーを開始/ }));
+    fireEvent.click(screen.getByRole('button', { name: /このまま開始/ }));
 
     // ダイアログの「はじめる」ボタンをクリック → commitStart
     fireEvent.click(screen.getByRole('button', { name: /はじめる/ }));
@@ -224,7 +224,7 @@ describe('FavoritesPage', () => {
     });
 
     // 開始 → マナーダイアログの「はじめる」で commitStart → 開始時ネットで弾かれる
-    fireEvent.click(screen.getByRole('button', { name: /この内容でツアーを開始/ }));
+    fireEvent.click(screen.getByRole('button', { name: /このまま開始/ }));
     fireEvent.click(screen.getByRole('button', { name: /はじめる/ }));
 
     expect(useHousingTourStore.getState().listingIds).toHaveLength(0);

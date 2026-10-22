@@ -10,13 +10,17 @@ export interface TourTrayListProps {
   listingIds: string[];
   /** 削除 / ドラッグ確定 / 効率順ボタンで trayIds 全体を更新する。 */
   onChange: (ids: string[]) => void;
+  /** false で各行の削除ボタンを出さない (ナビ中の並び替え用)。既定 true。 */
+  removable?: boolean;
+  /** 「向かっている」タグを付ける家の id (ナビ中の並び替え用)。 */
+  currentId?: string;
 }
 
 /**
  * ツアートレイの行き先リスト本体 (縦一覧版)。PC サイドバー (TourTray) とスマホの計画画面で共有する。
  * 並べ替えロジックは useTourTrayOrdering、行の見た目は TourTrayRow に集約済み。
  */
-export const TourTrayList: React.FC<TourTrayListProps> = ({ listingIds, onChange }) => {
+export const TourTrayList: React.FC<TourTrayListProps> = ({ listingIds, onChange, removable = true, currentId }) => {
   const { t, i18n } = useTranslation();
   const { items, orderedIds, pinnedIds, remove, togglePin, onSortEfficient, sensors, handleDragEnd } =
     useTourTrayOrdering(listingIds, onChange);
@@ -43,6 +47,8 @@ export const TourTrayList: React.FC<TourTrayListProps> = ({ listingIds, onChange
                 isPinned={pinnedIds.includes(l.id)}
                 onRemove={remove}
                 onTogglePin={togglePin}
+                removable={removable}
+                isCurrent={l.id === currentId}
               />
             ))}
           </ol>

@@ -193,7 +193,7 @@ describe('TourNavPage', () => {
     expect(screen.queryByText('ツアーがまだ始まっていません')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /開始/ })).toBeInTheDocument();
     // 蛇行グリッド(TourTrayBoard)だけが出す案内文で、PC版であることを確定させる。
-    expect(screen.getByText('カード左側のハンドルをつかんでドラッグで並べ替えできます')).toBeInTheDocument();
+    expect(screen.getByText('カード左の ⋮⋮ をつかんでドラッグで入れ替え・効率順ボタンで自動に並べ替え')).toBeInTheDocument();
   });
 
   // 計画画面の要: 右のグリッドで家を選ぶと左の詳細パネルが差し替わる、という繋ぎ目。
@@ -242,7 +242,7 @@ describe('TourNavPage', () => {
       renderPage();
       expect(screen.getByRole('button', { name: /開始/ })).toBeInTheDocument();
       // 蛇行グリッド(TourTrayBoard)の案内文が出ていないこと = PC版でなく縦一覧版であることの確認。
-      expect(screen.queryByText('カード左側のハンドルをつかんでドラッグで並べ替えできます')).not.toBeInTheDocument();
+      expect(screen.queryByText('カード左の ⋮⋮ をつかんでドラッグで入れ替え・効率順ボタンで自動に並べ替え')).not.toBeInTheDocument();
       // ボタンが在るだけでなく、PC版と同じく「開始 → マナー確認 → はじめる」で実際に開始できること。
       fireEvent.click(screen.getByRole('button', { name: /開始/ }));
       fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));
@@ -252,6 +252,28 @@ describe('TourNavPage', () => {
       // 失敗時も後続テスト(PC前提)へ mobile が漏れないよう必ず戻す。
       vi.mocked(useIsMobile).mockReturnValue(false);
     }
+  });
+
+  it('ナビ中の「順番を変える」: 見学済み/これから行く順番が出て削除ボタンは無く、「ツアーに戻る」でナビに戻る', () => {
+    useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 1 });
+    seedListings();
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: '順番を変える' }));
+    expect(screen.getByText('見学済み', { selector: 'h3' })).toBeInTheDocument();
+    expect(screen.getByText('これから行く順番')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '削除' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'ツアーに戻る' }));
+    expect(screen.getByText('ルートのステップ')).toBeInTheDocument();
+    expect(screen.queryByText('これから行く順番')).not.toBeInTheDocument();
+    expect(useHousingTourStore.getState().listingIds).toEqual(ids);
+  });
+
+  it('ナビ中: 完了オーバーレイ表示中は「順番を変える」が出ない', () => {
+    useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 2 });
+    seedListings();
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: '完了' }));
+    expect(screen.queryByRole('button', { name: '順番を変える' })).not.toBeInTheDocument();
   });
 
   it('listingIds + listings 注入で3カラム(進行状況/地図/ショーケース)が描画される', () => {

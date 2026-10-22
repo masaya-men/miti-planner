@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ArrowDownUp } from 'lucide-react';
 import { stepStatus, isTourPlaceable, type TourStep } from '../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { canDisplayAddress } from '../../../lib/housing/listingPublish';
@@ -7,6 +8,8 @@ import { canDisplayAddress } from '../../../lib/housing/listingPublish';
 export interface TourRouteStepsProps {
   steps: TourStep[];
   currentIndex: number;
+  /** 渡されたときだけ見出しの右に「順番を変える」を出す (参加者画面では渡さない)。 */
+  onReorder?: () => void;
 }
 
 /**
@@ -16,7 +19,7 @@ export interface TourRouteStepsProps {
  * そのまま使う。listing 欠落 (steps.missing) と地図解決不可 (steps.map_pending・
  * ナビ自体は継続想定なので行自体は出す) は静かな注記として添える。
  */
-export const TourRouteSteps: React.FC<TourRouteStepsProps> = ({ steps, currentIndex }) => {
+export const TourRouteSteps: React.FC<TourRouteStepsProps> = ({ steps, currentIndex, onReorder }) => {
   const { t, i18n } = useTranslation();
   const listRef = useRef<HTMLOListElement>(null);
 
@@ -54,7 +57,15 @@ export const TourRouteSteps: React.FC<TourRouteStepsProps> = ({ steps, currentIn
 
   return (
     <div className="housing-tour-steps">
-      <span className="housing-tour-steps-heading">{t('housing.tour.nav.steps.heading')}</span>
+      <div className="housing-tour-steps-head">
+        <span className="housing-tour-steps-heading">{t('housing.tour.nav.steps.heading')}</span>
+        {onReorder && (
+          <button type="button" className="housing-tour-reorder-btn" onClick={onReorder}>
+            <ArrowDownUp size={14} aria-hidden="true" />
+            {t('housing.tour.reorder_button')}
+          </button>
+        )}
+      </div>
       <ol ref={listRef} className="housing-tour-steps-list" data-at-top="true" data-at-bottom="true">
         {steps.map((step, index) => {
           const status = stepStatus(index, currentIndex);

@@ -2897,6 +2897,14 @@
         },
         "tour": {
             "reorder_button": "Reorder",
+            "replan": {
+                "hint": "Tour in progress. Visited housing cannot be moved. Drag the upcoming ones to reorder.",
+                "visited": "Visited",
+                "upcoming": "Upcoming order",
+                "current_tag": "Heading there",
+                "resume": "Back to tour",
+                "resume_note": "Navigation resumes from the first unvisited housing in the new order."
+            },
             "nav": {
                 "title": "On Tour (Navigation)",
                 "live": "Updates automatically",

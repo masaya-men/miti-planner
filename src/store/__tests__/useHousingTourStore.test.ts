@@ -53,3 +53,35 @@ describe('useHousingTourStore — フェーズ/見学タイマー', () => {
     expect(useHousingTourStore.getState().viewStartAt).toBeNull();
   });
 });
+
+describe('useHousingTourStore — reorderRemaining (ナビ中の並び替え確定)', () => {
+  beforeEach(() => {
+    useHousingTourStore.getState().reset();
+    useHousingTourStore.getState().setListings(['a', 'b', 'c', 'd']);
+    useHousingTourStore.setState({ currentIndex: 1 });
+  });
+
+  it('先頭が変わると見学済みはそのまま・残りだけ入れ替わり phase は moving・viewStartAt は null', () => {
+    useHousingTourStore.setState({ phase: 'viewing', viewStartAt: 123 });
+    useHousingTourStore.getState().reorderRemaining(['d', 'b', 'c']);
+    const s = useHousingTourStore.getState();
+    expect(s.listingIds).toEqual(['a', 'd', 'b', 'c']);
+    expect(s.currentIndex).toBe(1);
+    expect(s.phase).toBe('moving');
+    expect(s.viewStartAt).toBeNull();
+  });
+
+  it('先頭が同じなら viewing と viewStartAt を保つ', () => {
+    useHousingTourStore.setState({ phase: 'viewing', viewStartAt: 123 });
+    useHousingTourStore.getState().reorderRemaining(['b', 'd', 'c']);
+    const s = useHousingTourStore.getState();
+    expect(s.listingIds).toEqual(['a', 'b', 'd', 'c']);
+    expect(s.phase).toBe('viewing');
+    expect(s.viewStartAt).toBe(123);
+  });
+
+  it('空配列なら何もしない', () => {
+    useHousingTourStore.getState().reorderRemaining([]);
+    expect(useHousingTourStore.getState().listingIds).toEqual(['a', 'b', 'c', 'd']);
+  });
+});

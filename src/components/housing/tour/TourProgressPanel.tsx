@@ -36,6 +36,8 @@ export interface TourProgressPanelProps {
    * 参加者も見るため readOnly でも従来通り表示する。省略時(false)はホストの既存挙動を完全維持する。
    */
   readOnly?: boolean;
+  /** 渡されたときだけ「ルートのステップ」見出しの右に「順番を変える」を出す。 */
+  onReorder?: () => void;
 }
 
 /**
@@ -47,7 +49,7 @@ export interface TourProgressPanelProps {
 export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
   progress, steps, currentIndex, phase, viewStartAt, directions, directionsText,
   canView, isLast, onPrev, onViewStart, onNext, onFinish, onLeave,
-  readOnly = false, pendingCrossingAck = false,
+  readOnly = false, pendingCrossingAck = false, onReorder,
 }) => {
   const { t } = useTranslation();
   const { total, percent } = progress;
@@ -66,7 +68,7 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
         <ProgressRing percent={percent} />
       </div>
 
-      <TourRouteSteps steps={steps} currentIndex={currentIndex} />
+      <TourRouteSteps steps={steps} currentIndex={currentIndex} onReorder={onReorder} />
 
       {/* 下部フッター: ステップに上のスペースを譲るため、行き方枠〜操作ボタン〜終了を最下部に密集。
           行き方(フェーズ枠)は常にボタン群の直上に固定。親の gap(16px) から切り離し内部を詰める。 */}

@@ -20,6 +20,12 @@ export interface TourTrayBoardProps {
   onSelect: (id: string) => void;
   /** 案内文の差し替え (ナビ中の並び替え用)。未指定は housing.tray.board_hint。 */
   hint?: string;
+  /** false で各カードの削除ボタンを出さない (ナビ中の並び替え用)。既定 true。 */
+  removable?: boolean;
+  /** 「向かっている」タグを付ける家の id (ナビ中の並び替え用)。 */
+  currentId?: string;
+  /** 見出し(ツールバー)とグリッドの間に差し込む内容 (ナビ中の並び替え: 見学済みリスト等)。 */
+  children?: React.ReactNode;
 }
 
 // 2026-08-11: 縦に7件重ねて見せたいとのことで60pxに戻す(76pxへ広げる変更は撤回)。
@@ -43,6 +49,9 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
   selectedId,
   onSelect,
   hint,
+  removable = true,
+  currentId,
+  children,
 }) => {
   const { t, i18n } = useTranslation();
   const { items, orderedIds, pinnedIds, remove, togglePin, onSortEfficient, sensors, handleDragEnd } =
@@ -168,6 +177,7 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
           {t('housing.tray.sort_efficient')}
         </button>
       </div>
+      {children}
       <div className="housing-tour-board-scroll" ref={scrollRef}>
         {/* rowsPerColumn が未測定(null)の間は何も描かない。ref アタッチ時に同期採寸→即座に
             正しい値で再コミットされるため、実際にブラウザへ塗られる最初の中身は最初から正しい
@@ -242,6 +252,8 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
                         isPinned={pinnedIds.includes(l.id)}
                         onRemove={remove}
                         onTogglePin={togglePin}
+                        removable={removable}
+                        isCurrent={l.id === currentId}
                       />
                     </div>
                   );

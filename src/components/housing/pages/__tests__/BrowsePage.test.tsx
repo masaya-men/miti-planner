@@ -153,7 +153,7 @@ describe('BrowsePage: リージョン跨ぎの追加時ブロック', () => {
       } as never);
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'この内容でツアーを開始' }));
+    fireEvent.click(screen.getByRole('button', { name: 'このまま開始' }));
     // #4: 開始はマナーダイアログを挟む。「はじめる」で commitStart → 開始時ネットが弾く。
     fireEvent.click(screen.getByRole('button', { name: /はじめる/ }));
 

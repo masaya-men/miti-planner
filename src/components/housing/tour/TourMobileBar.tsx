@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Link2, UserPlus } from 'lucide-react';
+import { ArrowDownUp, Link2, UserPlus } from 'lucide-react';
 
 export interface TourMobileBarProps {
   /** 現在地→目的地の行き方(1行・省略表示)。
@@ -30,6 +30,8 @@ export interface TourMobileBarProps {
    * 未指定なら描画しない。誤タップ対策の確認ダイアログは持たない(完了オーバーレイと違い誤操作リスクは低いため)。
    */
   onFinish?: () => void;
+  /** 渡されたときだけ上段右に「順番を変える」を出す。 */
+  onReorder?: () => void;
 }
 
 /**
@@ -59,11 +61,20 @@ export const TourMobileBar: React.FC<TourMobileBarProps> = ({
   inviteMode = 'create',
   readOnly = false,
   onFinish,
+  onReorder,
 }) => {
   const { t } = useTranslation();
 
   return (
-    <div className="housing-tour-mobilebar" data-testid="tour-mobile-bar">
+    <div className="housing-tour-mobilebar" data-testid="tour-mobile-bar" data-has-top={(!readOnly && onReorder) || undefined}>
+      {!readOnly && onReorder && (
+        <div className="housing-tour-mobilebar-top">
+          <button type="button" className="housing-tour-reorder-btn" onClick={onReorder}>
+            <ArrowDownUp size={14} aria-hidden="true" />
+            {t('housing.tour.reorder_button')}
+          </button>
+        </div>
+      )}
       {!readOnly && onFinish && (
         <button
           type="button"

@@ -26,6 +26,7 @@ import { TourShowcasePanel } from '../tour/TourShowcasePanel';
 import { TourEmptyState } from '../tour/TourEmptyState';
 import { TourInvitePanel } from '../tour/TourInvitePanel';
 import { TourTrayDetailPanel } from '../tour/TourTrayDetailPanel';
+import { TourVisitedList } from '../tour/TourVisitedList';
 import { TourTrayBoard } from '../browse/TourTrayBoard';
 import { TourTrayList } from '../browse/TourTrayList';
 import { EphemeralAddPanel } from '../browse/EphemeralAddPanel';
@@ -63,6 +64,7 @@ export const TourNavPage: React.FC = () => {
   const phase = useHousingTourStore((s) => s.phase);
   const viewStartAt = useHousingTourStore((s) => s.viewStartAt);
   const startViewing = useHousingTourStore((s) => s.startViewing);
+  const reorderRemaining = useHousingTourStore((s) => s.reorderRemaining);
   const exitTourMode = useHousingViewStore((s) => s.exitTourMode);
 
   const listings = useHousingListingsStore((s) => s.listings);
@@ -104,6 +106,24 @@ export const TourNavPage: React.FC = () => {
   } = useTourRenderModel(pool, listingIds, currentIndex, locale);
 
   const isLast = currentIndex === listingIds.length - 1;
+
+  // ナビ中の並び替え (replanning): 計画画面と同じ部品を「残りの家だけ」で再利用する。
+  // draft は開始時に listingIds.slice(currentIndex) で初期化し、「ツアーに戻る」で store へ確定する
+  // (ページを離れた場合は draft ごと捨てる)。
+  const [replanning, setReplanning] = useState(false);
+  const [replanDraft, setReplanDraft] = useState<string[]>([]);
+  const [replanSelectedId, setReplanSelectedId] = useState<string | null>(null);
+  const replanPinnedIds = useTourTrayStore((s) => s.pinnedIds);
+  const startReplan = useCallback(() => {
+    setReplanDraft(listingIds.slice(currentIndex));
+    setReplanSelectedId(listingIds[currentIndex] ?? null);
+    setReplanning(true);
+  }, [listingIds, currentIndex]);
+  const resumeFromReplan = useCallback(() => {
+    // 画面に見えている順 (ピン留め込みの解決済み順) をそのまま確定する。
+    reorderRemaining(resolveTourOrder(replanDraft, pool, { pinnedIds: replanPinnedIds }));
+    setReplanning(false);
+  }, [reorderRemaining, replanDraft, pool, replanPinnedIds]);
 
   // 中央マップの跨ぎ案内カード: 「次へ」の1回目(ack)で該当ステップだけ確認済みにして消す(次の跨ぎでまた出す)。
   // カード自体にはボタンを持たず、ack への到達手段は下記 onPrimary の「次へ」二段階ロジックに一本化している。
@@ -471,6 +491,67 @@ export const TourNavPage: React.FC = () => {
   // 見学した世界を背景に残しつつ、誤操作を防いで「探す/お気に入りに戻る」へ安全に導く。
   const frozen = completed || undefined;
 
+  if (replanning) {
+    const currentId = listingIds[currentIndex];
+    const visited = listingIds
+      .slice(0, currentIndex)
+      .map((id) => pool.find((l) => l.id === id))
+      .filter((l): l is MockListing => Boolean(l));
+    const replanSelected = replanSelectedId ? (pool.find((l) => l.id === replanSelectedId) ?? null) : null;
+    const visitedSection = visited.length > 0 && (
+      <>
+        <h3 className="housing-tour-replan-subtitle">{t('housing.tour.replan.visited')}</h3>
+        <TourVisitedList listings={visited} />
+      </>
+    );
+    const upcomingTitle = <h3 className="housing-tour-replan-subtitle">{t('housing.tour.replan.upcoming')}</h3>;
+    if (isMobile) {
+      return (
+        <div className="housing-tour-plan-mobile">
+          <p className="housing-tour-plan-detail-note">{t('housing.tour.replan.hint')}</p>
+          {visitedSection}
+          {upcomingTitle}
+          <TourTrayList listingIds={replanDraft} onChange={setReplanDraft} removable={false} currentId={currentId} />
+          <p className="housing-tour-plan-detail-note">{t('housing.tour.replan.resume_note')}</p>
+          <button type="button" className="housing-tour-tray-start" onClick={resumeFromReplan}>
+            {t('housing.tour.replan.resume')}
+          </button>
+        </div>
+      );
+    }
+    return (
+      <div className="housing-tour-plan">
+        <section className="housing-tour-page-panel" data-region="left">
+          <div className="housing-tour-page-col">
+            <TourTrayDetailPanel
+              listing={replanSelected}
+              onStartClick={resumeFromReplan}
+              startDisabled={replanDraft.length === 0}
+              startLabel={t('housing.tour.replan.resume')}
+              note={t('housing.tour.replan.resume_note')}
+            />
+          </div>
+        </section>
+        <section className="housing-tour-page-panel" data-region="right">
+          <div className="housing-tour-page-col">
+            <TourTrayBoard
+              listingIds={replanDraft}
+              onChange={setReplanDraft}
+              selectedId={replanSelectedId}
+              onSelect={setReplanSelectedId}
+              hint={t('housing.tour.replan.hint')}
+              removable={false}
+              currentId={currentId}
+            >
+              {visitedSection}
+              {upcomingTitle}
+            </TourTrayBoard>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="housing-tour-page housing-tour-page--reorg">
       <section className="housing-tour-page-panel" data-region="left" inert={frozen}>
@@ -537,6 +618,7 @@ export const TourNavPage: React.FC = () => {
             onViewStart={startViewing}
             onNext={onPrimary}
             onFinish={onFinish}
+            onReorder={completed ? undefined : startReplan}
           />
         </div>
       </section>
@@ -563,6 +645,7 @@ export const TourNavPage: React.FC = () => {
           // 実機2回目FB#7: 行き方が地図下部へ移って空いたバー左端に「終了」ボタンを置く。
           // 既存の onFinish(共有 live の終了処理込み)をそのまま渡すだけ。
           onFinish={onFinish}
+          onReorder={startReplan}
         />
       )}
 
