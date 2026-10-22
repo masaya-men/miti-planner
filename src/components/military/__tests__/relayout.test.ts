@@ -109,8 +109,9 @@ describe('relayoutZones(2 段階の開閉)', () => {
     expect(app.querySelector('.milspec-split[data-split="carriage"] [data-vent-carriage]')!.classList.contains('is-moving')).toBe(false);
     vi.advanceTimersByTime(1);
     expect(splitAnims('left').every((a) => a.play.mock.calls.length > 0)).toBe(true);
-    // 2 段目: rail / workspace / footer は +D(276) から 0 へ
-    for (const n of ['rail', 'workspace', 'footer'] as const) {
+    // 2 段目: rail / workspace は +D(276) から 0 へ(footer は切り分けて左の板が滑る)
+    expect(animOf('footer')[0]).toBeUndefined();
+    for (const n of ['rail', 'workspace'] as const) {
       expect(animOf(n)[1]).toMatchObject({ duration: 420 });
       expect(firstTransform(animOf(n)[0])).toBe('translate(276px, 0px)');
       expect(lastTransform(animOf(n)[0])).toBe('translate(0px, 0px)');
@@ -118,7 +119,7 @@ describe('relayoutZones(2 段階の開閉)', () => {
     // ヘッダー・通気口は change 前の配置で切り分けた複製: 左の板が 0 から -D(= 新しい配置の位置)へ
     expect(app.querySelectorAll('.milspec-split')).not.toHaveLength(0);
     const lefts = splitAnims('left');
-    expect(lefts).toHaveLength(2);
+    expect(lefts).toHaveLength(3);
     for (const a of lefts) {
       expect(a.opts).toMatchObject({ duration: 420 });
       expect(firstTransform(a.frames)).toBe('translate(0px, 0px)');
@@ -145,19 +146,21 @@ describe('relayoutZones(2 段階の開閉)', () => {
     expect([clips[0], clips[1], clips[3]]).toEqual(['inset(-16px -16px -16px 276px)', 'inset(-16px -16px -16px -1.8px)', 'inset(-16px -16px -16px 0px)']);
     const rights = [...app.querySelectorAll<HTMLElement>('.milspec-split[data-split="right"]')];
     const leftsEl = [...app.querySelectorAll<HTMLElement>('.milspec-split[data-split="left"]')];
-    expect(rights).toHaveLength(2);
-    expect(rights.map((e) => e.style.clipPath).sort()).toEqual(['inset(-16px -16px -16px 350px)', 'inset(-16px -16px -16px 95px)'].sort());
-    expect(leftsEl.map((e) => e.style.clipPath).sort()).toEqual(['inset(-16px calc(100% - 350px) -16px -16px)', 'inset(-16px calc(100% - 95px) -16px -16px)'].sort());
+    // ヘッダー 700×0.5 / 通気口 190×0.5 / フッター(左寄せの文字が無いときは幅の半分 1189/2)
+    expect(rights).toHaveLength(3);
+    expect(rights.map((e) => e.style.clipPath).sort()).toEqual(['inset(-16px -16px -16px 350px)', 'inset(-16px -16px -16px 95px)', 'inset(-16px -16px -16px 594.5px)'].sort());
+    expect(leftsEl.map((e) => e.style.clipPath).sort()).toEqual(['inset(-16px calc(100% - 350px) -16px -16px)', 'inset(-16px calc(100% - 95px) -16px -16px)', 'inset(-16px calc(100% - 594.5px) -16px -16px)'].sort());
   });
 
   it('サイドバーを開く: 1 段目で他区画・左の板が 0→+276、台車は 0→+138(60・480)。1 段目の終わり(540)+80 = 620ms 後に change → サイドバーが入る', () => {
     const { app, sbOpenFn, animOf, splitAnims, carriageAnim, zones, anims } = setup({ sbOpen: false });
     relayoutZones(app, sbOpenFn, 'sb', false);
-    for (const n of ['rail', 'workspace', 'footer'] as const) {
+    for (const n of ['rail', 'workspace'] as const) {
       expect(animOf(n)[1]).toMatchObject({ duration: 420 });
       expect(lastTransform(animOf(n)[0])).toBe('translate(276px, 0px)');
     }
-    expect(splitAnims('left').map((a) => lastTransform(a.frames))).toEqual(['translate(276px, 0px)', 'translate(276px, 0px)']);
+    expect(animOf('footer')[0]).toBeUndefined();
+    expect(splitAnims('left').map((a) => lastTransform(a.frames))).toEqual(['translate(276px, 0px)', 'translate(276px, 0px)', 'translate(276px, 0px)']);
     // 右の複製: 位置は動かさない。通気口だけ見える左端が板の左端と一緒に 0 → 276
     expect(splitAnims('right')).toHaveLength(1);
     expect(splitAnims('right')[0].frames.every((k) => k.transform === undefined)).toBe(true);
@@ -225,6 +228,97 @@ describe('relayoutZones(2 段階の開閉)', () => {
     expect(animOf('footer')[0]).toBeUndefined();
   });
 
+  it('フッター: 継ぎ目は左寄せの文字の右端 + 12px(右のリンクは右の複製に残り動かない)', () => {
+    const { app, zones, sbClose, splitAnims } = setup();
+    zones.footer.innerHTML = '<span class="milspec-flink static">© LoPo</span><div class="milspec-ftr-right"><a class="milspec-flink">X</a></div>';
+    const text = zones.footer.querySelector('.milspec-flink') as HTMLElement;
+    text.getBoundingClientRect = () => ({ left: 362, right: 897, top: 664, bottom: 671, width: 535, height: 7, x: 362, y: 664, toJSON() {} }) as DOMRect;
+    relayoutZones(app, sbClose, 'sb', false);
+    vi.advanceTimersByTime(500);
+    const right = [...app.querySelectorAll<HTMLElement>('.milspec-split[data-split="right"]')].find((e) => e.querySelector('.milspec-ftr-right'))!;
+    expect(right.style.clipPath).toBe('inset(-16px -16px -16px 609px)');
+    const left = [...app.querySelectorAll<HTMLElement>('.milspec-split[data-split="left"]')].find((e) => e.querySelector('.milspec-ftr-right'))!;
+    expect(left.style.clipPath).toBe('inset(-16px calc(100% - 609px) -16px -16px)');
+    expect(splitAnims('right').some((a) => a.el === right)).toBe(false);
+    expect(zones.footer.style.visibility).toBe('hidden');
+  });
+
+  describe('表の区画(workspace)の右端', () => {
+    /** 表の区画に 装甲・縁の暗がり・右上の印・見出しの行・スクロールする本体 を置く(矩形は区画の位置から決める) */
+    function setupWs(sbOpen: boolean) {
+      const base = setup({ sbOpen });
+      const ws = base.zones.workspace;
+      ws.innerHTML = '<div class="milspec-tbl-armor"><div class="milspec-armor"></div><div class="milspec-vig"></div>'
+        + '<span class="milspec-scr-mark tr"></span></div>'
+        + '<div class="milspec-tbl-wrap"><div class="hdr-row" style="overflow: hidden"></div><div class="scroller" style="overflow: auto"><div class="rows"></div></div></div>';
+      const at = (el: Element, f: (z: Rect) => Rect) => {
+        (el as HTMLElement).getBoundingClientRect = () => { const r = f(base.rects.workspace); return { ...r, right: r.left + r.width, bottom: r.top + r.height, x: r.left, y: r.top, toJSON() {} } as DOMRect; };
+      };
+      at(ws.querySelector('.milspec-armor')!, (z) => ({ ...z }));
+      at(ws.querySelector('.milspec-vig')!, (z) => ({ left: z.left + 10, top: z.top + 10, width: z.width - 20, height: z.height - 20 }));
+      at(ws.querySelector('.milspec-scr-mark')!, (z) => ({ left: z.left + z.width - 21, top: z.top + 12, width: 9, height: 9 }));
+      at(ws.querySelector('.hdr-row')!, (z) => ({ left: z.left + 10, top: z.top + 10, width: z.width - 20, height: 40 }));
+      at(ws.querySelector('.scroller')!, (z) => ({ left: z.left + 10, top: z.top + 50, width: z.width - 20, height: 300 }));
+      const sc = ws.querySelector('.scroller') as HTMLElement;
+      Object.defineProperty(sc, 'offsetWidth', { value: 1169 });
+      Object.defineProperty(sc, 'clientWidth', { value: 1155 }); // 縦のスクロールバー 14px
+      return { ...base, ws };
+    }
+    const clipsOf = (a: FakeAnim) => a.frames.map((k) => k.clipPath);
+
+    it('サイドバーを閉じる: 下に静止した装甲の複製・本物の装甲は継ぎ目より左だけ・右端で切れる箱は見える右端が動かない・右上の印は静止', () => {
+      const { app, ws, sbClose, anims, finishAllAnimations } = setupWs(true);
+      relayoutZones(app, sbClose, 'sb', false);
+      vi.advanceTimersByTime(500);
+      // 下に置いた複製(本物の区画の直前 = 下に描かれる)。継ぎ目 600 より右だけ・表の中身は隠す
+      const baseEl = ws.previousElementSibling as HTMLElement;
+      expect(baseEl.getAttribute('data-split')).toBe('base');
+      expect(baseEl.style.clipPath).toBe('inset(-16px -16px -16px 600px)');
+      expect(baseEl.style.zIndex).toBe('auto');
+      // 表の中身は持たない。スクロールバーのある箱だけ、同じ位置・大きさ・スクロール量の空の箱で代わりに見せる
+      expect(baseEl.querySelector('.milspec-tbl-wrap, .rows, .hdr-row')).toBeNull();
+      const stand = baseEl.querySelector('.scroller') as HTMLElement;
+      expect(stand.style.position).toBe('absolute');
+      expect([stand.style.left, stand.style.width]).toEqual(['10px', '1445px']); // 描き直し後(閉じた配置・幅 1465)で作り直した位置
+      // 描き直し後に作り直した複製でも、装甲は切られていない(本物に付けた「継ぎ目より左だけ」を持ち込まない)
+      expect((baseEl.querySelector('.milspec-armor') as HTMLElement).style.clipPath).toBe('');
+      expect((baseEl.querySelector('.milspec-vig') as HTMLElement).style.clipPath).toBe('');
+      expect((baseEl.querySelector('.scroller > div') as HTMLElement).style.visibility).toBe('hidden');
+      // 本物の装甲・縁の暗がりは継ぎ目より左だけ(縁の暗がりは区画の左端から 10px 内側にある)
+      expect((ws.querySelector('.milspec-armor') as HTMLElement).style.clipPath).toBe('inset(-16px calc(100% - 600px) -16px -16px)');
+      expect((ws.querySelector('.milspec-vig') as HTMLElement).style.clipPath).toBe('inset(-16px calc(100% - 590px) -16px -16px)');
+      // 右上の印: 本物は隠し、静止した複製を上に置く
+      expect((ws.querySelector('.milspec-scr-mark') as HTMLElement).style.visibility).toBe('hidden');
+      const mark = app.querySelector('[data-split="mark"]') as HTMLElement;
+      expect(mark.style.left).toBe(`${1489 - 21}px`);
+      expect(mark.style.right).toBe('auto');
+      // 右端で切れる箱: 区画のずれ D → 0 に合わせて右の切り詰めが D+sb → sb(見える右端 = スクロールバーの左で不動)
+      const hdr = anims.filter((a) => (a.el as HTMLElement).classList?.contains('hdr-row')).pop()!;
+      const scr = anims.filter((a) => (a.el as HTMLElement).classList?.contains('scroller')).pop()!;
+      expect([clipsOf(hdr)[0], clipsOf(hdr)[3]]).toEqual(['inset(-16px 276px -16px -16px)', 'inset(-16px 0px -16px -16px)']);
+      expect([clipsOf(scr)[0], clipsOf(scr)[3]]).toEqual(['inset(-16px 290px -16px -16px)', 'inset(-16px 14px -16px -16px)']);
+      expect(scr.play).toHaveBeenCalled();
+      expect(scr.opts).toMatchObject({ duration: 420 });
+      // 終わると全部元どおり
+      vi.runAllTimers(); finishAllAnimations();
+      expect(app.querySelector('[data-split]')).toBeNull();
+      expect((ws.querySelector('.milspec-armor') as HTMLElement).style.clipPath).toBe('');
+      expect((ws.querySelector('.milspec-scr-mark') as HTMLElement).style.visibility).toBe('');
+    });
+
+    it('サイドバーを開く: 1 段目で区画が 0 → +D、箱の右の切り詰めは sb → D+sb', () => {
+      const { app, ws, sbOpenFn, anims } = setupWs(false);
+      relayoutZones(app, sbOpenFn, 'sb', false);
+      expect((ws.previousElementSibling as HTMLElement).getAttribute('data-split')).toBe('base');
+      const scr = anims.filter((a) => (a.el as HTMLElement).classList?.contains('scroller')).pop()!;
+      expect([clipsOf(scr)[0], clipsOf(scr)[3]]).toEqual(['inset(-16px 14px -16px -16px)', 'inset(-16px 290px -16px -16px)']);
+      expect(scr.pause).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(620);
+      expect(sbOpenFn).toHaveBeenCalledTimes(1);
+      expect(scr.cancel).toHaveBeenCalled(); // change で新しい配置 = 1 段目の行き先になるので止める
+    });
+  });
+
   it('動きの最中の 2 回目(同じ種類)は無視され、終わると複製が残らない', () => {
     const { app, sbClose, sbOpenFn, finishAllAnimations, zones } = setup();
     relayoutZones(app, sbClose, 'sb', false);
@@ -289,7 +383,7 @@ describe('relayoutZones(2 段階の開閉)', () => {
     expect(anims.filter((a) => a.el === zones.workspace).pop()!.play).toHaveBeenCalled();
     // 右の複製だけ、新しい配置から作り直されている
     expect(rightBefore!.isConnected).toBe(false);
-    expect(app.querySelectorAll('.milspec-split[data-split="right"]')).toHaveLength(2);
+    expect(app.querySelectorAll('.milspec-split[data-split="right"]')).toHaveLength(3);
   });
 });
 

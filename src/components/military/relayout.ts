@@ -25,8 +25,16 @@ const OUT = 4;
 const CLIP_PAD = 16;
 /** 描き直しを待つ最大コマ数(これを過ぎたら待たずに進む) */
 const SETTLE_MAX_FRAMES = 30;
-/** 描き直しが済んだかを確かめる右端の部品(どれも開閉の前後で画面上の位置が同じ) */
-const PROBES: Partial<Record<string, string>> = { header: '.milspec-mlv', vent: '[data-vent-rail]' };
+/** 描き直しが済んだかを確かめる右端の部品(どれも開閉の前後で区画の右端からの位置が同じ)。
+ *  footer / workspace は装甲の SVG(ResizeObserver で描き直す)の右端 */
+const PROBES: Partial<Record<string, string>> = {
+  header: '.milspec-mlv', vent: '[data-vent-rail]', footer: '.milspec-armor-panel', workspace: '.milspec-armor-panel',
+};
+/** フッターの継ぎ目: 左寄せの文字(著作権の 1 行)の右端から 12px 右(右のリンクとの間の無地) */
+const FOOTER_TEXT = '.milspec-flink.static';
+const FOOTER_SEAM_GAP = 12;
+/** 表の区画の継ぎ目(区画の左端から。MilspecWorkspace の TABLE_FRAME.sx = 600)。これより右の装甲は右端基準 */
+const WS_SEAM = 600;
 /** 光エンジン(engine.ts)が経路として拾う属性。複製からは外す */
 const TRACE_ATTRS = ['data-trace', 'data-trace-pc', 'data-trace-next', 'data-trace-end', 'data-bus'];
 
@@ -177,8 +185,8 @@ function captureProbes(zones: HTMLElement[]): [HTMLElement, string, number, numb
     const sel = PROBES[z.getAttribute('data-ms-zone') ?? ''];
     const e = sel ? z.querySelector(sel) : null;
     if (!sel || !e) continue;
-    const r = e.getBoundingClientRect();
-    out.push([z, sel, r.left, r.top]);
+    const r = e.getBoundingClientRect(), zr = z.getBoundingClientRect();
+    out.push([z, sel, r.right - zr.right, r.top - zr.top]);
   }
   return out;
 }
@@ -187,8 +195,9 @@ function whenSettled(run: Run, probes: [HTMLElement, string, number, number][], 
   const ok = () => probes.every(([z, sel, x, y]) => {
     const e = z.querySelector(sel);
     if (!e) return true;
-    const r = e.getBoundingClientRect();
-    return Math.abs(r.left - x) < 0.5 && Math.abs(r.top - y) < 0.5;
+    // 区画の右端・上端からの位置で比べる(2 段目まで止めておく区画は transform でずれているため)
+    const r = e.getBoundingClientRect(), zr = z.getBoundingClientRect();
+    return Math.abs(r.right - zr.right - x) < 0.5 && Math.abs(r.top - zr.top - y) < 0.5;
   });
   const tick = () => {
     if (run.dead) return;
@@ -249,16 +258,143 @@ export function relayoutZones(app: HTMLElement, change: () => void, kind: Kind, 
   else sidebarOpen(app, run);
 }
 
-const SLIDE_ZONES = ['rail', 'workspace', 'footer'] as const;
+/** そのままの形で滑る区画(workspace は右端の縁を pinWorkspaceEdge で留める) */
+const SLIDE_ZONES = ['rail', 'workspace'] as const;
 const zonesOf = (app: HTMLElement, names: readonly string[]) =>
   names.map((n) => zoneOf(app, n)).filter((z): z is HTMLElement => !!z);
 /** サイドバーの開閉で切り分ける区画(閉じたヘッダーは見えないので切らない) */
 function splitTargets(app: HTMLElement): HTMLElement[] {
-  const h = zoneOf(app, 'header'), v = zoneOf(app, 'vent');
-  return [h && !h.hasAttribute('data-collapsed') ? h : null, v].filter((z): z is HTMLElement => !!z);
+  const h = zoneOf(app, 'header'), v = zoneOf(app, 'vent'), f = zoneOf(app, 'footer');
+  return [h && !h.hasAttribute('data-collapsed') ? h : null, v, f].filter((z): z is HTMLElement => !!z);
 }
-const seamOf = (app: HTMLElement, z: HTMLElement) =>
-  (z.getAttribute('data-ms-zone') === 'vent' ? VENT_SEAM : HDR_FRAME.sx) * hsOf(app);
+/** 継ぎ目(区画の左端から・画面 px)。左寄せの部品は開閉の前後で区画の左端からの位置が同じなので、どちらの配置で測ってもよい */
+function seamOf(app: HTMLElement, z: HTMLElement): number {
+  const name = z.getAttribute('data-ms-zone');
+  if (name === 'footer') {
+    const t = z.querySelector(FOOTER_TEXT), zr = z.getBoundingClientRect();
+    return t ? t.getBoundingClientRect().right - zr.left + FOOTER_SEAM_GAP : zr.width / 2;
+  }
+  return (name === 'vent' ? VENT_SEAM : HDR_FRAME.sx) * hsOf(app);
+}
+
+/** 区画の右端で終わる「切り抜きの箱」(表の見出しの行・スクロールする本体)。中身は左寄せで、この箱の右端で切れる。
+ *  区画の右端から 40px 以内(区画の右端ちょうどは画面の端なので除く)で終わる、幅の広い overflow の箱。入れ子は外側だけ */
+function rightClipBoxes(z: HTMLElement): { el: HTMLElement; sb: number }[] {
+  const zr = z.getBoundingClientRect();
+  const out: { el: HTMLElement; sb: number }[] = [];
+  for (const el of z.querySelectorAll<HTMLElement>('*')) {
+    if (out.some((b) => b.el.contains(el))) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width < zr.width / 2 || r.right < zr.right - 40 || r.right > zr.right - 0.5) continue;
+    const st = getComputedStyle(el);
+    if (st.overflowX === 'visible' && st.overflowY === 'visible') continue;
+    // 縦のスクロールバーの幅(箱の右端にあり、右端基準)
+    out.push({ el, sb: Math.max(0, el.offsetWidth - el.clientWidth) });
+  }
+  return out;
+}
+interface EdgePin { boxes: { el: HTMLElement; sb: number }[]; swap(dx: number): void; restore(): void }
+/** 表の区画(workspace)の右端の縁を画面に留める。表(Timeline)は重いので複製せず、本物の区画をそのまま滑らせる。
+ *  - 本物の装甲・縁の暗がりは継ぎ目(WS_SEAM)より左だけを見せる(=左の板)
+ *  - 継ぎ目より右の装甲(右の縁・右下の切り欠き)とスクロールバーは、本物の区画の「下」に置いた静止した複製が見せる
+ *    (複製の表の中身は隠す。本物の表の中身はその上を滑る。切り欠きの外は複製も本物も描かないので下地が見える)
+ *  - 右端で切れる箱(見出しの行・スクロールする本体)は、見える右端が画面上で動かないよう clip を区画の動きと逆に動かす(boxClips)
+ *  - 右上の印(scr-mark.tr)は中身より上に描くので、静止した印の複製を上に置く */
+function pinWorkspaceEdge(z: HTMLElement): EdgePin {
+  const app = z.parentElement!;
+  // --- 読む(DOM を変える前に全部読む。読むたびに配置の再計算が走らないように)
+  const boxes = rightClipBoxes(z);
+  /** スクロールバーを持つ箱の、区画の左上からの位置・大きさ・スクロール量(下の複製で同じスクロールバーを出す) */
+  const scrollInfo = () => {
+    const zr = z.getBoundingClientRect();
+    return boxes.filter(({ el }) => /auto|scroll/.test(getComputedStyle(el).overflowY || getComputedStyle(el).overflow)
+      && (el.offsetWidth > el.clientWidth || el.offsetHeight > el.clientHeight)).map(({ el }) => {
+      const r = el.getBoundingClientRect(), st = getComputedStyle(el);
+      return {
+        cls: el.className, left: r.left - zr.left, top: r.top - zr.top, width: r.width, height: r.height,
+        sw: el.scrollWidth, sh: el.scrollHeight, sl: el.scrollLeft, stp: el.scrollTop, ox: st.overflowX, oy: st.overflowY,
+      };
+    });
+  };
+  const zr0 = z.getBoundingClientRect(), a0 = app.getBoundingClientRect();
+  const armor = [...z.querySelectorAll<HTMLElement>('.milspec-tbl-armor > .milspec-armor, .milspec-tbl-armor > .milspec-vig')]
+    .map((el) => ({ el, seam: WS_SEAM - (el.getBoundingClientRect().left - zr0.left) }));
+  const marks = [...z.querySelectorAll<HTMLElement>('.milspec-scr-mark.tr')].map((m) => ({ m, r: m.getBoundingClientRect() }));
+  const info0 = scrollInfo(), box0 = boxOf(z);
+
+  /** 下に置く静止した複製: 装甲(継ぎ目より右)と、スクロールバーの代わりの空の箱だけ。表の中身は持たない(軽く保つ) */
+  const makeBase = (box: Box, info: ReturnType<typeof scrollInfo>): HTMLElement => {
+    const b = cloneZone(z, 'base', box);
+    b.style.zIndex = 'auto';
+    b.style.clipPath = `inset(${PAD} ${PAD} ${PAD} ${WS_SEAM}px)`;
+    [...b.children].forEach((c) => { if (!c.classList.contains('milspec-tbl-armor')) c.remove(); });
+    // 作り直し(swap)のときは、本物に付けた「継ぎ目より左だけ」を持ち込まない
+    b.querySelectorAll<HTMLElement>('.milspec-tbl-armor > .milspec-armor, .milspec-tbl-armor > .milspec-vig').forEach((el) => { el.style.clipPath = ''; });
+    const stand = info.map((s) => {
+      const c = document.createElement('div');
+      c.className = s.cls;
+      Object.assign(c.style, {
+        position: 'absolute', left: `${s.left}px`, top: `${s.top}px`, width: `${s.width}px`, height: `${s.height}px`,
+        overflowX: s.ox, overflowY: s.oy, flex: 'none', margin: '0',
+      });
+      const pad = document.createElement('div');
+      Object.assign(pad.style, { width: `${s.sw}px`, height: `${s.sh}px`, visibility: 'hidden' });
+      c.append(pad);
+      b.append(c);
+      return c;
+    });
+    z.before(b); // 本物の区画より下に描く
+    stand.forEach((c, i) => { if (info[i].stp) c.scrollTop = info[i].stp; if (info[i].sl) c.scrollLeft = info[i].sl; });
+    return b;
+  };
+
+  // --- 書く
+  let base = makeBase(box0, info0);
+  const undo: (() => void)[] = [];
+  // 本物の装甲・縁の暗がり: 継ぎ目より左だけ
+  armor.forEach(({ el, seam }) => {
+    const prev = el.style.clipPath;
+    el.style.clipPath = `inset(${PAD} calc(100% - ${seam}px) ${PAD} ${PAD})`;
+    undo.push(() => { el.style.clipPath = prev; });
+  });
+  // 右上の印: 静止した複製を上に置き、本物は隠す
+  marks.forEach(({ m, r }) => {
+    const c = m.cloneNode(true) as HTMLElement;
+    c.classList.add('milspec-split');
+    c.setAttribute('data-split', 'mark');
+    Object.assign(c.style, { left: `${r.left - a0.left}px`, top: `${r.top - a0.top}px`, right: 'auto', bottom: 'auto' });
+    app.append(c);
+    const prev = m.style.visibility;
+    m.style.visibility = 'hidden';
+    undo.push(() => { c.remove(); m.style.visibility = prev; });
+  });
+  let done = false;
+  return {
+    boxes,
+    // 描き直しが済んだ新しい配置で下の複製を作り直す(dx = いま区画を止めているずれ。複製は動かない位置に置く)
+    swap(dx) {
+      const box = boxOf(z), info = scrollInfo();
+      const r = box.r;
+      const nb = makeBase({ a: box.a, r: new DOMRect(r.x - dx, r.y, r.width, r.height) }, info);
+      base.remove();
+      base = nb;
+    },
+    restore() {
+      if (done) return;
+      done = true;
+      base.remove();
+      undo.forEach((u) => u());
+    },
+  };
+}
+/** 右端で切れる箱の見える右端を、区画のずれ sx → ex と同じ動きで切り詰め、画面上の右端(スクロールバーの左)を動かさない */
+function boxClips(run: Run, pin: EdgePin, sx: number, ex: number, paused: boolean, fill: FillMode): Animation[] {
+  const mk = paused ? held : play;
+  return pin.boxes.map(({ el, sb }) => {
+    const xs = steps(sx + sb, ex + sb);
+    return mk(run, el, STEP_TIMING.map((k, i) => ({ clipPath: `inset(${PAD} ${xs[i]}px ${PAD} ${PAD})`, ...k })), { duration: PHASE_DUR, fill });
+  });
+}
 
 /** 切り分けた左の板を sx → ex で滑らせ、台車を csx → cex で走らせる(右の複製は動かさない)。
  *  paused のときは最初の位置で止めておく(launch で一斉に動かす)。moving() で台車のランプ・車輪を動かす */
@@ -326,12 +462,15 @@ function sidebarClose(app: HTMLElement, run: Run, sb: HTMLElement) {
   const slides = zonesOf(app, SLIDE_ZONES);
   const before = new Map(slides.map((z) => [z, z.getBoundingClientRect().left]));
   const targets = splitTargets(app);
-  const probes = captureProbes(targets);
+  const seams = new Map(targets.map((z) => [z, seamOf(app, z)]));
+  const ws = zoneOf(app, 'workspace');
+  const probes = captureProbes(ws ? [...targets, ws] : targets);
   const p1 = [play(run, sb, frames(0, 0, -(s.right - a.left + OUT), 0), { duration: PHASE_DUR, fill: 'forwards' })];
 
   let base: number | null = null, D = 0, settled = false, gapOver = false, started = false;
   let wait: Animation[] = [], plates: ReturnType<typeof slidePlates>[] = [];
   const edges: Animation[] = [];
+  let pin: EdgePin | null = null;
   const go = () => {
     if (!run.changed || !settled || started || !canStart(gapOver, base)) return;
     started = true;
@@ -343,7 +482,9 @@ function sidebarClose(app: HTMLElement, run: Run, sb: HTMLElement) {
   // (左の板・台車はこの複製のまま 2 段目で動かす。右の複製だけ、描き直しが済んでから新しい配置で作り直す)
   whenHidden(run, PHASE_DUR * 0.4, PHASE_DUR, () => sb.getBoundingClientRect().right <= app.getBoundingClientRect().left + 0.5, () => {
     const boxes = targets.map(boxOf);
-    const splits = targets.map((z, i) => splitZone(z, seamOf(app, z), boxes[i]));
+    // 表の区画は右端の縁を留める(change 前の配置で。DOM を変える前に読むので切り分けより先)
+    if (ws) { pin = pinWorkspaceEdge(ws); run.restores.push(pin.restore); }
+    const splits = targets.map((z, i) => splitZone(z, seams.get(z)!, boxes[i]));
     run.restores.push(...splits.map((sp) => sp.restore));
     base = startOf(p1[0]);
     doChange(run);
@@ -352,15 +493,17 @@ function sidebarClose(app: HTMLElement, run: Run, sb: HTMLElement) {
     if (D < 0.5) D = SIDEBAR_SPAN;
     // rail / workspace / footer は新しい配置で +D(= 元の画面位置)に止めておき、2 段目の開始で一斉に動かす
     wait = slides.map((z) => held(run, z, frames(D, 0, 0, 0), { duration: PHASE_DUR, fill: 'both' }));
+    if (pin) wait.push(...boxClips(run, pin, D, 0, true, 'both'));
     plates = splits.map((sp) => slidePlates(run, sp, 0, -D, 0, -D / 2, true));
     whenSettled(run, probes, () => {
       const bx = targets.map(boxOf);
       targets.forEach((z, i) => {
-        const seam = seamOf(app, z);
+        const seam = seams.get(z)!;
         swapRight(splits[i], z, seam, bx[i]);
         // 継ぎ目が移動量より左(通気口): 右の複製(溝)の見える左端を板の左端と一緒に動かす。新しい配置では D → 0
         if (seam < D - 0.5) edges.push(held(run, splits[i].right, edgeFrames(D, 0), { duration: PHASE_DUR, fill: 'both' }));
       });
+      pin?.swap(D);
       settled = true;
       go();
     });
@@ -373,8 +516,12 @@ function sidebarOpen(app: HTMLElement, run: Run) {
   // change 前なので、動く量は「開いたときのサイドバーの幅 + 隙間」
   const D = SIDEBAR_SPAN;
   const targets = splitTargets(app);
-  const probes = captureProbes(targets);
+  const ws = zoneOf(app, 'workspace');
+  const probes = captureProbes(ws ? [...targets, ws] : targets);
+  const pin = ws ? pinWorkspaceEdge(ws) : null;
+  if (pin) run.restores.push(pin.restore);
   const p1 = zonesOf(app, SLIDE_ZONES).map((z) => play(run, z, frames(0, 0, D, 0), { duration: PHASE_DUR, fill: 'forwards' }));
+  if (pin) p1.push(...boxClips(run, pin, 0, D, false, 'forwards'));
   const plateAnims = targets.flatMap((z) => {
     const seam = seamOf(app, z);
     const sp = splitZone(z, seam);
