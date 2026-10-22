@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { HDR_BASE_MW, headerScale, headerScaleFor, mwFor, layoutMW, headerLayout, ventLayout } from '../headerGeometry';
+import { HDR_BASE_MW, headerScale, headerScaleFor, mwFor, layoutMW, headerLayout, ventLayout, ventRailRange, ventCarriageX } from '../headerGeometry';
 import { stretchPlaced } from '../armor/stretch';
 
 describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
@@ -127,5 +127,21 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
     const scrX = (zoneLeft: number, w: number, open: boolean) => zoneLeft + headerScaleFor(w, open) * (mwFor(w, headerScaleFor(w, open)) - 150); // レバー x = MW - 150
     expect(scrX(300, 1000, true)).toBeCloseTo(scrX(24, 1276, false), 0);
     expect(headerScaleFor(1000, true)).toBeCloseTo(s);
+  });
+  it('ventCarriageX: 格子 xb0 の 2px 手前', () => {
+    expect(ventCarriageX(1189)).toBe(1189 / 2 - 192);
+    expect(ventCarriageX(1190) + 2).toBe(ventLayout(1190).xb0);
+  });
+  it('ventRailRange: 開/閉どちらで描いても、画面上の同じ場所・同じ長さ', () => {
+    const o = ventRailRange(1189, true, 1), c = ventRailRange(1465, false, 1);
+    expect(300 + o.x).toBeCloseTo(24 + c.x); // 区画の左端は 開 300 / 閉 24(1489 画面)
+    expect(o.w).toBeCloseTo(c.w);
+    expect(o.w).toBeCloseTo(252 + 138 + 12);
+  });
+  it('ventRailRange: 狭い画面(縮小 0.84)でも画面上で一致', () => {
+    const s = 1000 / 1189;
+    const o = ventRailRange(mwFor(1000, s), true, s), c = ventRailRange(mwFor(1276, s), false, s);
+    expect(300 + o.x * s).toBeCloseTo(24 + c.x * s, 0);
+    expect(o.w * s).toBeCloseTo(c.w * s, 0);
   });
 });

@@ -190,3 +190,16 @@ export function ventLayout(MW: number): {
     leak: `M 0 -1.2 H ${MW}`,
   };
 }
+
+/** 台車(光の玉の列+取っ手+PULL 文字)の幅と、レール両端の余白 */
+export const CARRIAGE_W = 252;
+export const RAIL_MARGIN = 6;
+/** 台車の左端(区画座標)。格子 xb0 の 2px 手前 */
+export const ventCarriageX = (MW: number): number => MW / 2 - 192;
+/** レール(区画座標)。台車の画面上の走行量は SIDEBAR_SPAN/2 で、区画内では ÷scale。
+ *  開いた状態では台車は右端・閉じた状態では左端にいて、画面上のレールは開閉で動かない */
+export function ventRailRange(MW: number, sidebarOpen: boolean, scale: number): { x: number; w: number } {
+  const run = SIDEBAR_SPAN / 2 / scale;
+  const cx = ventCarriageX(MW);
+  return { x: (sidebarOpen ? cx - run : cx) - RAIL_MARGIN, w: CARRIAGE_W + run + 2 * RAIL_MARGIN };
+}

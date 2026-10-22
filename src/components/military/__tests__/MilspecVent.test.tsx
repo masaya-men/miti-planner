@@ -84,4 +84,12 @@ describe('MilspecVent', () => {
     expect(container.textContent).toContain('HDR PNL 1A · DO NOT STEP');
     expect(container.textContent).toContain('P/N 7A-2213-0418');
   });
+  it('台車(data-vent-carriage)の中に光の玉の列と取っ手があり、レール(data-vent-rail)がある', () => {
+    const { container } = setup();
+    const car = container.querySelector('[data-vent-carriage]') as HTMLElement;
+    expect(car.classList.contains('milspec-carriage')).toBe(true);
+    expect(car.querySelector('.milspec-lb-row')).not.toBeNull();
+    expect(car.querySelector('button.milspec-pull')).not.toBeNull();
+    expect(container.querySelector('[data-vent-rail]')).not.toBeNull();
+  });
 });

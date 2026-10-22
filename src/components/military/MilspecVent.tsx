@@ -4,7 +4,7 @@ import { MilspecFxLayer } from './fx/MilspecFxLayer';
 import { burst, scanBall, nudgeBall } from './fx/engine';
 import { MilspecHazard, MilspecLed, MilspecStencil } from './MilspecDecor';
 import { ventChannelSVG } from './armor/pcb';
-import { mwFor, ventLayout } from './headerGeometry';
+import { CARRIAGE_W, mwFor, ventCarriageX, ventLayout, ventRailRange } from './headerGeometry';
 import { useMilspecHeaderScale } from './headerScaleContext';
 import './header/milspecVent.css';
 
@@ -21,7 +21,7 @@ export function MilspecVent({ isHeaderCollapsed, onToggleHeader }: MilspecVentPr
   const rootRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
   const pullRef = useRef<HTMLButtonElement>(null);
-  const { scale } = useMilspecHeaderScale();
+  const { scale, sidebarOpen } = useMilspecHeaderScale();
   const [zw, setZw] = useState(0);
   const mw = useMemo(() => mwFor(zw, scale), [zw, scale]);
   const onToggleRef = useRef(onToggleHeader);
@@ -57,6 +57,12 @@ export function MilspecVent({ isHeaderCollapsed, onToggleHeader }: MilspecVentPr
   };
 
   const v = ventLayout(mw);
+  // 台車(列+取っ手+PULL 文字)はレール上。内部の部品は台車の左端基準の相対位置で置く
+  const carX = ventCarriageX(mw);
+  const rail = ventRailRange(mw, sidebarOpen, scale);
+  // 溝はレールの両端で終わる
+  const chanL = { x: v.chanL.x, w: rail.x - 8 - 190 };
+  const chanR = { x: rail.x + rail.w + 8, w: mw - 164 - (rail.x + rail.w + 8) };
   const label = t(isHeaderCollapsed ? 'sidebar.expand_header' : 'sidebar.collapse_header');
   const chan = (side: 'L' | 'R', c: { x: number; w: number }) => c.w < 30 ? null : (
     <div key={side} data-vent-chan={side} style={{ left: c.x, top: 5.5, width: c.w, height: 8 }}>
@@ -73,17 +79,27 @@ export function MilspecVent({ isHeaderCollapsed, onToggleHeader }: MilspecVentPr
       <MilspecHazard w={46} h={7} style={{ left: 16, top: 6 }} />
       <MilspecFxLayer traces={[{ name: 'lk:hdr', d: v.leak, pc: 'leak' }]} />
       <MilspecStencil en="HDR PNL 1A · DO NOT STEP" hi style={{ left: 70, top: 7 }} />
-      {chan('L', v.chanL)}
-      {chan('R', v.chanR)}
-      <div ref={rowRef} className="milspec-lb-row" data-scan style={{ left: v.xb0, top: 5.5 }}
-        onClick={() => rowRef.current && scanBall(rowRef.current)}
-        onPointerEnter={() => rowRef.current && nudgeBall(rowRef.current)}>
-        {Array.from({ length: 11 }, (_, i) => <MilspecLed key={i} size={8} />)}
+      {chan('L', chanL)}
+      {chan('R', chanR)}
+      <div className="milspec-rail" data-vent-rail style={{ left: rail.x, top: 7, width: rail.w, height: 5 }}>
+        <MilspecHazard w={4} h={9} style={{ left: 0, top: -2 }} />
+        <MilspecHazard w={4} h={9} style={{ right: 0, top: -2 }} />
       </div>
-      <button ref={pullRef} type="button" className="milspec-pull" data-vent-pull
-        style={{ left: v.pull.x, top: 2, width: v.pull.w, height: 15 }}
-        aria-label={label} title={label} aria-expanded={!isHeaderCollapsed} onClick={tug} />
-      <MilspecStencil en="PULL" style={{ left: v.pullLabelX, top: 6, padding: '1px 3px', background: 'var(--ma-frame)', borderRadius: 1 }} />
+      <div className="milspec-carriage" data-vent-carriage style={{ left: carX, top: 0, width: CARRIAGE_W, height: 19 }}>
+        <div ref={rowRef} className="milspec-lb-row" data-scan style={{ left: v.xb0 - carX, top: 5.5 }}
+          onClick={() => rowRef.current && scanBall(rowRef.current)}
+          onPointerEnter={() => rowRef.current && nudgeBall(rowRef.current)}>
+          {Array.from({ length: 11 }, (_, i) => <MilspecLed key={i} size={8} />)}
+        </div>
+        <button ref={pullRef} type="button" className="milspec-pull" data-vent-pull
+          style={{ left: v.pull.x - carX, top: 2, width: v.pull.w, height: 15 }}
+          aria-label={label} title={label} aria-expanded={!isHeaderCollapsed} onClick={tug} />
+        <MilspecStencil en="PULL" style={{ left: v.pullLabelX - carX, top: 6, padding: '1px 3px', background: 'var(--ma-frame)', borderRadius: 1 }} />
+        <i className="milspec-carriage-wheel" style={{ left: 12 }} />
+        <i className="milspec-carriage-wheel" style={{ left: 120 }} />
+        <i className="milspec-carriage-wheel" style={{ left: 232 }} />
+        <i className="milspec-carriage-led" />
+      </div>
       <MilspecStencil en="P/N 7A-2213-0418" hi style={{ left: v.pnX, top: 7 }} />
       <MilspecHazard w={46} h={7} style={{ left: v.hazR, top: 6 }} />
       <div data-progress-drawer-anchor className="milspec-vent-anchor" />

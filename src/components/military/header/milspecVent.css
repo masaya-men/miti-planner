@@ -4,6 +4,19 @@
 .theme-military .milspec-vent > * { position: absolute; }
 .theme-military .milspec-vent .milspec-pcb { overflow: visible; pointer-events: none; }
 
+/* レールと台車(見本 v3.html の .rail-track / .carriage)。台車の transform は Task 6 の動きが使うので CSS では触らない */
+.theme-military .milspec-vent .milspec-carriage > * { position: absolute; }
+.theme-military .milspec-rail { border-radius: 3px; background: linear-gradient(180deg, #050607, #14171a); box-shadow: inset 0 1px 2px #000, 0 0.6px 0 rgba(255,255,255,0.1); pointer-events: none; }
+.theme-military .milspec-rail::before { content: ""; position: absolute; inset: 1.5px 6px; background: repeating-linear-gradient(90deg, #5d666d 0 1px, transparent 1px 6px); opacity: .55; }
+.theme-military .milspec-rail > .milspec-hz { position: absolute; }
+.theme-military .milspec-carriage { border-radius: 3px; background: linear-gradient(180deg, var(--ma-pit-hi), var(--ma-pit-lo)); border: 1px solid #000; box-sizing: border-box; box-shadow: 0 2px 3px rgba(0,0,0,.6), inset 0 .6px 0 rgba(255,255,255,.15); will-change: transform; }
+.theme-military .milspec-carriage-wheel { bottom: -3px; width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle, #111 0 1.2px, #7c858c 1.3px 2.6px, #2a2f33 2.7px); }
+.theme-military .milspec-carriage-led { right: 4px; top: 3px; width: 4px; height: 4px; border-radius: 50%; background: #1a1c1d; }
+.theme-military .milspec-carriage.is-moving .milspec-carriage-led { background: var(--ma-warn); box-shadow: 0 0 4px var(--ma-warn); }
+.theme-military .milspec-carriage.is-moving .milspec-carriage-wheel { animation: milspec-wheel-spin .25s linear infinite; }
+@keyframes milspec-wheel-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .theme-military .milspec-carriage.is-moving .milspec-carriage-wheel { animation: none; } }
+
 /* 光の玉のランプ列(遊び) */
 .theme-military .milspec-lb-row { display: flex; align-items: center; gap: 4px; cursor: pointer; }
 .theme-military .milspec-lb-row .milspec-led { --s: 8px; --c: var(--ma-dng); --c-hot: var(--ma-dng-hot); --c-rgb: var(--ma-dng-rgb); --c-deep: var(--ma-dng-deep); }
