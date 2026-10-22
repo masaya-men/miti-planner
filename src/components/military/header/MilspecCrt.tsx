@@ -5,7 +5,7 @@ import { useProgressJourney } from '../../progress/useProgressJourney';
 import { ProgressRecordPanel } from '../../progress/ProgressRecordPanel';
 import { ProgressCelebrationHost } from '../../progress/ProgressTrackingHUD';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
-import { onPower } from '../power/power';
+import { onPower, BOOT_TIMING } from '../power/power';
 // 副作用 import: i18next の初期化(MilspecFooter.tsx と同じ理由)
 import '../../../i18n';
 import './milspecCrt.css';
@@ -13,6 +13,8 @@ import './milspecCrt.css';
 /** 軌跡を写す枠(見本の polyline の範囲: x 110〜306・y 30(下)〜4(上)) */
 const X0 = 110, X1 = 306, Y_BOTTOM = 30, Y_TOP = 4;
 const DRAW_MS = 1300;
+/** ディスプレイの点灯演出(線→開く→明るすぎ→落ち着く 720ms)のあと、文字の描き込みを始めるまで(ms) */
+const CRT_DRAW_AFTER = 560;
 
 /** 見本 crtDraw の easeInOutCubic */
 const ease = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
@@ -91,19 +93,25 @@ export function MilspecCrt({ className, style }: { className?: string; style?: C
 
   useEffect(() => () => { cancelDraw.current(); window.clearTimeout(bootTimer.current); }, []);
 
-  // 電源投入: boot を付け直し + 420ms 後に描き込み(見本 js:1165)
+  // 電源投入: ヘッダー区画が点く時刻(BOOT_TIMING.header)まで画面を消しておき、点いたら 線→開く→一瞬明るすぎ→落ち着く → 描き込み
   const latest = useRef({ draw, hasTrace: verts.length > 0 });
   latest.current = { draw, hasTrace: verts.length > 0 };
+  const startTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(startTimer.current), []);
   useEffect(() => onPower((e) => {
-    if (e.state === 'off') { window.clearTimeout(bootTimer.current); return; } // 電源断: 描き込み待ちを止める
-    if (e.state !== 'on' || e.reduced) return;
-    const b = btnRef.current;
-    if (!b) return;
-    b.classList.remove('boot');
-    void b.offsetWidth;
-    b.classList.add('boot');
     window.clearTimeout(bootTimer.current);
-    bootTimer.current = window.setTimeout(() => { if (latest.current.hasTrace) latest.current.draw(); }, 420);
+    window.clearTimeout(startTimer.current);
+    const b = btnRef.current;
+    if (e.state === 'off') { b?.classList.remove('pre', 'boot'); return; } // 電源断: 待ちを止める
+    if (e.state !== 'on' || e.reduced || !b) return;
+    b.classList.remove('boot');
+    b.classList.add('pre');
+    startTimer.current = window.setTimeout(() => {
+      b.classList.remove('pre');
+      void b.offsetWidth;
+      b.classList.add('boot');
+      bootTimer.current = window.setTimeout(() => { if (latest.current.hasTrace) latest.current.draw(); }, CRT_DRAW_AFTER);
+    }, BOOT_TIMING.header.delay);
   }), []);
 
   // クリック: 起動し直し(boot)+ 350ms 後に描き込み + 記録パネルを開く(見本 js:1116)

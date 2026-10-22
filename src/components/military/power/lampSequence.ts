@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { onPower, BOOT_TIMING } from './power';
 
 /**
- * 電源投入のランプ順点灯(見本 js:1166)。点灯中のランプ(NET 以外)を一旦消し、BOOT_TIMING.lamps(650) + i*45ms で点灯 + flick。
+ * 電源投入のランプ順点灯(見本 js:1166)。点灯中のランプ(NET 以外)を一旦消し、BOOT_TIMING.lamps(900) + i*45ms で点灯 + flick。
  * 対象はヘッダー・サイドバーなど MIL-SPEC の画面にある MilspecLed のうち is-on のもの(DOM を直接拾う)。
  * 戻り値 = 途中で止める関数
  */

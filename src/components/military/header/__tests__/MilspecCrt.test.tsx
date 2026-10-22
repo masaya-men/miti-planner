@@ -8,7 +8,7 @@ vi.mock('../../../progress/ProgressCelebration', () => ({ ProgressCelebration: (
 
 import i18n from '../../../../i18n';
 import { MilspecCrt, toCrtVertices } from '../MilspecCrt';
-import { powerOn, powerOff, initPower, disposePower } from '../../power/power';
+import { powerOn, powerOff, initPower, disposePower, BOOT_TIMING } from '../../power/power';
 import { useMitigationStore } from '../../../../store/useMitigationStore';
 import { usePlanStore } from '../../../../store/usePlanStore';
 import { useProgressRecording } from '../../../progress/useProgressRecording';
@@ -116,11 +116,32 @@ describe('MilspecCrt 電源投入', () => {
     expect(b.classList.contains('boot')).toBe(false);
     act(() => { powerOn({ reduced: true }); });
     expect(b.classList.contains('boot')).toBe(false);
-    act(() => { powerOn({ reduced: false }); });
-    expect(b.classList.contains('boot')).toBe(true);
+    vi.useFakeTimers();
+    try {
+      act(() => { powerOn({ reduced: false }); });
+      // ヘッダー区画が点くまでは画面を消しておく
+      expect(b.classList.contains('pre')).toBe(true);
+      expect(b.classList.contains('boot')).toBe(false);
+      act(() => { vi.advanceTimersByTime(BOOT_TIMING.header.delay); });
+      expect(b.classList.contains('pre')).toBe(false);
+      expect(b.classList.contains('boot')).toBe(true);
+    } finally { vi.useRealTimers(); }
   });
 
-  it('電源断で 420ms の描き込み待ちが止まる', () => {
+  it('電源断で点灯待ちと pre/boot が消える', () => {
+    vi.useFakeTimers();
+    try {
+      const { container } = render(<MilspecCrt />);
+      const b = container.querySelector('.milspec-crt') as HTMLElement;
+      act(() => { powerOn({ reduced: false }); });
+      act(() => { void powerOff({ reduced: false }); });
+      act(() => { vi.advanceTimersByTime(2000); });
+      expect(b.classList.contains('pre')).toBe(false);
+      expect(b.classList.contains('boot')).toBe(false);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('電源断で描き込み待ちが止まる', () => {
     vi.useFakeTimers();
     try {
       act(() => { useMitigationStore.setState({ progress: { points: [pt(50), pt(100)], cleared: false } } as any); });
@@ -131,7 +152,7 @@ describe('MilspecCrt 電源投入', () => {
       pl.getPointAtLength = () => ({ x: 120, y: 20 });
       act(() => { powerOn({ reduced: false }); });
       act(() => { void powerOff({ reduced: false }); });
-      act(() => { vi.advanceTimersByTime(600); });
+      act(() => { vi.advanceTimersByTime(2000); });
       expect(spy).not.toHaveBeenCalled();
     } finally { vi.useRealTimers(); }
   });

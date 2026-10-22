@@ -12,11 +12,18 @@ export interface PowerOpts { reduced?: boolean }
 const EVENT = 'milspec:power';
 let scanTimer: number | undefined; // 電源投入 BOOT_TIMING.scan 後の scanBall(アンマウントで消す)
 let bootAnims: Animation[] = []; // 進行中の暗幕の animate(電源断・解除で止める)
-/** 立ち上がりの順番(spec §3C): サイドバー/レール → ヘッダー/通気口/フッター → workspace のチカチカ */
+/** 立ち上がりの順番: レール → サイドバー → 通気口 → ヘッダー → フッター(250 + i×130)→ workspace のチカチカ。各区画は 900ms かけて「うっすら→明るく→一瞬沈む→落ち着く」(見本 P2) */
 export const BOOT_TIMING = {
-  sidebar: { delay: 250, dur: 700 }, header: { delay: 370, dur: 700 },
-  workspace: { delay: 1150, dur: 900 }, lamps: 650, scan: 2100,
+  rail: { delay: 250, dur: 900 }, sidebar: { delay: 380, dur: 900 }, vent: { delay: 510, dur: 900 },
+  header: { delay: 640, dur: 900 }, footer: { delay: 770, dur: 900 },
+  workspace: { delay: 1150, dur: 900 }, lamps: 900, scan: 2100,
 } as const;
+/** 区画の明るさ(0 暗い〜1 点灯)の山谷(見本 P2 の frames)。暗幕の opacity = 0.55 × (1 − 明るさ) に換算して使う */
+const BRIGHTNESS: { o: number; at: number }[] = [
+  { o: 0, at: 0 }, { o: 0.3, at: 0.1 }, { o: 0.95, at: 0.5 }, { o: 0.7, at: 0.62 }, { o: 1, at: 0.8 }, { o: 1, at: 1 },
+];
+const DIM = 0.55; // 暗幕の濃さ(.milspec-dim の通常 opacity)
+const BOOT_FRAMES: Keyframe[] = BRIGHTNESS.map(({ o, at }) => ({ opacity: +(DIM * (1 - o)).toFixed(3), offset: at, easing: 'ease-out' }));
 /** workspace の暗幕のチカチカ(見本 C3 の不透明度に暗幕の濃さ 0.55 を掛けたもの) */
 const FLICKER_OPACITY = [1, 0.2, 1, 1, 0.1, 0.9, 0.4, 1, 1, 0].map((v) => +(v * 0.55).toFixed(3));
 const FLICKER_OFFSET = [0, 0.08, 0.16, 0.34, 0.4, 0.46, 0.52, 0.58, 0.72, 1];
@@ -65,11 +72,10 @@ function blackout(frames: Keyframe[], duration: number): void {
   if (typeof el.animate === 'function') el.animate(frames, { duration });
 }
 
-type BootAxis = 'y' | 'x';
-/** 区画 → 暗幕が退く向きと開始時刻(rail=サイドバー、vent/footer=ヘッダーと同じ) */
-const BOOT_ZONES: Record<string, { t: { delay: number; dur: number }; axis: BootAxis }> = {
-  sidebar: { t: BOOT_TIMING.sidebar, axis: 'y' }, rail: { t: BOOT_TIMING.sidebar, axis: 'y' },
-  header: { t: BOOT_TIMING.header, axis: 'x' }, vent: { t: BOOT_TIMING.header, axis: 'x' }, footer: { t: BOOT_TIMING.header, axis: 'x' },
+/** 区画 → 暗幕が退く開始時刻(vent/footer もそれぞれ自分の時刻) */
+const BOOT_ZONES: Record<string, { delay: number; dur: number }> = {
+  rail: BOOT_TIMING.rail, sidebar: BOOT_TIMING.sidebar, vent: BOOT_TIMING.vent,
+  header: BOOT_TIMING.header, footer: BOOT_TIMING.footer,
 };
 
 const track = (el: Element, frames: Keyframe[], opts: KeyframeAnimationOptions): void => {
@@ -77,7 +83,7 @@ const track = (el: Element, frames: Keyframe[], opts: KeyframeAnimationOptions):
   bootAnims.push(el.animate(frames, opts));
 };
 
-/** 6 区画の暗幕(.milspec-dim)を退かせる(光るのは配線の光=fx/engine の役目) */
+/** 6 区画の暗幕(.milspec-dim)を opacity で退かせる(光るのは配線の光=fx/engine の役目) */
 function bootZones(): void {
   stopBoot();
   POWER_ZONES.forEach((z) => {
@@ -90,9 +96,8 @@ function bootZones(): void {
         { delay, duration: dur, easing: 'steps(1, end)', fill: 'backwards' });
       return;
     }
-    const { t, axis } = BOOT_ZONES[z];
-    track(dim, [{ opacity: 0.55, clipPath: 'inset(0 0 0 0)' }, { opacity: 0.55, clipPath: axis === 'y' ? 'inset(100% 0 0 0)' : 'inset(0 0 0 100%)' }],
-      { delay: t.delay, duration: t.dur, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'backwards' });
+    const { delay, dur } = BOOT_ZONES[z];
+    track(dim, BOOT_FRAMES, { delay, duration: dur, fill: 'backwards' });
   });
 }
 
@@ -108,14 +113,14 @@ export function powerOn(opts: PowerOpts = {}): void {
   blackout([{ opacity: 0 }, { opacity: 1, offset: 0.25 }, { opacity: 0.85, offset: 0.5 }, { opacity: 0 }], 260);
   bootZones();
   emit('on', false);
-  // 配線疾走(サイドバー系は暗幕が退き始める 250ms、ヘッダー系は 370ms から走る): 全ての束を光が駆け抜ける(レール → サイドバー → 通気口 → ジョブの基板 → 継ぎ目)
-  burst('rail:a', { delay: BOOT_TIMING.sidebar.delay, stagger: 16, speed: 1.3, chain: true });
+  // 配線疾走(各区画の点き始めに合わせて走る): 全ての束を光が駆け抜ける(レール → サイドバー → 通気口 → ジョブの基板 → 継ぎ目)
+  burst('rail:a', { delay: BOOT_TIMING.rail.delay, stagger: 16, speed: 1.3, chain: true });
   burst('s2k', { delay: BOOT_TIMING.sidebar.delay, stagger: 30, speed: 1.1 });
   coreFire(620);
-  burst('ventL:', { delay: BOOT_TIMING.header.delay, stagger: 20, speed: 1.6 });
-  burst('ventR:', { delay: BOOT_TIMING.header.delay, stagger: 20, speed: 1.6 });
+  burst('ventL:', { delay: BOOT_TIMING.vent.delay, stagger: 20, speed: 1.6 });
+  burst('ventR:', { delay: BOOT_TIMING.vent.delay, stagger: 20, speed: 1.6 });
   trafficBp(560);
-  pulse('s1', { delay: 380, len: 16 });
+  pulse('s1', { delay: BOOT_TIMING.sidebar.delay, len: 16 });
   pulse('h3', { delay: BOOT_TIMING.header.delay, len: 16 });
   window.clearTimeout(scanTimer);
   scanTimer = window.setTimeout(() => {

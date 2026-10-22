@@ -127,16 +127,18 @@ describe('power', () => {
     });
     const callOf = (z: string) => dimAnim(z).mock.calls[0] as [Keyframe[], KeyframeAnimationOptions];
 
-    it('サイドバー/レールの暗幕は上から下へ、ヘッダー/通気口/フッターは左から右へ退く', () => {
+    it('5 区画の暗幕は opacity だけで、レール250/サイドバー380/通気口510/ヘッダー640/フッター770 から 900ms(clip-path は使わない)', () => {
       animSpy(); stub();
       powerOn({ reduced: false });
-      expect(callOf('sidebar')[1]).toMatchObject({ delay: 250, duration: 700, fill: 'backwards' });
-      expect(callOf('sidebar')[0].at(-1)!.clipPath).toBe('inset(100% 0 0 0)');
-      expect(callOf('header')[1]).toMatchObject({ delay: 370, duration: 700 });
-      expect(callOf('header')[0].at(-1)!.clipPath).toBe('inset(0 0 0 100%)');
-      expect(callOf('rail')[1].delay).toBe(250);
-      expect(callOf('vent')[1].delay).toBe(370);
-      expect(callOf('footer')[1].delay).toBe(370);
+      const starts = { rail: 250, sidebar: 380, vent: 510, header: 640, footer: 770 };
+      Object.entries(starts).forEach(([z, delay]) => {
+        const [frames, opts] = callOf(z);
+        expect(opts).toMatchObject({ delay, duration: 900, fill: 'backwards' });
+        expect(frames.map((f) => f.opacity)).toEqual([0.55, 0.385, 0.028, 0.165, 0, 0]);
+        expect(frames.map((f) => f.offset)).toEqual([0, 0.1, 0.5, 0.62, 0.8, 1]);
+        expect(frames.at(-1)!.opacity).toBe(0);
+        frames.forEach((f) => { expect(f.clipPath).toBeUndefined(); expect(f.easing).toBe('ease-out'); });
+      });
     });
 
     it('workspace の暗幕は 1150ms から 900ms チカチカして消える(steps(1,end))', () => {
@@ -154,16 +156,17 @@ describe('power', () => {
       expect(document.querySelector('.milspec-sweep')).toBeNull();
     });
 
-    it('配線の光は暗幕が退き始める時刻に合わせる(サイドバー系 250ms・ヘッダー系 370ms)', () => {
+    it('配線の光は各区画の点き始めに合わせる(レール250・サイドバー380・通気口510・ヘッダー640)', () => {
       animSpy(); stub();
       powerOn({ reduced: false });
       const d = (fn: { mock: { calls: unknown[][] } }, key: string) =>
         (fn.mock.calls.find((c) => c[0] === key)![1] as { delay: number }).delay;
       expect(d(fx.burst as never, 'rail:a')).toBe(250);
-      expect(d(fx.burst as never, 's2k')).toBe(250);
-      expect(d(fx.burst as never, 'ventL:')).toBe(370);
-      expect(d(fx.burst as never, 'ventR:')).toBe(370);
-      expect(d(fx.pulse as never, 'h3')).toBe(370);
+      expect(d(fx.burst as never, 's2k')).toBe(380);
+      expect(d(fx.burst as never, 'ventL:')).toBe(510);
+      expect(d(fx.burst as never, 'ventR:')).toBe(510);
+      expect(d(fx.pulse as never, 'h3')).toBe(640);
+      expect(BOOT_TIMING.lamps).toBeGreaterThanOrEqual(BOOT_TIMING.header.delay);
     });
 
     it('disposePower: 暗幕の animate を cancel する', () => {
