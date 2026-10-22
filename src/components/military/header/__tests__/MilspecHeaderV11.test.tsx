@@ -3,7 +3,13 @@ import { useState } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { MilspecHeaderV11 } from '../MilspecHeaderV11';
+import { MilspecHeaderV11, DRW_PULSE } from '../MilspecHeaderV11';
+import * as engine from '../../fx/engine';
+
+vi.mock('../../fx/engine', async (orig) => {
+  const m = await orig<typeof import('../../fx/engine')>();
+  return { ...m, pulse: vi.fn(() => 0), isFxActive: vi.fn(() => true) };
+});
 import { useThemeStore } from '../../../../store/useThemeStore';
 import { useMitigationStore } from '../../../../store/useMitigationStore';
 
@@ -104,6 +110,68 @@ describe('H3 / H4 の既存機能', () => {
     const { getByRole } = r();
     fireEvent.click(getByRole('button', { name: /タービン|turbine|TRB/i }));
     expect(spy).not.toHaveBeenCalled();
+  });
+});
+
+describe('下の板・基板の配線', () => {
+  const stubZone = (w: number) => {
+    vi.stubGlobal('ResizeObserver', class { constructor(_cb: unknown) {} observe() {} unobserve() {} disconnect() {} });
+    return vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: w, height: 102, x: 0, y: 0, top: 0, left: 0, right: w, bottom: 102, toJSON: () => ({}) });
+  };
+  const inZone = () => <MemoryRouter><div data-ms-zone="header"><MilspecHeaderV11 {...props} /></div></MemoryRouter>;
+  const drwCalls = () => vi.mocked(engine.pulse).mock.calls.filter((c) => /^drw:/.test(c[0]));
+
+  it('装甲に 下の板(id *-mesh)と 基板(data-trace="drw:1")が入る', () => {
+    const { container } = r();
+    expect(container.querySelector('[data-ms-armor="hdr"] [data-trace="drw:1"]')).not.toBeNull();
+    expect(container.querySelector('[data-ms-armor="hdr"] [id$="-mesh"]')).not.toBeNull();
+  });
+  it('MW 1189 では粒を出さない', () => {
+    vi.useFakeTimers();
+    const spy = stubZone(1189);
+    try {
+      render(inZone());
+      vi.advanceTimersByTime(5000);
+      expect(drwCalls()).toHaveLength(0);
+    } finally { spy.mockRestore(); vi.unstubAllGlobals(); vi.useRealTimers(); }
+  });
+  it('MW 1465 では 0.9〜2.2 秒おきに drw:n を pulse する', () => {
+    vi.useFakeTimers();
+    const spy = stubZone(1465);
+    try {
+      render(inZone());
+      vi.advanceTimersByTime(899);
+      expect(drwCalls()).toHaveLength(0);
+      vi.advanceTimersByTime(1401);
+      expect(drwCalls().length).toBeGreaterThanOrEqual(1);
+      expect(engine.pulse).toHaveBeenCalledWith(expect.stringMatching(/^drw:[1-6]$/), expect.objectContaining({ len: DRW_PULSE.len, speed: DRW_PULSE.speed }));
+      expect(DRW_PULSE).toMatchObject({ minMs: 900, maxMs: 2200, len: 9, speed: 3.4 });
+    } finally { spy.mockRestore(); vi.unstubAllGlobals(); vi.useRealTimers(); }
+  });
+  it('動きを減らす設定(isFxActive=false)では pulse を呼ばない', () => {
+    vi.useFakeTimers();
+    vi.mocked(engine.isFxActive).mockReturnValue(false);
+    const spy = stubZone(1465);
+    try {
+      render(inZone());
+      vi.advanceTimersByTime(5000);
+      expect(drwCalls()).toHaveLength(0);
+    } finally { spy.mockRestore(); vi.unstubAllGlobals(); vi.useRealTimers(); vi.mocked(engine.isFxActive).mockReturnValue(true); }
+  });
+  it('アンマウントで粒のタイマーが止まる', () => {
+    vi.useFakeTimers();
+    const spy = stubZone(1465);
+    try {
+      const { unmount } = render(inZone());
+      unmount();
+      vi.advanceTimersByTime(5000);
+      expect(drwCalls()).toHaveLength(0);
+    } finally { spy.mockRestore(); vi.unstubAllGlobals(); vi.useRealTimers(); }
+  });
+  it('CRT の箱は幅 324', () => {
+    const { container } = r();
+    const box = (container.querySelector('button.milspec-crt') as HTMLElement).parentElement as HTMLElement;
+    expect(box.style.width).toBe('324px');
   });
 });
 
