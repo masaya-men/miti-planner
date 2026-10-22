@@ -54,6 +54,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                 <>
                     {/* Backdrop */}
                     <motion.div
+                        data-no-pull-refresh
                         className="md:hidden fixed inset-0 z-[300]"
                         style={{ backgroundColor: 'var(--color-overlay)' }}
                         initial={{ opacity: 0 }}
@@ -65,6 +66,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                     {/* Sheet */}
                     <motion.div
                         ref={sheetRef}
+                        data-no-pull-refresh
                         {...(swipeArea === 'sheet'
                             ? { onTouchStart: handleTouchStart, onTouchMove: handleTouchMove, onTouchEnd: handleTouchEnd }
                             : {})}

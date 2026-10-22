@@ -9,6 +9,7 @@ import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { HousingDiagOverlay } from './HousingDiagOverlay';
+import { HousingPullToRefresh } from './HousingPullToRefresh';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useIOSViewportFix } from '../../../hooks/useIOSViewportFix';
 import { MobileTourTrayBar } from './MobileTourTrayBar';
@@ -129,6 +130,7 @@ export const HousingShell: React.FC = () => {
         <StatusBar />
         <HousingDiagOverlay />
       </div>
+      <HousingPullToRefresh />
       <HousingLoginModal />
       <HousingAccountModal />
     </main>
