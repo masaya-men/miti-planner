@@ -1277,7 +1277,7 @@
    明るさは暗幕トークンで調整(値は Phase 0 見本に合わせて Phase 2 で確定)。 */
 .theme-military .milspec-backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
 .theme-military .milspec-backdrop video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.theme-military .milspec-backdrop-veil { position: absolute; inset: 0; background: var(--ms-backdrop-veil, rgba(6, 8, 10, 0.55)); }
+.theme-military .milspec-backdrop-veil { position: absolute; inset: 0; background: var(--ms-backdrop-veil, rgba(6, 8, 10, 0.92)); }
 
 /* サイドバー畳み: サイドバー列を 0 に。開閉の取っ手は rail 列(22px)に移したので復元手段は残る。
  * 閉じたサイドバーの中身は visibility:hidden でタブ移動・クリックの対象から外す。 */
