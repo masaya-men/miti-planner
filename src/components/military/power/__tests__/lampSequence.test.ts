@@ -16,11 +16,11 @@ afterEach(() => vi.useRealTimers());
 
 describe('sequenceLamps', () => {
   const el = (id: string) => document.getElementById(id)!;
-  it('NET 以外の点灯中を一旦消し、180 + i*45ms で is-on + is-flick', () => {
+  it('NET 以外の点灯中を一旦消し、650 + i*45ms で is-on + is-flick', () => {
     sequenceLamps();
     expect(el('a').classList.contains('is-on')).toBe(false);
     expect(el('net').classList.contains('is-on')).toBe(true);
-    vi.advanceTimersByTime(179);
+    vi.advanceTimersByTime(649);
     expect(el('a').classList.contains('is-on')).toBe(false);
     vi.advanceTimersByTime(1);
     expect(el('a').classList.contains('is-on') && el('a').classList.contains('is-flick')).toBe(true);

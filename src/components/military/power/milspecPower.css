@@ -1,5 +1,5 @@
 /* MIL-SPEC の電源 off の見た目(見本 css:16, 140-141, 180, 333, 612-617)。属性は power.ts が <html data-ms-power> に書く */
-.theme-military .milspec-dim { position: absolute; inset: 0; z-index: 30; background: #000; opacity: 0; pointer-events: none; transition: opacity 90ms linear var(--pd, 0ms); }
+.theme-military .milspec-dim { position: absolute; inset: 0; z-index: 30; background: #000; opacity: 0; pointer-events: none; }
 html.theme-military[data-ms-power="off"] .milspec-dim { opacity: 0.55; }
 .theme-military .milspec-blackout { position: fixed; inset: 0; z-index: 60; background: #000; opacity: 0; pointer-events: none; }
 /* 背景動画の暗幕 */
@@ -10,3 +10,8 @@ html.theme-military[data-ms-power="off"] .milspec-led .milspec-led-lens { backgr
 html.theme-military[data-ms-power="off"] .milspec-key[data-pressed] .lip { stroke: rgba(0,0,0,0.42); filter: none; }
 html.theme-military[data-ms-power="off"] .milspec-crt .scr-in > * { opacity: 0; }
 html.theme-military[data-ms-power="off"] .milspec-crt .scr-in { background: #030404; }
+/* 立ち上がりの光の帯(見本 C: サイドバー系は縦、ヘッダー系は横。動くのは transform だけ) */
+.theme-military .milspec-sweep { position: absolute; inset: 0; z-index: 31; overflow: hidden; pointer-events: none; }
+.theme-military .milspec-sweep-bar { position: absolute; will-change: transform; }
+.theme-military .milspec-sweep-bar.is-y { left: -10%; right: -10%; top: 0; height: 22%; background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--ma-on-hot, #eaffee) 60%, transparent), transparent); }
+.theme-military .milspec-sweep-bar.is-x { top: -20%; bottom: -20%; left: 0; width: 18%; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--ma-on-hot, #eaffee) 60%, transparent), transparent); }

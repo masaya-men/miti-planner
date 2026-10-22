@@ -4,11 +4,11 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 const fx = vi.hoisted(() => ({ burst: vi.fn(), pulse: vi.fn(), coreFire: vi.fn(), trafficBp: vi.fn(), scanBall: vi.fn() }));
 vi.mock('../../fx/engine', () => fx);
 
-import { isPowered, powerOn, powerOff, onPower, initPower, disposePower } from '../power';
+import { isPowered, powerOn, powerOff, onPower, initPower, disposePower, BOOT_TIMING } from '../power';
 
 const zones = ['sidebar', 'rail', 'header', 'vent', 'workspace', 'footer'];
 const mount = () => {
-  document.body.innerHTML = '<div class="milspec-app">' + zones.map((z) => `<div data-ms-zone="${z}"></div>`).join('') + '<div data-scan></div></div>';
+  document.body.innerHTML = '<div class="milspec-app">' + zones.map((z) => `<div data-ms-zone="${z}"><div class="milspec-dim"></div></div>`).join('') + '<div data-scan></div></div>';
 };
 const animSpy = () => vi.spyOn(HTMLElement.prototype as unknown as { animate: () => unknown }, 'animate').mockImplementation(() => ({}));
 
@@ -16,25 +16,27 @@ beforeEach(() => { vi.useFakeTimers(); mount(); Object.values(fx).forEach((f) =>
 afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); disposePower(); window.history.replaceState({}, '', '/'); });
 
 describe('power', () => {
-  it('powerOn の順: 暗転 → --pd → イベント(購読者が見る時点で --pd は入っている)', () => {
+  it('powerOn の順: 暗転 → 暗幕 → イベント(購読者が見る時点で暗幕の animate は始まっている)', () => {
     const log: string[] = [];
-    vi.spyOn(HTMLElement.prototype as unknown as { animate: () => unknown }, 'animate').mockImplementation(() => { log.push('blackout'); return {}; });
-    const off = onPower(() => {
-      const pd = (document.querySelector('[data-ms-zone="sidebar"]') as HTMLElement).style.getPropertyValue('--pd');
-      log.push(pd ? 'event(--pd済)' : 'event');
+    vi.spyOn(HTMLElement.prototype as unknown as { animate: () => unknown }, 'animate').mockImplementation(function (this: HTMLElement) {
+      log.push(this.classList.contains('milspec-dim') ? 'dim' : this.className === 'milspec-blackout' ? 'blackout' : 'other');
+      return { cancel: vi.fn() };
     });
+    const off = onPower(() => log.push('event'));
     initPower();
     powerOn({ reduced: false });
-    expect(log).toEqual(['blackout', 'event(--pd済)']);
+    expect(log[0]).toBe('blackout');
+    expect(log.indexOf('dim')).toBeGreaterThan(0);
+    expect(log.indexOf('dim')).toBeLessThan(log.indexOf('event'));
     off();
   });
 
-  it('disposePower で scanBall の 900ms タイマーが消える', () => {
+  it('disposePower で scanBall のタイマーが消える', () => {
     animSpy();
     initPower();
     powerOn({ reduced: false });
     disposePower();
-    vi.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(3000);
     expect(fx.scanBall).not.toHaveBeenCalled();
   });
 
@@ -52,7 +54,7 @@ describe('power', () => {
     expect(isPowered()).toBe(true);
   });
 
-  it('powerOn: 属性 on・暗転・区画の --pd が 140+i*60ms・イベント・疾走・900ms 後に scanBall', () => {
+  it('powerOn: 属性 on・暗転・区画の イベント・疾走・BOOT_TIMING.scan 後に scanBall', () => {
     const a = animSpy();
     const ev = vi.fn();
     const off = onPower(ev);
@@ -61,13 +63,14 @@ describe('power', () => {
     expect(isPowered()).toBe(true);
     expect(document.querySelector('.milspec-blackout')).not.toBeNull();
     expect(a).toHaveBeenCalled();
-    zones.forEach((z, i) => expect((document.querySelector(`[data-ms-zone="${z}"]`) as HTMLElement).style.getPropertyValue('--pd')).toBe(`${140 + i * 60}ms`));
     expect(ev).toHaveBeenCalledWith({ state: 'on', reduced: false });
     expect(fx.burst).toHaveBeenCalledWith('rail:a', { delay: 240, stagger: 16, speed: 1.3, chain: true });
     expect(fx.coreFire).toHaveBeenCalledWith(620);
     expect(fx.trafficBp).toHaveBeenCalledWith(560);
     expect(fx.scanBall).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(900);
+    vi.advanceTimersByTime(BOOT_TIMING.scan - 1);
+    expect(fx.scanBall).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
     expect(fx.scanBall).toHaveBeenCalledTimes(1);
     off();
   });
@@ -83,13 +86,21 @@ describe('power', () => {
     expect(fx.burst).not.toHaveBeenCalled();
   });
 
-  it('powerOff: 属性 off・--pd 0・300ms 後に解決', async () => {
+  it('powerOn(reduced): 暗幕も帯も animate しない', () => {
+    const a = animSpy();
+    initPower();
+    powerOn({ reduced: true });
+    expect(a).not.toHaveBeenCalled();
+    expect(document.querySelector('.milspec-sweep')).toBeNull();
+  });
+
+  it('powerOff: 属性 off・進行中の暗幕を止める・300ms 後に解決', async () => {
     animSpy();
     powerOn({ reduced: false });
     let done = false;
     const p = powerOff({ reduced: false }).then(() => { done = true; });
     expect(isPowered()).toBe(false);
-    expect((document.querySelector('[data-ms-zone="rail"]') as HTMLElement).style.getPropertyValue('--pd')).toBe('0ms');
+    expect(document.querySelector('.milspec-sweep')).toBeNull();
     await vi.advanceTimersByTimeAsync(299);
     expect(done).toBe(false);
     await vi.advanceTimersByTimeAsync(1);
@@ -107,5 +118,64 @@ describe('power', () => {
     disposePower();
     expect(document.documentElement.dataset.msPower).toBeUndefined();
     expect(document.querySelector('.milspec-blackout')).toBeNull();
+  });
+
+  describe('立ち上がりの順番', () => {
+    const dimAnim = (z: string) => (document.querySelector(`[data-ms-zone="${z}"] .milspec-dim`) as unknown as { animate: ReturnType<typeof vi.fn> }).animate;
+    const stub = () => zones.forEach((z) => {
+      (document.querySelector(`[data-ms-zone="${z}"] .milspec-dim`) as unknown as { animate: unknown }).animate = vi.fn(() => ({ cancel: vi.fn() }));
+    });
+    const callOf = (z: string) => dimAnim(z).mock.calls[0] as [Keyframe[], KeyframeAnimationOptions];
+
+    it('サイドバー/レールの暗幕は上から下へ、ヘッダー/通気口/フッターは左から右へ退く', () => {
+      animSpy(); stub();
+      powerOn({ reduced: false });
+      expect(callOf('sidebar')[1]).toMatchObject({ delay: 250, duration: 700, fill: 'backwards' });
+      expect(callOf('sidebar')[0].at(-1)!.clipPath).toBe('inset(100% 0 0 0)');
+      expect(callOf('header')[1]).toMatchObject({ delay: 370, duration: 700 });
+      expect(callOf('header')[0].at(-1)!.clipPath).toBe('inset(0 0 0 100%)');
+      expect(callOf('rail')[1].delay).toBe(250);
+      expect(callOf('vent')[1].delay).toBe(370);
+      expect(callOf('footer')[1].delay).toBe(370);
+    });
+
+    it('workspace の暗幕は 1150ms から 900ms チカチカして消える(steps(1,end))', () => {
+      animSpy(); stub();
+      powerOn({ reduced: false });
+      const [frames, opts] = callOf('workspace');
+      expect(opts).toMatchObject({ delay: 1150, duration: 900, easing: 'steps(1, end)', fill: 'backwards' });
+      expect(frames.map((f) => f.opacity)).toEqual([0.55, 0.11, 0.55, 0.55, 0.055, 0.495, 0.22, 0.55, 0.55, 0]);
+      expect(frames.map((f) => f.offset)).toEqual([0, 0.08, 0.16, 0.34, 0.4, 0.46, 0.52, 0.58, 0.72, 1]);
+    });
+
+    it('光の帯: サイドバーは縦(translateY)・ヘッダーは横(translateX)、区画ごとに 1 個', () => {
+      const a = animSpy(); stub();
+      powerOn({ reduced: false });
+      expect(document.querySelectorAll('.milspec-sweep').length).toBe(5);
+      const barAnim = (z: string) => {
+        const bar = document.querySelector(`[data-ms-zone="${z}"] .milspec-sweep-bar`)!;
+        const i = a.mock.instances.indexOf(bar as never);
+        return (a.mock.calls[i] as unknown as [Keyframe[]])[0];
+      };
+      expect(String(barAnim('sidebar').at(-1)!.transform)).toMatch(/^translateY\(/);
+      expect(String(barAnim('header').at(-1)!.transform)).toMatch(/^translateX\(/);
+    });
+
+    it('帯は終わったら消える', () => {
+      animSpy(); stub();
+      powerOn({ reduced: false });
+      vi.advanceTimersByTime(370 + 700 + 60);
+      expect(document.querySelector('.milspec-sweep')).toBeNull();
+    });
+
+    it('disposePower: 帯を消し、暗幕の animate を cancel する', () => {
+      animSpy(); stub();
+      const cancel = vi.fn();
+      dimAnim('sidebar').mockReturnValue({ cancel });
+      powerOn({ reduced: false });
+      disposePower();
+      expect(document.querySelector('.milspec-sweep')).toBeNull();
+      expect(cancel).toHaveBeenCalled();
+    });
   });
 });
