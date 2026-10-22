@@ -5,6 +5,7 @@ import { canDisplayAddress } from '../../../lib/housing/listingPublish';
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { representativeImage, hasRepresentativeImage } from '../../../lib/housing/representativeImage';
 import type { MockListing } from '../../../data/housing/mockListings';
+import { handleYoutubeThumbnailError, handleYoutubeThumbnailLoad } from '../../../lib/housing/youtubeImgFallback';
 
 export interface TourVisitedListProps {
   /** 見学済みの家 (ツアーで回った順)。 */
@@ -33,7 +34,7 @@ export const TourVisitedList: React.FC<TourVisitedListProps> = ({ listings }) =>
             <Lock size={14} className="housing-tour-visited-lock" aria-hidden="true" />
             <span className="housing-tour-visited-num">{index + 1}</span>
             {showImage ? (
-              <img className="housing-tour-tray-thumb" src={representativeImage(l)} alt="" loading="lazy" />
+              <img className="housing-tour-tray-thumb" src={representativeImage(l)} alt="" loading="lazy" onError={handleYoutubeThumbnailError} onLoad={handleYoutubeThumbnailLoad} />
             ) : (
               <span className="housing-tour-tray-thumb housing-tour-tray-thumb-placeholder" aria-hidden="true">
                 <Route size={16} aria-hidden="true" />

@@ -9,6 +9,7 @@ import './styles/military.css'
 import { isAdminSandbox } from './dev/sandboxMode'
 import { installPreloadErrorReload } from './lib/preloadErrorReload'
 import { installServiceWorkerAutoUpdate } from './lib/serviceWorkerAutoUpdate'
+import { installHousingScrollRestoration } from './lib/housing/housingScrollRestoration'
 
 // 管理画面サンドボックス: 偽管理者を注入してから描画する。
 // 先頭の import.meta.env.DEV は本番でこのブロック(動的importごと)を dead-code 除去するために必須。
@@ -23,6 +24,9 @@ if (import.meta.env.PROD) {
   // 新バージョンの SW が有効化されたら 1 回だけ自動リロードして最新コードを確実に表示する。
   installServiceWorkerAutoUpdate()
 }
+
+// ハウジングでは再読み込み時のスクロール位置の復元を止める (iPhone Safari でずれた位置が残り続けた)。
+installHousingScrollRestoration(window.location.pathname)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -6,7 +6,9 @@ import { useHousingListingsStore } from '../../../store/useHousingListingsStore'
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
-import { useHousingTourStore } from '../../../store/useHousingTourStore';
+import { useHousingTourStore } from '../../../store/useHousingTourStore';
+import { useTourTrayStore } from '../../../store/useTourTrayStore';
+import { HousingDiagOverlay } from './HousingDiagOverlay';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useIOSViewportFix } from '../../../hooks/useIOSViewportFix';
 import { MobileTourTrayBar } from './MobileTourTrayBar';
@@ -59,6 +61,9 @@ export const HousingShell: React.FC = () => {
   // immersive 自体は広げない (ボトムナビ/FAB は「タブ移動で離脱できる」ため計画中も表示を維持
   // する意図的な設計・実機FB#2) ので、MobileTourTrayBar の描画条件だけ別途絞る。
   const onTourTab = pathname === '/housing/tour';
+  // ツアーを組んでいる間 (トレイに 1 件以上) は「自分のハウジングを登録する +」を出さない
+  // (2026-10-22 masaya: ツアーをしようとしている時には要らない)。空いた分トレイの小バーを右端まで広げる。
+  const hasTray = useTourTrayStore((s) => s.trayIds.length > 0);
 
   // 物件データを 1 回だけロード (冪等・全ページ共有)。
   useEffect(() => {
@@ -115,13 +120,14 @@ export const HousingShell: React.FC = () => {
         {isMobile && !immersive && (
           <HousingBottomNav onOpenSettings={() => setSettingsOpen(true)} />
         )}
-        {isMobile && !immersive && <HousingRegisterFab />}
+        {isMobile && !immersive && !hasTray && <HousingRegisterFab />}
         {/* 実機FB#10: PCの右パネル(ツアートレイ)がスマホでは非表示のため、「ツアーに追加」の
             受け皿が無かった。トレイに積むと出る小バー (件数+開始+クリア) で開始まで完結させる。 */}
         {isMobile && !immersive && !onTourTab && <MobileTourTrayBar />}
         {isMobile && <HousingFilterSheet isOpen={filterOpen} onClose={() => setFilterOpen(false)} />}
         {isMobile && <HousingSettingsSheet isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />}
         <StatusBar />
+        <HousingDiagOverlay />
       </div>
       <HousingLoginModal />
       <HousingAccountModal />

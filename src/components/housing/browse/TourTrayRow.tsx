@@ -8,6 +8,7 @@ import { canDisplayAddress } from '../../../lib/housing/listingPublish';
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { representativeImage, hasRepresentativeImage } from '../../../lib/housing/representativeImage';
 import type { MockListing } from '../../../data/housing/mockListings';
+import { handleYoutubeThumbnailError, handleYoutubeThumbnailLoad } from '../../../lib/housing/youtubeImgFallback';
 
 export interface TourTrayRowProps {
   listing: MockListing;
@@ -57,7 +58,7 @@ export function TourTrayRow({
   const isEphemeral = isEphemeralListingId(listing.id);
   const showThumbImage = !isEphemeral && hasRepresentativeImage(listing);
   const thumb = showThumbImage ? (
-    <img className="housing-tour-tray-thumb" src={representativeImage(listing)} alt="" loading="lazy" />
+    <img className="housing-tour-tray-thumb" src={representativeImage(listing)} alt="" loading="lazy" onError={handleYoutubeThumbnailError} onLoad={handleYoutubeThumbnailLoad} />
   ) : (
     <span className="housing-tour-tray-thumb housing-tour-tray-thumb-placeholder" aria-hidden="true">
       <Route size={16} aria-hidden="true" />

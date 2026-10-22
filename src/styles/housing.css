@@ -7297,12 +7297,10 @@ select.housing-input option {
 /* NEWカードの縁だけを光が一周するビーム演出 (2026-08-16改)。
    表示(画面内に入る)のたびに1周だけ再生して止まる(無限ループにしない・ユーザー合意)。
    .housing-card-new-beam-glow (静的な「輪っか」のマスク、mask-composite:exclude で
-   content-box の内側を切り抜いて縁だけ残す) の中で、::before (画面より大きい正方形の
-   conic-gradient) だけが回転する。輪自体は回転せずカードの角丸の縁に固定されたまま動かない
-   ため、ツアー追加ボタン等の透ける部分から光が大きくにじみ出る問題が起きない
-   (旧実装=カード全体の背後に置いて周辺だけ透けさせる方式だった不具合の根治)。
-   ::before を 200vmax の正方形にしているのは、カードの縦横比のまま拡大すると
-   conic-gradient が歪む([[css-rules]] 既知の注意点)ため。 */
+   content-box の内側を切り抜いて縁だけ残す) に conic-gradient を敷き、その開始角だけを動かす
+   (2026-10-22 改: 回転する子要素は iPhone で mask を突き抜けたため廃止)。輪はカードの角丸の縁に
+   固定されたまま動かないため、ツアー追加ボタン等の透ける部分から光がにじみ出ない
+   (旧実装=カード全体の背後に置いて周辺だけ透けさせる方式だった不具合の根治)。 */
 .housing-listing-card.housing-card-new-beam {
   position: relative;
 }
@@ -7321,18 +7319,11 @@ select.housing-input option {
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask-composite: exclude;
-}
-.housing-card-new-beam-glow::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 200vmax;
-  height: 200vmax;
-  margin-top: -100vmax;
-  margin-left: -100vmax;
+  /* 2026-10-22: 以前は 200vmax の ::before を transform で回していたが、iPhone (WebKit) で
+     回転中の子が別レイヤーになり上の mask が効かず、光がカード画像全体に扇形で出ていた。
+     回転させる子をやめ、この要素自身の conic-gradient の開始角 (@property で補間できる角度) を動かす。 */
   background: conic-gradient(
-    from 0deg,
+    from var(--housing-beam-angle),
     transparent 0 72%,
     var(--housing-honey-glow) 84%,
     var(--housing-candle) 90%,
@@ -7341,15 +7332,19 @@ select.housing-input option {
   animation: housing-new-beam-spin 3s linear 1;
   /* animation ショートハンドは未指定のサブプロパティ (animation-delay 含む) を 0s に
      リセットするため、ずらし値は必ずショートハンドより後ろで指定する。
-     --beam-delay は span (::before の親) 側の inline style から渡される
-     (擬似要素には React の style を直接当てられないための橋渡し)。 */
+     --beam-delay はこの span の inline style から渡される。 */
   animation-delay: var(--beam-delay, 0ms);
 }
+@property --housing-beam-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
 @keyframes housing-new-beam-spin {
-  to { transform: rotate(1turn); }
+  to { --housing-beam-angle: 1turn; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .housing-card-new-beam-glow::before { animation: none; }
+  .housing-card-new-beam-glow { animation: none; }
 }
 .housing-pill {
   font-size: var(--housing-text-xs); color: var(--housing-text-mute);
@@ -8854,7 +8849,10 @@ select.housing-input option {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 0 0 auto;
+  /* 縮めるのはコメント欄だけ (.housing-tour-dest-intro が min-height:0)。カード自体も縮められないと
+     下の「次の目的地」「情報が違う・報告する」がパネル外へ押し出される。 */
+  flex: 0 1 auto;
+  min-height: 0;
 }
 .housing-tour-dest-title-row {
   display: flex;
@@ -8901,6 +8899,9 @@ select.housing-input option {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  /* 画面が低い/文字が大きい環境で中身がパネルに収まらないとき、コメント欄(内部スクロール)が先に縮む。
+     これが無いと下の「次の目的地」「情報が違う・報告する」がパネル外へ押し出されて切れていた (2026-10-22 実測)。 */
+  min-height: 0;
 }
 .housing-tour-dest-intro-label {
   font-size: var(--housing-text-xs);
@@ -10445,7 +10446,7 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-tour-traybar {
     position: fixed;
     left: 12px;
-    right: calc(var(--housing-fab-size) + var(--housing-fab-offset) + 12px);
+    right: 12px /* トレイがある間は + ボタンを出さないので右端まで */;
     bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--housing-fab-gap));
     z-index: var(--housing-z-mobile-chrome);
     display: flex;
@@ -10725,4 +10726,24 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-detail-thumbrail-wrap::after {
     display: none;
   }
+}
+
+/* iPhone の表示ずれ調査用の隠し表示 (HousingDiagOverlay・?diag=1 のときだけ)。原因確定後に撤去。 */
+.housing-diag-overlay {
+  position: fixed;
+  left: 8px;
+  bottom: 8px;
+  z-index: var(--housing-z-modal-base);
+  appearance: none;
+  margin: 0;
+  padding: 6px 8px;
+  text-align: left;
+  white-space: pre;
+  font-family: ui-monospace, monospace;
+  font-size: var(--housing-text-xs);
+  line-height: 1.4;
+  color: var(--housing-text);
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 8px;
 }
