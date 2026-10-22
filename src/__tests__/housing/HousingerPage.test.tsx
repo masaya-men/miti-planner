@@ -60,6 +60,7 @@ import { useHousingTourStore } from '../../store/useHousingTourStore';
 import { useHousingListOrderStore } from '../../store/useHousingListOrderStore';
 import { useTourTrayStore } from '../../store/useTourTrayStore';
 import { useHousingListingsStore } from '../../store/useHousingListingsStore';
+import { __resetHousingerListingsCacheForTest } from '../../lib/housing/housingerListingsCache';
 
 const publishedProfile: HousingerProfile = {
   displayName: 'たかし',
@@ -124,6 +125,8 @@ beforeEach(() => {
   mockGetHousingerProfile.mockReset();
   mockGetHousingerListings.mockReset();
   mockHiddenListings = [];
+  // 再訪キャッシュ (モジュール内 Map) がテスト間で漏れないようにする。
+  __resetHousingerListingsCacheForTest();
   mockUpsertHousingerProfile.mockReset();
   showToastMock.mockClear();
   navigateMock.mockClear();
@@ -206,6 +209,56 @@ describe('HousingerPage', () => {
     resolveListings([rawListing('l-1', 'uid-1')]);
     expect(await screen.findAllByTestId('housing-listing-card')).toHaveLength(1);
     expect(screen.queryByTestId('housing-grid-skeleton')).not.toBeInTheDocument();
+  });
+
+  it('同じ uid を2回目に表示するとダミー無しで前の一覧が即出て、取得後に新しい一覧へ差し替わる', async () => {
+    mockGetHousingerProfile.mockResolvedValue(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1')]);
+    const first = renderPage('uid-1');
+    expect(await screen.findAllByTestId('housing-listing-card')).toHaveLength(1);
+    first.unmount();
+
+    let resolveListings: (v: HousingListing[]) => void = () => {};
+    mockGetHousingerListings.mockReturnValueOnce(
+      new Promise<HousingListing[]>((resolve) => {
+        resolveListings = resolve;
+      }),
+    );
+    renderPage('uid-1');
+    // 取得が未完でも、前回の一覧が即表示され、一覧のダミーは出ない
+    expect(await screen.findAllByTestId('housing-listing-card')).toHaveLength(1);
+    expect(screen.queryByTestId('housing-grid-skeleton')).not.toBeInTheDocument();
+
+    resolveListings([rawListing('l-1', 'uid-1'), { ...rawListing('l-2', 'uid-1'), createdAt: 300 } as HousingListing]);
+    await waitFor(() => expect(screen.getAllByTestId('housing-listing-card')).toHaveLength(2));
+  });
+
+  it('再訪時の裏の取得が失敗しても、前回の一覧の表示を維持する', async () => {
+    mockGetHousingerProfile.mockResolvedValue(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1')]);
+    const first = renderPage('uid-1');
+    expect(await screen.findAllByTestId('housing-listing-card')).toHaveLength(1);
+    first.unmount();
+
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    mockGetHousingerListings.mockRejectedValueOnce(new Error('boom'));
+    renderPage('uid-1');
+    await waitFor(() => expect(warn).toHaveBeenCalled());
+    expect(screen.getAllByTestId('housing-listing-card')).toHaveLength(1);
+    warn.mockRestore();
+  });
+
+  it('別の uid には前の人の一覧を使わない (キャッシュは uid ごと)', async () => {
+    mockGetHousingerProfile.mockResolvedValue(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1')]);
+    const first = renderPage('uid-1');
+    expect(await screen.findAllByTestId('housing-listing-card')).toHaveLength(1);
+    first.unmount();
+
+    mockGetHousingerListings.mockReturnValueOnce(new Promise<HousingListing[]>(() => {}));
+    renderPage('uid-2');
+    expect(await screen.findByRole('heading', { name: 'たかし' })).toBeInTheDocument();
+    expect(screen.queryAllByTestId('housing-listing-card')).toHaveLength(0);
   });
 
   it('運営非表示の家: 帯つきの非リンクカードが出て件数に含まれ、ツアー対象には含まれない', async () => {

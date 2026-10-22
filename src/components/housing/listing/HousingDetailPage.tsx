@@ -17,6 +17,7 @@
  *   (探す/ツアーと同じ濃紺フラット面の 1 枚パネル) を挟む二層構造。
  */
 import { DetailSkeleton } from '../skeleton/HousingSkeletons';
+import { useSkeletonReveal } from '../../../lib/housing/useSkeletonReveal';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { HousingDetailContent } from './HousingDetailContent';
@@ -34,6 +35,9 @@ export const HousingDetailPage: React.FC = () => {
   const d = useHousingDetail(listingId, {
     onEdit: () => navigate(`/housing/listing/${listingId}/edit`),
   });
+
+  // ダミーが見えた後に本文へ替わったときだけ、本文をふわっと表示する (戻る帯は最初から出ている)。
+  const reveal = useSkeletonReveal(!d.listing && !d.notFound && !d.postRemoved);
 
   // 取得失敗 (削除済み/非公開/不存在) と SNS 投稿消滅は、どちらも「もう表示できない」
   // という点で同じ扱い (plan 準拠: error 状態は無く notFound に統合済み)。
@@ -104,7 +108,7 @@ export const HousingDetailPage: React.FC = () => {
             ← {t('housing.detail.back_aria')}
           </Link>
         </header>
-        <main className="housing-detail-fullpage-main">
+        <main className={`housing-detail-fullpage-main${reveal ? ' housing-reveal' : ''}`}>
           <HousingDetailContent
             listing={d.listing}
             viewerUid={d.viewerUid}

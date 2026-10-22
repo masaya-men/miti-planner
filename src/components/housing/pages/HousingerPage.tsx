@@ -43,6 +43,11 @@ import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGall
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { ListingGrid } from '../browse/ListingGrid';
+import { useSkeletonReveal } from '../../../lib/housing/useSkeletonReveal';
+import {
+  getCachedHousingerListings,
+  setCachedHousingerListings,
+} from '../../../lib/housing/housingerListingsCache';
 import { ListingGridSkeleton } from '../browse/ListingGridSkeleton';
 import { HousingerProfileSkeleton, TourAllButtonSkeleton } from '../skeleton/HousingSkeletons';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
@@ -97,6 +102,9 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
   // プロフィール取得中 / 家一覧取得中を分ける (プロフィールが先に届いたら先に出す)。
   const [profileLoading, setProfileLoading] = useState(true);
   const [listingsLoading, setListingsLoading] = useState(true);
+  // ダミーが見えた後に本物へ替わったときだけ「ふわっと表示」を付ける (プロフィール列・一覧列を別々に)。
+  const profileReveal = useSkeletonReveal(profileLoading);
+  const listingsReveal = useSkeletonReveal(listingsLoading);
   const [kebabOpen, setKebabOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   // マイページ: 名前/アイコンをその場編集する (鉛筆クリックで名前編集モードへ)。
@@ -128,10 +136,25 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
     let cancelled = false;
     // uid 切替時、 前の人の profile/一覧を保持したまま表示しない (別人のデータが一瞬出る事故防止)。
     setProfile(null);
-    setListings([]);
-    setHiddenListings([]);
     setProfileLoading(true);
-    setListingsLoading(true);
+    // 同じ人の再訪: 一覧は前回の内容を即表示 (ダミーを出さない) し、裏で最新を取り直して差し替える。
+    // 他人視点 = モジュール内メモリキャッシュ (uid ごと) / 自分視点 = 読み込み済みの myListings ストア。
+    // いずれも無ければ従来どおり空にしてダミー表示。別 uid の内容は決して使わない (キャッシュは uid ごと・
+    // 自分視点のストアは自分の uid のときだけ参照)。
+    const cached = isSelf ? undefined : getCachedHousingerListings(uid);
+    const selfReady = isSelf && useHousingListingsStore.getState().myStatus === 'ready';
+    const hasInstant = Boolean(cached) || selfReady;
+    if (cached) {
+      setListings(cached.listings);
+      setHiddenListings(cached.hiddenListings);
+    } else if (selfReady) {
+      setListings(sortListingsForGallery(useHousingListingsStore.getState().myListings));
+      setHiddenListings([]);
+    } else {
+      setListings([]);
+      setHiddenListings([]);
+    }
+    setListingsLoading(!hasInstant);
 
     // プロフィールと家一覧は別々に取得し、届いた方から先に表示する (プロフィールが先に出て、
     // 一覧部分だけダミー表示)。 どちらかが失敗しても無限ローディングにならないよう、
@@ -145,6 +168,17 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
       setListings([]);
       setHiddenListings([]);
       setProfileLoading(false);
+      setListingsLoading(false);
+    };
+    // 一覧だけの失敗: 即表示済み (キャッシュ/読み込み済みストア) なら表示を維持して警告のみ
+    // (「公開されていません」へ縮退させない)。即表示が無かったときは従来どおり縮退する。
+    const degradeListings = (err: unknown) => {
+      if (cancelled) return;
+      if (!hasInstant) {
+        degrade(err);
+        return;
+      }
+      console.warn('[HousingerPage] failed to refresh listings (keeping cached view)', err);
       setListingsLoading(false);
     };
 
@@ -172,17 +206,17 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
             .map(firestoreToGalleryListing)
             .filter((l): l is MockListing => l !== null)
             .map((l) => ({ ...l, imageMode: 'none' as const, adminHidden: true }));
-          setHiddenListings(hiddenCards);
-          setListings(
-            sortListingsForGallery(
-              listingResult.listings.map(firestoreToGalleryListing).filter((l): l is MockListing => l !== null),
-            ),
+          const nextListings = sortListingsForGallery(
+            listingResult.listings.map(firestoreToGalleryListing).filter((l): l is MockListing => l !== null),
           );
+          setCachedHousingerListings(uid, { listings: nextListings, hiddenListings: hiddenCards });
+          setHiddenListings(hiddenCards);
+          setListings(nextListings);
           setListingsLoading(false);
         });
 
     profilePromise.catch(degrade);
-    listingsPromise.catch(degrade);
+    listingsPromise.catch(degradeListings);
     return () => {
       cancelled = true;
     };
@@ -315,6 +349,14 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
             : l,
         ),
       );
+      // 公開状態切替の直後に再訪しても古い一覧が即表示されないよう、myListings ストアにも反映する。
+      useHousingListingsStore.setState((s) => ({
+        myListings: s.myListings.map((l) =>
+          l.id === listingId
+            ? { ...l, visibility: next, publishUntil: next === 'public' ? l.publishUntil : null }
+            : l,
+        ),
+      }));
       setVisibilityTarget(null);
     } else {
       showToast(t('housing.mypage.visibilityConfirm.error'), 'error');
@@ -419,7 +461,7 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
               <div className="housinger-page-listings-col">
                 <div className="housing-listing-grid-wrap">
                   <div className="housing-listing-grid-toolbar housing-skel-toolbar-reserve" aria-hidden="true" />
-                  <ListingGridSkeleton withFooter={false} />
+                  <ListingGridSkeleton withFooter={false} rows={1} />
                 </div>
               </div>
             </div>
@@ -488,7 +530,7 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
               左列 = プロフィール一式 (スクロールに追従して画面内に留まる)、
               右列 = 一覧グリッド (この列だけがスクロールする)。 */}
           <div className="housinger-page-body">
-            <div className="housinger-page-profile-col">
+            <div className={`housinger-page-profile-col${profileReveal ? ' housing-reveal' : ''}`}>
               <div className="housinger-page-identity">
                 {isSelf ? (
                   <div className="housinger-page-avatar-wrap">
@@ -616,11 +658,11 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
               )}
             </div>
 
-            <div className="housinger-page-listings-col">
+            <div className={`housinger-page-listings-col${listingsReveal ? ' housing-reveal' : ''}`}>
               {listingsLoading ? (
                 <div className="housing-listing-grid-wrap">
                   <div className="housing-listing-grid-toolbar housing-skel-toolbar-reserve" aria-hidden="true" />
-                  <ListingGridSkeleton withFooter={false} />
+                  <ListingGridSkeleton withFooter={false} rows={1} />
                 </div>
               ) : sorted.length === 0 ? (
                 <p className="housinger-page-empty">{t('housing.housinger.noListings')}</p>

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { ListingGridSkeleton } from '../browse/ListingGridSkeleton';
+import { useSkeletonReveal } from '../../../lib/housing/useSkeletonReveal';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '../../../hooks/useIsMobile';
@@ -41,6 +42,7 @@ export const FavoritesPage: React.FC = () => {
   const publicListings = useHousingListingsStore((s) => s.listings);
   const myListings = useHousingListingsStore((s) => s.myListings);
   const status = useHousingListingsStore((s) => s.status);
+  const reveal = useSkeletonReveal(status === 'loading' || status === 'idle');
   const uid = useAuthStore((s) => s.user?.uid ?? null);
   const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
 
@@ -200,7 +202,7 @@ export const FavoritesPage: React.FC = () => {
             </div>
           ) : (
             /* 正常表示: 見出し → タブ → 一括バー → グリッド */
-            <div className="housing-listing-grid-wrap" data-testid="housing-favorites-content">
+            <div className={`housing-listing-grid-wrap${reveal ? ' housing-reveal' : ''}`} data-testid="housing-favorites-content">
               <div className="housing-listing-grid-toolbar">
                 <h2 className="housing-listing-grid-heading">
                   {t('housing.favorites.title')}

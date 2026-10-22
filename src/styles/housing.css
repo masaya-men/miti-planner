@@ -1512,6 +1512,19 @@
   border: 0;
 }
 .housing-skel-fill { display: contents; }
+/* ダミー → 本物の入れ替え (useSkeletonReveal)。opacity のみ (transform は子の固定配置・位置計算を壊すため使わない) */
+/* backwards: 終了後にアニメ効果(重なり順の枠)を残さない */
+.housing-reveal { animation: housing-reveal 200ms ease-out backwards; }
+@keyframes housing-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* 探す中央カラム: 子が複数 (表示切替+本体) なので、個人タグリンク (ダミー対象外) 以外の直下の子に付ける */
+.housing-reveal-kids > :not(.housing-personal-tag-filter-link) { animation: housing-reveal 200ms ease-out backwards; }
+@media (prefers-reduced-motion: reduce) {
+  .housing-reveal { animation: none; }
+  .housing-reveal-kids > :not(.housing-personal-tag-filter-link) { animation: none; }
+}
 .housing-skel { background: var(--housing-skeleton-block); }
 [data-shimmer="true"] .housing-skel {
   animation: housing-skeleton-pulse 1.4s ease-in-out infinite;

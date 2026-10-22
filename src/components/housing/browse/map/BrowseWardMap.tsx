@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { MapSkeleton } from '../../skeleton/HousingSkeletons';
+import { useSkeletonReveal } from '../../../../lib/housing/useSkeletonReveal';
 import { useTranslation } from 'react-i18next';
 import type { BrowseMapSpot } from '../../../../lib/housing/browseMapSpots';
 import { useWardMapAsset } from '../../../../lib/housing/useWardMapAsset';
@@ -46,6 +47,8 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
   const { t } = useTranslation();
   const setBrowseView = useHousingViewStore((s) => s.setBrowseView);
   const assetState = useWardMapAsset(mapKey);
+  // ダミーが見えた後に地図が出来たときだけ、地図の外枠をふわっと表示する。
+  const mapReveal = useSkeletonReveal(assetState.status === 'loading');
 
   const wrapRef = useRef<HTMLDivElement>(null);
   const [wrapSize, setWrapSize] = useState({ w: 0, h: 0 });
@@ -258,7 +261,7 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
 
   return (
     <div
-      className="housing-bmap-wrap"
+      className={`housing-bmap-wrap${mapReveal ? ' housing-reveal' : ''}`}
       data-testid="bmap-wrap"
       ref={wrapRef}
       onClick={onBlankClick}

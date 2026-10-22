@@ -20,6 +20,7 @@ import { FilterPanel } from '../workspace/FilterPanel';
 import { EmptyResult } from '../workspace/EmptyResult';
 import { PersonalTagFilterLink } from '../workspace/PersonalTagFilterLink';
 import { ListingGridSkeleton } from '../browse/ListingGridSkeleton';
+import { useSkeletonReveal } from '../../../lib/housing/useSkeletonReveal';
 import { MapSkeleton, LinesSkeleton } from '../skeleton/HousingSkeletons';
 import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
@@ -45,6 +46,8 @@ export const BrowsePage: React.FC = () => {
   const navigate = useNavigate();
 
   const status = useHousingListingsStore((s) => s.status);
+  // ダミーが見えた後に本物へ替わったときだけ、中央カラムの子 (個人タグリンク以外) をふわっと表示する。
+  const reveal = useSkeletonReveal(status === 'loading' || status === 'idle');
   const listings = useHousingListingsStore((s) => s.listings);
   const myListings = useHousingListingsStore((s) => s.myListings);
   const uid = useAuthStore((s) => s.user?.uid ?? null);
@@ -198,7 +201,7 @@ export const BrowsePage: React.FC = () => {
       </section>
 
       <section className="housing-browse-panel" data-region="center">
-        <div className="housing-browse-col housing-browse-col-center">
+        <div className={`housing-browse-col housing-browse-col-center${reveal ? ' housing-reveal-kids' : ''}`}>
           <PersonalTagFilterLink tagIds={personalTagIds} />
           {status === 'loading' || status === 'idle' ? (
             /* 読み込み中: 表示切替はすぐ出し、その下に選択中の表示に合わせたダミー (200ms 以内に終われば出さない) */

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { LinesSkeleton } from '../../skeleton/HousingSkeletons';
+import { useSkeletonReveal } from '../../../../lib/housing/useSkeletonReveal';
 import { useTranslation } from 'react-i18next';
 import { listPublishedHousingers, type PublishedHousinger } from '../../../../lib/housing/publishedHousingers';
 import { personalTagIdForUid } from '../../../../lib/housing/housingerProfile';
@@ -22,6 +23,8 @@ export const HousingerTagSection: React.FC<HousingerTagSectionProps> = ({ select
   const [open, setOpen] = useState(true);
   const [status, setStatus] = useState<LoadStatus>('loading');
   const [housingers, setHousingers] = useState<PublishedHousinger[]>([]);
+  // ダミーが見えた後に本物へ替わったときだけ、本体をふわっと表示する。
+  const reveal = useSkeletonReveal(status === 'loading');
 
   useEffect(() => {
     let cancelled = false;
@@ -52,7 +55,7 @@ export const HousingerTagSection: React.FC<HousingerTagSectionProps> = ({ select
         <span className="housing-tagpicker-section-title">{title}</span>
       </button>
       {open && (
-        <div className="housing-tagpicker-section-body">
+        <div className={`housing-tagpicker-section-body${reveal ? ' housing-reveal' : ''}`}>
           {status === 'loading' && (
             <LinesSkeleton count={3} labelKey="housing.tagpicker.housinger_loading" />
           )}
