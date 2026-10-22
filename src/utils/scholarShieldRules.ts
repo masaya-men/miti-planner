@@ -5,7 +5,7 @@ import type { Mitigation, AppliedMitigation } from '../types';
  * 公式ジョブガイド確認済み(2026-08-08): セラフィズムは鼓舞激励の策をマニフェステーションに、
  * 意気軒高の策をアクセッションに変える。
  */
-const SERAPHISM_TRANSFORMS: Record<string, string> = {
+export const SERAPHISM_TRANSFORMS: Record<string, string> = {
     adloquium: 'manifestation',
     concitation: 'accession',
 };
