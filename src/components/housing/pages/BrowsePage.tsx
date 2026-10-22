@@ -5,7 +5,7 @@ import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
-import { useHousingViewStore } from '../../../store/useHousingViewStore';
+import { useHousingViewStore, type HousingBrowseView } from '../../../store/useHousingViewStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { applyFilters } from '../../../lib/housing/applyFilters';
@@ -26,6 +26,10 @@ import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { BrowseViewToggle } from '../browse/BrowseViewToggle';
 import { BrowseMapView } from '../browse/map/BrowseMapView';
+import { MapDcMenu } from '../browse/map/MapDcMenu';
+import { buildMapIndex, bestInDc } from '../../../lib/housing/browseMapIndex';
+import { displayDcName } from '../../../lib/housing/housingTerms';
+import { pickRegionLocale } from '../../../data/housing/regionMap';
 import { BrowseTagView } from '../browse/BrowseTagView';
 import { BrowseHousingerView } from '../browse/BrowseHousingerView';
 import { TourTray } from '../browse/TourTray';
@@ -43,7 +47,7 @@ import { shuffleWithNewPinned } from '../../../lib/housing/seededShuffle';
  * 実データは useHousingListingsStore (Firestore)。フィルターは applyFilters (既存)。
  */
 export const BrowsePage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const status = useHousingListingsStore((s) => s.status);
@@ -89,6 +93,43 @@ export const BrowsePage: React.FC = () => {
   );
   // keyword は applyFilters(純関数)の後段で適用する (表示名解決に i18n が要るため別レイヤー)。
   const filtered = useKeywordFilteredListings(filteredBase, keyword);
+
+  // マップ表示用: 左の絞り込みから DC / ワールドだけを外した一覧と、その件数索引。
+  // (案内板でワールドを替えても他ワールドの件数が消えないように。DC・ワールドの絞り込みは
+  //  BrowseMapView が store の dc / servers で行う。マップ表示でない時は計算しない。)
+  const [dcMenuOpen, setDcMenuOpen] = useState(false);
+  const mapPoolBase = useMemo(
+    () => (effectiveView === 'map'
+      ? applyFilters(merged, { dc: null, regions, servers: [], areas, sizes, tags })
+      : []),
+    [effectiveView, merged, regions, areas, sizes, tags],
+  );
+  const mapPool = useKeywordFilteredListings(mapPoolBase, keyword);
+  const mapIndex = useMemo(() => buildMapIndex(mapPool), [mapPool]);
+  const regionLocale = pickRegionLocale(i18n.language);
+
+  // 「マップ」を押した時: 他の表示からならマップを開き (DC 未選択ならメニューも開く)、
+  // すでにマップ表示中なら DC メニューを開閉する。
+  const handleViewChange = (v: HousingBrowseView) => {
+    if (v === 'map') {
+      if (effectiveView === 'map') setDcMenuOpen((o) => !o);
+      else {
+        setBrowseView('map');
+        setDcMenuOpen(!dc);
+      }
+      return;
+    }
+    setDcMenuOpen(false);
+    setBrowseView(v);
+  };
+  // DC を選ぶ: 左の絞り込みの DC と、その DC で最多のワールドへ連動させる。
+  const handlePickDc = (picked: string) => {
+    const best = bestInDc(mapIndex, picked);
+    const f = useHousingFilterStore.getState();
+    f.setDC(picked);
+    if (best) f.setServerExclusive(best.server);
+    setDcMenuOpen(false);
+  };
 
   // 個人タグ 1 つで絞り込み中のとき、 結果一覧の上に「◯◯のハウジンガーページを見る →」リンクを出す
   // (spec 2026-07-10-housinger-profile-design.md §3.3 統合契約4)。
@@ -173,7 +214,14 @@ export const BrowsePage: React.FC = () => {
   // ListingGrid のツールバー行に差し込み、マップ/タグ/結果0件のときは単独の行として使う。
   const viewToggleNode = (
     <>
-      <BrowseViewToggle value={effectiveView} onChange={setBrowseView} />
+      <BrowseViewToggle
+        value={effectiveView}
+        onChange={handleViewChange}
+        mapDcLabel={dc ? displayDcName(dc, regionLocale) : null}
+        mapMenuOpen={dcMenuOpen && effectiveView === 'map'}
+        onMapMenuClose={() => setDcMenuOpen(false)}
+        mapMenu={<MapDcMenu index={mapIndex} regions={regions} currentDc={dc} onPick={handlePickDc} />}
+      />
       {hasActiveFilter && (
         <button
           type="button"
@@ -248,7 +296,12 @@ export const BrowsePage: React.FC = () => {
               ) : effectiveView === 'housinger' ? (
                 <BrowseHousingerView filtered={filtered} />
               ) : effectiveView === 'map' ? (
-                <BrowseMapView filtered={filtered} onAddToTour={addToTray} />
+                <BrowseMapView
+                  listings={mapPool}
+                  index={mapIndex}
+                  onAddToTour={addToTray}
+                  onOpenDcMenu={() => setDcMenuOpen(true)}
+                />
               ) : filtered.length === 0 ? (
                 <EmptyResult />
               ) : (

@@ -87,8 +87,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     // 地域を外して選択中の DC がその地域外になったら DC を自動クリア。
     // (画面から消えた DC が applyFilters で裏に残り続ける残留フィルタバグの防止。
     //  setDC(null) は store 側で servers:[] も連鎖クリアする。)
-    // 地図モードは WorldSelectGate が DC/ワールドを管理し、地域跨ぎの世界選択もありうる
-    // ため、ここでの自動クリアは list モード限定にしてゲートの再出現ループを防ぐ。
+    // 地図モードは DC メニュー/案内板が DC/ワールドを管理し、地域跨ぎの選択もありうる
+    // ため、ここでの自動クリアは list モード限定にして選択が勝手に消えるのを防ぐ。
     useEffect(() => {
         if (browseView === 'map') return;
         if (dc && !dcOptions.includes(dc)) setDC(null);

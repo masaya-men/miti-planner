@@ -2007,12 +2007,13 @@
             "shuffle_button": "随机排序"
         },
         "map": {
-            "gate": {
-                "title_dc": "选择哪个数据中心？",
-                "title_world": "请选择世界。",
-                "description": "地图按世界显示",
-                "dc_label": "数据中心",
-                "world_label": "世界"
+            "nav": {
+                "world": "世界",
+                "ward_heading": "区（仅有房屋的区）",
+                "count": "{{count}}件",
+                "pick_dc": "选择数据中心后显示地图",
+                "pick_dc_button": "选择数据中心",
+                "dc_menu_aria": "数据中心列表"
             },
             "hint": "滚轮缩放 · 拖动移动",
             "empty_world": "这个世界还没有登记的房屋",

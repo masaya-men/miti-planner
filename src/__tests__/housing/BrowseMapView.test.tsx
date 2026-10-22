@@ -1,11 +1,12 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { MemoryRouter } from 'react-router-dom';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
 import { BrowseMapView } from '../../components/housing/browse/map/BrowseMapView';
+import { buildMapIndex } from '../../lib/housing/browseMapIndex';
 import { useHousingFilterStore } from '../../store/useHousingFilterStore';
 import { useHousingViewStore } from '../../store/useHousingViewStore';
 import { useWardMapAsset, type WardMapAssetState } from '../../lib/housing/useWardMapAsset';
@@ -60,94 +61,122 @@ beforeEach(() => {
   useHousingViewStore.getState().reset();
 });
 
-const renderView = (filtered: MockListing[] = [], onAddToTour: (id: string) => void = () => {}) =>
+const renderView = (
+  listings: MockListing[] = [],
+  onAddToTour: (id: string) => void = () => {},
+  onOpenDcMenu: () => void = () => {},
+) =>
   render(
     <I18nextProvider i18n={i18n}>
-      <BrowseMapView filtered={filtered} onAddToTour={onAddToTour} />
+      <MemoryRouter>
+        <BrowseMapView
+          listings={listings}
+          index={buildMapIndex(listings)}
+          onAddToTour={onAddToTour}
+          onOpenDcMenu={onOpenDcMenu}
+        />
+      </MemoryRouter>
     </I18nextProvider>,
   );
 
+const pressed = (testId: string) => screen.getByTestId(testId).getAttribute('aria-pressed');
+
+// Mana: Anima は Mist 3区(本街 plot5)×3 が最多、Asura は 2 件。Anima の Goblet 7区は拡張街(plot 35)が 2 件。
+const manaPool = (): MockListing[] => [
+  mkListing({ server: 'Anima', area: 'Mist', ward: 3, plot: 5 }),
+  mkListing({ server: 'Anima', area: 'Mist', ward: 3, plot: 6 }),
+  mkListing({ server: 'Anima', area: 'Mist', ward: 3, plot: 7 }),
+  mkListing({ server: 'Anima', area: 'Mist', ward: 8, plot: 1 }),
+  mkListing({ server: 'Anima', area: 'Goblet', ward: 7, plot: 35 }),
+  mkListing({ server: 'Anima', area: 'Goblet', ward: 7, plot: 36 }),
+  mkListing({ server: 'Asura', area: 'Shirogane', ward: 2, plot: 4 }),
+  mkListing({ server: 'Asura', area: 'Shirogane', ward: 2, plot: 5 }),
+];
+
 describe('BrowseMapView', () => {
-  describe('WorldSelectGate (servers.length !== 1)', () => {
-    it('servers が 0件ならゲートを表示する', () => {
-      renderView();
-      expect(screen.getByTestId('housing-world-gate')).toBeTruthy();
-    });
-
-    it('servers が 2件以上ならゲートを表示する', () => {
-      useHousingFilterStore.setState({ servers: ['Anima', 'Asura'] });
-      renderView();
-      expect(screen.getByTestId('housing-world-gate')).toBeTruthy();
-    });
-
-    it('servers が 1件ならゲートを表示しない (地図側へ)', () => {
-      useHousingFilterStore.setState({ servers: ['Anima'] });
-      renderView([mkListing({ area: 'Mist', ward: 3 })]);
-      expect(screen.queryByTestId('housing-world-gate')).toBeNull();
-    });
-
-    it('DC→ワールドの順に選択すると setDC + setServerExclusive が呼ばれる', () => {
-      renderView();
-      fireEvent.click(screen.getByRole('button', { name: 'Mana' }));
-      fireEvent.click(screen.getByRole('button', { name: 'Anima' }));
-      expect(useHousingFilterStore.getState().dc).toBe('Mana');
-      expect(useHousingFilterStore.getState().servers).toEqual(['Anima']);
-    });
-
-    it('dc が選択済みならそのDCのワールド一覧から開始する (DC再選択不要)', () => {
-      useHousingFilterStore.setState({ dc: 'Mana' });
-      renderView();
-      expect(screen.getByRole('button', { name: 'Anima' })).toBeTruthy();
-    });
-
-    it('ゲート表示中に外部 (FilterPanel) が dc を変えるとワールド一覧が追従し、選択時に巻き戻らない', () => {
-      useHousingFilterStore.setState({ dc: 'Mana' });
-      renderView();
-      // ゲートは Mana のワールド一覧から開始する
-      expect(screen.getByRole('button', { name: 'Anima' })).toBeTruthy();
-
-      // 地図モード中も常時描画される左カラム FilterPanel が同じ setDC を呼ぶケースを模す
-      act(() => {
-        useHousingFilterStore.setState({ dc: 'Gaia' });
-      });
-
-      // pendingDC がストアの dc 変化に追従し、ワールド一覧が Gaia のものに切り替わる
-      expect(screen.queryByRole('button', { name: 'Anima' })).toBeNull();
-      expect(screen.getByRole('button', { name: 'Alexander' })).toBeTruthy();
-
-      // Gaia のワールドを選択しても dc が Mana に無言で巻き戻らない
-      fireEvent.click(screen.getByRole('button', { name: 'Alexander' }));
-      expect(useHousingFilterStore.getState().dc).toBe('Gaia');
-      expect(useHousingFilterStore.getState().servers).toEqual(['Alexander']);
-    });
-
-    it('ワールド選択後はゲートが自動的に外れる', () => {
-      const { rerender } = renderView();
-      fireEvent.click(screen.getByRole('button', { name: 'Mana' }));
-      fireEvent.click(screen.getByRole('button', { name: 'Anima' }));
-      rerender(
-        <I18nextProvider i18n={i18n}>
-          <BrowseMapView filtered={[mkListing({ area: 'Mist', ward: 3 })]} onAddToTour={() => {}} />
-        </I18nextProvider>,
-      );
-      expect(screen.queryByTestId('housing-world-gate')).toBeNull();
+  describe('DC 未選択', () => {
+    it('DC が未選択なら「DC を選ぶ」案内を出し、ボタンで DC メニューを開く依頼が飛ぶ', () => {
+      const onOpen = vi.fn();
+      renderView(manaPool(), () => {}, onOpen);
+      expect(screen.queryByTestId('housing-map-rail')).toBeNull();
+      fireEvent.click(screen.getByRole('button', { name: 'データセンターを選ぶ' }));
+      expect(onOpen).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('空状態 (servers.length===1 だが findInitialWardTarget が null)', () => {
-    it('このワールドに登録がない場合、空状態 + 一覧に戻るボタンを表示する', () => {
-      useHousingFilterStore.setState({ servers: ['Anima'] });
-      renderView([]);
-      expect(screen.getByText('このワールドにはまだ登録がありません')).toBeTruthy();
-      const backBtn = screen.getByRole('button', { name: '一覧に戻る' });
-      fireEvent.click(backBtn);
-      expect(useHousingViewStore.getState().browseView).toBe('list');
+  describe('DC を選んだ時の自動選択と store 連動', () => {
+    it('dc だけ選ばれていれば、その DC で最多のワールド・エリア・区・種別が選ばれ store の servers に反映される', () => {
+      useHousingFilterStore.setState({ dc: 'Mana' });
+      renderView(manaPool());
+      expect(useHousingFilterStore.getState().servers).toEqual(['Anima']);
+      expect(pressed('housing-maprail-world-Anima')).toBe('true');
+      expect(pressed('housing-maprail-area-Mist')).toBe('true');
+      expect(pressed('housing-maprail-ward-3')).toBe('true');
+      expect(pressed('housing-maprail-kind-main')).toBe('true');
+      expect(screen.getByTestId('housing-map-here').textContent).toContain('Anima');
     });
 
-    it('登録がある場合は空状態を表示しない', () => {
-      useHousingFilterStore.setState({ servers: ['Anima'] });
-      renderView([mkListing({ area: 'Mist', ward: 3 })]);
-      expect(screen.queryByText('このワールドにはまだ登録がありません')).toBeNull();
+    it('左の絞り込みで既に 1 ワールドが選ばれていれば、それが初期値になる (store は書き換えない)', () => {
+      useHousingFilterStore.setState({ dc: 'Mana', servers: ['Asura'] });
+      renderView(manaPool());
+      expect(pressed('housing-maprail-world-Asura')).toBe('true');
+      expect(pressed('housing-maprail-area-Shirogane')).toBe('true');
+      expect(pressed('housing-maprail-ward-2')).toBe('true');
+      expect(useHousingFilterStore.getState().servers).toEqual(['Asura']);
+    });
+
+    it('その DC に家が 1 件も無ければ空状態を出す', () => {
+      useHousingFilterStore.setState({ dc: 'Gaia' });
+      renderView(manaPool());
+      expect(screen.getByText('このワールドにはまだ登録がありません')).toBeTruthy();
+    });
+  });
+
+  describe('案内板の切替で下位が最多へ自動選択される', () => {
+    beforeEach(() => {
+      useHousingFilterStore.setState({ dc: 'Mana' });
+    });
+
+    it('ワールドを替えると store の servers が替わり、エリア・区・種別がそのワールドの最多になる', () => {
+      renderView(manaPool());
+      fireEvent.click(screen.getByTestId('housing-maprail-world-Asura'));
+      expect(useHousingFilterStore.getState().servers).toEqual(['Asura']);
+      expect(pressed('housing-maprail-world-Asura')).toBe('true');
+      expect(pressed('housing-maprail-area-Shirogane')).toBe('true');
+      expect(pressed('housing-maprail-ward-2')).toBe('true');
+    });
+
+    it('エリアを替えると、そのエリアで最多の区と種別が選ばれる (拡張街側が多ければ拡張街)', () => {
+      renderView(manaPool());
+      fireEvent.click(screen.getByTestId('housing-maprail-area-Goblet'));
+      expect(pressed('housing-maprail-ward-7')).toBe('true');
+      expect(pressed('housing-maprail-kind-sub')).toBe('true');
+      expect(screen.getByTestId('housing-browse-map-view').getAttribute('data-map-kind')).toBe('sub');
+    });
+
+    it('家の無いエリアは押せない', () => {
+      renderView(manaPool());
+      const empty = screen.getByTestId('housing-maprail-area-Empyreum') as HTMLButtonElement;
+      expect(empty.disabled).toBe(true);
+    });
+
+    it('区タイルは家のある区だけ並び、区を替えると件数の多い側の種別が選ばれる', () => {
+      renderView(manaPool());
+      expect(screen.queryByTestId('housing-maprail-ward-4')).toBeNull();
+      expect(screen.getByTestId('housing-maprail-ward-8')).toBeTruthy();
+      fireEvent.click(screen.getByTestId('housing-maprail-ward-8'));
+      expect(pressed('housing-maprail-ward-8')).toBe('true');
+      expect(pressed('housing-maprail-kind-main')).toBe('true');
+    });
+
+    it('本街/拡張街の件数を出し、0 件側は押せない', () => {
+      renderView(manaPool());
+      const main = screen.getByTestId('housing-maprail-kind-main') as HTMLButtonElement;
+      const sub = screen.getByTestId('housing-maprail-kind-sub') as HTMLButtonElement;
+      expect(main.textContent).toContain('3');
+      expect(sub.textContent).toContain('0');
+      expect(sub.disabled).toBe(true);
+      expect(main.disabled).toBe(false);
     });
   });
 
@@ -198,7 +227,7 @@ describe('BrowseMapView', () => {
         svg: '<svg data-mock="1"></svg>',
       } as WardMapAssetState);
       rectSpy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue(WRAP_RECT);
-      useHousingFilterStore.setState({ servers: ['Anima'] });
+      useHousingFilterStore.setState({ dc: 'Mana', servers: ['Anima'] });
     });
 
     afterEach(() => {
@@ -210,13 +239,7 @@ describe('BrowseMapView', () => {
         mkListing({ area: 'Mist', ward: 3, plot: 5, buildingType: 'house' }),
         mkListing({ area: 'Mist', ward: 3, plot: 5, buildingType: 'house' }),
       ];
-      return render(
-        <I18nextProvider i18n={i18n}>
-          <MemoryRouter>
-            <BrowseMapView filtered={listings} onAddToTour={() => {}} />
-          </MemoryRouter>
-        </I18nextProvider>,
-      );
+      return renderView(listings);
     };
 
     it('複数スポットの「N件を見る」でパネルが開き、戻るで閉じる', () => {

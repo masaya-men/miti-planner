@@ -2063,12 +2063,13 @@
             "shuffle_button": "シャッフル"
         },
         "map": {
-            "gate": {
-                "title_dc": "どこのデータセンターにしますか？",
-                "title_world": "ワールドを選んでください。",
-                "description": "地図はワールドごとに表示します",
-                "dc_label": "データセンター",
-                "world_label": "ワールド"
+            "nav": {
+                "world": "ワールド",
+                "ward_heading": "区（家のある区だけ）",
+                "count": "{{count}} 件",
+                "pick_dc": "データセンターを選ぶと地図が出ます",
+                "pick_dc_button": "データセンターを選ぶ",
+                "dc_menu_aria": "データセンター一覧"
             },
             "hint": "ホイールでズーム・ドラッグで移動",
             "empty_world": "このワールドにはまだ登録がありません",

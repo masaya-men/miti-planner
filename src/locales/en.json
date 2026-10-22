@@ -2042,12 +2042,13 @@
             "shuffle_button": "Shuffle"
         },
         "map": {
-            "gate": {
-                "title_dc": "Which data center?",
-                "title_world": "Choose your World.",
-                "description": "The map is shown per World",
-                "dc_label": "Data Center",
-                "world_label": "World"
+            "nav": {
+                "world": "World",
+                "ward_heading": "Wards (with homes only)",
+                "count": "{{count}}",
+                "pick_dc": "Pick a data center to show its map",
+                "pick_dc_button": "Pick a data center",
+                "dc_menu_aria": "Data centers"
             },
             "hint": "Scroll to zoom · Drag to move",
             "empty_world": "No listings on this World yet",

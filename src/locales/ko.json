@@ -2007,12 +2007,13 @@
             "shuffle_button": "셔플"
         },
         "map": {
-            "gate": {
-                "title_dc": "어느 데이터 센터로 하시겠어요?",
-                "title_world": "월드를 선택하세요.",
-                "description": "지도는 월드별로 표시됩니다",
-                "dc_label": "데이터 센터",
-                "world_label": "월드"
+            "nav": {
+                "world": "월드",
+                "ward_heading": "구역(집이 있는 구역만)",
+                "count": "{{count}}건",
+                "pick_dc": "데이터 센터를 선택하면 지도가 표시됩니다",
+                "pick_dc_button": "데이터 센터 선택",
+                "dc_menu_aria": "데이터 센터 목록"
             },
             "hint": "휠로 확대·축소 · 드래그로 이동",
             "empty_world": "이 월드에는 아직 등록된 매물이 없습니다",
