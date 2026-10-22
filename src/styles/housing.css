@@ -6512,7 +6512,8 @@ select.housing-input option {
 .housing-maprail[data-at-top="true"] .housing-maprail-scroll { --fade-top: 0px; }
 .housing-dcmenu[data-at-bottom="true"] .housing-dcmenu-scroll,
 .housing-maprail[data-at-bottom="true"] .housing-maprail-scroll { --fade-bottom: 0px; }
-.housing-dcmenu-scroll { max-height: min(calc(460px * var(--housing-scale)), calc(100dvh - calc(220px * var(--housing-scale)))); padding-right: calc(4px * var(--housing-scale)); }
+/* 高さの上限は画面の高さだけ (中央パネルに余裕があれば全 DC をスクロールなしで見せる・2026-10-22 masaya 指摘)。 */
+.housing-dcmenu-scroll { max-height: calc(100dvh - calc(200px * var(--housing-scale))); padding-right: calc(4px * var(--housing-scale)); }
 .housing-dcmenu-heading {
   margin: calc(8px * var(--housing-scale)) calc(8px * var(--housing-scale)) calc(4px * var(--housing-scale));
   font-size: var(--housing-text-xs);
@@ -10213,6 +10214,11 @@ html[data-theme-anim="light"]::view-transition-new(root) {
 /* ----- フィルターシート ----- */
 .housing-mobile-filter-search {
   margin-bottom: calc(12px * var(--housing-scale));
+}
+/* タグ欄はフィルター本文 (.housing-panel-body・左右 16px) の外に置かれているので、同じ左右余白で上の欄と端をそろえる。 */
+.housing-mobile-sheet .housing-tagpicker-inline {
+  padding-left: calc(16px * var(--housing-scale));
+  padding-right: calc(16px * var(--housing-scale));
 }
 
 /* ----- 設定シート (旧 StatusBar の移植先) ----- */
