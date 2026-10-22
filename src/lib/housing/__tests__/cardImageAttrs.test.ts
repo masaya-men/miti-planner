@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { cardImageAttrs, smallHousingImageUrl, CARD_IMAGE_SIZES } from '../cardImageAttrs';
+import { cardImageAttrs, smallHousingImageUrl, thumbHousingImageUrl, CARD_IMAGE_SIZES } from '../cardImageAttrs';
 
 const HM = 'https://lopoly.app/housing-media/L1/u.webp';
 const TW = 'https://pbs.twimg.com/media/ABC.jpg';
@@ -47,5 +47,22 @@ describe('smallHousingImageUrl', () => {
     expect(smallHousingImageUrl(HM)).toBe('https://lopoly.app/housing-media/L1/u-480.webp');
     expect(smallHousingImageUrl(TW)).toBe('https://pbs.twimg.com/media/ABC.jpg?name=small');
     expect(smallHousingImageUrl(YT)).toBe(YT);
+  });
+});
+
+describe('thumbHousingImageUrl (一覧の行の極小サムネ)', () => {
+  it('X の画像は最小の thumb 版', () => {
+    expect(thumbHousingImageUrl('https://pbs.twimg.com/media/ABC.jpg')).toBe('https://pbs.twimg.com/media/ABC.jpg?name=thumb');
+  });
+  it('YouTube のサムネは mqdefault に下げる', () => {
+    expect(thumbHousingImageUrl('https://i.ytimg.com/vi/xyz/maxresdefault.jpg')).toBe('https://i.ytimg.com/vi/xyz/mqdefault.jpg');
+    expect(thumbHousingImageUrl('https://i.ytimg.com/vi/xyz/hqdefault.jpg')).toBe('https://i.ytimg.com/vi/xyz/mqdefault.jpg');
+  });
+  it('housing-media は 480w 派生 (smallHousingImageUrl と同じ)', () => {
+    const u = 'https://lopoly.app/housing-media/abc.webp';
+    expect(thumbHousingImageUrl(u)).toBe(smallHousingImageUrl(u));
+  });
+  it('それ以外は素通し', () => {
+    expect(thumbHousingImageUrl('https://example.com/a.png')).toBe('https://example.com/a.png');
   });
 });

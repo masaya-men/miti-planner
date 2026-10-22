@@ -9,7 +9,7 @@ import { getCachedPublishedHousingers } from '../../../lib/housing/publishedHous
 import type { PublishedHousinger } from '../../../lib/housing/publishedHousingers';
 import { stripHashedPrefix } from '../../../lib/housing/housingerProfile';
 import { representativeImage } from '../../../lib/housing/representativeImage';
-import { smallHousingImageUrl } from '../../../lib/housing/cardImageAttrs';
+import { thumbHousingImageUrl } from '../../../lib/housing/cardImageAttrs';
 
 export interface BrowseHousingerViewProps {
   /** 探すページで絞り込み済みの家。ここに 1 件も家を持たない人は一覧に出さない。 */
@@ -61,7 +61,7 @@ export const BrowseHousingerView: React.FC<BrowseHousingerViewProps> = ({ filter
     for (const l of sorted) {
       const arr = map.get(l.ownerUid) ?? [];
       if (arr.length < MAX_THUMBS) {
-        arr.push(smallHousingImageUrl(representativeImage(l)));
+        arr.push(thumbHousingImageUrl(representativeImage(l)));
         map.set(l.ownerUid, arr);
       }
     }
