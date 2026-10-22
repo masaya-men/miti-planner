@@ -24,6 +24,8 @@ import { HousingLoginModal } from '../login/HousingLoginModal';
 import { HousingAccountModal } from '../login/HousingAccountModal';
 import { HousingPlaybackProvider } from '../../../lib/housing/HousingPlaybackContext';
 import { startFavoritesSync } from '../../../lib/housing/favoritesSync';
+import { useHousingTypoPreview } from '../../../lib/housing/useHousingTypoPreview';
+import { HousingTypoSwitch } from './HousingTypoSwitch';
 import '../../../styles/housing.css';
 
 /**
@@ -44,6 +46,8 @@ export const HousingShell: React.FC = () => {
   const applyLocaleDefaultRegions = useHousingFilterStore((s) => s.applyLocaleDefaultRegions);
   const joinedToken = useJoinedTourStore((s) => s.token);
   const { pathname } = useLocation();
+  // 【一時】文字メリハリ見比べ (?typo=a|b|c)。案決定後に撤去。
+  const typo = useHousingTypoPreview();
   const [filterOpen, setFilterOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -130,6 +134,7 @@ export const HousingShell: React.FC = () => {
         <StatusBar />
         <HousingDiagOverlay />
       </div>
+      {!isMobile && typo.mode && <HousingTypoSwitch mode={typo.mode} onChange={typo.setMode} />}
       <HousingPullToRefresh />
       <HousingLoginModal />
       <HousingAccountModal />

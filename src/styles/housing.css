@@ -11029,3 +11029,73 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-ptr-spinning .housing-ptr-ring { animation: none; }
   .housing-shell.housing-ptr-snap, .housing-ptr-ind.housing-ptr-snap { transition: none; }
 }
+
+/* ============================================================
+ * 【一時】typo preview (?typo=a|b|c) — 文字のメリハリ見比べ。案決定後にこの節ごと撤去。
+ * A=今のまま / B=html に zoom:0.75 (フックが付与) / C=B + 読む文字のトークンを約1.2倍に戻す。
+ * PC (≥768px) のみ。スマホは data 属性が付いていても何も変えない。
+ * ============================================================ */
+@media (min-width: 768px) {
+  /* B/C 共通: 全体 75% (ブラウザ 75% 表示と同じ見え方) */
+  html[data-housing-typo="b"],
+  html[data-housing-typo="c"] { zoom: 0.75; }
+  /* zoom 下では vh/dvh も 0.75 倍されて画面の 75% しか使えなくなるため、÷0.75 で画面いっぱいに戻す */
+  html[data-housing-typo="b"] .housing-workspace:not(.housing-workspace-flow),
+  html[data-housing-typo="c"] .housing-workspace:not(.housing-workspace-flow),
+  html[data-housing-typo="b"] .housing-shell,
+  html[data-housing-typo="c"] .housing-shell { height: calc(100dvh / 0.75); }
+  html[data-housing-typo="c"] .housing-workspace,
+  html[data-housing-typo="c"] .housing-card-visibility-menu-portal,
+  html[data-housing-typo="c"] .housing-tour-error-bubble {
+    --housing-text-xs: 13px;
+    --housing-text-sm: 14px;
+    --housing-text-md: 15.5px;
+    --housing-text-base: 16.5px;
+    --housing-text-input: 15px;
+    --housing-text-lg: 21px;
+    --housing-text-xl: 23.5px;
+  }
+  /* 見出し・強調: 約1.3倍 + 太字で強弱を付ける */
+  html[data-housing-typo="c"] .housing-listing-card-caption { font-size: 16px; font-weight: 700; }
+  html[data-housing-typo="c"] .housing-listing-grid-heading { font-size: 17px; font-weight: 700; }
+  html[data-housing-typo="c"] .housing-listing-grid-count { font-size: 17px; font-weight: 700; }
+  html[data-housing-typo="c"] .housing-result-count .now { font-size: 18px; font-weight: 700; }
+  html[data-housing-typo="c"] .housing-tour-tray-title { font-size: 17px; font-weight: 700; }
+  /* 補足: 1.2倍止まり + 色を控えめに */
+  html[data-housing-typo="c"] .housing-filter-label,
+  html[data-housing-typo="c"] .housing-card-size { color: var(--housing-text-mute); }
+}
+/* 切替部品 (PC のみ・左下・モーダルより下) */
+.housing-typo-switch {
+  position: fixed;
+  left: 12px;
+  bottom: 56px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border-radius: 10px;
+  background: var(--housing-panel-bg-solid, rgba(13, 18, 30, 0.74));
+  border: 1px solid var(--housing-panel-border, rgba(255, 255, 255, 0.16));
+  font-size: 11px;
+  color: var(--housing-text-mute, rgba(255, 255, 255, 0.5));
+}
+.housing-typo-switch-label { margin-right: 2px; }
+.housing-typo-switch-btn {
+  min-width: 24px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.housing-typo-switch-btn[data-active] {
+  background: var(--housing-chip-bg-active, rgba(255, 201, 135, 0.14));
+  color: var(--housing-text, #fff);
+}
+@media (max-width: 767px) {
+  .housing-typo-switch { display: none; }
+}
