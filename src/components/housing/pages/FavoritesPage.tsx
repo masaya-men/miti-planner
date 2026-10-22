@@ -202,7 +202,7 @@ export const FavoritesPage: React.FC = () => {
             </div>
           ) : (
             /* 正常表示: 見出し → タブ → 一括バー → グリッド */
-            <div className={`housing-listing-grid-wrap${reveal ? ' housing-reveal' : ''}`} data-testid="housing-favorites-content">
+            <div className={`housing-listing-grid-wrap${reveal ? ' housing-reveal' : ''}`} data-reveal={reveal || undefined} data-testid="housing-favorites-content">
               <div className="housing-listing-grid-toolbar">
                 <h2 className="housing-listing-grid-heading">
                   {t('housing.favorites.title')}

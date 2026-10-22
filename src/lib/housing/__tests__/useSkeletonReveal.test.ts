@@ -21,20 +21,22 @@ describe('useSkeletonReveal', () => {
     expect(result.current).toBe(false);
   });
 
-  it('delay 経過後(ダミーが見えた後)に終わったら true、その後も true のまま', () => {
+  it('delay 経過後(ダミーが見えた後)に終わったら hold → 2 コマ後に run、その後も run のまま', () => {
     const { result, rerender } = renderHook(({ l }) => useSkeletonReveal(l), { initialProps: { l: true } });
     act(() => { vi.advanceTimersByTime(250); });
     rerender({ l: false });
-    expect(result.current).toBe(true);
+    expect(result.current).toBe('hold');
+    act(() => { vi.advanceTimersByTime(100); });
+    expect(result.current).toBe('run');
     act(() => { vi.advanceTimersByTime(1000); });
-    expect(result.current).toBe(true);
+    expect(result.current).toBe('run');
   });
 
   it('再読み込み (loading が再び true) で記憶をリセットする', () => {
     const { result, rerender } = renderHook(({ l }) => useSkeletonReveal(l), { initialProps: { l: true } });
     act(() => { vi.advanceTimersByTime(250); });
     rerender({ l: false });
-    expect(result.current).toBe(true);
+    expect(result.current).toBe('hold');
     rerender({ l: true });
     expect(result.current).toBe(false);
     act(() => { vi.advanceTimersByTime(100); });

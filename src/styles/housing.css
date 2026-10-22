@@ -1533,7 +1533,11 @@
 .housing-reveal .housing-listing-grid-toolbar {
   animation: housing-reveal 450ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
   animation-delay: calc(var(--housing-reveal-i, 0) * 45ms);
+  animation-play-state: var(--housing-reveal-play, running);
 }
+/* 本物は描いたがまだ画面に映っていない間 (useSkeletonReveal='hold') は最初のコマで止めておく
+   (重い描画中に動きが進んで、映った時には終わっている問題の対策)。 */
+[data-reveal="hold"] { --housing-reveal-play: paused; }
 .housing-listing-grid > :nth-child(2) { --housing-reveal-i: 1; }
 .housing-listing-grid > :nth-child(3) { --housing-reveal-i: 2; }
 .housing-listing-grid > :nth-child(4) { --housing-reveal-i: 3; }

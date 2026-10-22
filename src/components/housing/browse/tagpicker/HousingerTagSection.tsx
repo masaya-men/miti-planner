@@ -55,7 +55,7 @@ export const HousingerTagSection: React.FC<HousingerTagSectionProps> = ({ select
         <span className="housing-tagpicker-section-title">{title}</span>
       </button>
       {open && (
-        <div className={`housing-tagpicker-section-body${reveal ? ' housing-reveal' : ''}`}>
+        <div className={`housing-tagpicker-section-body${reveal ? ' housing-reveal' : ''}`} data-reveal={reveal || undefined}>
           {status === 'loading' && (
             <LinesSkeleton count={3} labelKey="housing.tagpicker.housinger_loading" />
           )}

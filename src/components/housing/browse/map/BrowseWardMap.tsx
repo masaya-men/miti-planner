@@ -262,6 +262,7 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
   return (
     <div
       className={`housing-bmap-wrap${mapReveal ? ' housing-reveal' : ''}`}
+      data-reveal={mapReveal || undefined}
       data-testid="bmap-wrap"
       ref={wrapRef}
       onClick={onBlankClick}

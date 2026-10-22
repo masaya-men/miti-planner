@@ -108,7 +108,7 @@ export const HousingDetailPage: React.FC = () => {
             ← {t('housing.detail.back_aria')}
           </Link>
         </header>
-        <main className={`housing-detail-fullpage-main${reveal ? ' housing-reveal' : ''}`}>
+        <main className={`housing-detail-fullpage-main${reveal ? ' housing-reveal' : ''}`} data-reveal={reveal || undefined}>
           <HousingDetailContent
             listing={d.listing}
             viewerUid={d.viewerUid}

@@ -201,7 +201,7 @@ export const BrowsePage: React.FC = () => {
       </section>
 
       <section className="housing-browse-panel" data-region="center">
-        <div className={`housing-browse-col housing-browse-col-center${reveal ? ' housing-reveal-kids' : ''}`}>
+        <div className={`housing-browse-col housing-browse-col-center${reveal ? ' housing-reveal-kids' : ''}`} data-reveal={reveal || undefined}>
           <PersonalTagFilterLink tagIds={personalTagIds} />
           {status === 'loading' || status === 'idle' ? (
             /* 読み込み中: 表示切替はすぐ出し、その下に選択中の表示に合わせたダミー (200ms 以内に終われば出さない) */

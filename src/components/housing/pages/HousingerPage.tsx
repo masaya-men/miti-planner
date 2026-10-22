@@ -3,11 +3,11 @@
  * 2026-07-24 拡張: `/housing/mypage` (:uid なし) はマイページとして同コンポーネントを流用する。
  *
  * - `/housing/housinger/:uid` (シェル子ルート、`listing/:listingId` と同型)。
- *   profile + ハウジング一覧を並行取得する (Promise.all)。
+ *   profile と ハウジング一覧を別々に取得し、 届いた方から表示する (同じ人の再訪は前回の一覧を即表示)。
  * - 非公開・存在しない uid は housing トンマナの既存 NotFound (HousingDetailPage.tsx:40-57) を
  *   同一形 (unavailable 文言 + ← 探すへ戻る Link) で踏襲する。
- * - 一覧は探すのカードグリッド (ListingGrid) を流用するが onAddToTour は渡さない
- *   (= 個々のカードに「ツアーに追加」ボタンは出さず、 まとめてツアーボタンで一括対応する)。
+ * - 一覧は探すのカードグリッド (ListingGrid) を流用する。 他人のページではカードに「ツアーに追加」
+ *   (PC=ホバーで下端の帯・タッチ端末=右下の＋) を出す (tourAddVariant='overlay')。 本人のページには出さない。
  * - 本人閲覧時 (:uid なし、または :uid が自分) は名前横の鉛筆アイコンから /housing/mypage へ。
  *   一覧も本人のときだけ myListings ストア (公開/住所非公開/完全非公開すべて) を使う。
  *   他人閲覧時は getHousingerListings (公開分のみ) のまま不変。
@@ -533,7 +533,7 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
               左列 = プロフィール一式 (スクロールに追従して画面内に留まる)、
               右列 = 一覧グリッド (この列だけがスクロールする)。 */}
           <div className="housinger-page-body">
-            <div className={`housinger-page-profile-col${profileReveal ? ' housing-reveal' : ''}`}>
+            <div className={`housinger-page-profile-col${profileReveal ? ' housing-reveal' : ''}`} data-reveal={profileReveal || undefined}>
               <div className="housinger-page-identity">
                 {isSelf ? (
                   <div className="housinger-page-avatar-wrap">
@@ -661,7 +661,7 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
               )}
             </div>
 
-            <div className={`housinger-page-listings-col${listingsReveal ? ' housing-reveal' : ''}`}>
+            <div className={`housinger-page-listings-col${listingsReveal ? ' housing-reveal' : ''}`} data-reveal={listingsReveal || undefined}>
               {listingsLoading ? (
                 <div className="housing-listing-grid-wrap">
                   <div className="housing-listing-grid-toolbar housing-skel-toolbar-reserve" aria-hidden="true" />
