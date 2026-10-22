@@ -11,6 +11,8 @@ export type ContentLanguage = 'ja' | 'en' | 'zh' | 'ko' | 'zh-Hant';
  * 'icon'=常にアイコンのまま(変身しない) / 'scroll'=スクロール連動で変身 / 'bar'=常にエフェクト棒。
  * 2026-08-14ユーザー要望=ON/OFFの2択ではなく3パターンを切り替えたい。 */
 export type MobileEffectBarMode = 'icon' | 'scroll' | 'bar';
+/** 軽減表の表示モード。'lanes'=ふつう(列ごとのレーン) / 'sheet'=スプシ風(PC・WIP権限のみ)。 */
+export type TimelineView = 'lanes' | 'sheet';
 
 interface ThemeState {
     theme: Theme;
@@ -21,10 +23,13 @@ interface ThemeState {
      * 明示的に切り替えたらその選択を優先して永続化する(2026-08-13ユーザー要望=OS設定に関わらず
      * アプリ側で単独に切り替えたい)。 */
     mobileEffectBarMode: MobileEffectBarMode;
+    /** 保存値。実際に使う値は resolveTimelineView / useEffectiveTimelineView で解決する。 */
+    timelineView: TimelineView;
     setTheme: (theme: Theme) => void;
     setThemeStyle: (style: ThemeStyle) => void;
     setContentLanguage: (lang: ContentLanguage) => void;
     setMobileEffectBarMode: (mode: MobileEffectBarMode) => void;
+    setTimelineView: (view: TimelineView) => void;
 }
 
 export const useThemeStore = create<ThemeState>()(
@@ -34,6 +39,7 @@ export const useThemeStore = create<ThemeState>()(
             themeStyle: 'standard',
             contentLanguage: 'ja',
             mobileEffectBarMode: 'icon',
+            timelineView: 'lanes',
             setTheme: (theme) => {
                 set({ theme });
                 applyThemeClasses(theme, resolveThemeStyle(get().themeStyle, getCanPreviewWip(), useTutorialStore.getState().isActive));
@@ -44,10 +50,11 @@ export const useThemeStore = create<ThemeState>()(
             },
             setContentLanguage: (lang) => set({ contentLanguage: lang }),
             setMobileEffectBarMode: (mode) => set({ mobileEffectBarMode: mode }),
+            setTimelineView: (view) => set({ timelineView: view }),
         }),
         {
             name: 'theme-storage',
-            version: 2,
+            version: 3,
             // 2026-08-14: 'scroll'(連動)モードを選択肢から一時除外するのに合わせ、
             // 既存ユーザーで'scroll'が永続化済みだった場合は'icon'へ寄せる(1回限りの移行)。
             // 2026-09-02: スタイル軸(themeStyle)追加。旧永続値に無ければ'standard'を補う。
@@ -58,6 +65,9 @@ export const useThemeStore = create<ThemeState>()(
                 }
                 if (version < 2 && state.themeStyle == null) {
                     state.themeStyle = 'standard';
+                }
+                if (version < 3 && state.timelineView == null) {
+                    state.timelineView = 'lanes';
                 }
                 return state;
             },
@@ -89,4 +99,20 @@ export function useEffectiveThemeStyle(): ThemeStyle {
     const canPreview = useCanPreviewWip();
     const tutorialActive = useTutorialStore((s) => s.isActive);
     return resolveThemeStyle(saved, canPreview, tutorialActive);
+}
+
+/** 実際に使う表示モード。WIP 閲覧権限が無い / チュートリアル中 / スマホ幅 のどれかなら常に 'lanes'。
+ *  保存値自体は消さない(権限が戻れば・チュートリアルが終われば復活する)。 */
+export function resolveTimelineView(saved: TimelineView, canPreview: boolean, tutorialActive: boolean, isMobile: boolean): TimelineView {
+    if (!canPreview || tutorialActive || isMobile) return 'lanes';
+    return saved;
+}
+
+/** コンポーネント用: 保存値 + 権限 + チュートリアル + スマホ幅(Timeline.tsx と同じ innerWidth < 768)から実効モードを返す。 */
+export function useEffectiveTimelineView(): TimelineView {
+    const saved = useThemeStore((s) => s.timelineView);
+    const canPreview = useCanPreviewWip();
+    const tutorialActive = useTutorialStore((s) => s.isActive);
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    return resolveTimelineView(saved, canPreview, tutorialActive, isMobile);
 }
