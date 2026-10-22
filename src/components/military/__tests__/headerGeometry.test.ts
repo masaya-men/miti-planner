@@ -66,15 +66,19 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
   it('キー列と受け皿', () => {
     const l = headerLayout(1465);
     const n = (id: string) => l.keyRows.find((r) => r.id === id)!;
-    expect(l.keyRows.map((r) => r.id)).toEqual(['aux', 'com', 'party', 'io', 'mainstream', 'gear', 'sort']);
-    expect(['aux', 'com', 'party', 'io', 'mainstream', 'gear', 'sort'].map((id) => n(id).caps.length)).toEqual([1, 4, 2, 2, 1, 1, 2]);
+    expect(l.keyRows.map((r) => r.id)).toEqual(['aux', 'com', 'party', 'io', 'members', 'view', 'sort']);
+    expect(['aux', 'com', 'party', 'io', 'members', 'view', 'sort'].map((id) => n(id).caps.length)).toEqual([1, 4, 2, 2, 9, 2, 2]);
     expect(n('aux').x).toBe(1122);
-    expect(n('mainstream').x).toBe(963);
+    expect(n('members').x).toBe(1465 - 501);
+    expect(n('view').x).toBe(1465 - 306);
+    expect(n('members').caps.every((c) => c.lip) && n('view').caps.every((c) => c.lip)).toBe(true);
+    expect(l.decor.h5.members).toEqual({ x: 1465 - 501, y: 56 });
+    expect(l.decor.h5.view).toEqual({ x: 1465 - 306, y: 56 });
     expect(n('sort').caps.every((c) => c.lip)).toBe(true);
-    // H4: 受け皿 2 / H5 左: 窪み 1 + 受け皿 2 / H5 右: 受け皿 3
+    // H4: 受け皿 2 / H5 左: 窪み 1 + 受け皿 2 / H5 右: 受け皿 2(members+view 1 枚 + sort)
     expect(sp(l, 'h4').pockets?.length).toBe(2);
     expect(sp(l, 'h5L').pockets?.length).toBe(3);
-    expect(sp(l, 'h5R').pockets?.length).toBe(3);
+    expect(sp(l, 'h5R').pockets?.length).toBe(2);
     expect(sp(l, 'h2').pockets?.[0].fill).toBe('#0c0e10');
     expect(sp(l, 'h5L').pockets?.[0].fill).toBe('#040505');
     // COM の丸キー中心 x
@@ -95,10 +99,9 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
     expect(pk('h4', 1)).toEqual([326, 11]);    // com(stadium 先頭 = [72,0] + [254,11])
     expect(pk('h5L', 1)).toEqual([21, 11]);    // party
     expect(pk('h5L', 2)).toEqual([324, 11]);   // io(stadium 先頭 = [48,0] + [276,11])
-    expect(pk('h5R', 0)).toEqual([973 - 959, 11]);   // mainstream = [10,0] + [963,11]
-    expect(pk('h5R', 1)[0]).toBeCloseTo(1212 - 959, 6); // gear = [19,0] + [1193,11]
-    expect(pk('h5R', 1)[1]).toBeCloseTo(11, 6);
-    expect(pk('h5R', 2)).toEqual([1287 - 959, 11]);   // sort = [12,0] + [1275,11]
+    expect(pk('h5R', 0)[0]).toBeCloseTo(1465 - 505 + 5 - 959, 6); // members+view = chamRect 先頭 [5,0] + [MW-505, 9.5]
+    expect(pk('h5R', 0)[1]).toBeCloseTo(9.5, 6);
+    expect(pk('h5R', 1)).toEqual([1287 - 959, 11]);   // sort = [12,0] + [1275,11]
   });
   it('COM 丸キーの y と半径', () => {
     const com = headerLayout(1465).keyRows.find((r) => r.id === 'com')!;

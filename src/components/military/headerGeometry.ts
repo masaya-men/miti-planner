@@ -39,7 +39,7 @@ const D8 = { shadow: 1, dirt: 2, dark: 1, glow: 0.55 } as const;
 const GLOW_WINDOWS: readonly (readonly [number, number])[] = Object.freeze([Object.freeze([6, 46] as const), Object.freeze([54, 98] as const)]);
 
 export interface HdrKeyRow {
-  id: 'aux' | 'com' | 'party' | 'io' | 'mainstream' | 'gear' | 'sort';
+  id: 'aux' | 'com' | 'party' | 'io' | 'members' | 'view' | 'sort';
   x: number; y: number; caps: CapSpec[];
 }
 
@@ -57,13 +57,12 @@ export interface HdrDecor {
   sn: XY;
   h3: { trb: XY; turbines: XY[]; lamps: XY; rotating: XY; clock: XY | null; clockLabel: XY | null; id: XY };
   h4: { aux: XY; dsp: XY; rocker: XYWH; mode: XY; lever: XYWH; com: XY; id: XY };
-  h5: { party: XY; crt: XYWH; sort: XY };
+  h5: { party: XY; crt: XYWH; sort: XY; members: XY; view: XY };
 }
 
 // キー列の輪郭(js:893, 910, 920, 924)
 const tOut: Pt[] = [[0, 0], [134, 0], [140, 6], [140, 28], [6, 28], [0, 22]];
 const pOut: Pt[] = [[0, 0], [238, 0], [250, 12], [250, 32], [9, 32], [0, 23]];
-const nOut: Pt[] = [[10, 0], [219, 0], [209, 32], [0, 32]];
 const sOut: Pt[] = [[12, 0], [166, 0], [166, 20], [154, 32], [0, 32], [0, 12]];
 
 // 見本の cluster(): 親パネルの pockets に shift(outline, 列x-パネルx, 列y-パネルy) を足す
@@ -184,8 +183,8 @@ export function headerLayout(MW: number, opts?: { sidebarOpen: boolean; scale: n
   ];
   p5R.pockets = [
     ...(p5R.pockets ?? []),
-    pocket(nOut, MW - 502, 63, p5Rp),
-    pocket(circ(19, 16, 16), MW - 272, 63, p5Rp, 1.6),
+    // 表示メンバー + 表の見た目(旧「みんなの軽減表」「歯車」の跡地)。x = 684〜、切れ目 683 の右・SORT 刻印の左
+    pocket(chamRect(264, 35, 5, 5, 5, 5), MW - 505, 61.5, p5Rp),
     pocket(sOut, MW - 190, 63, p5Rp),
   ];
 
@@ -207,8 +206,9 @@ export function headerLayout(MW: number, opts?: { sidebarOpen: boolean; scale: n
     { id: 'com', x: cx + 254, y: 15, caps: [12, 32.7, 53.3, 74].map((x) => ({ pts: circ(x, 14, 9.6) })) },
     { id: 'party', x: 21, y: 63, caps: bank(pOut, [1, 1.12]).map((pts) => ({ pts })) },
     { id: 'io', x: 276, y: 63, caps: [circ(16, 16, 12.6), circ(48, 16, 12.6)].map((pts) => ({ pts })) },
-    { id: 'mainstream', x: MW - 502, y: 63, caps: bank(nOut, [1]).map((pts) => ({ pts })) },
-    { id: 'gear', x: MW - 272, y: 63, caps: [{ pts: circ(19, 16, 12.8) }] },
+    // ALL + 8 人(ALL のあとだけ 3 広い)。キーは 19×26、受け皿の中に収める
+    { id: 'members', x: MW - 501, y: 66, caps: [0, 22, 43, 64, 85, 106, 127, 148, 169].map((dx) => ({ pts: shift(chamRect(19, 26, 3.2, 3.2, 3.2, 3.2), dx, 0), lip: true })) },
+    { id: 'view', x: MW - 306, y: 66, caps: [0, 31].map((dx) => ({ pts: shift(chamRect(28, 26, 3.2, 3.2, 3.2, 3.2), dx, 0), lip: true })) },
     { id: 'sort', x: MW - 190, y: 63, caps: bank(sOut, [1.28, 1]).map((pts) => ({ pts, lip: true })) },
   ];
 
@@ -238,7 +238,7 @@ export function headerLayout(MW: number, opts?: { sidebarOpen: boolean; scale: n
       com: { x: MW - 99, y: 8.4 },
       id: { x: MW - 25, y: 6.5 },
     },
-    h5: { party: { x: 34, y: 57.2 }, crt: { x: 349, y: 59, w: 324, h: 34 }, sort: { x: MW - 222, y: 77 } },
+    h5: { party: { x: 34, y: 57.2 }, crt: { x: 349, y: 59, w: 324, h: 34 }, sort: { x: MW - 222, y: 77 }, members: { x: MW - 501, y: 56 }, view: { x: MW - 306, y: 56 } },
   };
 
   // 光の経路(区画座標・絶対)

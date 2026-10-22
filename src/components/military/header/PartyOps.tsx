@@ -2,9 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ImportMenu } from '../../ImportMenu';
 import { HeaderToolsMenu } from '../../HeaderToolsMenu';
-import { PartyVisibilityMenu } from '../../PartyVisibilityMenu';
 import { PartyStatusPopover } from '../../PartyStatusPopover';
-import { MitigationSheet } from '../../MitigationSheet';
 import { MilspecKey, MilspecKeyCap, hitPolygon } from '../MilspecKey';
 import { MilspecStencil } from '../MilspecDecor';
 import { MsIcon } from '../milspecIcons';
@@ -12,12 +10,16 @@ import { bbox } from '../armor/geom';
 import type { CapSpec } from '../armor/types';
 import { headerLayout } from '../headerGeometry';
 import { MilspecCrt } from './MilspecCrt';
-import { usePlanStore } from '../../../store/usePlanStore';
 import { useTutorialStore } from '../../../store/useTutorialStore';
 import { useMitigationStore } from '../../../store/useMitigationStore';
+import { useThemeStore } from '../../../store/useThemeStore';
+import { useRenderPendingStore } from '../../../store/useRenderPendingStore';
+import { useJobs } from '../../../hooks/useSkillsData';
+import { useCanPreviewWip } from '../../../hooks/useCanPreviewWip';
+import { getSortedPartyMemberIds } from '../../../constants/party';
 import './milspecH4.css';
 
-// H5(見本 js:904-927): PARTY OPS(パーティ編成・ステータス設定)・取り込み / その他・CRT・主流・表示メンバー・SORT。
+// H5(見本 js:904-927): PARTY OPS(パーティ編成・ステータス設定)・取り込み / その他・CRT・表示メンバー(ALL + 8 人)・表の見た目(ふつう / スプシ)・SORT。
 // 親は「ヘッダー区画」(position:absolute の座標系)。座標は headerLayout の keyRows と decor.h5。
 // 機能の出所は旧 MilspecToolbar(ConsolidatedHeader の Layer B)と同じ。
 
@@ -47,12 +49,24 @@ export function PartyOps({ MW, partySortOrder, setPartySortOrder, onAutoPlan, on
   const { t } = useTranslation();
   const { keyRows, decor } = React.useMemo(() => headerLayout(MW), [MW]);
   const row = (id: string) => keyRows.find((r) => r.id === id)!;
-  const party = row('party'), io = row('io'), main = row('mainstream'), gear = row('gear'), sort = row('sort');
+  const party = row('party'), io = row('io'), members = row('members'), view = row('view'), sort = row('sort');
   const d = decor.h5;
 
-  const currentPlan = usePlanStore((s) => s.plans.find((p) => p.id === s.currentPlanId));
-  const [mitiOpen, setMitiOpen] = React.useState(false);
-  const hasHidden = useMitigationStore((s) => s.hiddenPartyMemberIds.length > 0);
+  const partyMembers = useMitigationStore((s) => s.partyMembers);
+  const hiddenIds = useMitigationStore((s) => s.hiddenPartyMemberIds);
+  const toggleHiddenPartyMember = useMitigationStore((s) => s.toggleHiddenPartyMember);
+  const setHiddenPartyMemberIds = useMitigationStore((s) => s.setHiddenPartyMemberIds);
+  const jobs = useJobs();
+  const timelineView = useThemeStore((s) => s.timelineView);
+  const setTimelineView = useThemeStore((s) => s.setTimelineView);
+  const canPreviewWip = useCanPreviewWip();
+  const memberIds = React.useMemo(() => getSortedPartyMemberIds(partySortOrder), [partySortOrder]);
+
+  // 全体の再描画が重いので、先にインジケーターを 1 フレーム描かせてから本体を実行する(PartyVisibilityMenu と同じ手順)
+  const deferHeavy = (fn: () => void) => {
+    useRenderPendingStore.getState().show();
+    requestAnimationFrame(() => { requestAnimationFrame(fn); });
+  };
 
   // パーティ編成: ConsolidatedHeader の Party Comp ボタンと同一手順
   const openPartySettings = () => {
@@ -65,14 +79,15 @@ export function PartyOps({ MW, partySortOrder, setPartySortOrder, onAutoPlan, on
   const statName = t('settings.config_short');
   const importName = t('nav.import');
   const moreName = t('ui.more');
-  const mainName = t('popular.title');
-  const visName = t('app.fab_party_visibility');
   const sorts = [['light_party', t('ui.sort_light_party')], ['role', t('ui.sort_role')]] as const;
+  const views = [['lanes', t('ui.table_view_lanes')], ['sheet', t('ui.table_view_sheet')]] as const;
 
   return (
     <>
       <MilspecStencil en="PARTY OPS" hi style={{ left: d.party.x, top: d.party.y }} />
       <MilspecStencil en="SORT" hi style={{ left: d.sort.x, top: d.sort.y }} />
+      <MilspecStencil en="MEMBERS" sub={t('ui.party_visibility_members')} hi style={{ left: d.members.x, top: d.members.y }} />
+      {canPreviewWip && <MilspecStencil en="VIEW" sub={t('ui.table_view')} hi style={{ left: d.view.x, top: d.view.y }} />}
 
       {/* PARTY OPS: パーティ編成 / ステータス設定 */}
       <div className="milspec-h4-kc" role="group" aria-label="PARTY OPS" style={{ left: party.x, top: party.y }}>
@@ -102,20 +117,32 @@ export function PartyOps({ MW, partySortOrder, setPartySortOrder, onAutoPlan, on
         <MilspecCrt />
       </div>
 
-      {/* 主流: みんなの軽減表 */}
-      <div className="milspec-h4-kc" style={{ left: main.x, top: main.y }}>
-        <MilspecKey cap={main.caps[0]} style={capPos(main.caps[0])} label={<b>{mainName}</b>} aria-label={mainName} onClick={() => setMitiOpen(true)} />
+      {/* 表示メンバー: ALL + 8 人(沈んで下縁が緑 = 表示中、浮いて灰色 = 非表示)。ストアは見た目だけの絞り込み */}
+      <div className="milspec-h4-kc" role="group" aria-label={t('ui.party_visibility_members')} style={{ left: members.x, top: members.y }}>
+        <MilspecKey cap={members.caps[0]} style={capPos(members.caps[0])} latch pressed={hiddenIds.length === 0}
+          label={<b>{t('ui.party_visibility_all')}</b>} onClick={() => deferHeavy(() => setHiddenPartyMemberIds([]))} />
+        {memberIds.map((id, i) => {
+          const hidden = hiddenIds.includes(id);
+          const jobId = partyMembers.find((m) => m.id === id)?.jobId;
+          const job = jobId ? jobs.find((j) => j.id === jobId) : undefined;
+          return (
+            <MilspecKey key={id} cap={members.caps[i + 1]} style={capPos(members.caps[i + 1])} latch pressed={!hidden} data-member-toggle={id}
+              label={job?.icon ? <img className="milspec-key-av" src={job.icon} alt="" /> : <b>{id}</b>}
+              aria-label={t('ui.party_visibility_toggle_tooltip', { id, action: hidden ? t('ui.party_visibility_show') : t('ui.party_visibility_hide') })}
+              onClick={() => deferHeavy(() => toggleHiddenPartyMember(id))} />
+          );
+        })}
       </div>
 
-      {/* 表示メンバー(非表示の人がいれば緑のランプ) */}
-      <div className="milspec-h4-kc" style={{ left: gear.x, top: gear.y }}>
-        <div className="milspec-h4-slot" style={slotStyle(gear.caps[0])}>
-          <PartyVisibilityMenu btnClassName="milspec-keybtn" btnActiveClassName="milspec-keybtn" sortOrder={partySortOrder} readOnly={false}>
-            <MilspecKeyCap cap={gear.caps[0]} className={iconCap} label={MsIcon.gear()} active={hasHidden} />
-            <span className="milspec-sr">{visName}</span>
-          </PartyVisibilityMenu>
+      {/* 表の見た目: ふつう / スプシ(SORT と同じ連動キー)。作り直し中(WIP)は出さない */}
+      {canPreviewWip && (
+        <div className="milspec-h4-kc" role="group" aria-label={t('ui.table_view')} style={{ left: view.x, top: view.y }}>
+          {views.map(([value, name], i) => (
+            <MilspecKey key={value} cap={view.caps[i]} style={capPos(view.caps[i])} latch pressed={timelineView === value}
+              label={<b>{name}</b>} aria-label={name} onClick={() => setTimelineView(value)} />
+          ))}
         </div>
-      </div>
+      )}
 
       {/* SORT: 連動キー 2 つ(押すと沈んだまま止まり、もう片方を押すと弾かれて戻る) */}
       <div className="milspec-h4-kc" role="group" aria-label={t('ui.sort')} style={{ left: sort.x, top: sort.y }}>
@@ -125,7 +152,6 @@ export function PartyOps({ MW, partySortOrder, setPartySortOrder, onAutoPlan, on
         ))}
       </div>
 
-      <MitigationSheet isOpen={mitiOpen} onClose={() => setMitiOpen(false)} currentContentId={currentPlan?.contentId ?? null} />
       {/* ステータス設定の開閉先(document.body へ portal される) */}
       <PartyStatusPopover isOpen={statusOpen} onClose={() => setStatusOpen(false)} />
     </>

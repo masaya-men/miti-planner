@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { useState } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent, waitFor, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { MilspecHeaderV11, DRW_PULSE } from '../MilspecHeaderV11';
 import * as engine from '../../fx/engine';
@@ -79,19 +79,20 @@ describe('H5 の機能', () => {
     fireEvent.click(getByRole('button', { name: 'ロール別' }));
     expect(props.setPartySortOrder).toHaveBeenCalledWith('role');
   });
-  it('取り込み・その他・表示メンバーは名前つきのボタンで出る', () => {
+  it('取り込み・その他は名前つきのボタンで出る', () => {
     const { getAllByRole } = r();
     const names = getAllByRole('button').map((b) => b.textContent + '|' + (b.getAttribute('aria-label') ?? ''));
     expect(names.some((n) => /取り込み|インポート/.test(n))).toBe(true);
-    expect(names.some((n) => /表示メンバー/.test(n))).toBe(true);
     expect(names.some((n) => /その他/.test(n))).toBe(true);
   });
-  it('表示メンバー: 非表示の人がいるときだけ active(緑のランプ)', () => {
-    const { container, rerender } = r();
-    expect(container.querySelector('.milspec-key-active')).toBeNull();
-    useMitigationStore.setState({ hiddenPartyMemberIds: ['MT'] } as never);
-    rerender(<MemoryRouter><MilspecHeaderV11 {...props} /></MemoryRouter>);
-    expect(container.querySelector('.milspec-key-active')).not.toBeNull();
+  it('表示メンバー: ALL + 8 人のキー。非表示の人がいると ALL が外れ、その人のキーも外れる(歯車・みんなの軽減表は無い)', () => {
+    const { container, getByRole, queryByText } = r();
+    expect(container.querySelectorAll('[data-member-toggle]').length).toBe(8);
+    expect(getByRole('button', { name: 'ALL' }).getAttribute('aria-pressed')).toBe('true');
+    expect(queryByText('みんなの軽減表')).toBeNull();
+    act(() => useMitigationStore.setState({ hiddenPartyMemberIds: ['MT'] } as never));
+    expect(getByRole('button', { name: 'ALL' }).getAttribute('aria-pressed')).toBe('false');
+    expect(container.querySelector('[data-member-toggle="MT"]')!.getAttribute('aria-pressed')).toBe('false');
   });
 });
 
