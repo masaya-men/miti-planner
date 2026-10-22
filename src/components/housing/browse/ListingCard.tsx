@@ -1,3 +1,4 @@
+import { scalePx } from '../../../lib/housing/housingScale';
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -360,7 +361,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               e.stopPropagation();
               if (!visibilityMenuOpen && visibilityBtnRef.current) {
                 const rect = visibilityBtnRef.current.getBoundingClientRect();
-                setVisibilityMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                setVisibilityMenuPos({ top: rect.bottom + scalePx(4), right: window.innerWidth - rect.right });
               }
               setVisibilityMenuOpen((v) => !v);
             }}

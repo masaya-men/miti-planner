@@ -1,3 +1,4 @@
+import { hpx } from '../../lib/housing/housingScale';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
@@ -90,7 +91,7 @@ export const HousingPanelModal: React.FC<HousingPanelModalProps> = ({
         className="housing-panel-modal-shell"
         style={
           {
-            maxWidth: `${maxWidth}px`,
+            maxWidth: hpx(maxWidth),
             // 高さの実値は CSS 側 (housing.css) で 100vh → 100dvh の順に解決する。
             // iOS Safari は 100vh がブラウザ UI 込みの大きい viewport を指すため、inline の vh 固定だと
             // モーダル下端が画面外に切れる (実機FB#5)。dvh 非対応ブラウザは vh 行へフォールバック。

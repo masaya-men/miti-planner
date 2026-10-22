@@ -24,8 +24,6 @@ import { HousingLoginModal } from '../login/HousingLoginModal';
 import { HousingAccountModal } from '../login/HousingAccountModal';
 import { HousingPlaybackProvider } from '../../../lib/housing/HousingPlaybackContext';
 import { startFavoritesSync } from '../../../lib/housing/favoritesSync';
-import { useHousingTypoPreview } from '../../../lib/housing/useHousingTypoPreview';
-import { HousingTypoSwitch } from './HousingTypoSwitch';
 import '../../../styles/housing.css';
 
 /**
@@ -46,8 +44,6 @@ export const HousingShell: React.FC = () => {
   const applyLocaleDefaultRegions = useHousingFilterStore((s) => s.applyLocaleDefaultRegions);
   const joinedToken = useJoinedTourStore((s) => s.token);
   const { pathname } = useLocation();
-  // 【一時】文字メリハリ見比べ (?typo=a|b|c)。案決定後に撤去。
-  const typo = useHousingTypoPreview();
   const [filterOpen, setFilterOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -69,6 +65,12 @@ export const HousingShell: React.FC = () => {
   // ツアーを組んでいる間 (トレイに 1 件以上) は「自分のハウジングを登録する +」を出さない
   // (2026-10-22 masaya: ツアーをしようとしている時には要らない)。空いた分トレイの小バーを右端まで広げる。
   const hasTray = useTourTrayStore((s) => s.trayIds.length > 0);
+
+  // html に印を付ける: body 直下へ portal される要素の SVG アイコン寸法の倍率 (housing.css) を /housing 配下だけに効かせる。
+  useEffect(() => {
+    document.documentElement.setAttribute('data-housing', '');
+    return () => document.documentElement.removeAttribute('data-housing');
+  }, []);
 
   // 物件データを 1 回だけロード (冪等・全ページ共有)。
   useEffect(() => {
@@ -134,7 +136,6 @@ export const HousingShell: React.FC = () => {
         <StatusBar />
         <HousingDiagOverlay />
       </div>
-      {!isMobile && typo.mode && <HousingTypoSwitch mode={typo.mode} onChange={typo.setMode} />}
       <HousingPullToRefresh />
       <HousingLoginModal />
       <HousingAccountModal />

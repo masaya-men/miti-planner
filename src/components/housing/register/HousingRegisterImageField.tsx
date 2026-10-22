@@ -13,6 +13,7 @@
  * 親 (HousingRegisterForm) には CompressedImage[] を onChange で渡す。
  * 親は register 成功後に各画像を index 0..N-1 で upload リクエストする。
  */
+import { hpx } from '../../../lib/housing/housingScale';
 import { useCallback, useState, useRef, useEffect, type ChangeEvent, type DragEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -383,20 +384,21 @@ export function HousingRegisterImageField({
 
       {overflowNotice && (
         <div
-          className="fixed inset-0 z-[70] flex items-center justify-center p-4"
-          style={{ background: 'var(--housing-detail-backdrop-bg)' }}
+          className="fixed inset-0 z-[70] flex items-center justify-center"
+          style={{ background: 'var(--housing-detail-backdrop-bg)', padding: hpx(16) }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setOverflowNotice(null);
           }}
         >
           <div
-            className="max-w-sm w-full"
+            className="w-full"
             style={{
+              maxWidth: hpx(384),
               background: 'var(--housing-panel-bg)',
               border: '1px solid var(--housing-panel-border)',
               borderRadius: 'var(--housing-panel-radius)',
               color: 'var(--housing-text)',
-              padding: 24,
+              padding: hpx(24),
             }}
           >
             <h2 style={{ fontSize: 'var(--housing-text-lg)', fontWeight: 600, marginBottom: 12 }}>
@@ -416,7 +418,7 @@ export function HousingRegisterImageField({
                 type="button"
                 onClick={() => setOverflowNotice(null)}
                 className="housing-action-btn housing-btn-primary"
-                style={{ padding: '8px 16px' }}
+                style={{ padding: `${hpx(8)} ${hpx(16)}` }}
               >
                 {t('housing.register.image.limitModal.confirm')}
               </button>

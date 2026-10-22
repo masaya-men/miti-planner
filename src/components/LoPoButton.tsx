@@ -12,10 +12,21 @@ export const LoPoButton: React.FC<{
     color?: string;
     /** color 指定時、塗り上に出る反転テキストの色 (既定 = 濃色)。 */
     invertedColor?: string;
-}> = ({ size = 'lg', onClick, color, invertedColor }) => {
+    /** true なら 高さ/左右余白/文字サイズに CSS 変数 --housing-scale (ハウジング PC の表示倍率) を掛ける。
+     *  省略 (false) の既存利用 (miti 等) は一切変わらない。 */
+    housingScale?: boolean;
+}> = ({ size = 'lg', onClick, color, invertedColor, housingScale = false }) => {
     const fontSize = size === 'lg' ? 'text-app-6xl' : 'text-app-4xl-plus';
-    const h = size === 'lg' ? 56 : 40;
+    const baseH = size === 'lg' ? 56 : 40;
     const px = size === 'lg' ? 32 : 16;
+    const [measuredH, setMeasuredH] = useState(0);
+    const sc = housingScale ? 'calc(var(--housing-scale, 1) * ' : null;
+    const sx = (n: number): number | string => (sc ? `${sc}${n}px)` : n);
+    // 倍率指定時は実測の高さ (px) を SVG の座標計算に使う。
+    const h = housingScale && measuredH > 0 ? measuredH : baseH;
+    const textStyle = housingScale
+        ? { fontSize: `calc(var(--font-size-${size === 'lg' ? '6xl' : '4xl-plus'}) * var(--housing-scale, 1))` }
+        : null;
     const textClass = `${fontSize} font-black tracking-tight select-none whitespace-nowrap`;
     const { theme } = useThemeStore();
     const isDark = theme === 'dark';
@@ -35,7 +46,8 @@ export const LoPoButton: React.FC<{
         const el = containerRef.current;
         if (!el) return;
         setW(el.offsetWidth);
-        const ro = new ResizeObserver(() => setW(el.offsetWidth));
+        setMeasuredH(el.offsetHeight);
+        const ro = new ResizeObserver(() => { setW(el.offsetWidth); setMeasuredH(el.offsetHeight); });
         ro.observe(el);
         return () => ro.disconnect();
     }, []);
@@ -48,7 +60,7 @@ export const LoPoButton: React.FC<{
         <div
             ref={containerRef}
             className="relative inline-flex items-center justify-center cursor-pointer group"
-            style={{ height: h, paddingLeft: px, paddingRight: px, ...(color ? { color } : null) }}
+            style={{ height: sx(baseH), paddingLeft: sx(px), paddingRight: sx(px), ...(color ? { color } : null) }}
             onClick={onClick}
             role="button"
             tabIndex={0}
@@ -82,7 +94,7 @@ export const LoPoButton: React.FC<{
             )}
 
             {/* 通常テキスト */}
-            <span className={`${textClass} relative z-10`} style={{ color: textColor, fontFamily: "'Rajdhani', sans-serif" }}>
+            <span className={`${textClass} relative z-10`} style={{ color: textColor, fontFamily: "'Rajdhani', sans-serif", ...textStyle }}>
                 LoPo
             </span>
 
@@ -91,7 +103,7 @@ export const LoPoButton: React.FC<{
                 <div className="lopo-scan-fill absolute inset-x-0 bottom-0" style={{ background: fillColor }} />
                 <div className="lopo-scan-line absolute inset-x-0" />
                 <div className="lopo-scan-clip absolute inset-0 flex items-center justify-center">
-                    <span className={textClass} style={{ color: invertedTextColor, fontFamily: "'Rajdhani', sans-serif" }}>
+                    <span className={textClass} style={{ color: invertedTextColor, fontFamily: "'Rajdhani', sans-serif", ...textStyle }}>
                         LoPo
                     </span>
                 </div>

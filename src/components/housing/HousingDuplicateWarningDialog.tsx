@@ -1,3 +1,4 @@
+import { hpx } from '../../lib/housing/housingScale';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DuplicateEntry } from '../../lib/housingApiClient';
@@ -21,31 +22,32 @@ export const HousingDuplicateWarningDialog: React.FC<Props> = ({ duplicates, onC
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center p-4"
-      style={{ background: 'var(--housing-detail-backdrop-bg)' }}
+      className="fixed inset-0 z-[70] flex items-center justify-center"
+      style={{ background: 'var(--housing-detail-backdrop-bg)', padding: hpx(16) }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="max-w-md w-full"
+        className="w-full"
         style={{
+          maxWidth: hpx(448),
           background: 'var(--housing-panel-bg)',
           border: '1px solid var(--housing-panel-border)',
           borderRadius: 'var(--housing-panel-radius)',
           color: 'var(--housing-text)',
-          padding: 24,
+          padding: hpx(24),
         }}
       >
         <h2 style={{
           fontSize: 'var(--housing-text-lg)',
           fontWeight: 600,
-          marginBottom: 12,
+          marginBottom: hpx(12),
         }}>
           {t('housing.duplicate.title')}
         </h2>
         <p style={{
           fontSize: 'var(--housing-text-base)',
           color: 'var(--housing-text-dim)',
-          marginBottom: 14,
+          marginBottom: hpx(14),
         }}>
           {t('housing.duplicate.lead', { count: duplicates.length })}
         </p>
@@ -53,9 +55,9 @@ export const HousingDuplicateWarningDialog: React.FC<Props> = ({ duplicates, onC
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: 8,
-            marginBottom: 14,
-            maxHeight: 192,
+            gap: hpx(8),
+            marginBottom: hpx(14),
+            maxHeight: hpx(192),
             overflowY: 'auto',
           }}
         >
@@ -70,8 +72,8 @@ export const HousingDuplicateWarningDialog: React.FC<Props> = ({ duplicates, onC
                 style={{
                   background: 'var(--housing-chip-bg)',
                   border: '1px solid var(--housing-panel-border)',
-                  borderRadius: 8,
-                  padding: 12,
+                  borderRadius: hpx(8),
+                  padding: hpx(12),
                 }}
               >
                 <p style={{ fontSize: 'var(--housing-text-sm)' }}>
@@ -94,16 +96,16 @@ export const HousingDuplicateWarningDialog: React.FC<Props> = ({ duplicates, onC
         <p style={{
           fontSize: 'var(--housing-text-sm)',
           color: 'var(--housing-text-dim)',
-          marginBottom: 14,
+          marginBottom: hpx(14),
         }}>
           {t('housing.duplicate.hint')}
         </p>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: hpx(8), justifyContent: 'flex-end' }}>
           <button
             type="button"
             onClick={onCorrect}
             className="housing-action-btn housing-btn-primary"
-            style={{ padding: '8px 16px' }}
+            style={{ padding: `${hpx(8)} ${hpx(16)}` }}
           >
             {t('housing.duplicate.correct')}
           </button>
@@ -111,7 +113,7 @@ export const HousingDuplicateWarningDialog: React.FC<Props> = ({ duplicates, onC
             type="button"
             onClick={onProceed}
             className="housing-action-btn"
-            style={{ padding: '8px 16px' }}
+            style={{ padding: `${hpx(8)} ${hpx(16)}` }}
           >
             {t('housing.duplicate.proceed')}
           </button>

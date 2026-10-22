@@ -1,3 +1,4 @@
+import { scalePx } from '../../../lib/housing/housingScale';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import type { TourMapModel } from '../../../lib/housing/buildTourMapPlacements';
@@ -124,7 +125,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
     const m = md.model;
     const bbox = routeBbox([m?.routePath, m?.routeJumpPath], m?.origin ? [m.origin] : []);
     if (!bbox) return { scale: 1, tx: 0, ty: 0 };
-    return computeDefaultView(bbox, md.viewBox, ws, FIT_PAD_PX);
+    return computeDefaultView(bbox, md.viewBox, ws, scalePx(FIT_PAD_PX, wrapRef.current));
   }, []);
 
   const clearIntroTimers = useCallback(() => {

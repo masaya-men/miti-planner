@@ -1,3 +1,4 @@
+import { hpx } from '../../lib/housing/housingScale';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -47,24 +48,25 @@ export const HousingOnboardingDialog: React.FC<Props> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'var(--housing-detail-backdrop-bg)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: 'var(--housing-detail-backdrop-bg)', padding: hpx(16) }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="max-w-md w-full"
+        className="w-full"
         style={{
+          maxWidth: hpx(448),
           background: 'var(--housing-panel-bg)',
           border: '1px solid var(--housing-panel-border)',
           borderRadius: 'var(--housing-panel-radius)',
           color: 'var(--housing-text)',
-          padding: 24,
+          padding: hpx(24),
         }}
       >
         <h2 style={{
           fontSize: 'var(--housing-text-xl)',
           fontWeight: 600,
-          marginBottom: 14,
+          marginBottom: hpx(14),
         }}>
           {t('housing.onboarding.title')}
         </h2>
@@ -73,7 +75,7 @@ export const HousingOnboardingDialog: React.FC<Props> = ({
         </p>
         <ul style={{
           fontSize: 'var(--housing-text-base)',
-          marginBottom: 14,
+          marginBottom: hpx(14),
           paddingLeft: 20,
           listStyle: 'disc',
           color: 'var(--housing-text-dim)',
@@ -85,7 +87,7 @@ export const HousingOnboardingDialog: React.FC<Props> = ({
         <p style={{
           fontSize: 'var(--housing-text-sm)',
           color: 'var(--housing-text-dim)',
-          marginBottom: 16,
+          marginBottom: hpx(16),
         }}>
           {t('housing.onboarding.image_modes_note')}
         </p>
@@ -96,7 +98,7 @@ export const HousingOnboardingDialog: React.FC<Props> = ({
               type="button"
               onClick={onAcceptCurrentAccount}
               className="housing-action-btn housing-btn-primary"
-              style={{ width: '100%', justifyContent: 'center', padding: '10px 14px' }}
+              style={{ width: '100%', justifyContent: 'center', padding: `${hpx(10)} ${hpx(14)}` }}
             >
               {t('housing.onboarding.accept_current_account')}
             </button>
@@ -104,7 +106,7 @@ export const HousingOnboardingDialog: React.FC<Props> = ({
               type="button"
               onClick={onSwitchAccount}
               className="housing-action-btn"
-              style={{ width: '100%', justifyContent: 'center', padding: '10px 14px' }}
+              style={{ width: '100%', justifyContent: 'center', padding: `${hpx(10)} ${hpx(14)}` }}
             >
               {t('housing.onboarding.switch_account')}
             </button>
@@ -114,7 +116,7 @@ export const HousingOnboardingDialog: React.FC<Props> = ({
             type="button"
             onClick={() => { markHousingOnboardingSeen(); onClose(); }}
             className="housing-action-btn housing-btn-primary"
-            style={{ width: '100%', justifyContent: 'center', padding: '10px 14px' }}
+            style={{ width: '100%', justifyContent: 'center', padding: `${hpx(10)} ${hpx(14)}` }}
           >
             {t('housing.onboarding.start')}
           </button>

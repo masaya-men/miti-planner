@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { BrowseMapSpot } from '../../../../lib/housing/browseMapSpots';
-import { clampExpandedCardOffset } from '../../../../lib/housing/mapCardClamp';
+import { scalePx } from '../../../../lib/housing/housingScale';
+import { CLAMP_EDGE_PADDING, clampExpandedCardOffset } from '../../../../lib/housing/mapCardClamp';
 import { ListingCard } from '../ListingCard';
 
 /** hover してから拡大するまでの意図確認ディレイ(ms)。地図上を高速にスイープしただけで次々に
@@ -151,6 +152,7 @@ export const MapSpotCard: React.FC<MapSpotCardProps> = ({
       wrapH: wrapSize.h,
       cardW: cardSize.w,
       cardH: cardSize.h,
+      edgePadding: scalePx(CLAMP_EDGE_PADDING, cardRef.current),
     });
     // 画面 px → card-plane px。plane が ×mapScale するので ÷mapScale で相殺し、画面上は screen.dx/dy になる。
     return { dx: screen.dx / mapScale, dy: screen.dy / mapScale };

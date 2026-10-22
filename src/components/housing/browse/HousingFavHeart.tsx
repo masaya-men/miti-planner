@@ -1,3 +1,4 @@
+import { getHousingScale } from '../../../lib/housing/housingScale';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Heart } from 'lucide-react';
@@ -46,6 +47,7 @@ export const HousingFavHeart: React.FC<HousingFavHeartProps> = ({ listingId }) =
         return;
       }
       addFav(listingId);
+      const k = getHousingScale(e.currentTarget as Element); // PC 倍率 (粒の飛距離/大きさにも掛ける)
       setPop(true);
       setTimeout(() => setPop(false), POP_MS);
       const now = Date.now();
@@ -57,9 +59,9 @@ export const HousingFavHeart: React.FC<HousingFavHeartProps> = ({ listingId }) =
           const radius = PARTICLE_RADIUS * (0.75 + Math.random() * 0.5);
           return {
             id: now + i,
-            tx: Math.cos(a) * radius,
-            ty: Math.sin(a) * radius,
-            size: 4 + Math.random() * 4,
+            tx: Math.cos(a) * radius * k,
+            ty: Math.sin(a) * radius * k,
+            size: (4 + Math.random() * 4) * k,
             delayMs: Math.random() * PARTICLE_MAX_DELAY_MS,
           };
         }),

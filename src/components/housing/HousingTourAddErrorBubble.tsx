@@ -1,3 +1,4 @@
+import { scalePx } from '../../lib/housing/housingScale';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -9,7 +10,7 @@ export interface HousingTourAddErrorBubbleProps {
 
 /** 吹き出しの max-width(220px)の半分+画面端マージン(8px)。left はこの値で
  * viewport 内にクランプする(CSS 側の translateX(-50%) 中央寄せ込みの計算)。 */
-const BUBBLE_HALF_WIDTH_MARGIN = 118;
+const BUBBLE_HALF_WIDTH_MARGIN = 118; // 倍率 1 のときの値。実際は PC 倍率を掛けて使う
 
 /**
  * ボタンの真上に一時的なエラーメッセージを出す吹き出し。カードの overflow:hidden に
@@ -30,10 +31,11 @@ export const HousingTourAddErrorBubble: React.FC<HousingTourAddErrorBubbleProps>
       return;
     }
     const rect = anchorRef.current.getBoundingClientRect();
+    const margin = scalePx(BUBBLE_HALF_WIDTH_MARGIN);
     const rawLeft = rect.left + rect.width / 2;
     const clampedLeft = Math.min(
-      Math.max(rawLeft, BUBBLE_HALF_WIDTH_MARGIN),
-      window.innerWidth - BUBBLE_HALF_WIDTH_MARGIN,
+      Math.max(rawLeft, margin),
+      window.innerWidth - margin,
     );
     setPos({ top: rect.top, left: clampedLeft });
   }, [message, anchorRef]);

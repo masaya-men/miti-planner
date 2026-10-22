@@ -18,6 +18,8 @@ export interface ClampExpandedCardInput {
   /** 拡大時 (画面固定サイズ) のカード実寸 (マウント時に測定した layout 実寸)。 */
   cardW: number;
   cardH: number;
+  /** 縁の余白 (画面 px)。PC 倍率を掛けた値を渡す。省略時 CLAMP_EDGE_PADDING。 */
+  edgePadding?: number;
 }
 
 export interface ClampExpandedCardOffset {
@@ -30,25 +32,25 @@ export interface ClampExpandedCardOffset {
  * 終端が収まっている場合に限り始端(上端/左端)を直す(カードがコンテナより大きい極端ケースでは
  * 両立不能なので終端側を上書きしない = CTA を犠牲にしない)。
  */
-function clampAxis(minEdge: number, maxEdge: number, containerSize: number): number {
-  if (maxEdge > containerSize - CLAMP_EDGE_PADDING) {
-    return containerSize - CLAMP_EDGE_PADDING - maxEdge;
+function clampAxis(minEdge: number, maxEdge: number, containerSize: number, pad: number): number {
+  if (maxEdge > containerSize - pad) {
+    return containerSize - pad - maxEdge;
   }
-  if (minEdge < CLAMP_EDGE_PADDING) {
-    return CLAMP_EDGE_PADDING - minEdge;
+  if (minEdge < pad) {
+    return pad - minEdge;
   }
   return 0;
 }
 
 /** マーカー中心にアンカーした矩形がコンテナ内に収まるための追加オフセット (dx, dy・画面 px) を返す。 */
 export function clampExpandedCardOffset(input: ClampExpandedCardInput): ClampExpandedCardOffset {
-  const { markerX, markerY, wrapW, wrapH, cardW, cardH } = input;
+  const { markerX, markerY, wrapW, wrapH, cardW, cardH, edgePadding = CLAMP_EDGE_PADDING } = input;
   const left = markerX - cardW / 2;
   const right = markerX + cardW / 2;
   const top = markerY - cardH / 2;
   const bottom = markerY + cardH / 2;
   return {
-    dx: clampAxis(left, right, wrapW),
-    dy: clampAxis(top, bottom, wrapH),
+    dx: clampAxis(left, right, wrapW, edgePadding),
+    dy: clampAxis(top, bottom, wrapH, edgePadding),
   };
 }

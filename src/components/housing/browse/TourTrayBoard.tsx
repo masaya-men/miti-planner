@@ -1,3 +1,4 @@
+import { getHousingScale } from '../../../lib/housing/housingScale';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowDownUp, Route } from 'lucide-react';
@@ -29,11 +30,11 @@ export interface TourTrayBoardProps {
 }
 
 // 2026-08-11: 縦に7件重ねて見せたいとのことで60pxに戻す(76pxへ広げる変更は撤回)。
-const ROW_H = 60;
+const BASE_ROW_H = 60;
 // 列幅: 行カードの固定幅要素 (グリップ/番号/サムネ/ピン/削除 + gap) を引くと 200px では
 // タイトルの表示幅がほぼ 0 になっていたため、既存サイドバートレイ幅 (--housing-right-w: 300px)
 // に揃える。300px はこの行カードがタイトル込みで収まることが判っている実績値。
-const COL_W = 300;
+const BASE_COL_W = 300;
 /** 光の玉を 2 個にする最少件数。これ未満は 1 個 (2026-10-22 masaya「一定数を超えるまで玉は 1 個でいい」) */
 const SECOND_GLOW_MIN_STOPS = 12;
 
@@ -62,6 +63,10 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
   // (探すページ等から戻って再マウントするたびに再現)。そもそも未測定の間は SVG/カードを
   // 一切描画しない(null)ことで、実際に画面へ塗られる最初の内容が最初から正しい値になるようにする。
   const [rowsPerColumn, setRowsPerColumn] = useState<number | null>(null);
+  // PC の表示倍率 (--housing-scale)。行高/列幅の定数 (論理 px) を実寸にするために掛ける。採寸時に読む。
+  const [scale, setScale] = useState(1);
+  const ROW_H = BASE_ROW_H * scale;
+  const COL_W = BASE_COL_W * scale;
 
   // 実機指摘(2026-08-11・3回目): 「線」は直ったが、光の玉だけ初回に限って左上(=経路の起点である
   // 1番目のカード)で少し静止してから動き出すことがあった。動的に挿入された SVG の SMIL アニメーション
@@ -89,11 +94,15 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
     if (!el) return;
 
     // ref がアタッチされた瞬間 (コミット中・ブラウザが実際に描画する前) に同期的に採寸する。
-    setRowsPerColumn(Math.max(1, Math.floor(el.getBoundingClientRect().height / ROW_H)));
+    const s0 = getHousingScale(el);
+    setScale(s0);
+    setRowsPerColumn(Math.max(1, Math.floor(el.getBoundingClientRect().height / (BASE_ROW_H * s0))));
 
     const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver((entries) => {
       const height = entries[0]?.contentRect.height ?? 0;
-      setRowsPerColumn(Math.max(1, Math.floor(height / ROW_H)));
+      const s1 = getHousingScale(el);
+      setScale(s1);
+      setRowsPerColumn(Math.max(1, Math.floor(height / (BASE_ROW_H * s1))));
     }) : null;
     observer?.observe(el);
 
@@ -201,14 +210,14 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
                   aria-hidden="true"
                 >
                   <path d={pathD} />
-                  <circle r="5" className="housing-tour-board-path-glow">
+                  <circle r={5 * scale} className="housing-tour-board-path-glow">
                     <animateMotion ref={glow1Ref} dur={`${glowDuration}s`} repeatCount="indefinite" path={pathD} />
                   </circle>
                   {/* 実機指摘(2026-08-11): ロング(横スクロール範囲の広い)ツアーだと1つ目の玉が
                       画面外にいる時間が長いため、半周ずらした2つ目を追加していつ見ても
                       どちらかが視界に入りやすくする。 */}
                   {showSecondGlow && (
-                  <circle r="5" className="housing-tour-board-path-glow">
+                  <circle r={5 * scale} className="housing-tour-board-path-glow">
                     <animateMotion
                       ref={glow2Ref}
                       dur={`${glowDuration}s`}
