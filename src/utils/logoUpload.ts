@@ -92,12 +92,9 @@ async function saveLogoUrlToFirestore(userId: string, url: string | null): Promi
  * リサイズ → Firebase Storage → Firestore の順に処理し、ダウンロード URL を返す
  */
 export async function uploadTeamLogo(userId: string, file: File): Promise<string> {
-    console.log('[LogoUpload] 開始:', { fileSize: file.size, fileType: file.type });
-
     let blob: Blob;
     try {
         blob = await resizeToJpeg(file);
-        console.log('[LogoUpload] JPEGリサイズ成功:', { blobSize: blob.size });
     } catch (err) {
         console.error('[LogoUpload] JPEGリサイズ失敗:', err);
         throw err;
@@ -106,18 +103,14 @@ export async function uploadTeamLogo(userId: string, file: File): Promise<string
     const storageRef = ref(storage, `users/${userId}/team-logo.jpg`);
     try {
         await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
-        console.log('[LogoUpload] Storage アップロード成功');
     } catch (err) {
         console.error('[LogoUpload] Storage アップロード失敗:', err);
         throw err;
     }
 
     const url = await getDownloadURL(storageRef);
-    console.log('[LogoUpload] ダウンロードURL取得成功');
-
     try {
         await saveLogoUrlToFirestore(userId, url);
-        console.log('[LogoUpload] Firestore 保存成功');
     } catch (err) {
         console.error('[LogoUpload] Firestore 保存失敗:', err);
         throw err;
