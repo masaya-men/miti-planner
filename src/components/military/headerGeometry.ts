@@ -23,7 +23,8 @@ export const mwFor = (zoneWidth: number, scale: number): number =>
 /** 縮小時は 1189 で描く */
 export const layoutMW = (MW: number): number => Math.max(MW, HDR_BASE_MW);
 
-const HDR_FRAME: StretchFrame = { w0: HDR_BASE_MW, h0: HDR_H, sx: 700, sy: 9999 };
+/** ヘッダーの伸縮線は x = 700(これより左は左端基準・右は MW 基準)。relayout の継ぎ目にも使う */
+export const HDR_FRAME: StretchFrame = { w0: HDR_BASE_MW, h0: HDR_H, sx: 700, sy: 9999 };
 
 export interface HdrKeyRow {
   id: 'aux' | 'com' | 'party' | 'io' | 'mainstream' | 'gear' | 'sort';
