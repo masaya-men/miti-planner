@@ -27,13 +27,21 @@ export const HousingCardMarqueeLine: React.FC<{
     const copy = copyRef.current;
     const content = contentRef.current;
     if (!clip || !copy || !content) return;
-    const measure = () =>
-      setMetrics(
-        // content=テキスト本体 (見切れ判定) / copy=テキスト+コピー間ギャップ (1周距離)
-        computeMarqueeLoopMetrics(content.offsetWidth, copy.offsetWidth, clip.clientWidth),
+    // 計測は ResizeObserver の通知の中だけで行う (通知は配置計算の後に来るので、幅を読んでも
+    // 配置計算のやり直しにならない)。以前はマウント直後に同期で測っていて、探すページの
+    // 約 274 枚で 1 枚ごとに配置計算がやり直され、約 2 秒画面が止まっていた (2026-10-22 本番実測)。
+    // 幅 0 の通知 = 画面外で配置が省略されている (content-visibility:auto) カードなので測らない
+    // (ここで幅を読むと、そのカードの配置計算を強制してしまう)。画面に近づくと改めて通知が来る。
+    const ro = new ResizeObserver(([entry]) => {
+      if (!entry || entry.contentRect.width === 0) return;
+      // content=テキスト本体 (見切れ判定) / copy=テキスト+コピー間ギャップ (1周距離)
+      const next = computeMarqueeLoopMetrics(content.offsetWidth, copy.offsetWidth, clip.clientWidth);
+      setMetrics((prev) =>
+        prev.clipped === next.clipped && prev.distancePx === next.distancePx && prev.durationSec === next.durationSec
+          ? prev
+          : next,
       );
-    measure();
-    const ro = new ResizeObserver(measure);
+    });
     ro.observe(clip);
     return () => ro.disconnect();
   }, [children]);
