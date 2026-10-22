@@ -24,6 +24,11 @@ vi.mock('../../lib/housing/useYoutubeFetch', () => ({
   useYoutubeFetch: () => youtubeState,
 }));
 
+let tweetState: any = { status: 'idle', data: null, fetchTweet: vi.fn(), reset: vi.fn() };
+vi.mock('../../lib/housing/useTweetFetch', () => ({
+  useTweetFetch: () => tweetState,
+}));
+
 const mockAllmarksStart = vi.fn();
 const mockAllmarksCancel = vi.fn();
 const ALLMARKS_IDLE_PROGRESS = {
@@ -66,6 +71,7 @@ describe('EphemeralAddPanel', () => {
     useEphemeralListingsStore.getState().clear();
     mockFetchYoutubeMeta.mockClear();
     youtubeState = { status: 'idle', data: null, fetchYoutubeMeta: mockFetchYoutubeMeta, cancel: vi.fn(), reset: vi.fn() };
+    tweetState = { status: 'idle', data: null, fetchTweet: vi.fn(), reset: vi.fn() };
     mockAllmarksStart.mockClear();
     mockAllmarksCancel.mockClear();
     allmarksImportState = { progress: ALLMARKS_IDLE_PROGRESS, start: mockAllmarksStart, cancel: mockAllmarksCancel };
@@ -175,6 +181,22 @@ describe('EphemeralAddPanel', () => {
 
     expect((screen.getByLabelText('区') as HTMLInputElement).value).toBe('3');
     expect((screen.getByLabelText('番地') as HTMLInputElement).value).toBe('15');
+  });
+
+  it('⑯ 動画ツイート (photos 空) は動画のサムネ画像をカード画像にする (2026-10-22 画像が出なかった不具合)', () => {
+    const onAdd = vi.fn();
+    const { rerender } = wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={onAdd} />);
+    fireEvent.change(screen.getByLabelText('SNSのURLから'), { target: { value: 'https://x.com/a/status/1' } });
+    tweetState = {
+      ...tweetState,
+      status: 'success',
+      data: { text: '', photos: [], video: { url: 'https://video.twimg.com/a.mp4', posterUrl: 'https://pbs.twimg.com/ext_tw_video_thumb/p.jpg', aspectRatio: null } },
+    };
+    rerender(<I18nextProvider i18n={i18n}><EphemeralAddPanel open onClose={() => {}} onAdd={onAdd} /></I18nextProvider>);
+    fillHouse('Mist', '3', '15');
+    fireEvent.click(addButton());
+    const stored = useEphemeralListingsStore.getState().ephemeralListings;
+    expect(stored[0]?.ogImageUrl).toBe('https://pbs.twimg.com/ext_tw_video_thumb/p.jpg');
   });
 
   it('⑦ YouTube URL貼付→概要欄に住所が無いとparse_error表示', () => {

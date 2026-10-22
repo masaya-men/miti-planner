@@ -142,13 +142,43 @@ describe('buildNewListingNotification', () => {
     expect(body.split('\n').at(-1)).toBe('https://housingsnap.com/47818');
   });
 
-  it('カードが正しく出るサイト (studio-xiv 等) は従来どおり投稿元を最後にし、クレジットも付けない', () => {
+  // 2026-10-22: Studio XIV でも LoPo のカードが目立った(masaya)。引用できる X ポストが無いときは
+  // 本文から LoPo の URL を外してリプへ回し、本文の URL を投稿元 1 本だけにする。
+  it('X ポストを引用できない投稿元 (studio-xiv 等) は本文に LoPo の URL を入れず、投稿元だけにする', () => {
     const { discordContent } = buildNewListingNotification({
       ...base, title: 'x', postUrl: 'https://studio-xiv.com/studio/101158/', creatorName: 'someone',
     });
     const body = bodyOf(discordContent);
     expect(body.split('\n').at(-1)).toBe('https://studio-xiv.com/studio/101158/');
+    expect(body).not.toContain('lopoly.app');
     expect(body).not.toContain('制作:');
+    // LoPo の URL はリプ用に回る (ハウジンガーページのリンクより前)
+    const listingIdx = discordContent.indexOf('LoPo で行き方ナビつきで見る👇\nhttps://lopoly.app/housing/listing/AbC123');
+    expect(listingIdx).toBeGreaterThan(discordContent.indexOf('リプ用'));
+    expect(discordContent.indexOf('さんの他のハウジングはこちら👇')).toBeGreaterThan(listingIdx);
+  });
+
+  it('HOUSING SNAP で X ポストが無いときも本文に LoPo の URL を入れない', () => {
+    const { discordContent } = buildNewListingNotification({
+      ...base, title: 'x', postUrl: 'https://housingsnap.com/47818', creatorName: 'Ryndessa',
+    });
+    expect(bodyOf(discordContent)).not.toContain('lopoly.app');
+  });
+
+  it('LoPo の URL をリプへ回すとき、ハウジンガーページ未公開でもリプ用ブロックを出す', () => {
+    const { discordContent } = buildNewListingNotification({
+      ...base, title: 'x', postUrl: 'https://studio-xiv.com/studio/101158/', housingerProfilePublished: false,
+    });
+    expect(discordContent).toContain('LoPo で行き方ナビつきで見る👇\nhttps://lopoly.app/housing/listing/AbC123');
+    expect(discordContent).not.toContain('他のハウジングはこちら');
+  });
+
+  it('X ポストを引用できるときは従来どおり本文に LoPo の URL を残す', () => {
+    const { discordContent } = buildNewListingNotification({
+      ...base, title: 'x', postUrl: 'https://x.com/a/status/1',
+    });
+    expect(bodyOf(discordContent)).toContain('https://lopoly.app/housing/listing/AbC123');
+    expect(discordContent).not.toContain('LoPo で行き方ナビつきで見る');
   });
 
   it('生成されるツイート本文は280文字以内', () => {

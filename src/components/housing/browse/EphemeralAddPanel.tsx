@@ -118,7 +118,8 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
     const photos = tweetData.photos ?? [];
     setSource({
       postUrl: urlRef.current.trim(),
-      ogImageUrl: photos[0],
+      // 動画ツイートは photos が空 → 動画のサムネ画像をカード画像にする (RegisterPage と同じ扱い)
+      ogImageUrl: photos[0] ?? tweetData.video?.posterUrl,
       sourceImageUrls: photos.length > 0 ? photos.slice(0, 10) : undefined,
     });
     const result = parseHousingFromText(tweetData.text);

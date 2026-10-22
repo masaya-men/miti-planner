@@ -30,7 +30,7 @@ export const TourTrayDetailPanel: React.FC<TourTrayDetailPanelProps> = ({
     <div className="housing-tour-plan-detail">
       {listing ? (
         <div className="housing-tour-plan-detail-body">
-          <TourLivingMedia listing={listing} showFavorite={!isEphemeralListingId(listing.id)} />
+          <TourLivingMedia key={listing.id} listing={listing} showFavorite={!isEphemeralListingId(listing.id)} />
           {!isEphemeralListingId(listing.id) && <HousingerByline ownerUid={listing.ownerUid} />}
           <h2 className="housing-tour-dest-title">
             {listing.title?.trim()

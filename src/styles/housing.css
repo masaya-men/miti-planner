@@ -370,7 +370,9 @@
   position: relative; z-index: 2;
   height: 100vh;
   display: grid;
-  grid-template-rows: var(--housing-header-h) 1fr var(--housing-status-h);
+  /* iPhone のホーム画面アプリ (status-bar-style=black-translucent) は画面最上部まで描くため、
+     時計・電池の帯ぶん (safe-area-inset-top) をヘッダー行に足す。通常のブラウザでは 0 (2026-10-22) */
+  grid-template-rows: calc(var(--housing-header-h) + env(safe-area-inset-top, 0px)) 1fr var(--housing-status-h);
 }
 
 /* ===== TopBar (header) ===== */
@@ -4623,7 +4625,7 @@ select.housing-input option {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 0 24px;
+  padding: env(safe-area-inset-top, 0px) 24px 0;
   background: var(--housing-panel-bg);
   border-bottom: 1px solid var(--housing-panel-border);
   box-shadow:
@@ -5202,8 +5204,10 @@ select.housing-input option {
   fill: none;
   stroke: var(--housing-aether);
   stroke-width: var(--housing-register-stepper-ring-w);
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.4s var(--housing-tour-step-spring);
+  /* round だと塗り量 0 の線/円にも丸い点が描かれ、バネの行き過ぎで次の線がちょろっと出かけた (2026-10-22)。
+     butt + 行き過ぎの無い減速カーブで落ち着いた動きに。 */
+  stroke-linecap: butt;
+  transition: stroke-dashoffset 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 /* 円周は下端(6時)起点・反時計回り: rotate で開始点を下へ、scale で向きを反転。
    best-guess の向き。実画面 (CSS 1489 / DPR 2.58) で見え方を確認し、必要なら調整する。 */
@@ -8874,7 +8878,8 @@ select.housing-input option {
   flex: 0 0 auto;
   align-self: stretch;
   text-align: center;
-  padding: 12px 4px 2px;
+  /* 下はパネルの縁 (.housing-tour-page-col の 14px) に揃える。2px だと下端にくっついて見えた (2026-10-22) */
+  padding: 12px 4px 14px;
   border: 0;
   border-top: 1px solid var(--housing-divider);
   background: transparent;
@@ -9938,7 +9943,7 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   /* StatusBar 行は設定シートへ統合したので、シェルの grid から丸ごと外す
      (行を残すと --housing-status-h ぶんの空白が下端に残ってしまう)。 */
   .housing-shell {
-    grid-template-rows: var(--housing-header-h) 1fr;
+    grid-template-rows: calc(var(--housing-header-h) + env(safe-area-inset-top, 0px)) 1fr;
     /* 実機FB#9: iOS Safari の 100vh はブラウザUI込みの大きい viewport を指し、下端(ボトムナビ余白ごと)が
        画面外に沈んでカードがナビの裏に隠れる。dvh (実際に見えている高さ) で追随させる。
        非対応ブラウザは 1 行目の 100vh へフォールバック。 */

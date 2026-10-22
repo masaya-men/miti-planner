@@ -15,6 +15,7 @@ const HASHTAGS = '#FF14ハウジング #FFXIVHousing';
 const BODY_LEAD = '新しいハウジングが投稿されました🏠';
 const NAME_FALLBACK = '名無しさん';
 const replyLead = (name: string) => `${name}さんの他のハウジングはこちら👇`;
+const LISTING_REPLY_LEAD = 'LoPo で行き方ナビつきで見る👇';
 
 export interface NewListingNotificationInput {
   listingId: string;
@@ -82,8 +83,12 @@ export function buildNewListingNotification(input: NewListingNotificationInput):
   const credit = !quoteUrl && lastUrl && isHousingSnapPostUrl(lastUrl) && creatorName
     ? `\n制作: ${creatorName}さん（HOUSING SNAP）`
     : '';
+  // 引用できる X ポストが無い投稿元 (Studio XIV / HOUSING SNAP 等) は、相手のカードが出ないと LoPo のカードが
+  // 主役になる (2026-10-22 masaya 実機)。本文の URL を投稿元 1 本にし、LoPo の URL はリプへ回す。
+  const listingInReply = !quoteUrl && !!lastUrl;
   // リード文とハッシュタグの間は改行 + 空白行 1 行 (2026-08-31 実機テスト後のユーザー指定)。
-  const bodyLines = [`${BODY_LEAD}${credit}\n\n${HASHTAGS}`, listingUrl];
+  const bodyLines = [`${BODY_LEAD}${credit}\n\n${HASHTAGS}`];
+  if (!listingInReply) bodyLines.push(listingUrl);
   if (lastUrl) bodyLines.push(lastUrl);
   const bodyText = bodyLines.join('\n');
   const bodyIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(bodyText)}`;
@@ -99,19 +104,23 @@ export function buildNewListingNotification(input: NewListingNotificationInput):
   const rawName = (input.housingerName ?? '').replace(/#/g, '');
   const name = rawName.trim() || NAME_FALLBACK;
 
-  let replyBlock = '';
+  const replyParts: string[] = [];
+  if (listingInReply) replyParts.push(`${LISTING_REPLY_LEAD}\n${listingUrl}`);
   let registrantNote = '';
   if (input.housingerProfilePublished) {
     const slug = buildHousingerShortSlug(rawName, input.housingerUid);
-    const housingerUrl = `${SITE_ORIGIN}/h/${slug}`;
-    replyBlock =
-      '\n▶ リプ用 (本文を投稿したあと、自分のツイートに「返信」して貼り付け):\n'
-      + '```\n'
-      + `${replyLead(name)}\n${housingerUrl}\n`
-      + '```\n';
+    replyParts.push(`${replyLead(name)}\n${SITE_ORIGIN}/h/${slug}`);
   } else {
-    registrantNote = ' ※ハウジンガーページ未公開のためリプはスキップ';
+    registrantNote = listingInReply
+      ? ' ※ハウジンガーページ未公開のためリプは物件ページのみ'
+      : ' ※ハウジンガーページ未公開のためリプはスキップ';
   }
+  const replyBlock = replyParts.length === 0
+    ? ''
+    : '\n▶ リプ用 (本文を投稿したあと、自分のツイートに「返信」して貼り付け):\n'
+      + '```\n'
+      + `${replyParts.join('\n\n')}\n`
+      + '```\n';
 
   // --- 確認用 ---
   const confirmLines = [`物件ページ  ${listingUrl}`];

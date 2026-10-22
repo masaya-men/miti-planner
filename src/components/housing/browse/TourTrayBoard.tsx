@@ -26,6 +26,8 @@ const ROW_H = 60;
 // タイトルの表示幅がほぼ 0 になっていたため、既存サイドバートレイ幅 (--housing-right-w: 300px)
 // に揃える。300px はこの行カードがタイトル込みで収まることが判っている実績値。
 const COL_W = 300;
+/** 光の玉を 2 個にする最少件数。これ未満は 1 個 (2026-10-22 masaya「一定数を超えるまで玉は 1 個でいい」) */
+const SECOND_GLOW_MIN_STOPS = 12;
 
 /**
  * ツアー計画画面(PC)の右側: 番号カードを蛇行(上下交互)に並べたグリッド。
@@ -148,6 +150,8 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
   // 停まる件数が多いほど道のりが長くなるため、体感速度が揃うよう件数に応じて周期を伸ばす。
   // 実機指摘(2回目): 速度を約1.8倍に。
   const glowDuration = Math.max(1.7, cells.length * 0.45);
+  // 2026-10-22 masaya: 短いツアーは玉 1 個で十分。道のりが長い (= 1 個だと画面外の時間が長い) ときだけ 2 個目を出す。
+  const showSecondGlow = cells.length >= SECOND_GLOW_MIN_STOPS;
 
   return (
     <div className="housing-tour-board">
@@ -187,6 +191,7 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
                   {/* 実機指摘(2026-08-11): ロング(横スクロール範囲の広い)ツアーだと1つ目の玉が
                       画面外にいる時間が長いため、半周ずらした2つ目を追加していつ見ても
                       どちらかが視界に入りやすくする。 */}
+                  {showSecondGlow && (
                   <circle r="5" className="housing-tour-board-path-glow">
                     <animateMotion
                       ref={glow2Ref}
@@ -196,6 +201,7 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
                       path={pathD}
                     />
                   </circle>
+                  )}
                 </svg>
                 {items.map((l) => {
                   const cell = cellById.get(l.id);
