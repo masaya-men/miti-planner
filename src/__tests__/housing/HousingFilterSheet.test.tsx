@@ -46,9 +46,9 @@ const wrap = (ui: React.ReactElement) => render(
 describe('HousingFilterSheet タグ検索 (インライン展開)', () => {
   it('「タグ」トリガーを押すとその場に展開する', async () => {
     wrap(<HousingFilterSheet isOpen onClose={vi.fn()} />);
-    expect(screen.queryByText('ハウジンガー')).toBeNull();
+    expect(screen.queryByText('この条件で絞り込む')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'タグ' }));
-    await waitFor(() => expect(screen.getByText('ハウジンガー')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('この条件で絞り込む')).toBeInTheDocument());
   });
 
   it('「絞り込む」を押すとその場で折りたたまれるが、シートは閉じない (onCloseが呼ばれない)', async () => {
@@ -58,6 +58,6 @@ describe('HousingFilterSheet タグ検索 (インライン展開)', () => {
     await waitFor(() => expect(useHousingTagPickerStore.getState().lastSyncedCommitted).not.toBeNull());
     fireEvent.click(screen.getByText('この条件で絞り込む'));
     expect(onClose).not.toHaveBeenCalled();
-    expect(screen.queryByText('ハウジンガー')).toBeNull();
+    expect(screen.queryByText('この条件で絞り込む')).toBeNull();
   });
 });

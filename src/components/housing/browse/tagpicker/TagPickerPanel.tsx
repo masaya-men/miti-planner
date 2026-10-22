@@ -7,7 +7,6 @@ import { useHousingTagPickerStore } from '../../../../store/useHousingTagPickerS
 import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
 import { applyFilters } from '../../../../lib/housing/applyFilters';
 import { useKeywordFilteredListings } from '../../../../lib/housing/useKeywordFilteredListings';
-import { HousingerTagSection } from './HousingerTagSection';
 import { AllTagsSection } from './AllTagsSection';
 
 export interface TagPickerPanelProps {
@@ -68,7 +67,6 @@ export const TagPickerPanel: React.FC<TagPickerPanelProps> = ({ onApplied }) => 
 
   return (
     <div className="housing-tagpicker">
-      <HousingerTagSection selected={pendingTags} onToggle={toggleTag} />
       <AllTagsSection selected={pendingTags} onToggle={toggleTag} />
       <div className="housing-tagpicker-footer">
         <span className="housing-tagpicker-preview">
