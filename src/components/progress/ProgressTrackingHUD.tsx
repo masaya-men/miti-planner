@@ -15,6 +15,7 @@ import { useMitigationStore } from '../../store/useMitigationStore';
 import { usePlanStore } from '../../store/usePlanStore';
 import { useMitigations } from '../../hooks/useSkillsData';
 import { useProgressJourney } from './useProgressJourney';
+import { Tooltip } from '../ui/Tooltip';
 import { ProgressRecordPanel } from './ProgressRecordPanel';
 import { ProgressCelebration } from './ProgressCelebration';
 import { ProgressRecordToast } from './ProgressRecordToast';
@@ -309,10 +310,12 @@ export function ProgressTrackingHUD() {
           /* 誘導型空状態: 軌跡の代わりに誘導文言を帯に出す。
              LoPo トンマナ=白黒テキストのみ。普段は控えめ、ホバーで文字がはっきり+下線→「押せる」と気付かせる。 */
           <div className="flex items-center justify-center h-9 min-w-0">
-            {/* 狭いと 2 行に折れて崩れて見えるため 1 行固定+省略(全文は title で出す) */}
-            <span title={t('progress.empty_cta')} className="whitespace-nowrap truncate text-app-sm text-app-text-sec group-hover:text-app-text underline-offset-4 group-hover:underline transition-all duration-200">
-              {t('progress.empty_cta')}
-            </span>
+            {/* 狭いと 2 行に折れて崩れて見えるため 1 行固定+省略(全文は LoPo Tooltip で出す) */}
+            <Tooltip content={t('progress.empty_cta')} wrapperClassName="min-w-0 max-w-full">
+              <span className="whitespace-nowrap truncate text-app-sm text-app-text-sec group-hover:text-app-text underline-offset-4 group-hover:underline transition-all duration-200">
+                {t('progress.empty_cta')}
+              </span>
+            </Tooltip>
           </div>
         ) : (
           <JourneyStrip
