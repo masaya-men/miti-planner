@@ -189,6 +189,41 @@ describe('relayoutZones(2 段階の開閉)', () => {
     expect(splitAnims('right').map((a) => (a.el as HTMLElement).getAttribute('data-zone'))).toEqual(['vent']);
   });
 
+  it('上の板の縁の影: 左の板の縁に付いて一緒に滑る(閉じる 276→0 / 開く 0→276)。右の板の縁より右は切る', () => {
+    const fakeRect = (l: number, t: number, w: number, h: number) => () => ({ left: l, top: t, width: w, height: h, right: l + w, bottom: t + h, x: l, y: t, toJSON() {} }) as DOMRect;
+    const withShadow = (zones: Record<string, HTMLElement>, left: number) => {
+      // 窓が開いた配置: 区画の左端 = left、帯 0(y0-4・切れ目 700)と帯 1(4-48・714)。窓の右の縁 = 切れ目 + 276
+      zones.header.innerHTML = '<div class="milspec-hs-box"><svg><g class="drw-shadow" opacity="1">'
+        + [0, 1].map((i) => `<rect data-sh="far-l" data-band="${i}"/><rect data-sh="far-r" data-band="${i}"/><rect data-sh="near-l" data-band="${i}"/><rect data-sh="near-r" data-band="${i}"/>`).join('')
+        + '</g></svg></div>';
+      const g = zones.header.querySelector('.drw-shadow')!;
+      const bands = [{ i: 0, y: 0, h: 4, c: 700 }, { i: 1, y: 4, h: 44, c: 714 }];
+      for (const b of bands) {
+        const q = (n: string) => g.querySelector(`[data-sh="${n}"][data-band="${b.i}"]`) as SVGRectElement;
+        q('far-l').getBoundingClientRect = fakeRect(left + b.c, b.y, 18, b.h);
+        q('near-l').getBoundingClientRect = fakeRect(left + b.c, b.y, 3.5, b.h);
+        q('far-r').getBoundingClientRect = fakeRect(left + b.c + 276 - 18, b.y, 18, b.h);
+        q('near-r').getBoundingClientRect = fakeRect(left + b.c + 276 - 3.5, b.y, 3.5, b.h);
+      }
+    };
+    // 開く: 閉じた配置(区画の左端 24)の本物から測り、左の板と一緒に 0 → 276
+    const o = setup({ sbOpen: false });
+    withShadow(o.zones, 24);
+    relayoutZones(o.app, o.sbOpenFn, 'sb', false);
+    const sh = o.app.querySelector('[data-split="shadow"]') as HTMLElement;
+    expect(sh).not.toBeNull();
+    expect(sh.nextElementSibling).toBe(o.app.querySelector('[data-split="left"][data-zone="header"]'));
+    expect(sh.style.clipPath).toContain('polygon(');
+    expect(sh.style.clipPath).toContain('976px'); // 帯 0 の窓の右の縁(区画の左端から 700 + 276)
+    expect(sh.style.clipPath).toContain('990px'); // 帯 1(714 + 276)
+    const slider = sh.firstElementChild!;
+    expect(sh.querySelectorAll('rect')).toHaveLength(4);
+    const a = o.anims.find((x) => x.el === slider)!;
+    expect(firstTransform(a.frames)).toBe('translate(0px, 0px)');
+    expect(lastTransform(a.frames)).toBe('translate(276px, 0px)');
+    expect(a.opts).toMatchObject({ duration: 420 });
+  });
+
   it('サイドバーを開く: 1 段目で他区画・左の板が 0→+276、台車は 0→+138(60・480)。1 段目の終わり(540)+80 = 620ms 後に change → サイドバーが入る', () => {
     const { app, sbOpenFn, animOf, splitAnims, carriageAnim, zones, anims } = setup({ sbOpen: false });
     relayoutZones(app, sbOpenFn, 'sb', false);

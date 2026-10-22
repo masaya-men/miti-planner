@@ -549,6 +549,42 @@ function slidePlates(run: Run, sp: SplitZone, sx: number, ex: number, csx: numbe
   return { anims, moving };
 }
 
+/** 上の板の縁の影を、滑る左の板の縁に付けて一緒に動かす(見本 v3 の render(): 影は縁のすぐ下 3.5px 濃い + 穴の底へ 18px 薄い)。
+ *  本物の影(下の板の SVG)は静止した位置にあるので、本物の区画(= 窓が開いた配置)の影の矩形を測り、
+ *  左の板の縁(near-l / far-l)だけを写した 1 枚を左の複製の下・右の複製の上に置く。窓の右の縁(右の板)より右は切るので、
+ *  右の板の上には影が乗らない。sx → ex は左の板と同じずれ(この 1 枚は窓が開いた配置の位置が基準なので、左の板の動きに +D を足した向き)。
+ *  影の矩形が測れない(テストの代役など)ときは null */
+function shadowFollow(app: HTMLElement, zone: HTMLElement, run: Run, sx: number, ex: number, paused: boolean): Animation | null {
+  const g = zone.querySelector('.drw-shadow');
+  if (!g) return null;
+  const rects = (n: string) => [...g.querySelectorAll<SVGRectElement>(`[data-sh="${n}"]`)]
+    .sort((a, b) => Number(a.getAttribute('data-band')) - Number(b.getAttribute('data-band'))).map((e) => e.getBoundingClientRect());
+  const nl = rects('near-l'), fl = rects('far-l'), nr = rects('near-r');
+  if (!nl.length || nl.length !== fl.length || nl.length !== nr.length) return null;
+  const a = app.getBoundingClientRect(), z = zone.getBoundingClientRect();
+  const ox = z.left - a.left, oy = z.top - a.top;
+  const op = g.getAttribute('opacity') ?? '1';
+  const el = document.createElement('div');
+  el.classList.add('milspec-split');
+  el.setAttribute('data-split', 'shadow');
+  el.setAttribute('aria-hidden', 'true');
+  el.setAttribute('inert', '');
+  Object.assign(el.style, { position: 'absolute', gridArea: 'auto', margin: '0', pointerEvents: 'none', zIndex: '1', left: `${ox}px`, top: `${oy}px`, width: `${z.width}px`, height: `${z.height}px` });
+  // 窓の右の縁(右の板の左の縁)より左だけを見せる階段
+  el.style.clipPath = stairPolygon(nr.map((r) => ({ x: r.right - z.left, y0: r.top - z.top, y1: r.bottom - z.top })), -CLIP_PAD, z.height);
+  const rect = (r: DOMRect, grad: string) => `<rect x="${px(r.left - z.left)}" y="${px(r.top - z.top)}" width="${px(r.width)}" height="${px(r.height)}" fill="url(#${grad})"/>`;
+  const body = nl.map((r, i) => rect(fl[i], 'sh-far-l') + rect(r, 'sh-near-l')).join('');
+  // 切り抜き(静止)の中で、この箱だけが滑る
+  el.innerHTML = `<div style="position:absolute;inset:0"><svg width="${z.width}" height="${z.height}" style="position:absolute;left:0;top:0;overflow:visible"><g opacity="${op}">${body}</g></svg></div>`;
+  const slider = el.firstElementChild as HTMLElement;
+  // 左の複製のすぐ下(右の複製の上)に置く
+  const left = app.querySelector('[data-split="left"][data-zone="header"]');
+  if (left) left.before(el); else app.append(el);
+  run.restores.push(() => el.remove());
+  if (typeof slider.animate !== 'function') return null;
+  return (paused ? held : play)(run, slider, frames(sx, 0, ex, 0), { duration: PHASE_DUR, fill: 'both' });
+}
+
 /** 1 段目が画面から見えなくなった所(cond が真・遅くとも deadline ms)で fn を 1 回呼ぶ。from ms までは確かめない。
  *  change の重い再描画を「ずらす間」の中に隠し、2 段目は予定の時刻に始めるため */
 function whenHidden(run: Run, from: number, deadline: number, cond: () => boolean, fn: () => void) {
@@ -648,6 +684,8 @@ function sidebarClose(app: HTMLElement, run: Run, sb: HTMLElement) {
         swapRight(splits[i], z, seam, bx[i]);
         // 継ぎ目が移動量より左(通気口): 右の複製(溝)の見える左端を板の左端と一緒に動かす。新しい配置では D → 0
         if (typeof seam === 'number' && seam < D - 0.5) edges.push(held(run, splits[i].right, edgeFrames(D, 0), { duration: PHASE_DUR, fill: 'both' }));
+        // ヘッダー: 上の板の縁の影が左の板の縁に付いて動く(新しい配置の窓の位置が基準。D → 0)
+        if (Array.isArray(seam)) { const sh = shadowFollow(app, z, run, D, 0, true); if (sh) edges.push(sh); }
       });
       pin?.swap(D);
       settled = true;
@@ -674,7 +712,10 @@ function sidebarOpen(app: HTMLElement, run: Run) {
     const sp = splitZone(z, seam);
     run.restores.push(sp.restore);
     if (typeof seam === 'number' && seam < D - 0.5) sp.edge = [0, D];
-    return slidePlates(run, sp, 0, D, 0, travel, false).anims;
+    const anims = slidePlates(run, sp, 0, D, 0, travel, false).anims;
+    // ヘッダー: 上の板の縁の影が左の板の縁に付いて動く(いまの配置 = 窓が開いた位置が基準。0 → D)
+    if (Array.isArray(seam)) { const sh = shadowFollow(app, z, run, 0, D, false); if (sh) anims.push(sh); }
+    return anims;
   });
   const phase1End = Math.max(PHASE_DUR, CARRIAGE_LAG + CARRIAGE_DUR);
 
