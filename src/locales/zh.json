@@ -1924,6 +1924,7 @@
             "favorite": "收藏",
             "add_to_tour": "加入导览",
             "added_to_tour": "已加入",
+            "added_mark": "✓ 导览",
             "select": "选择",
             "addressPrivate": "地址不公开",
             "privateListing": "不公开的房屋",
@@ -2034,6 +2035,7 @@
             "browse": "浏览",
             "favorites": "收藏",
             "tour": "导览",
+            "tour_count_aria": "导览中有 {{count}} 处",
             "register": "登记",
             "mypage": "我的页面"
         },

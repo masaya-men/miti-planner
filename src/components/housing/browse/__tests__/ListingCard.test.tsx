@@ -605,3 +605,42 @@ describe('ListingCard — ツアー追加のフィードバック(2026-08-10)', 
     expect(useTourTrayStore.getState().trayIds).toEqual(['other1']);
   });
 });
+
+describe('ListingCard — tourAddVariant="overlay" (ハウジンガーページ)', () => {
+  const overlayBtn = () => screen.queryAllByTestId('housing-card-add-overlay');
+
+  it('ボタンは 1 個だけ出て、押すとトレイに入り「追加済み」になる (フッターは出ない)', () => {
+    const onAddToTour = vi.fn();
+    renderCard({ tourAddVariant: 'overlay', onAddToTour, listing: { ...mockListing, region: 'JP', visibility: 'public' } });
+    expect(overlayBtn()).toHaveLength(1);
+    expect(document.querySelector('.housing-card-add-btn')).toBeNull();
+    const btn = overlayBtn()[0];
+    expect(btn).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(btn);
+    expect(onAddToTour).toHaveBeenCalledWith(mockListing.id);
+    expect(useTourTrayStore.getState().trayIds).toEqual([mockListing.id]);
+    expect(btn).toHaveAttribute('aria-pressed', 'true');
+    expect(btn).toHaveTextContent('追加済み');
+    expect(navigate).not.toHaveBeenCalled(); // カードの詳細遷移は発火しない
+  });
+
+  it('住所非公開 (unlisted) ではボタンも印も出ない', () => {
+    useTourTrayStore.setState({ trayIds: [mockListing.id], pinnedIds: [] });
+    renderCard({ tourAddVariant: 'overlay', listing: { ...mockListing, visibility: 'unlisted' } });
+    expect(overlayBtn()).toHaveLength(0);
+    expect(screen.queryByTestId('housing-card-added-mark')).not.toBeInTheDocument();
+  });
+
+  it('追加済みなら「✓ ツアー」の印が出る / 未追加なら出ない', () => {
+    const { unmount } = renderCard({ tourAddVariant: 'overlay', listing: { ...mockListing, visibility: 'public' } });
+    expect(screen.queryByTestId('housing-card-added-mark')).not.toBeInTheDocument();
+    fireEvent.click(overlayBtn()[0]);
+    expect(screen.getByTestId('housing-card-added-mark')).toHaveTextContent('✓ ツアー');
+    unmount();
+  });
+
+  it('onAddToTour 未指定ならボタンを出さない', () => {
+    renderCard({ tourAddVariant: 'overlay', onAddToTour: undefined, listing: { ...mockListing, visibility: 'public' } });
+    expect(overlayBtn()).toHaveLength(0);
+  });
+});

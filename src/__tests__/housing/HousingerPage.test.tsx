@@ -186,6 +186,23 @@ describe('HousingerPage', () => {
     ).toBeInTheDocument();
   });
 
+  it('他人視点ではカードに「ツアーに追加」(overlay) が出て、本人視点では出ない', async () => {
+    authUid = 'uid-2';
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1')]);
+    const other = renderPage('uid-1');
+    await screen.findAllByTestId('housing-listing-card');
+    expect(screen.getAllByTestId('housing-card-add-overlay')).toHaveLength(1);
+    other.unmount();
+
+    authUid = 'uid-1';
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1')]);
+    renderPage('uid-1');
+    await screen.findAllByTestId('housing-listing-card');
+    expect(screen.queryByTestId('housing-card-add-overlay')).not.toBeInTheDocument();
+  });
+
   it('プロフィールが先に届くとプロフィールが出て、一覧部分だけダミー表示 (届いたら一覧に差し替わる)', async () => {
     let resolveListings: (v: HousingListing[]) => void = () => {};
     mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);

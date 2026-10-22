@@ -34,6 +34,9 @@
      旧値 rgba(255,255,255,0.04) は透けすぎて暗幕頼みだった。light/dark 共通 (text は常に白)。 */
   --housing-panel-bg: rgba(17, 23, 37, 0.56);
   --housing-panel-bg-solid: rgba(13, 18, 30, 0.74);
+  /* ハウジンガーページのカード上の「ツアーに追加」帯/丸ボタンの面 (2026-10-22 見本) */
+  --housing-card-add-glass: rgba(13, 18, 30, 0.72);
+  --housing-card-add-glass-hover: rgba(30, 38, 58, 0.9);
   /* 「…」メニュー専用: 背後の本文が透けて読めないよう、濃紺をほぼ不透明に (blur/大影なし) */
   --housing-menu-bg-opaque: rgba(13, 18, 30, 0.96);
   /* 実機FB第2弾#1(訂正): 完全不透明面は「常設ボトムナビ」ではなく「シート(フィルター/設定)」用。
@@ -10879,4 +10882,70 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   background: var(--housing-panel-bg-solid);
   border: 1px solid var(--housing-panel-border);
   border-radius: 8px;
+}
+
+/* ===== ハウジンガーページ(他人視点)のカード上「ツアーに追加」 (2026-10-22・見本どおり) =====
+   ボタンは 1 個。既定 = タッチ端末の M1 (右下 30px の丸＋を常時表示)。
+   マウス端末 (hover:hover かつ pointer:fine) では A (下端いっぱい 40px の帯・ホバー/フォーカスで出る) に切替える。 */
+.housing-card-add-overlay {
+  position: absolute; right: 6px; bottom: 6px; z-index: calc(var(--housing-card-overlay-z-content) + 1);
+  width: 30px; height: 30px; padding: 0; overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  appearance: none; cursor: pointer; font-family: inherit;
+  font-size: var(--housing-text-sm); font-weight: 700; color: var(--housing-text);
+  background: var(--housing-card-add-glass);
+  border: 1px solid var(--housing-panel-border-strong); border-radius: 50%;
+}
+.housing-card-add-overlay.is-added {
+  color: var(--housing-honey-text); background: var(--housing-honey); border-color: var(--housing-honey);
+}
+.housing-card-add-overlay:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+/* 文字ラベルは視覚的に隠す (読み上げ・aria-label 用に残す) */
+.housing-card-add-overlay-label {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+/* 追加済みの印 (左上): ホバー不要で常時。タッチ端末では＋が✓に変わるので出さない。 */
+.housing-listing-card-added-mark {
+  position: absolute; left: 8px; top: 8px; z-index: 2; display: none; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 800; color: var(--housing-honey-text); background: var(--housing-honey);
+  padding: 3px 8px; border-radius: 6px; pointer-events: none;
+}
+/* タッチ端末: タイトルの右端を ＋ の分だけ空ける */
+.housing-listing-card-media:has(.housing-card-add-overlay) .housing-listing-card-caption { padding-right: 42px; }
+@media (hover: hover) and (pointer: fine) {
+  .housing-listing-card-added-mark { display: inline-flex; }
+  .housing-card-add-overlay {
+    left: 0; right: 0; bottom: 0; width: auto; height: 40px; border-radius: 0;
+    border: 0; border-top: 1px solid var(--housing-panel-border);
+    transform: translateY(100%); transition: transform 220ms cubic-bezier(.2, .7, .2, 1), background 150ms;
+  }
+  .housing-card-add-overlay.is-added { color: var(--housing-honey); background: var(--housing-card-add-glass); }
+  .housing-card-add-overlay-label {
+    position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto;
+  }
+  .housing-listing-card:hover .housing-card-add-overlay,
+  .housing-listing-card:focus-within .housing-card-add-overlay { transform: translateY(0); }
+  .housing-card-add-overlay:hover { background: var(--housing-card-add-glass-hover); }
+  .housing-listing-card-media:has(.housing-card-add-overlay) .housing-listing-card-caption {
+    padding-right: 12px; transition: transform 260ms cubic-bezier(.2, .7, .2, 1);
+  }
+  .housing-listing-card:hover .housing-listing-card-media:has(.housing-card-add-overlay) .housing-listing-card-caption,
+  .housing-listing-card:focus-within .housing-listing-card-media:has(.housing-card-add-overlay) .housing-listing-card-caption {
+    transform: translateY(-40px);
+  }
+}
+
+/* 上メニュー「ツアー」の件数の丸 (ツアーに入っている家の数・増えた瞬間だけ跳ねる) */
+.housing-tab-badge {
+  position: absolute; top: 4px; right: -2px; min-width: 18px; height: 18px; padding: 0 5px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 9px; background: var(--housing-honey); color: var(--housing-honey-text);
+  font-size: 11px; font-weight: 800; line-height: 1; pointer-events: none;
+}
+.housing-tab-badge.is-bump { animation: housing-tab-badge-bump 360ms cubic-bezier(.2, .7, .2, 1); }
+@keyframes housing-tab-badge-bump { 40% { transform: scale(1.25); } }
+@media (prefers-reduced-motion: reduce) {
+  .housing-tab-badge.is-bump { animation: none; }
+  .housing-card-add-overlay, .housing-listing-card-media:has(.housing-card-add-overlay) .housing-listing-card-caption { transition: none; }
 }

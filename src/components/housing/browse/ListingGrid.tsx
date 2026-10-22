@@ -41,6 +41,10 @@ export interface ListingGridProps {
   onToggleBackground?: (id: string) => void;
   /** true のとき、投稿7日以内のカードにNEWリボン+ビーム演出を出す。探すページ専用 (2026-08-16)。 */
   showNewBadge?: boolean;
+  /** ツアー追加ボタンの出し方 (ListingCard へ橋渡し)。ハウジンガーページ(他人視点)は 'overlay'。 */
+  tourAddVariant?: 'footer' | 'overlay';
+  /** overlay 時の地域判定の追加母集団 (ListingCard へ橋渡し)。 */
+  tourExtraPool?: { id: string; region?: string | null }[];
 }
 
 /**
@@ -65,6 +69,8 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   onToggleBackground,
   toolbarPrefix,
   showNewBadge,
+  tourAddVariant,
+  tourExtraPool,
 }) => {
   const { t } = useTranslation();
   const containerRef = useListScrollRestore(listKey);
@@ -133,6 +139,8 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
             isBackground={selectable ? backgroundId === l.id : undefined}
             onToggleBackground={onToggleBackground}
             showNewBadge={showNewBadge}
+            tourAddVariant={tourAddVariant}
+            tourExtraPool={tourExtraPool}
           />
         ))}
       </div>

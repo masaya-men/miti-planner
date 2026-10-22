@@ -36,6 +36,8 @@ export interface UseTourAddFeedbackResult {
 export function useTourAddFeedback(
   listingId: string,
   region: string | null | undefined,
+  /** 地域判定の母集団への追加分 (ハウジンガーページの一覧など、ストア未読込でも地域を引けるように)。 */
+  extraPool?: { id: string; region?: string | null }[],
 ): UseTourAddFeedbackResult {
   const { t } = useTranslation();
   const trayIds = useTourTrayStore((s) => s.trayIds);
@@ -75,6 +77,7 @@ export function useTourAddFeedback(
       ...useHousingListingsStore.getState().listings,
       ...useHousingListingsStore.getState().myListings,
       ...useEphemeralListingsStore.getState().ephemeralListings,
+      ...(extraPool ?? []),
     ];
     const trayRegion = tourAnchorRegion(
       trayIds.map((id) => pool.find((l) => l.id === id)?.region ?? null),
@@ -97,7 +100,7 @@ export function useTourAddFeedback(
     setErrorMessage(null);
     timeoutRef.current = setTimeout(() => setAnimState('idle'), SUCCESS_ANIM_MS);
     return 'added';
-  }, [isAdded, trayIds, region, listingId, setTrayIds, togglePin, t]);
+  }, [isAdded, trayIds, region, extraPool, listingId, setTrayIds, togglePin, t]);
 
   return { isAdded, animState, errorMessage, attemptToggle };
 }

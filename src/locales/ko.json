@@ -1924,6 +1924,7 @@
             "favorite": "즐겨찾기",
             "add_to_tour": "투어에 추가",
             "added_to_tour": "추가됨",
+            "added_mark": "✓ 투어",
             "select": "선택",
             "addressPrivate": "주소는 비공개입니다",
             "privateListing": "비공개 하우징",
@@ -2034,6 +2035,7 @@
             "browse": "둘러보기",
             "favorites": "즐겨찾기",
             "tour": "투어",
+            "tour_count_aria": "투어에 {{count}}건",
             "register": "등록",
             "mypage": "마이페이지"
         },

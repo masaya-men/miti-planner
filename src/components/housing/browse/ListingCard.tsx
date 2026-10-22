@@ -51,6 +51,11 @@ export interface ListingCardProps {
   onEditListing?: (id: string) => void;
   /** true のとき、投稿から7日以内のカードに左上のNEWリボン+縁のビーム演出を出す。探すページ専用 (2026-08-16)。 */
   showNewBadge?: boolean;
+  /** ツアー追加ボタンの出し方。'footer'(既定)=画像の下の常設フッター / 'overlay'=画像上のボタン
+      (PC=ホバーで下端の帯・タッチ=右下の＋。見た目の切替は CSS のメディアクエリのみ・ハウジンガーページ用)。 */
+  tourAddVariant?: 'footer' | 'overlay';
+  /** overlay 時の地域判定用の追加母集団 (公開一覧ストア未読込でもトレイ内の家の地域を引けるように)。 */
+  tourExtraPool?: { id: string; region?: string | null }[];
 }
 
 // 光る時間 (3s) と同じ幅までズレを広げ、「そろって見える」を確実に避ける
@@ -99,6 +104,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   onRequestVisibilityChange,
   onEditListing,
   showNewBadge,
+  tourAddVariant = 'footer',
+  tourExtraPool,
 }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -143,7 +150,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id, videoKind !== null);
   const { ripples, onClick: addRipple } = useRipple();
   const addToTourBtnRef = useRef<HTMLButtonElement>(null);
-  const tourFeedback = useTourAddFeedback(listing.id, listing.region ?? null);
+  const tourFeedback = useTourAddFeedback(listing.id, listing.region ?? null, tourExtraPool);
   const mediaRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     register(mediaRef.current);
@@ -165,6 +172,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       return null;
     }
   }, [listing.coverThumbHash]);
+
+  // overlay: unlisted (住所非公開) はツアーに使えないのでボタン自体を出さない。
+  const showOverlayAdd = tourAddVariant === 'overlay' && Boolean(onAddToTour) && listing.visibility !== 'unlisted';
 
   // 主ラベルは登録者のタイトル (新シェルでは必須)。旧データ (title なし) は住所で代替。
   // 住所・サイズはカードに出さない (住所=ツアーが住所順に自動で組まれるため一覧では不要、
@@ -437,11 +447,50 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         <div className="housing-listing-card-caption" aria-hidden="true">
           <HousingCardMarqueeLine>{title}</HousingCardMarqueeLine>
         </div>
+
+        {/* overlay: 追加済みの印 (ホバー無しでも常時・タッチ端末では＋が✓に変わるので CSS で隠す) */}
+        {showOverlayAdd && tourFeedback.isAdded && (
+          <span className="housing-listing-card-added-mark" data-testid="housing-card-added-mark">
+            {t('housing.card.added_mark')}
+          </span>
+        )}
+        {/* overlay: ボタンは 1 個。PC=下端の帯 / タッチ=右下の丸＋ を CSS のメディアクエリで切替える。 */}
+        {showOverlayAdd && onAddToTour && (
+          <>
+            <button
+              ref={addToTourBtnRef}
+              type="button"
+              className={`housing-card-add-overlay${tourFeedback.isAdded ? ' is-added' : ''}`}
+              data-tour-anim={tourFeedback.animState}
+              data-testid="housing-card-add-overlay"
+              aria-pressed={tourFeedback.isAdded}
+              aria-label={tourFeedback.isAdded ? t('housing.card.added_to_tour') : t('housing.card.add_to_tour')}
+              onClick={(e) => {
+                e.stopPropagation();
+                addRipple(e);
+                const outcome = tourFeedback.attemptToggle();
+                if (outcome === 'added') onAddToTour(listing.id);
+              }}
+              onKeyDown={(e) => e.stopPropagation()}
+            >
+              {tourFeedback.isAdded ? (
+                <Check size={14} aria-hidden="true" />
+              ) : (
+                <Plus size={14} aria-hidden="true" />
+              )}
+              <span className="housing-card-add-overlay-label">
+                {tourFeedback.isAdded ? t('housing.card.added_to_tour') : t('housing.card.add_to_tour')}
+              </span>
+              <HousingRipple ripples={ripples} />
+            </button>
+            <HousingTourAddErrorBubble anchorRef={addToTourBtnRef} message={tourFeedback.errorMessage} />
+          </>
+        )}
       </div>
 
       {/* 画像に被らない常設フッター (主アクション)。onAddToTour 未指定 (ハウジンガーページ等) では
           ツアー追加ボタン自体を出さない (フッターごと消す)。 */}
-      {onAddToTour && (
+      {onAddToTour && tourAddVariant === 'footer' && (
         <div className="housing-listing-card-footer">
           <button
             ref={addToTourBtnRef}

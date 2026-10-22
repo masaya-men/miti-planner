@@ -1924,6 +1924,7 @@
             "favorite": "收藏",
             "add_to_tour": "加入導覽",
             "added_to_tour": "已加入",
+            "added_mark": "✓ 導覽",
             "select": "選擇",
             "addressPrivate": "地址不公開",
             "privateListing": "不公開的房屋",
@@ -2034,6 +2035,7 @@
             "browse": "瀏覽",
             "favorites": "收藏",
             "tour": "導覽",
+            "tour_count_aria": "導覽中有 {{count}} 處",
             "register": "登記",
             "mypage": "我的頁面"
         },

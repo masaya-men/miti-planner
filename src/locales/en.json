@@ -1959,6 +1959,7 @@
             "favorite": "Favorite",
             "add_to_tour": "Add to tour",
             "added_to_tour": "Added",
+            "added_mark": "✓ Tour",
             "select": "Select",
             "addressPrivate": "Address is private",
             "privateListing": "Private housing",
@@ -2069,6 +2070,7 @@
             "browse": "Browse",
             "favorites": "Favorites",
             "tour": "Tour",
+            "tour_count_aria": "{{count}} in tour",
             "register": "Register",
             "mypage": "My Page"
         },

@@ -65,6 +65,9 @@ import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingListOrderStore } from '../../../store/useHousingListOrderStore';
 import '../../../styles/housing.css';
 
+/** 他人視点のツアー追加: トレイへの追加は ListingCard の attemptToggle が済ませる。表示スイッチ用。 */
+const noopAddToTour = (): void => {};
+
 export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -672,6 +675,11 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
                   sort={sort}
                   onSortChange={setSort}
                   listKey="housinger"
+                  // 他人のページだけ画像上の「ツアーに追加」を出す。ListingCard 内の attemptToggle が
+                  // 既にトレイへ追加するので、ここでの追加処理は不要 (空関数=ボタン表示のスイッチ)。
+                  onAddToTour={isSelf ? undefined : noopAddToTour}
+                  tourAddVariant={isSelf ? undefined : 'overlay'}
+                  tourExtraPool={isSelf ? undefined : listings}
                   showOwnerControls={isSelf}
                   onRequestVisibilityChange={isSelf ? onRequestVisibilityChange : undefined}
                   onEditListing={isSelf ? onEditListing : undefined}

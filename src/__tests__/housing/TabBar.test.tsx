@@ -5,6 +5,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
+import { useTourTrayStore } from '../../store/useTourTrayStore';
 import { TabBar } from '../../components/housing/shell/TabBar';
 
 beforeAll(() => {
@@ -41,5 +42,22 @@ describe('TabBar', () => {
     expect(fav.getAttribute('aria-current')).toBe('page');
     const browse = screen.getByRole('link', { name: /housing\.tabs\.browse|探す/ });
     expect(browse.getAttribute('aria-current')).toBeNull();
+  });
+});
+
+describe('TabBar — ツアー件数の丸', () => {
+  it('trayIds 0 件では丸が出ない', () => {
+    useTourTrayStore.setState({ trayIds: [], pinnedIds: [] });
+    renderAt('/housing');
+    expect(screen.queryByTestId('housing-tab-tour-badge')).not.toBeInTheDocument();
+  });
+
+  it('trayIds 2 件で「2」の丸が出て、読み上げ用の aria も付く', () => {
+    useTourTrayStore.setState({ trayIds: ['a', 'b'], pinnedIds: [] });
+    renderAt('/housing');
+    const badge = screen.getByTestId('housing-tab-tour-badge');
+    expect(badge).toHaveTextContent('2');
+    expect(badge).toHaveAttribute('aria-label', 'ツアーに 2 件');
+    useTourTrayStore.setState({ trayIds: [], pinnedIds: [] });
   });
 });
