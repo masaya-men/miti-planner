@@ -226,13 +226,20 @@ describe('ModeLever', () => {
     expect(sw.getAttribute('aria-checked')).toBe('false');
   });
 
-  it('aria-label: 電源 off で上 = 電源を入れる / on で下 = 標準へ戻す', async () => {
+  it('aria-label は上でも下でも「見た目を切り替える」', async () => {
     initPower();
     const { getByRole } = lever();
     const sw = getByRole('switch');
-    expect(sw.getAttribute('aria-label')).toBe(i18n.t('milspec.hdr_lever_power_on'));
+    expect(sw.getAttribute('aria-label')).toBe(i18n.t('app.theme_style_switch'));
     await flush(1000);
-    expect(sw.getAttribute('aria-label')).toBe(i18n.t('app.theme_style_to_standard'));
+    expect(sw.getAttribute('aria-label')).toBe(i18n.t('app.theme_style_switch'));
+  });
+
+  it('L1: ガラス窓・左右のラック・溝を流れる光がある', () => {
+    const { container } = lever();
+    expect(container.querySelectorAll('.milspec-mlv-rack')).toHaveLength(2);
+    expect(container.querySelector('.milspec-mlv-glass')).not.toBeNull();
+    expect(container.querySelector('.milspec-mlv-slot .milspec-mlv-run')).not.toBeNull();
   });
 
   it('StrictMode で描画しても電源が入る', async () => {

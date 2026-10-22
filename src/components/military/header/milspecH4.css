@@ -42,7 +42,16 @@
 .theme-military .milspec-mlv { position: absolute; display: block; padding: 0; border: 0; cursor: grab; border-radius: 3px; touch-action: none; background: linear-gradient(180deg, var(--ma-pit-hi), var(--ma-pit-lo));
   box-shadow: inset 0 1.5px 2px #000, inset 0 -0.6px 0 rgba(255,255,255,0.12), 0 0.6px 0 rgba(255,255,255,0.10); }
 .theme-military .milspec-mlv:active { cursor: grabbing; }
-.theme-military .milspec-mlv-slot { position: absolute; left: 50%; top: 5px; bottom: 5px; width: 4px; margin-left: -2px; border-radius: 2px; background: #000; box-shadow: inset 0 1px 2px #000, 0 0.6px 0 rgba(255,255,255,0.14); }
+.theme-military .milspec-mlv-slot { position: absolute; left: 50%; top: 5px; bottom: 5px; width: 4px; margin-left: -2px; border-radius: 2px; background: #000; box-shadow: inset 0 1px 2px #000, 0 0.6px 0 rgba(255,255,255,0.14); overflow: hidden; }
+/* L1: 溝の左右のラック(歯)・ガラス窓・溝を下から上へ流れる光 */
+.theme-military .milspec-mlv-rack { position: absolute; top: 4px; bottom: 4px; width: 5px; opacity: 0.9; background: repeating-linear-gradient(180deg, #5d666d 0 1px, #23282c 1px 2.4px); }
+.theme-military .milspec-mlv-rack.is-l { left: 10px; } .theme-military .milspec-mlv-rack.is-r { right: 10px; }
+.theme-military .milspec-mlv-glass { position: absolute; inset: 3px 8px; border-radius: 2px; z-index: 2; pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,0.10), rgba(255,255,255,0) 40%, rgba(255,255,255,0.05) 70%, rgba(255,255,255,0));
+  box-shadow: inset 0 0 0 0.6px rgba(var(--ma-on-rgb),0.45), 0 0 4px rgba(var(--ma-on-rgb),0.25); }
+.theme-military .milspec-mlv-run { position: absolute; left: 0; right: 0; height: 8px; background: linear-gradient(180deg, transparent, rgba(var(--ma-on-rgb),0.95), transparent); box-shadow: 0 0 4px rgba(var(--ma-on-rgb),0.9); animation: milspec-run-up 1.8s cubic-bezier(.5,0,.5,1) infinite; }
+.theme-military .milspec-mlv:hover .milspec-mlv-run { animation-duration: 0.9s; }
+@keyframes milspec-run-up { from { transform: translateY(24px); opacity: 0; } 15% { opacity: 1; } 80% { opacity: 1; } to { transform: translateY(-10px); opacity: 0; } }
 .theme-military .milspec-mlv-hzs { position: absolute; right: 3px; bottom: 5px; width: 3px; height: 11px; background: repeating-linear-gradient(-45deg, var(--ma-warn) 0 2px, #15171a 2px 4px); background-size: 100% 5.66px; }
 .theme-military .milspec-mlv:hover .milspec-mlv-hzs { animation: milspec-crawl .5s linear infinite; }
 @keyframes milspec-crawl { to { background-position: 0 5.66px; } }
@@ -60,6 +69,7 @@
 @media (prefers-reduced-motion: reduce) {
   .theme-military .milspec-vr-k, .theme-military .milspec-vr-face, .theme-military .milspec-mlv-th::before { transition: none; }
   .theme-military .milspec-mlv:hover .milspec-mlv-hzs { animation: none; }
+  .theme-military .milspec-mlv-run { display: none; }
 }
 
 /* 共同編集中の参加者ドット + カーソル操作(H2 銘板の窪みの右端)。右端をそろえて左へ伸ばし、暗い床で下の文字を隠す */

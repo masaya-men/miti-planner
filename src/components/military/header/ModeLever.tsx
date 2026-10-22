@@ -131,8 +131,8 @@ export function ModeLever({ x, y, w, h }: ModeLeverProps) {
   };
 
   if (!canPreview) return null;
-  // 電源 off で上 = 押すと電源投入 / on で下 = 上げると標準へ
-  const label = on ? t('app.theme_style_to_standard') : t('milspec.hdr_lever_power_on');
+  // 上でも下でも同じ説明(押すと見た目が切り替わる)
+  const label = t('app.theme_style_switch');
   return (
     <button
       ref={lvRef}
@@ -150,7 +150,10 @@ export function ModeLever({ x, y, w, h }: ModeLeverProps) {
       onKeyDown={onKeyDown}
       onClick={onClick}
     >
-      <span className="milspec-mlv-slot" />
+      <span className="milspec-mlv-rack is-l" />
+      <span className="milspec-mlv-rack is-r" />
+      <span className="milspec-mlv-slot"><span className="milspec-mlv-run" /></span>
+      <span className="milspec-mlv-glass" />
       <span className="milspec-mlv-hzs" />
       <MilspecLed state={on ? 'on' : 'off'} size={6} />
       <span className="milspec-mlv-th" ref={thRef} />
