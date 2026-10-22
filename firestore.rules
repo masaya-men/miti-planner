@@ -465,7 +465,9 @@ service cloud.firestore {
           && request.resource.data.currentIndex is int
           && request.resource.data.phase in ['moving', 'viewing']
           && (request.resource.data.viewStartAt == null || request.resource.data.viewStartAt is int)
-          && request.resource.data.lastActivityAt is int;
+          && request.resource.data.lastActivityAt is int
+          && (!('order' in request.resource.data) || request.resource.data.order == null
+              || (request.resource.data.order is list && request.resource.data.order.size() <= 100));
         allow create, delete: if false; // 生成/削除は Admin（create-shared-tour / GC cron）
       }
 

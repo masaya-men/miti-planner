@@ -6,6 +6,7 @@ import { useJoinTour } from '../../../lib/sharedTour/useJoinTour';
 import { snapshotToPoolListing } from '../../../lib/sharedTour/snapshotToPool';
 import { useTourRenderModel } from '../../../lib/housing/useTourRenderModel';
 import { termLabel } from '../../../lib/housing/housingTerms';
+import { applyLiveOrder } from '../../../lib/sharedTour/applyLiveOrder';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
 import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
@@ -35,7 +36,10 @@ export const JoinTourPage: React.FC = () => {
 
   // meta.snapshot(縮約データ) → useTourRenderModel が期待する MockListing[] へ写す。
   const pool = useMemo(() => (meta ? meta.snapshot.map(snapshotToPoolListing) : []), [meta]);
-  const orderedIds = useMemo(() => (meta ? meta.snapshot.map((s) => s.id) : []), [meta]);
+  const orderedIds = useMemo(
+    () => (meta ? applyLiveOrder(meta.snapshot.map((s) => s.id), live?.order) : []),
+    [meta, live?.order],
+  );
   const currentIndex = live?.currentIndex ?? 0;
   const model = useTourRenderModel(pool, orderedIds, currentIndex, locale);
 

@@ -333,8 +333,8 @@ export const TourNavPage: React.FC = () => {
   useEffect(() => {
     if (!tourToken) return;
     // #A: crossingAckIndex(幹事の「移動しました」)も同期し、参加者の跨ぎ overlay を主催者操作でだけ解除する。
-    void pushHostState(tourToken, { currentIndex, phase, viewStartAt, crossingAckedIndex: crossingAckIndex });
-  }, [tourToken, currentIndex, phase, viewStartAt, crossingAckIndex]);
+    void pushHostState(tourToken, { currentIndex, phase, viewStartAt, crossingAckedIndex: crossingAckIndex, order: listingIds });
+  }, [tourToken, currentIndex, phase, viewStartAt, crossingAckIndex, listingIds]);
 
   const onFinish = useCallback(() => {
     // ツアー終了時、共有中なら live state を ended にして参加者側を追従させる (孤児 live 防止)。

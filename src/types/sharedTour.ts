@@ -42,6 +42,11 @@ export interface SharedTourLiveState {
    * 省略/undefined/null は「未ack」扱い（既存 doc との後方互換）。
    */
   crossingAckedIndex?: number | null;
+  /**
+   * 幹事が並び替えた現在の家 id の順(ナビ中の「順番を変える」)。currentIndex はこの順の index。
+   * 参加者は snapshot の id をこの順に並べ直す(applyLiveOrder)。省略/null は snapshot 順のまま。
+   */
+  order?: string[] | null;
 }
 
 /** 家件数・スナップショットサイズの上限 */
