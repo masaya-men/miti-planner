@@ -1519,11 +1519,18 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
-/* 探す中央カラム: 子が複数 (表示切替+本体) なので、個人タグリンク (ダミー対象外) 以外の直下の子に付ける */
-.housing-reveal-kids > :not(.housing-personal-tag-filter-link) { animation: housing-reveal 200ms ease-out backwards; }
+/* 探す中央カラム: 読み込み中から出ている部品 (表示切替・絞り込み解除・個人タグリンク) は出し直さず、
+   ダミーだった部分 (本体・見出し・並び替え) だけをふわっと出す。 */
+.housing-reveal-kids > :not(.housing-personal-tag-filter-link):not(.housing-browse-toolbar):not(.housing-listing-grid-wrap),
+.housing-reveal-kids > .housing-listing-grid-wrap > :not(.housing-listing-grid-toolbar),
+.housing-reveal-kids .housing-listing-grid-toolbar-start > :not(.housing-view-toggle):not(.housing-browse-clear-filter),
+.housing-reveal-kids .housing-listing-grid-toolbar-actions { animation: housing-reveal 200ms ease-out backwards; }
 @media (prefers-reduced-motion: reduce) {
   .housing-reveal { animation: none; }
-  .housing-reveal-kids > :not(.housing-personal-tag-filter-link) { animation: none; }
+  .housing-reveal-kids > :not(.housing-personal-tag-filter-link):not(.housing-browse-toolbar):not(.housing-listing-grid-wrap),
+  .housing-reveal-kids > .housing-listing-grid-wrap > :not(.housing-listing-grid-toolbar),
+  .housing-reveal-kids .housing-listing-grid-toolbar-start > :not(.housing-view-toggle):not(.housing-browse-clear-filter),
+  .housing-reveal-kids .housing-listing-grid-toolbar-actions { animation: none; }
 }
 .housing-skel { background: var(--housing-skeleton-block); }
 [data-shimmer="true"] .housing-skel {
