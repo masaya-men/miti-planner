@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { ListingGridSkeleton } from '../browse/ListingGridSkeleton';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '../../../hooks/useIsMobile';
@@ -188,8 +189,8 @@ export const FavoritesPage: React.FC = () => {
             </div>
           ) : status === 'loading' || status === 'idle' ? (
             /* listings ストアがまだ読込中 */
-            <div className="housing-center-loading">
-              {t('housing.gallery.loading')}
+            <div className="housing-listing-grid-wrap">
+              <ListingGridSkeleton />
             </div>
           ) : status === 'error' ? (
             /* listings ストアが読込エラー */

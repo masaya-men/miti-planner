@@ -16,6 +16,7 @@
  * - Task 2.4: `.housing-detail-panel` (シェル内スクロール) の中に `.housing-detail-shell`
  *   (探す/ツアーと同じ濃紺フラット面の 1 枚パネル) を挟む二層構造。
  */
+import { DetailSkeleton } from '../skeleton/HousingSkeletons';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { HousingDetailContent } from './HousingDetailContent';
@@ -60,7 +61,24 @@ export const HousingDetailPage: React.FC = () => {
     return (
       <div className="housing-detail-panel">
         <div className="housing-detail-shell">
-          <main className="housing-detail-fullpage-main">{t('housing.detail.title')}…</main>
+          <header className="housing-detail-fullpage-header">
+            <Link
+              to="/housing"
+              className="housing-detail-back"
+              aria-label={t('housing.detail.back_aria')}
+              onClick={(e) => {
+                if (location.key !== 'default') {
+                  e.preventDefault();
+                  navigate(-1);
+                }
+              }}
+            >
+              ← {t('housing.detail.back_aria')}
+            </Link>
+          </header>
+          <main className="housing-detail-fullpage-main">
+            <DetailSkeleton />
+          </main>
         </div>
       </div>
     );

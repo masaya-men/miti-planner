@@ -1499,6 +1499,80 @@
   50% { opacity: 0.55; }
 }
 
+/* ===== 読み込み中ダミー (HousingSkeletons / ListingGridSkeleton) =====
+   文字「読み込み中」の代わりに実物と同じ骨格の薄い四角を出す。200ms 以内に終われば出さない
+   (useDelayedFlag)。動きは housing-skeleton-pulse の明滅のみ。reduced-motion では data-shimmer="false" で停止。 */
+.housing-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.housing-skel-fill { display: contents; }
+.housing-skel { background: var(--housing-skeleton-block); }
+[data-shimmer="true"] .housing-skel {
+  animation: housing-skeleton-pulse 1.4s ease-in-out infinite;
+}
+/* 一覧: 外側は実グリッドの居場所 (残り高さを埋める)、内側が実グリッドと同じ .housing-listing-grid */
+.housing-listing-grid-skeleton-shell {
+  display: flex; flex-direction: column;
+  flex: 1 1 auto; min-height: 0;
+  position: relative;
+}
+.housing-listing-grid-skeleton { overflow: hidden; }
+.housing-skel-card {
+  display: flex; flex-direction: column;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.housing-skel-card-media {
+  flex: 0 0 auto;
+  height: 0;
+  padding-top: var(--housing-listing-card-media-pad);
+}
+.housing-skel-card-footer { flex: 0 0 auto; padding: 8px 10px 10px; }
+.housing-skel-card-btn { height: 33px; border-radius: 8px; background: var(--housing-skeleton-block-soft); }
+/* 汎用の行 */
+.housing-skel-line { height: 12px; border-radius: 4px; }
+.housing-skel-line-mid { width: 66%; background: var(--housing-skeleton-block-soft); }
+.housing-skel-lines-shell { display: flex; flex-direction: column; gap: 10px; padding: 4px 0; }
+/* 詳細 */
+.housing-skel-detail-photo {
+  width: 100%; height: 100%;
+  min-height: var(--housing-detail-empty-h);
+  border-radius: 8px;
+}
+.housing-skel-title { height: var(--housing-detail-title-size); width: 70%; border-radius: 6px; }
+.housing-skel-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.housing-skel-tag { width: 64px; height: 24px; border-radius: 6px; }
+/* ハウジンガーのプロフィール */
+.housing-skel-profile { display: flex; align-items: center; gap: 12px; }
+.housing-skel-avatar {
+  flex: 0 0 auto;
+  width: var(--housinger-avatar-size-lg); height: var(--housinger-avatar-size-lg);
+  border-radius: 50%;
+}
+.housing-skel-name { flex: 1 1 auto; height: 18px; max-width: 160px; }
+/* 地図 */
+.housing-skel-map-shell { flex: 1 1 auto; min-height: 0; position: relative; display: flex; flex-direction: column; }
+.housing-skel-map {
+  flex: 1 1 auto;
+  min-height: 240px;
+  border-radius: 14px;
+  border: 1px solid var(--housing-panel-border);
+}
+/* 地図枠 (.housing-bmap-message は inset:0 の絶対配置) の中で全面を埋める */
+.housing-skel-map-abs { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.housing-skel-map-abs .housing-skel-map { flex: 1 1 auto; border: 0; border-radius: 0; }
+@media (max-width: 767px) {
+  .housing-skel-detail-photo { height: auto; aspect-ratio: 16 / 10; min-height: 0; }
+}
+
 /* ===== Toast (housing-scoped) ===== */
 .housing-toast {
   position: fixed;

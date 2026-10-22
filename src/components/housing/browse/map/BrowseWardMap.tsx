@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { MapSkeleton } from '../../skeleton/HousingSkeletons';
 import { useTranslation } from 'react-i18next';
 import type { BrowseMapSpot } from '../../../../lib/housing/browseMapSpots';
 import { useWardMapAsset } from '../../../../lib/housing/useWardMapAsset';
@@ -268,7 +269,7 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
     >
       {assetState.status === 'loading' && (
         <div className="housing-bmap-message" data-testid="bmap-loading">
-          <p className="housing-bmap-message-text">{t('housing.map.loading')}</p>
+          <MapSkeleton className="housing-skel-map-abs" />
         </div>
       )}
       {assetState.status === 'error' && (

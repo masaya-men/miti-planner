@@ -10,6 +10,7 @@
  * 識別コードさえ一致すれば同じプロフィールに着地する。解決できない (不正な slug・非公開・
  * 存在しない) 場合は HousingerPage 本体の「見つからない」表示と同じ文言/導線を出す。
  */
+import { HousingerProfileSkeleton } from '../skeleton/HousingSkeletons';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -67,7 +68,16 @@ export const HousingerShortLinkPage: React.FC = () => {
   return (
     <div className="housing-detail-panel">
       <div className="housing-detail-shell">
-        <main className="housing-detail-fullpage-main">{t('housing.housinger.loading')}</main>
+        <header className="housing-detail-fullpage-header housinger-page-headerbar">
+          <Link to="/housing" className="housing-detail-back" aria-label={t('housing.detail.back_aria')}>
+            ← {t('housing.detail.back_aria')}
+          </Link>
+        </header>
+        <main className="housing-detail-fullpage-main housinger-page-main">
+          <div className="housinger-page-body">
+            <HousingerProfileSkeleton />
+          </div>
+        </main>
       </div>
     </div>
   );

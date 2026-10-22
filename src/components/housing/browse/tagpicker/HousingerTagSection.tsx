@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { LinesSkeleton } from '../../skeleton/HousingSkeletons';
 import { useTranslation } from 'react-i18next';
 import { listPublishedHousingers, type PublishedHousinger } from '../../../../lib/housing/publishedHousingers';
 import { personalTagIdForUid } from '../../../../lib/housing/housingerProfile';
@@ -53,7 +54,7 @@ export const HousingerTagSection: React.FC<HousingerTagSectionProps> = ({ select
       {open && (
         <div className="housing-tagpicker-section-body">
           {status === 'loading' && (
-            <div className="housing-tagpicker-status">{t('housing.tagpicker.housinger_loading')}</div>
+            <LinesSkeleton count={3} labelKey="housing.tagpicker.housinger_loading" />
           )}
           {status === 'error' && (
             <div className="housing-tagpicker-status">{t('housing.tagpicker.housinger_error')}</div>

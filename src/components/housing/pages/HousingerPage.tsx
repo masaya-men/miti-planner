@@ -43,6 +43,8 @@ import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGall
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { ListingGrid } from '../browse/ListingGrid';
+import { ListingGridSkeleton } from '../browse/ListingGridSkeleton';
+import { HousingerProfileSkeleton } from '../skeleton/HousingSkeletons';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { HousingerAvatar } from '../housinger/HousingerAvatar';
 import { HousingerReportModal } from '../report/HousingerReportModal';
@@ -92,7 +94,9 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
   const [listings, setListings] = useState<MockListing[]>([]);
   // 運営非表示の家 (他人閲覧時のみ・帯カード表示専用。ツアー等の対象には使わない)。
   const [hiddenListings, setHiddenListings] = useState<MockListing[]>([]);
-  const [loading, setLoading] = useState(true);
+  // プロフィール取得中 / 家一覧取得中を分ける (プロフィールが先に届いたら先に出す)。
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [listingsLoading, setListingsLoading] = useState(true);
   const [kebabOpen, setKebabOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   // マイページ: 名前/アイコンをその場編集する (鉛筆クリックで名前編集モードへ)。
@@ -117,7 +121,8 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
     if (!uid) {
       setProfile(null);
       setListings([]);
-      setLoading(false);
+      setProfileLoading(false);
+      setListingsLoading(false);
       return;
     }
     let cancelled = false;
@@ -125,54 +130,59 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
     setProfile(null);
     setListings([]);
     setHiddenListings([]);
-    setLoading(true);
-    (async () => {
-      try {
-        if (isSelf) {
-          // 自分の場合: 公開/住所非公開/完全非公開すべて (myListings ストア、visibility 問わず)。
-          // 他人視点の表示 (getHousingerListings、公開分のみ) はこの分岐に入らない限り不変。
-          const [profileResult] = await Promise.all([
-            getHousingerProfile(uid, { isSelf: true }),
-            useHousingListingsStore.getState().loadMine(uid),
-          ]);
+    setProfileLoading(true);
+    setListingsLoading(true);
+
+    // プロフィールと家一覧は別々に取得し、届いた方から先に表示する (プロフィールが先に出て、
+    // 一覧部分だけダミー表示)。 どちらかが失敗しても無限ローディングにならないよう、
+    // 失敗時は従来どおり unavailable 表示へ縮退する (profile=null・一覧空・両フラグ解除)。
+    const degrade = (err: unknown) => {
+      if (cancelled) return;
+      // getHousingerProfile は自身のエラーを飲み込み null を返すが、getHousingerListings は
+      // reject しうる (デプロイ直後の複合インデックス未反映、一時的な Firestore エラー等)。
+      console.warn('[HousingerPage] failed to load profile/listings', err);
+      setProfile(null);
+      setListings([]);
+      setHiddenListings([]);
+      setProfileLoading(false);
+      setListingsLoading(false);
+    };
+
+    const profilePromise = (isSelf ? getHousingerProfile(uid, { isSelf: true }) : getHousingerProfile(uid)).then((profileResult) => {
+      if (cancelled) return;
+      setProfile(profileResult);
+      setProfileLoading(false);
+    });
+
+    const listingsPromise = isSelf
+      ? // 自分の場合: 公開/住所非公開/完全非公開すべて (myListings ストア、visibility 問わず)。
+        // 他人視点の表示 (getHousingerListings、公開分のみ) はこの分岐に入らない限り不変。
+        useHousingListingsStore
+          .getState()
+          .loadMine(uid)
+          .then(() => {
+            if (cancelled) return;
+            setListings(sortListingsForGallery(useHousingListingsStore.getState().myListings));
+            setListingsLoading(false);
+          })
+      : getHousingerListingsWithHidden(uid).then((listingResult) => {
           if (cancelled) return;
-          const gallery = sortListingsForGallery(useHousingListingsStore.getState().myListings);
-          setProfile(profileResult);
-          setListings(gallery);
-          setLoading(false);
-          return;
-        }
-        const [profileResult, listingResult] = await Promise.all([
-          getHousingerProfile(uid),
-          getHousingerListingsWithHidden(uid),
-        ]);
-        if (cancelled) return;
-        const listingDocs = listingResult.listings;
-        // 運営非表示の家: 一覧表示専用 (件数・帯カード)。 ツアー/OGP代表作/お気に入り等の対象 (listings) には含めない。
-        const hiddenCards = listingResult.hiddenListings
-          .map(firestoreToGalleryListing)
-          .filter((l): l is MockListing => l !== null)
-          .map((l) => ({ ...l, imageMode: 'none' as const, adminHidden: true }));
-        setHiddenListings(hiddenCards);
-        const gallery = sortListingsForGallery(
-          listingDocs.map(firestoreToGalleryListing).filter((l): l is MockListing => l !== null),
-        );
-        setProfile(profileResult);
-        setListings(gallery);
-        setLoading(false);
-      } catch (err) {
-        if (cancelled) return;
-        // getHousingerProfile は自身のエラーを飲み込み null を返すが、getHousingerListings は
-        // reject しうる (デプロイ直後の複合インデックス未反映、一時的な Firestore エラー等)。
-        // ここで捕まえないと loading=false が呼ばれず無限ローディングになるため、
-        // 既存の unavailable 表示へ縮退する。
-        console.warn('[HousingerPage] failed to load profile/listings', err);
-        setProfile(null);
-        setListings([]);
-        setHiddenListings([]);
-        setLoading(false);
-      }
-    })();
+          // 運営非表示の家: 一覧表示専用 (件数・帯カード)。 ツアー/OGP代表作/お気に入り等の対象 (listings) には含めない。
+          const hiddenCards = listingResult.hiddenListings
+            .map(firestoreToGalleryListing)
+            .filter((l): l is MockListing => l !== null)
+            .map((l) => ({ ...l, imageMode: 'none' as const, adminHidden: true }));
+          setHiddenListings(hiddenCards);
+          setListings(
+            sortListingsForGallery(
+              listingResult.listings.map(firestoreToGalleryListing).filter((l): l is MockListing => l !== null),
+            ),
+          );
+          setListingsLoading(false);
+        });
+
+    profilePromise.catch(degrade);
+    listingsPromise.catch(degrade);
     return () => {
       cancelled = true;
     };
@@ -394,11 +404,23 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
     );
   }
 
-  if (loading) {
+  if (profileLoading) {
     return (
       <div className="housing-detail-panel">
         <div className="housing-detail-shell">
-          <main className="housing-detail-fullpage-main">{t('housing.housinger.loading')}</main>
+          <header className="housing-detail-fullpage-header housinger-page-headerbar">
+            <Link to="/housing" className="housing-detail-back" aria-label={t('housing.detail.back_aria')}>
+              ← {t('housing.detail.back_aria')}
+            </Link>
+          </header>
+          <main className="housing-detail-fullpage-main housinger-page-main">
+            <div className="housinger-page-body">
+              <HousingerProfileSkeleton />
+              <div className="housinger-page-listings-col">
+                <ListingGridSkeleton withFooter={false} />
+              </div>
+            </div>
+          </main>
         </div>
       </div>
     );
@@ -590,7 +612,9 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
             </div>
 
             <div className="housinger-page-listings-col">
-              {sorted.length === 0 ? (
+              {listingsLoading ? (
+                <ListingGridSkeleton withFooter={false} />
+              ) : sorted.length === 0 ? (
                 <p className="housinger-page-empty">{t('housing.housinger.noListings')}</p>
               ) : (
                 <ListingGrid

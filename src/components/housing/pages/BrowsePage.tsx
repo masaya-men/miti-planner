@@ -19,6 +19,8 @@ import { showToast } from '../../Toast';
 import { FilterPanel } from '../workspace/FilterPanel';
 import { EmptyResult } from '../workspace/EmptyResult';
 import { PersonalTagFilterLink } from '../workspace/PersonalTagFilterLink';
+import { ListingGridSkeleton } from '../browse/ListingGridSkeleton';
+import { MapSkeleton, LinesSkeleton } from '../skeleton/HousingSkeletons';
 import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { BrowseViewToggle } from '../browse/BrowseViewToggle';
@@ -199,7 +201,33 @@ export const BrowsePage: React.FC = () => {
         <div className="housing-browse-col housing-browse-col-center">
           <PersonalTagFilterLink tagIds={personalTagIds} />
           {status === 'loading' || status === 'idle' ? (
-            <div className="housing-center-loading">{t('housing.gallery.loading')}</div>
+            /* 読み込み中: 表示切替はすぐ出し、その下に選択中の表示に合わせたダミー (200ms 以内に終われば出さない) */
+            effectiveView === 'list' ? (
+              isMobile ? (
+                <>
+                  <div className="housing-browse-toolbar">{viewToggleNode}</div>
+                  <div className="housing-listing-grid-wrap">
+                    <ListingGridSkeleton />
+                  </div>
+                </>
+              ) : (
+                <div className="housing-listing-grid-wrap">
+                  <div className="housing-listing-grid-toolbar">
+                    <div className="housing-listing-grid-toolbar-start">{viewToggleNode}</div>
+                  </div>
+                  <ListingGridSkeleton />
+                </div>
+              )
+            ) : (
+              <>
+                <div className="housing-browse-toolbar">{viewToggleNode}</div>
+                {effectiveView === 'map' ? (
+                  <MapSkeleton />
+                ) : (
+                  <LinesSkeleton count={6} labelKey="housing.gallery.loading" />
+                )}
+              </>
+            )
           ) : status === 'error' ? (
             <div className="housing-center-error">{t('housing.gallery.error')}</div>
           ) : (

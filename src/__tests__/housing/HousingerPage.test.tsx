@@ -183,6 +183,31 @@ describe('HousingerPage', () => {
     ).toBeInTheDocument();
   });
 
+  it('プロフィールが先に届くとプロフィールが出て、一覧部分だけダミー表示 (届いたら一覧に差し替わる)', async () => {
+    let resolveListings: (v: HousingListing[]) => void = () => {};
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockReturnValueOnce(
+      new Promise<HousingListing[]>((resolve) => {
+        resolveListings = resolve;
+      }),
+    );
+
+    renderPage('uid-1');
+
+    // 一覧が未着でも、プロフィールは先に表示される
+    expect(await screen.findByRole('heading', { name: 'たかし' })).toBeInTheDocument();
+    expect(screen.getByText('S字改築が好きです')).toBeInTheDocument();
+    // 一覧部分は読み上げ用 status のダミー枠で、カードはまだ無い
+    expect(screen.getByTestId('housing-grid-skeleton')).toHaveAttribute('role', 'status');
+    expect(screen.queryAllByTestId('housing-listing-card')).toHaveLength(0);
+    // 取得中に「見つからない」を誤って出さない
+    expect(screen.queryByText('このハウジンガーは公開されていません')).not.toBeInTheDocument();
+
+    resolveListings([rawListing('l-1', 'uid-1')]);
+    expect(await screen.findAllByTestId('housing-listing-card')).toHaveLength(1);
+    expect(screen.queryByTestId('housing-grid-skeleton')).not.toBeInTheDocument();
+  });
+
   it('運営非表示の家: 帯つきの非リンクカードが出て件数に含まれ、ツアー対象には含まれない', async () => {
     mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
     mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1')]);
