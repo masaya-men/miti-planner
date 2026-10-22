@@ -24,18 +24,18 @@ export const MilspecStyleToggle: React.FC<Props> = ({ compact = false, className
     <button
       type="button"
       aria-pressed={isMil}
-      aria-label={isMil ? t('app.theme_style_to_standard') : t('app.theme_style_to_milspec')}
-      title={isMil ? t('app.theme_style_to_standard') : t('app.theme_style_to_milspec')}
+      aria-label={t('app.theme_style_switch')}
       onClick={() => runTransition(() => setThemeStyle(isMil ? 'standard' : 'military'), 'theme')}
       className={clsx(
         'group flex items-center justify-center transition-colors cursor-pointer',
         className,
       )}
     >
-      {/* 六角ボルト + ブラケットの簡易アイコン。military のときはアクティブ色。 */}
+      {/* 六角ボルト + ブラケットの簡易アイコン。military のときだけアクティブ色。
+          それ以外は色クラスを付けず親(hoverInvert 等)の文字色を継ぐ。 */}
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-           className={clsx(isMil ? 'text-app-accent' : 'text-app-text-muted group-hover:text-app-text')}>
+           className={clsx(isMil && 'text-app-accent')}>
         <path d="M3 3h4M3 3v4M21 3h-4M21 3v4M3 21h4M3 21v-4M21 21h-4M21 21v-4" />
         <path d="M12 8.5l3 1.75v3.5L12 15.5l-3-1.75v-3.5z" />
       </svg>

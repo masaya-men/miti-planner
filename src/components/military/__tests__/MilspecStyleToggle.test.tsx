@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
+import i18n from '../../../i18n';
 import { MilspecStyleToggle } from '../MilspecStyleToggle';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { TransitionOverlayProvider } from '../../ui/TransitionOverlay';
@@ -45,5 +46,27 @@ describe('MilspecStyleToggle', () => {
     useThemeStore.setState({ themeStyle: 'military' });
     renderToggle();
     expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('説明は向きに関係なく「見た目を切り替える」・素の title は付けない', () => {
+    const { rerender } = renderToggle();
+    const btn = screen.getByRole('button');
+    expect(btn.getAttribute('aria-label')).toBe(i18n.t('app.theme_style_switch'));
+    expect(btn.hasAttribute('title')).toBe(false);
+    act(() => useThemeStore.getState().setThemeStyle('military'));
+    rerender(<TransitionOverlayProvider><MilspecStyleToggle /></TransitionOverlayProvider>);
+    expect(screen.getByRole('button').getAttribute('aria-label')).toBe(i18n.t('app.theme_style_switch'));
+  });
+
+  it('standard のとき svg は親の文字色を継ぐ(ホバー反転で白地に白にならない)', () => {
+    const { container } = renderToggle();
+    const svg = container.querySelector('svg')!;
+    expect(svg.getAttribute('class') ?? '').not.toMatch(/text-app-text|text-app-text-muted/);
+  });
+
+  it('5 言語すべてに theme_style_switch がある', () => {
+    for (const lng of ['ja', 'en', 'zh', 'zh-Hant', 'ko']) {
+      expect(i18n.getResource(lng, 'translation', 'app.theme_style_switch')).toBeTruthy();
+    }
   });
 });

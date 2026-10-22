@@ -312,7 +312,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 SP1 では military 側の入口がこれ1つしか無い — 標準UIから欠けると
                                 誰も MIL-SPEC モードに入れなくなるため撤去しないこと） */}
                             {canPreviewWip && (
-                                <MilspecStyleToggle className={clsx(iconBtnBase, iconBtnDefault)} />
+                                <Tooltip content={t('app.theme_style_switch')}>
+                                    <MilspecStyleToggle className={clsx(iconBtnBase, iconBtnDefault)} />
+                                </Tooltip>
                             )}
 
                             {/* 言語切替 */}
