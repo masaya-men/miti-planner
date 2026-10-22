@@ -8983,8 +8983,9 @@ select.housing-input option {
   flex: 0 0 auto;
   align-self: stretch;
   text-align: center;
-  /* 下はパネルの縁 (.housing-tour-page-col の 14px) に揃える。2px だと下端にくっついて見えた (2026-10-22) */
-  padding: 12px 4px 14px;
+  /* 区切り線〜パネル下端の高さは元のまま (12+2+縁14=28px+文字)。文字をその中の上下中央に置く:
+     上 14px / 下 0 + パネルの縁 (.housing-tour-page-col の padding-bottom 14px) = 上下とも 14px (2026-10-22 masaya) */
+  padding: 14px 4px 0;
   border: 0;
   border-top: 1px solid var(--housing-divider);
   background: transparent;
