@@ -26,7 +26,8 @@ export interface PocketSpec {
 
 export interface PanelSpec {
   pts: Pt[];
-  tone?: Tone;
+  /** 色の系統。下の板は pri/sec/chs を混ぜた色を直接渡す */
+  tone?: Tone | ToneColors;
   b?: number;
   shadow?: number;
   /** SVG path 文字列(彫り線) */
@@ -39,7 +40,7 @@ export interface PanelSpec {
   wx?: WeatherSpec;
   /** 傷模様の乱数の種。未指定なら形(pts)から決める。伸縮しても傷模様が変わらないよう stretchSpec が固定する */
   seed?: number;
-  /** 追加のクラス名(描画側が使う。座標表では指定しない板もある) */
+  /** 追加の SVG(汚しの後に重ねる。板の座標系) */
   extra?: string;
 }
 
@@ -75,4 +76,6 @@ export interface ArmorPalette {
   edge: Rgb; keyEdge: Rgb; pkTop: Rgb; pkBot: Rgb;
   scribe: string; scribeHi: string; seam: string; seamCore: string;
   dish: number; keySh: number; grain: number; spec: number;
+  /** 下の板(エキスパンドメタル)の色(--ma-drw-*) */
+  drw: { lit: Rgb; dark: Rgb; knot: Rgb; edgeHi: Rgb; frame: Rgb; zinc: Rgb; rust: Rgb; soot: Rgb };
 }

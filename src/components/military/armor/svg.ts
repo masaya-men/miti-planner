@@ -8,7 +8,7 @@ import type { ArmorPalette, CapSpec, PanelSpec } from './types';
  * id は呼ぶ側が画面内で一意にする(内部の SVG id の接頭辞)。
  */
 export function armorSVG(spec: PanelSpec, pal: ArmorPalette, id: string): string {
-  const b = spec.b ?? 4, t = pal[spec.tone ?? 'pri'], sh = spec.shadow ?? 2.4;
+  const b = spec.b ?? 4, t = typeof spec.tone === 'object' ? spec.tone : pal[spec.tone ?? 'pri'], sh = spec.shadow ?? 2.4;
   const pts = dedupe(spec.pts), inner = offsetPoly(pts, b), n = pts.length;
   let s = `<defs><linearGradient id="${id}f" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="${css(mix(t.top, t.hi, 0.10))}"/><stop offset="0.45" stop-color="${css(t.top)}"/><stop offset="1" stop-color="${css(t.bot)}"/></linearGradient>` +
     `<linearGradient id="${id}p" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${css(pal.pkTop)}"/><stop offset="1" stop-color="${css(pal.pkBot)}"/></linearGradient>` +
@@ -44,6 +44,7 @@ export function armorSVG(spec: PanelSpec, pal: ArmorPalette, id: string): string
     s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${css(mix(t.lo, t.face, 0.2))}"/><circle cx="${cx}" cy="${cy + 0.9}" r="${r - 0.4}" fill="${css(mix(t.face, t.hi, 0.6))}"/><circle cx="${cx}" cy="${cy}" r="${r - 1.6}" fill="#050606"/>`;
   });
   s += weatherSVG(spec, pts, inner, id);
+  if (spec.extra) s += spec.extra;
   return s;
 }
 
@@ -94,5 +95,24 @@ export function armorDefsSVG(noiseDataUrl = ''): string {
     `<radialGradient id="wx-polish"><stop offset="0" style="stop-color:var(--ma-polish)"/><stop offset="1" style="stop-color:var(--ma-polish);stop-opacity:0"/></radialGradient>` +
     `<linearGradient id="stl-fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ma-steel-hi)"/><stop offset="0.5" style="stop-color:var(--ma-steel)"/><stop offset="1" style="stop-color:var(--ma-steel-lo)"/></linearGradient>` +
     `<linearGradient id="stl-sh" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" style="stop-color:var(--ma-steel-hi)"/><stop offset="0.35" style="stop-color:var(--ma-steel)"/><stop offset="1" style="stop-color:var(--ma-steel-lo)"/></linearGradient>` +
-    `<radialGradient id="stl-nut" cx="0.35" cy="0.3" r="0.9"><stop offset="0" style="stop-color:var(--ma-steel-hi)"/><stop offset="0.6" style="stop-color:var(--ma-steel)"/><stop offset="1" style="stop-color:var(--ma-steel-lo)"/></radialGradient>`;
+    `<radialGradient id="stl-nut" cx="0.35" cy="0.3" r="0.9"><stop offset="0" style="stop-color:var(--ma-steel-hi)"/><stop offset="0.6" style="stop-color:var(--ma-steel)"/><stop offset="1" style="stop-color:var(--ma-steel-lo)"/></radialGradient>` +
+    drawerDefsSVG();
+}
+
+/** 下の板・基板用の共有 defs(上の板の縁の影・汚れ・つや・ハザード止め・ぼかし)。色はトークンから */
+function drawerDefsSVG(): string {
+  const lg = (id: string, x2: string, y2: string, a0: number, a1: number) =>
+    `<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}"><stop offset="0" stop-color="#000" stop-opacity="${a0}"/><stop offset="1" stop-color="#000" stop-opacity="${a1}"/></linearGradient>`;
+  const soot = (id: string, o: number, mid = '') => `<radialGradient id="${id}"><stop offset="0" style="stop-color:var(--ma-drw-soot);stop-opacity:${o}"/>${mid}<stop offset="1" style="stop-color:var(--ma-drw-soot);stop-opacity:0"/></radialGradient>`;
+  return lg('g-vs', '0', '1', 0.55, 0) + lg('g-vs-up', '0', '1', 0, 0.35) +
+    lg('sh-near-l', '1', '0', 0.9, 0) + lg('sh-near-r', '1', '0', 0, 0.9) + lg('sh-far-l', '1', '0', 0.5, 0) + lg('sh-far-r', '1', '0', 0, 0.5) +
+    soot('grime-r', 0.6) + soot('oil-r', 0.5) +
+    soot('print-r', 0.28, '<stop offset="0.75" style="stop-color:var(--ma-drw-soot);stop-opacity:0.14"/>') +
+    `<linearGradient id="frame-grime" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ma-drw-soot);stop-opacity:0"/><stop offset="1" style="stop-color:var(--ma-drw-soot);stop-opacity:0.5"/></linearGradient>` +
+    `<radialGradient id="polish-r"><stop offset="0" stop-color="#fff" stop-opacity="0.16"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>` +
+    `<radialGradient id="rust-r"><stop offset="0" style="stop-color:var(--ma-drw-rust);stop-opacity:0.55"/><stop offset="1" style="stop-color:var(--ma-drw-rust);stop-opacity:0"/></radialGradient>` +
+    `<radialGradient id="glow-g"><stop offset="0" style="stop-color:var(--ma-on);stop-opacity:0.55"/><stop offset="1" style="stop-color:var(--ma-on);stop-opacity:0"/></radialGradient>` +
+    `<pattern id="hz" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><rect width="3" height="6" style="fill:var(--ma-warn)"/><rect x="3" width="3" height="6" style="fill:var(--ma-chs-bot)"/></pattern>` +
+    `<filter id="blur2" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.6"/></filter>` +
+    `<filter id="blur8" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="6"/></filter>`;
 }

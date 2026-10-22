@@ -10,3 +10,7 @@ html.theme-military[data-ms-power="off"] .milspec-led .milspec-led-lens { backgr
 html.theme-military[data-ms-power="off"] .milspec-key[data-pressed] .lip { stroke: rgba(0,0,0,0.42); filter: none; }
 html.theme-military[data-ms-power="off"] .milspec-crt .scr-in > * { opacity: 0; }
 html.theme-military[data-ms-power="off"] .milspec-crt .scr-in { background: #030404; }
+
+/* 下の板の奥の基板の光。電源 off で消える */
+.milspec-drw-glow { transition: opacity 300ms; }
+html.theme-military[data-ms-power="off"] .milspec-drw-glow { opacity: 0; }

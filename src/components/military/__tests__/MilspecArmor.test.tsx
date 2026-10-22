@@ -104,4 +104,16 @@ describe('MilspecArmor', () => {
     expect(css).toContain('[data-ms-zone="rail"]');
     expect(css).toMatch(/\.theme-military \.milspec-armor \{[^}]*z-index: -1;/);
   });
+  it('kind:drawer / kind:glow の板は armorSVG ではなく専用の描画で描く', () => {
+    const dp: PlacedPanel[] = [
+      { name: 'glow', x: 623, y: 0, w: 427, h: 102, spec: { kind: 'glow', x0: 623, x1: 1050, windows: [[6, 46], [54, 98]], glow: 0.55 } },
+      { name: 'drawer', x: 623, y: 0, w: 427, h: 102, spec: { kind: 'drawer', x0: 623, x1: 1050, rest: [683, 959], bands: [{ y0: 4, y1: 48, cut: 714 }, { y0: 52, y1: 100, cut: 683 }], shadow: 1, dirt: 2, dark: 1 } },
+    ];
+    const { container } = render(<div><MilspecArmor id="z" frame={{ w0: 1189, h0: 102, sx: 9999, sy: 9999 }} panels={dp} /></div>);
+    const root = container.querySelector('.milspec-armor') as HTMLElement;
+    fireRo(1189, 102);
+    expect(root.innerHTML).toContain('data-trace="drw:1"');
+    expect(root.innerHTML).toContain('id="z-1-mesh"');
+    expect(root.querySelector('svg[data-kind="drawer"]')?.getAttribute('viewBox')).toBe('623 0 427 102');
+  });
 });

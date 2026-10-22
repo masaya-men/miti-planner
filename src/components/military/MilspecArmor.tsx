@@ -1,5 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { armorSVG } from './armor/svg';
+import { drawerSVG, glowSVG } from './armor/drawer';
 import { ensureDefs } from './armor/defs';
 import { readPalette } from './armor/palette';
 import { stretchPlaced } from './armor/stretch';
@@ -50,7 +51,11 @@ export function MilspecArmor({ id, frame, panels, className }: Props) {
     const H = size?.h ?? frame.h0;
     el.innerHTML = panels.map((p, i) => {
       const q = stretchPlaced(p, frame, W, H);
-      if ('kind' in q.spec) return ''; // drawer / glow の描画は別系統(Task 2)
+      // 下の板・基板は絶対の区画座標で描く。viewBox を x0 から始めて板の左上に合わせる
+      if ('kind' in q.spec) {
+        const sp = q.spec, inner = sp.kind === 'drawer' ? drawerSVG(sp, pal, `${id}-${i}`) : glowSVG(sp, pal, `${id}-${i}`);
+        return `<svg class="milspec-armor-panel" data-kind="${sp.kind}" style="left:${q.x}px;top:${q.y}px" width="${q.w}" height="${q.h}" viewBox="${sp.x0} 0 ${q.w} ${q.h}">${inner}</svg>`;
+      }
       return `<svg class="milspec-armor-panel" style="left:${q.x}px;top:${q.y}px" width="${q.w}" height="${q.h}" viewBox="0 0 ${q.w} ${q.h}">${armorSVG(q.spec, pal, `${id}-${i}`)}</svg>`;
     }).join('');
   }, [id, contentKey, size, paletteTick]);

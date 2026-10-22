@@ -209,6 +209,8 @@
   --ma-scratch-sh: rgba(0,0,0,0.5);
   --ma-polish: rgba(255,255,255,0.075);
   --ma-wash: rgba(0,0,0,0.34);
+  /* 下の板(エキスパンドメタル)。網の明(／)暗(＼)・結び目・枠の平鋼・亜鉛の白吹き・錆・すす */
+  --ma-drw-lit: #9aa3a9; --ma-drw-dark: #565e64; --ma-drw-knot: #b8c0c5; --ma-drw-edge-hi: #dfe5e9; --ma-drw-frame: #8e979d; --ma-drw-zinc: #eef2f4; --ma-drw-rust: #8a4a1e; --ma-drw-soot: #050403;
 }
 
 /* ---------- トークン: Light ---------- */
@@ -316,6 +318,8 @@
   --ma-scratch-sh: rgba(55,62,70,0.45);
   --ma-polish: rgba(110,95,80,0.07);
   --ma-wash: rgba(60,70,80,0.26);
+  /* 下の板(エキスパンドメタル)。ライトは明るい亜鉛めっき寄り(暫定) */
+  --ma-drw-lit: #cfd6db; --ma-drw-dark: #8a939a; --ma-drw-knot: #e6eaed; --ma-drw-edge-hi: #ffffff; --ma-drw-frame: #aeb7bd; --ma-drw-zinc: #ffffff; --ma-drw-rust: #a8581f; --ma-drw-soot: #3a3028;
 }
 
 /* Phase 1.2: 意味トークンリマップ — ここに追記 */

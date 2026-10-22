@@ -9,7 +9,7 @@ export function rng(seed: number): () => number {
 export const seedOf = (pts: Pt[]): number => Math.abs(Math.round(pts.reduce((s, p, i) => s + p[0] * (i + 3) * 7.3 + p[1] * (i + 5) * 13.1, 0))) || 7;
 
 /** 縁の剥げ: 辺に沿って細長い小片。角の近くほど多い */
-function chipsSVG(pts: Pt[], R: () => number, amount: number, big = 1): string {
+export function chipsSVG(pts: Pt[], R: () => number, amount: number, big = 1): string {
   let s = '';
   const n = pts.length;
   for (let i = 0; i < n; i++) {

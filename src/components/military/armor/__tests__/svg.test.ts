@@ -7,7 +7,8 @@ import type { ArmorPalette, PanelSpec } from '../types';
 const mk = (): ArmorPalette => {
   const t = { top: hex('#555b61'), bot: hex('#2a2e32'), hi: hex('#8a9096'), lo: hex('#101214'), face: hex('#444a50') };
   return { pri: t, sec: t, chs: t, key: t, edge: hex('#0a0b0c'), keyEdge: hex('#050505'), pkTop: hex('#111'), pkBot: hex('#222'),
-    scribe: 'rgba(0,0,0,.6)', scribeHi: 'rgba(255,255,255,.1)', seam: 'rgba(0,0,0,.5)', seamCore: '#444', dish: 0.2, keySh: 0.5, grain: 0.1, spec: 0.3 };
+    scribe: 'rgba(0,0,0,.6)', scribeHi: 'rgba(255,255,255,.1)', seam: 'rgba(0,0,0,.5)', seamCore: '#444', dish: 0.2, keySh: 0.5, grain: 0.1, spec: 0.3,
+    drw: { lit: t.top, dark: t.bot, knot: t.hi, edgeHi: t.hi, frame: t.face, zinc: t.hi, rust: t.lo, soot: t.lo } };
 };
 const S1: PanelSpec = { tone: 'pri', b: 4,
   pts: [[16, 0], [232, 0], [274, 42], [274, 104], [268, 110], [206, 110], [198, 118], [150, 118], [142, 110], [6, 110], [0, 104], [0, 16]],

@@ -32,4 +32,12 @@ describe('MIL-SPEC v11 材質トークン', () => {
   it('見本の短い名前を直接使っていない', () => {
     expect(css).not.toMatch(/\s--(pri|sec|chs|key)-(top|bot|hi|lo):/);
   });
+  it('--ma-drw-* が dark / light の両方に定義されている', () => {
+    for (const sel of ['.theme-military.theme-dark', '.theme-military.theme-light']) {
+      const b = block(sel);
+      for (const k of ['lit', 'dark', 'knot', 'edge-hi', 'frame', 'zinc', 'rust', 'soot']) {
+        expect(b, `${sel} に --ma-drw-${k}`).toContain(`--ma-drw-${k}:`);
+      }
+    }
+  });
 });

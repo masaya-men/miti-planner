@@ -17,5 +17,6 @@ export function readPalette(el: Element): ArmorPalette {
     pkTop: g('--ma-a-pk-top'), pkBot: g('--ma-a-pk-bot'),
     scribe: s('--ma-a-scribe'), scribeHi: s('--ma-a-scribe-hi'), seam: s('--ma-seam'), seamCore: s('--ma-seam-core'),
     dish: n('--ma-key-dish'), keySh: n('--ma-key-sh'), grain: n('--ma-grain'), spec: n('--ma-spec'),
+    drw: { lit: g('--ma-drw-lit'), dark: g('--ma-drw-dark'), knot: g('--ma-drw-knot'), edgeHi: g('--ma-drw-edge-hi'), frame: g('--ma-drw-frame'), zinc: g('--ma-drw-zinc'), rust: g('--ma-drw-rust'), soot: g('--ma-drw-soot') },
   };
 }
