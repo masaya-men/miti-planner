@@ -322,48 +322,61 @@ export function getRemainingCharges(
 
         return Math.max(0, maxCh - usedInWindow);
     } else {
-        // Recast charges: simulate game charge system
-        // Start at maxCh, consume on use, regen one per cooldown period
+        // Recast charges: simulate game charge system (chargeStateAt に切り出し済み)
         const uses = activeMitigations
-            .filter(am => am.mitigationId === mitigationId && am.time <= selectedTime)
-            .sort((a, b) => a.time - b.time);
+            .filter(am => am.mitigationId === mitigationId)
+            .map(am => am.time);
+        return chargeStateAt(def, uses, selectedTime).charges;
+    }
+}
 
-        if (uses.length === 0) return maxCh;
+/**
+ * recast 方式チャージ技の充電シミュレーション本体。
+ * maxCharges(レベル連動の実効数)から始め、使うたびに 1 消費、recast 秒ごとに 1 回復する。
+ * `uses` のうち t 以下の使用(t ちょうどの使用も消費済み)を時系列で処理し、t 時点の
+ * 残りチャージと「次の 1 チャージまでに溜まった秒(rechargeTimer)」を返す。満タンなら rechargeTimer=0。
+ * getRemainingCharges と スプシのリキャスト線(sheetGeometry.cooldownSpans)が共用する。
+ */
+export function chargeStateAt(
+    def: Pick<Mitigation, 'maxCharges' | 'chargeMinLevel' | 'recast'>,
+    uses: readonly number[],
+    t: number
+): { charges: number; rechargeTimer: number } {
+    const maxCh = effectiveMaxCharges(def);
+    const sorted = uses.filter(u => u <= t).sort((a, b) => a - b);
+    if (sorted.length === 0) return { charges: maxCh, rechargeTimer: 0 };
 
-        // Simulate charge state over time
-        let charges = maxCh;
-        let rechargeTimer = 0; // time accumulating toward next charge
+    let charges = maxCh;
+    let rechargeTimer = 0; // time accumulating toward next charge
 
-        // Process events chronologically
-        let lastTime = 0;
-        for (const use of uses) {
-            // Accumulate recharge time from lastTime to use.time
-            const elapsed = use.time - lastTime;
-            if (charges < maxCh) {
-                rechargeTimer += elapsed;
-                const recharged = Math.floor(rechargeTimer / def.recast);
-                charges = Math.min(maxCh, charges + recharged);
-                rechargeTimer = rechargeTimer % def.recast;
-                if (charges >= maxCh) rechargeTimer = 0;
-            }
-            // Consume
-            charges = Math.max(0, charges - 1);
-            if (charges < maxCh && rechargeTimer === 0) {
-                // Start recharge timer from this use
-            }
-            lastTime = use.time;
-        }
-
-        // Accumulate recharge from last use to selectedTime
-        const finalElapsed = selectedTime - lastTime;
+    // Process events chronologically
+    let lastTime = 0;
+    for (const useTime of sorted) {
+        // Accumulate recharge time from lastTime to use.time
+        const elapsed = useTime - lastTime;
         if (charges < maxCh) {
-            rechargeTimer += finalElapsed;
+            rechargeTimer += elapsed;
             const recharged = Math.floor(rechargeTimer / def.recast);
             charges = Math.min(maxCh, charges + recharged);
+            rechargeTimer = rechargeTimer % def.recast;
+            if (charges >= maxCh) rechargeTimer = 0;
         }
-
-        return charges;
+        // Consume
+        charges = Math.max(0, charges - 1);
+        lastTime = useTime;
     }
+
+    // Accumulate recharge from last use to t
+    const finalElapsed = t - lastTime;
+    if (charges < maxCh) {
+        rechargeTimer += finalElapsed;
+        const recharged = Math.floor(rechargeTimer / def.recast);
+        charges = Math.min(maxCh, charges + recharged);
+        rechargeTimer = rechargeTimer % def.recast;
+    }
+    if (charges >= maxCh) rechargeTimer = 0;
+
+    return { charges, rechargeTimer };
 }
 
 /**
