@@ -287,6 +287,7 @@
   /* ===== Task4: ツアーのスマホ横持ちUI(案A) =====
      行き方+前へ/見学/次への下部操作バーの高さ目安(可変・min-heightとして使用)。 */
   --housing-tour-mobilebar-h: 3rem;
+  --housing-traybar-h: 86px; /* スマホの浮かぶツアートレイ (2 段) の高さ。一覧末尾の余白計算用 */
   --housing-tour-mobilebar-top-h: 2rem; /* 下部バー上段 (順番を変える) の高さ */
   --housing-visited-opacity: 0.6; /* ナビ中の並び替え: 見学済みの薄さ */
 
@@ -7672,6 +7673,11 @@ select.housing-input option {
   flex-direction: column;
   gap: 10px;
 }
+/* .housing-tour-dest-title は横並び用に flex:1 を持つため、縦積みのここでは伸びて
+   名前と住所/コメントの間に大きな空きができていた (2026-10-22)。縦には伸ばさない。 */
+.housing-tour-plan-detail-body > .housing-tour-dest-title {
+  flex: 0 0 auto;
+}
 
 /* ===== ツアー計画画面: 蛇行グリッド (TourTrayBoard・2026-08-11) =====
    列を上下交互に埋めながら右へ続く一本道。画面に入りきらない分は横スクロール。 */
@@ -10136,6 +10142,10 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housinger-page-listings-col .housing-listing-grid {
     padding: 4px 0 calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px) 0;
   }
+  /* 浮かぶツアートレイがあるときは、最後のカードがトレイの裏に隠れないよう余白を足す (2026-10-22 実測)。 */
+  .housing-shell:has(.housing-tour-traybar) .housing-listing-grid {
+    padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--housing-fab-gap) + var(--housing-traybar-h) + 12px);
+  }
   /* スクロールバー: 画面右端・太め (WebKit/Android。iOS Safari は太さ指定非対応=位置のみ改善)。 */
   .housing-listing-grid::-webkit-scrollbar {
     width: 8px;
@@ -10439,13 +10449,23 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--housing-fab-gap));
     z-index: var(--housing-z-mobile-chrome);
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 8px;
     padding: 8px 12px;
     background: var(--housing-panel-bg-solid);
     border: 1px solid var(--housing-honey-border);
     border-radius: 12px;
     box-shadow: var(--housing-panel-shadow);
+  }
+  .housing-tour-traybar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .housing-tour-traybar-actions > button {
+    flex: 1 1 0;
+    justify-content: center;
   }
   .housing-tour-traybar-icon {
     flex: 0 0 auto;

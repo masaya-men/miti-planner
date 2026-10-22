@@ -72,12 +72,25 @@ export const MobileTourTrayBar: React.FC = () => {
 
   return (
     <>
+      {/* 2 段: 上=トレイ名・件数・空にする / 下=「順番を変える」「このまま開始」。
+          右下の「+」ボタンの分だけ幅が狭く、1 段では件数が潰れていた (2026-10-22 実測)。 */}
       <div className="housing-tour-traybar" data-testid="mobile-tour-tray-bar">
+        <div className="housing-tour-traybar-row">
         <Route size={16} aria-hidden="true" className="housing-tour-traybar-icon" />
         <span className="housing-tour-traybar-label">
           {t('housing.tray.title')}
           <span className="housing-tour-traybar-count">{trayIds.length}</span>
         </span>
+        <button
+          type="button"
+          className="housing-tour-traybar-clear"
+          aria-label={t('housing.mobile.tray_clear')}
+          onClick={() => useTourTrayStore.getState().clear()}
+        >
+          <X size={14} aria-hidden="true" />
+        </button>
+        </div>
+        <div className="housing-tour-traybar-row housing-tour-traybar-actions">
         <button
           type="button"
           className="housing-tour-traybar-reorder"
@@ -94,14 +107,7 @@ export const MobileTourTrayBar: React.FC = () => {
           <Play size={14} aria-hidden="true" />
           {t('housing.tray.start_now')}
         </button>
-        <button
-          type="button"
-          className="housing-tour-traybar-clear"
-          aria-label={t('housing.mobile.tray_clear')}
-          onClick={() => useTourTrayStore.getState().clear()}
-        >
-          <X size={14} aria-hidden="true" />
-        </button>
+        </div>
       </div>
       <MannerNoticeDialog
         open={mannerOpen}

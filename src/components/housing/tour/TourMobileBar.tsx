@@ -66,7 +66,7 @@ export const TourMobileBar: React.FC<TourMobileBarProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className="housing-tour-mobilebar" data-testid="tour-mobile-bar" data-has-top={(!readOnly && onReorder) || undefined}>
+    <div className="housing-tour-mobilebar" data-testid="tour-mobile-bar" data-has-top={!readOnly && onReorder ? 'true' : undefined}>
       {!readOnly && onReorder && (
         <div className="housing-tour-mobilebar-top">
           <button type="button" className="housing-tour-reorder-btn" onClick={onReorder}>
