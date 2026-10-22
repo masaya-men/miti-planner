@@ -27,6 +27,7 @@ import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { BrowseViewToggle } from '../browse/BrowseViewToggle';
 import { BrowseMapView } from '../browse/map/BrowseMapView';
 import { BrowseTagView } from '../browse/BrowseTagView';
+import { BrowseHousingerView } from '../browse/BrowseHousingerView';
 import { TourTray } from '../browse/TourTray';
 import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import { useTourTrayStore } from '../../../store/useTourTrayStore';
@@ -56,10 +57,10 @@ export const BrowsePage: React.FC = () => {
   // 中央の表示切替 (一覧 | 地図)。セッション記憶 (spec 3.1)。
   const browseView = useHousingViewStore((s) => s.browseView);
   const setBrowseView = useHousingViewStore((s) => s.setBrowseView);
-  // スマホは地図非対応 (左右パネルもCSSで非表示) のため、表示は常に一覧を強制する。
+  // スマホは地図・タグ非対応 (左右パネルもCSSで非表示) のため、一覧かハウジンガー以外は一覧を強制する。
   // トグル自体の state (browseView) は変えない = PCに戻したときに選択が残る。
   const isMobile = useIsMobile();
-  const effectiveView = isMobile ? 'list' : browseView;
+  const effectiveView = isMobile && browseView !== 'housinger' ? 'list' : browseView;
 
   const dc = useHousingFilterStore((s) => s.dc);
   const regions = useHousingFilterStore((s) => s.regions);
@@ -172,7 +173,7 @@ export const BrowsePage: React.FC = () => {
   // ListingGrid のツールバー行に差し込み、マップ/タグ/結果0件のときは単独の行として使う。
   const viewToggleNode = (
     <>
-      <BrowseViewToggle value={browseView} onChange={setBrowseView} />
+      <BrowseViewToggle value={effectiveView} onChange={setBrowseView} />
       {hasActiveFilter && (
         <button
           type="button"
@@ -244,6 +245,8 @@ export const BrowsePage: React.FC = () => {
               ) : null}
               {effectiveView === 'tags' ? (
                 <BrowseTagView />
+              ) : effectiveView === 'housinger' ? (
+                <BrowseHousingerView filtered={filtered} />
               ) : effectiveView === 'map' ? (
                 <BrowseMapView filtered={filtered} onAddToTour={addToTray} />
               ) : filtered.length === 0 ? (

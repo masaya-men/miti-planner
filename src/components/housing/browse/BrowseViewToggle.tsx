@@ -6,7 +6,7 @@ export interface BrowseViewToggleProps {
   onChange: (v: HousingBrowseView) => void;
 }
 
-const VIEWS: HousingBrowseView[] = ['list', 'map', 'tags'];
+const VIEWS: HousingBrowseView[] = ['list', 'map', 'tags', 'housinger'];
 
 /**
  * 探す中央パネル上部の「一覧 | 地図」切替 (spec 3.1)。
@@ -25,6 +25,7 @@ export const BrowseViewToggle: React.FC<BrowseViewToggleProps> = ({ value, onCha
           role="tab"
           aria-selected={value === v}
           data-selected={value === v ? 'true' : 'false'}
+          data-view={v}
           className="housing-view-toggle-btn"
           onClick={() => onChange(v)}
         >

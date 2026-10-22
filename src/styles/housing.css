@@ -1550,6 +1550,10 @@
 .housing-listing-grid > :nth-child(10) { --housing-reveal-i: 9; }
 .housing-listing-grid > :nth-child(11) { --housing-reveal-i: 10; }
 .housing-listing-grid > :nth-child(n+12) { --housing-reveal-i: 11; }
+/* 段階描画 (ListingGrid) で後から足されるカード (37 枚目以降) は動きなしで普通に出す。
+   最初のまとまり (LISTING_INITIAL_COUNT=36 枚) にだけふわっと表示が効く。 */
+.housing-reveal .housing-listing-grid > :nth-child(n+37),
+.housing-reveal-kids .housing-listing-grid > :nth-child(n+37) { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   .housing-reveal:not(:has(.housing-listing-grid)),
   .housing-reveal .housing-listing-grid > *,
@@ -6492,6 +6496,62 @@ select.housing-input option {
 /* タグ検索ビュー (探すページ 3タブ目「タグ」・design 2026-07-27)。
    WorldSelectGate と同じ chip の見た目 (section/label/grid/chip) を踏襲しつつ、
    ゲートと違い1画面に収めず縦スクロールする長尺レイアウトにする。 */
+/* 探すページ「ハウジンガー」表示 (見本 H3: 行 = アイコン + 名前/紹介文1行 + 右に代表作の小サムネ)。
+ * 頭文字見出しは sticky、スクロールはこのビュー内で完結。 */
+.housing-housinger-view {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 4px calc(var(--housing-bottomnav-h) + 24px);
+}
+.housing-housinger-count {
+  padding: 2px 4px 6px;
+  text-align: right;
+  font-size: var(--housing-text-md);
+  color: var(--housing-text-mute);
+}
+.housing-housinger-heading {
+  position: sticky; top: 0; z-index: 2;
+  padding: 6px 4px;
+  font-size: var(--housing-text-sm); font-weight: 800; letter-spacing: 0.08em;
+  color: var(--housing-honey);
+  background: var(--housing-panel-bg-solid);
+  border-bottom: 1px solid var(--housing-panel-border);
+}
+.housing-housinger-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 4px;
+  color: var(--housing-text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--housing-panel-border);
+  transition: background 0.15s ease;
+}
+.housing-housinger-row:hover { background: var(--housing-panel-inner); }
+.housing-housinger-row:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: -2px; }
+.housing-housinger-row-avatar { width: 40px; height: 40px; }
+.housing-housinger-row-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.housing-housinger-row-name {
+  font-size: var(--housing-text-base); font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.housing-housinger-row-bio {
+  font-size: var(--housing-text-sm); line-height: 1.5; color: var(--housing-text-mute);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.housing-housinger-row-thumbs { display: flex; gap: 4px; flex: 0 0 auto; }
+.housing-housinger-row-thumbs img {
+  width: 54px; height: 40px; object-fit: cover; display: block;
+  border-radius: 6px; background: var(--housing-panel-inner);
+}
+.housing-housinger-empty {
+  padding: 48px 16px; text-align: center;
+  font-size: var(--housing-text-base); color: var(--housing-text-dim);
+}
+@media (max-width: 767px) {
+  .housing-housinger-row-thumbs img { width: 38px; height: 30px; }
+  .housing-housinger-row-thumbs img:nth-child(3) { display: none; }
+}
+
 .housing-tagpicker-view {
   flex: 1 1 auto;
   overflow-y: auto;
@@ -10276,7 +10336,9 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     background: transparent;
   }
   /* 一覧|地図 の切替トグル。スマホは常に一覧固定 (BrowsePage.tsx の effectiveView) なので隠す。 */
-  .housing-view-toggle {
+  /* スマホは地図・タグ非対応: 切替は「一覧 | ハウジンガー」の 2 つだけ出す。 */
+  .housing-view-toggle-btn[data-view="map"],
+  .housing-view-toggle-btn[data-view="tags"] {
     display: none;
   }
 
@@ -10929,4 +10991,41 @@ html[data-theme-anim="light"]::view-transition-new(root) {
 @media (prefers-reduced-motion: reduce) {
   .housing-tab-badge.is-bump { animation: none; }
   .housing-card-add-overlay, .housing-listing-card-media:has(.housing-card-add-overlay) .housing-listing-card-caption { transition: none; }
+}
+
+/* ============================================================
+ * 引っ張って更新 (ホーム画面アプリ専用・見本 R2)
+ * HousingPullToRefresh.tsx が transform / opacity / stroke-dasharray を直接書き換える。
+ * ============================================================ */
+.housing-ptr-ind {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: env(safe-area-inset-top, 0px);
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform, opacity;
+}
+.housing-ptr-ring { width: 28px; height: 28px; }
+.housing-ptr-ring circle {
+  fill: none;
+  stroke: var(--housing-honey);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+.housing-ptr-spinning .housing-ptr-ring { animation: housing-ptr-rot 0.8s linear infinite; }
+@keyframes housing-ptr-rot { to { transform: rotate(360deg); } }
+/* 離したあと 320ms で戻る / 止まる位置へ寄る */
+.housing-shell.housing-ptr-snap { transition: transform 320ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.housing-ptr-ind.housing-ptr-snap { transition: transform 320ms cubic-bezier(0.2, 0.7, 0.2, 1), opacity 320ms; }
+@media (prefers-reduced-motion: reduce) {
+  .housing-ptr-spinning .housing-ptr-ring { animation: none; }
+  .housing-shell.housing-ptr-snap, .housing-ptr-ind.housing-ptr-snap { transition: none; }
 }
