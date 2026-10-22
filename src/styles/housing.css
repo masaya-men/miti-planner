@@ -7433,57 +7433,57 @@ select.housing-input option {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   pointer-events: none;
 }
-/* NEWカードの縁だけを光が一周するビーム演出 (2026-08-16改)。
+/* NEWカードの縁だけを光の筋が一周するビーム演出 (HousingNewBeamRing)。
    表示(画面内に入る)のたびに1周だけ再生して止まる(無限ループにしない・ユーザー合意)。
-   .housing-card-new-beam-glow (静的な「輪っか」のマスク、mask-composite:exclude で
-   content-box の内側を切り抜いて縁だけ残す) に conic-gradient を敷き、その開始角だけを動かす
-   (2026-10-22 改: 回転する子要素は iPhone で mask を突き抜けたため廃止)。輪はカードの角丸の縁に
-   固定されたまま動かないため、ツアー追加ボタン等の透ける部分から光がにじみ出ない
-   (旧実装=カード全体の背後に置いて周辺だけ透けさせる方式だった不具合の根治)。 */
+   2026-10-22 作り替え: 以前の「板全体に光を敷き mask で内側を切り抜く」方式は iPhone で切り抜きが
+   効かない場合があり、光の板が画像にかぶった (回転する子をやめた後も再発)。縁に沿った線 (SVG path・
+   pathLength=100) の破線 1 区間を走らせる方式にし、切り抜き自体を使わない。
+   尾 (tail・薄く長い) の先端に頭 (head・明るく短い) を重ねて光の筋に見せる。 */
 .housing-listing-card.housing-card-new-beam {
   position: relative;
 }
 .housing-card-new-beam-glow {
-  /* 2026-08-16: inset:-1px (親のborder分を補正する試み) は親の overflow:hidden の
-     クリップ境界の実際の挙動と合わず、リングがほぼ見えなくなる regression を起こしたため
-     inset:0 に戻した。境界線とのわずかなズレは残るが「見える」方を優先する。 */
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   z-index: 5;
-  border-radius: inherit;
-  padding: 1px;
-  overflow: hidden;
+  overflow: visible;
   pointer-events: none;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  /* 2026-10-22: 以前は 200vmax の ::before を transform で回していたが、iPhone (WebKit) で
-     回転中の子が別レイヤーになり上の mask が効かず、光がカード画像全体に扇形で出ていた。
-     回転させる子をやめ、この要素自身の conic-gradient の開始角 (@property で補間できる角度) を動かす。 */
-  background: conic-gradient(
-    from var(--housing-beam-angle),
-    transparent 0 72%,
-    var(--housing-honey-glow) 84%,
-    var(--housing-candle) 90%,
-    transparent 96%
-  );
-  animation: housing-new-beam-spin 3s linear 1;
+}
+.housing-card-new-beam-glow path {
+  fill: none;
+  stroke-linecap: round;
   /* animation ショートハンドは未指定のサブプロパティ (animation-delay 含む) を 0s に
-     リセットするため、ずらし値は必ずショートハンドより後ろで指定する。
-     --beam-delay はこの span の inline style から渡される。 */
+     リセットするため、ずらし値は必ずショートハンドより後ろで指定する。 */
+  animation-duration: 3s;
+  animation-timing-function: linear;
+  animation-iteration-count: 1;
   animation-delay: var(--beam-delay, 0ms);
 }
-@property --housing-beam-angle {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
+.housing-card-new-beam-tail {
+  stroke: var(--housing-honey-glow);
+  stroke-width: 1.5;
+  opacity: 0.55;
+  stroke-dasharray: 22 78;
+  stroke-dashoffset: 0;
+  animation-name: housing-new-beam-tail;
 }
-@keyframes housing-new-beam-spin {
-  to { --housing-beam-angle: 1turn; }
+.housing-card-new-beam-head {
+  stroke: var(--housing-candle);
+  stroke-width: 2;
+  stroke-dasharray: 8 92;
+  stroke-dashoffset: -14;
+  animation-name: housing-new-beam-head;
+}
+@keyframes housing-new-beam-tail {
+  to { stroke-dashoffset: -100; }
+}
+@keyframes housing-new-beam-head {
+  to { stroke-dashoffset: -114; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .housing-card-new-beam-glow { animation: none; }
+  .housing-card-new-beam-glow path { animation: none; }
 }
 .housing-pill {
   font-size: var(--housing-text-xs); color: var(--housing-text-mute);

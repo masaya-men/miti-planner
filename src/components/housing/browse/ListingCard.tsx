@@ -25,6 +25,7 @@ import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
 import { HousingRipple } from '../HousingRipple';
 import { useTourAddFeedback } from '../../../lib/housing/useTourAddFeedback';
 import { HousingTourAddErrorBubble } from '../HousingTourAddErrorBubble';
+import { HousingNewBeamRing } from './HousingNewBeamRing';
 
 export interface ListingCardProps {
   listing: MockListing;
@@ -250,23 +251,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         if (e.key === 'Enter') activate();
       }}
     >
-      {/* 縁だけを光が一周するリング (2026-08-16改: 透ける部分から光が漏れる問題の根治のため
-          mask で輪の形に切り抜く方式にした。中の巨大な正方形だけが回転し、この輪自体は
-          カードの角丸の縁に固定されたまま動かない)。
+      {/* 縁だけを光の筋が一周する (HousingNewBeamRing・切り抜きに頼らず縁の線を描く方式)。
           key={enterCount}: 画面内に入るたびに増える値をkeyにすることで、2回目以降の再入場でも
           Reactに要素を作り直させ、既に再生し終えたCSSアニメーションを確実に最初から再生させる。
-          --beam-delay: 実際に回転しているのは疑似要素 (::before) で、React の style は
-          疑似要素に直接効かないため、CSS変数として span に渡し housing.css 側の
-          animation-delay: var(--beam-delay) で疑似要素に届ける (2026-08-16 バグ修正: 当初
-          span 自身に animationDelay を置いていて何も効いていなかった)。 */}
-      {showBeam && (
-        <span
-          key={enterCount}
-          className="housing-card-new-beam-glow"
-          style={{ '--beam-delay': `${staggerDelayMs(listing.id)}ms` } as React.CSSProperties}
-          aria-hidden="true"
-        />
-      )}
+          --beam-delay: 実際に動くのは中の線 (path) なので、ずらし値は CSS 変数として外側の svg に渡し
+          housing.css 側の animation-delay: var(--beam-delay) で線に届ける。 */}
+      {showBeam && <HousingNewBeamRing key={enterCount} delayMs={staggerDelayMs(listing.id)} />}
       <div
         className="housing-listing-card-media"
         ref={mediaRef}
