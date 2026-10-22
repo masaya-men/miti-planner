@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState, startTransition } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Shuffle } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -9,6 +9,10 @@ import { useHousingListOrderStore, type HousingListKey } from '../../../store/us
 import { useHousingHomeScrollSignal } from '../../../store/useHousingHomeScrollSignal';
 import { useListScrollRestore } from '../../../lib/housing/useListScrollRestore';
 import { useSmoothWheelScroll } from '../../../lib/scroll/useSmoothWheelScroll';
+
+/** 最初に描く枚数と、見張りが見えるたびに足す枚数 (段階描画)。ふわっと表示の CSS (.housing-reveal の nth-child(n+37)) と揃える。 */
+export const LISTING_INITIAL_COUNT = 36;
+export const LISTING_STEP_COUNT = 36;
 
 export interface ListingGridProps {
   listings: MockListing[];
@@ -73,7 +77,44 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   tourExtraPool,
 }) => {
   const { t } = useTranslation();
-  const containerRef = useListScrollRestore(listKey);
+  // 段階描画: 最初は画面数枚分だけ作り、末尾の見張りが見えたら次のまとまりを足す。
+  const [count, setCount] = useState(LISTING_INITIAL_COUNT);
+  const total = listings.length;
+  const visibleCount = Math.min(count, total);
+  const seed = useHousingListOrderStore((s) => s.entries[listKey].seed);
+  const ensureCount = useCallback((n: number) => setCount((c) => Math.max(c, n)), []);
+  const resetCount = useCallback(() => setCount(LISTING_INITIAL_COUNT), []);
+  const containerRef = useListScrollRestore(listKey, {
+    count: visibleCount,
+    total,
+    sortKey: `${sort}|${seed}`,
+    firstId: listings[0]?.id ?? '',
+    secondId: listings[1]?.id ?? '',
+    ensureCount,
+    resetCount,
+    step: LISTING_STEP_COUNT,
+  });
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    const root = containerRef.current;
+    if (!sentinel || !root || visibleCount >= total || typeof IntersectionObserver === 'undefined') {
+      // IntersectionObserver が無い環境は全件描いて従来どおりにする
+      if (visibleCount < total && typeof IntersectionObserver === 'undefined') setCount(total);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          // 入力 (スクロール・クリック) を妨げないよう低優先で足す
+          startTransition(() => setCount((c) => c + LISTING_STEP_COUNT));
+        }
+      },
+      { root, rootMargin: '0px 0px 100% 0px' },
+    );
+    io.observe(sentinel);
+    return () => io.disconnect();
+  }, [visibleCount, total, containerRef]);
   // stiffness を下げるほど惰性が長く「ヌルっと」した滑らかさになる(既定値200は硬め)。
   // 軽減表タイムライン(Timeline.tsx)の80よりさらに柔らかくして「超スムーズ」要望に応える。
   useSmoothWheelScroll(containerRef, { stiffness: 60, wheelMultiplier: 1.4 });
@@ -123,7 +164,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
         </div>
       </div>
       <div className="housing-listing-grid" ref={containerRef}>
-        {listings.map((l) => l.adminHidden ? (
+        {listings.slice(0, visibleCount).map((l) => l.adminHidden ? (
           <HiddenListingCard key={l.id} listing={l} />
         ) : (
           <ListingCard
@@ -143,6 +184,15 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
             tourExtraPool={tourExtraPool}
           />
         ))}
+        {visibleCount < total && (
+          // 見張り要素: 見えたら次のまとまりを描く。全件描いたら外す。
+          <div
+            ref={sentinelRef}
+            aria-hidden="true"
+            data-testid="listing-grid-sentinel"
+            style={{ gridColumn: '1 / -1', height: 1, pointerEvents: 'none', animation: 'none' }}
+          />
+        )}
       </div>
     </div>
   );
