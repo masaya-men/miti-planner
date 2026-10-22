@@ -38,6 +38,6 @@ describe('sheetColumns', () => {
     expect(sheetColumnAt(100, 100)).toBe(0);
   });
   it('buildSheetColumnMap: jobId 無しは []', () => {
-    expect(buildSheetColumnMap([{ id: 'D1', role: 'melee', jobId: null } as PartyMember], MITIGATIONS, 100).get('D1')).toEqual([]);
+    expect(buildSheetColumnMap([{ id: 'D1', role: 'melee', jobId: null } as unknown as PartyMember], MITIGATIONS, 100).get('D1')).toEqual([]);
   });
 });
