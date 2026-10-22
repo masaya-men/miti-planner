@@ -18,6 +18,7 @@ import { DamageTypeIcon } from './DamageTypeIcon';
 import { nextDamageType } from '../utils/damageTypeLogic';
 import { EventNameSpan } from './EventNameSpan';
 import { rowPropsEqual } from './timeline/rowPropsEqual';
+import { sheetMemberStyle } from './timeline/sheet/sheetStyle';
 
 interface DamageInfo {
     unmitigated: number;
@@ -55,6 +56,9 @@ interface TimelineRowProps {
     onTimelineSelect?: (time: number) => void;
     onTimelineSelectHover?: (time: number) => void;
     showRowBorders?: boolean;
+    /** スプシ表示: メンバー id → 列数。指定時だけメンバー要素の幅を「列数 × --sheet-col-w」にする(未指定 = 従来)。
+     * memo 比較は参照比較のため、呼び出し側は参照が安定した Map を渡すこと */
+    sheetCols?: ReadonlyMap<string, number>;
 }
 
 // 外枠(TimelineRow)が持つ位置情報。中身(TimelineRowContent)は高さ・位置を使わないため
@@ -388,6 +392,7 @@ const TimelineRowContent = memo(({
     onTimelineSelect,
     onTimelineSelectHover,
     showRowBorders = false,
+    sheetCols,
 }: TimelineRowContentProps) => {
     const { t } = useTranslation();
     const { contentLanguage, themeStyle } = useThemeStore();
@@ -643,9 +648,13 @@ const TimelineRowContent = memo(({
 
             {/* Job Columns Cells — PC専用(表示/非表示スイッチで隠したメンバーの列は描画しない) */}
             {
-                visiblePartyMembers.map((member) => (
+                visiblePartyMembers.map((member) => {
+                    // スプシ表示: 列数 × --sheet-col-w の幅(縦罫線は sheet.css が [data-sheet-cols] に引く)。1 人 1 要素のまま
+                    const sheetN = sheetCols ? (sheetCols.get(member.id) ?? 0) : null;
+                    return (
                     <div
                         key={member.id}
+                        data-sheet-cols={sheetN ?? undefined}
                         data-tutorial={
                             member.id === 'MT' && time === 4 ? 'miti-cell-mt-4' :
                                 member.id === 'ST' && time === 4 ? 'miti-cell-st-4' :
@@ -653,16 +662,19 @@ const TimelineRowContent = memo(({
                         }
                         className={clsx(
                             "hidden md:flex h-full items-center justify-center relative group/cell cursor-pointer  border-r",
-                            "border-app-border hover:bg-app-surface2"
+                            sheetN === null ? "border-app-border hover:bg-app-surface2" : "border-app-text/20 hover:bg-app-surface2"
                         )}
-                        style={{ width: getColumnCssVar(member.role), minWidth: getColumnCssVar(member.role), maxWidth: getColumnCssVar(member.role) }}
+                        style={sheetN === null
+                            ? { width: getColumnCssVar(member.role), minWidth: getColumnCssVar(member.role), maxWidth: getColumnCssVar(member.role) }
+                            : sheetMemberStyle(sheetN)}
                         onClick={(e) => onCellClick(member.id, time, e)}
                     >
                         <Tooltip content={t('mitigation.select')} position="top">
                             <div className="w-full h-full" />
                         </Tooltip>
                     </div>
-                ))
+                    );
+                })
             }
         </>
     );

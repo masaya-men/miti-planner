@@ -1,0 +1,47 @@
+/* スプシ表示(timelineView === 'sheet')の骨組み。列幅・縦罫線・MIL-SPEC 上書き。
+   数値は sheetColumns.ts の SHEET_COL_W / SHEET_ICON_PX / SHEET_BAND_W と同じ値。 */
+:root {
+  --sheet-col-w: 28px;
+  --sheet-icon-px: 18px;
+  --sheet-band-w: 6px;
+}
+
+/* 縦罫線: 1 列(28px)ごとに右端 1px。ジョブの境目は要素の border-r(TimelineRow は border-app-text/20)。
+   背景色(hover の bg-app-surface2 など)は background-color 側なので、線は background-image で重ねる。 */
+[data-sheet-cols] {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 calc(var(--sheet-col-w) - 1px),
+    var(--color-app-border, rgba(255, 255, 255, 0.10)) calc(var(--sheet-col-w) - 1px) var(--sheet-col-w)
+  );
+}
+/* ヘッダー(ジョブ行・列見出し)は縦罫線を引かない(アイコンの箱が自前で線を持つ) */
+[data-member-id][data-sheet-cols],
+[data-sheet-member] {
+  background-image: none;
+}
+
+/* 列見出し(下段): 列の箱 */
+[data-sheet-col] {
+  border-right: 1px solid var(--color-app-border, rgba(255, 255, 255, 0.10));
+  box-sizing: border-box;
+}
+[data-sheet-member] > [data-sheet-col]:last-child {
+  border-right: 0;
+}
+
+/* MIL-SPEC: 罫線の色は --ma-ink-3(薄い墨色)から作る */
+.theme-military [data-sheet-col] {
+  border-right-color: color-mix(in srgb, var(--ma-ink-3) 40%, transparent);
+}
+.theme-military [data-sheet-cols] {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 calc(var(--sheet-col-w) - 1px),
+    color-mix(in srgb, var(--ma-ink-3) 40%, transparent) calc(var(--sheet-col-w) - 1px) var(--sheet-col-w)
+  );
+}
+.theme-military [data-member-id][data-sheet-cols],
+.theme-military [data-sheet-member] {
+  background-image: none;
+}

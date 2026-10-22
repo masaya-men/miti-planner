@@ -75,6 +75,9 @@ import { HeaderGimmickDropdown } from './HeaderGimmickDropdown';
 import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 import { RecastRow, type RecastRowHandle } from './RecastRow';
+import { SheetColumnHeader } from './timeline/sheet/SheetColumnHeader';
+import { buildSheetColumnMap } from './timeline/sheet/sheetColumns';
+import './timeline/sheet/sheet.css';
 import { JobPickerRow } from './JobPickerRow';
 // 軍事専用部品は標準テーマに配信しないよう遅延読み込み(useSortSlide は軽い hook なので静的のまま)
 const MilspecControlDeck = React.lazy(() => import('./military/table/MilspecControlDeck').then(m => ({ default: m.MilspecControlDeck })));
@@ -2680,6 +2683,16 @@ const Timeline: React.FC = () => {
         [sortedPartyMembers, hiddenPartyMemberIds]
     );
 
+    // スプシ表示: メンバー id → 列(軽減技)。列数の Map は参照を安定させる(TimelineRow の memo 比較は参照比較)
+    const sheetColumnMap = useMemo(
+        () => isSheetView ? buildSheetColumnMap(visiblePartyMembers, MITIGATIONS, currentLevel) : null,
+        [isSheetView, visiblePartyMembers, MITIGATIONS, currentLevel]
+    );
+    const sheetCols = useMemo(
+        () => sheetColumnMap ? new Map([...sheetColumnMap].map(([id, c]) => [id, c.length] as [string, number])) : undefined,
+        [sheetColumnMap]
+    );
+
     // 軍事の表: リキャスト中のアイコンが無い列の見出し = ロール色の短い線 + ジョブ略号(見本 v11 css:472-475)
     const renderMilspecIdle = useCallback((m: PartyMember) => {
         const job = m.jobId ? JOBS.find((j) => j.id === m.jobId) : null;
@@ -3031,8 +3044,8 @@ const Timeline: React.FC = () => {
                                         </button>
                                     </div>
                                 )}
-                                {/* リキャスト行 ON/OFF (セッション 18 案 C1) */}
-                                <Tooltip content={recastRowVisible ? t('timeline.recast_row.hide', 'リキャスト非表示') : t('timeline.recast_row.show', 'リキャスト表示')}>
+                                {/* リキャスト行 ON/OFF (セッション 18 案 C1)。スプシ表示では列見出しに置き換わるので出さない */}
+                                {!isSheetView && <Tooltip content={recastRowVisible ? t('timeline.recast_row.hide', 'リキャスト非表示') : t('timeline.recast_row.show', 'リキャスト表示')}>
                                     <button
                                         onClick={handleToggleRecastRowVisible}
                                         className={clsx(
@@ -3044,7 +3057,7 @@ const Timeline: React.FC = () => {
                                     >
                                         <Clock size={12} />
                                     </button>
-                                </Tooltip>
+                                </Tooltip>}
                             </div>
 
                             {/* 短い区切り線 — テーブルの U.Dmg|Dmg 境界と揃う */}
@@ -3123,6 +3136,7 @@ const Timeline: React.FC = () => {
                                 handleJobIconClick={handleJobIconClick}
                                 getMemberRefCallback={getMemberRefCallback}
                                 t={t}
+                                sheetCols={sheetCols}
                             />
                         </div>
                     </div>
@@ -3242,13 +3256,20 @@ const Timeline: React.FC = () => {
                                 OFF 時もセルは render する (= 罫線は維持)。 中のアイコンだけ scroll handler で hideAll。
                                 軍事の表だけ renderIdle で「アイコンが 1 つも出ていない列」にロール色の線 + ジョブ略号を描く
                                 (出し分けは RecastRow が data-recast-active に直書き + CSS)。 */}
-                            <RecastRow
-                                ref={recastRowRef}
-                                partyMembers={visiblePartyMembers}
-                                placements={timelineMitigations}
-                                mitigationDefs={MITIGATIONS}
-                                renderIdle={isMilspecTable ? renderMilspecIdle : undefined}
-                            />
+                            {sheetColumnMap ? (
+                                <SheetColumnHeader
+                                    members={visiblePartyMembers}
+                                    sheetColumnMap={sheetColumnMap}
+                                />
+                            ) : (
+                                <RecastRow
+                                    ref={recastRowRef}
+                                    partyMembers={visiblePartyMembers}
+                                    placements={timelineMitigations}
+                                    mitigationDefs={MITIGATIONS}
+                                    renderIdle={isMilspecTable ? renderMilspecIdle : undefined}
+                                />
+                            )}
                         </div>
                     </div>
 
@@ -3400,6 +3421,7 @@ const Timeline: React.FC = () => {
                                                 onTimelineSelect={stableTimelineSelect}
                                                 onTimelineSelectHover={stableTimelineSelectHover}
                                                 showRowBorders={showRowBorders}
+                                                sheetCols={sheetCols}
                                             />
                                         );
                                     }

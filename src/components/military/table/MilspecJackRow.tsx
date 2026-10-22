@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { useMitigationStore } from '../../../store/useMitigationStore';
 import { getColumnCssVar } from '../../../utils/calculator';
 import { Tooltip } from '../../ui/Tooltip';
+import { sheetMemberStyle } from '../../timeline/sheet/sheetStyle';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import { burst } from '../fx/engine';
 import { circ, P } from '../armor/geom';
@@ -24,7 +25,7 @@ const flash = (j: number, stagger: number) => {
 };
 
 export const MilspecJackRow: React.FC<JobPickerRowProps> = ({
-  partyMembers, partySortOrder, getJobIcon, getMemberRefCallback, handleJobIconClick, t,
+  partyMembers, partySortOrder, getJobIcon, getMemberRefCallback, handleJobIconClick, t, sheetCols,
 }) => {
   const reduced = useReducedMotion();
   const cells = React.useRef<Map<string, HTMLDivElement>>(new Map());
@@ -87,7 +88,8 @@ export const MilspecJackRow: React.FC<JobPickerRowProps> = ({
             ref={refFor(member.id)}
             data-member-id={member.id}
             data-member-role={member.role}
-            style={{
+            data-sheet-cols={sheetCols ? (sheetCols.get(member.id) ?? 0) : undefined}
+            style={sheetCols ? sheetMemberStyle(sheetCols.get(member.id) ?? 0) : {
               width: getColumnCssVar(member.role),
               minWidth: getColumnCssVar(member.role),
               maxWidth: getColumnCssVar(member.role),
