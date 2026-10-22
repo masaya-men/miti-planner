@@ -50,6 +50,7 @@ export function MilspecArmor({ id, frame, panels, className }: Props) {
     const H = size?.h ?? frame.h0;
     el.innerHTML = panels.map((p, i) => {
       const q = stretchPlaced(p, frame, W, H);
+      if ('kind' in q.spec) return ''; // drawer / glow の描画は別系統(Task 2)
       return `<svg class="milspec-armor-panel" style="left:${q.x}px;top:${q.y}px" width="${q.w}" height="${q.h}" viewBox="0 0 ${q.w} ${q.h}">${armorSVG(q.spec, pal, `${id}-${i}`)}</svg>`;
     }).join('');
   }, [id, contentKey, size, paletteTick]);

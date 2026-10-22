@@ -51,19 +51,19 @@ describe('stretch', () => {
     it('右寄りのパネルは平行移動のみ', () => {
       const r = stretchPlaced({ x: 200, y: 0, w: 74, h: 110, spec: { pts: [[10, 5], [60, 5]] } }, zf, 300, 679);
       expect(r).toMatchObject({ x: 226, y: 0, w: 74, h: 110 });
-      expect(r.spec.pts).toEqual([[10, 5], [60, 5]]);
+      expect((r.spec as PanelSpec).pts).toEqual([[10, 5], [60, 5]]);
     });
     it('境界をまたぐパネルは幅が伸びる', () => {
       const r = stretchPlaced({ x: 0, y: 0, w: 274, h: 122, spec: S1pts }, zf, 300, 679);
       expect(r).toMatchObject({ x: 0, w: 300 });
-      expect(r.spec.pts[1]).toEqual([258, 0]);
-      expect(r.spec.pts[0]).toEqual([16, 0]);
+      expect((r.spec as PanelSpec).pts[1]).toEqual([258, 0]);
+      expect((r.spec as PanelSpec).pts[0]).toEqual([16, 0]);
     });
     it('境界の手前のパネルは変わらない', () => {
       const p = { x: 0, y: 0, w: 100, h: 50, spec: { pts: [[1, 1], [99, 49]] as [number, number][] } };
       const r = stretchPlaced(p, zf, 300, 679);
       expect(r).toMatchObject({ x: 0, y: 0, w: 100, h: 50 });
-      expect(r.spec.pts).toEqual(p.spec.pts);
+      expect((r.spec as PanelSpec).pts).toEqual(p.spec.pts);
     });
     it('縦方向', () => {
       const r = stretchPlaced({ x: 0, y: 400, w: 274, h: 100, spec: { pts: [[0, 0]] } }, zf, 274, 800);

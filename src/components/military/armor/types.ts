@@ -39,9 +39,27 @@ export interface PanelSpec {
   wx?: WeatherSpec;
   /** 傷模様の乱数の種。未指定なら形(pts)から決める。伸縮しても傷模様が変わらないよう stretchSpec が固定する */
   seed?: number;
+  /** 追加のクラス名(描画側が使う。座標表では指定しない板もある) */
+  extra?: string;
 }
 
-export interface PlacedPanel { x: number; y: number; w: number; h: number; spec: PanelSpec }
+/** 左の板(滑る板)。x0〜x1 の区画座標に置き、rest は切れ目が休む 2 か所。bands は切れ目の帯 */
+export interface DrawerSpec {
+  kind: 'drawer';
+  x0: number; x1: number;
+  rest: [number, number];
+  bands: { y0: number; y1: number; cut: number }[];
+  shadow: number; dirt: number; dark: number;
+}
+/** 基板の光(窓 = 下の板と基板が見える y の範囲) */
+export interface GlowSpec {
+  kind: 'glow';
+  x0: number; x1: number;
+  windows: [number, number][];
+  glow: number;
+}
+
+export interface PlacedPanel { name?: string; x: number; y: number; w: number; h: number; spec: PanelSpec | DrawerSpec | GlowSpec }
 export interface CapSpec { pts: Pt[]; b?: number; lip?: boolean }
 /**
  * 伸縮の基準。座標系は使う関数による:

@@ -4,6 +4,7 @@ import { render, fireEvent, act } from '@testing-library/react';
 import i18n from '../../../../i18n';
 import { MilspecControlDeck, type MilspecControlDeckProps } from '../MilspecControlDeck';
 import { deckPanel, boardPanel, DECK_W } from '../deckGeometry';
+import type { PanelSpec } from '../../armor/types';
 
 const h = vi.hoisted(() => ({ reduced: false, traffic: vi.fn() }));
 vi.mock('../../../../lib/housing/useReducedMotion', () => ({ useReducedMotion: () => h.reduced }));
@@ -139,9 +140,9 @@ describe('deckGeometry', () => {
   it('操作列の装甲は 3 つの凹み(AA・丸キー 2 つ・削除)を持つ', () => {
     const p = deckPanel();
     expect(p.w).toBe(DECK_W);
-    expect(p.spec.pockets).toHaveLength(3);
+    expect((p.spec as PanelSpec).pockets).toHaveLength(3);
   });
   it('副装甲は基板の床の窪みを 1 つ持つ', () => {
-    expect(boardPanel().spec.pockets).toHaveLength(1);
+    expect((boardPanel().spec as PanelSpec).pockets).toHaveLength(1);
   });
 });

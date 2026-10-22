@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, act } from '@testing-library/react';
 import { MilspecArmor } from '../MilspecArmor';
 import { readFileSync } from 'node:fs';
-import type { PlacedPanel, StretchFrame } from '../armor/types';
+import type { PanelSpec, PlacedPanel, StretchFrame } from '../armor/types';
 
 const frame: StretchFrame = { w0: 274, h0: 122, sx: 137, sy: 61 };
 const panels: PlacedPanel[] = [
@@ -77,7 +77,7 @@ describe('MilspecArmor', () => {
     rerender(<div><MilspecArmor id="z" frame={{ ...frame }} panels={clone()} /></div>);
     expect(container.querySelector('svg.milspec-armor-panel')).toBe(first);
     const changed = clone();
-    changed[0].spec.pts[1] = [200, 0];
+    (changed[0].spec as PanelSpec).pts[1] = [200, 0];
     rerender(<div><MilspecArmor id="z" frame={{ ...frame }} panels={changed} /></div>);
     expect(container.querySelector('svg.milspec-armor-panel')).not.toBe(first);
   });

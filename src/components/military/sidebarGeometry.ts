@@ -3,7 +3,7 @@
  * 装甲パネル・キーの受け皿・キー列・飾り・光の経路。座標はすべて区画(ゾーン)座標。
  * パスは M/L/H/V の絶対座標のみ(stretchPath の制約)。
  */
-import type { CapSpec, PlacedPanel, Pt, StretchFrame } from './armor/types';
+import type { CapSpec, PanelSpec, PlacedPanel, Pt, StretchFrame } from './armor/types';
 import { bank, chamRect, shift } from './armor/geom';
 
 /** 区画の基準 274x679。y が 300 より下のものは高さの増減ぶんだけ動く */
@@ -76,8 +76,8 @@ const S3: PlacedPanel = {
 };
 
 // 受け皿(キー列が乗るパネルに入れる)
-S1.spec.pockets = [pocket(cOut, 12, 17, S1), pocket(aOut, 12, 66, S1)];
-S3.spec.pockets = [pocket(uOut, 12, 619, S3), pocket(bOut, 12, 646, S3)];
+(S1.spec as PanelSpec).pockets = [pocket(cOut, 12, 17, S1), pocket(aOut, 12, 66, S1)];
+(S3.spec as PanelSpec).pockets = [pocket(uOut, 12, 619, S3), pocket(bOut, 12, 646, S3)];
 
 export const SB_PANELS: PlacedPanel[] = [S1, S2, PATCH, S3];
 

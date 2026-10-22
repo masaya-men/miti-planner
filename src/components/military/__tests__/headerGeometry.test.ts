@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { HDR_BASE_MW, headerScale, headerScaleFor, mwFor, headerLayout, ventLayout, ventRailRange, ventCarriageX, ventCarriageRun, VENT_RAIL_MIN_X, VENT_PLATE_X } from '../headerGeometry';
+import { HDR_BASE_MW, HDR_CUTS, HDR_BANDS, headerScale, headerScaleFor, mwFor, headerLayout, ventLayout, ventRailRange, ventCarriageX, ventCarriageRun, VENT_RAIL_MIN_X, VENT_PLATE_X } from '../headerGeometry';
 import { stretchPlaced } from '../armor/stretch';
+import type { PanelSpec, PlacedPanel } from '../armor/types';
+
+type Lay = ReturnType<typeof headerLayout>;
+const pn = (l: Lay, name: string): PlacedPanel => l.panels.find((p) => p.name === name)!;
+const sp = (l: Lay, name: string): PanelSpec => pn(l, name).spec as PanelSpec;
+const absPts = (l: Lay, name: string) => sp(l, name).pts.map(([x, y]) => [x + pn(l, name).x, y + pn(l, name).y]);
 
 describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
   it('縮小率と描画幅', () => {
@@ -8,32 +14,54 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
     expect(headerScale(980)).toBeCloseTo(0.824, 3);
     expect(headerScale(1300)).toBe(1);
   });
-  it('MW=1189', () => {
+  it('切れ目: 外枠 700 / 上段 714 / 下段 683、帯は 5 本', () => {
+    expect(HDR_CUTS).toEqual({ chs: 700, h3: 714, h5: 683 });
+    expect(HDR_BANDS.map((b) => b.cut)).toEqual([700, 714, 700, 683, 700]);
+  });
+  it('MW=1189: 左右の半分が切れ目で接し、下の板・基板は窓 0', () => {
     const l = headerLayout(1189);
-    expect(l.frame).toEqual({ w0: 1189, h0: 102, sx: 700, sy: 9999 });
-    expect(l.panels.length).toBe(6);
+    expect(l.panels.map((p) => p.name)).toEqual(['glow', 'drawer', 'chsL', 'chsR', 'h1', 'h2', 'h3L', 'h3R', 'h4', 'h5L', 'h5R']);
+    expect(Math.max(...sp(l, 'h3L').pts.map((p) => p[0]))).toBe(714 - pn(l, 'h3L').x);
+    expect(pn(l, 'h3R').x).toBe(714);
+    expect(pn(l, 'h5R').x).toBe(683);
+    expect(pn(l, 'chsR').x).toBe(700);
+    expect(l.drawer.rest).toEqual([683 + 0, 683 + 276]);
+    expect(l.frame).toEqual({ w0: 1189, h0: 102, sx: 9999, sy: 9999 });
     expect(l.meter).toEqual({ ix: 518, iw: 310, showClock: true });
-    expect(l.traces.map((t) => t.name)).toEqual(['h3', 'h5a']);
-    expect(l.panels[3].w).toBe(310);
-    expect(l.panels[5].y).toBe(52);
   });
-  it('MW=1465', () => {
+  it('MW=1465: 右の半分は全点が +276 平行移動(歪まない)。左は不動', () => {
+    const a = headerLayout(1189), b = headerLayout(1465);
+    expect(absPts(b, 'h5R')).toEqual(absPts(a, 'h5R').map(([x, y]) => [x + 276, y]));
+    expect(absPts(b, 'h3R')).toEqual(absPts(a, 'h3R').map(([x, y]) => [x + 276, y]));
+    expect(absPts(b, 'chsR')).toEqual(absPts(a, 'chsR').map(([x, y]) => [x + 276, y]));
+    expect(sp(b, 'h5L').pts).toEqual(sp(a, 'h5L').pts);
+    expect(pn(b, 'h5L')).toEqual(pn(a, 'h5L'));
+    expect(pn(b, 'h4').x).toBe(1108);
+    expect(b.meter.iw).toBe(586);
+  });
+  it('下の板は右に付く: x1 = (MW−1189) + 714 + 60、休む 2 か所は {sidebarOpen, scale} から', () => {
+    const o = headerLayout(1189, { sidebarOpen: true, scale: 1 }), c = headerLayout(1465, { sidebarOpen: false, scale: 1 });
+    expect(o.drawer.x1).toBe(714 + 60); expect(c.drawer.x1).toBe(276 + 714 + 60);
+    expect(o.drawer.rest).toEqual(c.drawer.rest);
+    const s = 1000 / 1189, n = headerLayout(mwFor(1276, s), { sidebarOpen: false, scale: s });
+    expect(n.drawer.rest[1] - n.drawer.rest[0]).toBeCloseTo(276 / s, 3);
+    expect(pn(o, 'drawer').spec).toMatchObject({ kind: 'drawer', x0: 623, x1: 774, shadow: 1, dirt: 2, dark: 1 });
+    expect(pn(o, 'glow').spec).toMatchObject({ kind: 'glow', windows: [[6, 46], [54, 98]], glow: 0.55 });
+  });
+  it('CRT のくぼみは 4px 短い(330)。h5b の経路と H5 中央の継ぎ目線は無い。h3 の継ぎ目は左の板で終わる', () => {
     const l = headerLayout(1465);
-    expect(l.panels[4].x).toBe(1108);
-    expect(l.meter.iw).toBe(586);
-    expect(l.traces.find((t) => t.name === 'h5b')?.d).toBe('M 690 57.6 H 951');
-    expect(l.traces.find((t) => t.name === 'h3')?.d).toBe('M 630 43 H 984');
+    const crt = sp(l, 'h5L').pockets![0].pts;
+    expect(Math.max(...crt.map((p) => p[0])) - Math.min(...crt.map((p) => p[0]))).toBe(330);
+    expect(l.decor.h5.crt.w).toBe(324);
+    expect(l.traces.map((t) => t.name)).toEqual(['h3', 'h5a']);
+    expect(l.traces.find((t) => t.name === 'h3')!.d).toBe('M 630 43 H 706');
+    expect(sp(l, 'h5L').seams).toEqual(['M 96 5.6 H 336']);
+    expect(sp(l, 'h5R').seams).toEqual([]);
+    expect(sp(l, 'h3L').seams).toEqual(['M 112 39 H 188']);
   });
-  it('1189 で作って stretchPlaced で伸ばしたものと pts が一致', () => {
-    const base = headerLayout(1189), l = headerLayout(1465);
-    base.panels.forEach((p, i) => {
-      const s = stretchPlaced(p, base.frame, 1465, 102);
-      expect(l.panels[i].x).toBe(s.x);
-      expect(l.panels[i].w).toBe(s.w);
-      expect(l.panels[i].spec.pts).toEqual(s.spec.pts);
-      expect(l.panels[i].spec.scribes).toEqual(s.spec.scribes);
-      expect(l.panels[i].spec.wx).toEqual(s.spec.wx);
-    });
+  it('stretchPlaced: kind 付きの板は動かさない', () => {
+    const p = { x: 683, y: 0, w: 400, h: 102, spec: { kind: 'drawer', x0: 623, x1: 774, rest: [683, 959], bands: HDR_BANDS, shadow: 1, dirt: 2, dark: 1 } } as PlacedPanel;
+    expect(stretchPlaced(p, { w0: 1189, h0: 102, sx: 700, sy: 9999 }, 1465, 102)).toBe(p);
   });
   it('キー列と受け皿', () => {
     const l = headerLayout(1465);
@@ -43,35 +71,34 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
     expect(n('aux').x).toBe(1122);
     expect(n('mainstream').x).toBe(963);
     expect(n('sort').caps.every((c) => c.lip)).toBe(true);
-    // H4: 受け皿 2 / H5: 窪み 1 + 受け皿 5
-    expect(l.panels[4].spec.pockets?.length).toBe(2);
-    expect(l.panels[5].spec.pockets?.length).toBe(6);
-    expect(l.panels[2].spec.pockets?.[0].fill).toBe('#0c0e10');
-    expect(l.panels[5].spec.pockets?.[0].fill).toBe('#040505');
+    // H4: 受け皿 2 / H5 左: 窪み 1 + 受け皿 2 / H5 右: 受け皿 3
+    expect(sp(l, 'h4').pockets?.length).toBe(2);
+    expect(sp(l, 'h5L').pockets?.length).toBe(3);
+    expect(sp(l, 'h5R').pockets?.length).toBe(3);
+    expect(sp(l, 'h2').pockets?.[0].fill).toBe('#0c0e10');
+    expect(sp(l, 'h5L').pockets?.[0].fill).toBe('#040505');
     // COM の丸キー中心 x
     const xs = n('com').caps.map((c) => { const v = c.pts.map((p) => p[0]); return +((Math.min(...v) + Math.max(...v)) / 2).toFixed(1); });
     expect(xs).toEqual([12, 32.7, 53.3, 74]);
   });
-  it('MW=1465 の手計算リテラル', () => {
+  it('MW=1465 の手計算リテラル(右の半分の板内座標は切れ目から数える・MW に依らない)', () => {
     const l = headerLayout(1465);
-    expect(l.panels[5].spec.pts[1]).toEqual([1165, 0]);
-    expect(l.panels[5].spec.pts[2]).toEqual([1171, -4]);
-    expect(l.panels[5].spec.scribes?.[0]).toBe('M 1167 8 V 42');
-    expect(l.panels[3].spec.pts).toContainEqual([586, 18]);
-    expect(l.panels[3].spec.seams?.[0]).toBe('M 112 39 H 466');
-    expect(l.panels[5].spec.seams).toContain('M 690 5.6 H 951');
+    expect(pn(l, 'h5R').x).toBe(683 + 276);
+    expect(sp(l, 'h5R').pts).toContainEqual([889 - 683, 0]);
+    expect(sp(l, 'h5R').scribes?.[0]).toBe('M 208 8 V 42');
+    expect(sp(l, 'h3R').pts).toContainEqual([310 - 196, 18]);
   });
-  it('受け皿の先頭点(見本 cluster の式で手計算)', () => {
+  it('受け皿の先頭点(見本 cluster の式で手計算。右の半分は板の左端 959 を引く)', () => {
     const l = headerLayout(1465);
-    const pk = (i: number, k: number) => l.panels[i].spec.pockets![k].pts[0];
-    expect(pk(4, 0)).toEqual([14, 11]);     // aux
-    expect(pk(4, 1)).toEqual([326, 11]);    // com(stadium 先頭 = [72,0] + [254,11])
-    expect(pk(5, 1)).toEqual([21, 11]);     // party
-    expect(pk(5, 2)).toEqual([324, 11]);    // io(stadium 先頭 = [48,0] + [276,11])
-    expect(pk(5, 3)).toEqual([973, 11]);    // mainstream = [10,0] + [963,11]
-    expect(pk(5, 4)[0]).toBeCloseTo(1212, 6); // gear = [19,0] + [1193,11]
-    expect(pk(5, 4)[1]).toBeCloseTo(11, 6);
-    expect(pk(5, 5)).toEqual([1287, 11]);   // sort = [12,0] + [1275,11]
+    const pk = (n: string, k: number) => sp(l, n).pockets![k].pts[0];
+    expect(pk('h4', 0)).toEqual([14, 11]);     // aux
+    expect(pk('h4', 1)).toEqual([326, 11]);    // com(stadium 先頭 = [72,0] + [254,11])
+    expect(pk('h5L', 1)).toEqual([21, 11]);    // party
+    expect(pk('h5L', 2)).toEqual([324, 11]);   // io(stadium 先頭 = [48,0] + [276,11])
+    expect(pk('h5R', 0)).toEqual([973 - 959, 11]);   // mainstream = [10,0] + [963,11]
+    expect(pk('h5R', 1)[0]).toBeCloseTo(1212 - 959, 6); // gear = [19,0] + [1193,11]
+    expect(pk('h5R', 1)[1]).toBeCloseTo(11, 6);
+    expect(pk('h5R', 2)).toEqual([1287 - 959, 11]);   // sort = [12,0] + [1275,11]
   });
   it('COM 丸キーの y と半径', () => {
     const com = headerLayout(1465).keyRows.find((r) => r.id === 'com')!;
@@ -81,18 +108,14 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
       expect((Math.max(...xs) - Math.min(...xs)) / 2).toBeCloseTo(9.6, 6);
     });
   });
-  it('h5b のしきい値', () => {
-    const has = (mw: number) => headerLayout(mw).traces.some((t) => t.name === 'h5b');
-    expect(has(1244)).toBe(false);
-    expect(has(1245)).toBe(true);
-  });
   it('1189 未満を渡しても 1189 で描く', () => {
     expect(headerLayout(980).panels).toEqual(headerLayout(1189).panels);
     expect(headerLayout(980).meter.iw).toBe(310);
   });
   it('パス命令が絶対座標だけ', () => {
     const l = headerLayout(1465);
-    const ds = [...l.panels.flatMap((p) => [...(p.spec.scribes ?? []), ...(p.spec.seams ?? [])]), ...l.traces.map((t) => t.d), ventLayout(1465).leak];
+    const specs = l.panels.filter((p) => !('kind' in p.spec)).map((p) => p.spec as PanelSpec);
+    const ds = [...specs.flatMap((s) => [...(s.scribes ?? []), ...(s.seams ?? [])]), ...l.traces.map((t) => t.d), ventLayout(1465).leak];
     expect(ds.length).toBeGreaterThan(6);
     ds.forEach((d) => expect(d).toMatch(/^[MLHV0-9 .\-]+$/));
   });

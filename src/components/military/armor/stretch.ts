@@ -59,6 +59,7 @@ export function stretchSpec(spec: PanelSpec, f: StretchFrame, w: number, h: numb
  * p.x,y,w,h は区画座標、p.spec の点はパネル内座標。
  */
 export function stretchPlaced(p: PlacedPanel, f: StretchFrame, W: number, H: number): PlacedPanel {
+  if ('kind' in p.spec) return p; // drawer / glow は MW から直接置いてあるので伸ばさない
   const mvx = (v: number): number => (v > f.sx ? v + (W - f.w0) : v);
   const mvy = (v: number): number => (v > f.sy ? v + (H - f.h0) : v);
   const x = mvx(p.x), y = mvy(p.y), w = mvx(p.x + p.w) - x, h = mvy(p.y + p.h) - y;
@@ -66,5 +67,5 @@ export function stretchPlaced(p: PlacedPanel, f: StretchFrame, W: number, H: num
     console.error(`stretch: 伸縮後の大きさが 0 以下です: w=${w}, h=${h}(W=${W}, H=${H})`);
   }
   const spec = stretchSpec(p.spec, { w0: p.w, h0: p.h, sx: f.sx - p.x, sy: f.sy - p.y }, w, h);
-  return { x, y, w, h, spec };
+  return { ...p, x, y, w, h, spec };
 }

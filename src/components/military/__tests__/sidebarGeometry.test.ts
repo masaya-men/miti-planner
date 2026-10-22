@@ -1,15 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { SB_FRAME, SB_PANELS, SB_KEY_ROWS, SB_TRACES, SB_TREE_BOX, SB_DECOR, sbY, sbPath } from '../sidebarGeometry';
 import { stretchPlaced } from '../armor/stretch';
+import type { PanelSpec } from '../armor/types';
 
 const s1 = SB_PANELS[0], s2 = SB_PANELS[1], s3 = SB_PANELS[3];
 
 describe('sidebarGeometry(サイドバーの座標表)', () => {
   it('受け皿がパネルに入る', () => {
-    expect(s1.spec.pockets?.length).toBe(2);
-    expect(s3.spec.pockets?.length).toBe(2);
-    expect(s2.spec.pockets?.length).toBe(1);
-    expect(s2.spec.pockets?.[0].fill).toBe('var(--ma-pcb)');
+    expect((s1.spec as PanelSpec).pockets?.length).toBe(2);
+    expect((s3.spec as PanelSpec).pockets?.length).toBe(2);
+    expect((s2.spec as PanelSpec).pockets?.length).toBe(1);
+    expect((s2.spec as PanelSpec).pockets?.[0].fill).toBe('var(--ma-pcb)');
   });
   it('キーの数', () => {
     const n = (id: string) => SB_KEY_ROWS.find((r) => r.id === id)!.caps.length;
@@ -17,7 +18,7 @@ describe('sidebarGeometry(サイドバーの座標表)', () => {
     expect(SB_KEY_ROWS.find((r) => r.id === 'content')!.caps.every((c) => c.lip)).toBe(true);
   });
   it('パス命令が絶対座標だけ', () => {
-    const ds = [...SB_PANELS.flatMap((p) => [...(p.spec.scribes ?? []), ...(p.spec.seams ?? [])]), ...SB_TRACES.map((t) => t.d)];
+    const ds = [...SB_PANELS.flatMap((p) => [...((p.spec as PanelSpec).scribes ?? []), ...((p.spec as PanelSpec).seams ?? [])]), ...SB_TRACES.map((t) => t.d)];
     expect(ds.length).toBeGreaterThan(8);
     ds.forEach((d) => expect(d).toMatch(/^[MLHV0-9 .\-]+$/));
   });
