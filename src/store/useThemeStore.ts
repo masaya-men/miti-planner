@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getCanPreviewWip, useCanPreviewWip } from '../hooks/useCanPreviewWip';
+import { useTutorialStore } from './useTutorialStore';
 
 export type Theme = 'dark' | 'light';
 /** テーマの「スタイル軸」。明るさ軸(theme)と直交。'military' = 軍事SF HUD (MIL-SPEC)。 */
@@ -35,11 +36,11 @@ export const useThemeStore = create<ThemeState>()(
             mobileEffectBarMode: 'icon',
             setTheme: (theme) => {
                 set({ theme });
-                applyThemeClasses(theme, resolveThemeStyle(get().themeStyle, getCanPreviewWip()));
+                applyThemeClasses(theme, resolveThemeStyle(get().themeStyle, getCanPreviewWip(), useTutorialStore.getState().isActive));
             },
             setThemeStyle: (themeStyle) => {
                 set({ themeStyle });
-                applyThemeClasses(get().theme, resolveThemeStyle(themeStyle, getCanPreviewWip()));
+                applyThemeClasses(get().theme, resolveThemeStyle(themeStyle, getCanPreviewWip(), useTutorialStore.getState().isActive));
             },
             setContentLanguage: (lang) => set({ contentLanguage: lang }),
             setMobileEffectBarMode: (mode) => set({ mobileEffectBarMode: mode }),
@@ -75,14 +76,17 @@ export function applyThemeClasses(theme: Theme, style: ThemeStyle): void {
 }
 
 /** 実際に使うスタイル。保存値が 'military' でも、WIP 閲覧権限(DEV か管理者)が無ければ 'standard'。
- *  保存値自体は消さない(管理者に戻れば軍事が復活する)。 */
-export function resolveThemeStyle(saved: ThemeStyle, canPreview: boolean): ThemeStyle {
+ *  チュートリアル実行中は MIL-SPEC 非対応のため常に 'standard'(2026-10-22 masaya 判断)。
+ *  保存値自体は消さない(管理者に戻れば・チュートリアルが終われば軍事が復活する)。 */
+export function resolveThemeStyle(saved: ThemeStyle, canPreview: boolean, tutorialActive = false): ThemeStyle {
+    if (tutorialActive) return 'standard';
     return canPreview ? saved : 'standard';
 }
 
-/** コンポーネント用: 保存値 + 権限から実際に使うスタイルを返す。 */
+/** コンポーネント用: 保存値 + 権限 + チュートリアル実行中かから実際に使うスタイルを返す。 */
 export function useEffectiveThemeStyle(): ThemeStyle {
     const saved = useThemeStore((s) => s.themeStyle);
     const canPreview = useCanPreviewWip();
-    return resolveThemeStyle(saved, canPreview);
+    const tutorialActive = useTutorialStore((s) => s.isActive);
+    return resolveThemeStyle(saved, canPreview, tutorialActive);
 }
