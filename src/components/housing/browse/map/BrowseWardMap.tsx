@@ -22,6 +22,13 @@ export interface BrowseWardMapProps {
 /** 手動ズームで許すフィット倍率の上限 (spec: フィット×1〜×6)。
  *  下限側は mapZoom.MIN_SCALE(=1) をそのまま「レベル」の下限として使う (下記コメント参照)。 */
 const MAX_ZOOM_LEVEL = 6;
+
+/** 要素に掛かっている CSS zoom の倍率 (見た目 px ÷ CSS px)。zoom 無しなら 1。 */
+function cssZoom(el: HTMLElement | null): number {
+  if (!el || el.offsetWidth === 0) return 1;
+  const z = el.getBoundingClientRect().width / el.offsetWidth;
+  return z > 0 ? z : 1;
+}
 /** パン/ピンチ操作の後に「クリックとみなす」移動量の閾値(px)。これを超えたら地図操作とみなし、
  *  wrap の onClick (空白クリック=拡大解除) を発火させない。 */
 const CLICK_MOVE_THRESHOLD = 4;
@@ -72,8 +79,11 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
     const wrap = wrapRef.current;
     if (!wrap) return;
     const measure = () => {
+      // html に CSS zoom が掛かる時 (typo preview B/C) は getBoundingClientRect が「見た目の px」を返し、
+      // ステージの transform (CSS px) とズレて地図が縮むため、zoom 倍率で割って CSS 座標系にそろえる。
       const r = wrap.getBoundingClientRect();
-      setWrapSize({ w: r.width, h: r.height });
+      const z = cssZoom(wrap);
+      setWrapSize({ w: r.width / z, h: r.height / z });
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -113,8 +123,9 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const r = wrap.getBoundingClientRect();
-      const mx = e.clientX - r.left;
-      const my = e.clientY - r.top;
+      const z = cssZoom(wrap);
+      const mx = (e.clientX - r.left) / z;
+      const my = (e.clientY - r.top) / z;
       setView((v) => clampZoomLevel(applyWheelZoom(v, mx, my, e.deltaY), mx, my));
     };
     wrap.addEventListener('wheel', onWheel, { passive: false });
@@ -165,7 +176,8 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
 
   const localXY = (clientX: number, clientY: number) => {
     const r = wrapRef.current?.getBoundingClientRect();
-    return { x: clientX - (r?.left ?? 0), y: clientY - (r?.top ?? 0) };
+    const z = cssZoom(wrapRef.current);
+    return { x: (clientX - (r?.left ?? 0)) / z, y: (clientY - (r?.top ?? 0)) / z };
   };
   const onPointerDown = (e: React.PointerEvent) => {
     // 下のマーカー/カード除外より前に「ポインタが down している」事実そのものを記録する
@@ -203,8 +215,9 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
       setView((v) => clampZoomLevel(zoomAt(v, mid.x, mid.y, base.scale * (dist / base.dist)), mid.x, mid.y));
     } else if (pan.current) {
       const p = pan.current;
-      const dx = e.clientX - p.sx;
-      const dy = e.clientY - p.sy;
+      const z = cssZoom(wrapRef.current);
+      const dx = (e.clientX - p.sx) / z;
+      const dy = (e.clientY - p.sy) / z;
       if (Math.hypot(dx, dy) > CLICK_MOVE_THRESHOLD) justPanned.current = true;
       setView((v) => ({ ...v, tx: p.tx0 + dx, ty: p.ty0 + dy }));
     }

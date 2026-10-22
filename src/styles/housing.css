@@ -11046,26 +11046,52 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   html[data-housing-typo="c"] .housing-workspace:not(.housing-workspace-flow),
   html[data-housing-typo="b"] .housing-shell,
   html[data-housing-typo="c"] .housing-shell { height: calc(100dvh / 0.75); }
+  /* C: タイプスケール (倍率 1.2)。実効 px = token × zoom 0.75。
+     補足 12 / 本文 14.4 / 小見出し 17.3 / 見出し 20.7 / ページの顔 25。
+     既存 7 トークンを 5 段に畳み、中途半端な差 (12/12.5/13/14) を作らない。 */
   html[data-housing-typo="c"] .housing-workspace,
+  html[data-housing-typo="c"] .housing-shell,
+  html[data-housing-typo="c"] .housing-panel-modal-backdrop,
+  html[data-housing-typo="c"] .housing-modal-backdrop,
   html[data-housing-typo="c"] .housing-card-visibility-menu-portal,
   html[data-housing-typo="c"] .housing-tour-error-bubble {
-    --housing-text-xs: 13px;
-    --housing-text-sm: 14px;
-    --housing-text-md: 15.5px;
-    --housing-text-base: 16.5px;
-    --housing-text-input: 15px;
-    --housing-text-lg: 21px;
-    --housing-text-xl: 23.5px;
+    --housing-text-xs: 16px;      /* 補足 12 */
+    --housing-text-sm: 16px;      /* 補足 12 */
+    --housing-text-md: 19.2px;    /* 本文 14.4 */
+    --housing-text-base: 19.2px;  /* 本文 14.4 */
+    --housing-text-input: 19.2px; /* 本文 14.4 */
+    --housing-text-lg: 23px;      /* 小見出し 17.3 */
+    --housing-text-xl: 27.6px;    /* 見出し 20.7 */
+    --housing-c-display: 33.2px;  /* ページの顔 25 */
   }
-  /* 見出し・強調: 約1.3倍 + 太字で強弱を付ける */
-  html[data-housing-typo="c"] .housing-listing-card-caption { font-size: 16px; font-weight: 700; }
-  html[data-housing-typo="c"] .housing-listing-grid-heading { font-size: 17px; font-weight: 700; }
-  html[data-housing-typo="c"] .housing-listing-grid-count { font-size: 17px; font-weight: 700; }
-  html[data-housing-typo="c"] .housing-result-count .now { font-size: 18px; font-weight: 700; }
-  html[data-housing-typo="c"] .housing-tour-tray-title { font-size: 17px; font-weight: 700; }
-  /* 補足: 1.2倍止まり + 色を控えめに */
+  /* 段ごとの太さ・色: 補足=400/mute → 本文=500-600/dim〜text → 小見出し=700 → 見出し=700 → 顔=800 */
+  html[data-housing-typo="c"] .housing-listing-card-caption { font-size: 19.2px; font-weight: 600; }
+  html[data-housing-typo="c"] .housing-listing-grid-heading { font-size: var(--housing-text-xl); font-weight: 700; }
+  html[data-housing-typo="c"] .housing-listing-grid-count,
+  html[data-housing-typo="c"] .housing-result-count .now { font-size: var(--housing-c-display); font-weight: 800; line-height: 1.1; }
+  html[data-housing-typo="c"] .housing-detail-title { font-size: var(--housing-text-xl); font-weight: 700; }
+  html[data-housing-typo="c"] .housing-tour-tray-title { font-size: var(--housing-text-lg); font-weight: 700; }
   html[data-housing-typo="c"] .housing-filter-label,
-  html[data-housing-typo="c"] .housing-card-size { color: var(--housing-text-mute); }
+  html[data-housing-typo="c"] .housing-card-size { color: var(--housing-text-mute); font-weight: 400; }
+  /* 直書き 11〜14px の要所 (補足 11/12 → 補足 12、本文 13/14 → 本文 14.4) */
+  html[data-housing-typo="c"] .housing-tab { font-size: 19.2px; }
+  html[data-housing-typo="c"] .housing-app-search-input { font-size: 19.2px; }
+  /* ヘッダー: ロゴを最大の要素に (文字 約 23px・カプセル約 39px 実効)。副題は補足 12 で控えめ。 */
+  html[data-housing-typo="c"] .housing-brand-wrap { gap: 14px; }
+  html[data-housing-typo="c"] .housing-brand-wrap > [role="button"] { zoom: 1.3; }
+  html[data-housing-typo="c"] .housing-brand-sub-standalone { font-size: 16px; font-weight: 400; color: var(--housing-text-mute); }
+  html[data-housing-typo="c"] .housing-view-toggle-btn,
+  html[data-housing-typo="c"] .housing-card-add-btn { font-size: 19.2px; }
+  html[data-housing-typo="c"] .housing-workspace { --housing-left-w: 280px; }
+  /* マップ: 操作列を地図の左上に重ねて縦積みにし、地図の領域を中央カラムの全高にする。
+     地図は contain フィットなので、領域が高くなるぶんそのまま大きくなる (左右の余白に操作列が収まる)。 */
+  html[data-housing-typo="c"] .housing-bmap-wrap { position: absolute; inset: 0; }
+  html[data-housing-typo="c"] .housing-mapctl {
+    position: absolute; top: 10px; left: 10px; z-index: 3;
+    flex-direction: column; align-items: flex-start; flex-wrap: nowrap; gap: 8px;
+  }
+  html[data-housing-typo="c"] .housing-mapctl-areas { flex-direction: column; }
+  html[data-housing-typo="c"] .housing-mapctl-area-btn { text-align: left; }
 }
 /* 切替部品 (PC のみ・左下・モーダルより下) */
 .housing-typo-switch {
@@ -11100,4 +11126,19 @@ html[data-theme-anim="light"]::view-transition-new(root) {
 }
 @media (max-width: 767px) {
   .housing-typo-switch { display: none; }
+}
+
+/* ===== HousingImage 失敗時の代替表示 (components/housing/media/HousingImage.tsx) ===== */
+.housing-image-fallback {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--housing-panel-inner);
+  color: var(--housing-text-mute);
+  overflow: hidden;
+}
+.housing-housinger-row-thumbs .housing-image-fallback {
+  width: 54px; height: 40px; border-radius: 6px; flex: 0 0 auto;
+}
+@media (max-width: 767px) {
+  .housing-housinger-row-thumbs .housing-image-fallback { width: 38px; height: 30px; }
+  .housing-housinger-row-thumbs .housing-image-fallback:nth-child(3) { display: none; }
 }
