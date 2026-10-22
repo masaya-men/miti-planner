@@ -14,7 +14,7 @@ vi.mock('../../data/contentRegistry', () => ({
 }));
 
 // ── ストアモック ─────────────────────────────────────────────
-const themeStore = { theme: 'dark', contentLanguage: 'ja', setTheme: vi.fn() };
+const themeStore = { theme: 'dark', contentLanguage: 'ja', setTheme: vi.fn(), timelineView: 'lanes', setTimelineView: vi.fn() };
 vi.mock('../../store/useThemeStore', () => ({
   useThemeStore: (sel?: (s: typeof themeStore) => unknown) =>
     sel ? sel(themeStore) : themeStore,
@@ -27,6 +27,7 @@ const mitiStore = {
   partyMembers: [],
   hiddenPartyMemberIds: [],
   toggleHiddenPartyMember: vi.fn(),
+  setHiddenPartyMemberIds: vi.fn(),
 };
 vi.mock('../../store/useMitigationStore', () => ({
   useMitigationStore: (sel: (s: typeof mitiStore) => unknown) => sel(mitiStore),
@@ -77,7 +78,11 @@ vi.mock('../ui/Tooltip', () => ({ Tooltip: ({ children }: { children?: React.Rea
 vi.mock('../ShareButtons', () => ({ ShareButtons: () => null }));
 vi.mock('../SyncButton', () => ({ SyncButton: () => null }));
 vi.mock('../ui/TransitionOverlay', () => ({ useTransitionOverlay: () => ({ runTransition: vi.fn() }) }));
-vi.mock('../ui/SegmentButton', () => ({ SegmentButton: () => null }));
+vi.mock('../ui/SegmentButton', () => ({
+  SegmentButton: ({ options }: { options: { value: string; label: string }[] }) =>
+    React.createElement('div', null, options.map((o) => React.createElement('button', { key: o.value }, o.label))),
+}));
+vi.mock('../../hooks/useSkillsData', () => ({ useJobs: () => [] }));
 vi.mock('../MitigationSheet', () => ({ MitigationSheet: () => null }));
 // 進捗HUD（下段中央スロット）— 内部ストア依存(partyMembers/progress/useMitigations 等)を遮断
 vi.mock('../progress/ProgressTrackingHUD', () => ({ ProgressTrackingHUD: () => null }));
@@ -136,7 +141,7 @@ describe('ConsolidatedHeader viewer mode', () => {
 
   // 2026-08-26回帰テスト: 表示切替/並び替えは見た目だけのローカル設定(共同編集の同期対象外・
   // 部屋のデータに一切影響しない)なので、閲覧専用ジョイナー(viewer)でも操作できる必要がある。
-  it('viewer 時でもパーティ表示/非表示スイッチは無効化されない', () => {
+  it('viewer 時でも表示メンバーのトグルと表の見た目の切替は無効化されない', () => {
     render(
       <MemoryRouter>
         <ConsolidatedHeader
@@ -145,7 +150,17 @@ describe('ConsolidatedHeader viewer mode', () => {
         />
       </MemoryRouter>
     );
-    const visibilityBtn = screen.getByRole('button', { name: /ui\.party_visibility/i });
-    expect(visibilityBtn).not.toBeDisabled();
+    expect(document.querySelector('[data-member-toggle="MT"]')).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: /ui\.table_view_sheet/ })).not.toBeDisabled();
+  });
+
+  it('「みんなの軽減表」ボタンと歯車は無い', () => {
+    render(
+      <MemoryRouter>
+        <ConsolidatedHeader {...dummyProps} />
+      </MemoryRouter>
+    );
+    expect(screen.queryByText(/popular\.open_popular/)).toBeNull();
+    expect(screen.queryByRole('button', { name: /ui\.party_visibility$/ })).toBeNull();
   });
 });

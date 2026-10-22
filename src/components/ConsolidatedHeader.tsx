@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -28,12 +28,12 @@ import { ShareButtons } from './ShareButtons';
 import { SyncButton } from './SyncButton';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { SegmentButton } from './ui/SegmentButton';
-import { MitigationSheet } from './MitigationSheet';
 import { useProgressBarVisibility } from '../store/useProgressBarVisibility';
 import { ProgressTrackingHUD } from './progress/ProgressTrackingHUD';
 import { HeaderToolsMenu } from './HeaderToolsMenu';
 import { ImportMenu } from './ImportMenu';
-import { PartyVisibilityMenu } from './PartyVisibilityMenu';
+import { PartyToggleStrip } from './PartyToggleStrip';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { MilspecStyleToggle } from './military/MilspecStyleToggle';
 
 interface ConsolidatedHeaderProps {
@@ -63,7 +63,6 @@ const iconBtnDefault = `bg-transparent border-app-border text-app-text ${hoverIn
 const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full border whitespace-nowrap transition-all duration-300 cursor-pointer active:scale-95";
 const pillBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
 const pillBtnActive = `bg-app-toggle text-app-toggle-text border-app-toggle ${hoverInvert}`;
-const iconBtnActive = `bg-app-toggle text-app-toggle-text border-app-toggle ${hoverInvert}`;
 
 // #2b: ネイティブ disabled ボタンはブラウザが cursor 指定を無視するため、禁止カーソルを
 // wrapper(span)側で出す。span を hover ターゲットにし、中のボタンは pointer-events-none で透過。
@@ -120,6 +119,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     // 認証状態
     const { user } = useAuthStore();
     const canPreviewWip = useCanPreviewWip();
+    const isMobile = useIsMobile();
+    const timelineView = useThemeStore(s => s.timelineView);
+    const setTimelineView = useThemeStore(s => s.setTimelineView);
     const profileDisplayName = useAuthStore(s => s.profileDisplayName);
     const profileAvatarUrl = useAuthStore(s => s.profileAvatarUrl);
     const [showLoginModal, setShowLoginModal] = React.useState(false);
@@ -148,11 +150,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const contentLabel = rawContentLabel && contentLanguage === 'ja'
         ? addWaEiSpace(rawContentLabel)
         : rawContentLabel;
-
-    const [isMitiSheetOpen, setIsMitiSheetOpen] = useState(false);
-    const currentContentId = readOnly
-        ? (viewer!.contentId ?? null)
-        : (currentPlan?.contentId ?? null);
 
     const [isHovered, setIsHovered] = React.useState(false);
 
@@ -406,33 +403,28 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         )}
 
                         <div className="flex items-center gap-1.5">
-                            {/* Popular Plans — みんなの軽減表ボトムシートを開く */}
-                            <Tooltip wrapperClassName={clsx(readOnly && 'cursor-not-allowed')} content={t('popular.open_popular_tooltip')}>
-                                <button
-                                    disabled={readOnly}
-                                    onClick={() => setIsMitiSheetOpen(true)}
-                                    className={clsx(pillBtnBase, pillBtnDefault, readOnly && 'opacity-50 pointer-events-none')}
-                                >
-                                    <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('popular.open_popular')}</span>
-                                </button>
-                            </Tooltip>
+                            {/* 表示メンバー(ALL + 8 人): 見た目だけのローカル設定(共同編集の同期対象外・
+                                閲覧専用ジョイナーが操作しても部屋のデータには影響しない)ので readOnly でも有効。 */}
+                            <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.party_visibility_members')}</span>
+                            <PartyToggleStrip sortOrder={partySortOrder} />
 
-                            {/* 自動組み立て / MYジョブハイライト / 進捗バー表示 は「⋯ その他」メニューへ集約済み */}
-
-                            <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
-
-                            {/* パーティ表示/非表示スイッチ(2026-08-19、2026-08-19再設計): 見た目だけの
-                                絞り込みで自動配置・競合チェック・ダメージ計算には一切影響しない。
-                                アイコンボタン→ポップオーバー方式(HeaderToolsMenuと同パターン)。 */}
-                            {/* 表示切替/並び替えは見た目だけのローカル設定(共同編集の同期対象外・
-                                閲覧専用ジョイナーが操作しても部屋のデータには一切影響しない)なので、
-                                閲覧専用モード(readOnly)の対象からは意図的に除外する(2026-08-26)。 */}
-                            <PartyVisibilityMenu
-                                btnClassName={clsx(iconBtnBase, iconBtnDefault)}
-                                btnActiveClassName={clsx(iconBtnBase, iconBtnActive)}
-                                sortOrder={partySortOrder}
-                                readOnly={false}
-                            />
+                            {/* 表の見た目(ふつう / スプシ): PC かつ WIP 公開可のときだけ */}
+                            {canPreviewWip && !isMobile && (
+                                <>
+                                    <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
+                                    <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.table_view')}</span>
+                                    <SegmentButton
+                                        options={[
+                                            { value: 'lanes', label: t('ui.table_view_lanes') },
+                                            { value: 'sheet', label: t('ui.table_view_sheet') },
+                                        ]}
+                                        value={timelineView}
+                                        onChange={setTimelineView}
+                                        size="sm"
+                                        pill
+                                    />
+                                </>
+                            )}
 
                             <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 
@@ -526,12 +518,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
             {/* ログインモーダル */}
             <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
-
-            <MitigationSheet
-                isOpen={isMitiSheetOpen}
-                onClose={() => setIsMitiSheetOpen(false)}
-                currentContentId={currentContentId}
-            />
         </motion.div>
     );
 };
