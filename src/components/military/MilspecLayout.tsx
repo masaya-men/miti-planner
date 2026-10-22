@@ -15,7 +15,7 @@ import { startAmbient } from './fx/engine';
 import { initPower, disposePower } from './power/power';
 import { useLampSequence } from './power/lampSequence';
 import { MilspecDim } from './power/MilspecDim';
-import { relayoutZones } from './relayout';
+import { relayoutZones, cancelRelayout } from './relayout';
 import { useHeaderCollapseAnimator } from './headerCollapseAnimator';
 import { useSidebarToggleAnimator } from './sidebarToggleAnimator';
 import { headerScaleFor } from './headerGeometry';
@@ -95,6 +95,16 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   }, [sidebarOpenNow]);
   const scaleCtx = useMemo(() => ({ scale: hdrScale, sidebarOpen: sidebarOpenNow }), [hdrScale, sidebarOpenNow]);
 
+  // 開閉の動き(relayoutZones)は 2 段で、change は動きの途中で呼ばれる。標準へ戻る(アンマウント)ときは
+  // 進行中の動きを止めて change を即時に済ませる。そのときは描画中なので flushSync を使わない
+  const unmountingRef = useRef(false);
+  const commit = useCallback((fn: () => void) => { if (unmountingRef.current) fn(); else flushSync(fn); }, []);
+  useEffect(() => {
+    const app = appRef.current;
+    unmountingRef.current = false; // StrictMode の擬似アンマウントから戻ったとき
+    return () => { unmountingRef.current = true; if (app) cancelRelayout(app); };
+  }, []);
+
   // ヘッダーの開閉は他の区画が滑る動き付きで行う(relayoutZones)。最新の畳み状態は ref で参照
   const collapsedRef = useRef(props.isHeaderCollapsed);
   useLayoutEffect(() => { collapsedRef.current = props.isHeaderCollapsed; });
@@ -104,8 +114,8 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
     if (next === collapsedRef.current) return; // 同じ値なら何もしない
     const app = appRef.current;
     if (!app) { setIsHeaderCollapsed(next); return; }
-    relayoutZones(app, () => flushSync(() => setIsHeaderCollapsed(next)), 'hdr', reduced);
-  }, [setIsHeaderCollapsed, reduced]);
+    relayoutZones(app, () => commit(() => setIsHeaderCollapsed(next)), 'hdr', reduced);
+  }, [setIsHeaderCollapsed, reduced, commit]);
 
   // Layout のキーボード操作(H / F・フォーカスモード・チュートリアル)にも動きを付けるため、マウント中だけ登録する
   useEffect(() => {
@@ -113,7 +123,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
     return () => useHeaderCollapseAnimator.getState().set(null);
   }, [setCollapsedAnimated]);
 
-  // サイドバーの開閉も同じ作り: 残像が左へ抜け、他の区画が滑る。最新の開閉状態と親の toggle は ref で参照
+  // サイドバーの開閉も同じ作り(サイドバーが抜けてから他の区画が滑る)。最新の開閉状態と親の toggle は ref で参照
   const sbOpenRef = useRef(props.isSidebarOpen);
   const toggleRef = useRef(props.onToggleSidebar);
   useLayoutEffect(() => { sbOpenRef.current = props.isSidebarOpen; toggleRef.current = props.onToggleSidebar; });
@@ -121,8 +131,8 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
     if (open === sbOpenRef.current) return; // 同じ値なら何もしない
     const app = appRef.current;
     if (!app) { toggleRef.current(); return; }
-    relayoutZones(app, () => flushSync(() => toggleRef.current()), 'sb', reduced);
-  }, [reduced]);
+    relayoutZones(app, () => commit(() => toggleRef.current()), 'sb', reduced);
+  }, [reduced, commit]);
   const toggleSidebarAnimated = useCallback(() => setSidebarAnimated(!sbOpenRef.current), [setSidebarAnimated]);
   // Layout のキーボード操作(S / F・フォーカスモード・チュートリアル)にも動きを付ける
   useEffect(() => {

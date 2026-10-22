@@ -85,7 +85,8 @@ describe('MilspecLayout', () => {
       const pull = container.querySelector('[data-ms-zone="vent"] button.milspec-pull') as HTMLElement;
       expect(pull).not.toBeNull();
       fireEvent.click(pull);
-      act(() => { vi.advanceTimersByTime(300); });
+      // 取っ手 260ms → 1 段目(ヘッダーが上へ抜ける 420)+ずらす間 80 の後に change
+      act(() => { vi.advanceTimersByTime(260 + 500 + 20); });
       expect(set).toHaveBeenCalledWith(true);
       const closed = render(
         <MemoryRouter><MilspecLayout {...baseProps} isHeaderCollapsed><div /></MilspecLayout></MemoryRouter>
@@ -137,7 +138,8 @@ describe('MilspecLayout', () => {
       );
       fireEvent.click(container.querySelector('[data-ms-zone="rail"] button.milspec-pull') as HTMLElement);
       expect(toggle).not.toHaveBeenCalled();
-      act(() => { vi.advanceTimersByTime(300); });
+      // 取っ手 260ms → 1 段目(サイドバーが左へ抜ける 420)の後に change
+      act(() => { vi.advanceTimersByTime(260 + 420 + 20); });
       expect(toggle).toHaveBeenCalledTimes(1);
     } finally { vi.useRealTimers(); }
   });
@@ -145,17 +147,44 @@ describe('MilspecLayout', () => {
   it('キーボード用の動き付きサイドバー setter が登録され、同じ値なら何もしない・アンマウントで外れる', async () => {
     const { useSidebarToggleAnimator } = await import('../sidebarToggleAnimator');
     const toggle = vi.fn();
-    const { unmount } = render(
-      <MemoryRouter><MilspecLayout {...baseProps} onToggleSidebar={toggle}><div /></MilspecLayout></MemoryRouter>
-    );
-    const set = useSidebarToggleAnimator.getState().animated!;
-    expect(set).toBeTypeOf('function');
-    set(true); // 既に開いている → 何もしない
-    expect(toggle).not.toHaveBeenCalled();
-    set(false);
-    expect(toggle).toHaveBeenCalledTimes(1);
-    unmount();
+    vi.useFakeTimers();
+    try {
+      const { unmount } = render(
+        <MemoryRouter><MilspecLayout {...baseProps} onToggleSidebar={toggle}><div /></MilspecLayout></MemoryRouter>
+      );
+      const set = useSidebarToggleAnimator.getState().animated!;
+      expect(set).toBeTypeOf('function');
+      set(true); // 既に開いている → 何もしない
+      expect(toggle).not.toHaveBeenCalled();
+      set(false);
+      act(() => { vi.advanceTimersByTime(420); }); // 1 段目(サイドバーが抜ける)の後に change
+      expect(toggle).toHaveBeenCalledTimes(1);
+      unmount();
+    } finally { vi.useRealTimers(); }
     expect(useSidebarToggleAnimator.getState().animated).toBeNull();
+  });
+
+  it('開閉の動きの途中で標準へ戻る(アンマウント)と、動きを止めて開閉は即時に済ませる', async () => {
+    const { useHeaderCollapseAnimator } = await import('../headerCollapseAnimator');
+    const proto = HTMLElement.prototype as unknown as { animate?: unknown };
+    const orig = proto.animate;
+    const cancel = vi.fn();
+    proto.animate = () => ({ cancel, pause() {}, play() {}, finished: new Promise(() => {}) });
+    vi.useFakeTimers();
+    try {
+      const set = vi.fn();
+      const { container, unmount } = render(
+        <MemoryRouter><MilspecLayout {...baseProps} setIsHeaderCollapsed={set}><div /></MilspecLayout></MemoryRouter>
+      );
+      act(() => { useHeaderCollapseAnimator.getState().animated!(true); });
+      expect(set).not.toHaveBeenCalled(); // 1 段目(ヘッダーが上へ抜ける)の最中
+      expect(container.querySelector('[data-app-shell]')!.hasAttribute('data-relayout')).toBe(true);
+      unmount();
+      expect(set).toHaveBeenCalledWith(true);
+      expect(cancel).toHaveBeenCalled();
+      act(() => { vi.runAllTimers(); });
+      expect(set).toHaveBeenCalledTimes(1);
+    } finally { vi.useRealTimers(); proto.animate = orig; }
   });
 
   it('開いた直後は電源 off・各区画に暗幕がある・アンマウントで属性が消える', () => {
