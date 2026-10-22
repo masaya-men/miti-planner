@@ -435,22 +435,21 @@ describe('splitZone', () => {
     expect(z.style.visibility).toBe('');
   });
 
-  it('電源投入の演出: 光の帯は複製に写さず、暗幕(不透明度・切り抜き)とランプは毎コマ本物に合わせる', () => {
+  it('電源投入の演出: 暗幕(不透明度・切り抜き)とランプは毎コマ本物に合わせる', () => {
     vi.useFakeTimers();
     try {
       const app = document.createElement('div');
       const z = document.createElement('div');
       z.innerHTML = '<div class="milspec-vent"><i class="milspec-led is-warn"></i><div class="milspec-carriage" data-vent-carriage><i class="milspec-led"></i></div></div>'
-        + '<span class="milspec-dim"></span><div class="milspec-sweep"><div class="milspec-sweep-bar is-x"></div></div>';
+        + '<span class="milspec-dim"></span>';
       app.append(z); document.body.append(app);
       const box = (l: number, t: number, w: number, h: number) => () => ({ left: l, top: t, width: w, height: h, right: l + w, bottom: t + h, x: l, y: t, toJSON() {} }) as DOMRect;
       z.getBoundingClientRect = box(300, 104, 1189, 19);
       const dim = z.querySelector('.milspec-dim') as HTMLElement;
       dim.getBoundingClientRect = box(300, 104, 1189, 19);
       dim.style.opacity = '0.55';
-      dim.style.clipPath = 'inset(0px 0px 0px calc(50% + 0px))'; // 光の帯が通った左半分は明るい(暗幕は右半分だけ)
+      dim.style.clipPath = 'inset(0px 0px 0px calc(50% + 0px))'; // 暗幕が退いた左半分は明るい(暗幕は右半分だけ)
       const s = splitZone(z, 190);
-      for (const c of [s.left, s.right, s.carriage!]) expect(c.querySelector('.milspec-sweep')).toBeNull();
       // 複製の暗幕は、本物の暗幕が覆っている画面上の範囲を、複製の位置に直して覆う(作った直後から)
       const ld = s.left.querySelector('.milspec-dim') as HTMLElement;
       expect(ld.style.opacity).toBe('0.55');

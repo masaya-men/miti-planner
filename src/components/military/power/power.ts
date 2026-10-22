@@ -11,7 +11,7 @@ export interface PowerOpts { reduced?: boolean }
 
 const EVENT = 'milspec:power';
 let scanTimer: number | undefined; // 電源投入 BOOT_TIMING.scan 後の scanBall(アンマウントで消す)
-let bootAnims: Animation[] = []; // 進行中の暗幕・光の帯の animate(電源断・解除で止める)
+let bootAnims: Animation[] = []; // 進行中の暗幕の animate(電源断・解除で止める)
 /** 立ち上がりの順番(spec §3C): サイドバー/レール → ヘッダー/通気口/フッター → workspace のチカチカ */
 export const BOOT_TIMING = {
   sidebar: { delay: 250, dur: 700 }, header: { delay: 370, dur: 700 },
@@ -48,11 +48,10 @@ export function disposePower(): void {
   stopBoot();
 }
 
-/** 暗幕・光の帯の進行中の animate を止め、帯の要素を消す */
+/** 暗幕の進行中の animate を止める */
 function stopBoot(): void {
   bootAnims.forEach((a) => a.cancel?.());
   bootAnims = [];
-  document.querySelectorAll('.milspec-sweep').forEach((e) => e.remove());
 }
 
 function blackout(frames: Keyframe[], duration: number): void {
@@ -78,7 +77,7 @@ const track = (el: Element, frames: Keyframe[], opts: KeyframeAnimationOptions):
   bootAnims.push(el.animate(frames, opts));
 };
 
-/** 6 区画の暗幕(.milspec-dim)を退かせ、サイドバー系・ヘッダー系には光の帯を走らせる */
+/** 6 区画の暗幕(.milspec-dim)を退かせる(光るのは配線の光=fx/engine の役目) */
 function bootZones(): void {
   stopBoot();
   POWER_ZONES.forEach((z) => {
@@ -94,18 +93,6 @@ function bootZones(): void {
     const { t, axis } = BOOT_ZONES[z];
     track(dim, [{ opacity: 0.55, clipPath: 'inset(0 0 0 0)' }, { opacity: 0.55, clipPath: axis === 'y' ? 'inset(100% 0 0 0)' : 'inset(0 0 0 100%)' }],
       { delay: t.delay, duration: t.dur, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'backwards' });
-    const sweep = document.createElement('div');
-    sweep.className = 'milspec-sweep';
-    sweep.setAttribute('aria-hidden', 'true');
-    const bar = document.createElement('div');
-    bar.className = `milspec-sweep-bar is-${axis}`;
-    sweep.appendChild(bar);
-    zone.appendChild(sweep);
-    track(bar, axis === 'y'
-      ? [{ transform: 'translateY(-120%)' }, { transform: 'translateY(520%)' }]
-      : [{ transform: 'translateX(-120%) skewX(-18deg)' }, { transform: 'translateX(620%) skewX(-18deg)' }],
-    { delay: t.delay, duration: t.dur, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'both' });
-    window.setTimeout(() => sweep.remove(), t.delay + t.dur + 50);
   });
 }
 
@@ -121,15 +108,15 @@ export function powerOn(opts: PowerOpts = {}): void {
   blackout([{ opacity: 0 }, { opacity: 1, offset: 0.25 }, { opacity: 0.85, offset: 0.5 }, { opacity: 0 }], 260);
   bootZones();
   emit('on', false);
-  // 配線疾走: 全ての束を光が駆け抜ける(レール → サイドバー → 通気口 → ジョブの基板 → 継ぎ目)
-  burst('rail:a', { delay: 240, stagger: 16, speed: 1.3, chain: true });
-  burst('s2k', { delay: 200, stagger: 30, speed: 1.1 });
+  // 配線疾走(サイドバー系は暗幕が退き始める 250ms、ヘッダー系は 370ms から走る): 全ての束を光が駆け抜ける(レール → サイドバー → 通気口 → ジョブの基板 → 継ぎ目)
+  burst('rail:a', { delay: BOOT_TIMING.sidebar.delay, stagger: 16, speed: 1.3, chain: true });
+  burst('s2k', { delay: BOOT_TIMING.sidebar.delay, stagger: 30, speed: 1.1 });
   coreFire(620);
-  burst('ventL:', { delay: 420, stagger: 20, speed: 1.6 });
-  burst('ventR:', { delay: 440, stagger: 20, speed: 1.6 });
+  burst('ventL:', { delay: BOOT_TIMING.header.delay, stagger: 20, speed: 1.6 });
+  burst('ventR:', { delay: BOOT_TIMING.header.delay, stagger: 20, speed: 1.6 });
   trafficBp(560);
   pulse('s1', { delay: 380, len: 16 });
-  pulse('h3', { delay: 460, len: 16 });
+  pulse('h3', { delay: BOOT_TIMING.header.delay, len: 16 });
   window.clearTimeout(scanTimer);
   scanTimer = window.setTimeout(() => {
     const row = document.querySelector<HTMLElement>('.milspec-app [data-scan]');

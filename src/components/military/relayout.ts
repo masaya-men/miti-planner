@@ -146,8 +146,6 @@ const boxOf = (zone: HTMLElement): Box => ({ a: zone.parentElement!.getBoundingC
 /** 区画の複製。格子に乗らないよう絶対配置にし、触れず・読み上げず・光エンジンにも拾われないようにする */
 function cloneZone(zone: HTMLElement, part: string, { a, r }: Box): HTMLElement {
   const c = zone.cloneNode(true) as HTMLElement;
-  // 光の帯(電源投入の演出。animate は複製に写らず止まって見える)は外し、暗幕・ランプは本物に合わせ続ける
-  c.querySelectorAll('.milspec-sweep').forEach((e) => e.remove());
   registerMirror(zone, c);
   c.removeAttribute('data-ms-zone');
   c.classList.add('milspec-split');

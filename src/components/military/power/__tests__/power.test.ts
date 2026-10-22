@@ -64,7 +64,7 @@ describe('power', () => {
     expect(document.querySelector('.milspec-blackout')).not.toBeNull();
     expect(a).toHaveBeenCalled();
     expect(ev).toHaveBeenCalledWith({ state: 'on', reduced: false });
-    expect(fx.burst).toHaveBeenCalledWith('rail:a', { delay: 240, stagger: 16, speed: 1.3, chain: true });
+    expect(fx.burst).toHaveBeenCalledWith('rail:a', { delay: 250, stagger: 16, speed: 1.3, chain: true });
     expect(fx.coreFire).toHaveBeenCalledWith(620);
     expect(fx.trafficBp).toHaveBeenCalledWith(560);
     expect(fx.scanBall).not.toHaveBeenCalled();
@@ -86,7 +86,7 @@ describe('power', () => {
     expect(fx.burst).not.toHaveBeenCalled();
   });
 
-  it('powerOn(reduced): 暗幕も帯も animate しない', () => {
+  it('powerOn(reduced): 暗幕を animate しない', () => {
     const a = animSpy();
     initPower();
     powerOn({ reduced: true });
@@ -148,27 +148,25 @@ describe('power', () => {
       expect(frames.map((f) => f.offset)).toEqual([0, 0.08, 0.16, 0.34, 0.4, 0.46, 0.52, 0.58, 0.72, 1]);
     });
 
-    it('光の帯: サイドバーは縦(translateY)・ヘッダーは横(translateX)、区画ごとに 1 個', () => {
-      const a = animSpy(); stub();
-      powerOn({ reduced: false });
-      expect(document.querySelectorAll('.milspec-sweep').length).toBe(5);
-      const barAnim = (z: string) => {
-        const bar = document.querySelector(`[data-ms-zone="${z}"] .milspec-sweep-bar`)!;
-        const i = a.mock.instances.indexOf(bar as never);
-        return (a.mock.calls[i] as unknown as [Keyframe[]])[0];
-      };
-      expect(String(barAnim('sidebar').at(-1)!.transform)).toMatch(/^translateY\(/);
-      expect(String(barAnim('header').at(-1)!.transform)).toMatch(/^translateX\(/);
-    });
-
-    it('帯は終わったら消える', () => {
+    it('光の帯(.milspec-sweep)は作らない', () => {
       animSpy(); stub();
       powerOn({ reduced: false });
-      vi.advanceTimersByTime(370 + 700 + 60);
       expect(document.querySelector('.milspec-sweep')).toBeNull();
     });
 
-    it('disposePower: 帯を消し、暗幕の animate を cancel する', () => {
+    it('配線の光は暗幕が退き始める時刻に合わせる(サイドバー系 250ms・ヘッダー系 370ms)', () => {
+      animSpy(); stub();
+      powerOn({ reduced: false });
+      const d = (fn: { mock: { calls: unknown[][] } }, key: string) =>
+        (fn.mock.calls.find((c) => c[0] === key)![1] as { delay: number }).delay;
+      expect(d(fx.burst as never, 'rail:a')).toBe(250);
+      expect(d(fx.burst as never, 's2k')).toBe(250);
+      expect(d(fx.burst as never, 'ventL:')).toBe(370);
+      expect(d(fx.burst as never, 'ventR:')).toBe(370);
+      expect(d(fx.pulse as never, 'h3')).toBe(370);
+    });
+
+    it('disposePower: 暗幕の animate を cancel する', () => {
       animSpy(); stub();
       const cancel = vi.fn();
       dimAnim('sidebar').mockReturnValue({ cancel });
