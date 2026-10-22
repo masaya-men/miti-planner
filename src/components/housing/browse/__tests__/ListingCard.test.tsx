@@ -454,7 +454,7 @@ describe('ListingCard — NEWリボン (2026-08-16・探すページ限定)', ()
     renderCard({ listing: recentListing, showNewBadge: true });
     const cardEl = screen.getByTestId('housing-listing-card');
     expect(cardEl).not.toHaveClass('housing-card-new-beam');
-    expect(cardEl.querySelector('.housing-card-new-beam-glow')).toBeNull();
+    expect(cardEl.querySelector('.housing-card-new-shine')).toBeNull();
   });
 
   it('管理者が pinnedNewUntil を未来に設定していれば、投稿が古くてもリボンが出る (2026-08-24)', () => {
@@ -489,7 +489,7 @@ describe('ListingCard — NEWリボン (2026-08-16・探すページ限定)', ()
     fireIntersection(true);
     const cardEl = screen.getByTestId('housing-listing-card');
     expect(cardEl).toHaveClass('housing-card-new-beam');
-    expect(cardEl.querySelector('.housing-card-new-beam-glow')).not.toBeNull();
+    expect(cardEl.querySelector('.housing-card-new-shine')).not.toBeNull();
   });
 
   it('isIntersecting=false の通知だけでは付かない (実際に交差するまで待つ)', () => {
@@ -502,13 +502,13 @@ describe('ListingCard — NEWリボン (2026-08-16・探すページ限定)', ()
     renderCard({ listing: recentListing, showNewBadge: true });
     fireIntersection(true);
     const cardEl = screen.getByTestId('housing-listing-card');
-    const firstGlow = cardEl.querySelector('.housing-card-new-beam-glow');
+    const firstGlow = cardEl.querySelector('.housing-card-new-shine');
     expect(firstGlow).not.toBeNull();
 
     fireIntersection(false); // 画面外へ
     fireIntersection(true); // 再度画面内へ
 
-    const secondGlow = cardEl.querySelector('.housing-card-new-beam-glow');
+    const secondGlow = cardEl.querySelector('.housing-card-new-shine');
     expect(secondGlow).not.toBeNull();
     expect(secondGlow).not.toBe(firstGlow); // 同一要素の使い回しではなく作り直されている
   });
@@ -517,11 +517,11 @@ describe('ListingCard — NEWリボン (2026-08-16・探すページ限定)', ()
     renderCard({ listing: recentListing, showNewBadge: true });
     fireIntersection(true);
     const cardEl = screen.getByTestId('housing-listing-card');
-    const firstGlow = cardEl.querySelector('.housing-card-new-beam-glow');
+    const firstGlow = cardEl.querySelector('.housing-card-new-shine');
 
     fireIntersection(true); // 画面内のまま再通知 (実際のIOでも起こりうる)
 
-    expect(cardEl.querySelector('.housing-card-new-beam-glow')).toBe(firstGlow);
+    expect(cardEl.querySelector('.housing-card-new-shine')).toBe(firstGlow);
   });
 
   it('リボン非表示のときはビーム演出クラスが付かない (既存構造を変えない)', () => {
@@ -536,7 +536,7 @@ describe('ListingCard — NEWリボン (2026-08-16・探すページ限定)', ()
     // カスタムプロパティを確認する (2026-08-16 実機指摘で判明したバグの回帰防止)。
     renderCard({ listing: recentListing, showNewBadge: true });
     fireIntersection(true);
-    const glow = screen.getByTestId('housing-listing-card').querySelector('.housing-card-new-beam-glow') as HTMLElement;
+    const glow = screen.getByTestId('housing-listing-card').querySelector('.housing-card-new-shine') as HTMLElement;
     expect(glow.style.getPropertyValue('--beam-delay')).toBe(`${staggerDelayMs(recentListing.id)}ms`);
   });
 });
@@ -552,12 +552,12 @@ describe('staggerDelayMs', () => {
     expect(a).not.toBe(b);
   });
 
-  it('0以上3000未満の範囲に収まる', () => {
+  it('300以上1200未満の範囲に収まる', () => {
     const ids = ['a', 'listing-1', 'listing-2', 'とても長いID-0123456789', ''];
     for (const id of ids) {
       const delay = staggerDelayMs(id);
-      expect(delay).toBeGreaterThanOrEqual(0);
-      expect(delay).toBeLessThan(3000);
+      expect(delay).toBeGreaterThanOrEqual(300);
+      expect(delay).toBeLessThan(1200);
     }
   });
 });

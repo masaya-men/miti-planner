@@ -15,6 +15,7 @@
   --housing-honey: #ffc987;
   --housing-honey-glow: #ffb35a;
   --housing-candle: #ffe2b3;
+  --housing-ribbon-shine: rgba(255, 255, 255, 0.75); /* NEW の帯の上を通る光沢 */
   /* マップ用 (Mist 等のワード地図 / エーテライト) */
   --housing-aether: #00BFFF;        /* FF14 エーテライト水晶のシアン */
   --housing-aether-soft: #9fe9ff;
@@ -7418,6 +7419,7 @@ select.housing-input option {
    はみ出た部分は自然にカードの角丸でクリップされる。 */
 .housing-card-new-ribbon {
   position: absolute;
+  overflow: hidden; /* 帯のキラッ (.housing-card-new-shine) を帯の中だけに収める */
   top: 14px;
   left: -34px;
   z-index: 3;
@@ -7433,57 +7435,32 @@ select.housing-input option {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   pointer-events: none;
 }
-/* NEWカードの縁だけを光の筋が一周するビーム演出 (HousingNewBeamRing)。
-   表示(画面内に入る)のたびに1周だけ再生して止まる(無限ループにしない・ユーザー合意)。
-   2026-10-22 作り替え: 以前の「板全体に光を敷き mask で内側を切り抜く」方式は iPhone で切り抜きが
-   効かない場合があり、光の板が画像にかぶった (回転する子をやめた後も再発)。縁に沿った線 (SVG path・
-   pathLength=100) の破線 1 区間を走らせる方式にし、切り抜き自体を使わない。
-   尾 (tail・薄く長い) の先端に頭 (head・明るく短い) を重ねて光の筋に見せる。 */
+/* NEW の帯の上だけを光沢がキラッと通る (表示=画面内に入るたびに 1 回・無限ループにしない)。
+   2026-10-22 見本 (docs/.private/2026-10-22-new-badge-emphasis/) で決定。以前の「縁を光が一周」は
+   切り抜き (mask) が iPhone で効かず光が写真にかぶる不具合があり、縁の線を描く方式も見た目が不評で廃止。
+   帯の中 (overflow:hidden) だけで完結するので、写真や縁には何も重ならない。 */
 .housing-listing-card.housing-card-new-beam {
   position: relative;
 }
-.housing-card-new-beam-glow {
+.housing-card-new-shine {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 5;
-  overflow: visible;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, var(--housing-ribbon-shine), transparent);
+  transform: translateX(-110%);
   pointer-events: none;
-}
-.housing-card-new-beam-glow path {
-  fill: none;
-  stroke-linecap: round;
-  /* animation ショートハンドは未指定のサブプロパティ (animation-delay 含む) を 0s に
-     リセットするため、ずらし値は必ずショートハンドより後ろで指定する。 */
-  animation-duration: 3s;
-  animation-timing-function: linear;
-  animation-iteration-count: 1;
+  animation: housing-new-shine 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 1 both;
+  /* animation ショートハンドは animation-delay を 0s に戻すので、必ずその後ろで指定する。 */
   animation-delay: var(--beam-delay, 0ms);
 }
-.housing-card-new-beam-tail {
-  stroke: var(--housing-honey-glow);
-  stroke-width: 1.5;
-  opacity: 0.55;
-  stroke-dasharray: 22 78;
-  stroke-dashoffset: 0;
-  animation-name: housing-new-beam-tail;
-}
-.housing-card-new-beam-head {
-  stroke: var(--housing-candle);
-  stroke-width: 2;
-  stroke-dasharray: 8 92;
-  stroke-dashoffset: -14;
-  animation-name: housing-new-beam-head;
-}
-@keyframes housing-new-beam-tail {
-  to { stroke-dashoffset: -100; }
-}
-@keyframes housing-new-beam-head {
-  to { stroke-dashoffset: -114; }
+@keyframes housing-new-shine {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(440%); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .housing-card-new-beam-glow path { animation: none; }
+  .housing-card-new-shine { display: none; }
 }
 .housing-pill {
   font-size: var(--housing-text-xs); color: var(--housing-text-mute);

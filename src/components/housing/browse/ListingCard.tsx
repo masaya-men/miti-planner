@@ -25,7 +25,6 @@ import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
 import { HousingRipple } from '../HousingRipple';
 import { useTourAddFeedback } from '../../../lib/housing/useTourAddFeedback';
 import { HousingTourAddErrorBubble } from '../HousingTourAddErrorBubble';
-import { HousingNewBeamRing } from './HousingNewBeamRing';
 
 export interface ListingCardProps {
   listing: MockListing;
@@ -59,9 +58,10 @@ export interface ListingCardProps {
   tourExtraPool?: { id: string; region?: string | null }[];
 }
 
-// 光る時間 (3s) と同じ幅までズレを広げ、「そろって見える」を確実に避ける
-// (2026-08-16: 400ms→1000msでもまだ物足りずさらに広げる実機指摘)。
-const NEW_BEAM_MAX_STAGGER_MS = 3000;
+// NEW の帯のキラッ (0.9s) の開始を 300〜1200ms の間でずらす (2026-10-22: 縁を一周する 3s の光から
+// 帯の上だけの短い光沢に変えたため、待たせすぎないよう幅を縮めた)。
+const NEW_SHINE_MIN_DELAY_MS = 300;
+const NEW_SHINE_STAGGER_RANGE_MS = 900;
 
 /**
  * NEWビーム演出の開始を listing.id から決定的にずらす (2026-08-16)。
@@ -69,7 +69,7 @@ const NEW_BEAM_MAX_STAGGER_MS = 3000;
  * 機械的で不自然に見えるため(Material Designの staggered animation 指針、
  * Framer Motion の staggerChildren / GSAP の stagger 等が標準機能として
  * 存在するのが示す通り、複数要素の同時アニメーションは業界的に避けられる)、
- * カードごとに 0〜3000ms の範囲でずらす。id 由来の決定的な値なので同じカードは
+ * カードごとに 300〜1200ms の範囲でずらす。id 由来の決定的な値なので同じカードは
  * 毎回同じズレになる (再現性のためランダムにはしない)。
  */
 export function staggerDelayMs(id: string): number {
@@ -77,7 +77,7 @@ export function staggerDelayMs(id: string): number {
   for (let i = 0; i < id.length; i++) {
     hash = (hash * 31 + id.charCodeAt(i)) | 0;
   }
-  return Math.abs(hash) % NEW_BEAM_MAX_STAGGER_MS;
+  return NEW_SHINE_MIN_DELAY_MS + (Math.abs(hash) % NEW_SHINE_STAGGER_RANGE_MS);
 }
 
 /**
@@ -251,12 +251,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         if (e.key === 'Enter') activate();
       }}
     >
-      {/* 縁だけを光の筋が一周する (HousingNewBeamRing・切り抜きに頼らず縁の線を描く方式)。
-          key={enterCount}: 画面内に入るたびに増える値をkeyにすることで、2回目以降の再入場でも
-          Reactに要素を作り直させ、既に再生し終えたCSSアニメーションを確実に最初から再生させる。
-          --beam-delay: 実際に動くのは中の線 (path) なので、ずらし値は CSS 変数として外側の svg に渡し
-          housing.css 側の animation-delay: var(--beam-delay) で線に届ける。 */}
-      {showBeam && <HousingNewBeamRing key={enterCount} delayMs={staggerDelayMs(listing.id)} />}
       <div
         className="housing-listing-card-media"
         ref={mediaRef}
@@ -316,6 +310,17 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             aria-label={t('housing.card.new_badge_aria')}
           >
             {t('housing.card.new_badge')}
+            {/* 帯の上だけを光沢がキラッと通る (2026-10-22 見本で決定・写真や縁には何も重ねない)。
+                key={enterCount}: 画面内に入るたびに作り直して、もう一度最初から光らせる。
+                ずらし値は CSS 変数 --beam-delay で animation-delay に渡す。 */}
+            {showBeam && (
+              <span
+                key={enterCount}
+                className="housing-card-new-shine"
+                style={{ '--beam-delay': `${staggerDelayMs(listing.id)}ms` } as React.CSSProperties}
+                aria-hidden="true"
+              />
+            )}
           </span>
         )}
 
