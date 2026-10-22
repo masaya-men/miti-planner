@@ -133,23 +133,60 @@ describe('relayoutZones(2 段階の開閉)', () => {
     expect(app.querySelector('.milspec-split[data-split="carriage"] [data-vent-carriage]')!.classList.contains('is-moving')).toBe(true);
   });
 
-  it('右の複製は動かない(transform なし)・継ぎ目は ヘッダー 700×hs / 通気口 190×hs', () => {
+  it('右の複製は動かない(transform なし)・継ぎ目は ヘッダー = 帯ごとの階段(700/714/700/683/700 × hs)/ 通気口 190×hs', () => {
     const { app, sbClose, splitAnims } = setup();
-    app.style.setProperty('--ms-hs', '0.5');
     relayoutZones(app, sbClose, 'sb', false);
     vi.advanceTimersByTime(500);
     // 右の複製は位置を動かさない。継ぎ目が移動量(276)より左の通気口だけ、見える左端(clip)を板の左端と一緒に動かす
     const rightAnims = splitAnims('right');
     expect(rightAnims.every((a) => a.frames.every((k) => k.transform === undefined))).toBe(true);
     expect(rightAnims.map((a) => (a.el as HTMLElement).classList.contains('vent-zone'))).toEqual([true]);
-    const clips = rightAnims[0].frames.map((k) => k.clipPath);
-    expect([clips[0], clips[1], clips[3]]).toEqual(['inset(-16px -16px -16px 276px)', 'inset(-16px -16px -16px -1.8px)', 'inset(-16px -16px -16px 0px)']);
+    const hdr = app.querySelector('[data-split="right"][data-zone="header"]') as HTMLElement;
+    expect(hdr.style.clipPath).toMatch(/^polygon\(/);
+    expect(hdr.style.clipPath).toContain('714px'); expect(hdr.style.clipPath).toContain('683px'); expect(hdr.style.clipPath).toContain('700px');
+    expect(hdr.style.clipPath).not.toContain('path(');
+    // 右 = 階段より右(描き直し後に作り直した新しい配置の複製なので、右端は 区画の幅 1465 + 16)。上の板の切れ端(上段 700〜714 / 下段 683〜700)を右の複製に残さない
+    expect(hdr.style.clipPath).toBe('polygon(1481px -16px, 700px -16px, 700px 4px, 714px 4px, 714px 48px, 700px 48px, 700px 52px, 683px 52px, 683px 100px, 700px 100px, 700px 118px, 1481px 118px)');
+    const left = app.querySelector('[data-split="left"][data-zone="header"]') as HTMLElement;
+    expect(left.style.clipPath).toBe('polygon(-16px -16px, 700px -16px, 700px 4px, 714px 4px, 714px 48px, 700px 48px, 700px 52px, 683px 52px, 683px 100px, 700px 100px, 700px 118px, -16px 118px)');
+    const vent = app.querySelector('[data-split="right"][data-zone="vent"]') as HTMLElement;
+    expect(vent.style.clipPath).toBe('inset(-16px -16px -16px 190px)');
+    expect(hdr.getAnimations?.().length ?? 0).toBe(0);
+    // 通気口・フッターの継ぎ目は今の inset のまま(フッターは左寄せの文字が無いときは幅の半分 1189/2)
     const rights = [...app.querySelectorAll<HTMLElement>('.milspec-split[data-split="right"]')];
     const leftsEl = [...app.querySelectorAll<HTMLElement>('.milspec-split[data-split="left"]')];
-    // ヘッダー 700×0.5 / 通気口 190×0.5 / フッター(左寄せの文字が無いときは幅の半分 1189/2)
     expect(rights).toHaveLength(3);
-    expect(rights.map((e) => e.style.clipPath).sort()).toEqual(['inset(-16px -16px -16px 350px)', 'inset(-16px -16px -16px 95px)', 'inset(-16px -16px -16px 594.5px)'].sort());
-    expect(leftsEl.map((e) => e.style.clipPath).sort()).toEqual(['inset(-16px calc(100% - 350px) -16px -16px)', 'inset(-16px calc(100% - 95px) -16px -16px)', 'inset(-16px calc(100% - 594.5px) -16px -16px)'].sort());
+    expect(rights.map((e) => e.getAttribute('data-zone')).sort()).toEqual(['footer', 'header', 'vent']);
+    expect((app.querySelector('[data-split="right"][data-zone="footer"]') as HTMLElement).style.clipPath).toBe('inset(-16px -16px -16px 594.5px)');
+    expect(leftsEl.filter((e) => e.getAttribute('data-zone') !== 'header').map((e) => e.style.clipPath).sort())
+      .toEqual(['inset(-16px calc(100% - 190px) -16px -16px)', 'inset(-16px calc(100% - 594.5px) -16px -16px)'].sort());
+  });
+
+  it('階段の継ぎ目: 縮小率 0.8 なら x も y も 0.8 倍・通気口の継ぎ目は 190×0.8', () => {
+    const { app, sbClose, splitAnims } = setup();
+    app.style.setProperty('--ms-hs', '0.8');
+    relayoutZones(app, sbClose, 'sb', false);
+    vi.advanceTimersByTime(500);
+    const hdr = app.querySelector('[data-split="right"][data-zone="header"]') as HTMLElement;
+    const left = app.querySelector('[data-split="left"][data-zone="header"]') as HTMLElement;
+    for (const v of ['571.2px', '546.4px', '560px', '3.2px', '38.4px', '41.6px', '80px']) {
+      expect(hdr.style.clipPath).toContain(v);
+      expect(left.style.clipPath).toContain(v);
+    }
+    // 区画の高さ 102 + 16 = 118(テストの区画は縮小率を反映しない固定の高さ)
+    expect(hdr.style.clipPath).toBe('polygon(1481px -16px, 560px -16px, 560px 3.2px, 571.2px 3.2px, 571.2px 38.4px, 560px 38.4px, 560px 41.6px, 546.4px 41.6px, 546.4px 80px, 560px 80px, 560px 118px, 1481px 118px)');
+    expect((app.querySelector('[data-split="right"][data-zone="vent"]') as HTMLElement).style.clipPath).toBe('inset(-16px -16px -16px 152px)');
+    // 通気口だけ右の複製の見える左端を動かす(ヘッダーの階段は継ぎ目 ≥ 移動量なので動かさない)
+    expect(splitAnims('right').map((a) => (a.el as HTMLElement).getAttribute('data-zone'))).toEqual(['vent']);
+  });
+
+  it('サイドバーを開く: ヘッダーの複製も階段で切り、右の複製の見える左端は動かさない', () => {
+    const { app, sbOpenFn, splitAnims } = setup({ sbOpen: false });
+    relayoutZones(app, sbOpenFn, 'sb', false);
+    const hdr = app.querySelector('[data-split="right"][data-zone="header"]') as HTMLElement;
+    // 閉じた配置: 区画の幅 1465 → 右端 1481
+    expect(hdr.style.clipPath).toBe('polygon(1481px -16px, 700px -16px, 700px 4px, 714px 4px, 714px 48px, 700px 48px, 700px 52px, 683px 52px, 683px 100px, 700px 100px, 700px 118px, 1481px 118px)');
+    expect(splitAnims('right').map((a) => (a.el as HTMLElement).getAttribute('data-zone'))).toEqual(['vent']);
   });
 
   it('サイドバーを開く: 1 段目で他区画・左の板が 0→+276、台車は 0→+138(60・480)。1 段目の終わり(540)+80 = 620ms 後に change → サイドバーが入る', () => {
@@ -481,5 +518,28 @@ describe('splitZone', () => {
     const z = document.createElement('div');
     app.append(z); document.body.append(app);
     expect(splitZone(z, 700).carriage).toBeNull();
+  });
+
+  it('複製の SVG の id は複製ごとに付け直し、url(#…) / href の参照も複製の中の定義を指す(本物は隠すので、本物の pattern・clipPath を参照すると網・基板が消える)', () => {
+    const app = document.createElement('div');
+    const z = document.createElement('div');
+    z.innerHTML = '<svg><defs><pattern id="hdr-1-mesh"></pattern><clipPath id="hdr-2-win"><rect/></clipPath></defs>'
+      + '<rect fill="url(#hdr-1-mesh)" style="fill:url(&quot;#hdr-1-mesh&quot;)"/><g clip-path="url(#hdr-2-win)"></g><use href="#hdr-1-mesh"/></svg>';
+    app.append(z); document.body.append(app);
+    const s = splitZone(z, [{ x: 700, y0: 0, y1: 102 }]);
+    const ids = (c: HTMLElement) => [...c.querySelectorAll('[id]')].map((e) => e.id);
+    for (const c of [s.left, s.right]) {
+      const [mesh, win] = ids(c);
+      expect(mesh).not.toBe('hdr-1-mesh'); expect(win).not.toBe('hdr-2-win');
+      expect(mesh.startsWith('hdr-1-mesh')).toBe(true);
+      expect(c.querySelector('rect[fill]')!.getAttribute('fill')).toBe(`url(#${mesh})`);
+      expect(c.querySelector('rect[fill]')!.getAttribute('style')).toContain(`#${mesh}`);
+      expect(c.querySelector('g')!.getAttribute('clip-path')).toBe(`url(#${win})`);
+      expect(c.querySelector('use')!.getAttribute('href')).toBe(`#${mesh}`);
+    }
+    expect(ids(s.left)[0]).not.toBe(ids(s.right)[0]);
+    // 本物はそのまま
+    expect(z.querySelector('rect[fill]')!.getAttribute('fill')).toBe('url(#hdr-1-mesh)');
+    s.restore();
   });
 });

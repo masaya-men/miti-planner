@@ -9,7 +9,7 @@
  *  ⚠ change() の直後、ヘッダー・通気口の中身(MW)は ResizeObserver 経由の再描画が追いつくまで 1〜数コマ古いまま
  *  (実測: 1489 幅で 2 コマ、レバーが 276px 左にずれる)。そのため区画の幅が変わる間は複製で見た目を押さえ、
  *  右端の部品が元の画面位置に戻った(=描き直しが済んだ)のを確かめてから、新しい配置の複製を作る / 本物に戻す。 */
-import { HDR_FRAME, HDR_H, RAIL_MARGIN, SIDEBAR_SPAN, VENT_PLATE_X } from './headerGeometry';
+import { HDR_BANDS, HDR_H, RAIL_MARGIN, SIDEBAR_SPAN, VENT_PLATE_X } from './headerGeometry';
 
 /** 1 つの動き・ずらす間・台車の遅れ・台車の走行(ms。見本 v3 で masaya が選んだ値) */
 export const PHASE_DUR = 420, PHASE_GAP = 80, CARRIAGE_LAG = 60, CARRIAGE_DUR = 480;
@@ -143,11 +143,34 @@ function registerMirror(zone: HTMLElement, clone: HTMLElement) {
 export type Box = { a: DOMRect; r: DOMRect };
 const boxOf = (zone: HTMLElement): Box => ({ a: zone.parentElement!.getBoundingClientRect(), r: zone.getBoundingClientRect() });
 
+let cloneSeq = 0;
+const REF_ATTRS = ['fill', 'stroke', 'clip-path', 'mask', 'filter', 'marker-start', 'marker-mid', 'marker-end', 'style', 'href', 'xlink:href'];
+/** 複製の中の id を複製ごとに付け直し、url(#…) / href="#…" の参照も付け直した id へ向ける。
+ *  そのままだと参照は文書で先に出る本物の定義(pattern・clipPath・mask)を指す。本物の区画は visibility: hidden なので
+ *  pattern の中身・clipPath の形も描かれず(網・基板が消える)、配置が変わった後の本物の形で切られてしまう */
+function renameIds(c: HTMLElement) {
+  const withId = c.querySelectorAll<Element>('[id]');
+  if (!withId.length) return;
+  const n = ++cloneSeq, map = new Map<string, string>();
+  withId.forEach((e) => { const nu = `${e.id}--ms${n}`; map.set(e.id, nu); e.id = nu; });
+  const fix = (v: string) => v.replace(/url\((['"]?)#([^'")]+)\1\)/g, (m, q: string, id: string) => (map.has(id) ? `url(${q}#${map.get(id)}${q})` : m));
+  c.querySelectorAll('*').forEach((e) => {
+    for (const name of REF_ATTRS) {
+      const v = e.getAttribute(name);
+      if (!v || !v.includes('#')) continue;
+      const nv = name.endsWith('href') ? (v.startsWith('#') && map.has(v.slice(1)) ? `#${map.get(v.slice(1))}` : v) : fix(v);
+      if (nv !== v) e.setAttribute(name, nv);
+    }
+  });
+}
+
 /** 区画の複製。格子に乗らないよう絶対配置にし、触れず・読み上げず・光エンジンにも拾われないようにする */
 function cloneZone(zone: HTMLElement, part: string, { a, r }: Box): HTMLElement {
   const c = zone.cloneNode(true) as HTMLElement;
+  renameIds(c);
   registerMirror(zone, c);
   c.removeAttribute('data-ms-zone');
+  c.setAttribute('data-zone', zone.getAttribute('data-ms-zone') ?? '');
   c.classList.add('milspec-split');
   c.setAttribute('data-split', part);
   c.setAttribute('aria-hidden', 'true');
@@ -166,29 +189,50 @@ const edgeFrames = (sx: number, ex: number): Keyframe[] => {
   const xs = steps(sx, ex);
   return STEP_TIMING.map((k, i) => ({ clipPath: `inset(${PAD} ${PAD} ${PAD} ${xs[i]}px)`, ...k }));
 };
+/** 継ぎ目(区画の左端から・画面 px)。数値 = 縦 1 本の線(通気口・フッター)。
+ *  配列 = 帯ごとの階段(ヘッダー。上の板の切れ目が 外枠 700 / 上段 714 / 下段 683 と段違いなので、
+ *  1 本線で切ると右の複製に左の板の切れ端が残り、窓の中に静止して見える) */
+export type Seam = number | { x: number; y0: number; y1: number }[];
+const px = (v: number) => `${Math.round(v * 1000) / 1000}px`;
+/** 階段の多角形。outer = 階段の反対側の辺の x(左の複製 = −CLIP_PAD / 右の複製 = 区画の幅 + CLIP_PAD)。
+ *  左右で同じ階段の点列を共有するので、合わせ目に隙間も重なりもできない。上下の端は CLIP_PAD だけ外へ広げる */
+function stairPolygon(seam: { x: number; y0: number; y1: number }[], outer: number, h: number): string {
+  const pts: [number, number][] = [[outer, -CLIP_PAD]];
+  seam.forEach((b, i) => {
+    pts.push([b.x, i === 0 ? -CLIP_PAD : b.y0], [b.x, i === seam.length - 1 ? h + CLIP_PAD : b.y1]);
+  });
+  pts.push([outer, h + CLIP_PAD]);
+  return `polygon(${pts.map(([x, y]) => `${px(x)} ${px(y)}`).join(', ')})`;
+}
+const leftClip = (seam: Seam, { r }: Box) =>
+  typeof seam === 'number' ? `inset(${PAD} calc(100% - ${seam}px) ${PAD} ${PAD})` : stairPolygon(seam, -CLIP_PAD, r.height);
+const rightClip = (seam: Seam, { r }: Box) =>
+  typeof seam === 'number' ? `inset(${PAD} ${PAD} ${PAD} ${seam}px)` : stairPolygon(seam, r.width + CLIP_PAD, r.height);
+
 /** 右の複製: 継ぎ目より右だけ。台車は別の複製が持つので外す */
-function rightClone(zone: HTMLElement, seamPx: number, box: Box): HTMLElement {
+function rightClone(zone: HTMLElement, seam: Seam, box: Box): HTMLElement {
   const c = cloneZone(zone, 'right', box);
   c.querySelector('[data-vent-carriage]')?.remove();
-  c.style.clipPath = `inset(${PAD} ${PAD} ${PAD} ${seamPx}px)`;
+  c.style.clipPath = rightClip(seam, box);
   return c;
 }
 
 export interface SplitZone {
   left: HTMLElement; right: HTMLElement; carriage: HTMLElement | null; restore(): void;
-  /** 右の複製の見える左端を動かす範囲(区画の左端から sx → ex)。継ぎ目が板の移動量より右なら不要(null) */
+  /** 右の複製の見える左端を動かす範囲(区画の左端から sx → ex)。継ぎ目が板の移動量より右なら不要(null)。
+   *  階段の継ぎ目(ヘッダー)では常に null(継ぎ目 ≥ 移動量。edgeFrames は inset の 1 本線しか動かせない) */
   edge?: [number, number] | null;
 }
 
-/** 区画を隠し、その上に複製を置く。左は継ぎ目 seamPx(区画の左端から・画面 px)より左だけ、右は継ぎ目より右だけを見せる。
+/** 区画を隠し、その上に複製を置く。左は継ぎ目 seam(区画の左端から・画面 px。配列なら帯ごとの階段)より左だけ、右は継ぎ目より右だけを見せる。
  *  通気口のときは、台車([data-vent-carriage])を左右の複製から除き、台車だけの複製を carriage として返す。
  *  重なり順は 右 → 左 → 台車(左の板は右の上を滑る)。 */
-export function splitZone(zone: HTMLElement, seamPx: number, box: Box = boxOf(zone)): SplitZone {
+export function splitZone(zone: HTMLElement, seam: Seam, box: Box = boxOf(zone)): SplitZone {
   const host = zone.parentElement!;
-  const right = rightClone(zone, seamPx, box);
+  const right = rightClone(zone, seam, box);
   const left = cloneZone(zone, 'left', box);
   left.querySelector('[data-vent-carriage]')?.remove();
-  left.style.clipPath = `inset(${PAD} calc(100% - ${seamPx}px) ${PAD} ${PAD})`;
+  left.style.clipPath = leftClip(seam, box);
   let carriage: HTMLElement | null = null;
   if (zone.querySelector('[data-vent-carriage]')) {
     carriage = cloneZone(zone, 'carriage', box);
@@ -208,7 +252,7 @@ export function splitZone(zone: HTMLElement, seamPx: number, box: Box = boxOf(zo
   zone.style.visibility = 'hidden';
   let done = false;
   const sp: SplitZone = {
-    left, right, carriage,
+    left, right, carriage, edge: null,
     restore() {
       if (done) return;
       done = true;
@@ -220,8 +264,8 @@ export function splitZone(zone: HTMLElement, seamPx: number, box: Box = boxOf(zo
 }
 
 /** 右の複製だけを、今の(change 後・描き直し済みの)区画から作り直す。左の板・台車は左端基準なのでどちらの配置の複製でもよい */
-function swapRight(sp: SplitZone, zone: HTMLElement, seamPx: number, box: Box) {
-  const n = rightClone(zone, seamPx, box);
+function swapRight(sp: SplitZone, zone: HTMLElement, seam: Seam, box: Box) {
+  const n = rightClone(zone, seam, box);
   sp.left.before(n);
   sp.right.remove();
   sp.right = n;
@@ -355,14 +399,17 @@ function splitTargets(app: HTMLElement): HTMLElement[] {
   const h = zoneOf(app, 'header'), v = zoneOf(app, 'vent'), f = zoneOf(app, 'footer');
   return [h && !h.hasAttribute('data-collapsed') ? h : null, v, f].filter((z): z is HTMLElement => !!z);
 }
-/** 継ぎ目(区画の左端から・画面 px)。左寄せの部品は開閉の前後で区画の左端からの位置が同じなので、どちらの配置で測ってもよい */
-function seamOf(app: HTMLElement, z: HTMLElement): number {
+/** 継ぎ目(区画の左端から・画面 px)。左寄せの部品は開閉の前後で区画の左端からの位置が同じなので、どちらの配置で測ってもよい。
+ *  ヘッダーは上の板の切れ目の帯ごとの階段(HDR_BANDS × 縮小率。x も y も内箱と一緒に縮む) */
+function seamOf(app: HTMLElement, z: HTMLElement): Seam {
   const name = z.getAttribute('data-ms-zone');
   if (name === 'footer') {
     const t = z.querySelector(FOOTER_TEXT), zr = z.getBoundingClientRect();
     return t ? t.getBoundingClientRect().right - zr.left + FOOTER_SEAM_GAP : zr.width / 2;
   }
-  return (name === 'vent' ? VENT_SEAM : HDR_FRAME.sx) * hsOf(app);
+  const hs = hsOf(app);
+  if (name === 'vent') return VENT_SEAM * hs;
+  return HDR_BANDS.map((b) => ({ x: b.cut * hs, y0: b.y0 * hs, y1: b.y1 * hs }));
 }
 
 /** 区画の右端で終わる「切り抜きの箱」(表の見出しの行・スクロールする本体)。中身は左寄せで、この箱の右端で切れる。
@@ -600,7 +647,7 @@ function sidebarClose(app: HTMLElement, run: Run, sb: HTMLElement) {
         const seam = seams.get(z)!;
         swapRight(splits[i], z, seam, bx[i]);
         // 継ぎ目が移動量より左(通気口): 右の複製(溝)の見える左端を板の左端と一緒に動かす。新しい配置では D → 0
-        if (seam < D - 0.5) edges.push(held(run, splits[i].right, edgeFrames(D, 0), { duration: PHASE_DUR, fill: 'both' }));
+        if (typeof seam === 'number' && seam < D - 0.5) edges.push(held(run, splits[i].right, edgeFrames(D, 0), { duration: PHASE_DUR, fill: 'both' }));
       });
       pin?.swap(D);
       settled = true;
@@ -626,7 +673,7 @@ function sidebarOpen(app: HTMLElement, run: Run) {
     const seam = seamOf(app, z);
     const sp = splitZone(z, seam);
     run.restores.push(sp.restore);
-    if (seam < D - 0.5) sp.edge = [0, D];
+    if (typeof seam === 'number' && seam < D - 0.5) sp.edge = [0, D];
     return slidePlates(run, sp, 0, D, 0, travel, false).anims;
   });
   const phase1End = Math.max(PHASE_DUR, CARRIAGE_LAG + CARRIAGE_DUR);
