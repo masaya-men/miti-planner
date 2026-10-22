@@ -405,14 +405,14 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         <div className="flex items-center gap-1.5">
                             {/* 表示メンバー(ALL + 8 人): 見た目だけのローカル設定(共同編集の同期対象外・
                                 閲覧専用ジョイナーが操作しても部屋のデータには影響しない)ので readOnly でも有効。 */}
-                            <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.party_visibility_members')}</span>
+                            <span className="hidden min-[1400px]:inline text-app-base font-black text-app-text uppercase tracking-[0.15em] whitespace-nowrap shrink-0">{t('ui.party_visibility_members')}</span>
                             <PartyToggleStrip sortOrder={partySortOrder} />
 
                             {/* 表の見た目(ふつう / スプシ): PC かつ WIP 公開可のときだけ */}
                             {canPreviewWip && !isMobile && (
                                 <>
                                     <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
-                                    <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.table_view')}</span>
+                                    <span className="hidden min-[1400px]:inline text-app-base font-black text-app-text uppercase tracking-[0.15em] whitespace-nowrap shrink-0">{t('ui.table_view')}</span>
                                     <SegmentButton
                                         options={[
                                             { value: 'lanes', label: t('ui.table_view_lanes') },
