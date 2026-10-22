@@ -207,6 +207,7 @@ export const BrowsePage: React.FC = () => {
                 <>
                   <div className="housing-browse-toolbar">{viewToggleNode}</div>
                   <div className="housing-listing-grid-wrap">
+                    <div className="housing-listing-grid-toolbar housing-skel-toolbar-reserve" aria-hidden="true" />
                     <ListingGridSkeleton />
                   </div>
                 </>

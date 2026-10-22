@@ -44,7 +44,7 @@ import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { ListingGrid } from '../browse/ListingGrid';
 import { ListingGridSkeleton } from '../browse/ListingGridSkeleton';
-import { HousingerProfileSkeleton } from '../skeleton/HousingSkeletons';
+import { HousingerProfileSkeleton, TourAllButtonSkeleton } from '../skeleton/HousingSkeletons';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { HousingerAvatar } from '../housinger/HousingerAvatar';
 import { HousingerReportModal } from '../report/HousingerReportModal';
@@ -417,7 +417,10 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
             <div className="housinger-page-body">
               <HousingerProfileSkeleton />
               <div className="housinger-page-listings-col">
-                <ListingGridSkeleton withFooter={false} />
+                <div className="housing-listing-grid-wrap">
+                  <div className="housing-listing-grid-toolbar housing-skel-toolbar-reserve" aria-hidden="true" />
+                  <ListingGridSkeleton withFooter={false} />
+                </div>
               </div>
             </div>
           </main>
@@ -604,7 +607,9 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
               {/* まとめてツアーは他人のハウジングを見学する機能なので本人閲覧時は出さない
                   (自分の家をツアーする意味がない・2026-07-24 実機指摘)。公開ハウジングが
                   1 件以上のときだけ出すのは他人視点のみ引き続き有効。 */}
-              {!isSelf && listings.length > 0 && (
+              {/* 一覧取得中はボタンの居場所をダミーで確保 (届いてから押し下げでずれないように)。 */}
+              {!isSelf && listingsLoading && <TourAllButtonSkeleton />}
+              {!isSelf && !listingsLoading && listings.length > 0 && (
                 <button type="button" className="housinger-page-tour-btn" onClick={onTourAll}>
                   {t('housing.housinger.tourAll')}
                 </button>
@@ -613,7 +618,10 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
 
             <div className="housinger-page-listings-col">
               {listingsLoading ? (
-                <ListingGridSkeleton withFooter={false} />
+                <div className="housing-listing-grid-wrap">
+                  <div className="housing-listing-grid-toolbar housing-skel-toolbar-reserve" aria-hidden="true" />
+                  <ListingGridSkeleton withFooter={false} />
+                </div>
               ) : sorted.length === 0 ? (
                 <p className="housinger-page-empty">{t('housing.housinger.noListings')}</p>
               ) : (

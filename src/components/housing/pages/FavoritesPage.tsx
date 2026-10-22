@@ -190,6 +190,7 @@ export const FavoritesPage: React.FC = () => {
           ) : status === 'loading' || status === 'idle' ? (
             /* listings ストアがまだ読込中 */
             <div className="housing-listing-grid-wrap">
+              <div className="housing-listing-grid-toolbar housing-skel-toolbar-reserve" aria-hidden="true" />
               <ListingGridSkeleton />
             </div>
           ) : status === 'error' ? (

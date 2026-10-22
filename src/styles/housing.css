@@ -1536,7 +1536,13 @@
   padding-top: var(--housing-listing-card-media-pad);
 }
 .housing-skel-card-footer { flex: 0 0 auto; padding: 8px 10px 10px; }
-.housing-skel-card-btn { height: 33px; border-radius: 8px; background: var(--housing-skeleton-block-soft); }
+/* 一覧上の「見出し+並び替え」行の居場所 (実物の高さ 30px を実測・届いた時にカードが下へずれないように) */
+.housing-skel-toolbar-reserve { min-height: 30px; }
+/* スマホの探す画面は見出し行が 2 段組みで 39px (実測) */
+@media (max-width: 767px) {
+  .housing-browse-col-center .housing-skel-toolbar-reserve { min-height: 39px; }
+}
+.housing-skel-card-btn { height: 35px; border-radius: 8px; background: var(--housing-skeleton-block-soft); }
 /* 汎用の行 */
 .housing-skel-line { height: 12px; border-radius: 4px; }
 .housing-skel-line-mid { width: 66%; background: var(--housing-skeleton-block-soft); }
@@ -4107,6 +4113,19 @@ select.housing-input option {
 }
 .housinger-page-tour-btn:active {
     transform: scale(0.98);
+}
+/* 一覧取得中のダミー: 実ボタンと同じ寸法 (文字は透明で高さだけ使う)。 200ms 未満は居場所のみ。 */
+.housinger-page-tour-btn.housinger-page-tour-btn-skel {
+    cursor: default;
+    pointer-events: none;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    background: var(--housing-skeleton-block);
+    box-shadow: none;
+}
+.housinger-page-tour-btn-skel[data-visible="false"] {
+    visibility: hidden;
 }
 /* 右列 = 一覧グリッド。残り幅いっぱい (左右いっぱいに広げたぶん、カード標準サイズのままで 5 列が収まる)。 */
 .housinger-page-listings-col {

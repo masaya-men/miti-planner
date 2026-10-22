@@ -91,3 +91,21 @@ export const LinesSkeleton: React.FC<{ count?: number; labelKey: string }> = ({ 
     ))}
   </SkeletonShell>
 );
+
+/** ハウジンガーページ「まとめてツアー」ボタンの居場所。 実ボタンと同じクラスで寸法を合わせ、 色だけダミーにする。 */
+export const TourAllButtonSkeleton: React.FC = () => {
+  const { t } = useTranslation();
+  const visible = useDelayedFlag(true);
+  const reduced = useReducedMotion();
+  return (
+    <div data-shimmer={reduced ? 'false' : 'true'} aria-hidden="true">
+      <div
+        className="housinger-page-tour-btn housinger-page-tour-btn-skel housing-skel"
+        data-visible={visible ? 'true' : 'false'}
+        data-testid="housinger-tour-btn-skeleton"
+      >
+        {t('housing.housinger.tourAll')}
+      </div>
+    </div>
+  );
+};
