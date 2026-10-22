@@ -9,7 +9,7 @@
  *  ⚠ change() の直後、ヘッダー・通気口の中身(MW)は ResizeObserver 経由の再描画が追いつくまで 1〜数コマ古いまま
  *  (実測: 1489 幅で 2 コマ、レバーが 276px 左にずれる)。そのため区画の幅が変わる間は複製で見た目を押さえ、
  *  右端の部品が元の画面位置に戻った(=描き直しが済んだ)のを確かめてから、新しい配置の複製を作る / 本物に戻す。 */
-import { HDR_FRAME, HDR_H, SIDEBAR_SPAN } from './headerGeometry';
+import { HDR_FRAME, HDR_H, RAIL_MARGIN, SIDEBAR_SPAN, VENT_PLATE_X } from './headerGeometry';
 
 /** 1 つの動き・ずらす間・台車の遅れ・台車の走行(ms。見本 v3 で masaya が選んだ値) */
 export const PHASE_DUR = 420, PHASE_GAP = 80, CARRIAGE_LAG = 60, CARRIAGE_DUR = 480;
@@ -18,7 +18,7 @@ type Kind = 'hdr' | 'sb';
 const EASE = 'cubic-bezier(.2,0,.15,1)';
 const CAR_EASE = 'cubic-bezier(.45,0,.3,1)';
 /** 通気口の左の板の右端(溝 chanL の左端・ventLayout の chanL.x) */
-const VENT_SEAM = 190;
+const VENT_SEAM = VENT_PLATE_X;
 /** 抜ける / 入る区画が画面の外へ出きる余白(見本の +4) */
 const OUT = 4;
 /** 複製の切り口以外の辺は、影・突起を切らないよう外側へ広げて切る */
@@ -58,6 +58,87 @@ const carFrames = (sx: number, endX: number): Keyframe[] => [
 
 // ---------------------------------------------------------------- 複製(残像)
 
+// ---------------------------------------------------------------- 複製に写した電源投入の演出
+
+/** 複製の暗幕・ランプを本物に毎コマ合わせる。電源投入の演出(power.ts の暗幕の animate・lampSequence のランプ)は
+ *  本物にだけ付くので、複製のままでは止まって見え、本物に戻した瞬間に明るさが飛ぶ。
+ *  暗幕は「本物の暗幕がいま覆っている画面上の範囲」を複製の位置に直して覆う(滑る板と一緒に帯の縁が動かないように)。
+ *  台車の複製の暗幕は台車の範囲だけを覆う(右の複製の暗幕と二重にならないように) */
+interface DimPair { real: HTMLElement; copy: HTMLElement; within: HTMLElement | null }
+interface Mirror { dims: DimPair[]; leds: [HTMLElement, HTMLElement][]; seen: boolean; mo: MutationObserver | null }
+const mirrors = new Map<HTMLElement, Mirror>();
+let mirrorRaf = 0;
+const dimOf = (el: Element): HTMLElement | null =>
+  ([...el.children].find((k) => k.classList.contains('milspec-dim')) as HTMLElement | undefined) ?? null;
+
+/** clip-path の inset(...) を 上・右・下・左 の px に直す(% は暗幕の大きさ基準。calc(a% + bpx) も読む) */
+function insetPx(v: string, w: number, h: number): [number, number, number, number] {
+  const m = /^inset\((.*)\)$/.exec(v.trim());
+  if (!m) return [0, 0, 0, 0];
+  const body = m[1].split(/\sround\s/)[0];
+  const parts: string[] = [];
+  let depth = 0, cur = '';
+  for (const ch of body) {
+    if (ch === '(') depth++;
+    if (ch === ')') depth--;
+    if (/\s/.test(ch) && depth === 0) { if (cur) parts.push(cur); cur = ''; } else cur += ch;
+  }
+  if (cur) parts.push(cur);
+  const [t = '0', r = t, b = t, l = r] = parts;
+  const len = (s: string, size: number) => {
+    let sum = 0;
+    for (const [, sign, num, unit] of s.matchAll(/([+-]?)\s*(\d*\.?\d+)(px|%)?/g)) sum += (sign === '-' ? -1 : 1) * Number(num) * (unit === '%' ? size / 100 : 1);
+    return sum;
+  };
+  return [len(t, h), len(r, w), len(b, h), len(l, w)];
+}
+
+function syncMirror(m: Mirror) {
+  for (const d of m.dims) {
+    if (!d.copy.isConnected) continue;
+    const cs = getComputedStyle(d.real);
+    d.copy.style.opacity = cs.opacity;
+    const R = d.real.getBoundingClientRect();
+    const [t, r, b, l] = insetPx(cs.clipPath || 'none', R.width, R.height);
+    let L = R.left + l, T = R.top + t, Rt = R.right - r, B = R.bottom - b;
+    if (d.within) {
+      const w = d.within.getBoundingClientRect();
+      L = Math.max(L, w.left); T = Math.max(T, w.top); Rt = Math.min(Rt, w.right); B = Math.min(B, w.bottom);
+    }
+    if (Rt <= L || B <= T) { d.copy.style.clipPath = 'inset(50%)'; continue; }
+    const C = d.copy.getBoundingClientRect();
+    d.copy.style.clipPath = `inset(${T - C.top}px ${C.right - Rt}px ${C.bottom - B}px ${L - C.left}px)`;
+  }
+  for (const [real, copy] of m.leds) if (copy.isConnected && copy.className !== real.className) copy.className = real.className;
+}
+/** 全ての複製を本物に合わせる。消えた複製は登録から外す(作った直後・まだ置く前のものは残す) */
+function syncMirrors() {
+  for (const [root, m] of mirrors) {
+    if (root.isConnected) { m.seen = true; syncMirror(m); } else if (m.seen) { m.mo?.disconnect(); mirrors.delete(root); }
+  }
+  // 次のコマも合わせる(呼ばれるたびに予約し直す。予約が捨てられても止まらないように)
+  if (typeof requestAnimationFrame !== 'function') return;
+  if (mirrorRaf) cancelAnimationFrame(mirrorRaf);
+  mirrorRaf = mirrors.size ? requestAnimationFrame(() => { mirrorRaf = 0; syncMirrors(); }) : 0;
+}
+/** 複製を作ったときに、本物との対応(暗幕・ランプ)を登録する */
+function registerMirror(zone: HTMLElement, clone: HTMLElement) {
+  const real = dimOf(zone), copy = dimOf(clone);
+  const rl = zone.querySelectorAll<HTMLElement>('.milspec-led'), cl = clone.querySelectorAll<HTMLElement>('.milspec-led');
+  const m: Mirror = {
+    dims: real && copy ? [{ real, copy, within: null }] : [],
+    leds: [...rl].map((e, i) => [e, cl[i]] as [HTMLElement, HTMLElement]).filter(([, c]) => !!c),
+    seen: false, mo: null,
+  };
+  // ランプの点灯(タイマーで class が変わる)と電源の切替(<html data-ms-power>)は、次のコマを待たずにその場で写す
+  if (typeof MutationObserver === 'function' && (m.leds.length || m.dims.length)) {
+    m.mo = new MutationObserver(() => { if (clone.isConnected) syncMirror(m); });
+    m.mo.observe(zone, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    m.mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-ms-power'] });
+  }
+  mirrors.set(clone, m);
+}
+
 /** 区画とその親(app)の画面上の矩形。複製を何枚も作る前に 1 回だけ読む(読むたびに配置の再計算が走るため) */
 export type Box = { a: DOMRect; r: DOMRect };
 const boxOf = (zone: HTMLElement): Box => ({ a: zone.parentElement!.getBoundingClientRect(), r: zone.getBoundingClientRect() });
@@ -65,6 +146,9 @@ const boxOf = (zone: HTMLElement): Box => ({ a: zone.parentElement!.getBoundingC
 /** 区画の複製。格子に乗らないよう絶対配置にし、触れず・読み上げず・光エンジンにも拾われないようにする */
 function cloneZone(zone: HTMLElement, part: string, { a, r }: Box): HTMLElement {
   const c = zone.cloneNode(true) as HTMLElement;
+  // 光の帯(電源投入の演出。animate は複製に写らず止まって見える)は外し、暗幕・ランプは本物に合わせ続ける
+  c.querySelectorAll('.milspec-sweep').forEach((e) => e.remove());
+  registerMirror(zone, c);
   c.removeAttribute('data-ms-zone');
   c.classList.add('milspec-split');
   c.setAttribute('data-split', part);
@@ -110,14 +194,18 @@ export function splitZone(zone: HTMLElement, seamPx: number, box: Box = boxOf(zo
   let carriage: HTMLElement | null = null;
   if (zone.querySelector('[data-vent-carriage]')) {
     carriage = cloneZone(zone, 'carriage', box);
-    // 台車とその祖先だけを残す(格子・溝・レール・暗幕は右の複製が持つ)
-    for (let n = carriage.querySelector<HTMLElement>('[data-vent-carriage]'); n && n !== carriage; n = n.parentElement) {
+    // 台車とその祖先だけを残す(格子・溝・レールは右の複製が持つ)。暗幕は残し、台車の範囲だけを覆わせる
+    const car = carriage.querySelector<HTMLElement>('[data-vent-carriage]');
+    const dim = dimOf(carriage);
+    for (let n = car; n && n !== carriage; n = n.parentElement) {
       const keep = n;
-      [...keep.parentElement!.children].forEach((sib) => { if (sib !== keep) sib.remove(); });
+      [...keep.parentElement!.children].forEach((sib) => { if (sib !== keep && sib !== dim) sib.remove(); });
     }
+    mirrors.get(carriage)?.dims.forEach((d) => { d.within = car; });
   }
   host.append(right, left);
   if (carriage) host.append(carriage);
+  syncMirrors();
   const prev = zone.style.visibility;
   zone.style.visibility = 'hidden';
   let done = false;
@@ -139,6 +227,7 @@ function swapRight(sp: SplitZone, zone: HTMLElement, seamPx: number, box: Box) {
   sp.left.before(n);
   sp.right.remove();
   sp.right = n;
+  syncMirrors();
 }
 
 // ---------------------------------------------------------------- 進行中の状態
@@ -164,7 +253,8 @@ const play = (run: Run, el: Element, kf: Keyframe[], opts: KeyframeAnimationOpti
   return a;
 };
 const cancelAll = (list: Animation[]) => list.forEach((a) => a.cancel());
-const doChange = (run: Run) => { if (!run.changed) { run.changed = true; run.change(); } };
+/** change() の後は、複製の暗幕・ランプを新しい配置の本物にその場で合わせる(次のコマまで古い範囲が残らないように) */
+const doChange = (run: Run) => { if (!run.changed) { run.changed = true; run.change(); syncMirrors(); } };
 const hsOf = (app: HTMLElement): number => {
   const v = parseFloat(app.style.getPropertyValue('--ms-hs') || getComputedStyle(app).getPropertyValue('--ms-hs'));
   return v > 0 ? v : 1;
@@ -391,7 +481,8 @@ function pinWorkspaceEdge(z: HTMLElement): EdgePin {
 function boxClips(run: Run, pin: EdgePin, sx: number, ex: number, paused: boolean, fill: FillMode): Animation[] {
   const mk = paused ? held : play;
   return pin.boxes.map(({ el, sb }) => {
-    const xs = steps(sx + sb, ex + sb);
+    // スクロールバーのある箱は、行き過ぎ(区画が終わりより 1.8px 左)の間も本物のスクロールバーを見せない(切り詰めは sb 以上)
+    const xs = steps(sx + sb, ex + sb).map((x) => (sb > 0 ? Math.max(x, sb) : x));
     return mk(run, el, STEP_TIMING.map((k, i) => ({ clipPath: `inset(${PAD} ${xs[i]}px ${PAD} ${PAD})`, ...k })), { duration: PHASE_DUR, fill });
   });
 }
@@ -456,6 +547,15 @@ function launch(run: Run, anims: Animation[], base: number | null, offset: numbe
 /** 2 段目を始めてよいか: 予定の時刻が来た(タイマー)か、timeline に開始時刻を予約できる */
 const canStart = (gapOver: boolean, base: number | null) => gapOver || (base !== null && timelineNow() !== null);
 
+/** 台車の画面上の走行量 = レールの長さ − 台車の幅 − 両端の余白(狭い画面では headerGeometry の ventCarriageRun で縮む)。
+ *  レールは開閉で画面上不動なので、どちらの状態で測っても同じ。測れなければサイドバーぶんの半分 */
+function carriageTravel(app: HTMLElement): number {
+  const v = zoneOf(app, 'vent');
+  const rail = v?.querySelector('[data-vent-rail]'), car = v?.querySelector('[data-vent-carriage]');
+  const w = rail && car ? rail.getBoundingClientRect().width - car.getBoundingClientRect().width - 2 * RAIL_MARGIN * hsOf(app) : 0;
+  return w > 0.5 ? w : SIDEBAR_SPAN / 2;
+}
+
 /** サイドバーを閉じる: サイドバーだけ左へ抜ける → 下地 → 他の区画と左の板が滑り込む(台車はレールを走る) */
 function sidebarClose(app: HTMLElement, run: Run, sb: HTMLElement) {
   const a = app.getBoundingClientRect(), s = sb.getBoundingClientRect();
@@ -465,6 +565,7 @@ function sidebarClose(app: HTMLElement, run: Run, sb: HTMLElement) {
   const seams = new Map(targets.map((z) => [z, seamOf(app, z)]));
   const ws = zoneOf(app, 'workspace');
   const probes = captureProbes(ws ? [...targets, ws] : targets);
+  const travel = carriageTravel(app);
   const p1 = [play(run, sb, frames(0, 0, -(s.right - a.left + OUT), 0), { duration: PHASE_DUR, fill: 'forwards' })];
 
   let base: number | null = null, D = 0, settled = false, gapOver = false, started = false;
@@ -494,7 +595,7 @@ function sidebarClose(app: HTMLElement, run: Run, sb: HTMLElement) {
     // rail / workspace / footer は新しい配置で +D(= 元の画面位置)に止めておき、2 段目の開始で一斉に動かす
     wait = slides.map((z) => held(run, z, frames(D, 0, 0, 0), { duration: PHASE_DUR, fill: 'both' }));
     if (pin) wait.push(...boxClips(run, pin, D, 0, true, 'both'));
-    plates = splits.map((sp) => slidePlates(run, sp, 0, -D, 0, -D / 2, true));
+    plates = splits.map((sp) => slidePlates(run, sp, 0, -D, 0, -travel, true));
     whenSettled(run, probes, () => {
       const bx = targets.map(boxOf);
       targets.forEach((z, i) => {
@@ -518,6 +619,7 @@ function sidebarOpen(app: HTMLElement, run: Run) {
   const targets = splitTargets(app);
   const ws = zoneOf(app, 'workspace');
   const probes = captureProbes(ws ? [...targets, ws] : targets);
+  const travel = carriageTravel(app);
   const pin = ws ? pinWorkspaceEdge(ws) : null;
   if (pin) run.restores.push(pin.restore);
   const p1 = zonesOf(app, SLIDE_ZONES).map((z) => play(run, z, frames(0, 0, D, 0), { duration: PHASE_DUR, fill: 'forwards' }));
@@ -527,7 +629,7 @@ function sidebarOpen(app: HTMLElement, run: Run) {
     const sp = splitZone(z, seam);
     run.restores.push(sp.restore);
     if (seam < D - 0.5) sp.edge = [0, D];
-    return slidePlates(run, sp, 0, D, 0, D / 2, false).anims;
+    return slidePlates(run, sp, 0, D, 0, travel, false).anims;
   });
   const phase1End = Math.max(PHASE_DUR, CARRIAGE_LAG + CARRIAGE_DUR);
 

@@ -1,7 +1,7 @@
 /**
  * ヘッダー(H1〜H5)と通気口の座標表(見本 milspec-v11.js js:863-940 の手打ち座標を MW の関数にしたもの)。
  * 座標はヘッダー区画 / 通気口区画の左上基準。パスは M/L/H/V の絶対座標のみ(stretchPath の制約)。
- * 引数 MW は layoutMW 済み(>= 1189)。
+ * 引数 MW は 1189 以上(mwFor 済み)。
  */
 import type { CapSpec, PanelSpec, PlacedPanel, Pt, StretchFrame } from './armor/types';
 import { bank, chamRect, circ, shift, stadium } from './armor/geom';
@@ -20,8 +20,6 @@ export const headerScaleFor = (zoneWidth: number, sidebarOpen: boolean): number 
 /** 内箱は scale 倍されて幅 100%/scale に広がるので、描画幅は 区画の実幅 ÷ 縮小率(1189 未満にはしない) */
 export const mwFor = (zoneWidth: number, scale: number): number =>
   Math.max(HDR_BASE_MW, Math.round(zoneWidth / scale));
-/** 縮小時は 1189 で描く */
-export const layoutMW = (MW: number): number => Math.max(MW, HDR_BASE_MW);
 
 /** ヘッダーの伸縮線は x = 700(これより左は左端基準・右は MW 基準)。relayout の継ぎ目にも使う */
 export const HDR_FRAME: StretchFrame = { w0: HDR_BASE_MW, h0: HDR_H, sx: 700, sy: 9999 };
@@ -107,7 +105,7 @@ export function headerLayout(MW: number): {
   traces: { name: string; d: string; pc: 'seam' | 'leak' }[];
   meter: { ix: number; iw: number; showClock: boolean };
 } {
-  MW = Math.max(MW, HDR_BASE_MW); // 縮小時は layoutMW 済みの値を渡す約束。誤用しても 1189 未満では描かない
+  MW = Math.max(MW, HDR_BASE_MW); // 縮小時は mwFor 済みの値を渡す約束。誤用しても 1189 未満では描かない
   const frame = { ...HDR_FRAME };
   const panels = basePanels().map((p) => stretchPlaced(p, frame, MW, HDR_H));
   const p4 = panels[4], p5 = panels[5];
@@ -182,7 +180,7 @@ export function ventLayout(MW: number): {
   const xb0 = Math.round(MW / 2 - 190), xb1 = xb0 + 11 * 12 - 4;
   return {
     xb0, xb1,
-    chanL: { x: 190, w: xb0 - 8 - 190 },
+    chanL: { x: VENT_PLATE_X, w: xb0 - 8 - VENT_PLATE_X },
     chanR: { x: xb1 + 8, w: MW - 164 - (xb1 + 8) },
     pull: { x: MW / 2 - 26, w: 52 },
     pullLabelX: MW / 2 + 30,
@@ -195,12 +193,28 @@ export function ventLayout(MW: number): {
 /** 台車(光の玉の列+取っ手+PULL 文字)の幅と、レール両端の余白 */
 export const CARRIAGE_W = 252;
 export const RAIL_MARGIN = 6;
-/** 台車の左端(区画座標)。格子 xb0 の 2px 手前 */
-export const ventCarriageX = (MW: number): number => MW / 2 - 192;
-/** レール(区画座標)。台車の画面上の走行量は SIDEBAR_SPAN/2 で、区画内では ÷scale。
- *  開いた状態では台車は右端・閉じた状態では左端にいて、画面上のレールは開閉で動かない */
+/** 通気口の左の板(ハザード・刻印)の右端 = 溝 chanL の左端(ventLayout の chanL.x)。開閉の継ぎ目もここ */
+export const VENT_PLATE_X = 190;
+/** レールの左端の下限: 左の板(継ぎ目 VENT_PLATE_X)より右。左の刻印 "HDR PNL 1A · DO NOT STEP" は x 70〜約 161(実測)で
+ *  左の板に収まるので、継ぎ目より右なら刻印とも重ならない。レールが継ぎ目をまたぐと、開閉で板と一緒に一部が動いてしまう */
+export const VENT_RAIL_MIN_X = VENT_PLATE_X + 4;
+/** サイドバーを開いた状態の台車の左端(区画座標)= 格子 xb0 の 2px 手前。閉じた状態の MW を渡したときは開いた状態に直して求める */
+const openCarriageX = (MW: number, sidebarOpen: boolean, scale: number): number =>
+  (sidebarOpen ? MW : MW - SIDEBAR_SPAN / scale) / 2 - 192;
+/** 台車の走行量(区画座標)。画面上はサイドバーぶんの半分(SIDEBAR_SPAN/2)で、区画内では ÷scale。
+ *  狭い画面(縮小率が小さい)では、レールの左端が VENT_RAIL_MIN_X より左へ出ないよう縮める */
+export function ventCarriageRun(MW: number, sidebarOpen: boolean, scale: number): number {
+  return Math.max(0, Math.min(SIDEBAR_SPAN / 2 / scale, openCarriageX(MW, sidebarOpen, scale) - RAIL_MARGIN - VENT_RAIL_MIN_X));
+}
+/** 台車の左端(区画座標)。開いた状態は MW/2 - 192(格子 xb0 の 2px 手前)。閉じた状態は、開いた位置から走行量だけ左
+ *  (区画の左端が SIDEBAR_SPAN 左へ動くので、区画座標では +SIDEBAR_SPAN/scale)。縮めないときは MW/2 - 192 と同じ */
+export function ventCarriageX(MW: number, sidebarOpen = true, scale = 1): number {
+  if (sidebarOpen) return MW / 2 - 192;
+  return openCarriageX(MW, false, scale) - ventCarriageRun(MW, false, scale) + SIDEBAR_SPAN / scale;
+}
+/** レール(区画座標)。開いた状態では台車は右端・閉じた状態では左端にいて、画面上のレールは開閉で動かない */
 export function ventRailRange(MW: number, sidebarOpen: boolean, scale: number): { x: number; w: number } {
-  const run = SIDEBAR_SPAN / 2 / scale;
-  const cx = ventCarriageX(MW);
+  const run = ventCarriageRun(MW, sidebarOpen, scale);
+  const cx = ventCarriageX(MW, sidebarOpen, scale);
   return { x: (sidebarOpen ? cx - run : cx) - RAIL_MARGIN, w: CARRIAGE_W + run + 2 * RAIL_MARGIN };
 }

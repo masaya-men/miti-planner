@@ -8,7 +8,8 @@ import { onPower, BOOT_TIMING } from './power';
  */
 export function sequenceLamps(): () => void {
   const lamps = [...document.querySelectorAll<HTMLElement>('.milspec-app .milspec-led.is-on')]
-    .filter((l) => !l.closest('[data-lamp="net"]'));
+    // 開閉の動きの複製(.milspec-split / .milspec-ghost)の中は触らない(複製は relayout が本物に合わせて写す)
+    .filter((l) => !l.closest('[data-lamp="net"], .milspec-split, .milspec-ghost'));
   lamps.forEach((l) => l.classList.remove('is-on'));
   const timers = lamps.map((l, i) => window.setTimeout(() => l.classList.add('is-on', 'is-flick'), BOOT_TIMING.lamps + i * 45));
   return () => timers.forEach((id) => window.clearTimeout(id));

@@ -228,6 +228,17 @@ describe('relayoutZones(2 段階の開閉)', () => {
     expect(animOf('footer')[0]).toBeUndefined();
   });
 
+  it('台車の走行量はレールの長さ − 台車の幅 − 両端の余白(狭い画面で縮めた分もそのまま使う)', () => {
+    const { app, zones, sbClose, carriageAnim } = setup();
+    app.style.setProperty('--ms-hs', '0.5');
+    const r = (w: number) => () => ({ left: 0, top: 0, width: w, height: 5, right: w, bottom: 5, x: 0, y: 0, toJSON() {} }) as DOMRect;
+    (zones.vent.querySelector('[data-vent-rail]') as HTMLElement).getBoundingClientRect = r(100 + 126 + 6); // 走行 100・台車 126(=252×0.5)・余白 6×0.5×2
+    (zones.vent.querySelector('[data-vent-carriage]') as HTMLElement).getBoundingClientRect = r(126);
+    relayoutZones(app, sbClose, 'sb', false);
+    vi.advanceTimersByTime(500);
+    expect(carriageAnim()[0].map((k) => k.transform)).toEqual(['translateX(0px)', 'translateX(-99.2px)', 'translateX(-100px)']);
+  });
+
   it('フッター: 継ぎ目は左寄せの文字の右端 + 12px(右のリンクは右の複製に残り動かない)', () => {
     const { app, zones, sbClose, splitAnims } = setup();
     zones.footer.innerHTML = '<span class="milspec-flink static">© LoPo</span><div class="milspec-ftr-right"><a class="milspec-flink">X</a></div>';
@@ -297,6 +308,9 @@ describe('relayoutZones(2 段階の開閉)', () => {
       const scr = anims.filter((a) => (a.el as HTMLElement).classList?.contains('scroller')).pop()!;
       expect([clipsOf(hdr)[0], clipsOf(hdr)[3]]).toEqual(['inset(-16px 276px -16px -16px)', 'inset(-16px 0px -16px -16px)']);
       expect([clipsOf(scr)[0], clipsOf(scr)[3]]).toEqual(['inset(-16px 290px -16px -16px)', 'inset(-16px 14px -16px -16px)']);
+      // 行き過ぎの間も、スクロールバーのある箱は本物のスクロールバー(sb)を切ったまま
+      expect(clipsOf(scr)[1]).toBe('inset(-16px 14px -16px -16px)');
+      expect(clipsOf(hdr)[1]).toBe('inset(-16px -1.8px -16px -16px)');
       expect(scr.play).toHaveBeenCalled();
       expect(scr.opts).toMatchObject({ duration: 420 });
       // 終わると全部元どおり
@@ -419,6 +433,48 @@ describe('splitZone', () => {
     s.restore();
     expect(app.querySelector('.milspec-split')).toBeNull();
     expect(z.style.visibility).toBe('');
+  });
+
+  it('電源投入の演出: 光の帯は複製に写さず、暗幕(不透明度・切り抜き)とランプは毎コマ本物に合わせる', () => {
+    vi.useFakeTimers();
+    try {
+      const app = document.createElement('div');
+      const z = document.createElement('div');
+      z.innerHTML = '<div class="milspec-vent"><i class="milspec-led is-warn"></i><div class="milspec-carriage" data-vent-carriage><i class="milspec-led"></i></div></div>'
+        + '<span class="milspec-dim"></span><div class="milspec-sweep"><div class="milspec-sweep-bar is-x"></div></div>';
+      app.append(z); document.body.append(app);
+      const box = (l: number, t: number, w: number, h: number) => () => ({ left: l, top: t, width: w, height: h, right: l + w, bottom: t + h, x: l, y: t, toJSON() {} }) as DOMRect;
+      z.getBoundingClientRect = box(300, 104, 1189, 19);
+      const dim = z.querySelector('.milspec-dim') as HTMLElement;
+      dim.getBoundingClientRect = box(300, 104, 1189, 19);
+      dim.style.opacity = '0.55';
+      dim.style.clipPath = 'inset(0px 0px 0px calc(50% + 0px))'; // 光の帯が通った左半分は明るい(暗幕は右半分だけ)
+      const s = splitZone(z, 190);
+      for (const c of [s.left, s.right, s.carriage!]) expect(c.querySelector('.milspec-sweep')).toBeNull();
+      // 複製の暗幕は、本物の暗幕が覆っている画面上の範囲を、複製の位置に直して覆う(作った直後から)
+      const ld = s.left.querySelector('.milspec-dim') as HTMLElement;
+      expect(ld.style.opacity).toBe('0.55');
+      expect(ld.style.clipPath).toBe('inset(104px -1489px -123px 894.5px)'); // 複製の暗幕の矩形は 0(テストの代役)
+      ld.getBoundingClientRect = box(300, 104, 1189, 19);
+      // 台車の複製の暗幕は台車の範囲だけ(右の複製の暗幕と二重にならない)
+      const car = s.carriage!.querySelector('[data-vent-carriage]') as HTMLElement;
+      car.getBoundingClientRect = box(1000, 104, 252, 19);
+      const cd = s.carriage!.querySelector('.milspec-dim') as HTMLElement;
+      cd.getBoundingClientRect = box(300, 104, 1189, 19);
+      // 本物が進む(暗幕が消えていく・ランプが点く)と、次のコマで複製も同じになる
+      dim.style.opacity = '0.3';
+      (z.querySelector('.milspec-vent > .milspec-led') as HTMLElement).className = 'milspec-led is-on is-flick';
+      vi.advanceTimersByTime(20);
+      expect(ld.style.opacity).toBe('0.3');
+      expect(ld.style.clipPath).toBe('inset(0px 0px 0px 594.5px)');
+      expect(cd.style.clipPath).toBe('inset(0px 237px 0px 700px)');
+      expect((s.right.querySelector('.milspec-vent > .milspec-led') as HTMLElement).className).toBe('milspec-led is-on is-flick');
+      // 台車が暗幕の外(左の明るい側)にいるときは、台車の暗幕は覆わない
+      car.getBoundingClientRect = box(500, 104, 252, 19);
+      vi.advanceTimersByTime(20);
+      expect(cd.style.clipPath).toBe('inset(50%)');
+      s.restore();
+    } finally { vi.useRealTimers(); }
   });
 
   it('台車の無い区画では carriage は null', () => {

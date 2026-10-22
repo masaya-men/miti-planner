@@ -164,6 +164,21 @@ describe('MilspecLayout', () => {
     expect(useSidebarToggleAnimator.getState().animated).toBeNull();
   });
 
+  it('サイドバーの開閉は動きの途中で行うので、その間にほかの経路で同じ状態になっていたら反転させない', async () => {
+    const { useSidebarToggleAnimator } = await import('../sidebarToggleAnimator');
+    vi.useFakeTimers();
+    try {
+      const toggle = vi.fn();
+      const ui = (open: boolean) => <MemoryRouter><MilspecLayout {...baseProps} isSidebarOpen={open} onToggleSidebar={toggle}><div /></MilspecLayout></MemoryRouter>;
+      const { rerender } = render(ui(true));
+      act(() => { useSidebarToggleAnimator.getState().animated!(false); });
+      expect(toggle).not.toHaveBeenCalled();
+      rerender(ui(false)); // 動きの最中に、別の経路(チュートリアル開始など)が直接閉じた
+      act(() => { vi.advanceTimersByTime(2000); });
+      expect(toggle).not.toHaveBeenCalled();
+    } finally { vi.useRealTimers(); }
+  });
+
   it('開閉の動きの途中で標準へ戻る(アンマウント)と、動きを止めて開閉は即時に済ませる', async () => {
     const { useHeaderCollapseAnimator } = await import('../headerCollapseAnimator');
     const proto = HTMLElement.prototype as unknown as { animate?: unknown };

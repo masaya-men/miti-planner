@@ -131,7 +131,8 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
     if (open === sbOpenRef.current) return; // 同じ値なら何もしない
     const app = appRef.current;
     if (!app) { toggleRef.current(); return; }
-    relayoutZones(app, () => commit(() => toggleRef.current()), 'sb', reduced);
+    // 開閉は動きの途中(約 420ms 後)に行う。その間にほかの経路(チュートリアル開始など)で既に同じ状態になっていたら反転させない
+    relayoutZones(app, () => commit(() => { if (sbOpenRef.current !== open) toggleRef.current(); }), 'sb', reduced);
   }, [reduced, commit]);
   const toggleSidebarAnimated = useCallback(() => setSidebarAnimated(!sbOpenRef.current), [setSidebarAnimated]);
   // Layout のキーボード操作(S / F・フォーカスモード・チュートリアル)にも動きを付ける

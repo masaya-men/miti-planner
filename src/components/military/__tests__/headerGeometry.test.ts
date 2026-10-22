@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { HDR_BASE_MW, headerScale, headerScaleFor, mwFor, layoutMW, headerLayout, ventLayout, ventRailRange, ventCarriageX } from '../headerGeometry';
+import { HDR_BASE_MW, headerScale, headerScaleFor, mwFor, headerLayout, ventLayout, ventRailRange, ventCarriageX, ventCarriageRun, VENT_RAIL_MIN_X, VENT_PLATE_X } from '../headerGeometry';
 import { stretchPlaced } from '../armor/stretch';
 
 describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
@@ -7,8 +7,6 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
     expect(HDR_BASE_MW).toBe(1189);
     expect(headerScale(980)).toBeCloseTo(0.824, 3);
     expect(headerScale(1300)).toBe(1);
-    expect(layoutMW(980)).toBe(1189);
-    expect(layoutMW(1465)).toBe(1465);
   });
   it('MW=1189', () => {
     const l = headerLayout(1189);
@@ -137,6 +135,29 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
     expect(300 + o.x).toBeCloseTo(24 + c.x); // 区画の左端は 開 300 / 閉 24(1489 画面)
     expect(o.w).toBeCloseTo(c.w);
     expect(o.w).toBeCloseTo(252 + 138 + 12);
+  });
+  it('台車の走行量: 縮小 1 では今まで通り(画面上 138px)・閉じた位置も MW/2 - 192', () => {
+    expect(ventCarriageRun(1189, true, 1)).toBe(138);
+    expect(ventCarriageRun(1465, false, 1)).toBe(138);
+    expect(ventCarriageX(1465, false, 1)).toBe(1465 / 2 - 192);
+    expect(ventRailRange(1189, true, 1)).toEqual({ x: 1189 / 2 - 192 - 138 - 6, w: 252 + 138 + 12 });
+  });
+  it('狭い画面(960 幅・縮小 0.555): 走行量を縮め、レールの左端は左の板(継ぎ目 190)より右・開閉で画面上一致', () => {
+    const s = 0.5551, zo = 660, zc = 660 + 276;
+    const mo = mwFor(zo, s), mc = mwFor(zc, s);
+    const o = ventRailRange(mo, true, s), c = ventRailRange(mc, false, s);
+    expect(VENT_RAIL_MIN_X).toBeGreaterThan(VENT_PLATE_X);
+    expect(VENT_RAIL_MIN_X).toBeGreaterThan(161.2 + 6); // 左の刻印 "HDR PNL 1A · DO NOT STEP"(x 70〜161.2)より右
+    expect(o.x).toBeGreaterThanOrEqual(VENT_RAIL_MIN_X - 1e-9);
+    expect(c.x).toBeGreaterThanOrEqual(VENT_RAIL_MIN_X - 1e-9);
+    expect(300 + o.x * s).toBeCloseTo(24 + c.x * s, 0);
+    expect(o.w * s).toBeCloseTo(c.w * s, 0);
+    // 走行量は縮む(画面上 138 未満)。台車は開いた状態でレールの右端・閉じた状態で左端
+    const run = ventCarriageRun(mo, true, s);
+    expect(run * s).toBeLessThan(138);
+    expect(ventCarriageRun(mc, false, s)).toBeCloseTo(run, 0);
+    expect(ventCarriageX(mo, true, s)).toBeCloseTo(o.x + 6 + run);
+    expect(300 + ventCarriageX(mo, true, s) * s - run * s).toBeCloseTo(24 + ventCarriageX(mc, false, s) * s, 0);
   });
   it('ventRailRange: 狭い画面(縮小 0.84)でも画面上で一致', () => {
     const s = 1000 / 1189;

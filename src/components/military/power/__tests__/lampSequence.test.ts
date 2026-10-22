@@ -29,6 +29,14 @@ describe('sequenceLamps', () => {
     expect(el('b').classList.contains('is-on')).toBe(true);
     expect(el('w').classList.contains('is-warn')).toBe(true);
   });
+  it('開閉の動きの複製(.milspec-split)の中のランプは触らない(複製は本物に合わせて写す)', () => {
+    document.querySelector('.milspec-app')!.insertAdjacentHTML('beforeend', '<div class="milspec-split"><span class="milspec-led is-on" id="c"></span></div><div class="milspec-ghost"><span class="milspec-led is-on" id="g"></span></div>');
+    sequenceLamps();
+    expect(el('c').classList.contains('is-on')).toBe(true);
+    expect(el('g').classList.contains('is-on')).toBe(true);
+    vi.advanceTimersByTime(2000);
+    expect(el('c').classList.contains('is-flick')).toBe(false);
+  });
   it('戻り値で途中停止できる', () => {
     sequenceLamps()();
     vi.advanceTimersByTime(1000);
