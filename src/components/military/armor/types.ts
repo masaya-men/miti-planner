@@ -56,7 +56,7 @@ export interface DrawerSpec {
 export interface GlowSpec {
   kind: 'glow';
   x0: number; x1: number;
-  windows: [number, number][];
+  windows: readonly (readonly [number, number])[];
   glow: number;
 }
 

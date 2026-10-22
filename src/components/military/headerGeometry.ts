@@ -6,6 +6,7 @@
 import type { CapSpec, DrawerSpec, GlowSpec, PanelSpec, PlacedPanel, Pt, StretchFrame } from './armor/types';
 import { bank, bbox, chamRect, circ, clipHalf, dedupe, shift, stadium } from './armor/geom';
 import { stretchPlaced } from './armor/stretch';
+import { machinedEdge } from './armor/machinedEdge';
 import { seedOf } from './armor/weather';
 
 export const HDR_BASE_MW = 1189;
@@ -22,7 +23,7 @@ export const headerScaleFor = (zoneWidth: number, sidebarOpen: boolean): number 
 export const mwFor = (zoneWidth: number, scale: number): number =>
   Math.max(HDR_BASE_MW, Math.round(zoneWidth / scale));
 
-/** ヘッダーの伸縮線は x = 700(これより左は左端基準・右は MW 基準)。relayout の継ぎ目にも使う */
+/** ヘッダーの伸縮線(w0 / h0 の基準)。headerLayout が板ごとに sx を決めて使う(relayout の継ぎ目は HDR_BANDS を使い、これは使わない) */
 export const HDR_FRAME: StretchFrame = { w0: HDR_BASE_MW, h0: HDR_H, sx: 700, sy: 9999 };
 
 /** 上の板の切れ目(区画座標・1189 基準)。外枠 700 / 上段(H3)714 / 下段(H5)683。左の板だけが滑る */
@@ -35,7 +36,7 @@ export const HDR_BANDS: { y0: number; y1: number; cut: number }[] = [
 const DRAWER_OVER = 60;
 /** 設計書 §0 / D8 の決定値 */
 const D8 = { shadow: 1, dirt: 2, dark: 1, glow: 0.55 } as const;
-const GLOW_WINDOWS: [number, number][] = [[6, 46], [54, 98]];
+const GLOW_WINDOWS: readonly (readonly [number, number])[] = Object.freeze([Object.freeze([6, 46] as const), Object.freeze([54, 98] as const)]);
 
 export interface HdrKeyRow {
   id: 'aux' | 'com' | 'party' | 'io' | 'mainstream' | 'gear' | 'sort';
@@ -141,6 +142,13 @@ function basePanels(): PlacedPanel[] {
   const [chsL, chsR] = splitPlaced({ x: 0, y: 0, w: MW, h: 102, spec: chassis }, HDR_CUTS.chs, 'chsL', 'chsR');
   const [h3L, h3R] = splitPlaced({ x: 518, y: 4, w: iw, h: 44, spec: h3 }, HDR_CUTS.h3, 'h3L', 'h3R');
   const [h5L, h5R] = splitPlaced({ x: 0, y: 52, w: MW, h: 48, spec: h5 }, HDR_CUTS.h5, 'h5L', 'h5R');
+  // 上の板の切れ目の切り口(見本 v3 machinedEdge)。帯が 8px 未満の外枠(700)は出ない。板内座標(L は切れ目 − 板の x、R は 0 から)
+  const edge = (l: PlacedPanel, r: PlacedPanel, cut: number) => {
+    (l.spec as PanelSpec).extra = machinedEdge('L', cut - l.x, { y0: 0, y1: l.h });
+    (r.spec as PanelSpec).extra = machinedEdge('R', 0, { y0: 0, y1: r.h });
+  };
+  edge(h3L, h3R, HDR_CUTS.h3);
+  edge(h5L, h5R, HDR_CUTS.h5);
   return [
     chsL, chsR,
     { name: 'h1', x: 4, y: 4, w: 120, h: 42, spec: h1 },

@@ -62,7 +62,9 @@ export function MilspecHeaderV11(props: MilspecHeaderV11Props) {
     let n = 0;
     let timer: ReturnType<typeof setTimeout>;
     const tick = () => {
-      if (isFxActive()) pulse(`drw:${1 + (n++ % 6)}`, { len: DRW_PULSE.len, speed: DRW_PULSE.speed, cls: '' });
+      // ヘッダーを畳んでいる間(区画に data-collapsed)は打たない
+      const collapsed = rootRef.current?.closest('[data-ms-zone="header"]')?.hasAttribute('data-collapsed');
+      if (!collapsed && isFxActive()) pulse(`drw:${1 + (n++ % 6)}`, { len: DRW_PULSE.len, speed: DRW_PULSE.speed, cls: '' });
       timer = setTimeout(tick, DRW_PULSE.minMs + Math.random() * (DRW_PULSE.maxMs - DRW_PULSE.minMs));
     };
     timer = setTimeout(tick, DRW_PULSE.minMs + Math.random() * (DRW_PULSE.maxMs - DRW_PULSE.minMs));

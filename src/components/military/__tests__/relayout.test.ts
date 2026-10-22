@@ -577,4 +577,18 @@ describe('splitZone', () => {
     expect(z.querySelector('rect[fill]')!.getAttribute('fill')).toBe('url(#hdr-1-mesh)');
     s.restore();
   });
+
+  it('ヘッダーの右の複製は左の縁の影(near-l / far-l)を持たない(滑る影と二重にならない)。走行中の粒も複製には持ち込まない', () => {
+    const app = document.createElement('div');
+    const z = document.createElement('div');
+    z.innerHTML = '<svg><g class="drw-shadow"><rect data-sh="near-l"/><rect data-sh="far-l"/><rect data-sh="near-r"/><rect data-sh="far-r"/></g>'
+      + '<path class="milspec-pz-g"/><path class="milspec-pz-c"/></svg>';
+    app.append(z); document.body.append(app);
+    const s = splitZone(z, [{ x: 700, y0: 0, y1: 102 }]);
+    expect(s.right.querySelectorAll('[data-sh="near-l"], [data-sh="far-l"]')).toHaveLength(0);
+    expect(s.right.querySelectorAll('[data-sh="near-r"], [data-sh="far-r"]')).toHaveLength(2);
+    for (const c of [s.left, s.right]) expect(c.querySelectorAll('.milspec-pz-g, .milspec-pz-c')).toHaveLength(0);
+    expect(z.querySelectorAll('.milspec-pz-g')).toHaveLength(1); // 本物はそのまま
+    s.restore();
+  });
 });

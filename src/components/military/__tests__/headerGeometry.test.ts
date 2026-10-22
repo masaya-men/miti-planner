@@ -188,4 +188,14 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
     expect(300 + o.x * s).toBeCloseTo(24 + c.x * s, 0);
     expect(o.w * s).toBeCloseTo(c.w * s, 0);
   });
+
+  it('上の板の切れ目の切り口(machinedEdge)を、帯の高さが 8px 以上の切れ目(714 / 683)の左右の板に載せる。外枠(700)は無し', () => {
+    const l = headerLayout(HDR_BASE_MW);
+    for (const n of ['h3L', 'h3R', 'h5L', 'h5R']) expect(sp(l, n).extra, n).toContain('fill="#0c0e10"');
+    expect(sp(l, 'chsL').extra).toBeUndefined();
+    // L は切れ目 − 板の x の位置(暗い帯 1.6px の左端 = 切れ目 − 1.6)、R は板の左端(0)から
+    expect(sp(l, 'h3L').extra).toContain(`<rect x="${HDR_CUTS.h3 - pn(l, 'h3L').x - 1.6}"`);
+    expect(sp(l, 'h5L').extra).toContain(`<rect x="${HDR_CUTS.h5 - 1.6}"`);
+    expect(sp(l, 'h3R').extra).toContain('<rect x="0"');
+  });
 });

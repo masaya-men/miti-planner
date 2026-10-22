@@ -145,6 +145,9 @@ const boxOf = (zone: HTMLElement): Box => ({ a: zone.parentElement!.getBoundingC
 
 let cloneSeq = 0;
 const REF_ATTRS = ['fill', 'stroke', 'clip-path', 'mask', 'filter', 'marker-start', 'marker-mid', 'marker-end', 'style', 'href', 'xlink:href'];
+/** REF_ATTRS のどれかに参照(url(# / #)を持ちうる要素 */
+const REF_SELECTOR = ['fill', 'stroke', 'marker-start', 'marker-mid', 'marker-end', 'style'].map((a) => `[${a}*="url("]`)
+  .concat(['[clip-path]', '[mask]', '[filter]', '[href^="#"]', '[*|href^="#"]']).join(',');
 /** 複製の中の id を複製ごとに付け直し、url(#…) / href="#…" の参照も付け直した id へ向ける。
  *  そのままだと参照は文書で先に出る本物の定義(pattern・clipPath・mask)を指す。本物の区画は visibility: hidden なので
  *  pattern の中身・clipPath の形も描かれず(網・基板が消える)、配置が変わった後の本物の形で切られてしまう */
@@ -154,7 +157,12 @@ function renameIds(c: HTMLElement) {
   const n = ++cloneSeq, map = new Map<string, string>();
   withId.forEach((e) => { const nu = `${e.id}--ms${n}`; map.set(e.id, nu); e.id = nu; });
   const fix = (v: string) => v.replace(/url\((['"]?)#([^'")]+)\1\)/g, (m, q: string, id: string) => (map.has(id) ? `url(${q}#${map.get(id)}${q})` : m));
-  c.querySelectorAll('*').forEach((e) => {
+  // 参照を持つ要素だけを走査する(全要素 約 7k を毎回なめない)。id を持つ要素(pattern 等の中の参照)は含める
+  let found: Iterable<Element>;
+  try { found = c.querySelectorAll(REF_SELECTOR); } catch { found = c.querySelectorAll('*'); } // 名前空間つき属性の選択子が使えない環境(テストの代役)では全走査
+  const targets = new Set<Element>(found);
+  withId.forEach((e) => targets.add(e));
+  targets.forEach((e) => {
     for (const name of REF_ATTRS) {
       const v = e.getAttribute(name);
       if (!v || !v.includes('#')) continue;
@@ -176,6 +184,8 @@ function cloneZone(zone: HTMLElement, part: string, { a, r }: Box): HTMLElement 
   c.setAttribute('aria-hidden', 'true');
   c.setAttribute('inert', '');
   c.querySelectorAll(TRACE_ATTRS.map((n) => `[${n}]`).join(',')).forEach((e) => TRACE_ATTRS.forEach((n) => e.removeAttribute(n)));
+  // 光エンジンが本物に足した走行中の粒は、複製では止まった点になるので持ち込まない
+  c.querySelectorAll('.milspec-pz-g, .milspec-pz-c').forEach((e) => e.remove());
   Object.assign(c.style, {
     position: 'absolute', gridArea: 'auto', margin: '0', pointerEvents: 'none', zIndex: '1', visibility: '',
     left: `${r.left - a.left}px`, top: `${r.top - a.top}px`, width: `${r.width}px`, height: `${r.height}px`,
@@ -213,6 +223,8 @@ const rightClip = (seam: Seam, { r }: Box) =>
 function rightClone(zone: HTMLElement, seam: Seam, box: Box): HTMLElement {
   const c = cloneZone(zone, 'right', box);
   c.querySelector('[data-vent-carriage]')?.remove();
+  // ヘッダー: 左の板の縁の影(near-l / far-l)は滑る専用の 1 枚(shadowFollow)が持つ。ここに残すと二重になる
+  if (Array.isArray(seam)) c.querySelectorAll('[data-sh="near-l"], [data-sh="far-l"]').forEach((e) => e.remove());
   c.style.clipPath = rightClip(seam, box);
   return c;
 }
