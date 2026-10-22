@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
@@ -18,7 +18,8 @@ import { MilspecDim } from './power/MilspecDim';
 import { relayoutZones } from './relayout';
 import { useHeaderCollapseAnimator } from './headerCollapseAnimator';
 import { useSidebarToggleAnimator } from './sidebarToggleAnimator';
-import { headerScale } from './headerGeometry';
+import { headerScaleFor } from './headerGeometry';
+import { MilspecHeaderScaleContext } from './headerScaleContext';
 import { useReducedMotion } from '../../lib/housing/useReducedMotion';
 import { MilspecTunePanel } from '../dev/MilspecTunePanel';
 import { RenderPendingIndicator } from '../RenderPendingIndicator';
@@ -76,15 +77,23 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   const reduced = useReducedMotion();
 
   // ヘッダー区画の実幅を測って --ms-hs(縮小率)を .milspec-app に入れる(再描画せず直接書く)
+  // 縮小率はサイドバー開状態の幅で決める(閉じても変えない)。子へも Context で配る
+  const [hdrScale, setHdrScale] = useState(1);
+  const sidebarOpenNow = props.isSidebarOpen;
   useLayoutEffect(() => {
     const app = appRef.current, hz = headerRef.current;
     if (!app || !hz) return;
-    const apply = (w: number) => app.style.setProperty('--ms-hs', String(Number((w > 0 ? headerScale(w) : 1).toFixed(4))));
+    const apply = (w: number) => {
+      const s = Number((w > 0 ? headerScaleFor(w, sidebarOpenNow) : 1).toFixed(4));
+      app.style.setProperty('--ms-hs', String(s));
+      setHdrScale(s);
+    };
     apply(hz.getBoundingClientRect().width);
     const ro = new ResizeObserver((es) => { const w = es[es.length - 1]?.contentRect.width; if (typeof w === 'number') apply(w); });
     ro.observe(hz);
     return () => ro.disconnect();
-  }, []);
+  }, [sidebarOpenNow]);
+  const scaleCtx = useMemo(() => ({ scale: hdrScale, sidebarOpen: sidebarOpenNow }), [hdrScale, sidebarOpenNow]);
 
   // ヘッダーの開閉は他の区画が滑る動き付きで行う(relayoutZones)。最新の畳み状態は ref で参照
   const collapsedRef = useRef(props.isHeaderCollapsed);
@@ -122,6 +131,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   }, [setSidebarAnimated]);
 
   return (
+    <MilspecHeaderScaleContext.Provider value={scaleCtx}>
     <div ref={appRef} data-app-shell className="milspec-app" data-theme-military>
       <MilspecBackdropVideo />
       {/* ボード内の title をブラウザの箱ではなく標準のツールチップで出す */}
@@ -184,5 +194,6 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
         </div>
       )}
     </div>
+    </MilspecHeaderScaleContext.Provider>
   );
 };

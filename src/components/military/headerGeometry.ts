@@ -12,6 +12,14 @@ export const HDR_H = 102;
 
 /** 幅が 1189 未満のときの縮小率 */
 export const headerScale = (MW: number): number => (MW < HDR_BASE_MW ? MW / HDR_BASE_MW : 1);
+/** サイドバー 274 + 列の隙間 2。開閉でヘッダー区画の幅が変わる量 */
+export const SIDEBAR_SPAN = 276;
+/** 縮小率は常にサイドバー開状態の幅で決める(閉じても同じ値。閉じた分は描画幅 mwFor が広がる) */
+export const headerScaleFor = (zoneWidth: number, sidebarOpen: boolean): number =>
+  headerScale(sidebarOpen ? zoneWidth : zoneWidth - SIDEBAR_SPAN);
+/** 内箱は scale 倍されて幅 100%/scale に広がるので、描画幅は 区画の実幅 ÷ 縮小率(1189 未満にはしない) */
+export const mwFor = (zoneWidth: number, scale: number): number =>
+  Math.max(HDR_BASE_MW, Math.round(zoneWidth / scale));
 /** 縮小時は 1189 で描く */
 export const layoutMW = (MW: number): number => Math.max(MW, HDR_BASE_MW);
 

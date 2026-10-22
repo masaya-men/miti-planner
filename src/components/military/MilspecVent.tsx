@@ -1,10 +1,11 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MilspecFxLayer } from './fx/MilspecFxLayer';
 import { burst, scanBall, nudgeBall } from './fx/engine';
 import { MilspecHazard, MilspecLed, MilspecStencil } from './MilspecDecor';
 import { ventChannelSVG } from './armor/pcb';
-import { layoutMW, ventLayout } from './headerGeometry';
+import { mwFor, ventLayout } from './headerGeometry';
+import { useMilspecHeaderScale } from './headerScaleContext';
 import './header/milspecVent.css';
 
 export interface MilspecVentProps {
@@ -14,13 +15,15 @@ export interface MilspecVentProps {
 }
 
 /** 通気口: パンチング板・溝の基板 2 本・光の玉・取っ手(見本 js:930-940, 1091-1093, 1139)。
- *  区画の実幅 MW は layoutMW で 1189 以上に丸める(それ未満は内箱の縮小で見せる)。 */
+ *  区画の実幅 MW は mwFor(実幅 ÷ 縮小率、1189 未満にしない)で求める。 */
 export function MilspecVent({ isHeaderCollapsed, onToggleHeader }: MilspecVentProps) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
   const pullRef = useRef<HTMLButtonElement>(null);
-  const [mw, setMw] = useState(layoutMW(0));
+  const { scale } = useMilspecHeaderScale();
+  const [zw, setZw] = useState(0);
+  const mw = useMemo(() => mwFor(zw, scale), [zw, scale]);
   const onToggleRef = useRef(onToggleHeader);
   useLayoutEffect(() => { onToggleRef.current = onToggleHeader; });
 
@@ -28,7 +31,7 @@ export function MilspecVent({ isHeaderCollapsed, onToggleHeader }: MilspecVentPr
   useLayoutEffect(() => {
     const zone = rootRef.current?.closest('[data-ms-zone="vent"]') as HTMLElement | null;
     if (!zone || typeof ResizeObserver === 'undefined') return;
-    const apply = (w: number) => { if (w > 0) setMw((p) => { const n = layoutMW(Math.round(w)); return n === p ? p : n; }); };
+    const apply = (w: number) => { if (w > 0) setZw(Math.round(w)); };
     apply(zone.getBoundingClientRect().width);
     const ro = new ResizeObserver((es) => { const w = es[es.length - 1]?.contentRect.width; if (typeof w === 'number') apply(w); });
     ro.observe(zone);

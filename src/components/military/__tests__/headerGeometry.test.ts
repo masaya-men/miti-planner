@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { HDR_BASE_MW, headerScale, layoutMW, headerLayout, ventLayout } from '../headerGeometry';
+import { HDR_BASE_MW, headerScale, headerScaleFor, mwFor, layoutMW, headerLayout, ventLayout } from '../headerGeometry';
 import { stretchPlaced } from '../armor/stretch';
 
 describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
@@ -110,5 +110,22 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
     expect(v.pnX).toBe(1037);
     expect(v.leak).toBe('M 0 -1.2 H 1189');
     expect(ventLayout(1465).xb0).toBe(543);
+  });
+  it('headerScaleFor: 開状態の幅で縮小率を決め、閉じても同じ値', () => {
+    expect(headerScaleFor(1189, true)).toBe(1);
+    expect(headerScaleFor(1000, true)).toBeCloseTo(1000 / 1189);
+    expect(headerScaleFor(1276, false)).toBeCloseTo(1000 / 1189); // 閉じて 276 広がった
+    expect(headerScaleFor(1465, false)).toBe(1);
+  });
+  it('mwFor: 実幅 ÷ 縮小率(1189 未満にはしない)', () => {
+    expect(mwFor(1000, 1000 / 1189)).toBe(1189);
+    expect(mwFor(1276, 1000 / 1189)).toBe(Math.round(1276 * 1189 / 1000));
+    expect(mwFor(1465, 1)).toBe(1465);
+  });
+  it('狭い画面で開閉しても、右端の部品の画面上の位置と大きさが変わらない', () => {
+    const s = 1000 / 1189; // 開: 区画 1000px / 閉: 1276px、区画の左端は 276px 左へ
+    const scrX = (zoneLeft: number, w: number, open: boolean) => zoneLeft + headerScaleFor(w, open) * (mwFor(w, headerScaleFor(w, open)) - 150); // レバー x = MW - 150
+    expect(scrX(300, 1000, true)).toBeCloseTo(scrX(24, 1276, false), 0);
+    expect(headerScaleFor(1000, true)).toBeCloseTo(s);
   });
 });

@@ -2,7 +2,8 @@ import React from 'react';
 import { TransitionOverlayProvider } from '../../ui/TransitionOverlay';
 import { MilspecArmor } from '../MilspecArmor';
 import { MilspecFxLayer } from '../fx/MilspecFxLayer';
-import { headerLayout, layoutMW } from '../headerGeometry';
+import { headerLayout, mwFor } from '../headerGeometry';
+import { useMilspecHeaderScale } from '../headerScaleContext';
 import { HeaderLogo } from './HeaderLogo';
 import { Nameplate } from './Nameplate';
 import { useNameplateText } from './useNameplateText';
@@ -26,18 +27,20 @@ export interface MilspecHeaderV11Props {
 
 /**
  * v11 ヘッダー(見本 js:863-927)。装甲・光の経路・H1〜H5 を、ヘッダー区画の内箱に絶対座標で置く。
- * 区画の実幅 MW は layoutMW で 1189 以上に丸める(それ未満は内箱の縮小で見せる)。
+ * 区画の実幅 MW は mwFor(実幅 ÷ 縮小率、1189 未満にしない)で求める(縮小率はサイドバー開状態の幅で固定)。
  * LanguageSwitcher が useTransitionOverlay を使うため、TransitionOverlayProvider をここで持つ(ModeLever は電源スイッチで、標準へは powerOff → setThemeStyle で戻る)。
  */
 export function MilspecHeaderV11(props: MilspecHeaderV11Props) {
   const rootRef = React.useRef<HTMLDivElement>(null);
-  const [mw, setMw] = React.useState(layoutMW(0));
+  const { scale } = useMilspecHeaderScale();
+  const [zw, setZw] = React.useState(0);
+  const mw = React.useMemo(() => mwFor(zw, scale), [zw, scale]);
 
   // 区画(内箱の親)の実幅を測る。縮小の内箱の外で測るので、縮小しても MW は変わらない
   React.useLayoutEffect(() => {
     const zone = rootRef.current?.closest('[data-ms-zone="header"]') as HTMLElement | null;
     if (!zone || typeof ResizeObserver === 'undefined') return;
-    const apply = (w: number) => { if (w > 0) setMw((p) => { const n = layoutMW(Math.round(w)); return n === p ? p : n; }); };
+    const apply = (w: number) => { if (w > 0) setZw(Math.round(w)); };
     apply(zone.getBoundingClientRect().width);
     const ro = new ResizeObserver((es) => { const w = es[es.length - 1]?.contentRect.width; if (typeof w === 'number') apply(w); });
     ro.observe(zone);
