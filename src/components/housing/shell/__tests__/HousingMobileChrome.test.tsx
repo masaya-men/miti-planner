@@ -237,7 +237,7 @@ describe('MobileTourTrayBar (実機FB#10)', () => {
     const bar = screen.getByTestId('mobile-tour-tray-bar');
     expect(bar.querySelector('.housing-tour-traybar-count')?.textContent).toBe('2');
     // fireEvent = act ラップ済み (生 .click() では state 更新後の再描画が起きない)。
-    fireEvent.click(screen.getByText('housing.mobile.tray_start'));
+    fireEvent.click(screen.getByText('housing.tray.start_now'));
     expect(screen.getByTestId('manner-dialog-stub')).toBeInTheDocument();
   });
 
@@ -249,10 +249,11 @@ describe('MobileTourTrayBar (実機FB#10)', () => {
     expect(screen.queryByTestId('mobile-tour-tray-bar')).not.toBeInTheDocument();
   });
 
-  it('「並べ替え」タップで /housing/tour へ遷移する', () => {
+  it('「順番を変える」タップで /housing/tour へ遷移し、トレイは空にならない', () => {
     useTourTrayStore.getState().setTrayIds(['a']);
     renderBar();
-    fireEvent.click(screen.getByLabelText('housing.mobile.reorder'));
+    fireEvent.click(screen.getByRole('button', { name: 'housing.tour.reorder_button' }));
     expect(navigate).toHaveBeenCalledWith('/housing/tour');
+    expect(useTourTrayStore.getState().trayIds).toEqual(['a']);
   });
 });

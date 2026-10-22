@@ -1993,12 +1993,15 @@
             "remove": "削除",
             "clear": "空にする",
             "start": "この内容でツアーを開始",
+            "reorder_then_start": "回る順番を変えてからツアー",
+            "start_now": "このまま開始",
             "count": "{{count}}",
             "sort_efficient": "効率順に並べ替え",
             "pin": "この位置に固定",
             "unpin": "固定を解除",
             "drag_handle": "ドラッグして並べ替え",
-            "board_hint": "カード左側のハンドルをつかんでドラッグで並べ替えできます",
+            "board_title": "回る順番",
+            "board_hint": "カード左の ⋮⋮ をつかんでドラッグで入れ替え・効率順ボタンで自動に並べ替え",
             "open_detail": "詳細ページを見る"
         },
         "ephemeral": {
@@ -2914,6 +2917,7 @@
             }
         },
         "tour": {
+            "reorder_button": "順番を変える",
             "nav": {
                 "title": "ツアー中（ナビゲーション）",
                 "live": "情報は自動で更新されます",

@@ -7682,10 +7682,26 @@ select.housing-input option {
 }
 .housing-tour-board-toolbar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--housing-divider);
   justify-content: space-between;
   gap: 12px;
   flex: 0 0 auto;
+}
+.housing-tour-board-heading {
+  display: flex; flex-direction: column; gap: 4px; min-width: 0;
+}
+.housing-tour-board-title {
+  margin: 0;
+  font-size: var(--housing-text-xl);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-tour-plan-detail-note {
+  margin: 0; flex: 0 0 auto;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
 }
 .housing-tour-board-hint {
   font-size: var(--housing-text-xs);
@@ -7790,6 +7806,27 @@ select.housing-input option {
 }
 .housing-tour-tray-sortbtn:hover { color: var(--housing-text); border-color: var(--housing-honey-border); background: var(--housing-chip-bg-hover); }
 .housing-tour-tray-sortbtn:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+
+.housing-tour-tray-actions {
+  display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--housing-divider);
+}
+/* 副アクション = 枠ボタン (.housing-tour-progress-action--view と同じ見た目)。 */
+.housing-tour-tray-reorder {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 14px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border); border-radius: 10px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-tray-reorder:hover:not(:disabled) { background: var(--housing-chip-bg-hover); }
+.housing-tour-tray-reorder:active:not(:disabled) { transform: scale(0.98); }
+.housing-tour-tray-reorder:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+.housing-tour-tray-reorder:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
 
 .housing-tour-tray-start {
   appearance: none; cursor: pointer; flex: 0 0 auto;
@@ -10401,11 +10438,15 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     appearance: none;
     cursor: pointer;
     flex: 0 0 auto;
-    width: 28px;
-    height: 28px;
-    display: flex;
+    min-height: 32px;
+    padding: 6px 10px;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
+    gap: 4px;
+    font-family: inherit;
+    font-size: var(--housing-text-xs);
+    font-weight: 600;
+    white-space: nowrap;
     border-radius: 8px;
     color: var(--housing-text-mute);
     background: transparent;

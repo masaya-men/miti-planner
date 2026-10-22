@@ -18,6 +18,12 @@ const mockGetHousingerListings = vi.fn();
 const mockUpsertHousingerProfile = vi.fn();
 // 運営非表示の家 (hiddenListings)。 テストごとに beforeEach で空へ戻す。
 let mockHiddenListings: unknown[] = [];
+const navigateMock = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return { ...actual, useNavigate: () => navigateMock };
+});
+
 vi.mock('../../lib/housing/housingerProfileService', () => ({
   getHousingerProfile: (...args: unknown[]) => mockGetHousingerProfile(...args),
   getHousingerListings: (...args: unknown[]) => mockGetHousingerListings(...args),
@@ -120,6 +126,7 @@ beforeEach(() => {
   mockHiddenListings = [];
   mockUpsertHousingerProfile.mockReset();
   showToastMock.mockClear();
+  navigateMock.mockClear();
   authUid = null;
   useHousingTourStore.getState().reset();
   useHousingListOrderStore.getState().reset();
@@ -197,8 +204,7 @@ describe('HousingerPage', () => {
     expect(hidden[0].querySelector('img')).toBeNull();
     // ツアー対象 (listings) は通常分のみ: クリックしても隠れた家は ID に含まれない
     fireEvent.click(screen.getByRole('button', { name: 'この人の家をまとめてツアー' }));
-    fireEvent.click(screen.getByRole('button', { name: /はじめる/ }));
-    const tourIds = useHousingTourStore.getState().listingIds;
+    const tourIds = useTourTrayStore.getState().trayIds;
     expect(tourIds).toContain('l-1');
     expect(tourIds).not.toContain('h-1');
   });
@@ -411,8 +417,7 @@ describe('HousingerPage', () => {
 
     const tourBtn = await screen.findByRole('button', { name: 'この人の家をまとめてツアー' });
     fireEvent.click(tourBtn);
-    // #C: まとめてツアーもマナー確認を挟む。「はじめる」で commitTourAll → 開始時ネットが弾く。
-    fireEvent.click(screen.getByRole('button', { name: /はじめる/ }));
+    // まとめてツアーは並び替え画面へ送るだけ (マナー確認は出さない)。跨ぎ混在はここで弾く。
 
     expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
     expect(useHousingTourStore.getState().running).toBe(false);
@@ -421,7 +426,7 @@ describe('HousingerPage', () => {
 
   // バグ報告(2026-08-10): 既存のツアートレイ(探す/お気に入りで組んでいた候補)を無視して
   // このハウジンガーの家だけで上書きしていた。トレイの家 + この人の家が両方残るべき。
-  it('既にツアートレイに家が積まれている状態で「まとめてツアー」を実行すると、トレイの家とこの人の家が両方ツアーに含まれる(上書きされない)', async () => {
+  it('既にツアートレイに家が積まれている状態で「まとめてツアー」を押すと、ツアーは開始されず、トレイに既存の家とこの人の家が両方入る(上書きされない)', async () => {
     useTourTrayStore.getState().setTrayIds(['tray-house-1']);
     mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
     mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1')]);
@@ -430,15 +435,15 @@ describe('HousingerPage', () => {
 
     const tourBtn = await screen.findByRole('button', { name: 'この人の家をまとめてツアー' });
     fireEvent.click(tourBtn);
-    fireEvent.click(screen.getByRole('button', { name: /はじめる/ }));
 
-    expect(useHousingTourStore.getState().running).toBe(true);
-    expect(useHousingTourStore.getState().listingIds).toEqual(
-      expect.arrayContaining(['tray-house-1', 'l-1']),
-    );
-    expect(useHousingTourStore.getState().listingIds).toHaveLength(2);
-    // 開始時にトレイは空になる (他ページの commitStart と同じ後始末)。
-    expect(useTourTrayStore.getState().trayIds).toEqual([]);
+    // ツアーは開始されない (開始は並び替え画面の開始ボタン)。
+    expect(useHousingTourStore.getState().running).toBe(false);
+    expect(useHousingTourStore.getState().listingIds).toEqual([]);
+    // 既存トレイの家は消えず、この人の家が追加される。
+    const tray = useTourTrayStore.getState().trayIds;
+    expect(tray).toEqual(expect.arrayContaining(['tray-house-1', 'l-1']));
+    expect(tray).toHaveLength(2);
+    expect(navigateMock).toHaveBeenCalledWith('/housing/tour');
     // navigate('/housing/tour') 後の未解決な副作用が次のテストへ漏れないよう明示的に片付ける。
     unmount();
   });

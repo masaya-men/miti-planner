@@ -39,33 +39,43 @@ const wrap = (ui: React.ReactElement) =>
   render(<MemoryRouter><I18nextProvider i18n={i18n}>{ui}</I18nextProvider></MemoryRouter>);
 
 describe('TourTray', () => {
-  it('disables start when empty', () => {
-    wrap(<TourTray listingIds={[]} onChange={() => {}} onStart={() => {}} onAdd={() => {}} />);
-    expect((screen.getByRole('button', { name: /開始|start/ }) as HTMLButtonElement).disabled).toBe(true);
+  it('disables both start buttons when empty', () => {
+    wrap(<TourTray listingIds={[]} onChange={() => {}} onStart={() => {}} onReorder={() => {}} onAdd={() => {}} />);
+    expect((screen.getByRole('button', { name: 'このまま開始' }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: '回る順番を変えてからツアー' }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('「回る順番を変えてからツアー」で onReorder だけが呼ばれる', () => {
+    const onStart = vi.fn();
+    const onReorder = vi.fn();
+    wrap(<TourTray listingIds={['a']} onChange={() => {}} onStart={onStart} onReorder={onReorder} onAdd={() => {}} />);
+    fireEvent.click(screen.getByRole('button', { name: '回る順番を変えてからツアー' }));
+    expect(onReorder).toHaveBeenCalledTimes(1);
+    expect(onStart).not.toHaveBeenCalled();
   });
 
   it('calls onStart when items present', () => {
     const onStart = vi.fn();
-    wrap(<TourTray listingIds={['a']} onChange={() => {}} onStart={onStart} onAdd={() => {}} />);
-    fireEvent.click(screen.getByRole('button', { name: /開始|start/ }));
-    expect(onStart).toHaveBeenCalled();
+    wrap(<TourTray listingIds={['a']} onChange={() => {}} onStart={onStart} onReorder={() => {}} onAdd={() => {}} />);
+    fireEvent.click(screen.getByRole('button', { name: 'このまま開始' }));
+    expect(onStart).toHaveBeenCalledTimes(1);
   });
 
   it('removes an item via the × button', () => {
     const onChange = vi.fn();
-    wrap(<TourTray listingIds={['a']} onChange={onChange} onStart={() => {}} onAdd={() => {}} />);
+    wrap(<TourTray listingIds={['a']} onChange={onChange} onStart={() => {}} onReorder={() => {}} onAdd={() => {}} />);
     fireEvent.click(screen.getByRole('button', { name: /削除|remove/ }));
     expect(onChange).toHaveBeenCalledWith([]);
   });
 
   it('disables the clear button when empty', () => {
-    wrap(<TourTray listingIds={[]} onChange={() => {}} onStart={() => {}} onAdd={() => {}} />);
+    wrap(<TourTray listingIds={[]} onChange={() => {}} onStart={() => {}} onReorder={() => {}} onAdd={() => {}} />);
     expect((screen.getByRole('button', { name: /空にする|clear/i }) as HTMLButtonElement).disabled).toBe(true);
   });
 
   it('clears the whole tray via the clear button', () => {
     const onChange = vi.fn();
-    wrap(<TourTray listingIds={['a']} onChange={onChange} onStart={() => {}} onAdd={() => {}} />);
+    wrap(<TourTray listingIds={['a']} onChange={onChange} onStart={() => {}} onReorder={() => {}} onAdd={() => {}} />);
     fireEvent.click(screen.getByRole('button', { name: /空にする|clear/i }));
     expect(onChange).toHaveBeenCalledWith([]);
   });

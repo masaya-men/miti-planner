@@ -61,6 +61,18 @@ describe('TourTrayBoard', () => {
     expect(screen.getByText('カードの「ツアーに追加」で行き先を積みましょう')).toBeInTheDocument();
   });
 
+  it('見出し「回る順番」と新しいヒント文を出す', () => {
+    wrap(<TourTrayBoard listingIds={['a', 'b']} onChange={() => {}} selectedId={null} onSelect={() => {}} />);
+    expect(screen.getByRole('heading', { name: '回る順番' })).toBeInTheDocument();
+    expect(screen.getByText('カード左の ⋮⋮ をつかんでドラッグで入れ替え・効率順ボタンで自動に並べ替え')).toBeInTheDocument();
+  });
+
+  it('hint を指定するとその文言に差し替わる', () => {
+    wrap(<TourTrayBoard listingIds={['a', 'b']} onChange={() => {}} selectedId={null} onSelect={() => {}} hint="ツアー中のヒント" />);
+    expect(screen.getByText('ツアー中のヒント')).toBeInTheDocument();
+    expect(screen.queryByText(/カード左の/)).toBeNull();
+  });
+
   it('トレイの件数分カードを描画する', () => {
     wrap(<TourTrayBoard listingIds={['a', 'b']} onChange={() => {}} selectedId={null} onSelect={() => {}} />);
     expect(screen.getByText('A')).toBeInTheDocument();
@@ -92,7 +104,7 @@ describe('TourTrayBoard', () => {
 
   it('案内文が表示される', () => {
     wrap(<TourTrayBoard listingIds={['a']} onChange={() => {}} selectedId={null} onSelect={() => {}} />);
-    expect(screen.getByText('カード左側のハンドルをつかんでドラッグで並べ替えできます')).toBeInTheDocument();
+    expect(screen.getByText('カード左の ⋮⋮ をつかんでドラッグで入れ替え・効率順ボタンで自動に並べ替え')).toBeInTheDocument();
   });
 
   it('ホイールでバネ補間により scrollLeft が進む(横スクロール・PC環境)', async () => {

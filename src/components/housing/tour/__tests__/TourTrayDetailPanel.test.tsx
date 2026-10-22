@@ -42,6 +42,34 @@ describe('TourTrayDetailPanel', () => {
     expect(screen.getByText('いい家です')).toBeInTheDocument();
   });
 
+  it('タイトルあり+住所公開なら、タイトルの下に住所が1行出る', () => {
+    const { container } = wrap(<TourTrayDetailPanel listing={listing} onStartClick={() => {}} startDisabled={false} />);
+    const addr = container.querySelector('.housing-tour-dest-addrsize');
+    expect(addr).not.toBeNull();
+    expect(addr?.textContent).toMatch(/ミスト/);
+  });
+
+  it('住所非公開(unlisted)なら住所行は出ない', () => {
+    const { container } = wrap(
+      <TourTrayDetailPanel listing={{ ...listing, visibility: 'unlisted', area: undefined, ward: undefined }} onStartClick={() => {}} startDisabled={false} />,
+    );
+    expect(container.querySelector('.housing-tour-dest-addrsize')).toBeNull();
+  });
+
+  it('タイトル未入力なら住所は h2 の1回だけ(重複させない)', () => {
+    const { container } = wrap(
+      <TourTrayDetailPanel listing={{ ...listing, title: '' }} onStartClick={() => {}} startDisabled={false} />,
+    );
+    expect(container.querySelector('.housing-tour-dest-addrsize')).toBeNull();
+    expect(container.querySelector('h2')?.textContent).toMatch(/ミスト/);
+  });
+
+  it('startLabel と note を指定するとその文言が出る', () => {
+    wrap(<TourTrayDetailPanel listing={listing} onStartClick={() => {}} startDisabled={false} startLabel="ツアーに戻る" note="再開の説明" />);
+    expect(screen.getByRole('button', { name: 'ツアーに戻る' })).toBeInTheDocument();
+    expect(screen.getByText('再開の説明')).toBeInTheDocument();
+  });
+
   it('開始ボタンクリックで onStartClick が呼ばれる', () => {
     const onStartClick = vi.fn();
     wrap(<TourTrayDetailPanel listing={listing} onStartClick={onStartClick} startDisabled={false} />);

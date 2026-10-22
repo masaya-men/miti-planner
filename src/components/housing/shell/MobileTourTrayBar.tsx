@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { List, Play, Route, X } from 'lucide-react';
+import { ArrowDownUp, Play, Route, X } from 'lucide-react';
 import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
@@ -81,10 +81,10 @@ export const MobileTourTrayBar: React.FC = () => {
         <button
           type="button"
           className="housing-tour-traybar-reorder"
-          aria-label={t('housing.mobile.reorder')}
           onClick={() => navigate('/housing/tour')}
         >
-          <List size={14} aria-hidden="true" />
+          <ArrowDownUp size={14} aria-hidden="true" />
+          {t('housing.tour.reorder_button')}
         </button>
         <button
           type="button"
@@ -92,7 +92,7 @@ export const MobileTourTrayBar: React.FC = () => {
           onClick={() => setMannerOpen(true)}
         >
           <Play size={14} aria-hidden="true" />
-          {t('housing.mobile.tray_start')}
+          {t('housing.tray.start_now')}
         </button>
         <button
           type="button"

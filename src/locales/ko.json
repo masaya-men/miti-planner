@@ -1937,12 +1937,15 @@
             "remove": "삭제",
             "clear": "비우기",
             "start": "이 내용으로 투어 시작",
+            "reorder_then_start": "순서를 바꾼 뒤 투어",
+            "start_now": "이대로 시작",
             "count": "{{count}}",
             "sort_efficient": "효율순으로 정렬",
             "pin": "이 위치에 고정",
             "unpin": "고정 해제",
             "drag_handle": "드래그하여 순서 변경",
-            "board_hint": "카드 왼쪽의 핸들을 잡고 드래그하면 순서를 바꿀 수 있습니다",
+            "board_title": "방문 순서",
+            "board_hint": "카드 왼쪽의 ⋮⋮ 를 잡고 드래그해 순서를 바꾸거나, 효율순 버튼으로 자동 정렬하세요",
             "open_detail": "상세 페이지 보기"
         },
         "ephemeral": {
@@ -2858,6 +2861,7 @@
             }
         },
         "tour": {
+            "reorder_button": "순서 바꾸기",
             "nav": {
                 "title": "투어 중 (내비게이션)",
                 "live": "정보가 자동으로 갱신됩니다",

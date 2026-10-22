@@ -24,8 +24,6 @@ import { useTranslation } from 'react-i18next';
 import { Pencil, Camera } from 'lucide-react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
-import { useHousingTourStore } from '../../../store/useHousingTourStore';
-import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { useAccountActions } from '../../../hooks/auth/useAccountActions';
@@ -48,7 +46,6 @@ import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { HousingerAvatar } from '../housinger/HousingerAvatar';
 import { HousingerReportModal } from '../report/HousingerReportModal';
-import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import { VisibilityConfirmModal } from '../mypage/VisibilityConfirmModal';
 import { HousingerProfileSection } from '../mypage/HousingerProfileSection';
 import {
@@ -98,7 +95,6 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
   const [loading, setLoading] = useState(true);
   const [kebabOpen, setKebabOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
-  const [mannerOpen, setMannerOpen] = useState(false);
   // マイページ: 名前/アイコンをその場編集する (鉛筆クリックで名前編集モードへ)。
   const [editingName, setEditingName] = useState(false);
   const [isSavingName, setIsSavingName] = useState(false);
@@ -354,17 +350,11 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
     setReportOpen(true);
   };
 
-  // まとめてツアー: まずマナー確認を出す(#C・Browse/Favorites と同じく毎回確認)。
+  // まとめてツアー: ツアーは開始せず、既存トレイ + この人の家を「並び替え画面」(/housing/tour) のトレイに
+  // 入れて遷移するだけ。開始は並び替え画面の開始ボタン (マナー確認もそちら)。
+  // 以前(2026-08-10 バグ修正)の「トレイ + この人の家をマージする」挙動は維持する。
   const onTourAll = () => {
     if (listings.length === 0) return;
-    setMannerOpen(true);
-  };
-
-  // マナー確認の「はじめる」で実際にツアーを開始する。
-  // バグ修正(2026-08-10): 以前はこの人の家だけで setListings して、探す/お気に入りで
-  // 既に組んでいたツアートレイを上書きしていた。トレイ + この人の家をマージしてから開始する
-  // (BrowsePage.tsx の commitStart と同じ「トレイを起点に開始」形へ統一)。
-  const commitTourAll = () => {
     const trayIds = useTourTrayStore.getState().trayIds;
     const newIds = listings.map((l) => l.id);
     const mergedIds = [...trayIds, ...newIds.filter((id) => !trayIds.includes(id))];
@@ -386,11 +376,7 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
       showToast(t('housing.tour.region_block_start', { regions: conflict.join(' / ') }), 'error');
       return;
     }
-    useHousingTourStore.getState().setListings(orderedIds);
-    useHousingTourStore.getState().start();
-    useHousingViewStore.getState().enterTourMode();
-    useTourTrayStore.getState().clear();
-    setMannerOpen(false);
+    useTourTrayStore.getState().setTrayIds(orderedIds);
     navigate('/housing/tour');
   };
 
@@ -634,11 +620,6 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
           onClose={() => setReportOpen(false)}
         />
       )}
-      <MannerNoticeDialog
-        open={mannerOpen}
-        onCancel={() => setMannerOpen(false)}
-        onStart={commitTourAll}
-      />
       {visibilityTarget && (
         <VisibilityConfirmModal
           open={Boolean(visibilityTarget)}

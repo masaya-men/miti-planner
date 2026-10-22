@@ -254,7 +254,7 @@ export const FavoritesPage: React.FC = () => {
       {/* 右カラム: ツアートレイ */}
       <section className="housing-browse-panel" data-region="right">
         <div className="housing-browse-col housing-browse-col-right">
-          <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={handleStart} onAdd={(id) => addToTray([id])} />
+          <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={handleStart} onReorder={() => navigate('/housing/tour')} onAdd={(id) => addToTray([id])} />
         </div>
       </section>
 

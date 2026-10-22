@@ -18,6 +18,8 @@ export interface TourTrayBoardProps {
   onChange: (ids: string[]) => void;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** 案内文の差し替え (ナビ中の並び替え用)。未指定は housing.tray.board_hint。 */
+  hint?: string;
 }
 
 // 2026-08-11: 縦に7件重ねて見せたいとのことで60pxに戻す(76pxへ広げる変更は撤回)。
@@ -40,6 +42,7 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
   onChange,
   selectedId,
   onSelect,
+  hint,
 }) => {
   const { t, i18n } = useTranslation();
   const { items, orderedIds, pinnedIds, remove, togglePin, onSortEfficient, sensors, handleDragEnd } =
@@ -156,7 +159,10 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
   return (
     <div className="housing-tour-board">
       <div className="housing-tour-board-toolbar">
-        <span className="housing-tour-board-hint">{t('housing.tray.board_hint')}</span>
+        <div className="housing-tour-board-heading">
+          <h2 className="housing-tour-board-title">{t('housing.tray.board_title')}</h2>
+          <span className="housing-tour-board-hint">{hint ?? t('housing.tray.board_hint')}</span>
+        </div>
         <button type="button" className="housing-tour-tray-sortbtn" onClick={onSortEfficient}>
           <ArrowDownUp size={14} aria-hidden="true" />
           {t('housing.tray.sort_efficient')}

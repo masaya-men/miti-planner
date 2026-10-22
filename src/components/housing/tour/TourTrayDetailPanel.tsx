@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Play } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
-import { canDisplayAddress } from '../../../lib/housing/listingPublish';
-import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { canDisplayAddress, canDisplayFullAddress } from '../../../lib/housing/listingPublish';
+import { formatFullHousingAddress, formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { TourLivingMedia } from './TourLivingMedia';
 import { HousingerByline } from '../housinger/HousingerByline';
@@ -12,6 +12,10 @@ export interface TourTrayDetailPanelProps {
   listing: MockListing | null;
   onStartClick: () => void;
   startDisabled: boolean;
+  /** 開始ボタンの文言の差し替え (ナビ中の並び替え用)。未指定は housing.tray.start。 */
+  startLabel?: string;
+  /** 開始ボタンの上に出す補足文 (任意)。 */
+  note?: string;
 }
 
 /**
@@ -23,6 +27,8 @@ export const TourTrayDetailPanel: React.FC<TourTrayDetailPanelProps> = ({
   listing,
   onStartClick,
   startDisabled,
+  startLabel,
+  note,
 }) => {
   const { t, i18n } = useTranslation();
 
@@ -38,6 +44,15 @@ export const TourTrayDetailPanel: React.FC<TourTrayDetailPanelProps> = ({
                 ? formatHousingAddress(listing, i18n.language)
                 : t('housing.card.addressPrivate'))}
           </h2>
+          {/* タイトルがあるときだけ住所を 1 行足す (タイトル無しは h2 自体が住所なので重複させない)。
+              非公開(住所を出せない)ときは出さない。 */}
+          {listing.title?.trim() && canDisplayAddress(listing) && (
+            <p className="housing-tour-dest-addrsize">
+              {canDisplayFullAddress(listing)
+                ? formatFullHousingAddress(listing, i18n.language)
+                : formatHousingAddress(listing, i18n.language)}
+            </p>
+          )}
           <div className="housing-tour-dest-intro">
             <span className="housing-tour-dest-intro-label">{t('housing.tour.nav.dest.memo')}</span>
             <div className="housing-tour-dest-intro-body">
@@ -48,6 +63,7 @@ export const TourTrayDetailPanel: React.FC<TourTrayDetailPanelProps> = ({
       ) : (
         <div className="housing-tour-plan-detail-empty">{t('housing.tray.empty')}</div>
       )}
+      {note && <p className="housing-tour-plan-detail-note">{note}</p>}
       <button
         type="button"
         className="housing-tour-tray-start"
@@ -55,7 +71,7 @@ export const TourTrayDetailPanel: React.FC<TourTrayDetailPanelProps> = ({
         onClick={onStartClick}
       >
         <Play size={14} aria-hidden="true" />
-        {t('housing.tray.start')}
+        {startLabel ?? t('housing.tray.start')}
       </button>
     </div>
   );

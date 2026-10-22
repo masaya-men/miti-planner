@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Play, Plus, X } from 'lucide-react';
+import { ArrowDownUp, Play, Plus, X } from 'lucide-react';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -12,6 +12,8 @@ export interface TourTrayProps {
   listingIds: string[];
   onChange: (ids: string[]) => void;
   onStart: () => void;
+  /** 並び替え画面 (/housing/tour) へ。トレイは消さない。 */
+  onReorder: () => void;
   onAdd: (id: string) => void;
 }
 
@@ -19,7 +21,7 @@ export interface TourTrayProps {
  * 右カラムのツアートレイ。番号付きの行き先リスト (TourTrayList: ドラッグ並び替え + 固定ピン +
  * 効率順ボタン) + 「開始」。行き先リスト本体は TourTrayList に集約し、スマホの並べ替えシートと共有する。
  */
-export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStart, onAdd }) => {
+export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStart, onReorder, onAdd }) => {
   const { t } = useTranslation();
   const listings = useHousingListingsStore((s) => s.listings);
   const myListings = useHousingListingsStore((s) => s.myListings);
@@ -82,15 +84,26 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
 
       <TourTrayList listingIds={listingIds} onChange={onChange} />
 
-      <button
-        type="button"
-        className="housing-tour-tray-start"
-        disabled={empty}
-        onClick={onStart}
-      >
-        <Play size={14} aria-hidden="true" />
-        {t('housing.tray.start')}
-      </button>
+      <div className="housing-tour-tray-actions">
+        <button
+          type="button"
+          className="housing-tour-tray-reorder"
+          disabled={empty}
+          onClick={onReorder}
+        >
+          <ArrowDownUp size={14} aria-hidden="true" />
+          {t('housing.tray.reorder_then_start')}
+        </button>
+        <button
+          type="button"
+          className="housing-tour-tray-start"
+          disabled={empty}
+          onClick={onStart}
+        >
+          <Play size={14} aria-hidden="true" />
+          {t('housing.tray.start_now')}
+        </button>
+      </div>
     </div>
   );
 };

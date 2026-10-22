@@ -1972,12 +1972,15 @@
             "remove": "Remove",
             "clear": "Clear",
             "start": "Start tour with these",
+            "reorder_then_start": "Reorder stops, then tour",
+            "start_now": "Start now",
             "count": "{{count}}",
             "sort_efficient": "Sort by route",
             "pin": "Pin to this position",
             "unpin": "Unpin",
             "drag_handle": "Drag to reorder",
-            "board_hint": "Grab the handle on the left of a card to drag and reorder",
+            "board_title": "Route order",
+            "board_hint": "Drag the ⋮⋮ handle to reorder, or use the efficient-order button",
             "open_detail": "View listing detail"
         },
         "ephemeral": {
@@ -2893,6 +2896,7 @@
             }
         },
         "tour": {
+            "reorder_button": "Reorder",
             "nav": {
                 "title": "On Tour (Navigation)",
                 "live": "Updates automatically",

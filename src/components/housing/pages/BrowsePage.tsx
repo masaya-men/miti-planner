@@ -235,7 +235,7 @@ export const BrowsePage: React.FC = () => {
 
       <section className="housing-browse-panel" data-region="right">
         <div className="housing-browse-col housing-browse-col-right">
-          <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={onStart} onAdd={addToTray} />
+          <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={onStart} onReorder={() => navigate('/housing/tour')} onAdd={addToTray} />
           <FavoritesPreviewStrip />
         </div>
       </section>

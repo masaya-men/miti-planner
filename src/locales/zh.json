@@ -1937,12 +1937,15 @@
             "remove": "删除",
             "clear": "清空",
             "start": "以此内容开始导览",
+            "reorder_then_start": "调整顺序后再出发",
+            "start_now": "直接开始",
             "count": "{{count}}",
             "sort_efficient": "按效率排序",
             "pin": "固定在这个位置",
             "unpin": "解除固定",
             "drag_handle": "拖动以重新排序",
-            "board_hint": "抓住卡片左侧的把手即可拖动调整顺序",
+            "board_title": "游览顺序",
+            "board_hint": "抓住卡片左侧的 ⋮⋮ 拖动调整顺序，或用「效率顺序」按钮自动排序",
             "open_detail": "查看详情页"
         },
         "ephemeral": {
@@ -2858,6 +2861,7 @@
             }
         },
         "tour": {
+            "reorder_button": "调整顺序",
             "nav": {
                 "title": "导览中（导航）",
                 "live": "信息会自动更新",
