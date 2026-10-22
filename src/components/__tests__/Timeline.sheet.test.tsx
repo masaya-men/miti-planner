@@ -1,0 +1,273 @@
+// @vitest-environment happy-dom
+/**
+ * スプシ表示の本体(置く・消す・帯・リキャスト線・弾く)の DOM 契約テスト。
+ * 設計書: docs/superpowers/specs/2026-10-22-spreadsheet-mode-design.md §3.2〜3.4
+ *
+ * happy-dom では offsetLeft/width・getBoundingClientRect がすべて 0 なので、
+ * メンバー列の左端 = 0・マスの左端 = 0 として「列番号 × 28 + 5」を確かめる。
+ * ハーネスは Timeline.recastBand.milspec.test.tsx と同じ作法。
+ */
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { render, cleanup, fireEvent, act } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+
+vi.mock('../../lib/firebase', () => ({
+  db: {}, auth: { currentUser: null }, storage: {},
+  analytics: Promise.resolve(null),
+  ensureAppCheck: () => null,
+  getActiveAppCheck: () => null,
+}));
+vi.mock('../../lib/appCheck', () => ({
+  createLazyAppCheck: () => ({ ensureAppCheck: () => null, getActiveAppCheck: () => null }),
+}));
+vi.mock('firebase/auth', () => ({
+  onAuthStateChanged: () => () => {},
+  signInWithCustomToken: vi.fn(),
+  signOut: vi.fn(),
+  deleteUser: vi.fn(),
+  getAuth: vi.fn(),
+}));
+vi.mock('firebase/app-check', () => ({
+  getToken: vi.fn(),
+  initializeAppCheck: vi.fn(),
+  ReCaptchaV3Provider: vi.fn(),
+}));
+vi.mock('firebase/firestore', () => {
+  const passthrough = (...args: unknown[]) =>
+    typeof args[args.length - 1] === 'function' ? () => {} : {};
+  return new Proxy(
+    {
+      Timestamp: {
+        now: () => ({ toDate: () => new Date(0), toMillis: () => 0, seconds: 0 }),
+        fromDate: (d: Date) => ({ toDate: () => d, toMillis: () => d.getTime() }),
+      },
+      serverTimestamp: () => ({}),
+    } as Record<string, unknown>,
+    { get: (t, p: string) => (p in t ? t[p] : passthrough) },
+  );
+});
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (k: string, f?: unknown) => (typeof f === 'string' ? f : k),
+    i18n: { language: 'ja', changeLanguage: () => Promise.resolve() },
+  }),
+  Trans: ({ children }: { children?: React.ReactNode }) => children ?? null,
+  initReactI18next: { type: '3rdParty', init: () => {} },
+  I18nextProvider: ({ children }: { children?: React.ReactNode }) => children ?? null,
+}));
+
+// WIP ゲート: 既定は見せてよい。最後のケースだけ false にする
+const wip = vi.hoisted(() => ({ can: true }));
+vi.mock('../../hooks/useCanPreviewWip', () => ({
+  useCanPreviewWip: () => wip.can,
+  getCanPreviewWip: () => wip.can,
+}));
+
+import React from 'react';
+import Timeline from '../Timeline';
+import { useMitigationStore } from '../../store/useMitigationStore';
+import { usePlanStore } from '../../store/usePlanStore';
+import { useThemeStore } from '../../store/useThemeStore';
+import { buildSheetColumns, SHEET_COL_W } from '../timeline/sheet/sheetColumns';
+import { getSharedCooldownIds } from '../../utils/resourceTracker';
+import type { Mitigation } from '../../types';
+import { MITIGATIONS } from '../../data/mockData';
+
+const events = [0, 10, 20, 30, 60, 90, 120, 150].map((t, i) => ({
+  id: `s8-ev${i}`, time: t, name: { ja: '攻撃', en: 'Attack', zh: '', ko: '' },
+  damageType: 'magical', damageAmount: 90000, target: 'AoE',
+}));
+
+function warColumns() {
+  return buildSheetColumns('war', MITIGATIONS as Mitigation[], 100);
+}
+
+/** 即配置できる(対象指定・鼓舞選択でない)・非チャージ・リキャストのある列 */
+function pickPlainColumn(): { index: number; def: Mitigation } {
+  const cols = warColumns();
+  const index = cols.findIndex(c =>
+    c.def.scope !== 'target' && !c.def.copiesShield && !c.def.maxCharges && !c.def.requires
+    && !c.def.resourceCost && (c.def.recast ?? 0) >= 60 && (c.def.recast ?? 0) <= 120 && c.def.duration > 1
+    && getSharedCooldownIds(c.def.id).length === 1);
+  return { index, def: cols[index].def };
+}
+
+function renderTimeline() {
+  return render(
+    <MemoryRouter>
+      <Timeline />
+    </MemoryRouter>,
+  );
+}
+
+/** time 秒の行の、i 番目のメンバー(MT = 先頭)のマス */
+function cellAt(container: HTMLElement, time: number, memberIndex = 0): HTMLElement {
+  const row = container.querySelector(`[data-time-row="${time}"]`);
+  if (!row) throw new Error(`row ${time} not rendered`);
+  const cells = row.querySelectorAll('[data-sheet-cols]');
+  return cells[memberIndex] as HTMLElement;
+}
+
+/** 置いたアイコン(列見出しの静的アイコン [data-sheet-member] 内は除く) */
+function placedIcons(container: HTMLElement): Element[] {
+  return [...container.querySelectorAll('[data-mit-icon]')].filter(el => !el.closest('[data-sheet-member]'));
+}
+
+/** data-mit-icon を包む MitigationItem の外枠(left/width を持つ要素) */
+function iconBox(el: Element): HTMLElement {
+  let cur: HTMLElement | null = el as HTMLElement;
+  while (cur && !cur.style.left) cur = cur.parentElement;
+  if (!cur) throw new Error('no positioned ancestor');
+  return cur;
+}
+
+beforeEach(() => {
+  (window as unknown as { innerWidth: number }).innerWidth = 1489;
+  wip.can = true;
+  useMitigationStore.setState({
+    timelineEvents: events as never,
+    phases: [],
+    labels: [],
+    timelineMitigations: [],
+    currentLevel: 100,
+    hideEmptyRows: false,
+    _history: [],
+    _future: [],
+  });
+  useMitigationStore.getState().setMemberJob('MT', 'war');
+  usePlanStore.setState({ currentPlanId: 's8-plan' });
+  useThemeStore.setState({ timelineView: 'sheet' });
+});
+
+afterEach(() => {
+  cleanup();
+  useThemeStore.setState({ timelineView: 'lanes' });
+  vi.clearAllTimers();
+  vi.useRealTimers();
+});
+
+describe('スプシ表示の本体', () => {
+  it('スプシ: 置いたアイコンは列の左端 + 5px、幅 18px(data-mit-icon の style)', () => {
+    const { index, def } = pickPlainColumn();
+    useMitigationStore.getState().addMitigation({ id: 's8-a', mitigationId: def.id, ownerId: 'MT', time: 30, duration: def.duration } as never);
+    const { container } = renderTimeline();
+    const icons = placedIcons(container);
+    expect(icons.length).toBe(1);
+    const box = iconBox(icons[0]);
+    expect(box.style.left).toBe(`${index * SHEET_COL_W + 5}px`);
+    expect(box.style.width).toBe('18px');
+  });
+
+  it('スプシ: リキャスト線 data-mit-cd が配置の数だけあり、共有リキャストの列にも引かれる', () => {
+    const { def } = pickPlainColumn();
+    useMitigationStore.getState().addMitigation({ id: 's8-a', mitigationId: def.id, ownerId: 'MT', time: 0, duration: def.duration } as never);
+    useMitigationStore.getState().addMitigation({ id: 's8-b', mitigationId: def.id, ownerId: 'MT', time: def.recast, duration: def.duration } as never);
+    const { container } = renderTimeline();
+    expect(container.querySelectorAll('[data-mit-cd]').length).toBe(2);
+
+    // 共有リキャスト: 戦士の原初の血気 / 原初の直感 / ニーズフラッシュ(BLOODWHETTING グループ)
+    cleanup();
+    useMitigationStore.setState({ timelineMitigations: [] });
+    const cols = warColumns();
+    const groupCols = cols
+      .map((c, i) => ({ c, i }))
+      .filter(({ c }) => getSharedCooldownIds('bloodwhetting').includes(c.mitigationId));
+    expect(groupCols.length).toBeGreaterThanOrEqual(2);
+    useMitigationStore.getState().addMitigation({ id: 's8-bw', mitigationId: groupCols[0].c.mitigationId, ownerId: 'MT', time: 0, duration: groupCols[0].c.def.duration } as never);
+    const r2 = renderTimeline();
+    const lines = [...r2.container.querySelectorAll<HTMLElement>('[data-mit-cd]')];
+    expect(lines.length).toBe(groupCols.length);
+    const lefts = lines.map(l => l.style.left).sort();
+    const expected = groupCols.map(({ i }) => `${i * SHEET_COL_W + SHEET_COL_W / 2 - 1}px`).sort();
+    expect(lefts).toEqual(expected);
+  });
+
+  it('スプシ: マスをクリックすると MitigationSelector は開かず addMitigation が呼ばれる。もう一度で removeMitigation', () => {
+    const { index, def } = pickPlainColumn();
+    const { container } = renderTimeline();
+    // 他のモーダル(新規プラン等)も data-tutorial-modal を持つので、押す前後の数で「開かない」を確かめる
+    const modalsBefore = container.ownerDocument.querySelectorAll('[data-tutorial-modal]').length;
+    const cell = cellAt(container, 30);
+    fireEvent.click(cell, { clientX: index * SHEET_COL_W + 10 });
+    const placed = useMitigationStore.getState().timelineMitigations;
+    expect(placed.length).toBe(1);
+    expect(placed[0]).toMatchObject({ mitigationId: def.id, ownerId: 'MT', time: 30, duration: def.duration });
+    expect(container.ownerDocument.querySelectorAll('[data-tutorial-modal]').length).toBe(modalsBefore);
+
+    fireEvent.click(cellAt(container, 30), { clientX: index * SHEET_COL_W + 10 });
+    expect(useMitigationStore.getState().timelineMitigations.length).toBe(0);
+  });
+
+  it('スプシ: 置いたアイコンをドラッグせずに押すと消える(アイコンがマスの上に乗っていても「もう一度で消す」)', () => {
+    const { index, def } = pickPlainColumn();
+    useMitigationStore.getState().addMitigation({ id: 's8-a', mitigationId: def.id, ownerId: 'MT', time: 30, duration: def.duration } as never);
+    const { container } = renderTimeline();
+    const cell = cellAt(container, 30);
+    const x = index * SHEET_COL_W + 10;
+    // happy-dom に elementsFromPoint の実体は無いので、アイコンの下のマスを返す
+    (document as unknown as { elementsFromPoint: () => Element[] }).elementsFromPoint = () => [cell];
+    const icon = placedIcons(container)[0];
+    fireEvent.pointerDown(icon, { button: 0, clientX: x, clientY: 100, pointerId: 1 });
+    fireEvent.pointerUp(icon, { button: 0, clientX: x, clientY: 101, pointerId: 1 });
+    expect(useMitigationStore.getState().timelineMitigations.length).toBe(0);
+    delete (document as unknown as { elementsFromPoint?: unknown }).elementsFromPoint;
+  });
+
+  it('スプシ: 版違い(旧 id)の配置も、その列のマスをもう一度押すと消える(新版を重ねて置かない)', () => {
+    // ガンブレイカー Lv100: 列は aurora_v2(2 チャージ)。旧 aurora は同じアイコンなので同じ列に描かれる
+    useMitigationStore.getState().setMemberJob('MT', 'gnb');
+    const cols = buildSheetColumns('gnb', MITIGATIONS as Mitigation[], 100);
+    const index = cols.findIndex(c => c.mitigationId === 'aurora_v2');
+    expect(index).toBeGreaterThanOrEqual(0);
+    const old = (MITIGATIONS as Mitigation[]).find(m => m.id === 'aurora')!;
+    useMitigationStore.getState().addMitigation({ id: 's8-old', mitigationId: 'aurora', ownerId: 'MT', time: 30, duration: old.duration } as never);
+    expect(useMitigationStore.getState().timelineMitigations.length).toBe(1);
+    const { container } = renderTimeline();
+    fireEvent.click(cellAt(container, 30), { clientX: index * SHEET_COL_W + 2 });
+    expect(useMitigationStore.getState().timelineMitigations.length).toBe(0);
+  });
+
+  it('スプシ: リキャスト中のマスは data-shake が付きトーストが出て addMitigation は呼ばれない', () => {
+    const { index, def } = pickPlainColumn();
+    useMitigationStore.getState().addMitigation({ id: 's8-a', mitigationId: def.id, ownerId: 'MT', time: 0, duration: def.duration } as never);
+    const { container } = renderTimeline();
+    const cell = cellAt(container, 30);
+    fireEvent.click(cell, { clientX: index * SHEET_COL_W + 10 });
+    expect(useMitigationStore.getState().timelineMitigations.length).toBe(1);
+    expect(cell.hasAttribute('data-shake')).toBe(true);
+    // トースト(判定の message = 'mitigation.cd_remaining' のキーがスタブ t でそのまま出る)
+    expect(container.ownerDocument.body.textContent).toContain('mitigation.cd_remaining');
+  });
+
+  it('レーン: timelineView=sheet でも canPreviewWip=false なら従来 DOM(data-sheet-cols 無し・data-mit-cd 無し)', () => {
+    wip.can = false;
+    const { def } = pickPlainColumn();
+    useMitigationStore.getState().addMitigation({ id: 's8-a', mitigationId: def.id, ownerId: 'MT', time: 0, duration: def.duration } as never);
+    const { container } = renderTimeline();
+    expect(container.querySelector('[data-sheet-cols]')).toBeNull();
+    expect(container.querySelector('[data-mit-cd]')).toBeNull();
+    const icons = placedIcons(container);
+    expect(icons.length).toBe(1);
+    // レーン表示: 幅 24px(MITI_ICON_PX)。left は Phase 1 の式(計測 0 の happy-dom では 0 + 2 + MAX_LEFT(-26) = -24)
+    const box = iconBox(icons[0]);
+    expect(box.style.width).toBe('24px');
+    expect(box.style.left).toBe('-24px');
+  });
+
+  it('スプシ: 対象指定の技はマスを押すと小窓が出て、相手を選ぶと targetId つきで置かれる', () => {
+    const cols = warColumns();
+    const index = cols.findIndex(c => c.def.scope === 'target');
+    expect(index).toBeGreaterThanOrEqual(0);
+    const { container } = renderTimeline();
+    fireEvent.click(cellAt(container, 30), { clientX: index * SHEET_COL_W + 10 });
+    expect(useMitigationStore.getState().timelineMitigations.length).toBe(0);
+    const pop = container.ownerDocument.querySelector('[data-sheet-popover]');
+    expect(pop).not.toBeNull();
+    const btn = pop!.querySelector<HTMLButtonElement>('button[data-target-id="ST"]')!;
+    act(() => { fireEvent.click(btn); });
+    const placed = useMitigationStore.getState().timelineMitigations;
+    expect(placed.length).toBe(1);
+    expect(placed[0]).toMatchObject({ mitigationId: cols[index].def.id, targetId: 'ST', time: 30 });
+    expect(container.ownerDocument.querySelector('[data-sheet-popover]')).toBeNull();
+  });
+});

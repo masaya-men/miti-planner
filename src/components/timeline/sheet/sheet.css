@@ -45,3 +45,21 @@
 .theme-military [data-sheet-member] {
   background-image: none;
 }
+
+/* 置けないマスを押したときの揺れ(Timeline の handleSheetCellTap が 300ms だけ data-shake を付ける) */
+@keyframes sheet-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+[data-sheet-cols][data-shake] {
+  animation: sheet-shake 0.25s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-sheet-cols][data-shake] { animation: none; }
+}
+
+/* MIL-SPEC: リキャスト線は危険色(--ma-dng)を薄く */
+.theme-military [data-mit-cd] {
+  background-color: color-mix(in srgb, var(--ma-dng) 45%, transparent);
+}

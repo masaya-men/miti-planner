@@ -124,8 +124,9 @@ export const EMPTY_ROW_LAYOUT: RowLayout = computeRowLayout({
     unitPx: ROW_UNIT_PX.pc,
 });
 
-/** 行の上端から軽減アイコンの上端まで(アイコンは最上段 = 1 つ目の攻撃の段の縦中央)。PC: (25 − 24) / 2 = 0.5 */
-export const mitiIconOffset = (unitPx: number): number => (unitPx - MITI_ICON_PX) / 2;
+/** 行の上端から軽減アイコンの上端まで(アイコンは最上段 = 1 つ目の攻撃の段の縦中央)。PC: (25 − 24) / 2 = 0.5。
+ *  iconPx はスプシ表示の小さいアイコン(18px)用。省略時は MITI_ICON_PX */
+export const mitiIconOffset = (unitPx: number, iconPx: number = MITI_ICON_PX): number => (unitPx - iconPx) / 2;
 
 /** 効果時間の帯の始点 = 最上段の中央(= アイコンの中央) */
 export const barStartY = (layout: RowLayout, time: number): number => layout.topOf(time) + layout.unitPx / 2;

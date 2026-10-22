@@ -76,7 +76,10 @@ import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 import { RecastRow, type RecastRowHandle } from './RecastRow';
 import { SheetColumnHeader } from './timeline/sheet/SheetColumnHeader';
-import { buildSheetColumnMap } from './timeline/sheet/sheetColumns';
+import { buildSheetColumnMap, sheetColumnAt, sheetColumnIndex, SHEET_ICON_PX, type SheetColumn } from './timeline/sheet/sheetColumns';
+import { sheetIconLeft } from './timeline/sheet/sheetGeometry';
+import { SheetCooldownLines } from './timeline/sheet/SheetCooldownLines';
+import { SheetTargetPopover, type SheetPopoverState } from './timeline/sheet/SheetTargetPopover';
 import './timeline/sheet/sheet.css';
 import { JobPickerRow } from './JobPickerRow';
 // 軍事専用部品は標準テーマに配信しないよう遅延読み込み(useSortSlide は軽い hook なので静的のまま)
@@ -104,7 +107,7 @@ import { buildContextShieldEntries } from '../utils/contextShieldEntries';
 
 import { PlacementToast } from './timeline/sheet/PlacementToast';
 import { lanesBands, sheetBands, convertMemberX, lanesSheetWidth, readLanesColumnVars, memoCreateXRatio } from './timeline/sheet/memberX';
-import { buildAppliedMitigation } from './timeline/sheet/sheetTap';
+import { buildAppliedMitigation, resolveSheetTap } from './timeline/sheet/sheetTap';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -151,6 +154,10 @@ interface MitigationItemProps {
      * エフェクト棒はホバーでツールチップを出すためpointer-events-autoにしており、そのままだと
      * 素通りしていた配置クリックが棒に吸われてしまうため、ここで明示的に転送する(2026-08-26)。 */
     onCellClick?: (memberId: string, time: number, e: React.MouseEvent) => void;
+    /** アイコンの 1 辺(px)。スプシ表示は SHEET_ICON_PX。省略時は MITI_ICON_PX(レーン表示の出力は不変) */
+    iconPx?: number;
+    /** スプシ表示: 置いたアイコンをドラッグせずに押した(= もう一度で消す)。マスのクリックと同じ関数を受け取る */
+    onIconTap?: (memberId: string, time: number, e: React.MouseEvent) => void;
 }
 
 const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, partySortOrder: string = 'role') => {
@@ -247,7 +254,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         top, height, left, partySortOrder,
         scrollContainerRef, activeMitigations, overlapOffset = 0,
         isVirtual = false, iconOverride, layoutReady = true, grayscale = false,
-        onCellClick, slideOnSort
+        onCellClick, slideOnSort, iconPx = MITI_ICON_PX, onIconTap
     } = props;
 
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -281,7 +288,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
 
     // 縦位置はすべて rowLayout(行の配置係)から得る。
     // アイコンは行の最上段(1 つ目の攻撃の段)の縦中央に置く。
-    const iconOffset = mitiIconOffset(rowLayout.unitPx);
+    const iconOffset = mitiIconOffset(rowLayout.unitPx, iconPx);
     // ドラッグ中の「行の上端」Y から、アイコンの中央がある行の秒を求める
     // (均一な行では旧実装の「最も近い行の上端」と同じ動き。背の高い行でもアイコンの下の行に落ちる)
     const timeAtDraggedTop = (rowTopY: number): number => rowLayout.timeAtY(rowTopY + rowLayout.unitPx / 2);
@@ -482,6 +489,8 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
             }
         } else {
             resetDragPosition(false);
+            // スプシ表示: ほぼ動かさずに離した = アイコンのマスをもう一度押した扱い
+            if (onIconTap && Math.abs(dy) < 4) onIconTap(mitigation.ownerId, mitigation.time, e);
         }
     };
 
@@ -528,7 +537,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                 style={{
                     left: `${left}px`,
                     top: `${top + iconOffset}px`,
-                    width: `${MITI_ICON_PX}px`,
+                    width: `${iconPx}px`,
                     visibility: layoutReady ? undefined : 'hidden',
                 }}
             >
@@ -550,7 +559,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                         isVirtual && "cursor-default pointer-events-none",
                         isConflicting && "animate-conflict-pulse ring-2 ring-amber-400"
                     )}
-                    style={{ width: `${MITI_ICON_PX}px`, height: `${MITI_ICON_PX}px` }}
+                    style={{ width: `${iconPx}px`, height: `${iconPx}px` }}
                     onContextMenu={handleContextMenu}
                     onPointerDown={handlePointerDown}
                     onPointerMove={handlePointerMove}
@@ -625,7 +634,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                             colors.shadow
                         )}
                         style={{
-                            top: `${MITI_ICON_PX / 2}px`,
+                            top: `${iconPx / 2}px`,
                             height: `${Math.max(0, durationHeight)}px`,
                             left: `calc(50% + ${overlapOffset}px)`,
                             transform: 'translateX(-50%)'
@@ -658,7 +667,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                         data-mit-end=""
                         className="absolute pointer-events-none"
                         style={{
-                            top: `${MITI_ICON_PX / 2 + Math.max(0, durationHeight)}px`,
+                            top: `${iconPx / 2 + Math.max(0, durationHeight)}px`,
                             left: `calc(50% + ${overlapOffset}px)`,
                             width: '10px', height: '1px', transform: 'translateX(-50%)',
                         }}
@@ -723,6 +732,10 @@ const Timeline: React.FC = () => {
     const memos = useMitigationStore(s => s.memos);
     // スプシ表示か(PC・WIP権限のみ。それ以外は常に 'lanes')。メモ/カーソルの横位置変換にだけ使う。
     const isSheetView = useEffectiveTimelineView() === 'sheet';
+    // スプシ表示: マスのクリック判定が読む列(下方の sheetColumnMap を毎 render 差し替え)・弾いたときのトースト・対象選択の小窓
+    const sheetColumnMapRef = useRef<ReadonlyMap<string, SheetColumn[]> | null>(null);
+    const [sheetToast, setSheetToast] = useState<{ message: string; n: number } | null>(null);
+    const [sheetPopover, setSheetPopover] = useState<SheetPopoverState | null>(null);
     // メモ・カーソルの横位置変換(保存・送信する xRatio は常にレーン表示の座標)。
     // 実体は memberLayout が決まった後(下方)で毎 render 差し替える。ハンドラは ref 経由で読む。
     const memberXMapRef = useRef<{ toPx: (xRatio: number) => number; toRatio: (px: number) => number }>({
@@ -2145,6 +2158,73 @@ const Timeline: React.FC = () => {
         }
     };
 
+    // スプシ表示のマス押下。クリックの基準は「そのメンバーのマス」の左端。効果帯(MitigationItem の data-mit-bar)から
+    // 転送されたクリックは currentTarget が帯なので、同じ点の下にあるマス([data-sheet-cols])を引き直す。
+    const sheetTRef = useRef(t);
+    sheetTRef.current = t;
+    const sheetDefsRef = useRef(MITIGATIONS);
+    sheetDefsRef.current = MITIGATIONS;
+    const handleSheetCellTap = useCallback((sheetMap: ReadonlyMap<string, SheetColumn[]>, memberId: string, time: number, e: React.MouseEvent) => {
+        const cols = sheetMap.get(memberId);
+        const target = e.currentTarget as HTMLElement | null;
+        const cell = target?.hasAttribute?.('data-sheet-cols')
+            ? target
+            : (document.elementsFromPoint?.(e.clientX, e.clientY) ?? []).find(el => el.hasAttribute('data-sheet-cols')) as HTMLElement | undefined;
+        if (!cols || !cell) return;
+        const colIndex = sheetColumnAt(e.clientX, cell.getBoundingClientRect().left);
+        const col = cols[colIndex];
+        if (!col) return;
+        const all = useMitigationStore.getState().timelineMitigations;
+        const ownerMitigations = all.filter(m => m.ownerId === memberId);
+        // もう一度押して消す: この列に描かれている配置(版違い・セラフィズム差し替えなど id が列と違うものも含む)
+        const defs = sheetDefsRef.current;
+        const existing = ownerMitigations.find(m => m.time === time && sheetColumnIndex(cols, m.mitigationId, defs) === colIndex);
+        if (existing) {
+            useMitigationStore.getState().removeMitigation(existing.id);
+            return;
+        }
+        const r = resolveSheetTap(col.def, time, ownerMitigations, all, (k, o) => String(sheetTRef.current(k, o as never)));
+        switch (r.kind) {
+            case 'remove':
+                useMitigationStore.getState().removeMitigation(r.id);
+                return;
+            case 'place':
+                // 後ろ向きの重なり(warning)は通常表示と同じく置いて、競合の脈動・矢印に任せる
+                useMitigationStore.getState().addMitigation(buildAppliedMitigation(col.def, time, memberId, { linkedMitigationId: r.linkedMitigationId }));
+                return;
+            case 'blocked':
+                // マスを揺らす(CSS の [data-shake])。連打でも毎回揺れるよう付け直す
+                cell.removeAttribute('data-shake');
+                void cell.offsetWidth;
+                cell.setAttribute('data-shake', '');
+                window.setTimeout(() => cell.removeAttribute('data-shake'), 300);
+                setSheetToast(prev => ({ message: r.message ?? sheetTRef.current('timeline.cannot_place_here'), n: (prev?.n ?? 0) + 1 }));
+                return;
+            case 'selectTarget':
+            case 'selectShield':
+                setSheetPopover({
+                    memberId, time, def: col.def, kind: r.kind,
+                    shields: r.kind === 'selectShield' ? r.shields : [],
+                    x: e.clientX, y: e.clientY,
+                });
+                return;
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!sheetToast) return;
+        const timer = setTimeout(() => setSheetToast(null), 2500);
+        return () => clearTimeout(timer);
+    }, [sheetToast]);
+
+    const handleSheetPopoverPick = useCallback((pick: { targetId?: string; linkedMitigationId?: string }) => {
+        if (sheetPopover && !readOnlyRef.current) {
+            useMitigationStore.getState().addMitigation(buildAppliedMitigation(sheetPopover.def, sheetPopover.time, sheetPopover.memberId, pick));
+        }
+        setSheetPopover(null);
+    }, [sheetPopover]);
+    const handleSheetPopoverClose = useCallback(() => setSheetPopover(null), []);
+
     const handleCellClick = useCallback((memberId: string, time: number, e: React.MouseEvent) => {
         // 進捗記録モード中はクリックを横取りして到達点を記録（既存の軽減配置には入らない）
         if (useProgressRecording.getState().recordMode) {
@@ -2160,13 +2240,20 @@ const Timeline: React.FC = () => {
         const isTutorial = useTutorialStore.getState().isActive;
         if (!member || (!member.jobId && !isTutorial)) return;
 
+        // スプシ表示: モーダルを開かず、押した列の技をその場に置く / 消す / 弾く / 小窓で相手を選ぶ
+        const sheetMap = sheetColumnMapRef.current;
+        if (sheetMap) {
+            handleSheetCellTap(sheetMap, memberId, time, e);
+            return;
+        }
+
         setSelectorPosition({ x: e.clientX, y: e.clientY });
         setSelectedMemberId(memberId);
         setSelectedMitigationTime(time);
         setMitigationSelectorOpen(true);
         // ── Tutorial: セルクリックイベント ──
         useTutorialStore.getState().completeEvent('mitigation:cell-clicked');
-    }, []);
+    }, [handleSheetCellTap]);
 
     const handleMobileDamageClick = useCallback((time: number, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -2692,6 +2779,7 @@ const Timeline: React.FC = () => {
         () => sheetColumnMap ? new Map([...sheetColumnMap].map(([id, c]) => [id, c.length] as [string, number])) : undefined,
         [sheetColumnMap]
     );
+    sheetColumnMapRef.current = sheetColumnMap;
 
     // 軍事の表: リキャスト中のアイコンが無い列の見出し = ロール色の短い線 + ジョブ略号(見本 v11 css:472-475)
     const renderMilspecIdle = useCallback((m: PartyMember) => {
@@ -2795,17 +2883,21 @@ const Timeline: React.FC = () => {
                     return { id: m.id, ownerId: '__mobile__', y, columnCenterX: sheetWidth / 2 };
                 }
                 const layout = memberLayout.get(m.ownerId);
+                // スプシ表示: そのスキルの列の中央(列が無ければメンバー列の中央)
+                const sheetCi = sheetColumnMap ? sheetColumnIndex(sheetColumnMap.get(m.ownerId) ?? [], m.mitigationId, MITIGATIONS) : -1;
                 return {
                     id: m.id,
                     ownerId: m.ownerId,
                     y,
                     // 列幅の中央 (ジョブ種別で列幅が変わるので width の中央)。
-                    columnCenterX: layout ? layout.left + layout.width / 2 : 0,
+                    columnCenterX: !layout ? 0
+                        : sheetCi >= 0 ? layout.left + sheetIconLeft(0, sheetCi) + SHEET_ICON_PX / 2
+                        : layout.left + layout.width / 2,
                 };
             });
     // memberLayout は Map で参照同一・中身が変化するため refVersion を直接含められない。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [timelineMitigations, conflictingIds, lastPlacedMitigationId, memberLayout, rowLayout, isMobileTimeline, sheetWidth]);
+    }, [timelineMitigations, conflictingIds, lastPlacedMitigationId, memberLayout, rowLayout, isMobileTimeline, sheetWidth, sheetColumnMap, MITIGATIONS]);
 
     const getJobIcon = (jobId: string | null) => {
         if (!jobId) return null;
@@ -3699,12 +3791,14 @@ const Timeline: React.FC = () => {
                                                 const colWidth = layout?.width ?? fallbackColWidth;
                                                 // アイコン右端を「列右端 - VISUAL_OFFSET」 にキャップするため、 配置可能な最大 left は colWidth - VISUAL_OFFSET - ICON_WIDTH
                                                 const MAX_LEFT = colWidth - VISUAL_OFFSET - ICON_WIDTH;
+                                                // スプシ表示: 1 スキル = 1 列。レーン詰め(Phase 1)は通さず、列番号から left を決める
+                                                const ownerSheetCols = sheetColumnMap ? (sheetColumnMap.get(ownerMitigations[0]?.ownerId) ?? []) : null;
 
                                                 // ── Phase 1: 全アイコンの配置位置 (candidateLeft) を確定 ──
                                                 // 既存のレーン詰めロジックを Phase 1 として分離。 時間重複を avoid して左から詰める
                                                 const assignedPositions: { m: any, left: number }[] = [];
 
-                                                displayItems.forEach(mitigation => {
+                                                if (!ownerSheetCols) displayItems.forEach(mitigation => {
                                                     // duration:0 のマーカー(挑発等)も最低1行分の footprint を持つ扱いにし、
                                                     // 同時刻の他アイコンとの重なり回避(レーン分け)を効かせる
                                                     const ovDur = (d: number) => Math.max(1, d);
@@ -3745,6 +3839,20 @@ const Timeline: React.FC = () => {
 
                                                 displayItems.forEach(mitigation => {
                                                     const candidateLeft = positionByMitId.get(mitigation.id) ?? 0;
+
+                                                    // スプシ表示: 描く列(仮想アイテムは親の配置の列)。どの列にも寄せられなければ描かない
+                                                    let sheetLeft: number | null = null;
+                                                    if (ownerSheetCols) {
+                                                        const colMitId = mitigation.isVirtual
+                                                            ? (displayItems.find(d => d.id === mitigation.parentId)?.mitigationId ?? mitigation.mitigationId)
+                                                            : mitigation.mitigationId;
+                                                        const ci = sheetColumnIndex(ownerSheetCols, colMitId, MITIGATIONS);
+                                                        if (ci < 0) {
+                                                            if (import.meta.env.DEV) console.warn('[sheet] no column', mitigation.mitigationId);
+                                                            return;
+                                                        }
+                                                        sheetLeft = sheetIconLeft(colStart, ci);
+                                                    }
 
                                                     const durationSeconds = Math.max(1, mitigation.duration);
                                                     const durationEndTime = mitigation.time + durationSeconds - 1;
@@ -3810,7 +3918,7 @@ const Timeline: React.FC = () => {
                                                         }
                                                     }
 
-                                                    const absoluteLeft = colStart + VISUAL_OFFSET + candidateLeft;
+                                                    const absoluteLeft = sheetLeft ?? colStart + VISUAL_OFFSET + candidateLeft;
 
                                                     renderedItems.push(
                                                         <MitigationItem
@@ -3834,9 +3942,30 @@ const Timeline: React.FC = () => {
                                                             isConflicting={conflictingIds.has(mitigation.id) && mitigation.id !== lastPlacedMitigationId}
                                                             onCellClick={handleCellClick}
                                                             slideOnSort={isMilspecTable}
+                                                            iconPx={ownerSheetCols ? SHEET_ICON_PX : undefined}
+                                                            onIconTap={ownerSheetCols && !mitigation.isVirtual ? handleCellClick : undefined}
                                                         />
                                                     );
                                                 });
+
+                                                // スプシ表示: リキャスト線(配置 1 件ごと・共有リキャストの列にも)
+                                                if (ownerSheetCols) {
+                                                    const ownerId = ownerMitigations[0]?.ownerId;
+                                                    renderedItems.push(
+                                                        <SheetCooldownLines
+                                                            key={`sheet-cd-${ownerId}`}
+                                                            items={ownerMitigations.filter(m => !m.autoHidden)}
+                                                            ownerUses={timelineMitigations.filter(m => m.ownerId === ownerId)}
+                                                            cols={ownerSheetCols}
+                                                            defs={MITIGATIONS}
+                                                            colStart={colStart}
+                                                            layout={rowLayout}
+                                                            maxTime={maxTime}
+                                                            isRowVisible={(t) => !hideEmptyRows || eventsByTime.has(t) || mitStartsByTime.has(t)}
+                                                            layoutReady={layout !== undefined}
+                                                        />
+                                                    );
+                                                }
                                             });
 
                                             return renderedItems;
@@ -4293,6 +4422,12 @@ const Timeline: React.FC = () => {
                         </div>
                 </div>
             </MobileBottomSheet>
+
+            {/* スプシ表示: 置けないマスを押したときのトースト・対象 / 鼓舞を選ぶ小窓 */}
+            {isSheetView && <PlacementToast key={sheetToast?.n} message={sheetToast?.message ?? null} />}
+            {isSheetView && sheetPopover && (
+                <SheetTargetPopover state={sheetPopover} onPick={handleSheetPopoverPick} onClose={handleSheetPopoverClose} />
+            )}
 
             <MitigationSelector
                 isOpen={mitigationSelectorOpen}
