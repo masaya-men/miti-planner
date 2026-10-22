@@ -31,6 +31,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { HousingImage } from '../media/HousingImage';
 
 export interface HousingRegisterSourceImageUrlsFieldProps {
   value: string[];
@@ -94,13 +95,15 @@ function SortableUrlTile({
       {...attributes}
       {...listeners}
     >
-      <img
+      <HousingImage
         src={item.url}
-        alt=""
         className="housing-register-image-tile-img"
         draggable={false}
-        loading="lazy"
-        onError={() => setImgFailed(true)}
+        // 失敗は data-failed で枠ごと表示を切り替えるので、部品側の代替表示は出さない。
+        onError={() => {
+          setImgFailed(true);
+          return true;
+        }}
       />
       {isCover ? (
         <span className="housing-register-image-tile-badge">{coverBadgeLabel}</span>

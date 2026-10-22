@@ -6,6 +6,7 @@ import { HousingRegisterImageField, SAVED_IMAGES_LIMIT } from './HousingRegister
 import { HousingRegisterSourceImageUrlsField } from './HousingRegisterSourceImageUrlsField';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import type { CompressedImage } from '../../../lib/housing/imageCompression';
+import { HousingImage } from '../media/HousingImage';
 
 interface Props {
   onTweetFetched: (
@@ -105,12 +106,7 @@ export const RegisterSectionMedia: React.FC<Props> = ({
           YouTube/OGP では親が null を渡すため誤発火しない。 */}
       {tweetVideo && (
         <div className="housing-register-media-video" data-testid="housing-register-media-video">
-          <img
-            src={tweetVideo.posterUrl}
-            alt=""
-            className="housing-register-media-video-poster"
-            loading="lazy"
-          />
+          <HousingImage src={tweetVideo.posterUrl} className="housing-register-media-video-poster" />
           <span className="housing-register-media-video-badge">
             {t('housing.register.media.video_badge')}
           </span>

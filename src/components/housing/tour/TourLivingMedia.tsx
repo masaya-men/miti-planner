@@ -6,7 +6,7 @@ import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames'
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
 import { HousingFavHeart } from '../browse/HousingFavHeart';
-import { handleYoutubeThumbnailError, handleYoutubeThumbnailLoad } from '../../../lib/housing/youtubeImgFallback';
+import { HousingImage } from '../media/HousingImage';
 
 export interface TourLivingMediaProps {
   listing: MockListing;
@@ -36,14 +36,7 @@ export const TourLivingMedia: React.FC<TourLivingMediaProps> = ({ listing, class
 
   return (
     <div className={`housing-tour-living-media${className ? ` ${className}` : ''}`} ref={mediaRef}>
-      <img
-        className="housing-tour-living-media-img"
-        src={representativeImage(listing)}
-        alt=""
-        loading="lazy"
-        onError={handleYoutubeThumbnailError}
-        onLoad={handleYoutubeThumbnailLoad}
-      />
+      <HousingImage className="housing-tour-living-media-img" src={representativeImage(listing)} variant="card" />
       <HousingCardAmbientSlideshow frames={frames} enabled={ambientOn} />
       {isPlaying && videoKind === 'twitter' && listing.videoUrl && (
         <HousingCardVideoOverlay

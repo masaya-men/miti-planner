@@ -10,21 +10,17 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { isEffectivelyPublic, canDisplayAddress, isNewListing, isPinnedNew, NEW_LISTING_WINDOW_MS } from '../../../lib/housing/listingPublish';
 import { useMasterData } from '../../../hooks/useMasterData';
-import {
-  handleYoutubeThumbnailError,
-  handleYoutubeThumbnailLoad,
-} from '../../../lib/housing/youtubeImgFallback';
 import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
 import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
 import { useRipple } from '../../../lib/housing/useRipple';
 import { representativeImage } from '../../../lib/housing/representativeImage';
-import { cardImageAttrs, CARD_IMAGE_SIZES } from '../../../lib/housing/cardImageAttrs';
 import { thumbHashToDataURL } from 'thumbhash';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
 import { HousingRipple } from '../HousingRipple';
 import { useTourAddFeedback } from '../../../lib/housing/useTourAddFeedback';
 import { HousingTourAddErrorBubble } from '../HousingTourAddErrorBubble';
+import { HousingImage } from '../media/HousingImage';
 
 export interface ListingCardProps {
   listing: MockListing;
@@ -264,31 +260,13 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             aria-hidden="true"
           />
         )}
-        {(() => {
-          const a = cardImageAttrs(representativeImage(listing), {
-            sizes: CARD_IMAGE_SIZES,
-            twitterName: 'small',
-          });
-          return (
-            <img
-              className="housing-listing-card-img"
-              src={a.src}
-              srcSet={a.srcSet}
-              sizes={a.sizes}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              // YouTube maxresdefault 不在動画の 120x90 グレー画像 (200) / 404 を検出し
-              // hqdefault→mqdefault→default へ段階フォールバック (他カードと同一機構)。
-              // 非 YouTube 画像 (Twitter/プレースホルダ) では両ハンドラとも no-op。
-              onError={handleYoutubeThumbnailError}
-              onLoad={(e) => {
-                handleYoutubeThumbnailLoad(e);
-                setImgLoaded(true);
-              }}
-            />
-          );
-        })()}
+        {/* サイズ変換・YouTube 段階予備・失敗時の代替表示は HousingImage に集約。 */}
+        <HousingImage
+          className="housing-listing-card-img"
+          src={representativeImage(listing)}
+          variant="card"
+          onLoad={() => setImgLoaded(true)}
+        />
         <HousingCardAmbientSlideshow frames={frames} enabled={ambientOn} />
         {isPlaying && videoKind === 'twitter' && listing.videoUrl && (
           <HousingCardVideoOverlay

@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react';
 import { useSlideshowCycle } from '../../../lib/housing/useSlideshowCycle';
 import type { SlideshowFrame } from '../../../lib/housing/slideshowFrames';
 import { slideshowWindowIndices } from '../../../lib/housing/slideshowWindow';
-import { cardImageAttrs, CARD_IMAGE_SIZES } from '../../../lib/housing/cardImageAttrs';
+import { HousingImage } from '../media/HousingImage';
 
 export interface HousingCardAmbientSlideshowProps {
   /** 表示する静止画フレーム (resolveSlideshowFrames の戻り値)。 */
@@ -25,13 +25,15 @@ export function HousingCardAmbientSlideshow({
 
   const handleError = useCallback(
     (i: number) =>
-      (e: React.SyntheticEvent<HTMLImageElement>): void => {
+      (e: React.SyntheticEvent<HTMLImageElement>): boolean => {
+        // 戻り値 true = 予備画像へ差し替え済み (HousingImage は代替表示を出さない)。
         const fallback = frames[i]?.fallback;
-        if (!fallback) return;
-        if (swappedRef.current.has(i)) return;
+        if (!fallback) return false;
+        if (swappedRef.current.has(i)) return false;
         swappedRef.current.add(i);
         e.currentTarget.srcset = '';
         e.currentTarget.src = fallback;
+        return true;
       },
     [frames],
   );
@@ -44,17 +46,13 @@ export function HousingCardAmbientSlideshow({
     <div className="housing-card-ambient-slideshow" aria-hidden="true">
       {frames.map((f, i) => {
         if (!windowSet.has(i)) return null;
-        const a = cardImageAttrs(f.src, { sizes: CARD_IMAGE_SIZES, twitterName: 'small' });
         return (
-          <img
+          <HousingImage
             key={`${i}-${f.src}`}
-            src={a.src}
-            srcSet={a.srcSet}
-            sizes={a.sizes}
-            alt=""
+            src={f.src}
+            variant="card"
             role="presentation"
-            loading="lazy"
-            decoding="async"
+            fallback="none"
             data-active={i === index}
             onError={handleError(i)}
           />

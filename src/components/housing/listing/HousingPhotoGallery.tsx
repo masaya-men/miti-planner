@@ -8,16 +8,12 @@
  * - サムネクリック → activeIndex 更新でメインが入れ替わるだけ（拡大/ライトボックスは無し）。
  * - 404 で読めない外部 URL は onError で markFailed → 表示から除外（元投稿削除の自然消失）。
  */
-import { useState, useMemo, useCallback, type SyntheticEvent } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { HousingListing } from '../../../types/housing';
-import {
-  handleYoutubeThumbnailError,
-  handleYoutubeThumbnailLoad,
-} from '../../../lib/housing/youtubeImgFallback';
 import { buildTweetVideoProxyUrl } from '../../../lib/housing/tweetVideoProxy';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
-import { cardImageAttrs, smallHousingImageUrl } from '../../../lib/housing/cardImageAttrs';
+import { HousingImage } from '../media/HousingImage';
 
 export interface HousingPhotoGalleryProps {
   listing: HousingListing;
@@ -66,12 +62,11 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
     });
   }, []);
 
-  // onError: まず YouTube サムネ段階 fallback、 それでも src が変わらなければ表示不可として除外。
+  // onError: YouTube 段階予備は HousingImage 内で済み、 ここへ来るのは最終失敗 → 表示不可として除外。
   const handleImgError = useCallback(
-    (originalSrc: string) => (e: SyntheticEvent<HTMLImageElement>) => {
-      const before = e.currentTarget.src;
-      handleYoutubeThumbnailError(e);
-      if (e.currentTarget.src === before) markFailed(originalSrc);
+    (originalSrc: string) => (): boolean => {
+      markFailed(originalSrc);
+      return true;
     },
     [markFailed],
   );
@@ -146,26 +141,14 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
             ) : null}
           </div>
         ) : (
-          (() => {
-            const a = cardImageAttrs(active.src, {
-              widths: [960, 1440],
-              appendOriginal: true,
-              sizes: GALLERY_MAIN_SIZES,
-            });
-            return (
-              <img
-                src={a.src}
-                srcSet={a.srcSet}
-                sizes={a.sizes}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="housing-gallery-main"
-                onError={handleImgError(active.src)}
-                onLoad={handleYoutubeThumbnailLoad}
-              />
-            );
-          })()
+          <HousingImage
+            src={active.src}
+            variant="gallery"
+            sizes={GALLERY_MAIN_SIZES}
+            className="housing-gallery-main"
+            fallback="none"
+            onError={handleImgError(active.src)}
+          />
         )}
       </div>
 
@@ -199,7 +182,7 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
                   {item.kind === 'video' ? (
                     <>
                       {videoThumb ? (
-                        <img src={videoThumb} alt="" loading="lazy" />
+                        <HousingImage src={videoThumb} variant="small" />
                       ) : (
                         <span className="housing-detail-thumb-videobg" aria-hidden="true" />
                       )}
@@ -208,13 +191,11 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
                       </span>
                     </>
                   ) : (
-                    <img
-                      src={smallHousingImageUrl(item.src)}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
+                    <HousingImage
+                      src={item.src}
+                      variant="small"
+                      fallback="none"
                       onError={handleImgError(item.src)}
-                      onLoad={handleYoutubeThumbnailLoad}
                     />
                   )}
                 </button>

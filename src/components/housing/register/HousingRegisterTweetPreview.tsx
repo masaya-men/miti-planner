@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
+import { HousingImage } from '../media/HousingImage';
 
 type Props = { data: TweetData };
 
@@ -19,7 +20,7 @@ export function HousingRegisterTweetPreview({ data }: Props) {
             {data.photos.length > 0 && (
                 <div className="housing-tweet-preview-photos">
                     {data.photos.map((url) => (
-                        <img key={url} src={url} alt="" className="housing-tweet-preview-photo" />
+                        <HousingImage key={url} src={url} className="housing-tweet-preview-photo" />
                     ))}
                 </div>
             )}

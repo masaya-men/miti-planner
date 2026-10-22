@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import type { HousingListing } from '../../../types/housing';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { HousingLongPressButton } from './HousingLongPressButton';
+import { HousingImage } from '../media/HousingImage';
 
 export interface HousingDuplicatePeersSectionProps {
   peers: HousingListing[];
@@ -37,12 +38,7 @@ export const HousingDuplicatePeersSection: React.FC<HousingDuplicatePeersSection
           return (
             <li key={peer.id} className="housing-detail-peers-item">
               {thumb && (
-                <img
-                  className="housing-detail-peers-thumb"
-                  src={thumb}
-                  alt=""
-                  loading="lazy"
-                />
+                <HousingImage className="housing-detail-peers-thumb" src={thumb} variant="small" />
               )}
               <div className="housing-detail-peers-info">
                 <p className="housing-detail-peers-card-title">{title}</p>

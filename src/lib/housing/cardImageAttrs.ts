@@ -70,11 +70,11 @@ export function smallHousingImageUrl(url: string): string {
  * smallHousingImageUrl (X=680px) を 100 枚近く並べると、iPhone で一番下まで一気にスクロールした時に
  * 画像の変換がまとめて走って操作が止まった (2026-10-22 実機報告) ため、枠に見合う最小の版を返す。
  * housing-media → 480w 派生 (これより小さい版は無い) / X → ?name=thumb (150px 角) /
- * YouTube サムネ → mqdefault (320px・全動画に存在) / それ以外 → 素通し。
+ * YouTube サムネ (i.ytimg.com / img.youtube.com) → mqdefault (320px・全動画に存在) / それ以外 → 素通し。
  */
 export function thumbHousingImageUrl(url: string): string {
   if (isDerivableHousingImage(url)) return housingImageVariant(url, 480);
-  if (/^https:\/\/i\.ytimg\.com\/vi\/[^/]+\/(maxresdefault|sddefault|hqdefault)\.jpg$/.test(url)) {
+  if (/^https:\/\/(?:i\.ytimg|img\.youtube)\.com\/vi\/[^/]+\/(maxresdefault|sddefault|hqdefault)\.jpg$/.test(url)) {
     return url.replace(/(maxresdefault|sddefault|hqdefault)\.jpg$/, 'mqdefault.jpg');
   }
   return twitterImageVariant(url, 'thumb');

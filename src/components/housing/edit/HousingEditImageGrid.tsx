@@ -18,6 +18,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { showToast } from '../../Toast';
+import { HousingImage } from '../media/HousingImage';
 
 export interface HousingEditImageGridProps {
   images: string[];
@@ -79,7 +80,7 @@ function SortableEditTile({
       {...attributes}
       {...listeners}
     >
-      <img src={item.url} alt="" className="housing-register-image-tile-img" draggable={false} loading="lazy" />
+      <HousingImage src={item.url} className="housing-register-image-tile-img" draggable={false} />
       {isCover && <span className="housing-register-image-tile-badge">{coverBadgeLabel}</span>}
       <button
         type="button"

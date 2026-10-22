@@ -8,6 +8,7 @@ import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import { EMPTY_SNS_CAPTURE, mergeTweetPhotoAspectRatios, type SnsCapture } from '../pages/RegisterPage';
 import { isDuplicatePostUrl, shouldRejectIncomingVideo } from '../../../lib/housing/multiSourceGuards';
 import { showToast } from '../../Toast';
+import { HousingImage } from '../media/HousingImage';
 
 export interface EditVideoPreview {
   url: string;
@@ -334,12 +335,7 @@ export function HousingEditSourcePanel({
       )}
       {videoPreview && (
         <div className="housing-register-media-video" data-testid="housing-register-media-video">
-          <img
-            src={videoPreview.posterUrl}
-            alt=""
-            className="housing-register-media-video-poster"
-            loading="lazy"
-          />
+          <HousingImage src={videoPreview.posterUrl} className="housing-register-media-video-poster" />
           <span className="housing-register-media-video-badge">
             {t('housing.register.media.video_badge')}
           </span>

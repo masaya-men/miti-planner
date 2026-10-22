@@ -33,6 +33,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { compressHousingImage, type CompressedImage } from '../../../lib/housing/imageCompression';
+import { HousingImage } from '../media/HousingImage';
 
 export interface HousingRegisterImageFieldProps {
   value: CompressedImage[];
@@ -107,12 +108,7 @@ function SortableImageTile({
       {...listeners}
     >
       {previewUrl && (
-        <img
-          src={previewUrl}
-          alt=""
-          className="housing-register-image-tile-img"
-          draggable={false}
-        />
+        <HousingImage src={previewUrl} className="housing-register-image-tile-img" draggable={false} />
       )}
       {isCover && (
         <span className="housing-register-image-tile-badge">{coverBadgeLabel}</span>

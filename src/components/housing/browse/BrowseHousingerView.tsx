@@ -9,7 +9,7 @@ import { getCachedPublishedHousingers } from '../../../lib/housing/publishedHous
 import type { PublishedHousinger } from '../../../lib/housing/publishedHousingers';
 import { stripHashedPrefix } from '../../../lib/housing/housingerProfile';
 import { representativeImage } from '../../../lib/housing/representativeImage';
-import { thumbHousingImageUrl } from '../../../lib/housing/cardImageAttrs';
+import { HousingImage } from '../media/HousingImage';
 
 export interface BrowseHousingerViewProps {
   /** 探すページで絞り込み済みの家。ここに 1 件も家を持たない人は一覧に出さない。 */
@@ -61,7 +61,7 @@ export const BrowseHousingerView: React.FC<BrowseHousingerViewProps> = ({ filter
     for (const l of sorted) {
       const arr = map.get(l.ownerUid) ?? [];
       if (arr.length < MAX_THUMBS) {
-        arr.push(thumbHousingImageUrl(representativeImage(l)));
+        arr.push(representativeImage(l)); // サイズ変換は HousingImage (variant="thumb") が行う
         map.set(l.ownerUid, arr);
       }
     }
@@ -98,7 +98,7 @@ export const BrowseHousingerView: React.FC<BrowseHousingerViewProps> = ({ filter
                   </span>
                   <span className="housing-housinger-row-thumbs">
                     {(thumbsByOwner.get(h.uid) ?? []).map((src, k) => (
-                      <img key={k} src={src} alt="" loading="lazy" decoding="async" />
+                      <HousingImage key={k} src={src} variant="thumb" />
                     ))}
                   </span>
                 </Link>

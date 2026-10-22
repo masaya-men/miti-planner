@@ -11,7 +11,7 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
 import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
-import { handleYoutubeThumbnailError, handleYoutubeThumbnailLoad } from '../../../lib/housing/youtubeImgFallback';
+import { HousingImage } from '../media/HousingImage';
 
 // 代表画像フォールバック (ListingCard と共通の規約)。
 const PLACEHOLDER = '/housing/mock-thumbs/1.svg';
@@ -31,7 +31,7 @@ const FavPreviewThumb: React.FC<{ listing: MockListing }> = ({ listing }) => {
   const frames = useHousingCardFrames(listing, ambientOn);
   return (
     <>
-      <img src={representativeImage(listing)} alt="" loading="lazy" onError={handleYoutubeThumbnailError} onLoad={handleYoutubeThumbnailLoad} />
+      <HousingImage src={representativeImage(listing)} variant="card" />
       <HousingCardAmbientSlideshow frames={frames} enabled={ambientOn} />
     </>
   );
