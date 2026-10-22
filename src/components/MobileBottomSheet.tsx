@@ -97,7 +97,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                                 />
                             )}
                             <div
-                                className="bg-[var(--app-text)]/20"
+                                className="mobile-sheet-handle-bar bg-[var(--app-text)]/20"
                                 style={{
                                     width: MOBILE_TOKENS.sheet.handleWidth,
                                     height: MOBILE_TOKENS.sheet.handleHeight,

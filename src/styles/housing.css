@@ -10826,8 +10826,10 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     border: 1px solid var(--housing-panel-border);
     border-bottom: none;
   }
-  /* ドラッグハンドル棒 (miti の --app-text ベースだと housing 面で沈む) */
-  .housing-mobile-sheet > div:first-child > div {
+  /* ドラッグハンドル棒 (miti の --app-text ベースだと housing 面で沈む)。
+     棒だけを指す (2026-10-22: 以前の `> div:first-child > div` は、つまみ周りの透明な当たり判定の帯
+     (swipeArea='handle' のとき追加される) にも当たり、シート上端が灰色の帯になっていた)。 */
+  .housing-mobile-sheet .mobile-sheet-handle-bar {
     background: var(--housing-text-dim);
     opacity: 0.5;
   }
