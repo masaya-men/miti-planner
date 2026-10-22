@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { convertMemberX, lanesBands, sheetBands, lanesSheetWidth } from '../sheet/memberX';
+import { convertMemberX, lanesBands, sheetBands, lanesSheetWidth, memoCreateXRatio } from '../sheet/memberX';
 import type { PartyMember } from '../../../types';
 
 const lanes = [{ id: 'MT', left: 570, width: 156.8 }, { id: 'H1', left: 726.8, width: 156.8 }];
@@ -38,5 +38,11 @@ describe('memberX', () => {
     });
     it('null の帯(レーン表示)では x のまま', () => {
         expect(convertMemberX(700, [], sheet)).toBe(700);
+    });
+    it('レーン表示のメモ作成は rect.width 基準(sheetWidth や列変換を使わない)', () => {
+        expect(memoCreateXRatio(400, 800, false, () => 999)).toBe(0.5);
+    });
+    it('スプシ表示のメモ作成は列変換を使う', () => {
+        expect(memoCreateXRatio(400, 800, true, () => 0.25)).toBe(0.25);
     });
 });

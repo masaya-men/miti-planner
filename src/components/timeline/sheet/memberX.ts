@@ -1,4 +1,5 @@
 import type { PartyMember } from '../../../types';
+import { pxToXRatio } from '../../Memo/coords';
 
 /** 1 メンバーの列の横位置(シート左端基準 px)。 */
 export interface MemberBand { id: string; left: number; width: number }
@@ -61,4 +62,14 @@ export function lanesSheetWidth(bands: readonly MemberBand[], fallback: number):
     if (bands.length === 0) return fallback;
     const last = bands[bands.length - 1];
     return last.left + last.width;
+}
+
+/** メモ作成時の xRatio(未 clamp)。レーン表示は従来どおり rect.width 基準、スプシ表示だけ列変換を使う。 */
+export function memoCreateXRatio(
+    xPx: number,
+    rectWidth: number,
+    isSheetView: boolean,
+    sheetToRatio: (px: number) => number,
+): number {
+    return isSheetView ? sheetToRatio(xPx) : pxToXRatio(xPx, rectWidth);
 }

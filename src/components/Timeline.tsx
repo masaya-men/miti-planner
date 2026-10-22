@@ -100,7 +100,7 @@ import { resolveContextShields, shieldEffectBarEndsOnBarrierExhaustion, type Con
 import { buildContextShieldEntries } from '../utils/contextShieldEntries';
 
 import { PlacementToast } from './timeline/sheet/PlacementToast';
-import { lanesBands, sheetBands, convertMemberX, lanesSheetWidth, readLanesColumnVars } from './timeline/sheet/memberX';
+import { lanesBands, sheetBands, convertMemberX, lanesSheetWidth, readLanesColumnVars, memoCreateXRatio } from './timeline/sheet/memberX';
 import { buildAppliedMitigation } from './timeline/sheet/sheetTap';
 
 function genId(): string {
@@ -1105,7 +1105,7 @@ const Timeline: React.FC = () => {
         // y → timeSec を timeToYMap 逆引き (動的高さ対応)
         const timeSec = yToTimeSec(yPx, timeToYMapRef.current);
         if (timeSec === null) return;  // シート範囲外、 メモ作成不可
-        const xRatio = clampXRatio(memberXMapRef.current.toRatio(xPx));
+        const xRatio = clampXRatio(memoCreateXRatio(xPx, rect.width, isSheetView, memberXMapRef.current.toRatio));
         // 入力ボックスは position: fixed で body 直下に portal するため、
         // 位置はビューポート基準 (クリック座標そのもの) で渡す (画面端クリップ対策)。
         setMemoInput({
@@ -1114,7 +1114,7 @@ const Timeline: React.FC = () => {
             timeSec,
             xRatio,
         });
-    }, [isMemoMode, memos.length, t]);
+    }, [isMemoMode, memos.length, t, isSheetView]);
 
     // メモ: InputBox の保存ハンドラ (新規 = addMemo、 編集 = updateMemo or 空文字で deleteMemo)
     const handleMemoSave = useCallback((text: string) => {
@@ -2734,6 +2734,7 @@ const Timeline: React.FC = () => {
     // 変換し、同じメンバーの列の中に収める(列の外=左の情報列は両表示で同じなのでそのまま)。
     const [memberStartPx, setMemberStartPx] = useState(0);
     useLayoutEffect(() => {
+        if (!isSheetView) return; // レーン表示では不要(余計な再描画を避ける)
         const containerEl = sheetContainerRef.current;
         const firstMemberEl = document.querySelector('[data-member-id]') as HTMLElement | null;
         if (!containerEl || !firstMemberEl) return;
@@ -2756,8 +2757,11 @@ const Timeline: React.FC = () => {
         };
     }, [isSheetView, visiblePartyMembers, memberStartPx, memberLayout, sheetWidth]);
     memberXMapRef.current = memberXMap;
+    // レーン表示は従来どおり rAF 内で最新の sheetWidthRef を読む。スプシ表示だけ列変換。
     const cursorToLocalXRef = useRef(memberXMap.toPx);
-    cursorToLocalXRef.current = memberXMap.toPx;
+    cursorToLocalXRef.current = isSheetView
+        ? memberXMap.toPx
+        : (r: number) => xRatioToPx(r, sheetWidthRef.current);
 
     // 画面外ガイド矢印用: 競合中インスタンスの列中央X + コンテンツ内絶対Y を算出。
     // Y は rowLayout(同じレンダーで計算済みの行の配置)から得る。旧実装の「直前レンダーの
