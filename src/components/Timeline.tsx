@@ -99,6 +99,9 @@ import type { ContentSelectionDefault } from '../lib/contentSelection';
 import { resolveContextShields, shieldEffectBarEndsOnBarrierExhaustion, type ContextShieldState } from '../utils/barrierStacking';
 import { buildContextShieldEntries } from '../utils/contextShieldEntries';
 
+import { PlacementToast } from './timeline/sheet/PlacementToast';
+import { buildAppliedMitigation } from './timeline/sheet/sheetTap';
+
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
     return 'id_' + Math.random().toString(36).substring(2, 9);
@@ -513,11 +516,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
 
     return (
         <>
-            {toastMessage && (
-                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-red-600 text-white px-5 py-2.5 rounded-full shadow-sm flex items-center gap-2 animate-in slide-in-from-bottom-5 fade-in duration-200 pointer-events-none">
-                    <span className="text-app-2xl font-bold">{toastMessage}</span>
-                </div>
-            )}
+            <PlacementToast message={toastMessage} />
 
             <div
                 ref={containerRef}
@@ -2263,15 +2262,10 @@ const Timeline: React.FC = () => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         if (!selectedMemberId) return;
 
-        addMitigation({
-            id: genId(),
-            mitigationId: mitigation.id,
-            time: selectedMitigationTime,
-            duration: mitigation.duration,
-            ownerId: selectedMemberId,
+        addMitigation(buildAppliedMitigation(mitigation, selectedMitigationTime, selectedMemberId, {
             targetId: mitigation._targetId,
             linkedMitigationId: mitigation._linkedMitigationId,
-        });
+        }));
         setMitigationSelectorOpen(false);
 
     };
