@@ -83,7 +83,7 @@ export function MilspecVent({ isHeaderCollapsed, onToggleHeader }: MilspecVentPr
       <MilspecStencil en="HDR PNL 1A · DO NOT STEP" hi style={{ left: 70, top: 7 }} />
       {chan('L', chanL)}
       {chan('R', chanR)}
-      <div className="milspec-rail" data-vent-rail style={{ left: rail.x, top: 7, width: rail.w, height: 5 }}>
+      <div className="milspec-vent-rail" data-vent-rail style={{ left: rail.x, top: 7, width: rail.w, height: 5 }}>
         <MilspecHazard w={4} h={9} style={{ left: 0, top: -2 }} />
         <MilspecHazard w={4} h={9} style={{ right: 0, top: -2 }} />
       </div>

@@ -41,7 +41,7 @@ function setup(opts: { sbOpen?: boolean; hdrOpen?: boolean } = {}) {
   if (!hdrOpen) zones.header.setAttribute('data-collapsed', '');
   zones.header.innerHTML = '<div class="milspec-hs-box"><svg><path data-trace="h3"/></svg><i data-bus="s1"></i></div>';
   zones.vent.innerHTML = '<div class="milspec-hs-box"><div class="milspec-vent"><i class="perf"></i>'
-    + '<div class="milspec-rail" data-vent-rail></div><div class="milspec-carriage" data-vent-carriage><b class="milspec-carriage-led"></b></div>'
+    + '<div class="milspec-vent-rail" data-vent-rail></div><div class="milspec-carriage" data-vent-carriage><b class="milspec-carriage-led"></b></div>'
     + '<i class="hazR"></i></div></div>';
   document.body.append(app);
 
