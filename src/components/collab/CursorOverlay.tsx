@@ -24,9 +24,12 @@ interface CursorOverlayProps {
   //   値ではなく ref を渡して rAF で .current を読む。
   timeToYMapRef: React.RefObject<Map<number, number>>;
   sheetWidthRef: React.RefObject<number>;
+  // 受信した保存座標(レーン表示の xRatio) → このクライアントの画面 px。スプシ表示では列の中に収める変換が入る。
+  // 省略時は従来どおり xRatioToPx(xRatio, 全幅)。
+  toLocalXRef?: React.RefObject<(xRatio: number) => number>;
 }
 
-export const CursorOverlay: React.FC<CursorOverlayProps> = ({ timeToYMapRef, sheetWidthRef }) => {
+export const CursorOverlay: React.FC<CursorOverlayProps> = ({ timeToYMapRef, sheetWidthRef, toLocalXRef }) => {
   // 描く相手の集合(色/ジョブ)。roster は低頻度更新 → この購読由来の再描画も低頻度。
   const roster = useCollabPresenceStore(s => s.roster);
   const peers = useMemo<RemoteCursorPeer[]>(
@@ -63,7 +66,8 @@ export const CursorOverlay: React.FC<CursorOverlayProps> = ({ timeToYMapRef, she
         if (!el) continue;
         const pos = byClient[id]?.pos ?? null;
         if (!pos || !tMap) { el.style.opacity = '0'; continue; } // 未受信/タイムライン外は非表示。
-        const tx = xRatioToPx(pos.xRatio, width);
+        const toLocalX = toLocalXRef?.current;
+        const tx = toLocalX ? toLocalX(pos.xRatio) : xRatioToPx(pos.xRatio, width);
         const ty = timeSecToY(pos.timeSec, tMap);
         const cur = positions.current.get(id) ?? { x: tx, y: ty };
         // 補間係数を下げるほど滑らか(遅延は微増・送信量は不変=コスト不変)。
@@ -77,7 +81,7 @@ export const CursorOverlay: React.FC<CursorOverlayProps> = ({ timeToYMapRef, she
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [hasPeers, timeToYMapRef, sheetWidthRef]);
+  }, [hasPeers, timeToYMapRef, sheetWidthRef, toLocalXRef]);
 
   if (!hasPeers) return null;
   return (

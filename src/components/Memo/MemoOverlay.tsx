@@ -11,6 +11,10 @@ interface MemoOverlayProps {
     memos: PlanMemo[];
     timeToYMap: Map<number, number>;
     sheetWidth: number;
+    /** 保存座標(xRatio) → 画面 px。省略時は sheetWidth 全幅の割合(従来どおり)。スプシ表示では列の中に収める変換を渡す。 */
+    xRatioToPxFn?: (xRatio: number) => number;
+    /** 画面 px → 保存座標(xRatio、未 clamp)。省略時は従来どおり。 */
+    pxToXRatioFn?: (px: number) => number;
     /** メモモード ON 中は touchable、 OFF 中は readonly */
     interactive: boolean;
     /** クリック (= 編集モーダル起動) */
@@ -28,6 +32,8 @@ export const MemoOverlay: React.FC<MemoOverlayProps> = ({
     memos,
     timeToYMap,
     sheetWidth,
+    xRatioToPxFn,
+    pxToXRatioFn,
     interactive,
     onMemoClick,
     onMemoDragEnd,
@@ -53,7 +59,7 @@ export const MemoOverlay: React.FC<MemoOverlayProps> = ({
         const el = e.currentTarget;
         el.setPointerCapture(e.pointerId);
         const top = timeSecToY(memo.timeSec, timeToYMap);
-        const left = xRatioToPx(memo.xRatio, sheetWidth);
+        const left = xRatioToPxFn ? xRatioToPxFn(memo.xRatio) : xRatioToPx(memo.xRatio, sheetWidth);
         dragStateRef.current = {
             id: memo.id,
             pointerId: e.pointerId,
@@ -63,7 +69,7 @@ export const MemoOverlay: React.FC<MemoOverlayProps> = ({
             origTop: top,
             moved: false,
         };
-    }, [interactive, timeToYMap, sheetWidth]);
+    }, [interactive, timeToYMap, sheetWidth, xRatioToPxFn]);
 
     const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
         const s = dragStateRef.current;
@@ -103,7 +109,7 @@ export const MemoOverlay: React.FC<MemoOverlayProps> = ({
                     timeSec = 0;
                 }
             }
-            const xRatio = clampXRatio(pxToXRatio(newLeft, sheetWidth));
+            const xRatio = clampXRatio(pxToXRatioFn ? pxToXRatioFn(newLeft) : pxToXRatio(newLeft, sheetWidth));
             onMemoDragEnd?.(s.id, { timeSec, xRatio });
         } else {
             // しきい値未満 = クリック扱い
@@ -111,7 +117,7 @@ export const MemoOverlay: React.FC<MemoOverlayProps> = ({
         }
         dragStateRef.current = null;
         setDraggingId(null);
-    }, [memos, sheetWidth, timeToYMap, onMemoDragEnd, onMemoClick]);
+    }, [memos, sheetWidth, pxToXRatioFn, timeToYMap, onMemoDragEnd, onMemoClick]);
 
     const handlePointerCancel = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
         const s = dragStateRef.current;
@@ -135,7 +141,7 @@ export const MemoOverlay: React.FC<MemoOverlayProps> = ({
         <>
             {memos.map(memo => {
                 const top = timeSecToY(memo.timeSec, timeToYMap);
-                const left = xRatioToPx(memo.xRatio, sheetWidth);
+                const left = xRatioToPxFn ? xRatioToPxFn(memo.xRatio) : xRatioToPx(memo.xRatio, sheetWidth);
                 const isDragging = draggingId === memo.id;
                 return (
                     <div

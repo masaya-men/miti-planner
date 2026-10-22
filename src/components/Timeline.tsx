@@ -12,7 +12,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { usePlanStore } from '../store/usePlanStore';
 import { useCollabJoinerSession } from '../store/useCollabJoinerSession';
 import { useTutorialStore } from '../store/useTutorialStore';
-import { useThemeStore, useEffectiveThemeStyle } from '../store/useThemeStore';
+import { useThemeStore, useEffectiveThemeStyle, useEffectiveTimelineView } from '../store/useThemeStore';
 import { useStableCallback } from '../hooks/useStableCallback';
 import type { TimelineEvent, Mitigation, PartyMember, AppliedMitigation, LocalizedString, Phase, Label, PlanMemo } from '../types';
 import { getPhaseName } from '../types';
@@ -100,6 +100,7 @@ import { resolveContextShields, shieldEffectBarEndsOnBarrierExhaustion, type Con
 import { buildContextShieldEntries } from '../utils/contextShieldEntries';
 
 import { PlacementToast } from './timeline/sheet/PlacementToast';
+import { lanesBands, sheetBands, convertMemberX, lanesSheetWidth, readLanesColumnVars } from './timeline/sheet/memberX';
 import { buildAppliedMitigation } from './timeline/sheet/sheetTap';
 
 function genId(): string {
@@ -717,6 +718,14 @@ const Timeline: React.FC = () => {
     const toolMode = useMitigationStore(s => s.toolMode);
     const isMemoMode = toolMode === 'memo';
     const memos = useMitigationStore(s => s.memos);
+    // スプシ表示か(PC・WIP権限のみ。それ以外は常に 'lanes')。メモ/カーソルの横位置変換にだけ使う。
+    const isSheetView = useEffectiveTimelineView() === 'sheet';
+    // メモ・カーソルの横位置変換(保存・送信する xRatio は常にレーン表示の座標)。
+    // 実体は memberLayout が決まった後(下方)で毎 render 差し替える。ハンドラは ref 経由で読む。
+    const memberXMapRef = useRef<{ toPx: (xRatio: number) => number; toRatio: (px: number) => number }>({
+        toPx: (r) => r,
+        toRatio: (px) => px,
+    });
     // アクション（参照安定・再レンダー不発火）
     const addEvent = useMitigationStore(s => s.addEvent);
     const updateEvent = useMitigationStore(s => s.updateEvent);
@@ -1096,7 +1105,7 @@ const Timeline: React.FC = () => {
         // y → timeSec を timeToYMap 逆引き (動的高さ対応)
         const timeSec = yToTimeSec(yPx, timeToYMapRef.current);
         if (timeSec === null) return;  // シート範囲外、 メモ作成不可
-        const xRatio = clampXRatio(pxToXRatio(xPx, rect.width));
+        const xRatio = clampXRatio(memberXMapRef.current.toRatio(xPx));
         // 入力ボックスは position: fixed で body 直下に portal するため、
         // 位置はビューポート基準 (クリック座標そのもの) で渡す (画面端クリップ対策)。
         setMemoInput({
@@ -1163,7 +1172,7 @@ const Timeline: React.FC = () => {
         // sheetContainerRef の実画面位置を足してビューポート基準に変換する。
         const sheetRect = sheetContainerRef.current?.getBoundingClientRect();
         const topPx = timeSecToY(memo.timeSec, timeToYMapRef.current) + (sheetRect?.top ?? 0);
-        const leftPx = xRatioToPx(memo.xRatio, sheetWidth) + (sheetRect?.left ?? 0);
+        const leftPx = memberXMapRef.current.toPx(memo.xRatio) + (sheetRect?.left ?? 0);
         setMemoInput({
             topPx,
             leftPx,
@@ -1458,7 +1467,7 @@ const Timeline: React.FC = () => {
             let pos: { timeSec: number; xRatio: number } | null = null;
             if (lp) {
                 const timeSec = yToTimeSec(lp.y, timeToYMapRef.current);
-                pos = timeSec === null ? null : { timeSec, xRatio: clampXRatio(pxToXRatio(lp.x, sheetWidth)) };
+                pos = timeSec === null ? null : { timeSec, xRatio: clampXRatio(memberXMapRef.current.toRatio(lp.x)) };
             }
             const prev = lastCursorSent.current;
             const changed = !prev || !pos || prev.timeSec !== pos.timeSec || prev.xRatio !== pos.xRatio;
@@ -2721,6 +2730,35 @@ const Timeline: React.FC = () => {
         useRenderPendingStore.getState().hide();
     }, [memberLayout]);
 
+    // メモ・カーソルの横位置: 保存/送信は常にレーン表示の xRatio。スプシ表示では「読む=レーン→スプシ、書く=スプシ→レーン」に
+    // 変換し、同じメンバーの列の中に収める(列の外=左の情報列は両表示で同じなのでそのまま)。
+    const [memberStartPx, setMemberStartPx] = useState(0);
+    useLayoutEffect(() => {
+        const containerEl = sheetContainerRef.current;
+        const firstMemberEl = document.querySelector('[data-member-id]') as HTMLElement | null;
+        if (!containerEl || !firstMemberEl) return;
+        setMemberStartPx(firstMemberEl.getBoundingClientRect().left - containerEl.getBoundingClientRect().left);
+    }, [memberLayout, isSheetView]);
+    const memberXMap = useMemo(() => {
+        if (!isSheetView) {
+            return {
+                toPx: (r: number) => xRatioToPx(r, sheetWidth),
+                toRatio: (px: number) => pxToXRatio(px, sheetWidth),
+            };
+        }
+        const { thW, dpsW, padX } = readLanesColumnVars();
+        const lanes = lanesBands(visiblePartyMembers, memberStartPx, thW, dpsW, padX);
+        const sheet = sheetBands(visiblePartyMembers, memberLayout);
+        const lanesWidth = lanesSheetWidth(lanes, sheetWidth);
+        return {
+            toPx: (r: number) => convertMemberX(r * lanesWidth, lanes, sheet),
+            toRatio: (px: number) => (lanesWidth > 0 ? convertMemberX(px, sheet, lanes) / lanesWidth : 0),
+        };
+    }, [isSheetView, visiblePartyMembers, memberStartPx, memberLayout, sheetWidth]);
+    memberXMapRef.current = memberXMap;
+    const cursorToLocalXRef = useRef(memberXMap.toPx);
+    cursorToLocalXRef.current = memberXMap.toPx;
+
     // 画面外ガイド矢印用: 競合中インスタンスの列中央X + コンテンツ内絶対Y を算出。
     // Y は rowLayout(同じレンダーで計算済みの行の配置)から得る。旧実装の「直前レンダーの
     // timeToYMap を ref 経由で読む 1 レンダー分のラグ」は無くなった。
@@ -3788,6 +3826,8 @@ const Timeline: React.FC = () => {
                                 memos={memos}
                                 timeToYMap={timeToYMapRef.current}
                                 sheetWidth={sheetWidth}
+                                xRatioToPxFn={memberXMap.toPx}
+                                pxToXRatioFn={memberXMap.toRatio}
                                 interactive={isMemoMode}
                                 onMemoDragEnd={handleMemoDragEnd}
                                 onMemoClick={handleMemoClick}
@@ -3800,6 +3840,7 @@ const Timeline: React.FC = () => {
                         <CursorOverlay
                             timeToYMapRef={timeToYMapRef}
                             sheetWidthRef={sheetWidthRef}
+                            toLocalXRef={cursorToLocalXRef}
                         />
                         {/* メモ入力ボックス (新規 / 編集 共用) */}
                         {memoInput && (
