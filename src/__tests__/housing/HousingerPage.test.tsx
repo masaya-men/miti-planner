@@ -5,7 +5,7 @@
  * - profile が null (非公開/存在しない uid) → unavailable + 探すへ戻るリンク
  * - 本人 (useAuthStore の uid 一致) → プロフィールを編集ボタンが出る
  */
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
@@ -534,6 +534,8 @@ describe('HousingerPage', () => {
 
     await screen.findByRole('heading', { name: 'たかし' });
     const selectButtons = await screen.findAllByTestId('housing-card-select');
+    // 保存済み代表作 (profile 由来の選択状態) が画面に反映されるのを待ってから押す (反映前に押すと初期値 [] 基準で計算されて不安定になる)。
+    await waitFor(() => expect(selectButtons[0].className).toContain('is-selected'));
     fireEvent.click(selectButtons[1]); // l-2 を追加選択
 
     await screen.findByText((_, el) => el?.className === 'housing-card-select is-selected' && selectButtons[1] === el);
@@ -554,6 +556,7 @@ describe('HousingerPage', () => {
     await screen.findByRole('heading', { name: 'たかし' });
     const bgButtons = await screen.findAllByTestId('housing-card-background-select');
     expect(bgButtons).toHaveLength(2);
+    await waitFor(() => expect(screen.getAllByTestId('housing-card-select')[1].className).toContain('is-selected'));
     fireEvent.click(bgButtons[1]);
 
     await screen.findByText((_, el) => el?.className === 'housing-card-background-select is-selected' && bgButtons[1] === el);
@@ -577,6 +580,8 @@ describe('HousingerPage', () => {
 
     await screen.findByRole('heading', { name: 'たかし' });
     const selectButtons = await screen.findAllByTestId('housing-card-select');
+    // 保存済み代表作 (profile 由来の選択状態) が画面に反映されるのを待ってから押す (反映前に押すと初期値 [] 基準で計算されて不安定になる)。
+    await waitFor(() => expect(selectButtons[0].className).toContain('is-selected'));
     fireEvent.click(selectButtons[0]); // l-1(背景指定済み)を代表作から外す
 
     await screen.findByText((_, el) => el?.className === 'housing-card-select' && selectButtons[0] === el);
