@@ -66,19 +66,6 @@
   scale: 0.8;
 }
 
-/* 置けないマスを押したときの揺れ(Timeline の handleSheetCellTap が 300ms だけ data-shake を付ける) */
-@keyframes sheet-shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-2px); }
-  75% { transform: translateX(2px); }
-}
-[data-sheet-cols][data-shake] {
-  animation: sheet-shake 0.25s ease-in-out;
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-sheet-cols][data-shake] { animation: none; }
-}
-
 /* リキャスト線(Q1 案 b・色は 2026-10-23 見本 recast-color 案 a): 見える幅 4px・中立色の実線・終わりの行の下端に横棒(14×2)。
    赤は近接 DPS の効果時間の帯と紛らわしいので使わない。色は 3 つの見た目ごとのトークン。
    外箱 [data-mit-cd-box] は帯と同じ 6px 幅・同じ中心。clip-path で帯の下端から 4px 幅へ細くする(SheetCooldownLines)。 */
@@ -93,4 +80,15 @@
 /* MIL-SPEC の帯は 4px なので、細くする継ぎ目は付けず最初から 4px 幅 */
 .theme-military [data-mit-cd] {
   clip-path: inset(0 1px) !important;
+}
+
+/* ホバー強調(TableHoverHighlight): 要素 1 個。ふつう表示=ジョブのレーン全体 / スプシ表示=セル 1 つ。
+   標準は文字色の 6% の薄い面、MIL-SPEC は表の ink 色 8% の面 + 細い縁(--ma-ink-2)。 */
+.table-hover-hl {
+  position: absolute; left: 0; top: 0; pointer-events: none;
+  background: color-mix(in srgb, var(--color-app-text) 6%, transparent);
+}
+.theme-military .milspec-app .table-hover-hl {
+  background: color-mix(in srgb, var(--ma-ink) 8%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ma-ink-2) 40%, transparent);
 }

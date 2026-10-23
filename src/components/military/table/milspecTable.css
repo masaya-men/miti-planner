@@ -114,8 +114,10 @@
 }
 /* メンバー列のセルは標準どおりホバーで面を出す(効果を置く場所の手がかり・色だけ軍事の淡い面) */
 .theme-military .milspec-app [data-time-row] > *:hover { background: none; }
-.theme-military .milspec-app [data-time-row] > :nth-child(n+7):hover { background: rgba(255,255,255,0.045); }
-.theme-military.theme-light .milspec-app [data-time-row] > :nth-child(n+7):hover { background: rgba(20,30,40,0.06); }
+
+/* ジョブの列の区切り(レーン表示・スプシ表示の両方)。見出しの差込口(JobPickerRow の [data-member-id])の
+   border-right と同じ位置(列の右端 1px)・同じ色(--ms-cham-silhouette)で通す。どこまでがそのジョブの列か分かる。 */
+.theme-military .milspec-app [data-time-row] > [data-job-col] { border-right-color: var(--ms-cham-silhouette); }
 
 /* ---------- 時刻・同時刻の括弧と ×N(css:485-489)---------- */
 .theme-military .milspec-app [data-time-row] > :nth-child(3) {

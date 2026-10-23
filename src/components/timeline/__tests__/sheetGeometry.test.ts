@@ -80,12 +80,13 @@ describe('cooldownSpans', () => {
     expect(resolveSheetTap(benison, 3, [placed(benison, 0, 'H1')], [], t).kind).not.toBe('blocked');
   });
 
-  it('非チャージの線の内側は blocked、終点以降は置ける', () => {
+  it('非チャージの線の内側もレーン表示と同じく置ける(place + warning)、終点以降は警告なしで置ける', () => {
     const own = [placed(reprisal, 10, 'MT')];
     const [[s, e]] = cooldownSpans(reprisal, [10], 10);
-    expect(resolveSheetTap(reprisal, s + 1, own, [], t).kind).toBe('blocked');
-    expect(resolveSheetTap(reprisal, e - 1, own, [], t).kind).toBe('blocked');
-    expect(resolveSheetTap(reprisal, e, own, [], t).kind).toBe('place');
+    expect(resolveSheetTap(reprisal, s + 1, own, [], t).kind).toBe('place');
+    expect((resolveSheetTap(reprisal, s + 1, own, [], t) as any).warning).toBeTruthy();
+    expect(resolveSheetTap(reprisal, e - 1, own, [], t).kind).toBe('place');
+    expect(resolveSheetTap(reprisal, e, own, [], t)).toEqual({ kind: 'place' });
   });
 });
 

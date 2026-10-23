@@ -22,10 +22,16 @@ describe('resolveSheetTap', () => {
     expect(resolveSheetTap(reprisal, 10, own, [], t)).toEqual({ kind: 'remove', id: 'x1' });
   });
 
-  it('リキャスト中は blocked(conflictOverride でも置かない)', () => {
+  it('リキャスト中でもレーン表示と同じく置ける(place + warning・重なりはシェブロンが知らせる)', () => {
     const r = resolveSheetTap(reprisal, 20, [placed(reprisal, 10, 'MT')], [], t);
+    expect(r.kind).toBe('place');
+    expect((r as any).warning).toBeTruthy();
+  });
+
+  it('本当に置けない(2 チャージ技の全消費)は blocked + message', () => {
+    const twoCharge = { ...benison, scope: 'self' } as Mitigation;
+    const r = resolveSheetTap(twoCharge, 5, [placed(twoCharge, 0, 'H1'), placed(twoCharge, 1, 'H1')], [], t);
     expect(r.kind).toBe('blocked');
-    expect((r as any).message).toBeTruthy();
   });
 
   it('後ろの配置と被る(警告)なら place + warning', () => {

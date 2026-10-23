@@ -228,16 +228,15 @@ describe('スプシ表示の本体', () => {
     expect(useMitigationStore.getState().timelineMitigations.length).toBe(0);
   });
 
-  it('スプシ: リキャスト中のマスは data-shake が付きトーストが出て addMitigation は呼ばれない', () => {
+  it('スプシ: リキャスト中のマスにもレーン表示と同じく置ける(揺れ・トーストは出ない。重なりはシェブロンが知らせる)', () => {
     const { index, def } = pickPlainColumn();
     useMitigationStore.getState().addMitigation({ id: 's8-a', mitigationId: def.id, ownerId: 'MT', time: 0, duration: def.duration } as never);
     const { container } = renderTimeline();
     const cell = cellAt(container, 30);
     fireEvent.click(cell, { clientX: index * SHEET_COL_W + 10 });
-    expect(useMitigationStore.getState().timelineMitigations.length).toBe(1);
-    expect(cell.hasAttribute('data-shake')).toBe(true);
-    // トースト(判定の message = 'mitigation.cd_remaining' のキーがスタブ t でそのまま出る)
-    expect(container.ownerDocument.body.textContent).toContain('mitigation.cd_remaining');
+    expect(useMitigationStore.getState().timelineMitigations.length).toBe(2);
+    expect(cell.hasAttribute('data-shake')).toBe(false);
+    expect(container.ownerDocument.body.textContent).not.toContain('mitigation.cd_remaining');
   });
 
   it('レーン: timelineView=sheet でも canPreviewWip=false なら従来 DOM(data-sheet-cols 無し・data-mit-cd 無し)', () => {
@@ -372,7 +371,8 @@ describe('スプシ表示の本体', () => {
     });
     const btn = container.ownerDocument.querySelector('[data-sheet-popover]')!.querySelector<HTMLButtonElement>('button[data-target-id="ST"]')!;
     act(() => { fireEvent.click(btn); });
-    expect(useMitigationStore.getState().timelineMitigations.length).toBe(n);
+    // チャージ技は全消費で置けない(レーン表示でも置けない)。チャージの無い技はリキャスト中でも置ける(conflictOverride)
+    expect(useMitigationStore.getState().timelineMitigations.length).toBe(def.maxCharges ? n : n + 1);
     expect(container.ownerDocument.querySelector('[data-sheet-popover]')).toBeNull();
   });
 

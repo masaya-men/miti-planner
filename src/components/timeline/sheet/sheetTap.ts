@@ -30,15 +30,15 @@ export function resolveSheetTap(
   if (existing) return { kind: 'remove', id: existing.id };
 
   const status = validateMitigationPlacement(def, time, ownerMitigations, t);
-  // conflictOverride(前方のリキャスト中)もスプシでは置かない
-  if (!status.available) return { kind: 'blocked', message: status.message };
+  // 前方のリキャスト中(conflictOverride)はレーン表示と同じく置ける。重なりは競合のシェブロン・脈動が知らせる
+  if (!status.available && !status.conflictOverride) return { kind: 'blocked', message: status.message };
 
   const r = resolveMitigationTap(def, time, allMitigations);
   if (r.kind === 'place') {
     return {
       kind: 'place',
       ...(r.linkedMitigationId ? { linkedMitigationId: r.linkedMitigationId } : {}),
-      ...(status.warning && status.message ? { warning: status.message } : {}),
+      ...((status.warning || status.conflictOverride) && status.message ? { warning: status.message } : {}),
     };
   }
   return r;

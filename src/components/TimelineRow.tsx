@@ -658,6 +658,7 @@ const TimelineRowContent = memo(({
                     return (
                     <div
                         key={member.id}
+                        data-job-col=""
                         data-sheet-cols={sheetN ?? undefined}
                         data-tutorial={
                             member.id === 'MT' && time === 4 ? 'miti-cell-mt-4' :
@@ -666,7 +667,7 @@ const TimelineRowContent = memo(({
                         }
                         className={clsx(
                             "hidden md:flex h-full items-center justify-center relative group/cell cursor-pointer  border-r",
-                            sheetN === null ? "border-app-border hover:bg-app-surface2" : "border-app-text/20 hover:bg-app-surface2"
+                            sheetN === null ? "border-app-border" : "border-app-text/20"
                         )}
                         style={sheetN === null
                             ? { width: getColumnCssVar(member.role), minWidth: getColumnCssVar(member.role), maxWidth: getColumnCssVar(member.role) }

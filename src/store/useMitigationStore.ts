@@ -69,6 +69,8 @@ interface MitigationState {
     myJobHighlight: boolean;
     hideEmptyRows: boolean;
     showRowBorders: boolean;
+    /** スプシ表示の罫線(ふつう表示の showRowBorders とは別に持つ。既定 ON)。 */
+    sheetRowBorders: boolean;
     clipboardEvent: TimelineEvent | null;
     timelineSortOrder: 'light_party' | 'role';
     /** 表示/非表示スイッチで非表示にしたパーティメンバーID。見た目だけの絞り込みで、
@@ -166,6 +168,7 @@ interface MitigationState {
     setMyJobHighlight: (enabled: boolean) => void;
     setHideEmptyRows: (hide: boolean) => void;
     setShowRowBorders: (show: boolean) => void;
+    setSheetRowBorders: (show: boolean) => void;
     setClipboardEvent: (event: TimelineEvent | null) => void;
     setTimelineSortOrder: (order: 'light_party' | 'role') => void;
     toggleHiddenPartyMember: (id: string) => void;
@@ -560,6 +563,7 @@ export const useMitigationStore = create<MitigationState>()(
                 myJobHighlight: false,
                 hideEmptyRows: true,
                 showRowBorders: false,
+                sheetRowBorders: true,
                 hiddenPartyMemberIds: [],
                 clipboardEvent: null,
                 timelineSortOrder: 'light_party',
@@ -879,6 +883,7 @@ export const useMitigationStore = create<MitigationState>()(
                 setMyJobHighlight: (enabled) => set({ myJobHighlight: enabled }),
                 setHideEmptyRows: (hide) => set({ hideEmptyRows: hide }),
                 setShowRowBorders: (show) => set({ showRowBorders: show }),
+                setSheetRowBorders: (show) => set({ sheetRowBorders: show }),
                 toggleHiddenPartyMember: (id) => set((state) => ({
                     hiddenPartyMemberIds: state.hiddenPartyMemberIds.includes(id)
                         ? state.hiddenPartyMemberIds.filter((mid) => mid !== id)
@@ -1861,6 +1866,7 @@ export const useMitigationStore = create<MitigationState>()(
                 myJobHighlight: state.myJobHighlight,
                 hideEmptyRows: state.hideEmptyRows,
                 showRowBorders: state.showRowBorders,
+                sheetRowBorders: state.sheetRowBorders,
                 timelineSortOrder: state.timelineSortOrder,
                 hiddenPartyMemberIds: state.hiddenPartyMemberIds,
                 memos: state.memos,

@@ -1462,7 +1462,8 @@
 /* 縦バー可視化 + 計器意匠(mockup .tbody::-webkit-scrollbar 1220-1237) */
 .theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar { width: 14px; height: 14px; }
 .theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
-.theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar:vertical { width: 14px; display: block; }
+/* 縦バーは出さない(スクロールはできる・2026-10-23 masaya)。ヘッダー右端の目盛りキャップも外した。横バーはそのまま */
+.theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar:vertical { width: 0; display: none; }
 .theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar:horizontal { height: 14px; display: block; }
 .theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar-track {
   background: var(--ms-gauge-ticks), var(--ms-gauge-track-fill);
@@ -1496,19 +1497,6 @@
 .theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar-thumb:active { filter: brightness(0.88); }
 .theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar-corner { background: var(--ms-recess-lo); }
 
-/* 静的目盛りキャップ(mockup .gauge-cap 1208-1215)。ヘッダー外枠と帯外枠の右端に、縦 track と
-   同一の --ms-gauge-ticks を貼る。3px の暗い縁取りで「溝の入口」を表現(mockup 1213 相当)。 */
-.theme-military .milspec-app div:has(> #timeline-header-inner) { position: relative; }
-.theme-military .milspec-app div:has(> #timeline-header-inner)::after {
-  content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 14px;
-  z-index: 4; pointer-events: none;
-  background:
-    var(--ms-gauge-ticks),
-    linear-gradient(90deg, rgba(0,0,0,0.4) 0 3px, transparent 3px 4px),
-    var(--ms-gauge-track-fill);
-}
-
-
 /* light: dark 固定 hex(track/thumb グラデ + 目盛りの青)を淡い金属色へ。
    最終調整は SP2 後(Task 3-7 と同じ作法・「破綻しない」レベル)。 */
 .theme-military.theme-light .milspec-app {
@@ -1525,12 +1513,6 @@
 }
 .theme-military.theme-light .milspec-app .timeline-scroll-container::-webkit-scrollbar-thumb:horizontal {
   background: linear-gradient(180deg, #cfd8e0, #9aa7b3 45%, #8996a3 50%, #9aa7b3 55%, #cfd8e0);
-}
-.theme-military.theme-light .milspec-app div:has(> #timeline-header-inner)::after {
-  background:
-    var(--ms-gauge-ticks),
-    linear-gradient(90deg, rgba(40,80,120,0.16) 0 3px, transparent 3px 4px),
-    var(--ms-gauge-track-fill);
 }
 .theme-military.theme-light .milspec-app .timeline-scroll-container::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(90deg, #c8d2da, #8996a3 45%, var(--ms-cyan) 50%, #8996a3 55%, #c8d2da);

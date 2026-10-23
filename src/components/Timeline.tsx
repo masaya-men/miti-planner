@@ -112,6 +112,7 @@ import { resolveContextShields, shieldEffectBarEndsOnBarrierExhaustion, type Con
 import { buildContextShieldEntries } from '../utils/contextShieldEntries';
 
 import { PlacementToast } from './timeline/sheet/PlacementToast';
+import { TableHoverHighlight, type HoverGeom } from './timeline/sheet/TableHoverHighlight';
 import { lanesBands, sheetBands, convertMemberX, lanesSheetWidth, readLanesColumnVars, memoCreateXRatio } from './timeline/sheet/memberX';
 import { buildAppliedMitigation, resolveSheetTap } from './timeline/sheet/sheetTap';
 
@@ -719,7 +720,7 @@ const Timeline: React.FC = () => {
     const {
         aaSettings, partyMembers,
         timelineMitigations, timelineEvents, phases,
-        clipboardEvent, hideEmptyRows, currentLevel, showRowBorders,
+        clipboardEvent, hideEmptyRows, currentLevel, showRowBorders: laneRowBorders, sheetRowBorders,
         hiddenPartyMemberIds,
     } = useMitigationStore(useShallow(s => ({
         aaSettings: s.aaSettings,
@@ -731,6 +732,7 @@ const Timeline: React.FC = () => {
         hideEmptyRows: s.hideEmptyRows,
         currentLevel: s.currentLevel,
         showRowBorders: s.showRowBorders,
+        sheetRowBorders: s.sheetRowBorders,
         hiddenPartyMemberIds: s.hiddenPartyMemberIds,
     })));
     const partySortOrder = useMitigationStore(s => s.timelineSortOrder);
@@ -747,6 +749,13 @@ const Timeline: React.FC = () => {
     const memos = useMitigationStore(s => s.memos);
     // スプシ表示か(PC・WIP権限のみ。それ以外は常に 'lanes')。メモ/カーソルの横位置変換にだけ使う。
     const isSheetView = useEffectiveTimelineView() === 'sheet';
+    // 罫線はふつう表示とスプシ表示で別の設定(スプシ側の既定は ON)。以降は表示中の側の値を showRowBorders として使う
+    const showRowBorders = isSheetView ? sheetRowBorders : laneRowBorders;
+    const toggleRowBorders = useCallback(() => {
+        const st = useMitigationStore.getState();
+        if (isSheetView) st.setSheetRowBorders(!st.sheetRowBorders);
+        else st.setShowRowBorders(!st.showRowBorders);
+    }, [isSheetView]);
     // スプシ表示: マスのクリック判定が読む列(下方の sheetColumnMap を毎 render 差し替え)・弾いたときのトースト・対象選択の小窓
     const sheetColumnMapRef = useRef<ReadonlyMap<string, SheetColumn[]> | null>(null);
     const [sheetToast, setSheetToast] = useState<{ message: string; n: number } | null>(null);
@@ -2212,11 +2221,7 @@ const Timeline: React.FC = () => {
                 useMitigationStore.getState().addMitigation(buildAppliedMitigation(colDef, time, memberId, { linkedMitigationId: r.linkedMitigationId }));
                 return;
             case 'blocked':
-                // マスを揺らす(CSS の [data-shake])。連打でも毎回揺れるよう付け直す
-                cell.removeAttribute('data-shake');
-                void cell.offsetWidth;
-                cell.setAttribute('data-shake', '');
-                window.setTimeout(() => cell.removeAttribute('data-shake'), 300);
+                // 本当に置けない(レーン表示でも置けない)ときはトーストだけ。マスは揺らさない
                 setSheetToast(prev => ({ message: r.message ?? sheetTRef.current('timeline.cannot_place_here'), n: (prev?.n ?? 0) + 1 }));
                 return;
             case 'selectTarget':
@@ -2241,7 +2246,7 @@ const Timeline: React.FC = () => {
             // 小窓を開いている間に共同編集で別の配置が入った場合に備え、選んだ時点で配置可否を再判定する
             const own = useMitigationStore.getState().timelineMitigations.filter(m => m.ownerId === sheetPopover.memberId);
             const status = validateMitigationPlacement(sheetPopover.def, sheetPopover.time, own, (k, o) => String(sheetTRef.current(k, o as never)));
-            if (!status.available) {
+            if (!status.available && !status.conflictOverride) {
                 setSheetToast(prev => ({ message: status.message ?? sheetTRef.current('timeline.cannot_place_here'), n: (prev?.n ?? 0) + 1 }));
             } else {
                 useMitigationStore.getState().addMitigation(buildAppliedMitigation(sheetPopover.def, sheetPopover.time, sheetPopover.memberId, pick));
@@ -2940,6 +2945,17 @@ const Timeline: React.FC = () => {
         setSheetColHover(prev => (prev?.key ?? null) === key ? prev : (hit ? { key: key!, def: hit.column.def, x: e.clientX, y: e.clientY } : null));
     };
     const handleSheetPointerLeave = () => setSheetColHover(null);
+    // ホバー強調(TableHoverHighlight)が pointermove で読む最新の幾何
+    const hoverGeomRef = useRef<HoverGeom>({ mode: 'lanes', bands: [], columnMap: null, layout: EMPTY_ROW_LAYOUT });
+    hoverGeomRef.current = {
+        mode: isSheetView ? 'sheet' : 'lanes',
+        // レーン表示の memberLayout は列の内側(左右の余白 padX を除いた幅)なので、帯は余白ぶん広げてセル全体に合わせる
+        bands: isSheetView
+            ? sheetBands(visiblePartyMembers, memberLayout)
+            : (() => { const padX = readLanesColumnVars().padX; return sheetBands(visiblePartyMembers, memberLayout).map(b => ({ ...b, left: b.left - padX, width: b.width + padX * 2 })); })(),
+        columnMap: sheetColumnMap,
+        layout: rowLayout,
+    };
     // レーン表示は従来どおり rAF 内で最新の sheetWidthRef を読む。スプシ表示だけ列変換。
     const cursorToLocalXRef = useRef(memberXMap.toPx);
     cursorToLocalXRef.current = isSheetView
@@ -3039,7 +3055,7 @@ const Timeline: React.FC = () => {
                                         isMemoMode={isMemoMode}
                                         onToggleMemo={() => useMitigationStore.getState().setToolMode(isMemoMode ? 'idle' : 'memo')}
                                         showRowBorders={showRowBorders}
-                                        onToggleRowBorders={() => useMitigationStore.getState().setShowRowBorders(!showRowBorders)}
+                                        onToggleRowBorders={toggleRowBorders}
                                         pipSupported={pipSupported}
                                         pipActive={!!pipWindow}
                                         pipMenuRef={pipMenuRef}
@@ -3186,7 +3202,7 @@ const Timeline: React.FC = () => {
                             <div className="flex-none md:w-[calc(var(--col-counter-w)-1px)] md:min-w-[calc(var(--col-counter-w)-1px)] flex items-center justify-center gap-1 h-full">
                                 <Tooltip content={t('timeline.row_borders')}>
                                     <button
-                                        onClick={() => useMitigationStore.getState().setShowRowBorders(!showRowBorders)}
+                                        onClick={toggleRowBorders}
                                         className={clsx(
                                             "p-1 rounded transition-all duration-150 cursor-pointer",
                                             showRowBorders
@@ -3647,6 +3663,9 @@ const Timeline: React.FC = () => {
                                             return <MobileEffectBarLayer bars={mobileBars} conflictingIds={mobileConflictingIds} />;
                                         })()}
                                         {renderItems}
+
+                                        {/* ホバー強調(1 個だけ・pointermove で動かす)。軽減アイコン・帯(後ろの兄弟)より奥 */}
+                                        {!isMobileTimeline && <TableHoverHighlight containerRef={sheetContainerRef} geomRef={hoverGeomRef} />}
 
 
                                         {/* フェーズオーバーレイ (PC のみ。モバイルはヘッダー直下の固定ラベルに一本化) */}

@@ -55,9 +55,9 @@ describe('sheetCooldownBoxes', () => {
     const partner = boxes.find(b => b.left === leftOf(nf))!;
     expect(partner).toBeTruthy();
     expect(secs(partner)).toEqual([0, def('nascent_flash').recast]);
-    // 線の途中 = 押せない / 線の後 = 押せる(線と判定が一致)
+    // 線の途中でもレーン表示と同じく押せる(blocked にならない・重なりはシェブロンが知らせる)
     const mid = Math.floor(def('nascent_flash').recast / 2);
-    expect(resolveSheetTap(cols[nf].def, mid, items, items, t).kind).toBe('blocked');
+    expect(resolveSheetTap(cols[nf].def, mid, items, items, t).kind).not.toBe('blocked');
     expect(resolveSheetTap(cols[nf].def, def('nascent_flash').recast, items, items, t).kind).not.toBe('blocked');
   });
 
