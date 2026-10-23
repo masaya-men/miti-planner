@@ -11,6 +11,7 @@ vi.mock('../ui/Tooltip', () => ({ Tooltip: ({ children }: { children?: React.Rea
 
 import { PartyToggleStrip } from '../PartyToggleStrip';
 import { useMitigationStore } from '../../store/useMitigationStore';
+import { useRenderPendingStore } from '../../store/useRenderPendingStore';
 
 const memberToggles = () =>
   screen.getAllByRole('button').filter((b) => b.hasAttribute('data-member-toggle'));
@@ -46,6 +47,16 @@ describe('PartyToggleStrip', () => {
     expect(useMitigationStore.getState().hiddenPartyMemberIds).toEqual(['D1', 'MT']);
     fireEvent.click(screen.getByRole('button', { name: 'ui.party_visibility_all_tooltip' }));
     expect(useMitigationStore.getState().hiddenPartyMemberIds).toEqual([]);
+  });
+
+  it('全員表示中に ALL を押しても何も起きない(読み込み表示が出っぱなしにならない)', () => {
+    // 根因: 列が変わらないと Timeline.tsx の memberLayout が更新されず pending.hide() が呼ばれない
+    useRenderPendingStore.setState({ pending: false });
+    const before = useMitigationStore.getState().hiddenPartyMemberIds;
+    render(<PartyToggleStrip />);
+    fireEvent.click(screen.getByRole('button', { name: 'ui.party_visibility_all_tooltip' }));
+    expect(useRenderPendingStore.getState().pending).toBe(false);
+    expect(useMitigationStore.getState().hiddenPartyMemberIds).toBe(before);
   });
 
   it('区切り線: 役割の境目の 2 本(並び替えに関係なく固定)', () => {

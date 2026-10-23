@@ -122,7 +122,7 @@ export function PartyOps({ MW, partySortOrder, setPartySortOrder, onAutoPlan, on
       {/* 表示メンバー: ALL + 8 人(沈んで下縁が緑 = 表示中、浮いて灰色 = 非表示)。ストアは見た目だけの絞り込み */}
       <div className="milspec-h4-kc" role="group" aria-label={t('ui.party_visibility_members')} style={{ left: members.x, top: members.y }}>
         <MilspecKey cap={members.caps[0]} style={capPos(members.caps[0])} latch pressed={hiddenIds.length === 0}
-          label={<b>{t('ui.party_visibility_all')}</b>} onClick={() => deferHeavy(() => setHiddenPartyMemberIds([]))} />
+          label={<b>{t('ui.party_visibility_all')}</b>} onClick={() => { if (hiddenIds.length > 0) deferHeavy(() => setHiddenPartyMemberIds([])); }} />
         {memberIds.map((id, i) => {
           const hidden = hiddenIds.includes(id);
           const jobId = partyMembers.find((m) => m.id === id)?.jobId;

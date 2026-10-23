@@ -49,7 +49,8 @@ export function PartyToggleStrip({ size = 22 }: PartyToggleStripProps) {
                 <button
                     type="button"
                     aria-label={t('ui.party_visibility_all_tooltip')}
-                    onClick={() => runAfterIndicator(() => setHiddenPartyMemberIds([]))}
+                    // 全員表示中は何もしない(列が変わらず「更新中」表示を消す契機が来ないため出しっぱなしになる)
+                    onClick={() => { if (!allShown) runAfterIndicator(() => setHiddenPartyMemberIds([])); }}
                     className={clsx(
                         'text-[10px] font-black tracking-[0.06em] px-1.5 h-[22px] rounded-full cursor-pointer text-app-text',
                         allShown ? 'bg-app-text/10' : 'hover:bg-app-text/10',

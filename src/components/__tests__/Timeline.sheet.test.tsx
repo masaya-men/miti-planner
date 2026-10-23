@@ -428,4 +428,23 @@ describe('スプシ表示の本体', () => {
     expect(document.querySelector('[data-sheet-col-tooltip]')).toBeNull();
     expect(cols.length).toBeGreaterThan(0);
   });
+
+  it('スプシ: 置いたアイコンにマウスを載せても、ふつう表示用のツールチップ(ドラッグの案内)は出ない。ふつう表示では出る', async () => {
+    const { def } = pickPlainColumn();
+    const hoverHint = async (): Promise<boolean> => {
+      useMitigationStore.setState({ timelineMitigations: [] });
+      useMitigationStore.getState().addMitigation({ id: 's8-tip', mitigationId: def.id, ownerId: 'MT', time: 30, duration: def.duration } as never);
+      const { container } = renderTimeline();
+      const icon = [...container.querySelectorAll('[data-mit-icon]')].find(el => !el.closest('[data-sheet-member]'))!;
+      fireEvent.mouseEnter(icon.parentElement!);
+      await act(async () => { await new Promise(r => setTimeout(r, 250)); });
+      const shown = document.body.textContent?.includes('timeline.mitigation_drag_hint') ?? false;
+      cleanup();
+      return shown;
+    };
+    useThemeStore.setState({ timelineView: 'lanes' });
+    expect(await hoverHint()).toBe(true);
+    useThemeStore.setState({ timelineView: 'sheet' });
+    expect(await hoverHint()).toBe(false);
+  });
 });
