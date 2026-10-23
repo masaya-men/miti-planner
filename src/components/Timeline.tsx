@@ -263,7 +263,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const { contentLanguage } = useThemeStore();
     const MITIGATIONS = useMitigations();
     const JOBS = useJobs();
-    const dragStartRef = useRef<{ pointerY: number; scrollTop: number } | null>(null);
+    const dragStartRef = useRef<{ pointerX: number; pointerY: number; scrollTop: number } | null>(null);
     const autoScrollRef = useRef<number | null>(null);
     const lastPointerYRef = useRef<number>(0);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -447,7 +447,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         e.stopPropagation();
         (e.target as HTMLElement).setPointerCapture(e.pointerId);
         const scrollTop = scrollContainerRef.current?.scrollTop ?? 0;
-        dragStartRef.current = { pointerY: e.clientY, scrollTop };
+        dragStartRef.current = { pointerX: e.clientX, pointerY: e.clientY, scrollTop };
         lastPointerYRef.current = e.clientY;
         updateDragPosition(0);
         startAutoScroll();
@@ -475,6 +475,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         const finalY = top + dy;
         const newTime = timeAtDraggedTop(finalY);
 
+        const dragStartX = dragStartRef.current.pointerX;
         dragStartRef.current = null;
 
         if (newTime !== mitigation.time && def) {
@@ -490,9 +491,12 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         } else {
             resetDragPosition(false);
             // スプシ表示: ほぼ動かさずに離した = アイコンのマスをもう一度押した扱い
-            if (onIconTap && Math.abs(dy) < 4) onIconTap(mitigation.ownerId, mitigation.time, e);
+            if (onIconTap && Math.abs(dy) < 4 && Math.abs(e.clientX - dragStartX) < 4) onIconTap(mitigation.ownerId, mitigation.time, e);
         }
     };
+
+    // スプシ表示(アイコンが標準より小さい)か。対象バッジを自分の列に収めるために使う
+    const isSheetIcon = iconPx < MITI_ICON_PX;
 
     const getEffectiveIcon = () => {
         if (iconOverride) return iconOverride;
@@ -603,11 +607,11 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                         const targetMember = members.find((m: import('../types').PartyMember) => m.id === mitigation.targetId);
                         const targetJob = targetMember?.jobId ? JOBS.find(j => j.id === targetMember.jobId) : null;
                         return (
-                            <div className="absolute -bottom-2 -right-2 z-30 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
+                            <div className={clsx("absolute z-30 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,1)]", isSheetIcon ? "-bottom-[3px] -right-[4px]" : "-bottom-2 -right-2")}>
                                 {targetJob ? (
-                                    <img src={targetJob.icon} alt={getPhaseName(targetJob.name, contentLanguage)} className="w-[20px] h-[20px] object-contain rounded-sm" />
+                                    <img src={targetJob.icon} alt={getPhaseName(targetJob.name, contentLanguage)} className={clsx("object-contain rounded-sm", isSheetIcon ? "w-[10px] h-[10px]" : "w-[20px] h-[20px]")} />
                                 ) : (
-                                    <div className="bg-black/90 rounded px-1 py-0.5 text-app-xs font-black text-slate-800 dark:text-white ring-1 ring-white/20 origin-bottom-right">
+                                    <div className={clsx("bg-black/90 rounded px-1 py-0.5 text-app-xs font-black text-slate-800 dark:text-white ring-1 ring-white/20 origin-bottom-right", isSheetIcon && "scale-[.6]")}>
                                         {mitigation.targetId}
                                     </div>
                                 )}
@@ -736,6 +740,8 @@ const Timeline: React.FC = () => {
     const sheetColumnMapRef = useRef<ReadonlyMap<string, SheetColumn[]> | null>(null);
     const [sheetToast, setSheetToast] = useState<{ message: string; n: number } | null>(null);
     const [sheetPopover, setSheetPopover] = useState<SheetPopoverState | null>(null);
+    // レーン表示へ切り替えたら小窓は閉じる(戻したときに再び出ないように)
+    useEffect(() => { if (!isSheetView) setSheetPopover(null); }, [isSheetView]);
     // メモ・カーソルの横位置変換(保存・送信する xRatio は常にレーン表示の座標)。
     // 実体は memberLayout が決まった後(下方)で毎 render 差し替える。ハンドラは ref 経由で読む。
     const memberXMapRef = useRef<{ toPx: (xRatio: number) => number; toRatio: (px: number) => number }>({

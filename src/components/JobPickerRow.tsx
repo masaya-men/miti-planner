@@ -86,7 +86,7 @@ export const JobPickerRow: React.FC<JobPickerRowProps> = ({
                     className={clsx(
                         "hidden md:flex flex-none border-r h-full flex-col items-center justify-center p-0.5 relative group",
                         sheetCols ? "border-app-text/20" : "border-app-border",
-                        index === partyMembers.length - 1 && "border-r border-app-border",
+                        !sheetCols && index === partyMembers.length - 1 && "border-r border-app-border",
                         partySortOrder === 'role' ? (
                             member.role === 'tank' ? "bg-gradient-to-b from-blue-600/20 via-blue-600/5 to-transparent shadow-[inset_0_1px_0_rgba(37,99,235,0.5)]" :
                                 member.role === 'healer' ? "bg-gradient-to-b from-green-500/20 via-green-500/5 to-transparent shadow-[inset_0_1px_0_rgba(34,197,94,0.5)]" :
@@ -102,7 +102,9 @@ export const JobPickerRow: React.FC<JobPickerRowProps> = ({
                         <div
                             className={clsx(
                                 "flex items-center justify-center w-full h-full rounded cursor-pointer transition-all duration-300 relative",
-                                sheetCols && "gap-1 overflow-hidden"
+                                // 3 列以上だけジョブ名を出すので、そのときだけ切り詰める。1〜2 列はホバーで拡大するアイコンを切らない
+                                sheetCols && "gap-1",
+                                sheetCols && (sheetCols.get(member.id) ?? 0) >= 3 && "overflow-hidden"
                             )}
                             onClick={(e) => handleJobIconClick(member.id, e)}
                             onContextMenu={(e) => {

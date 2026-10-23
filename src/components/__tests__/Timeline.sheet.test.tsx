@@ -270,4 +270,46 @@ describe('スプシ表示の本体', () => {
     expect(placed[0]).toMatchObject({ mitigationId: cols[index].def.id, targetId: 'ST', time: 30 });
     expect(container.ownerDocument.querySelector('[data-sheet-popover]')).toBeNull();
   });
+
+  it('スプシ: 置いたアイコンを横に大きく動かして離したときは「押した」扱いにならない(消えない)', () => {
+    const { index, def } = pickPlainColumn();
+    useMitigationStore.getState().addMitigation({ id: 's10-a', mitigationId: def.id, ownerId: 'MT', time: 30, duration: def.duration } as never);
+    const { container } = renderTimeline();
+    const cell = cellAt(container, 30);
+    const x = index * SHEET_COL_W + 10;
+    (document as unknown as { elementsFromPoint: () => Element[] }).elementsFromPoint = () => [cell];
+    const icon = placedIcons(container)[0];
+    fireEvent.pointerDown(icon, { button: 0, clientX: x, clientY: 100, pointerId: 1 });
+    fireEvent.pointerUp(icon, { button: 0, clientX: x + 40, clientY: 101, pointerId: 1 });
+    expect(useMitigationStore.getState().timelineMitigations.length).toBe(1);
+    delete (document as unknown as { elementsFromPoint?: unknown }).elementsFromPoint;
+  });
+
+  it('スプシ: レーン表示へ切り替えると対象選択の小窓は閉じ、スプシに戻しても再び出ない', () => {
+    const cols = warColumns();
+    const index = cols.findIndex(c => c.def.scope === 'target');
+    const { container } = renderTimeline();
+    fireEvent.click(cellAt(container, 30), { clientX: index * SHEET_COL_W + 10 });
+    expect(container.ownerDocument.querySelector('[data-sheet-popover]')).not.toBeNull();
+    act(() => { useThemeStore.getState().setTimelineView('lanes'); });
+    expect(container.ownerDocument.querySelector('[data-sheet-popover]')).toBeNull();
+    act(() => { useThemeStore.getState().setTimelineView('sheet'); });
+    expect(container.ownerDocument.querySelector('[data-sheet-popover]')).toBeNull();
+  });
+
+  it('スプシ: 対象つきの技の対象バッジは 10px に縮み、自分の列に収まる位置(レーンは 20px のまま)', () => {
+    const cols = warColumns();
+    const def = cols.find(c => c.def.scope === 'target')!.def;
+    useMitigationStore.getState().addMitigation({ id: 's10-t', mitigationId: def.id, ownerId: 'MT', time: 30, duration: def.duration, targetId: 'ST' } as never);
+    const { container } = renderTimeline();
+    // ジョブ未設定のテスト用パーティでは文字バッジ(scale で縮む)。ジョブありなら 10px の画像
+    const wrap = container.querySelector('[class*="-bottom-[3px]"]') as HTMLElement | null;
+    expect(wrap).not.toBeNull();
+    expect(wrap!.firstElementChild!.className).toMatch(/scale-\[\.6\]|w-\[10px\]/);
+    act(() => { useThemeStore.getState().setTimelineView('lanes'); });
+    expect(container.querySelector('[class*="-bottom-[3px]"]')).toBeNull();
+    const lane = container.querySelector('.-bottom-2') as HTMLElement | null;
+    expect(lane).not.toBeNull();
+    expect(lane!.firstElementChild!.className).not.toMatch(/scale-\[\.6\]|w-\[10px\]/);
+  });
 });

@@ -30,20 +30,40 @@
   border-right: 0;
 }
 
-/* MIL-SPEC: 罫線の色は --ma-ink-3(薄い墨色)から作る */
-.theme-military [data-sheet-col] {
-  border-right-color: color-mix(in srgb, var(--ma-ink-3) 40%, transparent);
-}
-.theme-military [data-sheet-cols] {
+/* MIL-SPEC: 罫線は表と同じ --ma-cell-line(列)/ --ma-row-line(ジョブの境目)。
+   milspecTable.css の `[data-time-row] > *` が background:none と左線(box-shadow)を当てるので、
+   同じ強さ以上で縦罫線(background-image)を重ねる。 */
+.theme-military .milspec-app [data-time-row] > [data-sheet-cols] {
   background-image: repeating-linear-gradient(
     90deg,
     transparent 0 calc(var(--sheet-col-w) - 1px),
-    color-mix(in srgb, var(--ma-ink-3) 40%, transparent) calc(var(--sheet-col-w) - 1px) var(--sheet-col-w)
+    var(--ma-cell-line) calc(var(--sheet-col-w) - 1px) var(--sheet-col-w)
   );
+  box-shadow: inset 1px 0 0 var(--ma-row-line);
 }
-.theme-military [data-member-id][data-sheet-cols],
-.theme-military [data-sheet-member] {
+.theme-military .milspec-app [data-member-id][data-sheet-cols],
+.theme-military .milspec-app [data-sheet-member] {
   background-image: none;
+}
+/* 列見出し(下段): 列の箱の仕切りは --ma-cell-line。アイコンは表のアイコンと同じ角丸 2px + 影 */
+.theme-military .milspec-app [data-sheet-col] {
+  border-right-color: var(--ma-cell-line);
+}
+.theme-military .milspec-app [data-sheet-member] {
+  border-right-color: var(--ma-row-line);
+}
+.theme-military .milspec-app [data-sheet-col] img {
+  border: 0; background: none; border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 2px 3px rgba(0,0,0,0.4);
+}
+/* 上段のジョブ名(3 列以上のとき出る文字) */
+.theme-military .milspec-app [data-member-id][data-sheet-cols] [class*="text-app-"] {
+  color: var(--ma-txt-atk);
+}
+/* 列が 1 つ以下のメンバーは差込口(34px)が列(28px)からはみ出すので縮める */
+.theme-military .milspec-app [data-sheet-cols="0"] .milspec-jack,
+.theme-military .milspec-app [data-sheet-cols="1"] .milspec-jack {
+  scale: 0.8;
 }
 
 /* 置けないマスを押したときの揺れ(Timeline の handleSheetCellTap が 300ms だけ data-shake を付ける) */
@@ -61,5 +81,5 @@
 
 /* MIL-SPEC: リキャスト線は危険色(--ma-dng)を薄く */
 .theme-military [data-mit-cd] {
-  background-color: color-mix(in srgb, var(--ma-dng) 45%, transparent);
+  background-color: rgba(var(--ma-dng-rgb), 0.45);
 }
