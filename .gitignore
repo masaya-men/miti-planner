@@ -105,3 +105,6 @@ scripts/milspec-sp2/.compare/
 
 # 表のスクロール性能の基準(コミットしない)
 scripts/milspec-polish/.perf/
+
+# 軽減表の横スクロール計画: 回帰の自動確認の結果(コミットしない)
+scripts/sticky-scroll/.baseline/
