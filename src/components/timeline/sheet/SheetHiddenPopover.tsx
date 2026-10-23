@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { getPhaseName } from '../../../types';
 import { useThemeStore } from '../../../store/useThemeStore';
+import { backdropClose } from '../../../utils/backdropClose';
 import type { SheetColumn } from './sheetColumns';
 
 export interface SheetHiddenPopoverState { memberId: string; x: number; y: number }
@@ -40,17 +41,16 @@ export const SheetHiddenPopover: React.FC<Props> = ({ state, columns, onShow, on
     }, [state.x, state.y, columns.length]);
 
     useEffect(() => {
-        const onDown = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) onClose(); };
         const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-        document.addEventListener('mousedown', onDown);
         document.addEventListener('keydown', onKey);
-        return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+        return () => { document.removeEventListener('keydown', onKey); };
     }, [onClose]);
 
     // 最後の 1 つを再表示して空になったら自動で閉じる
     useEffect(() => { if (columns.length === 0) onClose(); }, [columns.length, onClose]);
 
     return createPortal(
+        <div className="fixed inset-0 z-[99998] cursor-default" {...backdropClose(onClose)}>
         <div
             ref={ref}
             data-sheet-hidden-popover=""
@@ -87,6 +87,7 @@ export const SheetHiddenPopover: React.FC<Props> = ({ state, columns, onShow, on
             >
                 {t('timeline.sheet_hidden_show_all')}
             </button>
+        </div>
         </div>,
         document.body,
     );

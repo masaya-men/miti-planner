@@ -31,7 +31,6 @@ const ALLOWED: Record<string, string> = {
   'components/MobileGuide.tsx': 'ガイド表示(別方式)',
   'components/PipView.tsx': 'ピクチャーインピクチャー表示',
   'components/RenderPendingIndicator.tsx': '窓ではない(描画待ちの表示)',
-  'components/Timeline.tsx': '別担当が編集中(要統一)',
   'components/landing/LandingPage.tsx': 'ランディングページ',
   'components/military/MilspecLayout.tsx': 'アプリ全体のレイアウト',
   'components/progress/ProgressCelebration.tsx': '演出表示',

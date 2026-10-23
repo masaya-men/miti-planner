@@ -112,6 +112,7 @@ import { resolveContextShields, shieldEffectBarEndsOnBarrierExhaustion, type Con
 import { buildContextShieldEntries } from '../utils/contextShieldEntries';
 
 import { PlacementToast } from './timeline/sheet/PlacementToast';
+import { backdropClose } from '../utils/backdropClose';
 import { TableHoverHighlight, type HoverGeom } from './timeline/sheet/TableHoverHighlight';
 import { lanesBands, sheetBands, convertMemberX, lanesSheetWidth, readLanesColumnVars, memoCreateXRatio } from './timeline/sheet/memberX';
 import { buildAppliedMitigation, resolveSheetTap } from './timeline/sheet/sheetTap';
@@ -4715,8 +4716,8 @@ const Timeline: React.FC = () => {
             />
             {phasePopover && createPortal(
                 <div
-                    className="fixed inset-0 z-[9998] md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
-                    onClick={() => setPhasePopover(null)}
+                    className="fixed inset-0 z-[9998] cursor-default md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
+                    {...backdropClose(() => setPhasePopover(null))}
                 >
                     <div
                         className={clsx(
@@ -4776,8 +4777,8 @@ const Timeline: React.FC = () => {
             )}
             {labelPopover && createPortal(
                 <div
-                    className="fixed inset-0 z-[9998] md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
-                    onClick={() => setLabelPopover(null)}
+                    className="fixed inset-0 z-[9998] cursor-default md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
+                    {...backdropClose(() => setLabelPopover(null))}
                 >
                     <div
                         className={clsx(
@@ -4837,8 +4838,8 @@ const Timeline: React.FC = () => {
             )}
             {eventPopover && createPortal(
                 <div
-                    className="fixed inset-0 z-[9998] md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
-                    onClick={() => setEventPopover(null)}
+                    className="fixed inset-0 z-[9998] cursor-default md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
+                    {...backdropClose(() => setEventPopover(null))}
                 >
                     <div
                         className={clsx(

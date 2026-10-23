@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import type { AppliedMitigation, Mitigation, PartyMember } from '../../../types';
 import { useMitigationStore } from '../../../store/useMitigationStore';
 import { useJobs, useMitigations } from '../../../hooks/useSkillsData';
+import { backdropClose } from '../../../utils/backdropClose';
 import { calculateLinkedShieldValue } from '../../../utils/calculator';
 
 export interface SheetPopoverState {
@@ -65,17 +66,11 @@ export const SheetTargetPopover: React.FC<Props> = ({ state, onPick, onClose }) 
 
     // 外側クリック / Escape で閉じる
     useEffect(() => {
-        const onDown = (e: MouseEvent) => {
-            if (panelRef.current?.contains(e.target as Node)) return;
-            onClose();
-        };
         const onKey = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
         };
-        document.addEventListener('mousedown', onDown);
         document.addEventListener('keydown', onKey);
         return () => {
-            document.removeEventListener('mousedown', onDown);
             document.removeEventListener('keydown', onKey);
         };
     }, [onClose]);
@@ -87,6 +82,7 @@ export const SheetTargetPopover: React.FC<Props> = ({ state, onPick, onClose }) 
                 : 'text-red-500 dark:text-red-400';
 
     return createPortal(
+        <div className="fixed inset-0 z-[99998] cursor-default" {...backdropClose(onClose)}>
         <div
             ref={panelRef}
             data-sheet-popover={state.kind}
@@ -178,6 +174,7 @@ export const SheetTargetPopover: React.FC<Props> = ({ state, onPick, onClose }) 
                     })}
                 </div>
             )}
+        </div>
         </div>,
         document.body,
     );

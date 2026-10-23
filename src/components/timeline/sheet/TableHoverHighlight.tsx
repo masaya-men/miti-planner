@@ -27,22 +27,39 @@ export const TableHoverHighlight: React.FC<Props> = ({ containerRef, geomRef }) 
         const el = elRef.current;
         if (!container || !el) return;
         const hide = () => { el.style.display = 'none'; };
-        const move = (e: PointerEvent) => {
-            if (e.pointerType === 'touch') { hide(); return; }
+        let last: { x: number; y: number } | null = null; // 最後のポインタ位置(client 座標)
+        let raf = 0;
+        const place = () => {
+            if (!last) return;
             const g = geomRef.current;
             const rect = container.getBoundingClientRect();
-            const box = hoverBox(g.mode, e.clientX - rect.left, e.clientY - rect.top, g.bands, g.columnMap, g.layout);
+            const box = hoverBox(g.mode, last.x - rect.left, last.y - rect.top, g.bands, g.columnMap, g.layout);
             if (!box) { hide(); return; }
             el.style.display = 'block';
             el.style.transform = `translate(${box.left}px, ${box.top}px)`;
             el.style.width = `${box.width}px`;
             el.style.height = `${box.height}px`;
         };
+        const move = (e: PointerEvent) => {
+            if (e.pointerType === 'touch') { last = null; hide(); return; }
+            last = { x: e.clientX, y: e.clientY };
+            place();
+        };
+        const leave = () => { last = null; hide(); };
+        // ポインタを動かさずにスクロールしたとき、同じ画面位置から 1 フレームで再計算する
+        const onScroll = () => {
+            if (!last || raf) return;
+            raf = requestAnimationFrame(() => { raf = 0; place(); });
+        };
         container.addEventListener('pointermove', move);
-        container.addEventListener('pointerleave', hide);
+        container.addEventListener('pointerleave', leave);
+        // scroll は bubble しないので、入れ物の外側のスクロール領域も拾えるよう capture で聞く
+        document.addEventListener('scroll', onScroll, { capture: true, passive: true });
         return () => {
             container.removeEventListener('pointermove', move);
-            container.removeEventListener('pointerleave', hide);
+            container.removeEventListener('pointerleave', leave);
+            document.removeEventListener('scroll', onScroll, { capture: true });
+            if (raf) cancelAnimationFrame(raf);
         };
     }, [containerRef, geomRef]);
 
