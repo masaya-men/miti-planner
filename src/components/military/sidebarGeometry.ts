@@ -105,7 +105,7 @@ export const SB_DECOR = {
     { text: 'S2', x: 240, y: 121 },
     { text: 'S3', x: 246, y: 627.4 },
   ],
-  screws: [{ x: 159, y: 107, rot: '10deg' }, { x: 183, y: 107, rot: '70deg' }],
+  screws: [{ x: 159, y: 107, rot: '45deg' }, { x: 183, y: 107, rot: '45deg' }],
   rivets: [{ x: 24.2, y: 596.4 }, { x: 55.2, y: 596.4 }],
   plate: { x: 150, y: 628.2 },
   barcode: { x: 212, y: 628.8 },
