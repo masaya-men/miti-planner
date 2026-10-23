@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React from 'react';
 import { X, ChevronLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -105,17 +106,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
             setSelectedCopyShieldMit(null);
             return;
         }
-        const handleMouseDown = (e: MouseEvent) => {
-            // Tutorial: block closing the selector if tutorial is active
-            if (useTutorialStore.getState().isActive) return;
-
-            if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-                onClose();
-            }
-        };
-        document.addEventListener('mousedown', handleMouseDown);
-        return () => document.removeEventListener('mousedown', handleMouseDown);
-    }, [isOpen, onClose]);
+    }, [isOpen]);
 
     React.useEffect(() => {
         if (isOpen && scrollContainerRef.current) {
@@ -271,6 +262,12 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         }
     };
 
+    // 背景クリックで閉じる(チュートリアル中は閉じない)
+    const handleBackdropClose = () => {
+        if (useTutorialStore.getState().isActive) return;
+        onClose();
+    };
+
     const handleClose = () => {
         if (selectedSingleTargetMit) {
             setSelectedSingleTargetMit(null);
@@ -289,8 +286,15 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 isCentered ? "inset-0 flex items-center justify-center bg-black/50 backdrop-blur-[2px] pointer-events-auto" : ""
             )}
             style={!isCentered ? { top: 0, left: 0 } : {}}
-            onClick={isCentered ? onClose : undefined} // 背景クリックで閉じる
+            {...(isCentered ? backdropClose(handleBackdropClose) : {})} // 背景クリックで閉じる(押し始めも離しも外側のときだけ)
         >
+            {/* 非センター表示: 透明な全画面の背景がクリック・ホバーを受け止め、下の要素へは一切届かせない */}
+            {!isCentered && (
+                <div
+                    className="fixed inset-0 pointer-events-auto cursor-default"
+                    {...backdropClose(handleBackdropClose)}
+                />
+            )}
             <div
                 key="mitigation-modal-content" // アニメーション等のために全体コンテナにも念のため付与
                 ref={panelRef}

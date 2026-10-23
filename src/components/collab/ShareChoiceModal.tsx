@@ -1,6 +1,7 @@
 // src/components/collab/ShareChoiceModal.tsx
 // 共同編集⑤-3a: 共有を押した直後の2択(コピーを配る / 一緒に編集)。意図を最初に選ばせ事故を防ぐ。
 // 発行は時間がかかるため、collabBusy 中はボタンを無効化+スピナー表示で二重発行(=満員誤判定)を防ぐ。
+import { backdropClose } from '../../utils/backdropClose';
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +17,7 @@ interface ShareChoiceModalProps {
 export const ShareChoiceModal: React.FC<ShareChoiceModalProps> = ({ onCopy, onCollab, onClose, collabBusy = false }) => {
   const { t } = useTranslation();
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-[2px]" onClick={onClose}>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-[2px]" {...backdropClose(onClose)}>
       <div
         className="relative glass-tier3 rounded-2xl shadow-2xl w-[340px] max-w-[90vw] overflow-hidden"
         style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}

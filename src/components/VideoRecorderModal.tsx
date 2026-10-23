@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -111,8 +112,8 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
                 <motion.div
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    onClick={onClose}
-                    className="absolute inset-0 bg-black/50 cursor-pointer"
+                    {...backdropClose((urlInput.trim() !== '' || videoId !== null) ? undefined : onClose)}
+                    className="absolute inset-0 bg-black/50"
                 />
                 <motion.div
                     initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0 }}

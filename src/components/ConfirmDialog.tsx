@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
@@ -37,7 +38,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/50 backdrop-blur-[2px] animate-[fadeIn_150ms_ease-out]"
-                onClick={onCancel}
+                {...backdropClose(onCancel)}
             />
             {/* Dialog */}
             <div className={clsx(

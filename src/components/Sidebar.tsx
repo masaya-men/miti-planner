@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
@@ -1638,7 +1639,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             {pendingContent && createPortal(
                 <div
                     className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-[2px]"
-                    onClick={handleCancelNewPlan}
+                    {...backdropClose()}
                 >
                     <div
                         className="relative bg-app-bg border border-app-border rounded-2xl shadow-2xl w-[360px] max-w-[90vw] overflow-hidden"
@@ -1716,7 +1717,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             {showDeleteConfirm && createPortal(
                 <div
                     className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4"
-                    onClick={() => setShowDeleteConfirm(false)}
+                    {...backdropClose(() => setShowDeleteConfirm(false))}
                 >
                     <div
                         className="relative w-full max-w-[400px] glass-tier3 rounded-2xl overflow-hidden"

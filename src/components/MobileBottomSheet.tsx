@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
@@ -61,7 +62,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        onClick={onClose}
+                        {...backdropClose(onClose)}
                     />
                     {/* Sheet */}
                     <motion.div

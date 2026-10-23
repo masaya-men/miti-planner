@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +19,7 @@ export const PopularConsentDialog: React.FC<Props> = ({ isOpen, onCancel, onAcce
     return createPortal(
         <div
             className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-[2px]"
-            onClick={onCancel}
+            {...backdropClose(onCancel)}
         >
             <div
                 className="relative glass-tier3 rounded-2xl shadow-2xl w-[400px] max-w-[90vw] p-6"

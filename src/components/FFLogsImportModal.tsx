@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -229,12 +230,12 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     if (!isLoggedIn) {
         return createPortal(
             <AnimatePresence>
-                <div className="fixed inset-0 z-[200] flex items-center justify-center" onClick={handleClose}>
+                <div className="fixed inset-0 z-[200] flex items-center justify-center" {...backdropClose((url.trim() !== '') ? undefined : handleClose)}>
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+                        data-backdrop className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
                     />
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -404,13 +405,13 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
     return createPortal(
         <AnimatePresence>
-            <div className="fixed inset-0 z-[200] flex md:items-center md:justify-center" onClick={handleClose}>
+            <div className="fixed inset-0 z-[200] flex md:items-center md:justify-center" {...backdropClose((url.trim() !== '') ? undefined : handleClose)}>
                 {/* Backdrop */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+                    data-backdrop className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
                 />
 
                 {/* ─── Mobile: Bottom Sheet with inline step-by-step buttons ─── */}

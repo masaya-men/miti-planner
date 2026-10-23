@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
@@ -47,7 +48,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
-                onClick={onCancel}
+                {...backdropClose(onCancel)}
             />
 
             {/* Modal Box */}

@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React from 'react';
 import { useJobs } from '../hooks/useSkillsData';
 import { X } from 'lucide-react';
@@ -43,7 +44,7 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
                 {/* Backdrop */}
                 <div
                     className="absolute inset-0 pointer-events-auto"
-                    onClick={onClose}
+                    {...backdropClose(onClose)}
                 />
 
                 <motion.div

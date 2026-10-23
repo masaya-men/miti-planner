@@ -2,6 +2,7 @@
 // 共同編集⑤-3a: オーナーが共同編集リンクを管理するパネル。
 // レイアウト: 上=警告/情報、中=設定(左)/参加者(右・スクロール)、下=リンク(配るのがゴール)、最下=操作。
 // 参加者の表示名は nameForClient(clientId)で生成(awareness の生 ID を隠す・個人情報なし)。
+import { backdropClose } from '../../utils/backdropClose';
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -93,7 +94,7 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
 
   return createPortal(
     <>
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4" {...backdropClose((label.trim() !== '') ? undefined : onClose)}>
       <div
         className="relative glass-tier3 rounded-2xl shadow-2xl w-[600px] max-w-[94vw] max-h-[90vh] flex flex-col overflow-hidden"
         style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}

@@ -1,5 +1,6 @@
 // ④-b-2: カーソル ON 時の正直な説明(インフォームド・オプトイン)。
 // IP 露出を伴うため、ON にする瞬間に事実を淡々と提示してから確定する。
+import { backdropClose } from '../../utils/backdropClose';
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +10,7 @@ interface Props { onConfirm: () => void; onCancel: () => void; }
 export const CursorOptInModal: React.FC<Props> = ({ onConfirm, onCancel }) => {
   const { t } = useTranslation();
   return createPortal(
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-[2px]" onClick={onCancel}>
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-[2px]" {...backdropClose(onCancel)}>
       <div
         className="relative glass-tier3 rounded-2xl shadow-2xl w-[360px] max-w-[90vw] p-5 space-y-3"
         style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}

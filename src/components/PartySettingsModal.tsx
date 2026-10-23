@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -571,7 +572,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        onClick={handleAttemptClose}
+                        {...backdropClose(handleAttemptClose)}
                     />
                 )}
             </AnimatePresence>

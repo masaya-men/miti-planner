@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -230,8 +231,8 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, ini
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={() => onClose()}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px] cursor-pointer"
+                    {...backdropClose((title.trim() !== '') ? undefined : () => onClose())}
+                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
                 />
 
                 <motion.div

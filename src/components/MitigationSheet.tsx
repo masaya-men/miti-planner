@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -364,7 +365,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            onClick={onClose}
+            {...backdropClose(onClose)}
           />
 
           {/* カプセル通知 */}

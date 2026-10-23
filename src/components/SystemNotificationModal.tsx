@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -52,7 +53,7 @@ export const SystemNotificationModal: React.FC<Props> = ({ isOpen, notif, onClos
         // スマホではこのモーダルがメニューのボトムシート (z-301) 内の通知ベルから開くため、
         // z-100 のままだとシートの裏に隠れて既読操作できない (PC は常設サイドバーから開くので可視)。
         className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60"
-        onClick={onClose}
+        {...backdropClose(onClose)}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}

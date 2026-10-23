@@ -1,4 +1,5 @@
 
+import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
@@ -51,12 +52,6 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
     if (!isOpen) return null;
 
-    const handleBackdropClick = () => {
-        // Tutorial: block closing the modal during the tutorial
-        if (useTutorialStore.getState().isActive) return;
-        onClose();
-    };
-
     // 保存後はモーダルを閉じる (従来挙動を維持)
     const handleSave = (ev: Omit<TimelineEvent, 'id'>) => {
         onSave(ev);
@@ -88,7 +83,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     return createPortal(
         <div className="fixed inset-0 z-[9999] text-left pointer-events-none">
             {/* Transparent Backdrop */}
-            <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? '' : 'bg-transparent'}`} style={{ backgroundColor: isMobile ? 'var(--color-overlay)' : 'transparent' }} onClick={handleBackdropClick} />
+            <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? '' : 'bg-transparent'}`} style={{ backgroundColor: isMobile ? 'var(--color-overlay)' : 'transparent' }} {...backdropClose()} />
 
             <div
                 ref={modalRef}

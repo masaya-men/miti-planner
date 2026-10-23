@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -123,7 +124,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                 <div className="fixed inset-0 z-[9999] text-left pointer-events-none flex flex-col justify-end">
                     <div
                         className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/50 backdrop-blur-[2px]' : 'bg-transparent'}`}
-                        onClick={handleBackdropClick}
+                        {...backdropClose(handleBackdropClick)}
                     />
                     <motion.div
                         ref={modalRef}

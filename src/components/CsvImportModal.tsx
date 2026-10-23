@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -43,13 +44,13 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6" onClick={onClose}>
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6" {...backdropClose((csvText.trim() !== '') ? undefined : onClose)}>
                 {/* Backdrop overlay */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+                    data-backdrop className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
                 />
 
                 {/* Modal Container */}

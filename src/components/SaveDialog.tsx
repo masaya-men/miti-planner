@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -55,8 +56,8 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={onClose}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px] cursor-pointer"
+                    {...backdropClose((title !== defaultTitle) ? undefined : onClose)}
+                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
                 />
 
                 <motion.div

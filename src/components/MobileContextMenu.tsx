@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -86,7 +87,7 @@ export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            onClick={onClose}
+                            {...backdropClose(onClose)}
                         />
 
                         {/* ボトムシート */}

@@ -1,3 +1,4 @@
+import { backdropClose } from '../utils/backdropClose';
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -24,7 +25,7 @@ export const AetherflowChainPromptModal: React.FC = () => {
     return createPortal(
         <div
             className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4"
-            onClick={() => dismissAetherflowChainPrompt()}
+            {...backdropClose(() => dismissAetherflowChainPrompt())}
         >
             <div
                 className="relative w-full max-w-[320px] glass-tier3 rounded-2xl overflow-hidden"
