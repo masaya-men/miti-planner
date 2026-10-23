@@ -177,8 +177,9 @@ describe('スプシ表示の本体', () => {
     const r2 = renderTimeline();
     const lines = [...r2.container.querySelectorAll<HTMLElement>('[data-mit-cd]')];
     expect(lines.length).toBe(groupCols.length);
-    const lefts = lines.map(l => l.style.left).sort();
-    const expected = groupCols.map(({ i }) => `${i * SHEET_COL_W + SHEET_COL_W / 2 - 1}px`).sort();
+    // 線の外箱(帯と同じ 6px 幅・同じ中心)の left
+    const lefts = lines.map(l => (l.closest('[data-mit-cd-box]') as HTMLElement).style.left).sort();
+    const expected = groupCols.map(({ i }) => `${i * SHEET_COL_W + SHEET_COL_W / 2 - 3}px`).sort();
     expect(lefts).toEqual(expected);
   });
 
@@ -373,5 +374,58 @@ describe('スプシ表示の本体', () => {
     act(() => { fireEvent.click(btn); });
     expect(useMitigationStore.getState().timelineMitigations.length).toBe(n);
     expect(container.ownerDocument.querySelector('[data-sheet-popover]')).toBeNull();
+  });
+
+  it('A9 スプシ: 置いたアイコンを右クリックしても消えない(左クリックだけ)。ブラウザ標準のメニューは出さない', () => {
+    const { def } = pickPlainColumn();
+    useMitigationStore.getState().addMitigation({ id: 's8-a', mitigationId: def.id, ownerId: 'MT', time: 30, duration: def.duration } as never);
+    const { container } = renderTimeline();
+    const icon = placedIcons(container)[0];
+    const notPrevented = fireEvent.contextMenu(icon);
+    expect(notPrevented).toBe(false); // preventDefault 済み = 標準メニューは出ない(レーン表示と同じ)
+    expect(useMitigationStore.getState().timelineMitigations.length).toBe(1);
+    expect(placedIcons(container).length).toBe(1);
+  });
+
+  it('A9 レーン: 右クリックで消える(従来どおり)', () => {
+    wip.can = false;
+    const { def } = pickPlainColumn();
+    useMitigationStore.getState().addMitigation({ id: 's8-a', mitigationId: def.id, ownerId: 'MT', time: 30, duration: def.duration } as never);
+    const { container } = renderTimeline();
+    fireEvent.contextMenu(placedIcons(container)[0]);
+    expect(useMitigationStore.getState().timelineMitigations.length).toBe(0);
+  });
+
+  it('A8 スプシ: 配置を消す(ストア・左クリック)と、アイコンも線も同じ描画で消える(線だけ残らない)', () => {
+    const cols = warColumns();
+    const groupIds = getSharedCooldownIds('bloodwhetting');
+    const g = cols.find(c => groupIds.includes(c.mitigationId))!;
+    const { def } = pickPlainColumn();
+    for (const hide of [false, true]) {
+      cleanup();
+      useMitigationStore.setState({ timelineMitigations: [], hideEmptyRows: hide });
+      useMitigationStore.getState().addMitigation({ id: 'w1', mitigationId: def.id, ownerId: 'MT', time: 30, duration: def.duration } as never);
+      useMitigationStore.getState().addMitigation({ id: 'w2', mitigationId: g.mitigationId, ownerId: 'MT', time: 60, duration: g.def.duration } as never);
+      const { container } = renderTimeline();
+      expect(container.querySelectorAll('[data-mit-cd-box]').length).toBeGreaterThanOrEqual(2);
+      act(() => { useMitigationStore.getState().removeMitigation('w1'); });
+      act(() => { useMitigationStore.getState().removeMitigation('w2'); });
+      expect(placedIcons(container).length).toBe(0);
+      expect(container.querySelectorAll('[data-mit-cd-box]').length).toBe(0);
+    }
+  });
+
+  it('A10 スプシ: 本体のマウスがある列の技(アイコン+名前)のツールチップが 1 個だけ出て、列が変わると差し替わり、外れると消える', () => {
+    const cols = warColumns();
+    const { container } = renderTimeline();
+    const cell = cellAt(container, 30);
+    const left = cell.getBoundingClientRect().left;
+    const sheet = container.querySelector('[data-time-row]')!.parentElement!;
+    // happy-dom は行の実寸が 0 なので、列の帯は memberLayout 未計測 = 出ない。計測値を持たない環境では出ないことだけ確認する
+    fireEvent.pointerMove(sheet, { clientX: left + 3, clientY: 100, pointerType: 'mouse' });
+    expect(document.querySelectorAll('[data-sheet-col-tooltip]').length).toBeLessThanOrEqual(1);
+    fireEvent.pointerLeave(container.querySelector('.isolate')!);
+    expect(document.querySelector('[data-sheet-col-tooltip]')).toBeNull();
+    expect(cols.length).toBeGreaterThan(0);
   });
 });

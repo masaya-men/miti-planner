@@ -76,11 +76,12 @@ import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 import { RecastRow, type RecastRowHandle } from './RecastRow';
 import { SheetColumnHeader } from './timeline/sheet/SheetColumnHeader';
-import { buildSheetColumnMap, sheetColumnAt, sheetColumnIndex, SHEET_ICON_PX, type SheetColumn } from './timeline/sheet/sheetColumns';
+import { buildSheetColumnMap, sheetColumnAt, sheetColumnFromX, sheetColumnIndex, SHEET_ICON_PX, type SheetColumn } from './timeline/sheet/sheetColumns';
 import { sheetIconLeft } from './timeline/sheet/sheetGeometry';
 import { reuseEqualDamages } from './timeline/stableDamageMap';
 import { placementsWithColumn } from './timeline/sheet/sheetCooldown';
 import { SheetCooldownLines } from './timeline/sheet/SheetCooldownLines';
+import { SheetColumnTooltip } from './timeline/sheet/SheetColumnTooltip';
 import { SheetTargetPopover, type SheetPopoverState } from './timeline/sheet/SheetTargetPopover';
 import './timeline/sheet/sheet.css';
 import { JobPickerRow } from './JobPickerRow';
@@ -383,11 +384,15 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const handleContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        // スプシ表示(アイコンが標準より小さい)は置く・消すとも左クリックだけ。右クリックでは消さない
+        // (ブラウザ標準のメニューはレーン表示と同じく preventDefault で出さない)
+        if (iconPx < MITI_ICON_PX) return;
         if (dragStartRef.current || isVirtual) return;
         onRemove(mitigation.id);
     };
 
     const handleTouchStart = () => {
+        if (iconPx < MITI_ICON_PX) return; // スプシ表示は長押しでも消さない(左クリック=タップだけ)
         timerRef.current = setTimeout(() => {
             if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
             onRemove(mitigation.id);
@@ -2883,6 +2888,19 @@ const Timeline: React.FC = () => {
         };
     }, [isSheetView, visiblePartyMembers, memberStartPx, memberLayout, sheetWidth, scrollViewportW]);
     memberXMapRef.current = memberXMap;
+
+    // スプシ表示: マウスがある列の技(アイコン+名前)のツールチップ。状態は「どの列か」が変わった時だけ更新する
+    // (列が同じ間の追従は SheetColumnTooltip が document の pointermove で位置だけ動かす)。マス 1 つずつの DOM は作らない
+    const [sheetColHover, setSheetColHover] = useState<{ key: string; def: Mitigation; x: number; y: number } | null>(null);
+    const handleSheetPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (!sheetColumnMap || e.pointerType === 'touch') return;
+        const rect = sheetContainerRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        const hit = sheetColumnFromX(e.clientX, rect.left, sheetBands(visiblePartyMembers, memberLayout), sheetColumnMap);
+        const key = hit ? `${hit.memberId}:${hit.column.mitigationId}` : null;
+        setSheetColHover(prev => (prev?.key ?? null) === key ? prev : (hit ? { key: key!, def: hit.column.def, x: e.clientX, y: e.clientY } : null));
+    };
+    const handleSheetPointerLeave = () => setSheetColHover(null);
     // レーン表示は従来どおり rAF 内で最新の sheetWidthRef を読む。スプシ表示だけ列変換。
     const cursorToLocalXRef = useRef(memberXMap.toPx);
     cursorToLocalXRef.current = isSheetView
@@ -3450,7 +3468,7 @@ const Timeline: React.FC = () => {
                         </div>
                         {/* isolate: 内部の mix-blend-mode(モバイルのエフェクト棒⇄アイコンのクロスフェード)を
                             このコンテナ内だけに閉じ込め、ページ全体の背景と混ざらないようにする。 */}
-                        <div ref={sheetContainerRef} onClick={handleSheetClick} className="relative isolate bg-transparent md:w-max md:min-w-full" style={{
+                        <div ref={sheetContainerRef} onClick={handleSheetClick} onPointerMove={isSheetView ? handleSheetPointerMove : undefined} onPointerLeave={isSheetView ? handleSheetPointerLeave : undefined} className="relative isolate bg-transparent md:w-max md:min-w-full" style={{
                             // 表全体の高さ = 行の配置係の合計(描画と同じ計算。旧実装は別ループで数えていて、
                             // スマホの同時刻 2 件行を 1 段分少なく数えていた)
                             height: `calc(${rowLayout.totalHeight}px + 50vh)`
@@ -4455,6 +4473,9 @@ const Timeline: React.FC = () => {
 
             {/* スプシ表示: 置けないマスを押したときのトースト・対象 / 鼓舞を選ぶ小窓 */}
             {isSheetView && <PlacementToast key={sheetToast?.n} message={sheetToast?.message ?? null} />}
+            {isSheetView && sheetColHover && !sheetPopover && (
+                <SheetColumnTooltip def={sheetColHover.def} x={sheetColHover.x} y={sheetColHover.y} />
+            )}
             {isSheetView && sheetPopover && (
                 <SheetTargetPopover state={sheetPopover} onPick={handleSheetPopoverPick} onClose={handleSheetPopoverClose} />
             )}

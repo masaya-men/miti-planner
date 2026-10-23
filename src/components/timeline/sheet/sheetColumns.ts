@@ -72,3 +72,26 @@ export function buildSheetColumnMap(
     for (const m of members) map.set(m.id, buildSheetColumns(m.jobId, defs, currentLevel));
     return map;
 }
+
+/**
+ * ポインタの x(clientX)→ (メンバー, 列)。本体でマスの上のマウスがどの列の技の上かを調べる(ツールチップ用)。
+ * 列の割り出しは sheetColumnAt(クリック判定 handleSheetCellTap と同じ式)。bands は表の容器左端基準の各メンバーの列帯。
+ * 帯の外・列の外(列数より右)は null。
+ */
+export function sheetColumnFromX(
+    clientX: number,
+    containerLeft: number,
+    bands: readonly { id: string; left: number; width: number }[],
+    columnMap: ReadonlyMap<string, SheetColumn[]>,
+): { memberId: string; colIndex: number; column: SheetColumn } | null {
+    const x = clientX - containerLeft;
+    for (const b of bands) {
+        if (x < b.left || x >= b.left + b.width) continue;
+        const cols = columnMap.get(b.id);
+        if (!cols) return null;
+        const colIndex = sheetColumnAt(clientX, containerLeft + b.left);
+        const column = cols[colIndex];
+        return column ? { memberId: b.id, colIndex, column } : null;
+    }
+    return null;
+}
