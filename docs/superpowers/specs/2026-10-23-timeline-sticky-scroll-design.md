@@ -463,3 +463,7 @@ toSheetX(clientX):
 - `index.css:1640-1643`(標準の縦バー非表示)。
 - 軽減の配置の判定(`validateMitigationPlacement`)とドラッグの縦の計算。
 - ハウジング関連のファイル全部。
+
+## 決定(2026-10-23 見本 `docs/.private/2026-10-23-sticky-scroll-mockup/`)
+- Q1 横スクロールバー = **S1「窪みの溝」**
+- Q2 固定列の境目 = masaya 未選択・一任 → **M1「装甲の継ぎ目」**(控えめな方)。見本で明るい 1px が白く見えすぎたため、明るい線は `--ms-edge-hi` より弱め(写真で調整)
