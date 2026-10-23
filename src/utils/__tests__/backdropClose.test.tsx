@@ -27,6 +27,14 @@ describe('backdropClose(外側クリックで閉じる共通ハンドラ)', () =
     fireEvent.click(bd);
     expect(fn).not.toHaveBeenCalled();
   });
+  it('外で押して中で離しても閉じない(click の target は背景になるが離した位置が中)', () => {
+    const fn = vi.fn();
+    const { bd, inner } = setup(fn);
+    fireEvent.pointerDown(bd);
+    fireEvent.pointerUp(inner);
+    fireEvent.click(bd);
+    expect(fn).not.toHaveBeenCalled();
+  });
   it('中のクリックでは閉じない', () => {
     const fn = vi.fn();
     const { inner } = setup(fn);

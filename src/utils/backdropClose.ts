@@ -28,6 +28,7 @@ export interface BackdropCloseOptions {
 }
 
 let downTarget: EventTarget | null = null;
+let upTarget: EventTarget | null = null;
 
 const EDITABLE = 'input, textarea, select, [contenteditable=""], [contenteditable="true"]';
 
@@ -77,12 +78,19 @@ export function backdropClose(onClose?: () => void, options: BackdropCloseOption
     ref: autoGuard ? attach : undefined,
     onPointerDown: (e: PointerEvent<HTMLElement>) => {
       downTarget = e.target;
+      upTarget = null;
+    },
+    // 外で押して中で離すと click の target は共通の祖先(背景)になるため、離した位置を別に覚える。
+    // 窓が背景の兄弟のときは pointerup が背景に届かず null のまま(その場合 click の target が背景にならないので判定は不要)
+    onPointerUp: (e: PointerEvent<HTMLElement>) => {
+      upTarget = e.target;
     },
     onClick: (e: MouseEvent<HTMLElement>) => {
       const isBackdrop = (t: EventTarget | null) =>
         t === e.currentTarget || (t instanceof HTMLElement && t.dataset.backdrop !== undefined);
-      const ok = downTarget !== null && isBackdrop(downTarget) && isBackdrop(e.target);
+      const ok = downTarget !== null && isBackdrop(downTarget) && (upTarget === null || isBackdrop(upTarget)) && isBackdrop(e.target);
       downTarget = null;
+      upTarget = null;
       if (!ok || !onClose) return;
       const changed = dirty || (autoGuard && states.get(e.currentTarget)?.dirty === true);
       if (changed) nudge(e.currentTarget);
