@@ -66,11 +66,11 @@ describe('JobPickerRow スプシ表示の見た目', () => {
         expect(last.className).toContain('border-app-border');
     });
 
-    it('1〜2 列のメンバーはホバー拡大するアイコンを切らない(overflow-hidden なし)。3 列以上は切り詰める', () => {
+    it('ジョブ名を出さなくなったので、何列でもホバー拡大するアイコンを切らない(overflow-hidden なし)', () => {
         const { container } = renderJobPickerRow({ sheetCols: cols });
         const box = (id: string) => (container.querySelector(`[data-member-id="${id}"] .cursor-pointer`) as HTMLElement);
         expect(box('ST').className).not.toContain('overflow-hidden');
         expect(box('H1').className).not.toContain('overflow-hidden');
-        expect(box('MT').className).toContain('overflow-hidden');
+        expect(box('MT').className).not.toContain('overflow-hidden');
     });
 });

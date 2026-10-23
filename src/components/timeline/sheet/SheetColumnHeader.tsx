@@ -15,9 +15,11 @@ export interface SheetColumnHeaderProps {
     sheetColumnMap: ReadonlyMap<string, SheetColumn[]>;
     /** 本文のメンバー列と x を揃えるための ref(JobPickerRow と同じ factory)。省略可 */
     getMemberRefCallback?: (id: string) => (el: HTMLDivElement | null) => void;
+    /** 技アイコンを押したとき、その技の列を隠す(技 ID)。省略時は押しても何も起きない */
+    onHideColumn?: (mitigationId: string) => void;
 }
 
-export const SheetColumnHeader: React.FC<SheetColumnHeaderProps> = ({ members, sheetColumnMap, getMemberRefCallback }) => {
+export const SheetColumnHeader: React.FC<SheetColumnHeaderProps> = ({ members, sheetColumnMap, getMemberRefCallback, onHideColumn }) => {
     const { t } = useTranslation();
     const contentLanguage = useThemeStore(s => s.contentLanguage);
     return (
@@ -40,10 +42,11 @@ export const SheetColumnHeader: React.FC<SheetColumnHeaderProps> = ({ members, s
                                 <div
                                     key={mitigationId}
                                     data-sheet-col={mitigationId}
-                                    className="w-[var(--sheet-col-w)] min-w-[var(--sheet-col-w)] h-full flex items-center justify-center"
+                                    onClick={onHideColumn ? () => onHideColumn(mitigationId) : undefined}
+                                    className={`w-[var(--sheet-col-w)] min-w-[var(--sheet-col-w)] h-full flex items-center justify-center${onHideColumn ? ' cursor-pointer hover:bg-app-surface2/60' : ''}`}
                                 >
                                     <Tooltip
-                                        content={t('timeline.sheet_col_tooltip', { name, recast: def.recast, duration: def.duration })}
+                                        content={t('timeline.sheet_col_tooltip', { name, recast: def.recast, duration: def.duration }) + (onHideColumn ? ` — ${t('timeline.sheet_col_tooltip_hide')}` : '')}
                                         position="bottom"
                                     >
                                         <img

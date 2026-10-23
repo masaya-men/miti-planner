@@ -76,11 +76,13 @@ import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 import { RecastRow, type RecastRowHandle } from './RecastRow';
 import { SheetColumnHeader } from './timeline/sheet/SheetColumnHeader';
-import { buildSheetColumnMap, sheetColumnAt, sheetColumnFromX, sheetColumnIndex, SHEET_ICON_PX, type SheetColumn } from './timeline/sheet/sheetColumns';
+import { buildSheetColumnMap, buildHiddenSheetColumnMap, sheetColumnAt, sheetColumnFromX, sheetColumnIndex, SHEET_ICON_PX, type SheetColumn } from './timeline/sheet/sheetColumns';
 import { sheetIconLeft } from './timeline/sheet/sheetGeometry';
 import { reuseEqualDamages } from './timeline/stableDamageMap';
 import { placementsWithColumn } from './timeline/sheet/sheetCooldown';
 import { SheetCooldownLines } from './timeline/sheet/SheetCooldownLines';
+import { useSheetHiddenSkillsStore } from '../store/useSheetHiddenSkillsStore';
+import { SheetHiddenPopover, type SheetHiddenPopoverState } from './timeline/sheet/SheetHiddenPopover';
 import { SheetColumnTooltip } from './timeline/sheet/SheetColumnTooltip';
 import { SheetTargetPopover, type SheetPopoverState } from './timeline/sheet/SheetTargetPopover';
 import './timeline/sheet/sheet.css';
@@ -2799,10 +2801,25 @@ const Timeline: React.FC = () => {
     );
 
     // スプシ表示: メンバー id → 列(軽減技)。列数の Map は参照を安定させる(TimelineRow の memo 比較は参照比較)
+    // 列見出しで隠した技(全体で 1 つの設定・技 ID)。隠した列は表から外し、ジョブ欄の「+(数)」から再表示する
+    const sheetHiddenIds = useSheetHiddenSkillsStore(s => s.hiddenIds);
+    const sheetHiddenSet = useMemo(() => new Set(sheetHiddenIds), [sheetHiddenIds]);
     const sheetColumnMap = useMemo(
-        () => isSheetView ? buildSheetColumnMap(visiblePartyMembers, MITIGATIONS, currentLevel) : null,
-        [isSheetView, visiblePartyMembers, MITIGATIONS, currentLevel]
+        () => isSheetView ? buildSheetColumnMap(visiblePartyMembers, MITIGATIONS, currentLevel, sheetHiddenSet) : null,
+        [isSheetView, visiblePartyMembers, MITIGATIONS, currentLevel, sheetHiddenSet]
     );
+    const sheetHiddenColumns = useMemo(
+        () => isSheetView ? buildHiddenSheetColumnMap(visiblePartyMembers, MITIGATIONS, currentLevel, sheetHiddenSet) : undefined,
+        [isSheetView, visiblePartyMembers, MITIGATIONS, currentLevel, sheetHiddenSet]
+    );
+    const [sheetHiddenPopover, setSheetHiddenPopover] = useState<SheetHiddenPopoverState | null>(null);
+    const handleOpenSheetHidden = useCallback((memberId: string, e: React.MouseEvent) => {
+        setSheetHiddenPopover({ memberId, x: e.clientX, y: e.clientY });
+    }, []);
+    const handleCloseSheetHidden = useCallback(() => setSheetHiddenPopover(null), []);
+    const handleHideSheetColumn = useCallback((id: string) => {
+        useSheetHiddenSkillsStore.getState().hide(id);
+    }, []);
     const sheetCols = useMemo(
         () => sheetColumnMap ? new Map([...sheetColumnMap].map(([id, c]) => [id, c.length] as [string, number])) : undefined,
         [sheetColumnMap]
@@ -3272,6 +3289,8 @@ const Timeline: React.FC = () => {
                                 getMemberRefCallback={getMemberRefCallback}
                                 t={t}
                                 sheetCols={sheetCols}
+                                sheetHidden={sheetHiddenColumns}
+                                onOpenSheetHidden={handleOpenSheetHidden}
                             />
                         </div>
                     </div>
@@ -3395,6 +3414,7 @@ const Timeline: React.FC = () => {
                                 <SheetColumnHeader
                                     members={visiblePartyMembers}
                                     sheetColumnMap={sheetColumnMap}
+                                    onHideColumn={handleHideSheetColumn}
                                 />
                             ) : (
                                 <RecastRow
@@ -4475,6 +4495,18 @@ const Timeline: React.FC = () => {
             {isSheetView && <PlacementToast key={sheetToast?.n} message={sheetToast?.message ?? null} />}
             {isSheetView && sheetColHover && !sheetPopover && (
                 <SheetColumnTooltip def={sheetColHover.def} x={sheetColHover.x} y={sheetColHover.y} />
+            )}
+            {isSheetView && sheetHiddenPopover && (
+                <SheetHiddenPopover
+                    state={sheetHiddenPopover}
+                    columns={sheetHiddenColumns?.get(sheetHiddenPopover.memberId) ?? []}
+                    onShow={(id) => useSheetHiddenSkillsStore.getState().show(id)}
+                    onShowAll={() => {
+                        useSheetHiddenSkillsStore.getState().showMany((sheetHiddenColumns?.get(sheetHiddenPopover.memberId) ?? []).map(c => c.mitigationId));
+                        setSheetHiddenPopover(null);
+                    }}
+                    onClose={handleCloseSheetHidden}
+                />
             )}
             {isSheetView && sheetPopover && (
                 <SheetTargetPopover state={sheetPopover} onPick={handleSheetPopoverPick} onClose={handleSheetPopoverClose} />

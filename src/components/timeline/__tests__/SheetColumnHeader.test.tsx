@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({ t: (k: string) => k, i18n: { language: 'ja' } }),
@@ -33,5 +33,16 @@ describe('SheetColumnHeader', () => {
         const cols = boxes[0].querySelectorAll('[data-sheet-col]');
         expect(Array.from(cols).map(c => c.getAttribute('data-sheet-col'))).toEqual(['a', 'b', 'c']);
         expect(boxes[0].querySelectorAll('img[data-mit-icon]')).toHaveLength(3);
+    });
+
+    it('A6 技アイコンの列を押すと onHideColumn(技 ID) が呼ばれる。onHideColumn が無ければ何も起きない', () => {
+        const members = [{ id: 'MT', jobId: 'WAR', role: 'tank' }] as any[];
+        const map = new Map([['MT', [{ mitigationId: 'a', def: def('a') }, { mitigationId: 'b', def: def('b') }]]]);
+        const onHide = vi.fn();
+        const { container } = render(<SheetColumnHeader members={members} sheetColumnMap={map as any} onHideColumn={onHide} />);
+        fireEvent.click(container.querySelector('[data-sheet-col="b"]')!);
+        expect(onHide).toHaveBeenCalledWith('b');
+        const r2 = render(<SheetColumnHeader members={members} sheetColumnMap={map as any} />);
+        expect(() => fireEvent.click(r2.container.querySelector('[data-sheet-col="a"]')!)).not.toThrow();
     });
 });

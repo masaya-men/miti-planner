@@ -62,14 +62,37 @@ export function sheetColumnAt(clientX: number, cellLeft: number, colW = SHEET_CO
     return Math.floor((clientX - cellLeft) / colW);
 }
 
-/** メンバー id → 列 */
+/**
+ * メンバー id → 列。hidden(技 ID の集合)に入っている技は列から外す(列見出しで隠した技)。
+ * 外した列の配置は表に出ない(アイコンも線も)。配置のデータ自体は消えず、再表示すれば元の列に出る。
+ */
 export function buildSheetColumnMap(
     members: readonly PartyMember[],
     defs: readonly Mitigation[],
     currentLevel: number,
+    hidden?: ReadonlySet<string>,
 ): ReadonlyMap<string, SheetColumn[]> {
     const map = new Map<string, SheetColumn[]>();
-    for (const m of members) map.set(m.id, buildSheetColumns(m.jobId, defs, currentLevel));
+    for (const m of members) {
+        const cols = buildSheetColumns(m.jobId, defs, currentLevel);
+        map.set(m.id, hidden && hidden.size > 0 ? cols.filter(c => !hidden.has(c.mitigationId)) : cols);
+    }
+    return map;
+}
+
+/** メンバー id → 隠した技の列(「+(数)」の小窓に出す。隠した技が無いメンバーは含めない) */
+export function buildHiddenSheetColumnMap(
+    members: readonly PartyMember[],
+    defs: readonly Mitigation[],
+    currentLevel: number,
+    hidden: ReadonlySet<string>,
+): ReadonlyMap<string, SheetColumn[]> {
+    const map = new Map<string, SheetColumn[]>();
+    if (hidden.size === 0) return map;
+    for (const m of members) {
+        const cols = buildSheetColumns(m.jobId, defs, currentLevel).filter(c => hidden.has(c.mitigationId));
+        if (cols.length > 0) map.set(m.id, cols);
+    }
     return map;
 }
 

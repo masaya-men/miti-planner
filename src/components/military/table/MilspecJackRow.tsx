@@ -4,6 +4,7 @@ import { useMitigationStore } from '../../../store/useMitigationStore';
 import { getColumnCssVar } from '../../../utils/calculator';
 import { Tooltip } from '../../ui/Tooltip';
 import { sheetMemberStyle } from '../../timeline/sheet/sheetStyle';
+import { SheetHiddenChip } from '../../timeline/sheet/SheetHiddenChip';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import { burst } from '../fx/engine';
 import { circ, P } from '../armor/geom';
@@ -25,7 +26,7 @@ const flash = (j: number, stagger: number) => {
 };
 
 export const MilspecJackRow: React.FC<JobPickerRowProps> = ({
-  partyMembers, partySortOrder, getJobIcon, getMemberRefCallback, handleJobIconClick, t, sheetCols,
+  partyMembers, partySortOrder, getJobIcon, getMemberRefCallback, handleJobIconClick, t, sheetCols, sheetHidden, onOpenSheetHidden,
 }) => {
   const reduced = useReducedMotion();
   const cells = React.useRef<Map<string, HTMLDivElement>>(new Map());
@@ -125,6 +126,13 @@ export const MilspecJackRow: React.FC<JobPickerRowProps> = ({
                 </span>
               </div>
             </Tooltip>
+            {sheetCols && onOpenSheetHidden && (sheetHidden?.get(member.id)?.length ?? 0) > 0 && (
+              <SheetHiddenChip
+                count={sheetHidden!.get(member.id)!.length}
+                narrow={(sheetCols.get(member.id) ?? 0) <= 1}
+                onOpen={(e) => onOpenSheetHidden(member.id, e)}
+              />
+            )}
           </div>
         );
       })}

@@ -6,9 +6,9 @@ import type { Job, PartyMember } from '../types';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { getColumnCssVar } from '../utils/calculator';
 import { Tooltip } from './ui/Tooltip';
-import { useThemeStore } from '../store/useThemeStore';
-import { getPhaseName } from '../types';
 import { sheetMemberStyle } from './timeline/sheet/sheetStyle';
+import { SheetHiddenChip } from './timeline/sheet/SheetHiddenChip';
+import type { SheetColumn } from './timeline/sheet/sheetColumns';
 // 軍事専用部品は遅延読み込み(標準テーマに MIL-SPEC チャンクを配信しない)
 const MilspecJackRow = React.lazy(() => import('./military/table/MilspecJackRow').then(m => ({ default: m.MilspecJackRow })));
 
@@ -28,18 +28,11 @@ export interface JobPickerRowProps {
     variant?: 'socket';
     /** スプシ表示: メンバー id → 列数。指定時は幅を「列数 × --sheet-col-w」にし、3 列以上ならジョブ名と位置も出す。未指定 = 従来 */
     sheetCols?: ReadonlyMap<string, number>;
+    /** スプシ表示: メンバー id → 列見出しで隠した技の列。1 つ以上あるメンバーのジョブ欄に「+(数)」を出す */
+    sheetHidden?: ReadonlyMap<string, SheetColumn[]>;
+    /** 「+(数)」を押したとき(小窓を開く) */
+    onOpenSheetHidden?: (memberId: string, e: React.MouseEvent) => void;
 }
-
-/** スプシ表示の上段ラベル(ジョブ名 + 位置)。ジョブ名の言語は contentLanguage */
-const SheetJobLabel: React.FC<{ job: Job | undefined; memberId: string }> = ({ job, memberId }) => {
-    const contentLanguage = useThemeStore(s => s.contentLanguage);
-    return (
-        <>
-            <span className="text-[10px] font-black text-app-text truncate">{job ? getPhaseName(job.name, contentLanguage) : ''}</span>
-            <span className="text-[9px] font-mono text-app-text-muted">{memberId}</span>
-        </>
-    );
-};
 
 /**
  * controlBar の右端に配置される「ジョブ選択行」。
@@ -63,9 +56,11 @@ export const JobPickerRow: React.FC<JobPickerRowProps> = ({
     variant,
     jobs,
     sheetCols,
+    sheetHidden,
+    onOpenSheetHidden,
 }) => {
     if (variant === 'socket') {
-        return <React.Suspense fallback={null}><MilspecJackRow partyMembers={partyMembers} partySortOrder={partySortOrder} getJobIcon={getJobIcon} jobs={jobs} handleJobIconClick={handleJobIconClick} getMemberRefCallback={getMemberRefCallback} t={t} sheetCols={sheetCols} /></React.Suspense>;
+        return <React.Suspense fallback={null}><MilspecJackRow partyMembers={partyMembers} partySortOrder={partySortOrder} getJobIcon={getJobIcon} jobs={jobs} handleJobIconClick={handleJobIconClick} getMemberRefCallback={getMemberRefCallback} t={t} sheetCols={sheetCols} sheetHidden={sheetHidden} onOpenSheetHidden={onOpenSheetHidden} /></React.Suspense>;
     }
     return (
         <>
@@ -102,9 +97,6 @@ export const JobPickerRow: React.FC<JobPickerRowProps> = ({
                         <div
                             className={clsx(
                                 "flex items-center justify-center w-full h-full rounded cursor-pointer transition-all duration-300 relative",
-                                // 3 列以上だけジョブ名を出すので、そのときだけ切り詰める。1〜2 列はホバーで拡大するアイコンを切らない
-                                sheetCols && "gap-1",
-                                sheetCols && (sheetCols.get(member.id) ?? 0) >= 3 && "overflow-hidden"
                             )}
                             onClick={(e) => handleJobIconClick(member.id, e)}
                             onContextMenu={(e) => {
@@ -114,12 +106,8 @@ export const JobPickerRow: React.FC<JobPickerRowProps> = ({
                             }}
                         >
                             {member.jobId ? (
-                                <>
-                                    <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className={clsx("object-contain opacity-90 drop-shadow-sm transition-transform group-hover:scale-125", sheetCols ? "w-[18px] h-[18px] shrink-0" : "w-6 h-6")} />
-                                    {sheetCols && (sheetCols.get(member.id) ?? 0) >= 3 && (
-                                        <SheetJobLabel job={jobs.find(j => j.id === member.jobId)} memberId={member.id} />
-                                    )}
-                                </>
+                                // スプシ表示はジョブアイコンのみ(ジョブ名・MT 等の文字は出さない)
+                                <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className={clsx("object-contain opacity-90 drop-shadow-sm transition-transform group-hover:scale-125", sheetCols ? "w-[18px] h-[18px] shrink-0" : "w-6 h-6")} />
                             ) : (
                                 <div className="w-5 h-5 rounded-full border border-app-border bg-app-surface2 flex items-center justify-center hover:bg-app-surface2">
                                     <Plus size={10} className="text-app-text-muted" />
@@ -127,6 +115,13 @@ export const JobPickerRow: React.FC<JobPickerRowProps> = ({
                             )}
                         </div>
                     </Tooltip>
+                    {sheetCols && onOpenSheetHidden && (sheetHidden?.get(member.id)?.length ?? 0) > 0 && (
+                        <SheetHiddenChip
+                            count={sheetHidden!.get(member.id)!.length}
+                            narrow={(sheetCols.get(member.id) ?? 0) <= 1}
+                            onOpen={(e) => onOpenSheetHidden(member.id, e)}
+                        />
+                    )}
                 </div>
             ))}
         </>
