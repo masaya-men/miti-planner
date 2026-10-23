@@ -333,20 +333,23 @@
 **触らない:** `yjsPlanData.ts` とカーソル送信の形、スマホ経路。
 **commit:** `feat(timeline): メモと相手のカーソルをペイン内/レーンの2層にし、競合矢印・照準の重なり順を整える`
 
-## Task 16: 設計書 2-6 前半 — 固定列の境目の見た目(§8.2、Q2 = M1)
+## Task 16: 設計書 2-6 前半 — 固定列の境目(§8.2、Q2 = M0「変更なし」に訂正済み)
 
 **モデル:** Sonnet medium
 
-**対象:** 標準 = `src/index.css`(横に動かしたときだけ薄い影)、MIL-SPEC = `milspecTable.css` に **M1「装甲の継ぎ目」**: 固定列の右端に暗い 1px + 明るい 1px の段差(`rgba(0,0,0,0.45)` と、`--ms-edge-hi` より**弱めた**明るい線。設計書「決定」: 白く見えすぎたため写真で調整)。見出しからボタンの欄の下まで 1 本で通す。横に動かしたときだけレーン側に短い影。影の出し消しは `animation-range: 0 24px` の 0→1(非対応ブラウザは scroll イベントでクラス付け替え)。
-**先に書く失敗テスト:** `scripts/sticky-scroll/seam.mjs`(新規): scrollLeft 0 で境目の影の計算済み `opacity` が 0、scrollLeft 24px 以上で 1(標準・MIL-SPEC)。赤を確認。
+**方針(確定):** 境目の装飾は**足さない**。MIL-SPEC に継ぎ目の線(M1)も刻み(M2)も入れない。やるのは、見本の M0 と同じ「横に動かしたときだけ固定列の右に出る薄い影」だけ(見本 `docs/.private/2026-10-23-sticky-scroll-mockup/index.html:109-111`: 幅 10px・`linear-gradient(90deg, rgba(0,0,0,0.28), transparent)`)。標準・MIL-SPEC とも同じ影。
+**対象:** `src/index.css`(影の要素/疑似要素。固定ペインの右端に付ける)、MIL-SPEC 側は新規の CSS を足さず、必要なら `milspecTable.css` に影が隠れないための最小の指定のみ。影の出し消しは `animation-range: 0 24px` の 0→1(非対応ブラウザは scroll イベントでクラス付け替え)。
+**先に書く失敗テスト:** `scripts/sticky-scroll/seam.mjs`(新規): scrollLeft 0 で影の計算済み `opacity` が 0、24px 以上で 1(標準・MIL-SPEC)。さらに MIL-SPEC に継ぎ目の線が**無い**こと(固定列の右端 ±2px の画素が scrollLeft 0 の baseline 写真と一致)。赤を確認。
 **合格条件:**
 1. `seam.mjs` 合格。
-2. `shots.mjs --compare=baseline` でスクロール 0 の写真が一致(= 境目の影が出ない)。**ただし M1 の暗/明 1px の継ぎ目そのものは意図した変化**。その場合は、継ぎ目の線が固定列の右端 1〜2px にしかないことを differences の座標範囲で確認し、一覧化。
-3. 見本 `docs/.private/2026-10-23-sticky-scroll-mockup/` の M1 と、アプリの写真(1489×679、ダーク/ライト)を並べて目視用の比較画像を `.baseline/seam-compare.png` に出す(親が確認)。
+2. `shots.mjs --compare=baseline` でスクロール 0 の写真が全て許容内で一致(意図した変化なし)。
+3. 横に動かした写真で、影が固定列の右 10px 以内にだけある(見本 M0 との突き合わせ画像を `.baseline/seam-compare.png` に出す)。
 4. 4 人以下で影が出ない(B9-2)。
 **検証コマンド:** `rtk node scripts/sticky-scroll/seam.mjs` / `shots.mjs`
-**触らない:** 横バー(Task 17)、固定ペインの DOM。
-**commit:** `feat(timeline): 固定列の境目を追加(標準=薄い影、MIL-SPEC=装甲の継ぎ目 M1)`
+**触らない:** 横バー(Task 17)、固定ペインの DOM、MIL-SPEC の `--ms-edge-hi` 系の装飾。
+**commit:** `feat(timeline): 固定列の右に横スクロール時だけ薄い影を出す(境目の装飾は足さない)`
+
+---
 
 ## Task 17: 設計書 2-6 後半 — MIL-SPEC 横バー S1「窪みの溝」(§8.3、Q1 = S1)
 
@@ -385,7 +388,7 @@
 7. 追加の記録(合否に使わない): Layerize / Commit の時間を baseline と並べる。
 
 **(C) 回帰チェックリスト(設計書 B)の全照合**
-8. `regress.mjs --compare=baseline`: B1(1〜6)、B2(1〜5)、B3(1〜4)、B4(1〜5)、B5(1〜5)、B6(1・3)、B7-7、B8、B9(1・2・3・4・5・6・7)の [自] 項目を、項目ごとに「一致 / 意図した変化(理由)」の表にする。意図した変化は `[data-time-row]` の数が倍になること、M1 の継ぎ目、S1 の横バーのみ。
+8. `regress.mjs --compare=baseline`: B1(1〜6)、B2(1〜5)、B3(1〜4)、B4(1〜5)、B5(1〜5)、B6(1・3)、B7-7、B8、B9(1・2・3・4・5・6・7)の [自] 項目を、項目ごとに「一致 / 意図した変化(理由)」の表にする。意図した変化は `[data-time-row]` の数が倍になること、固定列の右の影(横に動かしたときのみ)、S1 の横バーのみ。
 9. `shots.mjs --compare=baseline`: B1-5・B1-7・B4-1・B4-5・B4-6・B6-2・B7(1〜6・8)・B8・B9-2 の [写] 項目の一致。スクロール 0 の MIL-SPEC・標準が許容内。意図した変化の画像を並べて一覧化。
 10. `frame-sync.mjs --mode=all --expect-zero`(Chrome)でずれ 0。WebKit は目安として報告、Firefox は「遅れはあるが溜まらない・エラー 0」。
 11. `hover-parity.mjs` `zorder.mjs` `seam.mjs` `scrollbar-style.mjs` が合格。
