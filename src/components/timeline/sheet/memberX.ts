@@ -57,11 +57,14 @@ export function convertMemberX(x: number, from: readonly MemberBand[], to: reado
     return x;
 }
 
-/** レーン表示のシート幅 = 最後の帯の右端(帯が無ければ fallback)。 */
-export function lanesSheetWidth(bands: readonly MemberBand[], fallback: number): number {
+/**
+ * レーン表示のシート幅 = max(最後の帯の右端, スクロール入れ物の幅)(帯が無ければ fallback)。
+ * レーン表示の表は md:w-max md:min-w-full なので、表示域が広いと表示域幅まで伸びる。xRatio の分母をそれに揃える。
+ */
+export function lanesSheetWidth(bands: readonly MemberBand[], fallback: number, viewportWidth = 0): number {
     if (bands.length === 0) return fallback;
     const last = bands[bands.length - 1];
-    return last.left + last.width;
+    return Math.max(last.left + last.width, viewportWidth);
 }
 
 /** メモ作成時の xRatio(未 clamp)。レーン表示は従来どおり rect.width 基準、スプシ表示だけ列変換を使う。 */

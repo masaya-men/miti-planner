@@ -2189,14 +2189,16 @@ const Timeline: React.FC = () => {
             useMitigationStore.getState().removeMitigation(existing.id);
             return;
         }
-        const r = resolveSheetTap(col.def, time, ownerMitigations, all, (k, o) => String(sheetTRef.current(k, o as never)));
+        // セラフィズム中は鼓舞激励の策→マニフェステーション等に差し替わる(レーン表示の MitigationSelector と同じ)
+        const colDef = resolveSeraphismMitigation(col.def, time, ownerMitigations, defs);
+        const r = resolveSheetTap(colDef, time, ownerMitigations, all, (k, o) => String(sheetTRef.current(k, o as never)));
         switch (r.kind) {
             case 'remove':
                 useMitigationStore.getState().removeMitigation(r.id);
                 return;
             case 'place':
                 // 後ろ向きの重なり(warning)は通常表示と同じく置いて、競合の脈動・矢印に任せる
-                useMitigationStore.getState().addMitigation(buildAppliedMitigation(col.def, time, memberId, { linkedMitigationId: r.linkedMitigationId }));
+                useMitigationStore.getState().addMitigation(buildAppliedMitigation(colDef, time, memberId, { linkedMitigationId: r.linkedMitigationId }));
                 return;
             case 'blocked':
                 // マスを揺らす(CSS の [data-shake])。連打でも毎回揺れるよう付け直す
@@ -2209,7 +2211,7 @@ const Timeline: React.FC = () => {
             case 'selectTarget':
             case 'selectShield':
                 setSheetPopover({
-                    memberId, time, def: col.def, kind: r.kind,
+                    memberId, time, def: colDef, kind: r.kind,
                     shields: r.kind === 'selectShield' ? r.shields : [],
                     x: e.clientX, y: e.clientY,
                 });
@@ -2225,7 +2227,14 @@ const Timeline: React.FC = () => {
 
     const handleSheetPopoverPick = useCallback((pick: { targetId?: string; linkedMitigationId?: string }) => {
         if (sheetPopover && !readOnlyRef.current) {
-            useMitigationStore.getState().addMitigation(buildAppliedMitigation(sheetPopover.def, sheetPopover.time, sheetPopover.memberId, pick));
+            // 小窓を開いている間に共同編集で別の配置が入った場合に備え、選んだ時点で配置可否を再判定する
+            const own = useMitigationStore.getState().timelineMitigations.filter(m => m.ownerId === sheetPopover.memberId);
+            const status = validateMitigationPlacement(sheetPopover.def, sheetPopover.time, own, (k, o) => String(sheetTRef.current(k, o as never)));
+            if (!status.available) {
+                setSheetToast(prev => ({ message: status.message ?? sheetTRef.current('timeline.cannot_place_here'), n: (prev?.n ?? 0) + 1 }));
+            } else {
+                useMitigationStore.getState().addMitigation(buildAppliedMitigation(sheetPopover.def, sheetPopover.time, sheetPopover.memberId, pick));
+            }
         }
         setSheetPopover(null);
     }, [sheetPopover]);
@@ -2840,13 +2849,15 @@ const Timeline: React.FC = () => {
     // メモ・カーソルの横位置: 保存/送信は常にレーン表示の xRatio。スプシ表示では「読む=レーン→スプシ、書く=スプシ→レーン」に
     // 変換し、同じメンバーの列の中に収める(列の外=左の情報列は両表示で同じなのでそのまま)。
     const [memberStartPx, setMemberStartPx] = useState(0);
+    const [scrollViewportW, setScrollViewportW] = useState(0);
     useLayoutEffect(() => {
         if (!isSheetView) return; // レーン表示では不要(余計な再描画を避ける)
         const containerEl = sheetContainerRef.current;
         const firstMemberEl = document.querySelector('[data-member-id]') as HTMLElement | null;
         if (!containerEl || !firstMemberEl) return;
         setMemberStartPx(firstMemberEl.getBoundingClientRect().left - containerEl.getBoundingClientRect().left);
-    }, [memberLayout, isSheetView]);
+        setScrollViewportW(scrollContainerRef.current?.clientWidth ?? 0);
+    }, [memberLayout, isSheetView, sheetWidth, scrollContainerRef]);
     const memberXMap = useMemo(() => {
         if (!isSheetView) {
             return {
@@ -2857,12 +2868,12 @@ const Timeline: React.FC = () => {
         const { thW, dpsW, padX } = readLanesColumnVars();
         const lanes = lanesBands(visiblePartyMembers, memberStartPx, thW, dpsW, padX);
         const sheet = sheetBands(visiblePartyMembers, memberLayout);
-        const lanesWidth = lanesSheetWidth(lanes, sheetWidth);
+        const lanesWidth = lanesSheetWidth(lanes, sheetWidth, scrollViewportW);
         return {
             toPx: (r: number) => convertMemberX(r * lanesWidth, lanes, sheet),
             toRatio: (px: number) => (lanesWidth > 0 ? convertMemberX(px, sheet, lanes) / lanesWidth : 0),
         };
-    }, [isSheetView, visiblePartyMembers, memberStartPx, memberLayout, sheetWidth]);
+    }, [isSheetView, visiblePartyMembers, memberStartPx, memberLayout, sheetWidth, scrollViewportW]);
     memberXMapRef.current = memberXMap;
     // レーン表示は従来どおり rAF 内で最新の sheetWidthRef を読む。スプシ表示だけ列変換。
     const cursorToLocalXRef = useRef(memberXMap.toPx);
@@ -3957,11 +3968,14 @@ const Timeline: React.FC = () => {
                                                 // スプシ表示: リキャスト線(配置 1 件ごと・共有リキャストの列にも)
                                                 if (ownerSheetCols) {
                                                     const ownerId = ownerMitigations[0]?.ownerId;
+                                                    const ownerUses = timelineMitigations.filter(m => m.ownerId === ownerId);
                                                     renderedItems.push(
                                                         <SheetCooldownLines
                                                             key={`sheet-cd-${ownerId}`}
-                                                            items={ownerMitigations.filter(m => !m.autoHidden)}
-                                                            ownerUses={timelineMitigations.filter(m => m.ownerId === ownerId)}
+                                                            // autoHidden(戦闘前の自動配置)も判定(validateMitigationPlacement)には含まれるので線も引く。
+                                                            // 表の折りたたみ(hideEmptyRows)で ownerMitigations から外れていても、持ち主の全配置から引く
+                                                            items={ownerUses}
+                                                            ownerUses={ownerUses}
                                                             cols={ownerSheetCols}
                                                             defs={MITIGATIONS}
                                                             colStart={colStart}

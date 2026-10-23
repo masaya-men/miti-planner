@@ -40,8 +40,11 @@ describe('resolveSheetTap', () => {
   });
 
   it('2 チャージ技は 1 回目のあと blocked にならず(対象技なので selectTarget)、2 回目のあと blocked', () => {
-    expect(resolveSheetTap(benison, 5, [placed(benison, 0, 'H1')], [], t).kind).toBe(benison.scope === 'target' ? 'selectTarget' : 'place');
-    expect(resolveSheetTap(benison, 5, [placed(benison, 0, 'H1'), placed(benison, 1, 'H1')], [], t).kind).toBe('blocked');
+    // scope を固定した 2 チャージの対象技で、判定を確定的に見る
+    const twoCharge = { ...benison, scope: 'target' } as Mitigation;
+    expect(twoCharge.maxCharges).toBe(2);
+    expect(resolveSheetTap(twoCharge, 5, [placed(twoCharge, 0, 'H1')], [], t)).toEqual({ kind: 'selectTarget' });
+    expect(resolveSheetTap(twoCharge, 5, [placed(twoCharge, 0, 'H1'), placed(twoCharge, 1, 'H1')], [], t).kind).toBe('blocked');
   });
 
   it('scope target は selectTarget', () => {

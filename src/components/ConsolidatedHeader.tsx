@@ -10,7 +10,7 @@ import {
 import clsx from 'clsx';
 import { LoPoButton } from './LoPoButton';
 import { TutorialMenu } from './tutorial/TutorialMenu';
-import { useThemeStore } from '../store/useThemeStore';
+import { useThemeStore, useEffectiveTimelineView } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 
 import { usePlanStore } from '../store/usePlanStore';
@@ -120,7 +120,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const { user } = useAuthStore();
     const canPreviewWip = useCanPreviewWip();
     const isMobile = useIsMobile();
-    const timelineView = useThemeStore(s => s.timelineView);
+    // 点灯は実効値(チュートリアル中などは 'lanes')で。保存値のままだと実際の表と食い違う
+    const timelineView = useEffectiveTimelineView();
     const setTimelineView = useThemeStore(s => s.setTimelineView);
     const profileDisplayName = useAuthStore(s => s.profileDisplayName);
     const profileAvatarUrl = useAuthStore(s => s.profileAvatarUrl);

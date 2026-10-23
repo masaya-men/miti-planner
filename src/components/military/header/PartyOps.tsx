@@ -12,7 +12,7 @@ import { headerLayout } from '../headerGeometry';
 import { MilspecCrt } from './MilspecCrt';
 import { useTutorialStore } from '../../../store/useTutorialStore';
 import { useMitigationStore } from '../../../store/useMitigationStore';
-import { useThemeStore } from '../../../store/useThemeStore';
+import { useThemeStore, useEffectiveTimelineView } from '../../../store/useThemeStore';
 import { useRenderPendingStore } from '../../../store/useRenderPendingStore';
 import { useJobs } from '../../../hooks/useSkillsData';
 import { useCanPreviewWip } from '../../../hooks/useCanPreviewWip';
@@ -57,7 +57,7 @@ export function PartyOps({ MW, partySortOrder, setPartySortOrder, onAutoPlan, on
   const toggleHiddenPartyMember = useMitigationStore((s) => s.toggleHiddenPartyMember);
   const setHiddenPartyMemberIds = useMitigationStore((s) => s.setHiddenPartyMemberIds);
   const jobs = useJobs();
-  const timelineView = useThemeStore((s) => s.timelineView);
+  const timelineView = useEffectiveTimelineView(); // 点灯は実効値で(チュートリアル中などは 'lanes')
   const setTimelineView = useThemeStore((s) => s.setTimelineView);
   const canPreviewWip = useCanPreviewWip();
   const memberIds = React.useMemo(() => getSortedPartyMemberIds(partySortOrder), [partySortOrder]);

@@ -503,7 +503,6 @@
         "invalid_timing": "여기에 배치할 수 없습니다 (리캐스트 등)",
         "cannot_place_here": "여기에 배치할 수 없습니다",
         "sheet_col_tooltip": "{{name}} (재사용 {{recast}}초 / 효과 {{duration}}초)",
-        "sheet_on_cooldown": "재사용 대기 중입니다",
         "clear_all": "모든 경감 제거",
         "clear_all_confirm": "전체 멤버의 경감을 제거합니다. 되돌리기가 가능합니다.",
         "auto_plan_title": "자동 계획 실행",

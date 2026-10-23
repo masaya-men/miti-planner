@@ -511,7 +511,6 @@
         "invalid_timing": "Cannot place here (due to recast etc.)",
         "cannot_place_here": "Can't place here",
         "sheet_col_tooltip": "{{name}} (recast {{recast}}s / duration {{duration}}s)",
-        "sheet_on_cooldown": "On cooldown",
         "clear_all": "Clear all mitigations",
         "clear_all_confirm": "Clear mitigations for all members. This can be undone.",
         "auto_plan_title": "Execute Auto Plan",

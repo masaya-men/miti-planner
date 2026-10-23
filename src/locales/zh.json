@@ -503,7 +503,6 @@
         "invalid_timing": "无法在此放置（复唱等原因）",
         "cannot_place_here": "无法在此放置",
         "sheet_col_tooltip": "{{name}}（冷却 {{recast}}秒 / 效果 {{duration}}秒）",
-        "sheet_on_cooldown": "冷却中",
         "clear_all": "清除所有减伤",
         "clear_all_confirm": "清除所有成员的减伤。此操作可以撤销。",
         "auto_plan_title": "执行自动规划",

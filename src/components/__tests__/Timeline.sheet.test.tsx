@@ -297,19 +297,81 @@ describe('スプシ表示の本体', () => {
     expect(container.ownerDocument.querySelector('[data-sheet-popover]')).toBeNull();
   });
 
-  it('スプシ: 対象つきの技の対象バッジは 10px に縮み、自分の列に収まる位置(レーンは 20px のまま)', () => {
+  it('スプシ: 対象つきの技の対象バッジ(ジョブ未設定の相手 = 文字バッジ)は scale-[.6] に縮み、レーンは縮まない', () => {
     const cols = warColumns();
     const def = cols.find(c => c.def.scope === 'target')!.def;
     useMitigationStore.getState().addMitigation({ id: 's10-t', mitigationId: def.id, ownerId: 'MT', time: 30, duration: def.duration, targetId: 'ST' } as never);
     const { container } = renderTimeline();
-    // ジョブ未設定のテスト用パーティでは文字バッジ(scale で縮む)。ジョブありなら 10px の画像
     const wrap = container.querySelector('[class*="-bottom-[3px]"]') as HTMLElement | null;
     expect(wrap).not.toBeNull();
-    expect(wrap!.firstElementChild!.className).toMatch(/scale-\[\.6\]|w-\[10px\]/);
+    expect(wrap!.firstElementChild!.className).toContain('scale-[.6]');
     act(() => { useThemeStore.getState().setTimelineView('lanes'); });
     expect(container.querySelector('[class*="-bottom-[3px]"]')).toBeNull();
     const lane = container.querySelector('.-bottom-2') as HTMLElement | null;
     expect(lane).not.toBeNull();
-    expect(lane!.firstElementChild!.className).not.toMatch(/scale-\[\.6\]|w-\[10px\]/);
+    expect(lane!.firstElementChild!.className).not.toContain('scale-[.6]');
+  });
+
+  it('スプシ: 対象つきの技の対象バッジ(ジョブありの相手 = アイコン画像)は 10px、レーンは 20px', () => {
+    useMitigationStore.getState().setMemberJob('ST', 'pld');
+    const cols = warColumns();
+    const def = cols.find(c => c.def.scope === 'target')!.def;
+    useMitigationStore.getState().addMitigation({ id: 's10-t2', mitigationId: def.id, ownerId: 'MT', time: 30, duration: def.duration, targetId: 'ST' } as never);
+    const { container } = renderTimeline();
+    const wrap = container.querySelector('[class*="-bottom-[3px]"]') as HTMLElement | null;
+    expect(wrap).not.toBeNull();
+    expect(wrap!.firstElementChild!.className).toContain('w-[10px]');
+    act(() => { useThemeStore.getState().setTimelineView('lanes'); });
+    const lane = container.querySelector('.-bottom-2') as HTMLElement | null;
+    expect(lane).not.toBeNull();
+    expect(lane!.firstElementChild!.className).toContain('w-[20px]');
+    expect(lane!.firstElementChild!.className).not.toContain('w-[10px]');
+  });
+
+  it('スプシ: セラフィズム中に鼓舞激励の策の列を押すと、レーン表示と同じくマニフェステーションで置かれる', () => {
+    useMitigationStore.getState().setMemberJob('MT', 'sch');
+    const cols = buildSheetColumns('sch', MITIGATIONS as Mitigation[], 100);
+    const index = cols.findIndex(c => c.def.id === 'adloquium');
+    expect(index).toBeGreaterThanOrEqual(0);
+    const sera = MITIGATIONS.find(m => m.id === 'seraphism')!;
+    useMitigationStore.getState().addMitigation({ id: 's11-sera', mitigationId: 'seraphism', ownerId: 'MT', time: 0, duration: sera.duration } as never);
+    const { container } = renderTimeline();
+    fireEvent.click(cellAt(container, 10), { clientX: index * SHEET_COL_W + 10 });
+    // 両方とも対象指定の技なので小窓が出る。相手を選ぶと、差し替え後の技(マニフェステーション)で置かれる
+    const btn = container.ownerDocument.querySelector('[data-sheet-popover]')!.querySelector<HTMLButtonElement>('button[data-target-id="ST"]')!;
+    act(() => { fireEvent.click(btn); });
+    const placed = useMitigationStore.getState().timelineMitigations.filter(m => m.time === 10);
+    expect(placed.length).toBe(1);
+    expect(placed[0].mitigationId).toBe('manifestation');
+  });
+
+  it('スプシ: autoHidden の配置にもリキャスト線が引かれる(判定は含めるので線と一致させる)', () => {
+    const { def } = pickPlainColumn();
+    // 表の折りたたみ(hideEmptyRows)が既定で効くので、autoHidden 単独だと行も出ない。通常の配置と並べて、両方に線が引かれることを見る
+    useMitigationStore.getState().addMitigation({ id: 's12-a', mitigationId: def.id, ownerId: 'MT', time: 0, duration: def.duration } as never);
+    useMitigationStore.getState().addMitigation({ id: 's12-auto', mitigationId: def.id, ownerId: 'MT', time: def.recast, duration: def.duration, autoHidden: true } as never);
+    const { container } = renderTimeline();
+    expect(container.querySelectorAll('[data-mit-cd]').length).toBe(2);
+  });
+
+  it('スプシ: 小窓を開いている間に別の配置でリキャスト中になったら、相手を選んでも置かれずトーストが出る', () => {
+    const cols = warColumns();
+    const index = cols.findIndex(c => c.def.scope === 'target');
+    const def = cols[index].def;
+    const { container } = renderTimeline();
+    fireEvent.click(cellAt(container, 30), { clientX: index * SHEET_COL_W + 10 });
+    const pop = container.ownerDocument.querySelector('[data-sheet-popover]');
+    expect(pop).not.toBeNull();
+    // 共同編集で同じ技が(チャージ数ぶん)先に置かれた状況
+    const n = def.maxCharges ?? 1;
+    act(() => {
+      for (let i = 0; i < n; i++) {
+        useMitigationStore.getState().addMitigation({ id: `s13-${i}`, mitigationId: def.id, ownerId: 'MT', time: 27 + i * 0.5, duration: def.duration } as never);
+      }
+    });
+    const btn = container.ownerDocument.querySelector('[data-sheet-popover]')!.querySelector<HTMLButtonElement>('button[data-target-id="ST"]')!;
+    act(() => { fireEvent.click(btn); });
+    expect(useMitigationStore.getState().timelineMitigations.length).toBe(n);
+    expect(container.ownerDocument.querySelector('[data-sheet-popover]')).toBeNull();
   });
 });

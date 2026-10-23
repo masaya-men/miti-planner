@@ -36,6 +36,18 @@ describe('memberX', () => {
         expect(lanesSheetWidth(lanes, 1)).toBeCloseTo(883.6, 6);
         expect(lanesSheetWidth([], 321)).toBe(321);
     });
+    it('lanesSheetWidth は表示域のほうが広ければ表示域幅(表が min-w-full で伸びる)', () => {
+        expect(lanesSheetWidth(lanes, 1, 1500)).toBe(1500);
+        expect(lanesSheetWidth(lanes, 1, 500)).toBeCloseTo(883.6, 6);
+    });
+    it('表示域が広くても、レーン→スプシ→レーンで同じジョブ列の中に戻る(H1 の列に置いたメモ)', () => {
+        const wide = lanesSheetWidth(lanes, 1, 1500); // 1500 > 最後の列の右端 883.6
+        const xRatio = (726.8 + 40) / wide; // レーン表示で H1 列の内側に置いたメモ(分母 = 表示域幅)
+        const sheetPx = convertMemberX(xRatio * wide, lanes, sheet);
+        expect(sheetPx).toBeGreaterThanOrEqual(sheet[1].left);
+        expect(sheetPx).toBeLessThan(sheet[1].left + sheet[1].width);
+        expect(convertMemberX(sheetPx, sheet, lanes) / wide).toBeCloseTo(xRatio, 6);
+    });
     it('null の帯(レーン表示)では x のまま', () => {
         expect(convertMemberX(700, [], sheet)).toBe(700);
     });

@@ -18,6 +18,7 @@ const themeStore = { theme: 'dark', contentLanguage: 'ja', setTheme: vi.fn(), ti
 vi.mock('../../store/useThemeStore', () => ({
   useThemeStore: (sel?: (s: typeof themeStore) => unknown) =>
     sel ? sel(themeStore) : themeStore,
+  useEffectiveTimelineView: () => themeStore.timelineView,
 }));
 
 const mitiStore = {
