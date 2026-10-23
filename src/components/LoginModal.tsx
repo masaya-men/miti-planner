@@ -144,7 +144,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/50 backdrop-blur-[2px] animate-[fadeIn_150ms_ease-out]"
-                {...backdropClose((editingName) ? undefined : handleClose)}
+                {...backdropClose(handleClose)}
             />
 
             {/* Modal */}

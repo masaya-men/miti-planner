@@ -56,7 +56,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    {...backdropClose((title !== defaultTitle) ? undefined : onClose)}
+                    {...backdropClose(onClose)}
                     className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
                 />
 

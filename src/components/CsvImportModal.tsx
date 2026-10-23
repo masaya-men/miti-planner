@@ -44,7 +44,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6" {...backdropClose((csvText.trim() !== '') ? undefined : onClose)}>
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6" {...backdropClose(onClose)}>
                 {/* Backdrop overlay */}
                 <motion.div
                     initial={{ opacity: 0 }}

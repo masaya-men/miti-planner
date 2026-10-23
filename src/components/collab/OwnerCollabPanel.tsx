@@ -94,7 +94,7 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
 
   return createPortal(
     <>
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4" {...backdropClose((label.trim() !== '') ? undefined : onClose)}>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4" {...backdropClose(onClose)}>
       <div
         className="relative glass-tier3 rounded-2xl shadow-2xl w-[600px] max-w-[94vw] max-h-[90vh] flex flex-col overflow-hidden"
         style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}

@@ -112,7 +112,7 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
                 <motion.div
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    {...backdropClose((urlInput.trim() !== '' || videoId !== null) ? undefined : onClose)}
+                    {...backdropClose(onClose, { dirty: videoId !== null })}
                     className="absolute inset-0 bg-black/50"
                 />
                 <motion.div

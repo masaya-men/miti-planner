@@ -63,6 +63,17 @@
   --text-app-6xl: var(--font-size-6xl);
 }
 
+@keyframes backdropNudge {
+  0%, 60% { outline-color: rgba(var(--app-accent-rgb), 0.85); }
+  100% { outline-color: rgba(var(--app-accent-rgb), 0); }
+}
+/* 入力途中で外側クリックしても閉じなかったときの知らせ(backdropClose が付ける)。揺らさず、枠を短く縁取るだけ */
+.backdrop-nudge {
+  outline: 2px solid rgba(var(--app-accent-rgb), 0);
+  outline-offset: 3px;
+  animation: backdropNudge 700ms ease-out;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

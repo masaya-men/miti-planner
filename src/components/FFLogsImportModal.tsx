@@ -230,7 +230,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     if (!isLoggedIn) {
         return createPortal(
             <AnimatePresence>
-                <div className="fixed inset-0 z-[200] flex items-center justify-center" {...backdropClose((url.trim() !== '') ? undefined : handleClose)}>
+                <div className="fixed inset-0 z-[200] flex items-center justify-center" {...backdropClose(handleClose)}>
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -405,7 +405,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
     return createPortal(
         <AnimatePresence>
-            <div className="fixed inset-0 z-[200] flex md:items-center md:justify-center" {...backdropClose((url.trim() !== '') ? undefined : handleClose)}>
+            <div className="fixed inset-0 z-[200] flex md:items-center md:justify-center" {...backdropClose(handleClose)}>
                 {/* Backdrop */}
                 <motion.div
                     initial={{ opacity: 0 }}

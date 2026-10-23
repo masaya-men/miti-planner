@@ -574,7 +574,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
 
   const node = (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[500] flex items-center justify-center p-3" {...backdropClose((step > 1 || selTitle.trim() !== '' || source !== 'none') ? undefined : onClose)}>
+      <div className="fixed inset-0 z-[500] flex items-center justify-center p-3" {...backdropClose(onClose, { dirty: step > 1 || source !== 'none' })}>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           data-backdrop className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
         <motion.div
