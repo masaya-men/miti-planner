@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { MilspecLed } from '../MilspecDecor';
 import { useThemeStore } from '../../../store/useThemeStore';
+import { useTransitionOverlay } from '../../ui/TransitionOverlay';
 import { useCanPreviewWip } from '../../../hooks/useCanPreviewWip';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import { isPowered, powerOn, powerOff } from '../power/power';
@@ -32,6 +33,9 @@ export function ModeLever({ x, y, w, h }: ModeLeverProps) {
   const { t } = useTranslation();
   const canPreview = useCanPreviewWip();
   const reduced = useReducedMotion();
+  const { runTransition } = useTransitionOverlay();
+  const runTransitionRef = React.useRef(runTransition);
+  runTransitionRef.current = runTransition;
   const yDn = h - THUMB_H;
   const powered0 = React.useRef(isPowered()); // マウント時点の電源(Layout が先に立てる)
 
@@ -87,7 +91,9 @@ export function ModeLever({ x, y, w, h }: ModeLeverProps) {
     timer.current = window.setTimeout(() => {
       void powerOff().then(() => {
         if (dead.current) return;
-        useThemeStore.getState().setThemeStyle('standard');
+        // MilspecStyleToggle と同じ読み込み表示(重い切替なので)経由。チュートリアル中の見た目の差し替えは
+        // setThemeStyle 内の resolveThemeStyle(themeTutorialSync と同じ判定)がそのまま担う
+        runTransitionRef.current(() => useThemeStore.getState().setThemeStyle('standard'), 'theme');
         // 切替が実行されず軍事のままなら、固まらないよう電源を入れ直してレバーを下へ戻す(保険)
         timer.current = window.setTimeout(() => {
           busy.current = false;

@@ -16,7 +16,7 @@ import { useThemeStore, useEffectiveTimelineView } from '../../../store/useTheme
 import { useRenderPendingStore } from '../../../store/useRenderPendingStore';
 import { useJobs } from '../../../hooks/useSkillsData';
 import { useCanPreviewWip } from '../../../hooks/useCanPreviewWip';
-import { getSortedPartyMemberIds } from '../../../constants/party';
+import { PARTY_MEMBER_IDS } from '../../../constants/party';
 import './milspecH4.css';
 
 // H5(見本 js:904-927): PARTY OPS(パーティ編成・ステータス設定)・取り込み / その他・CRT・表示メンバー(ALL + 8 人)・表の見た目(ふつう / スプシ)・SORT。
@@ -60,7 +60,8 @@ export function PartyOps({ MW, partySortOrder, setPartySortOrder, onAutoPlan, on
   const timelineView = useEffectiveTimelineView(); // 点灯は実効値で(チュートリアル中などは 'lanes')
   const setTimelineView = useThemeStore((s) => s.setTimelineView);
   const canPreviewWip = useCanPreviewWip();
-  const memberIds = React.useMemo(() => getSortedPartyMemberIds(partySortOrder), [partySortOrder]);
+  // 表示メンバーの並びは「並び替え」に関係なく固定(MT ST H1 H2 D1〜D4)
+  const memberIds = PARTY_MEMBER_IDS;
 
   // 全体の再描画が重いので、先にインジケーターを 1 フレーム描かせてから本体を実行する(PartyVisibilityMenu と同じ手順)
   const deferHeavy = (fn: () => void) => {
@@ -85,7 +86,8 @@ export function PartyOps({ MW, partySortOrder, setPartySortOrder, onAutoPlan, on
   return (
     <>
       <MilspecStencil en="PARTY OPS" hi style={{ left: d.party.x, top: d.party.y }} />
-      <MilspecStencil en="SORT" hi style={{ left: d.sort.x, top: d.sort.y }} />
+      {/* 見出しは他の組と同じく「キーの上・左寄せ」(横幅を取らない)。x はキーの左端に揃える */}
+      <MilspecStencil en="SORT" sub={t('ui.sort')} hi style={{ left: sort.x, top: d.members.y }} />
       <MilspecStencil en="MEMBERS" sub={t('ui.party_visibility_members')} hi style={{ left: d.members.x, top: d.members.y }} />
       {canPreviewWip && <MilspecStencil en="VIEW" sub={t('ui.table_view')} hi style={{ left: d.view.x, top: d.view.y }} />}
 
@@ -139,7 +141,7 @@ export function PartyOps({ MW, partySortOrder, setPartySortOrder, onAutoPlan, on
         <div className="milspec-h4-kc" role="group" aria-label={t('ui.table_view')} style={{ left: view.x, top: view.y }}>
           {views.map(([value, name], i) => (
             <MilspecKey key={value} cap={view.caps[i]} style={capPos(view.caps[i])} latch pressed={timelineView === value}
-              label={<b>{name}</b>} aria-label={name} onClick={() => setTimelineView(value)} />
+              label={<b>{name}</b>} aria-label={name} onClick={() => setTimelineView(timelineView === 'sheet' ? 'lanes' : 'sheet')} />
           ))}
         </div>
       )}
@@ -148,7 +150,7 @@ export function PartyOps({ MW, partySortOrder, setPartySortOrder, onAutoPlan, on
       <div className="milspec-h4-kc" role="group" aria-label={t('ui.sort')} style={{ left: sort.x, top: sort.y }}>
         {sorts.map(([value, name], i) => (
           <MilspecKey key={value} cap={sort.caps[i]} style={capPos(sort.caps[i])} latch pressed={partySortOrder === value}
-            label={<b>{name}</b>} aria-label={name} onClick={() => setPartySortOrder(value)} />
+            label={<b>{name}</b>} aria-label={name} onClick={() => setPartySortOrder(partySortOrder === 'role' ? 'light_party' : 'role')} />
         ))}
       </div>
 

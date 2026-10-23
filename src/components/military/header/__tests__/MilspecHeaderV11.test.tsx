@@ -177,7 +177,7 @@ describe('下の板・基板の配線', () => {
 });
 
 describe('幅(MW)への追従', () => {
-  it('区画が 1465 幅だと、SORT の刻印が右へ寄る(MW-222 = 1243)', () => {
+  it('区画が 1465 幅だと、SORT の刻印が右へ寄る(キーの左端 MW-190 = 1275)', () => {
     vi.stubGlobal('ResizeObserver', class {
       constructor(_cb: unknown) {}
       observe() {} unobserve() {} disconnect() {}
@@ -186,7 +186,7 @@ describe('幅(MW)への追従', () => {
     try {
       const { container } = render(<MemoryRouter><div data-ms-zone="header"><MilspecHeaderV11 {...props} /></div></MemoryRouter>);
       const sort = [...container.querySelectorAll('.milspec-stencil')].find((e) => e.textContent?.includes('SORT')) as HTMLElement;
-      expect(sort.style.left).toBe('1243px');
+      expect(sort.style.left).toBe('1275px');
       // H4(COM の刻印)も区画の右端に追従して右へ寄る(MW-99 = 1366)
       const com = [...container.querySelectorAll('.milspec-stencil')].find((e) => e.textContent?.trim() === 'COM') as HTMLElement;
       expect(com.style.left).toBe('1366px');

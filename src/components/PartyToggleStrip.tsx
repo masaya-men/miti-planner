@@ -6,12 +6,11 @@ import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useJobs } from '../hooks/useSkillsData';
-import { getSortedPartyMemberIds } from '../constants/party';
+import { PARTY_MEMBER_IDS } from '../constants/party';
 import { Tooltip } from './ui/Tooltip';
 import { useRenderPendingStore } from '../store/useRenderPendingStore';
 
 interface PartyToggleStripProps {
-    sortOrder: 'light_party' | 'role';
     /** トグル 1 つの直径(px) */
     size?: number;
 }
@@ -22,7 +21,7 @@ function roleOfId(id: string): 'tank' | 'healer' | 'dps' {
     return id.startsWith('H') ? 'healer' : 'dps';
 }
 
-export function PartyToggleStrip({ sortOrder, size = 22 }: PartyToggleStripProps) {
+export function PartyToggleStrip({ size = 22 }: PartyToggleStripProps) {
     const { t } = useTranslation();
     const partyMembers = useMitigationStore(s => s.partyMembers);
     const hiddenPartyMemberIds = useMitigationStore(s => s.hiddenPartyMemberIds);
@@ -30,7 +29,8 @@ export function PartyToggleStrip({ sortOrder, size = 22 }: PartyToggleStripProps
     const setHiddenPartyMemberIds = useMitigationStore(s => s.setHiddenPartyMemberIds);
     const jobs = useJobs();
 
-    const ids = getSortedPartyMemberIds(sortOrder);
+    // 並びは「並び替え」設定に関係なく固定: タンク | ヒーラー | DPS(MT ST | H1 H2 | D1〜D4)
+    const ids = PARTY_MEMBER_IDS;
     const allShown = hiddenPartyMemberIds.length === 0;
     const iconPx = Math.round(size * 18 / 22);
 
@@ -44,7 +44,7 @@ export function PartyToggleStrip({ sortOrder, size = 22 }: PartyToggleStripProps
     };
 
     return (
-        <div className="h-9 rounded-full border border-app-border px-[5px] flex items-center gap-px">
+        <div className="h-8 rounded-full border border-app-border px-[5px] flex items-center gap-px">
             <Tooltip content={t('ui.party_visibility_all_tooltip')}>
                 <button
                     type="button"
@@ -64,9 +64,7 @@ export function PartyToggleStrip({ sortOrder, size = 22 }: PartyToggleStripProps
                 const icon = member?.jobId ? jobs.find(j => j.id === member.jobId)?.icon ?? null : null;
                 const hidden = hiddenPartyMemberIds.includes(id);
                 const prev = i > 0 ? ids[i - 1] : null;
-                const sep = prev !== null && (sortOrder === 'role'
-                    ? roleOfId(prev) !== roleOfId(id)
-                    : i === 4);
+                const sep = prev !== null && roleOfId(prev) !== roleOfId(id);
                 const action = hidden ? t('ui.party_visibility_show') : t('ui.party_visibility_hide');
                 return (
                     <React.Fragment key={id}>

@@ -72,6 +72,14 @@ const NotAllowed: React.FC<{ on: boolean; children: React.ReactNode }> = ({ on, 
 
 // SyncButton は ./SyncButton.tsx に共有コンポーネントとして切り出し済み
 
+/** 下段右グループの部品: 10px の小さいラベルをボタンの上・左寄せに置く(横幅を取らない) */
+const HeaderLabeled: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+    <div className="flex flex-col items-start gap-0.5 shrink-0">
+        <span className="pl-1 text-[10px] leading-[10px] font-black tracking-[0.1em] text-app-text-muted whitespace-nowrap uppercase">{label}</span>
+        {children}
+    </div>
+);
+
 export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     onAutoPlan,
     onImportLogs,
@@ -403,44 +411,45 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             </div>
                         )}
 
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-end gap-3">
                             {/* 表示メンバー(ALL + 8 人): 見た目だけのローカル設定(共同編集の同期対象外・
-                                閲覧専用ジョイナーが操作しても部屋のデータには影響しない)ので readOnly でも有効。 */}
-                            <span className="hidden min-[1400px]:inline text-app-base font-black text-app-text uppercase tracking-[0.15em] whitespace-nowrap shrink-0">{t('ui.party_visibility_members')}</span>
-                            <PartyToggleStrip sortOrder={partySortOrder} />
+                                閲覧専用ジョイナーが操作しても部屋のデータには影響しない)ので readOnly でも有効。
+                                並びは「並び替え」に関係なくタンク | ヒーラー | DPS の固定順。 */}
+                            <HeaderLabeled label={t('ui.party_visibility_members')}>
+                                <PartyToggleStrip />
+                            </HeaderLabeled>
 
-                            {/* 表の見た目(ふつう / スプシ): PC かつ WIP 公開可のときだけ */}
+                            {/* 表の見た目(ふつう / スプシ): PC かつ WIP 公開可のときだけ。どこを押しても切り替わる */}
                             {canPreviewWip && !isMobile && (
-                                <>
-                                    <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
-                                    <span className="hidden min-[1400px]:inline text-app-base font-black text-app-text uppercase tracking-[0.15em] whitespace-nowrap shrink-0">{t('ui.table_view')}</span>
+                                <HeaderLabeled label={t('ui.table_view')}>
                                     <SegmentButton
+                                        className="h-8"
                                         options={[
                                             { value: 'lanes', label: t('ui.table_view_lanes') },
                                             { value: 'sheet', label: t('ui.table_view_sheet') },
                                         ]}
                                         value={timelineView}
-                                        onChange={setTimelineView}
+                                        onChange={() => setTimelineView(timelineView === 'sheet' ? 'lanes' : 'sheet')}
                                         size="sm"
                                         pill
                                     />
-                                </>
+                                </HeaderLabeled>
                             )}
 
-                            <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
-
-                            {/* Sort */}
-                            <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.sort')}</span>
-                            <SegmentButton
-                                options={[
-                                    { value: 'light_party', label: t('ui.sort_light_party') },
-                                    { value: 'role', label: t('ui.sort_role') },
-                                ]}
-                                value={partySortOrder}
-                                onChange={setPartySortOrder}
-                                size="sm"
-                                pill
-                            />
+                            {/* 並び替え: どこを押しても切り替わる */}
+                            <HeaderLabeled label={t('ui.sort')}>
+                                <SegmentButton
+                                    className="h-8"
+                                    options={[
+                                        { value: 'light_party', label: t('ui.sort_light_party') },
+                                        { value: 'role', label: t('ui.sort_role') },
+                                    ]}
+                                    value={partySortOrder}
+                                    onChange={() => setPartySortOrder(partySortOrder === 'role' ? 'light_party' : 'role')}
+                                    size="sm"
+                                    pill
+                                />
+                            </HeaderLabeled>
                         </div>
                     </div>
                 </div>

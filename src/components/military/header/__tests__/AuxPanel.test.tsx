@@ -123,7 +123,7 @@ describe('ThemeRocker', () => {
 });
 
 describe('ModeLever', () => {
-  const lever = () => render(<ModeLever x={0} y={0} w={36} h={30} />);
+  const lever = () => render(<TransitionOverlayProvider><ModeLever x={0} y={0} w={36} h={30} /></TransitionOverlayProvider>);
   const spies: { mockRestore: () => void }[] = [];
   const spy = () => { const s = vi.spyOn(useThemeStore.getState(), 'setThemeStyle'); spies.push(s); return s; };
   // 電源断(300ms)の Promise を進めるため非同期で時間を進める
@@ -143,8 +143,11 @@ describe('ModeLever', () => {
     expect(isPowered()).toBe(false); // 電源断は始まっている
     expect(s).not.toHaveBeenCalled(); // 300ms の電源断が終わるまで標準へは戻らない
     await flush(100);
+    expect(s).not.toHaveBeenCalled(); // 読み込み表示(runTransition)の 500ms 後に実行される
+    await flush(500);
     expect(s).toHaveBeenCalledWith('standard');
     expect(useThemeStore.getState().themeStyle).toBe('standard');
+    expect(document.querySelector('.t-overlay')).not.toBeNull(); // 読み込み表示が出ている
   });
 
   it('切替が実行されなくても、1500ms 後にレバーは下へ戻り電源も入り直す', async () => {
@@ -213,7 +216,7 @@ describe('ModeLever', () => {
     expect(sw.getAttribute('aria-checked')).toBe('true');
     fireEvent.click(sw); // 電源が入る前に上げる
     expect(sw.getAttribute('aria-checked')).toBe('false');
-    await flush(1000);
+    await flush(1500);
     expect(s).toHaveBeenCalledWith('standard');
   });
 
@@ -244,7 +247,7 @@ describe('ModeLever', () => {
 
   it('StrictMode で描画しても電源が入る', async () => {
     initPower();
-    render(<React.StrictMode><ModeLever x={0} y={0} w={36} h={30} /></React.StrictMode>);
+    render(<React.StrictMode><TransitionOverlayProvider><ModeLever x={0} y={0} w={36} h={30} /></TransitionOverlayProvider></React.StrictMode>);
     await flush(1000);
     expect(isPowered()).toBe(true);
   });
