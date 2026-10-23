@@ -25,6 +25,7 @@ vi.mock('../progress/useProgressRecording', () => ({
 }));
 
 import { TimelineRow } from '../TimelineRow';
+const ROW_LABELS = { orConnector: 'event.or_connector', endPhase: 'timeline.end_phase', addLabel: 'timeline.add_label', addEvent: 'timeline.add_event', mitigationSelect: 'mitigation.select' };
 import type { TimelineEvent } from '../../types';
 
 const ev = { id: 'a', time: 10, name: { ja: 'a', en: 'a' }, damageType: 'physical', target: 'AoE' } as TimelineEvent;
@@ -37,7 +38,7 @@ const renderRow = (sheetCols?: ReadonlyMap<string, number>) => render(
     <TimelineRow
         time={10} top={0} height={25}
         damages={[null]} events={[ev]}
-        partyMembers={members} visiblePartyMembers={members} activeMitigations={[]}
+        partyMembers={members} visiblePartyMembers={members} activeMitigations={[]} swapMarkers={[]} phases={[]} labels={ROW_LABELS}
         onPhaseAdd={vi.fn()} onAddEventClick={vi.fn()} onEventClick={vi.fn()} onCellClick={vi.fn()}
         phaseColumnCollapsed labelColumnVisible={false}
         sheetCols={sheetCols}

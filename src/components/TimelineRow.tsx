@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import { Plus, Copy } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
@@ -59,6 +59,21 @@ interface TimelineRowProps {
     /** スプシ表示: メンバー id → 列数。指定時だけメンバー要素の幅を「列数 × --sheet-col-w」にする(未指定 = 従来)。
      * memo 比較は参照比較のため、呼び出し側は参照が安定した Map を渡すこと */
     sheetCols?: ReadonlyMap<string, number>;
+    /** isTankSwap(挑発)の配置だけを抜き出した一覧。親(Timeline)が 1 回だけ計算し、挑発の増減がない限り同じ参照を渡す
+     * (行がストアを直接購読すると、軽減を置く・消すたびに全行が描き直されるため) */
+    swapMarkers: readonly AppliedMitigation[];
+    /** フェーズ一覧(挑発の効く範囲の判定用)。親がストアから 1 回読んで渡す */
+    phases: readonly Phase[];
+    /** 行内の文言。親が t() を 1 回だけ呼んで渡す(行ごとに t() を呼ぶと全行ぶん重い)。言語が変わると参照も変わる */
+    labels: RowLabels;
+}
+
+export interface RowLabels {
+    orConnector: string;
+    endPhase: string;
+    addLabel: string;
+    addEvent: string;
+    mitigationSelect: string;
 }
 
 // 外枠(TimelineRow)が持つ位置情報。中身(TimelineRowContent)は高さ・位置を使わないため
@@ -256,8 +271,8 @@ const isEventLethal = (
     event: TimelineEvent,
     damage: DamageInfo | null | undefined,
     partyMembers: PartyMember[],
-    swapMarkers: AppliedMitigation[],
-    phases: Phase[],
+    swapMarkers: readonly AppliedMitigation[],
+    phases: readonly Phase[],
 ): boolean => {
     if (!damage || !(damage.unmitigated > 0 || damage.isInvincible)) return false;
     const evtEff = getEffectiveTarget(event, swapMarkers, phases);
@@ -273,8 +288,8 @@ const DamageTakenCell: React.FC<{
     event: TimelineEvent;
     damage: DamageInfo | null | undefined;
     partyMembers: PartyMember[];
-    swapMarkers: AppliedMitigation[];
-    phases: Phase[];
+    swapMarkers: readonly AppliedMitigation[];
+    phases: readonly Phase[];
 }> = ({ event, damage, partyMembers, swapMarkers, phases }) => {
     const { t } = useTranslation();
     if (!damage || !(damage.unmitigated > 0 || damage.isInvincible)) return null;
@@ -393,25 +408,14 @@ const TimelineRowContent = memo(({
     onTimelineSelectHover,
     showRowBorders = false,
     sheetCols,
+    swapMarkers,
+    phases,
+    labels,
 }: TimelineRowContentProps) => {
-    const { t } = useTranslation();
     const { contentLanguage, themeStyle } = useThemeStore();
     const isMilspec = themeStyle === 'military';
     const myMemberId = useMitigationStore(state => state.myMemberId);
-    // 挑発スキル（isTankSwap）による実効ターゲット計算に必要なデータ
-    const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
-    const phases = useMitigationStore(state => state.phases);
-    const MITIGATIONS = useMitigations();
-    // isTankSwap なスキルのみ抽出（挑発マーカー）。毎レンダーの再計算を避けるためメモ化
-    const swapMarkers = useMemo(
-        () => timelineMitigations.filter(m => {
-            const def = MITIGATIONS.find(def => def.id === m.mitigationId);
-            return def?.isTankSwap === true;
-        }),
-        [timelineMitigations, MITIGATIONS]
-    );
-
-    const orConnector = t('event.or_connector');
+    const orConnector = labels.orConnector;
     const getEventName = (ev: TimelineEvent) => formatEventName(ev, contentLanguage, orConnector);
 
     const isMobileRow = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -464,7 +468,7 @@ const TimelineRowContent = memo(({
                     }}
                 >
                     {!(timelineSelectMode || labelSelectMode) && (
-                        <Tooltip content={t('timeline.end_phase')} position="right">
+                        <Tooltip content={labels.endPhase} position="right">
                             <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150">
                                 <Plus size={16} />
                             </div>
@@ -501,7 +505,7 @@ const TimelineRowContent = memo(({
                     }}
                 >
                     {!(timelineSelectMode || labelSelectMode) && (
-                        <Tooltip content={t('timeline.add_label')} position="top">
+                        <Tooltip content={labels.addLabel} position="top">
                             <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150">
                                 <Plus size={14} />
                             </div>
@@ -545,7 +549,7 @@ const TimelineRowContent = memo(({
                         )}
                         onClick={(e) => onAddEventClick(time, e)}
                     >
-                        <Tooltip content={t('timeline.add_event')} position="top">
+                        <Tooltip content={labels.addEvent} position="top">
                             <Plus size={16} className={clsx(
                                 "text-app-text-muted",
                                 "[.tutorial-target-highlight_&]:text-app-text"
@@ -669,7 +673,7 @@ const TimelineRowContent = memo(({
                             : sheetMemberStyle(sheetN)}
                         onClick={(e) => onCellClick(member.id, time, e)}
                     >
-                        <Tooltip content={t('mitigation.select')} position="top">
+                        <Tooltip content={labels.mitigationSelect} position="top">
                             <div className="w-full h-full" />
                         </Tooltip>
                     </div>

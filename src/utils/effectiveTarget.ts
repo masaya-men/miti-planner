@@ -3,7 +3,7 @@ import type { TimelineEvent, AppliedMitigation, Phase } from '../types';
 type Tank = 'MT' | 'ST';
 
 /** time が属するフェーズの id を返す（startTime <= time < endTime）。無ければ null。 */
-function phaseIdOfTime(time: number, phases: Phase[]): string | null {
+function phaseIdOfTime(time: number, phases: readonly Phase[]): string | null {
     for (const p of phases) {
         if (time >= p.startTime && time < p.endTime) return p.id;
     }
@@ -21,8 +21,8 @@ function phaseIdOfTime(time: number, phases: Phase[]): string | null {
  */
 export function getEffectiveTarget(
     event: TimelineEvent,
-    swapMarkers: AppliedMitigation[],
-    phases: Phase[],
+    swapMarkers: readonly AppliedMitigation[],
+    phases: readonly Phase[],
 ): TimelineEvent['target'] {
     const target = event.target;
     if (target !== 'MT' && target !== 'ST') return target;
@@ -42,8 +42,8 @@ export function getEffectiveTarget(
 /** events 全件の eventId → 実効ターゲット の Map を作る（呼び出し側でメモ化前提）。 */
 export function buildEffectiveTargetMap(
     events: TimelineEvent[],
-    swapMarkers: AppliedMitigation[],
-    phases: Phase[],
+    swapMarkers: readonly AppliedMitigation[],
+    phases: readonly Phase[],
 ): Map<string, TimelineEvent['target']> {
     const map = new Map<string, TimelineEvent['target']>();
     for (const e of events) {

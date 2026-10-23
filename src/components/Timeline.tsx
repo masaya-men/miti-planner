@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useLayoutEffect, useRef, useContext, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { TimelineRow } from './TimelineRow';
+import { TimelineRow, type RowLabels } from './TimelineRow';
 import { MobileTimelineRow } from './MobileTimelineRow';
 import { MobileContextMenu } from './MobileContextMenu';
 import { MobileEffectBarLayer } from './MobileEffectBarLayer';
@@ -79,6 +79,7 @@ import { SheetColumnHeader } from './timeline/sheet/SheetColumnHeader';
 import { buildSheetColumnMap, buildHiddenSheetColumnMap, sheetColumnAt, sheetColumnFromX, sheetColumnIndex, SHEET_ICON_PX, type SheetColumn } from './timeline/sheet/sheetColumns';
 import { sheetIconLeft } from './timeline/sheet/sheetGeometry';
 import { reuseEqualDamages } from './timeline/stableDamageMap';
+import { reuseEqualArray } from './timeline/stableArray';
 import { placementsWithColumn } from './timeline/sheet/sheetCooldown';
 import { SheetCooldownLines } from './timeline/sheet/SheetCooldownLines';
 import { useSheetHiddenSkillsStore } from '../store/useSheetHiddenSkillsStore';
@@ -2654,6 +2655,26 @@ const Timeline: React.FC = () => {
         prevDamageMapRef.current = stable;
         return stable;
     }, [damageMapResult]);
+    // 行へ渡す挑発マーカー(isTankSwap)。行がストアを直接購読すると全行が描き直されるため、親で 1 回だけ計算する。
+    // 挑発の増減がない限り同じ参照を保つ(置く・消すで関係ない行の memo が外れないように)
+    const swapMarkersRaw = useMemo(
+        () => timelineMitigations.filter(m => MITIGATIONS.find(d => d.id === m.mitigationId)?.isTankSwap === true),
+        [timelineMitigations, MITIGATIONS]
+    );
+    const prevSwapMarkersRef = useRef<readonly AppliedMitigation[] | undefined>(undefined);
+    const rowSwapMarkers = useMemo(() => {
+        const stable = reuseEqualArray(prevSwapMarkersRef.current, swapMarkersRaw);
+        prevSwapMarkersRef.current = stable;
+        return stable;
+    }, [swapMarkersRaw]);
+    // 行内の文言(t() を行ごとに呼ぶと全行ぶん重い)。言語が変わった時だけ作り直す
+    const rowLabels = useMemo<RowLabels>(() => ({
+        orConnector: t('event.or_connector'),
+        endPhase: t('timeline.end_phase'),
+        addLabel: t('timeline.add_label'),
+        addEvent: t('timeline.add_event'),
+        mitigationSelect: t('mitigation.select'),
+    }), [t]);
     const livingDeadTriggers = damageMapResult.livingDeadTriggers; // Task 5 で白黒アイコン描画に使用
     const shieldExhaustedAt = damageMapResult.shieldExhaustedAt; // バリア吸収し切り時刻 → エフェクト棒の早期終了に使用
     const barrierOverwrittenAt = damageMapResult.barrierOverwrittenAt; // 上書き負け時刻 → エフェクト棒を負けた時刻でクリップ(方式a)
@@ -3578,6 +3599,9 @@ const Timeline: React.FC = () => {
                                                 onTimelineSelectHover={stableTimelineSelectHover}
                                                 showRowBorders={showRowBorders}
                                                 sheetCols={sheetCols}
+                                                swapMarkers={rowSwapMarkers}
+                                                phases={phases}
+                                                labels={rowLabels}
                                             />
                                         );
                                     }
