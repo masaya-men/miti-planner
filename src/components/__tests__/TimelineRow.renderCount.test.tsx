@@ -38,7 +38,7 @@ vi.mock('../progress/useProgressRecording', () => ({
 
 import { TimelineRow } from '../TimelineRow';
 import { useMitigationStore } from '../../store/useMitigationStore';
-import { reuseEqualArray } from '../timeline/stableArray';
+import { reuseEqualArray } from '../../utils/stableArray';
 import { reuseEqualDamages } from '../timeline/stableDamageMap';
 import type { TimelineEvent } from '../../types';
 

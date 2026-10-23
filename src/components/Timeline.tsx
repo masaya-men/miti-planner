@@ -79,7 +79,7 @@ import { SheetColumnHeader } from './timeline/sheet/SheetColumnHeader';
 import { buildSheetColumnMap, buildHiddenSheetColumnMap, sheetColumnAt, sheetColumnFromX, sheetColumnIndex, SHEET_ICON_PX, type SheetColumn } from './timeline/sheet/sheetColumns';
 import { sheetIconLeft } from './timeline/sheet/sheetGeometry';
 import { reuseEqualDamages } from './timeline/stableDamageMap';
-import { reuseEqualArray } from './timeline/stableArray';
+import { reuseEqualArray } from '../utils/stableArray';
 import { placementsWithColumn } from './timeline/sheet/sheetCooldown';
 import { SheetCooldownLines } from './timeline/sheet/SheetCooldownLines';
 import { useSheetHiddenSkillsStore } from '../store/useSheetHiddenSkillsStore';
@@ -3568,6 +3568,8 @@ const Timeline: React.FC = () => {
                                                     rowHeight={rowLayout.unitPx}
                                                     maxMitiIcons={maxMitiIconsPerRow}
                                                     conflictingIds={mobileConflictingIds}
+                                                    swapMarkers={rowSwapMarkers}
+                                                    phases={phases}
                                                 />
                                             );
                                         }

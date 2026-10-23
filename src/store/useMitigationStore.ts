@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { reuseEqualArray } from '../utils/stableArray';
 import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString, PlanMemo, PlanProgress, ProgressPoint } from '../types';
 import { appendProgressPoint, removeProgressPointById, setProgressPointNoteById, normalizeProgress, insertProgressPoint, makeProgressPointId } from '../lib/progressLogic';
@@ -760,10 +761,12 @@ export const useMitigationStore = create<MitigationState>()(
                             _history: newHistory,
                             _future: [currentSnapshot, ...state._future],
                             timelineMitigations: previous.timelineMitigations,
-                            timelineEvents: previous.timelineEvents,
-                            phases: previous.phases,
-                            labels: previous.labels,
-                            partyMembers: previous.partyMembers,
+                            // 履歴の配列は pushHistory が複製したもの。中身が現在と同じなら現在の参照を保つ
+                            // (参照が変わると、無関係な全行・全列が「変わった」とみなされて描き直される)
+                            timelineEvents: reuseEqualArray(state.timelineEvents, previous.timelineEvents) as typeof previous.timelineEvents,
+                            phases: reuseEqualArray(state.phases, previous.phases) as typeof previous.phases,
+                            labels: reuseEqualArray(state.labels, previous.labels) as typeof previous.labels,
+                            partyMembers: reuseEqualArray(state.partyMembers, previous.partyMembers) as typeof previous.partyMembers,
                         };
                     });
                 },
@@ -787,10 +790,10 @@ export const useMitigationStore = create<MitigationState>()(
                             _history: [...state._history, currentSnapshot],
                             _future: newFuture,
                             timelineMitigations: next.timelineMitigations,
-                            timelineEvents: next.timelineEvents,
-                            phases: next.phases,
-                            labels: next.labels,
-                            partyMembers: next.partyMembers,
+                            timelineEvents: reuseEqualArray(state.timelineEvents, next.timelineEvents) as typeof next.timelineEvents,
+                            phases: reuseEqualArray(state.phases, next.phases) as typeof next.phases,
+                            labels: reuseEqualArray(state.labels, next.labels) as typeof next.labels,
+                            partyMembers: reuseEqualArray(state.partyMembers, next.partyMembers) as typeof next.partyMembers,
                         };
                     });
                 },

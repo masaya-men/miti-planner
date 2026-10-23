@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
-import type { PartyMember, TimelineEvent, AppliedMitigation, Mitigation } from '../types';
+import type { PartyMember, TimelineEvent, AppliedMitigation, Mitigation, Phase } from '../types';
 import { getPhaseName } from '../types';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
@@ -30,6 +30,10 @@ interface MobileTimelineRowProps {
     events: TimelineEvent[];
     partyMembers: PartyMember[];
     activeMitigations: AppliedMitigation[];
+    /** isTankSwap(挑発)の配置だけの一覧。親が1回計算し、挑発の増減がない限り同じ参照を渡す(行がストアを購読すると全行が描き直されるため) */
+    swapMarkers: readonly AppliedMitigation[];
+    /** フェーズ一覧(挑発の効く範囲の判定用)。親が渡す */
+    phases: readonly Phase[];
     onMobileDamageClick?: (time: number, e: React.MouseEvent) => void;
     onLongPress?: (event: TimelineEvent | null, time: number) => void;
     phaseColumnCollapsed?: boolean;
@@ -236,22 +240,13 @@ export const MobileTimelineRow = memo(({
     maxMitiIcons,
     conflictingIds,
     hiddenPartyMemberIds,
+    swapMarkers,
+    phases,
 }: MobileTimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const myMemberId = useMitigationStore(state => state.myMemberId);
-    const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
-    const phases = useMitigationStore(state => state.phases);
     const MITIGATIONS = useMitigations();
-
-    // 挑発（isTankSwap）マーカーのみ抽出。空なら既存挙動と完全一致。毎レンダーの再計算を避けるためメモ化
-    const swapMarkers = useMemo(
-        () => timelineMitigations.filter(m => {
-            const d = MITIGATIONS.find(def => def.id === m.mitigationId);
-            return d?.isTankSwap === true;
-        }),
-        [timelineMitigations, MITIGATIONS]
-    );
 
     // 軽減アイコンの「入りきる分」と「あふれた分」。あふれた分は「+N」タップで1行目の
     // ダメージ表記エリアに切り替え表示する(2026-08-13ユーザー確認=常時表示ではなくタップ式)。
