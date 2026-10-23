@@ -79,19 +79,18 @@
   [data-sheet-cols][data-shake] { animation: none; }
 }
 
-/* リキャスト線(Q1 案 b): 見える幅 4px・赤 78%・終わりの行の下端に横棒(14×2)。
+/* リキャスト線(Q1 案 b・色は 2026-10-23 見本 recast-color 案 a): 見える幅 4px・中立色の実線・終わりの行の下端に横棒(14×2)。
+   赤は近接 DPS の効果時間の帯と紛らわしいので使わない。色は 3 つの見た目ごとのトークン。
    外箱 [data-mit-cd-box] は帯と同じ 6px 幅・同じ中心。clip-path で帯の下端から 4px 幅へ細くする(SheetCooldownLines)。 */
-[data-mit-cd] { background-color: rgba(239, 68, 68, 0.78); }
+:root, .theme-dark { --sheet-cd: rgba(255, 255, 255, 0.38); --sheet-cd-end: rgba(255, 255, 255, 0.8); }
+.theme-light { --sheet-cd: rgba(113, 113, 122, 0.62); --sheet-cd-end: rgb(82, 82, 91); }
+.theme-military { --sheet-cd: rgba(205, 209, 212, 0.42); --sheet-cd-end: rgb(205, 209, 212); }
+[data-mit-cd] { background-color: var(--sheet-cd); }
 [data-mit-cd-end] {
   left: -4px; bottom: 0; width: 14px; height: 2px;
-  background-color: rgb(239, 68, 68);
+  background-color: var(--sheet-cd-end);
 }
-/* MIL-SPEC: 危険色(--ma-dng) */
+/* MIL-SPEC の帯は 4px なので、細くする継ぎ目は付けず最初から 4px 幅 */
 .theme-military [data-mit-cd] {
-  background-color: rgba(var(--ma-dng-rgb), 0.78);
-  /* MIL-SPEC の帯は 4px なので、細くする継ぎ目は付けず最初から 4px 幅 */
   clip-path: inset(0 1px) !important;
-}
-.theme-military [data-mit-cd-end] {
-  background-color: rgb(var(--ma-dng-rgb));
 }

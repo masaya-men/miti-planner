@@ -1,4 +1,4 @@
-// スプシ表示のリキャスト線(薄赤の縦線)。1 メンバーぶん、配置 1 件ごとに列の中央へ描く。
+// スプシ表示のリキャスト線(中立色の縦線。色は sheet.css の --sheet-cd トークン)。1 メンバーぶん、配置 1 件ごとに列の中央へ描く。
 // 線を引く規則(線と「押せない」の一致)は sheetCooldown.ts の sheetCooldownBoxes。
 import React from 'react';
 import type { AppliedMitigation, Mitigation } from '../../../types';
@@ -27,7 +27,7 @@ export function cdClipPath(joinY: number): string {
     return `polygon(0 ${j}, 100% ${j}, calc(100% - 1px) ${j2}, calc(100% - 1px) 100%, 1px 100%, 1px ${j2})`;
 }
 
-/** 1 メンバーぶんのリキャスト線。見える幅 4px・赤 78%・終わりに横棒(MIL-SPEC は sheet.css が --ma-dng で上書き) */
+/** 1 メンバーぶんのリキャスト線。見える幅 4px・中立色の実線・終わりに横棒(色は sheet.css のトークン) */
 export const SheetCooldownLines: React.FC<Props> = ({ items, ownerUses, cols, defs, colStart, layout, maxTime, isRowVisible, layoutReady }) => {
     const boxes = sheetCooldownBoxes(items, ownerUses, cols, defs, colStart, layout, maxTime, isRowVisible);
     return (
