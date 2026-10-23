@@ -14,7 +14,7 @@ const spec: DrawerSpec = { kind: 'drawer', x0: 623, x1: 1050, rest: [683, 959], 
 const gspec: GlowSpec = { kind: 'glow', x0: 623, x1: 1050, windows: [[6, 46], [54, 98]], glow: 0.55 };
 
 describe('drawerSVG(下の板)', () => {
-  it('決定値は D8', () => { expect(DRAWER).toEqual({ shadow: 1, dirt: 2, dark: 1, glow: 0.55 }); });
+  it('決定値は D8', () => { expect(DRAWER).toEqual({ shadow: 1, dirt: 2, dark: 1, glow: 1 }); });
   it('網のパターンは穴を塗らない(pattern の中に全面 rect が無い)・枠・レール・ハザード・ローラーがある', () => {
     const s = drawerSVG(spec, pal, 'd');
     expect(s).toMatch(/<pattern id="d-mesh" width="20" height="10"/);

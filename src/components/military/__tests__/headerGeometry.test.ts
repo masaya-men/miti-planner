@@ -46,7 +46,7 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
     const s = 1000 / 1189, n = headerLayout(mwFor(1276, s), { sidebarOpen: false, scale: s });
     expect(n.drawer.rest[1] - n.drawer.rest[0]).toBeCloseTo(276 / s, 3);
     expect(pn(o, 'drawer').spec).toMatchObject({ kind: 'drawer', x0: 623, x1: 774, shadow: 1, dirt: 2, dark: 1 });
-    expect(pn(o, 'glow').spec).toMatchObject({ kind: 'glow', windows: [[6, 46], [54, 98]], glow: 0.55 });
+    expect(pn(o, 'glow').spec).toMatchObject({ kind: 'glow', windows: [[6, 46], [54, 98]], glow: 1 });
   });
   it('CRT のくぼみは 4px 短い(330)。h5b の経路と H5 中央の継ぎ目線は無い。h3 の継ぎ目は左の板で終わる', () => {
     const l = headerLayout(1465);

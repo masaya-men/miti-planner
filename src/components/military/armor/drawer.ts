@@ -11,7 +11,7 @@ import type { ArmorPalette, DrawerSpec, GlowSpec, Pt, ToneColors } from './types
  */
 
 /** 設計書 §0 / D8 の決定値 */
-export const DRAWER = { shadow: 1, dirt: 2, dark: 1, glow: 0.55 } as const;
+export const DRAWER = { shadow: 1, dirt: 2, dark: 1, glow: 1 } as const;
 
 /** 土台の 3 本(y0, y1)と窓(網が見える y の範囲。枠 3px を含む) */
 const CARRIER: [number, number][] = [[0, 6], [46, 54], [98, 102]];

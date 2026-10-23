@@ -35,7 +35,7 @@ export const HDR_BANDS: { y0: number; y1: number; cut: number }[] = [
 /** 左の板の両端が切れ目より外へはみ出す量(窓の外で隠れる分) */
 const DRAWER_OVER = 60;
 /** 設計書 §0 / D8 の決定値 */
-const D8 = { shadow: 1, dirt: 2, dark: 1, glow: 0.55 } as const;
+const D8 = { shadow: 1, dirt: 2, dark: 1, glow: 1 } as const;
 const GLOW_WINDOWS: readonly (readonly [number, number])[] = Object.freeze([Object.freeze([6, 46] as const), Object.freeze([54, 98] as const)]);
 
 export interface HdrKeyRow {
