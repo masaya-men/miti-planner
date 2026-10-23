@@ -78,6 +78,7 @@ import { RecastRow, type RecastRowHandle } from './RecastRow';
 import { SheetColumnHeader } from './timeline/sheet/SheetColumnHeader';
 import { buildSheetColumnMap, sheetColumnAt, sheetColumnIndex, SHEET_ICON_PX, type SheetColumn } from './timeline/sheet/sheetColumns';
 import { sheetIconLeft } from './timeline/sheet/sheetGeometry';
+import { reuseEqualDamages } from './timeline/stableDamageMap';
 import { placementsWithColumn } from './timeline/sheet/sheetCooldown';
 import { SheetCooldownLines } from './timeline/sheet/SheetCooldownLines';
 import { SheetTargetPopover, type SheetPopoverState } from './timeline/sheet/SheetTargetPopover';
@@ -2638,7 +2639,13 @@ const Timeline: React.FC = () => {
         return { map, livingDeadTriggers, shieldExhaustedAt, barrierOverwrittenAt };
     }, [eventsByTime, timelineMitigations, partyMembers, phases]);
 
-    const damageMap = damageMapResult.map;
+    // 中身が同じ行の damages は前回と同じ参照にして、TimelineRow の memo が効くようにする(置く・消すで全行が再描画されない)
+    const prevDamageMapRef = useRef<typeof damageMapResult.map | undefined>(undefined);
+    const damageMap = useMemo(() => {
+        const stable = reuseEqualDamages(prevDamageMapRef.current, damageMapResult.map);
+        prevDamageMapRef.current = stable;
+        return stable;
+    }, [damageMapResult]);
     const livingDeadTriggers = damageMapResult.livingDeadTriggers; // Task 5 で白黒アイコン描画に使用
     const shieldExhaustedAt = damageMapResult.shieldExhaustedAt; // バリア吸収し切り時刻 → エフェクト棒の早期終了に使用
     const barrierOverwrittenAt = damageMapResult.barrierOverwrittenAt; // 上書き負け時刻 → エフェクト棒を負けた時刻でクリップ(方式a)
