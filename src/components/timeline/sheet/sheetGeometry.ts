@@ -41,28 +41,35 @@ export function cooldownSpans(def: Mitigation, uses: readonly number[], placedTi
 }
 
 /**
- * リキャスト線の縦位置。始点 = barStartY(span 開始の秒)、終点 = min(span 終了, maxTime) の秒の行の中央。
- * 空の行を隠す設定で終点の秒が隠れていれば、効果時間の帯(Timeline の effectiveEndTime)と同じく
- * 「終点以下・始点以上で最大の可視秒」に切り詰める(見つからなければ始点の秒)。
- * isRowVisible は隠さない設定なら常に true を返す関数を渡す。高さ 0 以下は null(描かない)。
+ * リキャスト線の縦位置。始点 = barStartY(span 開始の秒)、終点 = 「置けない最後の行の下端」
+ * (置ける最初の行 = rawEnd。resourceTracker は T+recast の行を置ける扱いにするので、rawEnd - 1 以下の最大の表示秒の bottomOf)。
+ * 終点の秒が maxTime を超えるときは maxTime の行の下端で切る(ended = false → 終わりの印を出さない)。
+ * 空の行を隠す設定で終点の秒が隠れていれば「終点以下・始点以上で最大の可視秒」に切り詰める。可視秒が無い・高さ 0 以下は null。
+ * isRowVisible は隠さない設定なら常に true を返す関数を渡す。
  */
 export function cooldownLineBox(
   layout: RowLayout,
   span: [number, number],
   maxTime: number,
   isRowVisible: (t: number) => boolean,
-): { top: number; height: number } | null {
+): { top: number; height: number; ended: boolean } | null {
   const [start, rawEnd] = span;
-  const end = Math.min(rawEnd, maxTime);
-  let endTime = start;
-  for (let t = end; t >= start; t--) {
+  const end = Math.min(rawEnd - 1, maxTime);
+  // 始点の秒が隠れている(空行を隠す設定で帯の終点が隠れ行)ときは、効果時間の帯と同じく「始点以下で最大の可視秒」から始める。
+  // 帯と線のあいだに隙間を作らないため。
+  const firstRow = layout.rows.length > 0 ? layout.rows[0].time : start;
+  let from = start;
+  while (from > firstRow && !isRowVisible(from)) from--;
+  let endTime: number | null = null;
+  for (let t = end; t >= from; t--) {
     if (isRowVisible(t)) {
       endTime = t;
       break;
     }
   }
-  const top = barStartY(layout, start);
-  const height = layout.topOf(endTime) + layout.unitPx / 2 - top;
+  if (endTime === null) return null;
+  const top = barStartY(layout, from);
+  const height = layout.bottomOf(endTime) - top;
   if (height <= 0) return null;
-  return { top, height };
+  return { top, height, ended: rawEnd - 1 <= maxTime };
 }

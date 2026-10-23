@@ -58,13 +58,13 @@ export function convertMemberX(x: number, from: readonly MemberBand[], to: reado
 }
 
 /**
- * レーン表示のシート幅 = max(最後の帯の右端, スクロール入れ物の幅)(帯が無ければ fallback)。
- * レーン表示の表は md:w-max md:min-w-full なので、表示域が広いと表示域幅まで伸びる。xRatio の分母をそれに揃える。
+ * レーン表示で xRatio の分母に使われている幅 = シート容器(sheetContainerRef)の実幅。
+ * 容器は md:w-max md:min-w-full だが中身(行・列)は絶対配置なので広がらず、実測では常にスクロール入れ物の clientWidth と同じ
+ * (8 人・1489 幅: 容器 1188 / 列の合計 1432 / scrollWidth 1432。列が表示域より広くても容器は 1188 のまま)。
+ * なので列の合計幅は使わず、表示域幅(viewportWidth)を返す。未計測(0)のときだけ fallback(= 計測済みの sheetWidth)。
  */
-export function lanesSheetWidth(bands: readonly MemberBand[], fallback: number, viewportWidth = 0): number {
-    if (bands.length === 0) return fallback;
-    const last = bands[bands.length - 1];
-    return Math.max(last.left + last.width, viewportWidth);
+export function lanesSheetWidth(viewportWidth: number, fallback: number): number {
+    return viewportWidth > 0 ? viewportWidth : fallback;
 }
 
 /** メモ作成時の xRatio(未 clamp)。レーン表示は従来どおり rect.width 基準、スプシ表示だけ列変換を使う。 */

@@ -6,11 +6,30 @@ import type { RowLayout } from '../rowLayout';
 import { SHEET_COL_W, sheetColumnIndex, type SheetColumn } from './sheetColumns';
 import { cooldownSpans, cooldownLineBox } from './sheetGeometry';
 
+/** 線の外箱の幅(px)。帯の幅(標準 6px)と同じにし、帯の中心と線の中心をそろえる */
+export const SHEET_CD_BOX_W = 6;
+
 export interface SheetCooldownBox {
     key: string;
     left: number;
     top: number;
     height: number;
+    /** 線の終わりが本当の終点(maxTime で切っていない)なら true → 終わりの横棒を出す */
+    ended: boolean;
+    /** 効果時間の帯の下端が線の上端から何 px 下か(帯の幅から線の幅へ細くなる継ぎ目の位置)。自分の列で帯がある時だけ。無ければ 0 */
+    joinY: number;
+}
+
+/**
+ * 線を引く配置 = 表に列がある配置だけ。列が見つからない配置(自動配置の占星術師のドロー等)は押せるマス自体が無いので線も引かない。
+ * 「線がある = そのマスは押せない」との一致を保つ(列に描かれる配置は従来どおり autoHidden も含めて全部引く)。
+ */
+export function placementsWithColumn(
+    items: readonly AppliedMitigation[],
+    cols: readonly SheetColumn[],
+    defs: readonly Mitigation[],
+): AppliedMitigation[] {
+    return items.filter(am => sheetColumnIndex(cols, am.mitigationId, defs) >= 0);
 }
 
 /**
@@ -58,11 +77,20 @@ export function sheetCooldownBoxes(
             spans.forEach((span, si) => {
                 const box = cooldownLineBox(layout, span, maxTime, isRowVisible);
                 if (!box) return;
+                // 帯(効果時間)のある自分の列: 帯の下端(Timeline の barEndY と同じ bottomOf - 1)で帯の幅から線の幅へつなぐ
+                let joinY = 0;
+                if (ci === ownCi && ownDef.duration > 1) {
+                    const bandBottom = layout.bottomOf(Math.min(am.time + ownDef.duration - 1, maxTime)) - 1;
+                    joinY = Math.min(Math.max(0, bandBottom - box.top), box.height);
+                }
                 boxes.push({
                     key: `${am.id}:${ci}:${si}`,
-                    left: colStart + ci * SHEET_COL_W + SHEET_COL_W / 2 - 1,
+                    // 線の外箱は SHEET_CD_BOX_W 幅(帯と同じ中心 = 列の中央)。見える幅 4px は CSS の clip-path で出す
+                    left: colStart + ci * SHEET_COL_W + SHEET_COL_W / 2 - SHEET_CD_BOX_W / 2,
                     top: box.top,
                     height: box.height,
+                    ended: box.ended,
+                    joinY,
                 });
             });
         }

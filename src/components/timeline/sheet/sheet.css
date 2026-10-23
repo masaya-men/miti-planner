@@ -79,7 +79,19 @@
   [data-sheet-cols][data-shake] { animation: none; }
 }
 
-/* MIL-SPEC: リキャスト線は危険色(--ma-dng)を薄く */
+/* リキャスト線(Q1 案 b): 見える幅 4px・赤 78%・終わりの行の下端に横棒(14×2)。
+   外箱 [data-mit-cd-box] は帯と同じ 6px 幅・同じ中心。clip-path で帯の下端から 4px 幅へ細くする(SheetCooldownLines)。 */
+[data-mit-cd] { background-color: rgba(239, 68, 68, 0.78); }
+[data-mit-cd-end] {
+  left: -4px; bottom: 0; width: 14px; height: 2px;
+  background-color: rgb(239, 68, 68);
+}
+/* MIL-SPEC: 危険色(--ma-dng) */
 .theme-military [data-mit-cd] {
-  background-color: rgba(var(--ma-dng-rgb), 0.45);
+  background-color: rgba(var(--ma-dng-rgb), 0.78);
+  /* MIL-SPEC の帯は 4px なので、細くする継ぎ目は付けず最初から 4px 幅 */
+  clip-path: inset(0 1px) !important;
+}
+.theme-military [data-mit-cd-end] {
+  background-color: rgb(var(--ma-dng-rgb));
 }

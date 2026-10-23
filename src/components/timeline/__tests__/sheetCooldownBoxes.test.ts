@@ -4,7 +4,7 @@ import type { Mitigation, AppliedMitigation } from '../../../types';
 import { useMitigationStore } from '../../../store/useMitigationStore';
 import { computeRowLayout, ROW_UNIT_PX } from '../rowLayout';
 import { buildSheetColumns, SHEET_COL_W } from '../sheet/sheetColumns';
-import { sheetCooldownBoxes } from '../sheet/sheetCooldown';
+import { sheetCooldownBoxes, placementsWithColumn, SHEET_CD_BOX_W } from '../sheet/sheetCooldown';
 import { resolveSheetTap } from '../sheet/sheetTap';
 
 const defs = MITIGATIONS as Mitigation[];
@@ -27,7 +27,7 @@ const layout = computeRowLayout({
 });
 const visible = () => true;
 const colOf = (cols: ReturnType<typeof buildSheetColumns>, id: string) => cols.findIndex(c => c.mitigationId === id);
-const leftOf = (ci: number) => ci * SHEET_COL_W + SHEET_COL_W / 2 - 1;
+const leftOf = (ci: number) => ci * SHEET_COL_W + SHEET_COL_W / 2 - SHEET_CD_BOX_W / 2;
 /** 線の箱 → 秒の区間(行 25px・1 段なので top/height から逆算) */
 const secs = (b: { top: number; height: number }) => [Math.round((b.top - 12.5) / 25), Math.round((b.top + b.height - 12.5) / 25)];
 
@@ -88,7 +88,44 @@ describe('sheetCooldownBoxes', () => {
     const cols = buildSheetColumns('pld', defs, 100);
     const items = [placed('reprisal_pld', 10, 'MT')];
     const clipped = sheetCooldownBoxes(items, items, cols, defs, 0, layout, 40, visible);
-    expect(secs(clipped[0])).toEqual([24, 40]);
-    expect(sheetCooldownBoxes(items, items, cols, defs, 0, layout, 24, visible)).toEqual([]);
+    // maxTime(40)の行の下端 = 41 行目の上端で切る。終わりの印は出さない
+    expect(secs(clipped[0])).toEqual([24, 41]);
+    expect(clipped[0].ended).toBe(false);
+    // maxTime が始点の行(24)なら、その行の下半分だけ
+    const tiny = sheetCooldownBoxes(items, items, cols, defs, 0, layout, 24, visible);
+    expect(tiny.length).toBe(1);
+    expect(secs(tiny[0])).toEqual([24, 25]);
+    // 始点より前に切れるなら描かない
+    expect(sheetCooldownBoxes(items, items, cols, defs, 0, layout, 23, visible)).toEqual([]);
+  });
+
+  it('終点は置ける最初の行の上端に一致 / 終わりの印あり / 帯の下端の継ぎ目(joinY)は帯のある自分の列だけ', () => {
+    const cols = buildSheetColumns('pld', defs, 100);
+    const items = [placed('reprisal_pld', 10, 'MT')]; // 帯 10..24 の行、recast 60
+    const [b] = sheetCooldownBoxes(items, items, cols, defs, 0, layout, 300, visible);
+    expect(b.top + b.height).toBe(layout.topOf(70)); // 70 の行(置ける最初の行)の上端
+    expect(b.ended).toBe(true);
+    // 帯の下端 = 25 行目の上端 - 1。線の上端(24 行目の中央)から 12.5 - 1
+    expect(b.joinY).toBe(layout.bottomOf(24) - 1 - b.top);
+  });
+
+  it('帯のない技(duration 1 以下)は joinY = 0', () => {
+    const cols = buildSheetColumns('whm', defs, 100);
+    const items = [placed('assize', 10, 'H1')];
+    const boxes = sheetCooldownBoxes(items, items, cols, defs, 0, layout, 300, visible);
+    expect(boxes.length).toBeGreaterThan(0);
+    expect(boxes.every(x => x.joinY === 0)).toBe(true);
+  });
+
+  it('列が無い配置(占星術師のドロー)は線を引く対象から除く / 列がある配置は autoHidden でも残す', () => {
+    // 実機の技データではドロー系は hidden(列に出ない)。同じ状況を hidden で作る
+    const hiddenDefs = defs.map(d => (d.id === 'astral_draw' ? { ...d, hidden: true } : d));
+    const cols = buildSheetColumns('ast', hiddenDefs, 100);
+    const draw = placed('astral_draw', -3, 'H1');
+    const real = { ...placed('collective_unconscious', 5, 'H1'), autoHidden: true };
+    expect(colOf(cols, 'astral_draw')).toBe(-1);
+    const kept = placementsWithColumn([draw, real], cols, hiddenDefs);
+    expect(kept.map(m => m.mitigationId)).toEqual(['collective_unconscious']);
+    expect(sheetCooldownBoxes(placementsWithColumn([draw], cols, hiddenDefs), [draw], cols, hiddenDefs, 0, layout, 300, visible)).toEqual([]);
   });
 });

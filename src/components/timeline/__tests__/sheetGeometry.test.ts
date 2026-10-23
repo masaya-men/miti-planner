@@ -101,27 +101,34 @@ describe('cooldownLineBox', () => {
     hideEmptyRows: true, maxPopulatedTime: 100, unitPx: ROW_UNIT_PX.pc,
   });
 
-  it('始点は barStartY、終点は終点の秒の行の中央', () => {
-    expect(cooldownLineBox(plain, [10, 20], 30, () => true)).toEqual({ top: 262.5, height: 250 });
+  it('始点は barStartY(開始の行の中央)、終点は「置けない最後の行(rawEnd - 1)の下端」= 置ける最初の行 rawEnd の上端', () => {
+    // [10,20]: 始点 10*25+12.5=262.5、終点 = 20 の行の上端 500 → 高さ 237.5
+    expect(cooldownLineBox(plain, [10, 20], 30, () => true)).toEqual({ top: 262.5, height: 237.5, ended: true });
+    expect(plain.topOf(20)).toBe(262.5 + 237.5);
   });
 
-  it('maxTime で切る', () => {
-    // 終点 70 → 30 に切る: 30*25+12.5 − 262.5
-    expect(cooldownLineBox(plain, [10, 70], 30, () => true)).toEqual({ top: 262.5, height: 500 });
+  it('maxTime で切る(maxTime の行の下端・終わりの印は出さない)', () => {
+    // 終点 70 → 30 の行の下端 31*25=775
+    expect(cooldownLineBox(plain, [10, 70], 30, () => true)).toEqual({ top: 262.5, height: 775 - 262.5, ended: false });
   });
 
-  it('隠れた終点は手前の可視秒へ', () => {
-    // 5 と 25 だけ可視: 終点 28 → 25。始点 5 の中央 12.5 → 25 の中央 37.5
+  it('隠れた終点は手前の可視秒の行の下端へ', () => {
+    // 5 と 25 だけ可視: 終点 28 → rawEnd-1=27 → 25。始点 5 の中央 12.5 → 25 の行の下端 50
     expect(hidden.rows.filter(r => r.visible).map(r => r.time)).toEqual([5, 25]);
-    expect(cooldownLineBox(hidden, [5, 28], 30, (x) => visibleSet.has(x))).toEqual({ top: 12.5, height: 25 });
+    expect(cooldownLineBox(hidden, [5, 28], 30, (x) => visibleSet.has(x))).toEqual({ top: 12.5, height: 37.5, ended: true });
   });
 
-  it('手前に可視秒が無ければ始点の秒になり高さ 0 → null', () => {
-    expect(cooldownLineBox(hidden, [6, 20], 30, (x) => visibleSet.has(x))).toBeNull();
+  it('始点が隠れ行なら手前の可視秒の行の中央から(帯の終点との隙間を作らない)', () => {
+    // 6 は隠れ → 5 の中央 12.5 から、終点も 5 の行の下端 25
+    expect(cooldownLineBox(hidden, [6, 20], 30, (x) => visibleSet.has(x))).toEqual({ top: 12.5, height: 12.5, ended: true });
   });
 
-  it('高さ 0 は null', () => {
+  it('終点の行が無い(rawEnd - 1 < 始点)は null', () => {
     expect(cooldownLineBox(plain, [10, 10], 30, () => true)).toBeNull();
+  });
+
+  it('1 行だけ(rawEnd = 始点 + 1)は始点の行の下半分', () => {
+    expect(cooldownLineBox(plain, [10, 11], 30, () => true)).toEqual({ top: 262.5, height: 12.5, ended: true });
   });
 });
 

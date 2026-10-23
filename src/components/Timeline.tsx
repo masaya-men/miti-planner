@@ -78,6 +78,7 @@ import { RecastRow, type RecastRowHandle } from './RecastRow';
 import { SheetColumnHeader } from './timeline/sheet/SheetColumnHeader';
 import { buildSheetColumnMap, sheetColumnAt, sheetColumnIndex, SHEET_ICON_PX, type SheetColumn } from './timeline/sheet/sheetColumns';
 import { sheetIconLeft } from './timeline/sheet/sheetGeometry';
+import { placementsWithColumn } from './timeline/sheet/sheetCooldown';
 import { SheetCooldownLines } from './timeline/sheet/SheetCooldownLines';
 import { SheetTargetPopover, type SheetPopoverState } from './timeline/sheet/SheetTargetPopover';
 import './timeline/sheet/sheet.css';
@@ -2868,7 +2869,7 @@ const Timeline: React.FC = () => {
         const { thW, dpsW, padX } = readLanesColumnVars();
         const lanes = lanesBands(visiblePartyMembers, memberStartPx, thW, dpsW, padX);
         const sheet = sheetBands(visiblePartyMembers, memberLayout);
-        const lanesWidth = lanesSheetWidth(lanes, sheetWidth, scrollViewportW);
+        const lanesWidth = lanesSheetWidth(scrollViewportW, sheetWidth);
         return {
             toPx: (r: number) => convertMemberX(r * lanesWidth, lanes, sheet),
             toRatio: (px: number) => (lanesWidth > 0 ? convertMemberX(px, sheet, lanes) / lanesWidth : 0),
@@ -3969,12 +3970,14 @@ const Timeline: React.FC = () => {
                                                 if (ownerSheetCols) {
                                                     const ownerId = ownerMitigations[0]?.ownerId;
                                                     const ownerUses = timelineMitigations.filter(m => m.ownerId === ownerId);
+                                                    // 線を引くのは「表に列がある配置」だけ(列が見つからない自動配置のドロー等は、押せるマス自体が無いので線も出さない)
+                                                    const lineItems = placementsWithColumn(ownerUses, ownerSheetCols, MITIGATIONS);
                                                     renderedItems.push(
                                                         <SheetCooldownLines
                                                             key={`sheet-cd-${ownerId}`}
                                                             // autoHidden(戦闘前の自動配置)も判定(validateMitigationPlacement)には含まれるので線も引く。
-                                                            // 表の折りたたみ(hideEmptyRows)で ownerMitigations から外れていても、持ち主の全配置から引く
-                                                            items={ownerUses}
+                                                            // 表の折りたたみ(hideEmptyRows)で ownerMitigations から外れていても、持ち主の全配置から引く(ただし列がある配置だけ)
+                                                            items={lineItems}
                                                             ownerUses={ownerUses}
                                                             cols={ownerSheetCols}
                                                             defs={MITIGATIONS}
