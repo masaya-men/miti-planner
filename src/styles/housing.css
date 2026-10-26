@@ -326,6 +326,15 @@
   background: #000;
   pointer-events: none;
 }
+/* 実機報告(2026-10-26 iPhone Safari): 低電力モード等で自動再生が拒否されると、
+   WebKit が背景動画の中央に標準の再生ボタンを出す。背景は飾りなのでボタンは常に隠し、
+   再生できない間は poster の静止画を見せる。 */
+.housing-scenery video::-webkit-media-controls-start-playback-button,
+.housing-scenery video::-webkit-media-controls-overlay-play-button,
+.housing-scenery video::-webkit-media-controls {
+  display: none !important;
+  -webkit-appearance: none;
+}
 .housing-scenery::before,
 .housing-scenery::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
