@@ -130,3 +130,12 @@ JSON の形: `conds.<条件id>.items.<項目>`。位置は `[left, top, width, h
 - 本物のホイール(横は Shift)での 1 本: `node scripts/milspec-polish/scroll-perf.mjs --axis=x --dsr=2.58 --mode=wheel --out-dir=scripts/sticky-scroll/.baseline/perf --save=baseline-wheel-x-...`
 - 置く・消す(押してから描くまで): `SP2_BASE_URL=... node scripts/sticky-scroll/run-measurements-wrap.mjs --name=baseline-standard [--theme=military]` → `.baseline/perf/run-measurements-<name>.json`。親リポジトリの `run-measurements.cjs` は書き換えず、メモリ上で出力先・向き先・条件を差し替えて実行する。
 - Layerize / Commit の時間は `--trace` で各 JSON の `trace` に記録(通常の 5 回の後の追加 1 回・合否には使わない)。
+
+### 性能計測の安定化の手順と判定の規則(Fix round 1)
+- 横スクロールの速度は動ける距離(scrollWidth-clientWidth)に比例させ、1 往復 = 2 秒に固定(短い表でもコマ数を稼ぐ)。縦は従来の一定速度。
+- 計測の前に同じスクロールを 1 秒空走(結果は捨てる)→ CDP `HeapProfiler.collectGarbage` を 1 回 → 計測。
+- 測れたコマ数が `--min-frames`(横の既定 100。縦は重さ自体が測定対象なので既定 0=確かめない)未満の回は「止まった回」として捨てて測り直す(上限超えで「測定不成立」exit 3)。`perf-baseline.mjs` は横を 40 にしている(スプシ表示の横は CPU 4 倍で 3 秒に 100 コマ出せない条件があるため)。
+- 外れ値: p95 が中央値の 3 倍を超えた回は捨てて、その回だけ測り直す(上限 `--max-discard` 既定 3)。捨てた数は出力の `discarded=` と JSON に出る。
+- `perf-baseline.mjs` は runs 既定 9(`scroll-perf.mjs` 単体の既定は 5)。ホイール基準 2 本(`baseline-wheel-{x,y}-standard-lanes-normal`)も含めて 26 件。
+- 判定(`--compare`): p95 は「2 コマ(33.4ms)以上」かつ 10% 超の悪化、ブロック時間は「100ms 以上」かつ 10% 超の悪化のときだけ悪化(exit 1)。条件違い・基準なしは exit 2(再試行しない)、想定外の例外は exit 3(perf-baseline が 1 回だけやり直す)。
+- heavy の前提: 「空の行を隠す」を OFF にする操作は `#timeline-controls-inner` の**最初のボタン**を押すことに依存し、`MIN_ROWS`(heavy は 1000 行以上)で成立を確かめる。UI でそのボタンの位置・意味が変わったら heavy は不成立になる(その時は `scroll-perf.mjs` の該当箇所を直す)。
