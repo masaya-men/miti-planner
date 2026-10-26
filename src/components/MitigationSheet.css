@@ -838,16 +838,6 @@
    25. Skeleton / Loading states
    ---------------------------------------------------------- */
 
-.miti-skeleton {
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.07);
-  animation: miti-pulse 1.8s ease-in-out infinite;
-}
-
-.theme-light .miti-skeleton {
-  background: rgba(0, 0, 0, 0.07);
-}
-
 .miti-spinner {
   width: 24px;
   height: 24px;

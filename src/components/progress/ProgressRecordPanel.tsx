@@ -39,7 +39,7 @@ const UndoLastPointButton: React.FC = () => {
                 className={clsx(
                     'p-1 rounded-lg text-app-md leading-none transition-all duration-200',
                     has
-                        ? 'text-app-text-sec hover:text-red-400 hover:bg-app-toggle cursor-pointer active:scale-90'
+                        ? 'text-app-text-sec hover:text-app-red-hover hover:bg-app-toggle cursor-pointer active:scale-90'
                         : 'text-app-text-muted opacity-40 cursor-not-allowed'
                 )}
             >↶</button>

@@ -127,6 +127,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                         value={settings.damage}
                         onChange={(v) => handleChange('damage', v)}
                         thousandSeparator
+                        // 16px は iPhone の入力時ズーム防止
                         className="w-full bg-glass-card border border-glass-border rounded-md px-3 py-1.5 text-[16px] md:text-app-2xl font-black font-mono text-app-text focus:outline-none focus:border-app-text transition-colors"
                     />
                 </div>

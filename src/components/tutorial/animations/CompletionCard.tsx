@@ -55,7 +55,7 @@ export function CompletionCard({ onDismiss, variant = 'default' }: CompletionCar
         <button
           onClick={onDismiss}
           className="w-full py-2.5 rounded-lg text-app-2xl font-semibold transition-opacity hover:opacity-80 cursor-pointer"
-          style={{ backgroundColor: '#22c55e', color: 'white' }}
+          style={{ backgroundColor: 'var(--color-app-green)', color: 'white' }}
         >
           {t(`${prefix}.start_button`)}
         </button>
@@ -67,7 +67,7 @@ export function CompletionCard({ onDismiss, variant = 'default' }: CompletionCar
 function FeatureHint({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
     <div className="flex items-start gap-2.5 text-app-lg text-app-text-muted">
-      <span className="mt-0.5 flex-shrink-0 text-[#22c55e]">{icon}</span>
+      <span className="mt-0.5 flex-shrink-0 text-app-green">{icon}</span>
       <span>{text}</span>
     </div>
   );

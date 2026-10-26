@@ -74,7 +74,7 @@ const PartySlot: React.FC<{
             className={clsx(
                 "flex flex-col items-center gap-1 p-2 border transition-all active:scale-95 relative cursor-pointer select-none",
                 isDropTarget
-                    ? "border-blue-400 bg-blue-400/15 ring-1 ring-blue-400"
+                    ? "border-app-blue bg-app-blue-border ring-1 ring-app-blue"
                     : myJobMode
                         ? "border-app-text/50 bg-app-text/5"
                         : isFocused
@@ -299,7 +299,7 @@ const MobilePartySettings: React.FC = () => {
                 className={clsx(
                     "flex items-center gap-2 px-3 py-2 rounded-xl border text-app-2xl font-bold transition-all cursor-pointer",
                     myJobMode
-                        ? "bg-yellow-500 text-black border-yellow-500"
+                        ? "bg-app-amber text-black border-app-amber"
                         : "bg-app-surface2 border-app-border text-app-text"
                 )}
             >
@@ -371,7 +371,7 @@ const MobilePartySettings: React.FC = () => {
                             style={isDropTarget ? { transform: `scale(${SCALE.dropTarget})`, transition: 'transform 0.15s ease' } : { transition: 'transform 0.15s ease' }}
                         >
                             {isMyJob && (
-                                <div className="absolute -top-1.5 -right-1.5 z-10 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
+                                <div className="absolute -top-1.5 -right-1.5 z-10 w-4 h-4 bg-app-amber rounded-full flex items-center justify-center">
                                     <Star size={8} className="text-black fill-black" />
                                 </div>
                             )}

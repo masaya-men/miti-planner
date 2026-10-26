@@ -52,7 +52,7 @@ export function PartyToggleStrip({ size = 22 }: PartyToggleStripProps) {
                     // 全員表示中は何もしない(列が変わらず「更新中」表示を消す契機が来ないため出しっぱなしになる)
                     onClick={() => { if (!allShown) runAfterIndicator(() => setHiddenPartyMemberIds([])); }}
                     className={clsx(
-                        'text-[10px] font-black tracking-[0.06em] px-1.5 h-[22px] rounded-full cursor-pointer text-app-text',
+                        'text-app-base font-black tracking-[0.06em] px-1.5 h-[22px] rounded-full cursor-pointer text-app-text',
                         allShown ? 'bg-app-text/10' : 'hover:bg-app-text/10',
                     )}
                 >
@@ -93,7 +93,7 @@ export function PartyToggleStrip({ size = 22 }: PartyToggleStripProps) {
                                     />
                                 ) : (
                                     // ジョブ未設定の空席: ロール名を出す(PartyVisibilityMenu と同じ)
-                                    <span className={clsx('text-[9px] font-black text-app-text/70 tracking-tight',
+                                    <span className={clsx('text-app-sm font-black text-app-text/70 tracking-tight',
                                         hidden && 'opacity-30')}>
                                         {id}
                                     </span>

@@ -38,13 +38,13 @@ export class ErrorBoundary extends Component<Props, State> {
                 .filter(Boolean)
                 .join('\n\n');
             return this.props.fallback || (
-                <div className="p-4 m-4 bg-red-900/50 border border-red-500 rounded text-red-100">
+                <div className="p-4 m-4 bg-app-red-dim border border-app-red-border rounded text-app-text">
                     <h2 className="font-bold">{i18next.t('error_boundary.title')}</h2>
                     <details className="whitespace-pre-wrap mt-2 text-app-lg opacity-80 max-h-80 overflow-auto" open>
                         {detail}
                     </details>
                     <button
-                        className="mt-4 px-4 py-2 bg-red-700 hover:bg-red-600 rounded"
+                        className="mt-4 px-4 py-2 bg-app-red hover:bg-app-red-hover text-white rounded"
                         onClick={() => this.setState({ hasError: false, error: null, errorInfo: null })}
                     >
                         {i18next.t('error_boundary.retry')}

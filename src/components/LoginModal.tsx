@@ -206,7 +206,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                                 type="button"
                                                 onClick={() => setShowDeleteAvatarConfirm(true)}
                                                 disabled={isAvatarBusy}
-                                                className="text-[10px] text-app-text-muted/50 hover:text-app-text-muted transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="text-app-base text-app-text-muted/50 hover:text-app-text-muted transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 {t('avatar.delete_button')}
                                             </button>

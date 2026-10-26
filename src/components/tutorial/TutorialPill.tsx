@@ -21,7 +21,7 @@ const LABEL_TEXT: Record<PillLabel, string> = {
 /**
  * 緑ピルインジケーター
  * ボタン自体のCSSをいじらず、近くに浮かぶ独立した「アピール物体」。
- * #22c55e ビビッドグリーン。ダーク/ライト両対応。
+ * --color-app-green (#22c55e) ビビッドグリーン。ダーク/ライト両対応。
  */
 export function TutorialPill({ label, top, left, visible, arrow = 'down' }: TutorialPillProps) {
   if (!visible) return null;
@@ -51,8 +51,8 @@ export function TutorialPill({ label, top, left, visible, arrow = 'down' }: Tuto
       <div
         className="flex items-center gap-[5px] rounded-full px-[11px] py-[3px]"
         style={{
-          backgroundColor: '#22c55e',
-          boxShadow: '0 2px 10px rgba(34, 197, 94, 0.4)',
+          backgroundColor: 'var(--color-app-green)',
+          boxShadow: '0 2px 10px color-mix(in srgb, var(--color-app-green) 40%, transparent)',
         }}
       >
         <motion.span

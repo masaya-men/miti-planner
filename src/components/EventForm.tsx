@@ -711,7 +711,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                     data-testid="ignores-debuff-mit"
                     checked={ignoresDebuffMitigation}
                     onChange={(e) => setIgnoresDebuffMitigation(e.target.checked)}
-                    className="w-4 h-4 accent-red-500 cursor-pointer"
+                    className="w-4 h-4 accent-app-red cursor-pointer"
                 />
                 <span className="text-app-base text-app-text">{t('modal.ignores_debuff_mitigation')}</span>
                 <span className="text-app-sm text-app-text-muted">{t('modal.ignores_debuff_mitigation_desc')}</span>
@@ -890,7 +890,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                                                 </button>
                                                 {/* MT/ST トグル: 単体バフ選択時のみ表示 */}
                                                 {mit.scope === 'target' && selectedMitigations.includes(mitVariant.id) && (
-                                                    <div className="flex gap-px text-[9px] font-bold rounded overflow-hidden border border-app-border" onClick={(e) => e.stopPropagation()}>
+                                                    <div className="flex gap-px text-app-sm font-bold rounded overflow-hidden border border-app-border" onClick={(e) => e.stopPropagation()}>
                                                         {(['MT', 'ST'] as const).map(tgt => {
                                                             const isActive = (mitigationTargets[mitVariant.id] ?? 'MT') === tgt;
                                                             return (

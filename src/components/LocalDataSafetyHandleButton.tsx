@@ -52,7 +52,7 @@ export const LocalDataSafetyHandleButton: React.FC<Props> = ({ onOpenBackup }) =
       >
         <span className="relative flex">
           <ShieldAlert size={14} aria-hidden="true" />
-          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500 ring-2 ring-app-bg" aria-hidden="true" />
+          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-app-red ring-2 ring-app-bg" aria-hidden="true" />
         </span>
       </button>
       <LocalDataSafetyModal isOpen={open} onClose={() => setOpen(false)} onOpenBackup={handleBackup} />

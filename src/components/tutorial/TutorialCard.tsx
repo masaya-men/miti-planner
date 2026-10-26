@@ -85,13 +85,13 @@ export function TutorialCard({
     >
       <div className="rounded-xl shadow-xl bg-app-bg border border-app-text/10 overflow-hidden">
         {/* 緑アクセントバー */}
-        <div className="h-[3px] w-full rounded-t-xl" style={{ backgroundColor: '#22c55e' }} />
+        <div className="h-[3px] w-full rounded-t-xl" style={{ backgroundColor: 'var(--color-app-green)' }} />
 
         <div className="px-4 pt-3 pb-3">
           {/* ステップカウンター + 言語切替 */}
           {stepLabel && (
             <div className="flex items-center justify-between mb-1.5">
-              <div className="text-app-sm font-bold tracking-widest uppercase text-app-text-muted" style={{ color: '#22c55e' }}>
+              <div className="text-app-sm font-bold tracking-widest uppercase text-app-text-muted" style={{ color: 'var(--color-app-green)' }}>
                 STEP {stepLabel}
               </div>
               {showLanguageSwitcher && (
@@ -147,7 +147,7 @@ export function TutorialCard({
             <button
               onClick={onNext}
               className="mt-3 w-full py-2 rounded-lg text-app-md font-bold text-white transition-all hover:opacity-80 active:scale-95 cursor-pointer"
-              style={{ backgroundColor: '#22c55e' }}
+              style={{ backgroundColor: 'var(--color-app-green)' }}
             >
               {t('tutorial.got_it')}
             </button>

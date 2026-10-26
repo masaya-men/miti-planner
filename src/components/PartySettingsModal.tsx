@@ -122,14 +122,14 @@ const SlotItem = React.memo<SlotItemProps>(({
                             }}
                             className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
                                 isMyJob
-                                    ? "bg-yellow-500/20 border-yellow-500 text-yellow-500 scale-110"
+                                    ? "bg-app-amber-border border-app-amber text-app-amber scale-110"
                                     : "bg-app-surface2 text-app-text/30 border-app-border hover:bg-app-surface2 hover:text-app-text/80"
                             )}
                         >
                             <Tooltip content={t('party.my_job')}>
                                 <Star size={16} className={clsx("transition-all duration-300",
                                     isMyJob
-                                        ? "fill-yellow-500 text-yellow-500"
+                                        ? "fill-app-amber text-app-amber"
                                         : "group-hover/star:scale-110"
                                 )} />
                             </Tooltip>
@@ -619,8 +619,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             <h2 className="text-app-2xl font-black text-app-text tracking-widest dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{t('party.configuration_title')}</h2>
                             <p className="text-app-base mt-0.5 font-bold">
                                 {focusedSlot !== null
-                                    ? <span className="flex items-center gap-1.5 font-black animate-pulse" style={{ color: '#22c55e' }}>
-                                        <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: '#22c55e' }} />
+                                    ? <span className="flex items-center gap-1.5 font-black animate-pulse" style={{ color: 'var(--color-app-green)' }}>
+                                        <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: 'var(--color-app-green)' }} />
                                         {t('party.manual_mode_desc', { slot: partyMembers[focusedSlot].id })}
                                     </span>
                                     : <span className="text-app-text dark:drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] font-bold">{t('party.configuration_desc')}</span>

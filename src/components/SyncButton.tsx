@@ -59,7 +59,7 @@ export const SyncButton: React.FC<{ size?: number; className?: string; showLabel
     let iconClass = 'text-app-text-muted/60';
     let animate = '';
     let labelText = '';
-    const labelClass = 'text-red-400';
+    const labelClass = 'text-app-red';
 
     if (isSyncing) {
         Icon = RotateCw;
@@ -67,7 +67,7 @@ export const SyncButton: React.FC<{ size?: number; className?: string; showLabel
         animate = 'animate-spin';
     } else if (isError) {
         Icon = CloudAlert;
-        iconClass = 'text-red-400';
+        iconClass = 'text-app-red';
         labelText = t('app.sync_error_label');
     }
 
@@ -79,7 +79,7 @@ export const SyncButton: React.FC<{ size?: number; className?: string; showLabel
             className={clsx(
                 "flex items-center gap-1.5 rounded transition-all duration-200 disabled:pointer-events-none",
                 // ホバー / 押下フィードバックはエラー時のみ (= タップで再試行を促す)
-                isError ? "hover:bg-red-400/10 active:scale-90 cursor-pointer" : "cursor-default",
+                isError ? "hover:bg-app-red-dim active:scale-90 cursor-pointer" : "cursor-default",
                 iconClass,
                 className,
             )}

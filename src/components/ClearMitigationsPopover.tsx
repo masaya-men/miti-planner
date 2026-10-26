@@ -188,9 +188,9 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                                     ) : (
                                         <span className={clsx(
                                             "text-app-base font-black tracking-tighter uppercase",
-                                            m.role === 'tank' ? 'text-blue-500 dark:text-blue-400' :
-                                                m.role === 'healer' ? 'text-green-500 dark:text-green-400' :
-                                                    'text-red-500 dark:text-red-400'
+                                            m.role === 'tank' ? 'text-app-role-tank' :
+                                                m.role === 'healer' ? 'text-app-role-healer' :
+                                                    'text-app-role-dps'
                                         )}>
                                             {m.id}
                                         </span>
@@ -202,9 +202,9 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                                 ) : (
                                     <span className={clsx(
                                         "text-app-base font-black tracking-tighter uppercase",
-                                        m.role === 'tank' ? 'text-blue-500 dark:text-blue-400' :
-                                            m.role === 'healer' ? 'text-green-500 dark:text-green-400' :
-                                                'text-red-500 dark:text-red-400'
+                                        m.role === 'tank' ? 'text-app-role-tank' :
+                                            m.role === 'healer' ? 'text-app-role-healer' :
+                                                'text-app-role-dps'
                                     )}>
                                         {m.id}
                                     </span>

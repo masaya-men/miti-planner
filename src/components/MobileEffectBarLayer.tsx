@@ -62,7 +62,7 @@ export const MobileEffectBarLayer: React.FC<MobileEffectBarLayerProps> = ({ bars
               <img
                 src={bar.iconUrl}
                 alt=""
-                className="mobile-effect-bar-icon absolute inset-0 rounded object-cover max-w-none ring-1 ring-amber-400"
+                className="mobile-effect-bar-icon absolute inset-0 rounded object-cover max-w-none ring-1 ring-app-amber"
               />
             </div>
           ) : (

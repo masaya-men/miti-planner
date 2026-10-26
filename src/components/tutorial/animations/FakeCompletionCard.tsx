@@ -106,14 +106,14 @@ export function FakeCompletionCard({ onComplete }: FakeCompletionCardProps) {
             </h2>
             <div className="space-y-3 mb-5">
               <div className="flex items-start gap-2.5 text-app-lg text-app-text-muted">
-                <span className="mt-0.5 flex-shrink-0 text-[#22c55e]"><HelpCircle size={14} /></span>
+                <span className="mt-0.5 flex-shrink-0 text-app-green"><HelpCircle size={14} /></span>
                 <span>{t('tutorial.completion.menu_hint')}</span>
               </div>
             </div>
             <button
               disabled
               className="w-full py-2.5 rounded-lg text-app-2xl font-semibold opacity-50 cursor-not-allowed"
-              style={{ backgroundColor: '#22c55e', color: 'white' }}
+              style={{ backgroundColor: 'var(--color-app-green)', color: 'white' }}
             >
               {t('tutorial.completion.start_button')}
             </button>
@@ -131,7 +131,7 @@ export function FakeCompletionCard({ onComplete }: FakeCompletionCardProps) {
           transition={{ type: 'spring', stiffness: 200, damping: 20 }}
         >
           <div className="rounded-xl overflow-hidden shadow-xl bg-app-bg border border-app-text/10">
-            <div className="h-[3px] w-full" style={{ backgroundColor: '#22c55e' }} />
+            <div className="h-[3px] w-full" style={{ backgroundColor: 'var(--color-app-green)' }} />
             <div className="px-4 pt-3 pb-3">
               <p className="text-app-xl font-bold text-app-text leading-snug">
                 {phase !== 'pressed'

@@ -33,6 +33,20 @@
   --color-app-amber-dim: var(--color-amber-dim);
   --color-app-amber-border: var(--color-amber-border);
 
+  --color-app-green: var(--color-green);
+  --color-app-green-hover: var(--color-green-hover);
+  --color-app-green-dim: var(--color-green-dim);
+  --color-app-green-border: var(--color-green-border);
+
+  /* ロール色 (タンク/ヒーラー/DPS)・MT/ST 区別色 */
+  --color-app-role-tank: var(--color-role-tank);
+  --color-app-role-healer: var(--color-role-healer);
+  --color-app-role-dps: var(--color-role-dps);
+  --color-app-role-mt: var(--color-role-mt);
+  --color-app-role-mt-dim: var(--color-role-mt-dim);
+  --color-app-role-st: var(--color-role-st);
+  --color-app-role-st-dim: var(--color-role-st-dim);
+
   --color-glass-header: var(--glass-bg-header);
   --color-glass-panel: var(--glass-bg-panel);
   --color-glass-card: var(--glass-bg-card);
@@ -324,6 +338,21 @@
     --color-amber-dim: rgba(245, 158, 11, 0.10);
     --color-amber-border: rgba(245, 158, 11, 0.25);
 
+    /* 緑 = チュートリアル/パーティ自動入力の成功表示 (#22c55e)。ダーク/ライト同値 */
+    --color-green: #22c55e;
+    --color-green-hover: #16a34a;
+    --color-green-dim: rgba(34, 197, 94, 0.10);
+    --color-green-border: rgba(34, 197, 94, 0.25);
+
+    /* ロール色: Tailwind の *-400 と同値 (旧 dark:text-*-400)。MT=cyan-400 / ST=amber-400 */
+    --color-role-tank: oklch(70.7% 0.165 254.624);
+    --color-role-healer: oklch(79.2% 0.209 151.711);
+    --color-role-dps: oklch(70.4% 0.191 22.216);
+    --color-role-mt: oklch(78.9% 0.154 211.53);
+    --color-role-mt-dim: oklch(78.9% 0.154 211.53 / 0.10);
+    --color-role-st: oklch(82.8% 0.189 84.429);
+    --color-role-st-dim: oklch(82.8% 0.189 84.429 / 0.10);
+
     --glass-tier3-bg: transparent;
     --share-modal-bg: transparent;
     --glass-tier3-blur: 12px; /* 2px→12px: モーダル等のブラーを強化 */
@@ -457,6 +486,21 @@
     --color-amber-dim: rgba(217, 119, 6, 0.08);
     --color-amber-border: rgba(217, 119, 6, 0.20);
 
+    /* 緑 = チュートリアル/パーティ自動入力の成功表示 (#22c55e)。ダーク/ライト同値 */
+    --color-green: #22c55e;
+    --color-green-hover: #16a34a;
+    --color-green-dim: rgba(34, 197, 94, 0.10);
+    --color-green-border: rgba(34, 197, 94, 0.25);
+
+    /* ロール色: Tailwind の *-500 と同値 (旧 text-*-500)。MT/ST は従来ライトでも *-400 のまま */
+    --color-role-tank: oklch(62.3% 0.214 259.815);
+    --color-role-healer: oklch(72.3% 0.219 149.579);
+    --color-role-dps: oklch(63.7% 0.237 25.331);
+    --color-role-mt: oklch(78.9% 0.154 211.53);
+    --color-role-mt-dim: oklch(78.9% 0.154 211.53 / 0.10);
+    --color-role-st: oklch(82.8% 0.189 84.429);
+    --color-role-st-dim: oklch(82.8% 0.189 84.429 / 0.10);
+
     /* モバイルUI用 */
     --color-sheet-bg: #ffffff;
     --color-nav-bg: rgba(249, 249, 249, 0.10);
@@ -523,10 +567,6 @@
   }
 }
 
-/* 背景: 単色 */
-.bg-abstract-dark { background-color: #000000; }
-.bg-abstract-light { background-color: #ffffff; }
-
 /* スクロールバー */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -537,23 +577,9 @@
 ::-webkit-scrollbar-thumb:hover { background-color: rgba(128, 128, 128, 0.5); }
 ::-webkit-scrollbar-corner { background: transparent; }
 
-/* 細いスクロールバー（横スクロール用） */
-.custom-scrollbar-thin::-webkit-scrollbar { height: 4px; }
-.custom-scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar-thin::-webkit-scrollbar-thumb { background-color: rgba(128, 128, 128, 0.3); border-radius: 2px; }
-.custom-scrollbar-thin::-webkit-scrollbar-thumb:hover { background-color: rgba(128, 128, 128, 0.5); }
-
 /* スクロールバー非表示 */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-/* 地球儀アイコン回転アニメーション */
-.group:hover .globe-icon {
-  transition: transform 2s ease-in-out;
-  transform: rotate(360deg);
-}
-
-.ime-active { ime-mode: active; }
 
 /* ── LoPoボタン カプセル描画 + インク塗りつぶしアニメーション ── */
 
@@ -680,26 +706,6 @@
 .glass-border-r-0 { border-right-width: 0 !important; }
 .glass-shadow-none { box-shadow: none !important; }
 
-/* ツールチップ用: テーマ反転（逆テーマのglass-tier3変数を上書き） */
-.tooltip-invert {
-  color: var(--color-text-on-accent);
-}
-:root .tooltip-invert,
-.theme-dark .tooltip-invert {
-  --glass-tier3-bg: rgba(255, 255, 255, 0.80);
-  --glass-tier3-blur: 20px;
-  --glass-tier3-border: rgba(0, 0, 0, 0.08);
-  --glass-tier3-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
-  --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.6);
-}
-.theme-light .tooltip-invert {
-  --glass-tier3-bg: rgba(0, 0, 0, 0.80);
-  --glass-tier3-blur: 20px;
-  --glass-tier3-border: rgba(255, 255, 255, 0.12);
-  --glass-tier3-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-
 /* サイドバー・ヘッダーはblur控えめ（元の値を維持） */
 .theme-light .glass-frame {
   --glass-tier3-bg: transparent;
@@ -730,323 +736,11 @@
   backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
 }
 
-/* 人気ページ専用 — 日本語テキスト横潰し（レイアウト要素ではなくテキストのみ） */
-:lang(ja) .popular-ja-text h2,
-:lang(ja) .popular-ja-text h3,
-:lang(ja) .popular-ja-text p,
-:lang(ja) .popular-ja-text span,
-:lang(ja) .popular-ja-text button {
-  transform: scaleX(0.93);
-  transform-origin: left;
-  letter-spacing: 0.06em;
-}
-
-/* ============================
-   人気ページ — ガラスエフェクト
-   empty-liquid-glass ベースの白/黒ライン
-   ============================ */
-
-/* --- ヘッダー --- */
-.glass-popular-header {
-  --tw-backdrop-blur: blur(32px);
-  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-  background: rgba(255,255,255,0.03);
-  border: none;
-  border-bottom: 1px solid rgba(255,255,255,0.25);
-  box-shadow:
-    inset 0 1px 1px rgba(255,255,255,0.08),
-    inset 0 -1px 1px rgba(255,255,255,0.04),
-    0 1px 3px rgba(0,0,0,0.3);
-}
-/* ヘッダー下辺シーンライン */
-.glass-popular-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 10%; right: 10%;
-  height: 1px;
-  background: linear-gradient(to right,
-    transparent, rgba(255,255,255,0.15) 20%,
-    rgba(255,255,255,0.25) 50%,
-    rgba(255,255,255,0.15) 80%, transparent
-  );
-  pointer-events: none;
-}
-/* ライトテーマ ヘッダー */
-.theme-light .glass-popular-header {
-  background: rgba(255,255,255,0.55);
-  border-bottom-color: rgba(0,0,0,0.08);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.8),
-    inset 0 -1px 0 rgba(0,0,0,0.05),
-    0 0 0 1px rgba(0,0,0,0.08),
-    0 2px 8px rgba(0,0,0,0.04);
-}
-.theme-light .glass-popular-header::after {
-  background: linear-gradient(to right,
-    transparent, rgba(0,0,0,0.04) 20%,
-    rgba(0,0,0,0.08) 50%,
-    rgba(0,0,0,0.04) 80%, transparent
-  );
-}
-
-/* --- カード --- */
-.glass-popular-card {
-  position: relative;
-  --tw-backdrop-blur: blur(20px);
-  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-  background: rgba(0,0,0,0.35);
-  border: 1px solid rgba(255,255,255,0.15);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.2),
-    inset -1px 0 0 rgba(255,255,255,0.1),
-    inset 1px 0 0 rgba(255,255,255,0.1),
-    inset 0 -1px 0 rgba(255,255,255,0.08);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-/* ホバー時: 縁が明るくなる */
-.glass-popular-card:hover {
-  border-color: rgba(255,255,255,0.3);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.35),
-    inset -1px 0 0 rgba(255,255,255,0.2),
-    inset 1px 0 0 rgba(255,255,255,0.2),
-    inset 0 -1px 0 rgba(255,255,255,0.15),
-    0 0 30px rgba(255,255,255,0.06);
-}
-/* ライトテーマ カード */
-.theme-light .glass-popular-card {
-  background: rgba(255,255,255,0.55);
-  border-color: rgba(0,0,0,0.1);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.8),
-    inset 0 -1px 0 rgba(0,0,0,0.05),
-    0 0 0 1px rgba(0,0,0,0.06),
-    0 2px 8px rgba(0,0,0,0.04);
-}
-.theme-light .glass-popular-card:hover {
-  border-color: rgba(0,0,0,0.18);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.8),
-    inset 0 -1px 0 rgba(0,0,0,0.05),
-    0 0 0 1px rgba(0,0,0,0.12),
-    0 2px 12px rgba(0,0,0,0.08);
-}
-
-/* --- セクション --- */
-.glass-popular-section {
-  position: relative;
-  overflow: hidden;
-  --tw-backdrop-blur: blur(12px);
-  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.15),
-    inset -1px 0 0 rgba(255,255,255,0.08),
-    inset 1px 0 0 rgba(255,255,255,0.08),
-    inset 0 -1px 0 rgba(255,255,255,0.06);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-.glass-popular-section:hover {
-  border-color: rgba(255,255,255,0.22);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.25),
-    inset -1px 0 0 rgba(255,255,255,0.15),
-    inset 1px 0 0 rgba(255,255,255,0.15),
-    inset 0 -1px 0 rgba(255,255,255,0.1),
-    0 0 20px rgba(255,255,255,0.04);
-}
-.theme-light .glass-popular-section {
-  background: rgba(255,255,255,0.4);
-  border-color: rgba(0,0,0,0.08);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.6),
-    0 0 0 1px rgba(0,0,0,0.06);
-}
-.theme-light .glass-popular-section:hover {
-  border-color: rgba(0,0,0,0.14);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.6),
-    0 0 0 1px rgba(0,0,0,0.1),
-    0 2px 10px rgba(0,0,0,0.06);
-}
-/* セクションの光走りは上のhoverルールで適用済み */
-
-/* --- カード/セクション: ホバー時の縁を走る光 --- */
-@keyframes borderLightRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-.glass-card-sweep {
-  position: absolute;
-  inset: 0;
-  padding: 1.5px;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  overflow: hidden;
-  /* 縁だけ見せるマスク */
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  /* グロー用: paddingを広げて光のにじみを見せる */
-  padding: 3px;
-}
-.glass-card-sweep::before {
-  content: '';
-  position: absolute;
-  top: 50%; left: 50%;
-  /* 常に正方形を維持（vmax=ビューポートの大きい辺基準）。
-     親が横長でも縦長でもグラデーションが歪まず、光走りが均一になる。
-     overflow:hiddenで親の外はクリップされる。 */
-  width: 200vmax; height: 200vmax;
-  margin-top: -100vmax; margin-left: -100vmax;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0%,
-    transparent 30%,
-    rgba(255,255,255,0.15) 36%,
-    rgba(255,255,255,0.5) 39%,
-    rgba(255,255,255,0.8) 40%,
-    rgba(255,255,255,0.5) 41%,
-    rgba(255,255,255,0.15) 44%,
-    transparent 50%,
-    transparent 80%,
-    rgba(255,255,255,0.15) 86%,
-    rgba(255,255,255,0.5) 89%,
-    rgba(255,255,255,0.8) 90%,
-    rgba(255,255,255,0.5) 91%,
-    rgba(255,255,255,0.15) 94%,
-    transparent 100%
-  );
-  filter: blur(2px);
-  animation: borderLightRotate 15s linear infinite;
-}
-/* ホバー中だけ表示 */
-.glass-popular-card:hover > .glass-card-sweep,
-.glass-popular-section:hover > .glass-card-sweep {
-  opacity: 1;
-}
-/* ライトテーマ */
-.theme-light .glass-card-sweep::before {
-  background: conic-gradient(
-    from 0deg,
-    transparent 0%,
-    transparent 30%,
-    rgba(0,0,0,0.06) 36%,
-    rgba(0,0,0,0.2) 39%,
-    rgba(0,0,0,0.3) 40%,
-    rgba(0,0,0,0.2) 41%,
-    rgba(0,0,0,0.06) 44%,
-    transparent 50%,
-    transparent 80%,
-    rgba(0,0,0,0.06) 86%,
-    rgba(0,0,0,0.2) 89%,
-    rgba(0,0,0,0.3) 90%,
-    rgba(0,0,0,0.2) 91%,
-    rgba(0,0,0,0.06) 94%,
-    transparent 100%
-  );
-}
-
-/* --- カード: コーナーハイライト --- */
-.glass-card-corner {
-  position: absolute;
-  width: 30px; height: 30px;
-  pointer-events: none;
-  z-index: 2;
-}
-.glass-card-corner-tl { top:0;left:0; background:radial-gradient(ellipse at 0% 0%,rgba(255,255,255,0.1) 0%,transparent 70%); }
-.glass-card-corner-tr { top:0;right:0; background:radial-gradient(ellipse at 100% 0%,rgba(255,255,255,0.07) 0%,transparent 70%); }
-.glass-card-corner-bl { bottom:0;left:0; background:radial-gradient(ellipse at 0% 100%,rgba(255,255,255,0.07) 0%,transparent 70%); }
-.glass-card-corner-br { bottom:0;right:0; background:radial-gradient(ellipse at 100% 100%,rgba(255,255,255,0.05) 0%,transparent 70%); }
-/* ライトテーマ コーナー */
-.theme-light .glass-card-corner-tl { background:radial-gradient(ellipse at 0% 0%,rgba(255,255,255,0.4) 0%,transparent 70%); }
-.theme-light .glass-card-corner-tr { background:radial-gradient(ellipse at 100% 0%,rgba(255,255,255,0.3) 0%,transparent 70%); }
-.theme-light .glass-card-corner-bl { background:radial-gradient(ellipse at 0% 100%,rgba(255,255,255,0.3) 0%,transparent 70%); }
-.theme-light .glass-card-corner-br { background:radial-gradient(ellipse at 100% 100%,rgba(255,255,255,0.25) 0%,transparent 70%); }
-
-/* --- カード: 上辺シーンライン --- */
-.glass-card-sheen {
-  position: absolute;
-  top: 0; left: 10%; right: 10%;
-  height: 1px;
-  pointer-events: none;
-  z-index: 2;
-  background: linear-gradient(to right,
-    transparent, rgba(255,255,255,0.12) 20%,
-    rgba(255,255,255,0.2) 50%,
-    rgba(255,255,255,0.12) 80%, transparent
-  );
-}
-.theme-light .glass-card-sheen {
-  background: linear-gradient(to right,
-    transparent, rgba(255,255,255,0.4) 20%,
-    rgba(255,255,255,0.6) 50%,
-    rgba(255,255,255,0.4) 80%, transparent
-  );
-}
-
-/* --- 人気ページ: 波ライティング --- */
-@keyframes popularWaveLight {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
-}
-.popular-wave-container {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-.popular-wave {
-  position: absolute;
-  top: 0; bottom: 0;
-  width: 60%;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(255,255,255,0.015) 20%,
-    rgba(255,255,255,0.04) 45%,
-    rgba(255,255,255,0.04) 55%,
-    rgba(255,255,255,0.015) 80%,
-    transparent 100%
-  );
-  animation: popularWaveLight 7s ease-in-out infinite;
-  will-change: transform;
-}
-/* ライトテーマ 波ライティング */
-.theme-light .popular-wave {
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(0,0,0,0.01) 20%,
-    rgba(0,0,0,0.025) 45%,
-    rgba(0,0,0,0.025) 55%,
-    rgba(0,0,0,0.01) 80%,
-    transparent 100%
-  );
-}
-
 /* glass-panel — タイムライン枠のガラス表現 */
 .glass-panel {
   position: relative;
 }
 
-
-/* ボタン・インタラクティブ要素 — シンプルなホバー */
-.glass-interactive {
-  @apply transition-colors duration-150;
-}
-.glass-interactive:hover {
-  background-color: var(--glass-hover);
-}
-/* シャイン効果を無効化 */
-.glass-interactive::after { display: none; }
 
 /* water-drop — シンプル化 */
 .water-drop {
@@ -1055,9 +749,6 @@
 .water-drop:hover {
   background-color: var(--glass-hover);
 }
-
-/* hover-shine — 無効化 */
-.hover-shine::after { display: none; }
 
 /* サイドバー項目 — ホバー時に左からアンダーラインが伸びる */
 .sidebar-item {
@@ -1095,14 +786,6 @@
   .btn-tactile:active {
     transform: scale(var(--scale-press));
   }
-
-  /* 背景ブロブ — 無効化（非表示） */
-  .bg-blob { display: none; }
-}
-
-/* Safe-area padding for devices with home indicators */
-.safe-area-pb {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* タッチ操作時のテキスト選択防止 */
@@ -1792,12 +1475,3 @@ button, [role="button"], .touch-none {
   height: 100dvh;
 }
 
-/* PS5 ストラテジーボード貼り付けページ(/stgy)のスクロールシェル。
-   body 全体をスクロールさせる方式は iOS Safari の動的ツールバーで不安定
-   (一度下へ動かすと最上部に戻りにくい)。専用シェルを実ビューポート(100dvh)
-   の高さにして内部スクロールさせると、どの端末でも確実に上端まで戻れる。
-   collab-joiner-shell と同じく dvh 非対応は 100vh フォールバック。 */
-.stgy-shell {
-  height: 100vh;
-  height: 100dvh;
-}

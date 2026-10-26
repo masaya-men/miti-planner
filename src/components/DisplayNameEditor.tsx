@@ -57,7 +57,7 @@ export const DisplayNameEditor: React.FC<DisplayNameEditorProps> = ({
                 />
                 <span className={clsx(
                     "absolute right-2 bottom-2 text-app-base",
-                    name.length >= 30 ? "text-yellow-500" : "text-app-text-muted/50"
+                    name.length >= 30 ? "text-app-amber" : "text-app-text-muted/50"
                 )}>
                     {name.length}/30
                 </span>

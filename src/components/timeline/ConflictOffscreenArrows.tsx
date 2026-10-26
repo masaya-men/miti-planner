@@ -96,7 +96,7 @@ export function ConflictOffscreenArrows({ points, scrollContainerRef, topInset =
                                 type="button"
                                 onClick={() => onClick(a)}
                                 aria-label={label}
-                                className="animate-conflict-arrow-pulse flex items-center justify-center w-6 h-6 cursor-pointer text-amber-500 hover:text-amber-600 dark:text-amber-300 dark:hover:text-amber-200"
+                                className="animate-conflict-arrow-pulse flex items-center justify-center w-6 h-6 cursor-pointer text-app-amber hover:text-app-amber-hover"
                             >
                                 {/* 太めのシェブロンのみ。グローはテーマ別 (.conflict-chevron / index.css) */}
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none"

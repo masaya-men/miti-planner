@@ -382,11 +382,11 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                             isBlurred ? "opacity-30 blur-[2px] grayscale" : "",
                                             (isSelectedTargetMit || isSelectedShieldMit) ? "z-10 shadow-md bg-app-surface2 border-app-border" :
                                             isAlreadyPlaced
-                                                ? ("bg-red-50 border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:border-red-500/40 dark:hover:bg-red-500/20")
+                                                ? ("bg-app-red-dim border-app-red-border hover:bg-app-red-border")
                                                 : !status.available
-                                                    ? ("border-red-100 bg-red-50/50 opacity-50 dark:border-red-500/20 dark:bg-red-500/[0.06] dark:opacity-70")
+                                                    ? ("border-app-red-border bg-app-red-dim opacity-50 dark:opacity-70")
                                                     : status.warning
-                                                        ? ("hover:bg-amber-50 border-amber-200 dark:hover:bg-amber-500/[0.06] dark:border-amber-500/30")
+                                                        ? ("hover:bg-app-amber-dim border-app-amber-border")
                                                         : ("hover:bg-app-surface2 border-transparent hover:border-app-border"),
                                             isClickable ? "cursor-pointer" : "cursor-not-allowed"
                                         )}
@@ -398,17 +398,17 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                 className={clsx(
                                                     "w-8 h-8 object-contain rounded border transition-opacity",
                                                     !status.available
-                                                        ? ("bg-red-50 border-red-200 dark:bg-red-900/30 dark:border-red-500/30")
+                                                        ? ("bg-app-red-dim border-app-red-border")
                                                         : status.warning
-                                                            ? ("bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-500/30")
+                                                            ? ("bg-app-amber-dim border-app-amber-border")
                                                             : ("bg-app-surface2 border-app-border")
                                                 )}
                                             />
                                             {status.badge && (
                                                 <span className={`absolute -top-1.5 -right-1.5 text-app-xs font-black leading-none px-1 py-0.5 rounded-full shadow-lg ring-1 ${status.badgeColor === 'red'
-                                                    ? 'bg-red-600/90 text-red-100 ring-red-400/50'
+                                                    ? 'bg-app-red text-red-100 ring-red-400/50'
                                                     : status.badgeColor === 'amber'
-                                                        ? 'bg-amber-600/90 text-amber-100 ring-amber-400/50'
+                                                        ? 'bg-app-amber text-amber-100 ring-amber-400/50'
                                                         : 'bg-cyan-600/90 text-cyan-100 ring-cyan-400/50'
                                                     }`}>
                                                     {status.badge}
@@ -417,13 +417,13 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                         </div>
                                         <div className="overflow-hidden">
                                             <div className={`text-app-lg font-black transition-colors truncate ${!status.available
-                                                ? 'text-red-600 dark:text-red-400'
+                                                ? 'text-app-red'
                                                 : status.warning
-                                                    ? 'text-amber-600 dark:text-amber-300'
+                                                    ? 'text-app-amber'
                                                     : 'text-app-text'
                                                 }`}>
                                                 {getPhaseName(mitigation.name, contentLanguage)}
-                                                {isAlreadyPlaced && <span className="ml-2 text-app-xs bg-red-600 text-white px-1 rounded uppercase tracking-tighter shrink-0">{t('mitigation.remove')}</span>}
+                                                {isAlreadyPlaced && <span className="ml-2 text-app-xs bg-app-red text-white px-1 rounded uppercase tracking-tighter shrink-0">{t('mitigation.remove')}</span>}
                                                 {mitigation.scope === 'target' && !isAlreadyPlaced && (
                                                     <span className="ml-2 text-app-base text-app-text-sec transition-transform group-hover:translate-x-0.5 inline-block shrink-0">
                                                         {isSelectedTargetMit ? '▼' : '▶'}
@@ -436,11 +436,11 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                 )}
                                             </div>
                                             {!status.available ? (
-                                                <div className="text-app-base text-red-600 dark:text-red-400 font-bold">
+                                                <div className="text-app-base text-app-red font-bold">
                                                     {status.message}
                                                 </div>
                                             ) : status.warning ? (
-                                                <div className="text-app-base text-amber-700 dark:text-amber-400 font-bold">
+                                                <div className="text-app-base text-app-amber font-bold">
                                                     ⚠ {status.message}
                                                 </div>
                                             ) : status.recastInfo ? (
@@ -494,9 +494,9 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                             ) : (
                                                                 <span className={clsx(
                                                                     "text-app-2xl font-black tracking-tighter uppercase drop-shadow-sm",
-                                                                    member.role === 'tank' ? 'text-blue-500 dark:text-blue-400' : 
-                                                                    member.role === 'healer' ? 'text-green-500 dark:text-green-400' : 
-                                                                    'text-red-500 dark:text-red-400'
+                                                                    member.role === 'tank' ? 'text-app-role-tank' : 
+                                                                    member.role === 'healer' ? 'text-app-role-healer' : 
+                                                                    'text-app-role-dps'
                                                                 )}>
                                                                     {t(`modal.${member.id.toLowerCase()}`, member.id)}
                                                                 </span>
@@ -526,7 +526,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                             >
                                                 {availableShields.length === 0 ? (
                                                     <div className="flex flex-col gap-2">
-                                                        <p className="text-app-base text-amber-700 dark:text-amber-400 font-bold text-center">
+                                                        <p className="text-app-base text-app-amber font-bold text-center">
                                                             {t('mitigation.no_shield', '有効な鼓舞がありません')}
                                                         </p>
                                                         <button
@@ -581,9 +581,9 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                                     ) : (
                                                                         <span className={clsx(
                                                                             "w-8 h-8 flex items-center justify-center text-app-2xl font-black tracking-tighter uppercase drop-shadow-sm shrink-0",
-                                                                            targetMember?.role === 'tank' ? 'text-blue-500 dark:text-blue-400' :
-                                                                            targetMember?.role === 'healer' ? 'text-green-500 dark:text-green-400' :
-                                                                            'text-red-500 dark:text-red-400'
+                                                                            targetMember?.role === 'tank' ? 'text-app-role-tank' :
+                                                                            targetMember?.role === 'healer' ? 'text-app-role-healer' :
+                                                                            'text-app-role-dps'
                                                                         )}>
                                                                             {t(`modal.${(targetMember?.id || '').toLowerCase()}`, targetMember?.id || '')}
                                                                         </span>

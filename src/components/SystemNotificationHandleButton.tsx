@@ -40,7 +40,7 @@ export const SystemNotificationHandleButton: React.FC = () => {
       >
         <span className="relative flex">
           <Bell size={14} aria-hidden="true" />
-          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500 ring-2 ring-app-bg" aria-hidden="true" />
+          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-app-red ring-2 ring-app-bg" aria-hidden="true" />
         </span>
       </button>
       <SystemNotificationModal isOpen={open} notif={latestUnread} onClose={handleClose} />

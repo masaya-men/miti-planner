@@ -155,7 +155,7 @@ export function PillFly({ fromRect, toSelector, fromLabel, toLabel, onPhaseChang
       {phase === 'check' && (
         <motion.div
           className="absolute -inset-1.5 rounded-full"
-          style={{ border: '1.5px solid rgba(34, 197, 94, 0.3)' }}
+          style={{ border: '1.5px solid color-mix(in srgb, var(--color-app-green) 30%, transparent)' }}
           animate={{ scale: [1, 1.5, 1], opacity: [0.6, 0, 0.6] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
         />
@@ -164,10 +164,10 @@ export function PillFly({ fromRect, toSelector, fromLabel, toLabel, onPhaseChang
       <div
         className="flex items-center gap-[5px] rounded-full px-[11px] py-[3px] relative"
         style={{
-          backgroundColor: '#22c55e',
+          backgroundColor: 'var(--color-app-green)',
           boxShadow: phase === 'check'
-            ? '0 2px 16px rgba(34, 197, 94, 0.5), 0 0 24px rgba(34, 197, 94, 0.2)'
-            : '0 2px 10px rgba(34, 197, 94, 0.4)',
+            ? '0 2px 16px color-mix(in srgb, var(--color-app-green) 50%, transparent), 0 0 24px color-mix(in srgb, var(--color-app-green) 20%, transparent)'
+            : '0 2px 10px color-mix(in srgb, var(--color-app-green) 40%, transparent)',
         }}
       >
         {/* 飛行中にcrossfadeでラベル変化 — 両ラベルを中央揃えで重ねる */}

@@ -89,7 +89,7 @@ export function TutorialMenu({ btnClassName, children }: TutorialMenuProps) {
               >
                 <span className="flex-1">{t(tutorial.nameKey)}</span>
                 {isDone && (
-                  <Check size={12} className="text-[#22c55e] flex-shrink-0" />
+                  <Check size={12} className="text-app-green flex-shrink-0" />
                 )}
               </button>
             );

@@ -90,17 +90,17 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                         className={clsx(
                             "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group cursor-pointer",
                             selectedMode === 'inherit'
-                                ? "bg-blue-500/10 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.12)]"
+                                ? "bg-app-blue-dim border-app-blue-border shadow-[0_0_15px_rgba(59,130,246,0.12)]"
                                 : "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border"
                         )}
                     >
                         <div className={clsx("mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
-                            selectedMode === 'inherit' ? "border-blue-400 bg-blue-400" : "border-app-border"
+                            selectedMode === 'inherit' ? "border-app-blue bg-app-blue" : "border-app-border"
                         )}>
                             {selectedMode === 'inherit' && <Check size={10} className="text-white" strokeWidth={3} />}
                         </div>
                         <div>
-                            <div className={clsx("text-app-2xl font-bold mb-1 transition-colors", selectedMode === 'inherit' ? 'text-blue-500' : 'text-app-text')}>
+                            <div className={clsx("text-app-2xl font-bold mb-1 transition-colors", selectedMode === 'inherit' ? 'text-app-blue' : 'text-app-text')}>
                                 {t('migration.mode.inherit.title', '互換スキルを引き継ぐ (推奨)')}
                             </div>
                             <div className="text-app-base text-app-text-muted leading-snug">
@@ -114,17 +114,17 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                         className={clsx(
                             "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group cursor-pointer",
                             selectedMode === 'common_only'
-                                ? "bg-blue-500/10 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.12)]"
+                                ? "bg-app-blue-dim border-app-blue-border shadow-[0_0_15px_rgba(59,130,246,0.12)]"
                                 : "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border"
                         )}
                     >
                         <div className={clsx("mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
-                            selectedMode === 'common_only' ? "border-blue-400 bg-blue-400" : "border-app-border"
+                            selectedMode === 'common_only' ? "border-app-blue bg-app-blue" : "border-app-border"
                         )}>
                             {selectedMode === 'common_only' && <Check size={10} className="text-white" strokeWidth={3} />}
                         </div>
                         <div>
-                            <div className={clsx("text-app-2xl font-bold mb-1 transition-colors", selectedMode === 'common_only' ? 'text-blue-500' : 'text-app-text')}>
+                            <div className={clsx("text-app-2xl font-bold mb-1 transition-colors", selectedMode === 'common_only' ? 'text-app-blue' : 'text-app-text')}>
                                 {t('migration.mode.common.title', '共通スキル（ロールアクション）のみ残す')}
                             </div>
                             <div className="text-app-base text-app-text-muted leading-snug">
@@ -138,18 +138,18 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                         className={clsx(
                             "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group cursor-pointer",
                             selectedMode === 'reset'
-                                ? "bg-red-500/10 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.15)]"
+                                ? "bg-app-red-dim border-app-red-border shadow-[0_0_15px_rgba(239,68,68,0.15)]"
                                 : "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border"
                         )}
                     >
                         <div className={clsx("mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
-                            selectedMode === 'reset' ? "border-red-400 bg-red-400" : "border-app-border"
+                            selectedMode === 'reset' ? "border-app-red bg-app-red" : "border-app-border"
                         )}>
                             {selectedMode === 'reset' && <Check size={10} className="text-white" strokeWidth={3} />}
                         </div>
                         <div>
-                            <div className={clsx("text-app-2xl font-bold mb-1 flex items-center gap-1 transition-colors", selectedMode === 'reset' ? 'text-red-500' : 'text-app-text')}>
-                                <ShieldAlert size={14} className={selectedMode === 'reset' ? "text-red-400" : "text-app-text-muted"} />
+                            <div className={clsx("text-app-2xl font-bold mb-1 flex items-center gap-1 transition-colors", selectedMode === 'reset' ? 'text-app-red' : 'text-app-text')}>
+                                <ShieldAlert size={14} className={selectedMode === 'reset' ? "text-app-red" : "text-app-text-muted"} />
                                 {t('migration.mode.reset.title', '配置をすべてリセットする')}
                             </div>
                             <div className="text-app-base text-app-text-muted leading-snug">
@@ -172,9 +172,9 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                         onClick={() => onConfirm(selectedMode)}
                         className={clsx(
                             "px-6 py-2 rounded-lg text-app-lg font-bold transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer",
-                            selectedMode === 'inherit' ? "bg-blue-500 text-white hover:bg-blue-400" :
-                                selectedMode === 'common_only' ? "bg-blue-500 text-white hover:bg-blue-400" :
-                                    "bg-red-600 hover:bg-red-500 text-white shadow-red-500/30"
+                            selectedMode === 'inherit' ? "bg-app-blue text-white hover:bg-app-blue-hover" :
+                                selectedMode === 'common_only' ? "bg-app-blue text-white hover:bg-app-blue-hover" :
+                                    "bg-app-red hover:bg-app-red-hover text-white shadow-red-500/30"
                         )}
                     >
                         {t('migration.confirm', '変更を実行')}

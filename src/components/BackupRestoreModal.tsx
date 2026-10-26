@@ -148,7 +148,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
             {t('backup.restore_file_select')}
           </button>
           {error && (
-            <p className="text-app-sm text-red-500">{error}</p>
+            <p className="text-app-sm text-app-red">{error}</p>
           )}
         </div>
       )}
@@ -156,7 +156,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
       {/* ステージ: confirm1 */}
       {stage === 'confirm1' && (
         <div className="px-5 py-6 flex flex-col gap-4 items-center text-center">
-          <AlertTriangle size={32} className="text-yellow-500" />
+          <AlertTriangle size={32} className="text-app-amber" />
           <h3 className="text-app-md font-bold text-app-text">
             {t('backup.restore_confirm_1_title')}
           </h3>
@@ -172,7 +172,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
             </button>
             <button
               onClick={() => setStage('confirm2')}
-              className="flex-1 py-2 rounded-lg bg-yellow-500 text-black text-app-sm font-bold hover:bg-yellow-400 transition-colors cursor-pointer"
+              className="flex-1 py-2 rounded-lg bg-app-amber text-black text-app-sm font-bold hover:bg-app-amber-hover transition-colors cursor-pointer"
             >
               {t('backup.restore_confirm_1_continue')}
             </button>
@@ -183,7 +183,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
       {/* ステージ: confirm2 */}
       {stage === 'confirm2' && (
         <div className="px-5 py-6 flex flex-col gap-4 items-center text-center">
-          <AlertTriangle size={32} className="text-red-500" />
+          <AlertTriangle size={32} className="text-app-red" />
           <h3 className="text-app-md font-bold text-app-text">
             {t('backup.restore_confirm_2_title')}
           </h3>
@@ -202,7 +202,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
             </button>
             <button
               onClick={handleExecuteRestore}
-              className="flex-1 py-2 rounded-lg bg-red-500 text-white text-app-sm font-bold hover:bg-red-400 transition-colors cursor-pointer"
+              className="flex-1 py-2 rounded-lg bg-app-red text-white text-app-sm font-bold hover:bg-app-red-hover transition-colors cursor-pointer"
             >
               {t('backup.restore_confirm_2_execute')}
             </button>

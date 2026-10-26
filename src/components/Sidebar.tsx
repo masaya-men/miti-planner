@@ -463,13 +463,13 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                 className={clsx(
                                                     "shrink-0 rounded flex items-center justify-center transition-colors cursor-pointer",
                                                     confirmDeletePlanId === plan.id
-                                                        ? "text-red-500 bg-red-500/10 px-2 py-0.5 gap-1"
-                                                        : "text-app-text-muted hover:text-red-500 hover:bg-red-500/10 w-5 h-5"
+                                                        ? "text-app-red bg-app-red-dim px-2 py-0.5 gap-1"
+                                                        : "text-app-text-muted hover:text-app-red-hover hover:bg-app-red-dim w-5 h-5"
                                                 )}
                                             >
                                                 <Trash2 size={9} />
                                                 {confirmDeletePlanId === plan.id && (
-                                                    <span className="text-[10px] font-bold whitespace-nowrap">{t('sidebar.delete_single')}</span>
+                                                    <span className="text-app-base font-bold whitespace-nowrap">{t('sidebar.delete_single')}</span>
                                                 )}
                                             </button>
                                             </Tooltip>
@@ -662,13 +662,13 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
                                         className={clsx(
                                             "shrink-0 rounded flex items-center justify-center transition-colors cursor-pointer",
                                             confirmDeletePlanId === plan.id
-                                                ? "text-red-500 bg-red-500/10 px-2 py-0.5 gap-1"
-                                                : "text-app-text-muted hover:text-red-500 hover:bg-red-500/10 w-5 h-5"
+                                                ? "text-app-red bg-app-red-dim px-2 py-0.5 gap-1"
+                                                : "text-app-text-muted hover:text-app-red-hover hover:bg-app-red-dim w-5 h-5"
                                         )}
                                     >
                                         <Trash2 size={9} />
                                         {confirmDeletePlanId === plan.id && (
-                                            <span className="text-[10px] font-bold whitespace-nowrap">{t('sidebar.delete_single')}</span>
+                                            <span className="text-app-base font-bold whitespace-nowrap">{t('sidebar.delete_single')}</span>
                                         )}
                                     </button>
                                 </Tooltip>
@@ -730,7 +730,7 @@ const ArchivePlanRow: React.FC<ArchivePlanRowProps> = ({ plan, currentPlanId, ru
         >
             <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-toggle" : "bg-app-text-muted/40")} />
             <span className="truncate flex-1">{plan.title}</span>
-            <span className="text-[9px] text-app-text-muted shrink-0 mr-1">
+            <span className="text-app-sm text-app-text-muted shrink-0 mr-1">
                 Lv{plan.level}
             </span>
             {/* 削除ボタン（2段階確認） */}
@@ -759,13 +759,13 @@ const ArchivePlanRow: React.FC<ArchivePlanRowProps> = ({ plan, currentPlanId, ru
                         className={clsx(
                             "shrink-0 rounded flex items-center justify-center transition-colors cursor-pointer",
                             confirmDelete
-                                ? "text-red-500 bg-red-500/10 px-2 py-0.5 gap-1"
-                                : "text-app-text-muted hover:text-red-500 hover:bg-red-500/10 w-5 h-5"
+                                ? "text-app-red bg-app-red-dim px-2 py-0.5 gap-1"
+                                : "text-app-text-muted hover:text-app-red-hover hover:bg-app-red-dim w-5 h-5"
                         )}
                     >
                         <Trash2 size={9} />
                         {confirmDelete && (
-                            <span className="text-[10px] font-bold whitespace-nowrap">{t('sidebar.delete_single')}</span>
+                            <span className="text-app-base font-bold whitespace-nowrap">{t('sidebar.delete_single')}</span>
                         )}
                     </button>
                 </Tooltip>

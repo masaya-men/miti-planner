@@ -117,11 +117,11 @@ export const HeaderTimeInput: React.FC<HeaderTimeInputProps> = ({
                     placeholder={t('timeline.nav_time_placeholder')}
                     className={clsx(
                         "w-full px-3 py-2 rounded-md bg-app-bg border text-[16px] md:text-app-2xl text-app-text placeholder:text-app-text-muted focus:outline-none focus:ring-1",
-                        error ? "border-red-500 focus:ring-red-500" : "border-app-border focus:ring-app-text"
+                        error ? "border-app-red focus:ring-app-red" : "border-app-border focus:ring-app-text"
                     )}
                 />
                 {error && (
-                    <p className="mt-1 text-app-lg text-red-500">{t('timeline.nav_time_invalid')}</p>
+                    <p className="mt-1 text-app-lg text-app-red">{t('timeline.nav_time_invalid')}</p>
                 )}
             </form>
         </div>,

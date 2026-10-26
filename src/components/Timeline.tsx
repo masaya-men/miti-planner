@@ -573,7 +573,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                         "rounded shadow-md relative z-20 flex items-center justify-center",
                         !isVirtual && "cursor-grab hover:scale-110 pointer-events-auto",
                         isVirtual && "cursor-default pointer-events-none",
-                        isConflicting && "animate-conflict-pulse ring-2 ring-amber-400"
+                        isConflicting && "animate-conflict-pulse ring-2 ring-app-amber"
                     )}
                     style={{ width: `${iconPx}px`, height: `${iconPx}px` }}
                     onContextMenu={handleContextMenu}
@@ -3289,7 +3289,7 @@ const Timeline: React.FC = () => {
                                         <button
                                             ref={clearMenuButtonRef}
                                             onClick={() => { if (readOnly) return; setClearMenuOpen(!clearMenuOpen); }}
-                                            className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-app-text hover:bg-red-500/10 hover:text-red-400"
+                                            className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-app-text hover:bg-app-red-dim hover:text-app-red-hover"
                                         >
                                             <Trash2 size={12} />
                                             <ChevronDown size={7} />
@@ -4361,9 +4361,9 @@ const Timeline: React.FC = () => {
                                                             ) : (
                                                                 <span className={clsx(
                                                                     "text-app-lg font-black uppercase tracking-tighter",
-                                                                    member.role === 'tank' ? 'text-blue-500 dark:text-blue-400'
-                                                                        : member.role === 'healer' ? 'text-green-500 dark:text-green-400'
-                                                                            : 'text-red-500 dark:text-red-400'
+                                                                    member.role === 'tank' ? 'text-app-role-tank'
+                                                                        : member.role === 'healer' ? 'text-app-role-healer'
+                                                                            : 'text-app-role-dps'
                                                                 )}>
                                                                     {t(`modal.${member.id.toLowerCase()}`, member.id)}
                                                                 </span>
@@ -4498,17 +4498,17 @@ const Timeline: React.FC = () => {
                                                                 isAlreadyPlaced
                                                                     ? "bg-app-text/20 border-app-text"
                                                                     : status.warning
-                                                                        ? "bg-amber-400/10 border-amber-400 opacity-60"
+                                                                        ? "bg-app-amber-dim border-app-amber opacity-60"
                                                                         : status.available
                                                                             ? "bg-app-surface2 border-app-border"
-                                                                            : "bg-black/20 border-red-500/60 opacity-60"
+                                                                            : "bg-black/20 border-app-red-border opacity-60"
                                                             )}
                                                         >
                                                             <img src={mit.icon} className="w-9 h-9 object-contain rounded" />
                                                             {/* リキャスト/使用不可メッセージ — 軽くグレーアウト + 文字を下端に詰める */}
                                                             {!status.available && !isAlreadyPlaced && status.message && (
                                                                 <div className="absolute inset-0 bg-black/30">
-                                                                    <span className="absolute bottom-0.5 left-0 right-0 text-[10px] leading-tight font-bold text-red-400 text-center px-1 drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
+                                                                    <span className="absolute bottom-0.5 left-0 right-0 text-app-base leading-tight font-bold text-app-red text-center px-1 drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
                                                                         {status.message}
                                                                     </span>
                                                                 </div>
@@ -4516,7 +4516,7 @@ const Timeline: React.FC = () => {
                                                             {/* リキャスト競合警告 — 軽くグレーアウト + 文字を下端に詰める */}
                                                             {status.warning && (status.shortMessage || status.message) && (
                                                                 <div className="absolute inset-0 bg-black/30">
-                                                                    <span className="absolute bottom-0.5 left-0 right-0 text-[10px] leading-tight font-bold text-amber-400 text-center px-1 drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
+                                                                    <span className="absolute bottom-0.5 left-0 right-0 text-app-base leading-tight font-bold text-app-amber text-center px-1 drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
                                                                         {status.shortMessage || status.message}
                                                                     </span>
                                                                 </div>
@@ -4766,7 +4766,7 @@ const Timeline: React.FC = () => {
                                 removePhase(phasePopover.phase.id);
                                 setPhasePopover(null);
                             }}
-                            className="flex items-center gap-3 mx-1.5 px-3 py-2 text-app-2xl font-medium transition-colors cursor-pointer rounded-lg text-red-500 hover:bg-red-500/10"
+                            className="flex items-center gap-3 mx-1.5 px-3 py-2 text-app-2xl font-medium transition-colors cursor-pointer rounded-lg text-app-red hover:bg-app-red-dim"
                         >
                             <Trash2 size={15} className="shrink-0" />
                             <span>{t('timeline.phase_delete')}</span>
@@ -4827,7 +4827,7 @@ const Timeline: React.FC = () => {
                                 removeLabel(labelPopover.label.id);
                                 setLabelPopover(null);
                             }}
-                            className="flex items-center gap-3 mx-1.5 px-3 py-2 text-app-2xl font-medium transition-colors cursor-pointer rounded-lg text-red-500 hover:bg-red-500/10"
+                            className="flex items-center gap-3 mx-1.5 px-3 py-2 text-app-2xl font-medium transition-colors cursor-pointer rounded-lg text-app-red hover:bg-app-red-dim"
                         >
                             <Trash2 size={15} className="shrink-0" />
                             <span>{t('timeline.label_delete')}</span>
@@ -4905,7 +4905,7 @@ const Timeline: React.FC = () => {
                             onClick={handlePopoverDelete}
                             className={clsx(
                                 "flex items-center gap-3 mx-1.5 px-3 py-2 text-app-2xl font-medium transition-colors cursor-pointer rounded-lg",
-                                "text-red-500 hover:bg-red-500/10"
+                                "text-app-red hover:bg-app-red-dim"
                             )}
                         >
                             <Trash2 size={15} className="shrink-0" />

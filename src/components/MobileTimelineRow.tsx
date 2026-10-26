@@ -77,8 +77,8 @@ const TargetBadge: React.FC<{ effTarget: TimelineEvent['target']; partyMembers: 
     }
     return (
         <span className={clsx(
-            "text-[9px] font-black px-1 py-px rounded-md flex-shrink-0",
-            effTarget === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
+            "text-app-sm font-black px-1 py-px rounded-md flex-shrink-0",
+            effTarget === 'MT' ? "text-app-role-mt bg-app-role-mt-dim" : "text-app-role-st bg-app-role-st-dim"
         )}>
             {effTarget}
         </span>
@@ -152,7 +152,7 @@ const MitiIconImg: React.FC<{
         className={clsx(
             'w-[22px] h-[22px] object-cover rounded-md',
             isStartRow ? 'opacity-90' : 'opacity-[0.55]',
-            isConflicting && 'animate-conflict-pulse ring-1 ring-amber-400',
+            isConflicting && 'animate-conflict-pulse ring-1 ring-app-amber',
         )}
     />
 );
@@ -208,8 +208,8 @@ const MitiIcons: React.FC<{
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onOverflowTap(); }}
                     className={clsx(
-                        "flex-shrink-0 w-[22px] h-[22px] rounded-md bg-app-text/15 text-app-text text-[10px] font-black flex items-center justify-center",
-                        hiddenHasConflict && "animate-conflict-pulse ring-1 ring-amber-400",
+                        "flex-shrink-0 w-[22px] h-[22px] rounded-md bg-app-text/15 text-app-text text-app-base font-black flex items-center justify-center",
+                        hiddenHasConflict && "animate-conflict-pulse ring-1 ring-app-amber",
                     )}
                 >
                     +{hiddenCount}
@@ -444,15 +444,15 @@ export const MobileTimelineRow = memo(({
                         ) : damage && damage.unmitigated > 0 && (
                             <>
                                 <div className="flex items-baseline gap-1">
-                                    <span className="mobile-row-dim-text font-mono text-[9px] text-app-text opacity-60 leading-none flex-shrink-0">
+                                    <span className="mobile-row-dim-text font-mono text-app-sm text-app-text opacity-60 leading-none flex-shrink-0">
                                         {damage.unmitigated.toLocaleString()}
                                     </span>
-                                    <span className="mobile-row-dim-text text-app-text-muted opacity-50 text-[9px] flex-shrink-0">→</span>
+                                    <span className="mobile-row-dim-text text-app-text-muted opacity-50 text-app-sm flex-shrink-0">→</span>
                                 </div>
                                 <div className="flex items-baseline gap-1.5">
                                     {/* 軽減% */}
                                     {damage.mitigationPercent > 0 && !isLethal && (
-                                        <span className="mobile-row-dim-text font-mono text-[11px] text-app-text opacity-60 leading-none flex-shrink-0">
+                                        <span className="mobile-row-dim-text font-mono text-app-md text-app-text opacity-60 leading-none flex-shrink-0">
                                             {damage.mitigationPercent}%
                                         </span>
                                     )}
@@ -464,14 +464,14 @@ export const MobileTimelineRow = memo(({
                                         value={damage.mitigated}
                                         isLethal={isLethal}
                                         className={clsx(
-                                            "font-mono text-[13px] font-black leading-none flex-shrink-0 !h-[13px]",
+                                            "font-mono text-app-xl font-black leading-none flex-shrink-0 !h-[13px]",
                                             isLethal ? "text-red-500" : "text-green-500"
                                         )}
                                     />
 
                                     {/* 無敵 */}
                                     {damage.isInvincible && (
-                                        <span className="text-[9px] font-black text-app-text-sec px-1 py-px rounded-md bg-app-text/5 flex-shrink-0">
+                                        <span className="text-app-sm font-black text-app-text-sec px-1 py-px rounded-md bg-app-text/5 flex-shrink-0">
                                             {t('timeline.invuln', 'Invuln')}
                                         </span>
                                     )}

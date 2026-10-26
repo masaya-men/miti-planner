@@ -132,7 +132,7 @@ export function HeaderToolsMenu({ btnClassName, onAutoPlan, readOnly, children }
                     >
                         <Eye size={14} className="shrink-0 text-app-text-muted" />
                         <span className="flex-1">{t('progress.show_bar')}</span>
-                        {progressBarVisible && <Check size={12} className="text-[#22c55e] flex-shrink-0" />}
+                        {progressBarVisible && <Check size={12} className="text-app-green flex-shrink-0" />}
                     </button>
 
                     {/* PS5 ストラテジーボード貼り付けアシスト（別タブで開く＝軽減作業を壊さない） */}

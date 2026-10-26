@@ -26,12 +26,12 @@ export const SheetHiddenChip: React.FC<Props> = ({ count, narrow, onOpen }) => {
                 className={
                     'inline-flex items-center justify-center border border-app-border bg-app-surface2 text-app-text font-black leading-none cursor-pointer hover:bg-app-text hover:text-app-bg '
                     + (narrow
-                        ? 'w-[13px] h-[13px] rounded-full text-[9px]'
-                        : 'h-[15px] px-[5px] gap-[2px] rounded-full text-[10px]')
+                        ? 'w-[13px] h-[13px] rounded-full text-app-sm'
+                        : 'h-[15px] px-[5px] gap-[2px] rounded-full text-app-base')
                 }
             >
                 {!narrow && <span>+</span>}
-                <span className={narrow ? '' : 'text-[9px] font-bold'}>{count}</span>
+                <span className={narrow ? '' : 'text-app-sm font-bold'}>{count}</span>
             </button>
         </Tooltip>
     );

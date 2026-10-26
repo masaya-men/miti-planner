@@ -346,7 +346,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     </div>
                 ) : null}
                 {status.mapped.stats.isEnglishOnly && (
-                    <p className="text-app-lg text-amber-400">
+                    <p className="text-app-lg text-app-amber">
                         {t('fflogs.english_only_warning')}
                     </p>
                 )}

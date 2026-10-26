@@ -77,9 +77,9 @@ export const SheetTargetPopover: React.FC<Props> = ({ state, onPick, onClose }) 
 
     const memberLabel = (m: PartyMember | undefined) => t(`modal.${(m?.id || '').toLowerCase()}`, m?.id || '');
     const roleText = (m: PartyMember | undefined) =>
-        m?.role === 'tank' ? 'text-blue-500 dark:text-blue-400'
-            : m?.role === 'healer' ? 'text-green-500 dark:text-green-400'
-                : 'text-red-500 dark:text-red-400';
+        m?.role === 'tank' ? 'text-app-role-tank'
+            : m?.role === 'healer' ? 'text-app-role-healer'
+                : 'text-app-role-dps';
 
     return createPortal(
         <div className="fixed inset-0 z-[99998] cursor-default" {...backdropClose(onClose)}>
@@ -131,7 +131,7 @@ export const SheetTargetPopover: React.FC<Props> = ({ state, onPick, onClose }) 
                 </div>
             ) : state.shields.length === 0 ? (
                 <div className="flex flex-col gap-1.5 w-56">
-                    <p className="text-app-base text-amber-700 dark:text-amber-400 font-bold text-center">
+                    <p className="text-app-base text-app-amber font-bold text-center">
                         {t('mitigation.no_shield', '有効な鼓舞がありません')}
                     </p>
                     <button

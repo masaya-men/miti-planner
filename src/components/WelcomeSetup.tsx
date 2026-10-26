@@ -173,7 +173,7 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
                         />
                         <span className={clsx(
                             "absolute right-3 bottom-2.5 text-app-base",
-                            displayName.length >= 30 ? "text-yellow-500" : "text-app-text-muted/50"
+                            displayName.length >= 30 ? "text-app-amber" : "text-app-text-muted/50"
                         )}>
                             {displayName.length}/30
                         </span>
@@ -197,7 +197,7 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
 
                 {/* エラー表示 */}
                 {error && (
-                    <p className="text-app-base text-red-400 text-center break-all">{error}</p>
+                    <p className="text-app-base text-app-red text-center break-all">{error}</p>
                 )}
 
                 {/* ヒント */}

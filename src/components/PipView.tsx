@@ -184,7 +184,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                     onClick={onAllClick}
                     className={clsx(
                         "rounded font-bold tracking-wider cursor-pointer transition-colors shrink-0",
-                        isFs ? "h-8 px-3 text-xs" : "h-5 px-1.5 text-[9px]",
+                        isFs ? "h-8 px-3 text-xs" : "h-5 px-1.5 text-app-sm",
                         allSelected
                             ? "bg-current/30 text-current"
                             : "bg-current/10 text-current/60 hover:bg-current/20 hover:text-current/90"
@@ -307,7 +307,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                 {cueGroups.length === 0 ? (
                     <p className={clsx(
                         "text-current/40 text-center",
-                        isFs ? "text-base mt-8" : "text-[10px] mt-4",
+                        isFs ? "text-base mt-8" : "text-app-base mt-4",
                     )}>
                         {t('timeline.pip_no_events')}
                     </p>
@@ -330,7 +330,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                     {/* 時間 */}
                                     <span className={clsx(
                                         "text-current/40 font-mono shrink-0 text-right",
-                                        isFs ? "text-[15px] w-11" : "text-[10px] w-8",
+                                        isFs ? "text-[15px] w-11" : "text-app-base w-8",
                                     )}>
                                         {formatTime(time)}
                                     </span>
@@ -350,7 +350,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                                         if (e.key === 'Enter') handleEditConfirm(event.id, (e.target as HTMLInputElement).value);
                                                         if (e.key === 'Escape') setEditingEventId(null);
                                                     }}
-                                                    className="flex-1 min-w-0 bg-current/10 border border-current/30 rounded outline-none text-[10px] px-1 py-0"
+                                                    className="flex-1 min-w-0 bg-current/10 border border-current/30 rounded outline-none text-app-base px-1 py-0"
                                                     style={{ color: fgColor }}
                                                 />
                                             ) : (
@@ -360,7 +360,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                                         onClick={isFs ? () => setMenuTime(time) : undefined}
                                                         className={clsx(
                                                             "min-w-0 truncate leading-tight text-current/80",
-                                                            isFs ? "text-[17px] font-bold cursor-pointer" : "text-[10px] cursor-text",
+                                                            isFs ? "text-[17px] font-bold cursor-pointer" : "text-app-base cursor-text",
                                                         )}
                                                         title={t('timeline.pip_edit_hint')}
                                                     >
@@ -389,7 +389,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                                     onClick={() => cycleEventAtTime(time, events.length)}
                                                     className={clsx(
                                                         "shrink-0 rounded bg-current/10 hover:bg-current/25 text-current/60 hover:text-current font-mono cursor-pointer transition-colors",
-                                                        isFs ? "px-1.5 py-0.5 text-xs" : "px-1 text-[8px]",
+                                                        isFs ? "px-1.5 py-0.5 text-xs" : "px-1 text-app-xs",
                                                     )}
                                                     title={t('timeline.pip_switch_event')}
                                                 >

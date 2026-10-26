@@ -105,7 +105,7 @@ export const AvatarCropModal: React.FC<AvatarCropModalProps> = ({
                         />
                     </label>
                     {error && (
-                        <p className="mt-2 text-app-base text-red-400">{error}</p>
+                        <p className="mt-2 text-app-base text-app-red">{error}</p>
                     )}
                 </div>
             ) : (

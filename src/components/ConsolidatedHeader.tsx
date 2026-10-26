@@ -75,7 +75,7 @@ const NotAllowed: React.FC<{ on: boolean; children: React.ReactNode }> = ({ on, 
 /** 下段右グループの部品: 10px の小さいラベルをボタンの上・左寄せに置く(横幅を取らない) */
 const HeaderLabeled: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
     <div className="flex flex-col items-start gap-0.5 shrink-0">
-        <span className="pl-1 text-[10px] leading-[10px] font-black tracking-[0.1em] text-app-text-muted whitespace-nowrap uppercase">{label}</span>
+        <span className="pl-1 text-app-base leading-[10px] font-black tracking-[0.1em] text-app-text-muted whitespace-nowrap uppercase">{label}</span>
         {children}
     </div>
 );

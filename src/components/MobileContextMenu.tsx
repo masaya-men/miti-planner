@@ -209,14 +209,14 @@ export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
                                     onClick={handleDelete}
                                     className={clsx(
                                         "flex items-center gap-4 px-5 py-3.5",
-                                        "active:bg-red-500/10 transition-colors duration-100",
+                                        "active:bg-app-red-dim transition-colors duration-100",
                                     )}
                                 >
-                                    <span className="w-9 h-9 rounded-full bg-red-500/15 flex items-center justify-center shrink-0">
-                                        <Trash2 size={18} className="text-red-400" />
+                                    <span className="w-9 h-9 rounded-full bg-app-red-border flex items-center justify-center shrink-0">
+                                        <Trash2 size={18} className="text-app-red" />
                                     </span>
                                     <span className="flex flex-col items-start text-left">
-                                        <span className="text-app-2xl font-semibold text-red-400">
+                                        <span className="text-app-2xl font-semibold text-app-red">
                                             {t('app.context_delete_event')}
                                         </span>
                                         <span className="text-app-lg text-app-text-muted">

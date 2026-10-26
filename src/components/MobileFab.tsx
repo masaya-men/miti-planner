@@ -545,7 +545,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                     {/* ラベル（ボタンの左） */}
                                     <span
                                         ref={isChipButton ? chipLabelRef : undefined}
-                                        className="text-[13px] font-semibold text-white/90 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1 select-none whitespace-nowrap shadow-md"
+                                        className="text-app-xl font-semibold text-white/90 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1 select-none whitespace-nowrap shadow-md"
                                     >
                                         {item.label}
                                     </span>
@@ -631,7 +631,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                             onClick={() => handleLanguageSelect(lang)}
                             className={clsx(
                                 "fixed flex items-center justify-center rounded-full",
-                                "font-semibold text-[13px] shadow-lg select-none",
+                                "font-semibold text-app-xl shadow-lg select-none",
                                 lang === (i18n.language as ContentLanguage)
                                     ? "bg-app-blue text-white shadow-app-blue/30"
                                     : "bg-black/70 text-white/90 backdrop-blur-sm"
@@ -666,7 +666,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                             onClick={() => handleEffectModeSelect(mode)}
                             className={clsx(
                                 "fixed flex items-center justify-center rounded-full",
-                                "font-semibold text-[13px] shadow-lg select-none",
+                                "font-semibold text-app-xl shadow-lg select-none",
                                 mode === mobileEffectBarMode
                                     ? "bg-app-blue text-white shadow-app-blue/30"
                                     : "bg-black/70 text-white/90 backdrop-blur-sm"
@@ -741,7 +741,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                 ) : (
                                     // ジョブ未設定の空席: PC版(PartyVisibilityMenu)と同じくロール名を出す(2026-08-27)。
                                     <span className={clsx(
-                                        'text-[12px] font-black text-white/80 tracking-tight drop-shadow-lg',
+                                        'text-app-lg font-black text-white/80 tracking-tight drop-shadow-lg',
                                         m.hidden && 'opacity-30'
                                     )}>
                                         {m.id}

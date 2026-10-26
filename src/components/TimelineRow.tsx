@@ -93,7 +93,7 @@ const MobileTargetBadge: React.FC<{ partyMembers: PartyMember[]; effTarget: Time
     return (
         <span className={clsx(
             "text-app-2xs font-black px-0.5 rounded flex-shrink-0",
-            effTarget === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
+            effTarget === 'MT' ? "text-app-role-mt bg-app-role-mt-dim" : "text-app-role-st bg-app-role-st-dim"
         )}>
             {effTarget}
         </span>
@@ -212,7 +212,7 @@ const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: PartyMember
                             <span className={clsx(
                                 "font-bold px-1 rounded",
                                 badgeTextClass,
-                                effTarget === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
+                                effTarget === 'MT' ? "text-app-role-mt bg-app-role-mt-dim" : "text-app-role-st bg-app-role-st-dim"
                             )}>
                                 {effTarget}
                             </span>

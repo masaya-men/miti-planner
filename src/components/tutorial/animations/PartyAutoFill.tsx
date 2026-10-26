@@ -58,13 +58,13 @@ function fireLandingEffects(x: number, y: number) {
       { duration: dur, easing: 'cubic-bezier(0,0,0.2,1)', fill: 'forwards', delay },
     );
   };
-  makeRing('32px', '2px solid rgba(34,197,94,0.8)', 2.5, 500, 0);
-  makeRing('32px', '1.5px solid rgba(34,197,94,0.5)', 3.2, 650, 80);
+  makeRing('32px', '2px solid color-mix(in srgb, var(--color-app-green) 80%, transparent)', 2.5, 500, 0);
+  makeRing('32px', '1.5px solid color-mix(in srgb, var(--color-app-green) 50%, transparent)', 3.2, 650, 80);
 
   const glow = document.createElement('div');
   Object.assign(glow.style, {
     width: '44px', height: '44px', borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(34,197,94,0.6) 0%, transparent 60%)',
+    background: 'radial-gradient(circle, color-mix(in srgb, var(--color-app-green) 60%, transparent) 0%, transparent 60%)',
     position: 'absolute', top: '-6px', left: '-6px',
   });
   c.appendChild(glow);
@@ -291,7 +291,7 @@ export function PartyAutoFill({ onComplete }: PartyAutoFillProps) {
             style={{ top: cardPos.top, left: cardPos.left, maxWidth: 240 }}
           >
             <div className="rounded-xl overflow-hidden shadow-xl bg-app-bg border border-app-text/10">
-              <div className="h-[3px] w-full" style={{ backgroundColor: '#22c55e' }} />
+              <div className="h-[3px] w-full" style={{ backgroundColor: 'var(--color-app-green)' }} />
               <div className="px-4 pt-3 pb-3">
                 <p className="text-app-xl font-bold text-app-text leading-snug">
                   {t('tutorial.main.auto_fill.message')}
@@ -314,11 +314,11 @@ export function PartyAutoFill({ onComplete }: PartyAutoFillProps) {
             <img
               src={job.iconSrc} alt=""
               className="w-8 h-8 rounded-full relative z-10"
-              style={{ filter: 'drop-shadow(0 2px 8px rgba(34, 197, 94, 0.5))' }}
+              style={{ filter: 'drop-shadow(0 2px 8px color-mix(in srgb, var(--color-app-green) 50%, transparent))' }}
             />
             <div
               className="absolute inset-[-4px] rounded-full z-0"
-              style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.35) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-app-green) 35%, transparent) 0%, transparent 70%)' }}
             />
           </div>
         </div>
@@ -375,11 +375,11 @@ export function PartyAutoFill({ onComplete }: PartyAutoFillProps) {
                   <img
                     src={job.iconSrc} alt=""
                     className="w-8 h-8 rounded-full relative z-10"
-                    style={{ filter: 'drop-shadow(0 2px 8px rgba(34, 197, 94, 0.5))' }}
+                    style={{ filter: 'drop-shadow(0 2px 8px color-mix(in srgb, var(--color-app-green) 50%, transparent))' }}
                   />
                   <div
                     className="absolute inset-[-4px] rounded-full z-0"
-                    style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.35) 0%, transparent 70%)' }}
+                    style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-app-green) 35%, transparent) 0%, transparent 70%)' }}
                   />
                 </div>
               </motion.div>

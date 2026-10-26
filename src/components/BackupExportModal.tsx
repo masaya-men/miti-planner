@@ -220,7 +220,7 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
         <div className="flex flex-col gap-2 px-5 py-4 border-t border-app-border">
           {/* iOS: 共有シートが開くため「ファイルに保存」を選ぶよう注意（黄色＝警告） */}
           {iosShare && (
-            <p className="text-app-xs text-yellow-500 font-bold text-center">
+            <p className="text-app-xs text-app-amber font-bold text-center">
               {t('backup.ios_save_hint')}
             </p>
           )}
