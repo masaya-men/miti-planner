@@ -15,7 +15,7 @@ const mk = (/** @type {'lanes'|'sheet'} */ view, /** @type {Record<string, unkno
 const lanes = mk('lanes');
 
 /** 保存済みプランが 1 件ある状態(共有ボタン・共有窓はプラン必須) */
-const withPlan = (/** @type {{ theme: string, lang: string }} */ cond, /** @type {string | null} */ contentId = null) => {
+const withPlan = (/** @type {{ theme: string, lang: string }} */ cond, /** @type {string | null} */ contentId = null, /** @type {Record<string, unknown>} */ planExtra = {}) => {
   const st = mk('lanes', { _loadedPlanId: 'rg-plan' })(cond);
   const d = /** @type {any} */ (st['mitigation-storage']).state;
   const data = {
@@ -27,7 +27,7 @@ const withPlan = (/** @type {{ theme: string, lang: string }} */ cond, /** @type
     'tutorial-storage': { state: { hasCompleted: true, hasVisitedShare: true, isActive: false, completed: { main: true, share: true } }, version: 0 },
     'plan-storage': {
       state: {
-        plans: [{ id: 'rg-plan', ownerId: 'guest', ownerDisplayName: '', title: '見本プラン', contentId, isPublic: false, copyCount: 0, useCount: 0, data, createdAt: 1, updatedAt: 1 }],
+        plans: [{ id: 'rg-plan', ownerId: 'guest', ownerDisplayName: '', title: '見本プラン', contentId, ...planExtra, isPublic: false, copyCount: 0, useCount: 0, data, createdAt: 1, updatedAt: 1 }],
         currentPlanId: 'rg-plan', lastActivePlanId: 'rg-plan', _dirtyPlanIds: [], _deletedPlanIds: [],
       }, version: 2,
     },
@@ -45,6 +45,17 @@ const ROW = '[data-time-row]';
 const SHELL = '[data-modal-shell] [role="dialog"]';
 /** 日英どちらかの文言に当たる text セレクタ(正規表現。日英の語句を | でつなぐ) */
 const textRe = (/** @type {string} */ ja, /** @type {string} */ en) => `text=/${ja}|${en}/`;
+/** 行が出るまで待つだけ(自動で開く窓の撮影用) */
+const waitRows = async (/** @type {import('playwright').Page} */ page) => { await page.waitForSelector(ROW); };
+/** dev の動的 import で store を取り、fn(モジュール) を実行する */
+const storeCall = (/** @type {string} */ name, /** @type {(m: any) => any} */ fn) => async (/** @type {import('playwright').Page} */ page) => {
+  await page.waitForSelector(ROW);
+  await page.evaluate(async ([n, src]) => {
+    const m = await import(/* @vite-ignore */ `/src/store/${n}.ts`);
+    // eslint-disable-next-line no-eval
+    await (0, eval)(`(${src})`)(m);
+  }, [name, fn.toString()]);
+};
 const click = (/** @type {string} */ sel) => async (/** @type {import('playwright').Page} */ page) => { await page.click(sel); };
 /** aria-label が日英どちらかのボタンを押す */
 const clickLabel = (/** @type {string} */ ja, /** @type {string} */ en) => async (/** @type {import('playwright').Page} */ page) => {
@@ -68,7 +79,7 @@ export default [
   { id: 'miti/menu-import', route: '/miti', storage: lanes, ready: textRe('スプレッドシートから取り込み', 'Import from spreadsheet'), axes: winAx,
     open: clickLabel('取り込み', 'Import'), covers: ['ImportMenu'] },
   { id: 'miti/win-fflogs-import', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAxEn,
-    open: async (page) => { await clickLabel('取り込み', 'Import')(page); await page.click(textRe('FF Logs から取り込み', 'Import from FF Logs')); }, covers: ['ImportMenu', 'FFLogsImportModal'] },
+    open: async (page) => { await clickLabel('取り込み', 'Import')(page); await page.click(textRe('FF Logs から取り込み', 'Import from FF Logs')); }, covers: ['ImportMenu'] },
   { id: 'miti/win-grid-import', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAxEn,
     open: async (page) => { await clickLabel('取り込み', 'Import')(page); await page.click(textRe('スプレッドシートから取り込み', 'Import from spreadsheet')); }, covers: ['SpreadsheetGridImportModal'] },
   { id: 'miti/menu-tools', route: '/miti', storage: lanes, ready: 'body > div.fixed[class*="z-[99999]"]', axes: winAx,
@@ -138,4 +149,60 @@ export default [
     open: click('footer button:has-text("パルス設定"), footer button:has-text("Pulse")'), covers: ['PulseSettings', 'AppFooter'] },
   { id: 'miti/win-local-data-safety', route: '/miti', storage: withPlan, ready: SHELL, clip: 'ready', axes: winAx,
     open: async (page) => { await page.click('text=この軽減表は今この端末'); }, covers: ['LocalDataSafetyModal', 'LocalDataSafetyBar'] },
+
+  // ───────── ストア経由・条件作りが要る窓(dev の動的 import で store を直接叩く) ─────────
+  { id: 'miti/win-archive-prompt', route: '/miti', storage: (cond) => withPlan(cond, null, { category: 'savage', level: 90 }),
+    ready: SHELL, clip: 'ready', axes: winAx, open: waitRows, covers: ['ArchivePromptModal'] },
+  { id: 'miti/win-local-import', route: '/miti', storage: withPlan, ready: SHELL, clip: 'ready', axes: winAx,
+    open: storeCall('useLocalImportDialog', (m) => m.useLocalImportDialog.getState().open()), covers: ['LocalImportDialog'] },
+  { id: 'miti/sheet-share-import', route: '/miti', storage: lanes, ready: '[data-testid="share-import-sheet"]', axes: winAx,
+    open: async (page) => { await storeCall('useShareImportFlow', (m) => m.useShareImportFlow.getState().start('vrshare01'))(page); await page.waitForSelector('[data-testid="share-import-sheet"] button', { timeout: 15000 }); }, covers: ['ShareImportSheet'] },
+  { id: 'miti/sheet-limit-resolution', route: '/miti', storage: withPlan, ready: '[data-testid="limit-resolution-sheet"]', axes: winAx,
+    open: async (page) => {
+      await storeCall('useShareImportFlow', (m) => {
+        m.useShareImportFlow.setState({ status: 'limit_hit', shareId: 'vrshare01' });
+        m.useShareImportFlow.getState().setLimitContext({ reason: 'max_total', contentId: null, neededCount: 1, planId: null, resolve: () => {} });
+      })(page);
+    }, covers: ['LimitResolutionSheet'] },
+  { id: 'miti/overlay-import-progress', route: '/miti', storage: lanes, ready: '[data-testid="import-progress-overlay"]', axes: winAx,
+    open: async (page) => {
+      await storeCall('useShareImportFlow', (m) => m.useShareImportFlow.getState().start('vrshare01'))(page);
+      await storeCall('useShareImportFlow', (m) => {
+        const it = m.useShareImportFlow.getState().importItems[0];
+        const planId = it.sourcePlanId ?? it.sourceShareId;
+        m.useShareImportFlow.setState({ status: 'importing', progressMap: new Map([[planId, { planId, stage: 'local', status: 'in_progress' }]]) });
+      })(page);
+    }, covers: ['ImportProgressOverlay'] },
+  { id: 'miti/win-aetherflow-chain', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAx,
+    open: storeCall('useMitigationStore', (m) => m.useMitigationStore.setState({ aetherflowChainPrompt: { memberId: 'H2', startTime: 30 } })), covers: ['AetherflowChainPromptModal'] },
+  { id: 'miti/win-astrologian-chain', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAx,
+    open: storeCall('useMitigationStore', (m) => m.useMitigationStore.setState({ astrologianDrawChainPrompt: { memberId: 'H2', startTime: 30, startKind: 'astral_draw' } })), covers: ['AstrologianDrawChainPromptModal'] },
+  { id: 'miti/overlay-tutorial', route: '/miti', storage: lanes, ready: 'text=/STEP 1 \/ /', axes: winAx,
+    open: storeCall('useTutorialStore', (m) => m.useTutorialStore.getState().startTutorial('main')), covers: ['TutorialOverlay'] },
+  { id: 'miti/panel-progress', route: '/miti', storage: withPlan, ready: 'button[aria-label="記録の詳細"]', axes: winAx,
+    open: async (page) => { await page.click('text=クリックして攻略の軌跡を記録'); }, covers: ['ProgressRecordPanel', 'ProgressTrackingHUD'] },
+  // スプシ表示: 対象選択(味方 1 人を選ぶ)が要る列のマスを探して押すと小窓が出る
+  { id: 'miti/popover-sheet-target', route: '/miti', storage: mk('sheet'), ready: '[data-sheet-popover]', axes: winAx,
+    open: async (page) => {
+      await page.waitForSelector(ROW);
+      const cells = page.locator(`${ROW} >> nth=14 >> [data-sheet-cols]`);
+      const n = await cells.count();
+      for (let i = 0; i < n; i++) {
+        const box = await cells.nth(i).boundingBox();
+        const cols = Number(await cells.nth(i).getAttribute('data-sheet-cols')) || 1;
+        if (!box) continue;
+        for (let c = 0; c < cols; c++) {
+          await page.mouse.click(box.x + (box.width / cols) * (c + 0.5), box.y + box.height / 2);
+          if (await page.locator('[data-sheet-popover]').count()) return;
+        }
+      }
+    }, covers: ['SheetTargetPopover'] },
+  // パーティ設定で MT のジョブを変え(軽減ありの枠)、閉じると移行確認が出る
+  { id: 'miti/win-job-migration', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAx,
+    open: async (page) => {
+      await page.click('[data-tutorial="party-comp"]');
+      await page.click('#party-slot-0');
+      await page.click('[data-job-id="drk"]');
+      await page.click('[data-tutorial="party-settings-close-btn"] button');
+    }, covers: ['JobMigrationModal'] },
 ];
