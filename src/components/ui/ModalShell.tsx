@@ -9,7 +9,8 @@ import { backdropClose, type BackdropCloseOptions } from '../../utils/backdropCl
  * - body 直下に描く / 背景=暗さ50%+うすいぼかし / 窓=ふわっと開く(2026-10-26 案B)
  * - Esc で閉じる(重なっていたら一番上だけ) / 外側クリックで閉じる(入力後は閉じずに枠を光らせる)
  * - locked の間(取り込み中など)は Esc も外側クリックも効かない。Esc は下の窓へも抜けない
- * 中身(見出し・× ボタン・ボタン列)は各窓が描く。窓の幅や角丸は className で渡す。
+ * 中身は ModalParts(ModalHeader / ModalFooter / ModalButton / INPUT_CLASS)で組む。
+ * 窓の枠(ガラス・角丸 2xl・ライトで白地)は殻が付ける。幅などは className で足す。枠を自前で描く窓だけ frame={false}。
  */
 const LAYER_CLASS = {
     /** ふつうの窓 */
@@ -32,7 +33,9 @@ interface ModalShellProps {
     /** false で外側クリックでは閉じない(Esc は効く) */
     closeOnBackdrop?: boolean;
     backdropOptions?: BackdropCloseOptions;
-    /** 窓の枠のクラス(幅・角丸・glass など) */
+    /** false で殻の枠(ガラス・角丸・ライトで白地)を付けない */
+    frame?: boolean;
+    /** 窓の枠に足すクラス(幅・高さなど) */
     className?: string;
     style?: React.CSSProperties;
     /** 窓の枠に足す属性(data-* など) */
@@ -47,6 +50,7 @@ export const ModalShell: React.FC<ModalShellProps> = ({
     locked = false,
     closeOnBackdrop = true,
     backdropOptions,
+    frame = true,
     className,
     style,
     panelProps,
@@ -75,8 +79,12 @@ export const ModalShell: React.FC<ModalShellProps> = ({
                     e.stopPropagation();
                     panelProps?.onClick?.(e);
                 }}
-                className={clsx('relative animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]', className)}
-                style={style}
+                className={clsx(
+                    'relative animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]',
+                    frame && 'glass-tier3 rounded-2xl shadow-sm overflow-hidden flex flex-col max-h-full',
+                    className,
+                )}
+                style={frame ? ({ '--glass-tier3-bg': 'var(--share-modal-bg)', ...style } as React.CSSProperties) : style}
             >
                 {children}
             </div>
