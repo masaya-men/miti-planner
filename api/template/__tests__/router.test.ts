@@ -21,6 +21,7 @@ function createRes() {
   const res: any = {
     statusCode: 0,
     body: undefined as any,
+    setHeader() {},
     status(code: number) { this.statusCode = code; return this; },
     json(payload: any) { this.body = payload; return this; },
   };

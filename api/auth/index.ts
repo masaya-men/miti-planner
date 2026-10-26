@@ -5,8 +5,10 @@
  * Twitter (X) ログインは 2026-05-17 に廃止 (X API 仕様変更による pay-per-use 化のため)。
  */
 import discordHandler from './_discordHandler.js';
+import { setPrivateNoStore } from '../../src/lib/privateNoStore.js';
 
 export default async function handler(req: any, res: any) {
+  setPrivateNoStore(res);
   const provider = req.query?.provider;
 
   switch (provider) {

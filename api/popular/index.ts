@@ -12,6 +12,7 @@ import { verifyAdmin } from '../../src/lib/adminAuth.js';
 import { isVisible, todayKey, dayKeyDaysBefore, calculateScore7d } from './popularFilters.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { rejectIfPublicApiDisabled } from '../../src/lib/publicApiGuard.js';
+import { setPrivateNoStore } from '../../src/lib/privateNoStore.js';
 
 const COLLECTION = 'shared_plans';
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
@@ -110,6 +111,7 @@ export default async function handler(req: any, res: any) {
     // App Check検証（管理用 PATCH のみ。GET=公開の人気取得・POST=コピーカウント(匿名 anonId dedup)は
     //   匿名 boot/操作で呼ばれるため免除。DoW 防御は各分岐の rate limit + globalMax + limit(200)〈P0-2〉が担う）
     if (req.method === 'PATCH') {
+        setPrivateNoStore(res);
         if (!(await verifyAppCheck(req, res))) return;
     }
 
@@ -230,6 +232,7 @@ export default async function handler(req: any, res: any) {
             return res.status(200).json({ results });
 
         } else if (req.method === 'POST') {
+            setPrivateNoStore(res);
             // ── コピーカウント増加（重複排除付き）──
             if (!(await applyRateLimit(req, res, 20, 60_000, { scope: 'popular-post' }))) return;
             // uidはFirebase IDトークンから検証（自己申告を信頼しない）
@@ -324,6 +327,7 @@ export default async function handler(req: any, res: any) {
             return res.status(200).json({ ok: true, alreadyCounted });
 
         } else if (req.method === 'PATCH') {
+            setPrivateNoStore(res);
             // ── 管理者専用: featured / hidden フラグ切替 ──
             const adminUid = await verifyAdmin(req);
             if (!adminUid) {

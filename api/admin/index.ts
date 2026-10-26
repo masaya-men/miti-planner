@@ -23,8 +23,10 @@ import systemNotificationsHandler from './_systemNotificationsHandler.js';
 import housingReportsHandler from './_housingReportsHandler.js';
 import housingerReportsHandler from './_housingerReportsHandler.js';
 import housingNewBadgeHandler from './_housingNewBadgeHandler.js';
+import { setPrivateNoStore } from '../../src/lib/privateNoStore.js';
 
 export default async function handler(req: any, res: any) {
+  setPrivateNoStore(res);
   const resource = req.query?.resource;
 
   switch (resource) {

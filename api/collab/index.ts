@@ -20,8 +20,10 @@ import saveHandler from './_saveHandler.js';
 import roomHandler from './_roomHandler.js';
 import verifyHandler from './_verifyHandler.js';
 import gcHandler from './_collabGcHandler.js';
+import { setPrivateNoStore } from '../../src/lib/privateNoStore.js';
 
 export default async function handler(req: any, res: any) {
+  setPrivateNoStore(res);
   const action = req.query?.action;
 
   switch (action) {
