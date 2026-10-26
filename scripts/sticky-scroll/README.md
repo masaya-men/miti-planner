@@ -105,3 +105,15 @@ JSON の形: `conds.<条件id>.items.<項目>`。位置は `[left, top, width, h
 - ボタンの欄の背景(設計書 §12): 動画は画面全体の背景(`.milspec-backdrop` の `video` 1 本、位置 0,0 から画面いっぱい)で、ボタンの欄の外枠自身には背景が無い(computed `background-image: none`)。写真では欄の中は装甲の金属面とジャック基板の地で埋まって動画は透けていない=「欄の後ろは無地(装甲の面)」が写真からの見立て(候補。窓にした理由の確認は固定化後の写真と合わせて)。
 - 横バーが「浮いて見える」理由(§8.3): headless の Chromium は `::-webkit-scrollbar` を描かないため、この道具の写真には横バーが写らない(`scrollbar.png` の下端にバーは無い)。理由は写真からは確認できていない=実機のスクショが要る。§8.3 の候補(別部品として置かれている・目盛りが細かく明るい・下の縁との二重の段差)は未確認のまま。
 - 比較の注意: 写真は dev サーバーの描画なので、サーバーを起動し直した直後は初回のビルドで読み込みが遅く、撮り直しが要ることがある(撮影失敗は exit 2)。
+
+# 同時移動の検出(frame-sync.mjs)
+
+横スクロール中に見出し(ボタンの欄のジョブ選択の行・見出しのリキャスト欄)が本文から 1 拍遅れていないかを測る道具(設計書 §5.3・§10 段階 0-3)。アプリのコードは変えない。接続先は regress.mjs と同じ(`REGRESS_BASE_URL`)。
+
+## 使い方
+- 測る: `node scripts/sticky-scroll/frame-sync.mjs --mode=all`(wheel / thumb / key の 3 通り。約 1 分半)。コマ数・ずれたコマ数・最大ずれ(px)を 3 通り別と合計で出す。結果は `.baseline/frame-sync-<out>.json`(`--out=名前`)
+- 検出の確認(今のコード): ずれたコマ ≥1 が出れば道具は正しい。`--expect-zero` を付けるとずれたコマが 1 つでもあれば exit 1(固定化後の合格判定用)。測定が成立しなければ exit 2
+- ブラウザ: 既定 `--browser=chromium`(CDP `Page.startScreencast` で全コマを取り、画素から目印の x を読む)。`--browser=webkit|firefox` は screencast が無いので rAF の二点サンプリング(同じコマで見出し側と本文側の `getBoundingClientRect().left` の差)。コンポジタ側だけで進むスクロール(つまみ・矢印キー)の遅れは rAF では見えない=「ずれなし」は弱い証拠
+- 目印: 試験用 CSS(`page.addStyleTag`)で見出し側に洋紅・本文のメンバー列に水色の 3px の縁(outline)を付ける。DOM が変わったら `--selector-header=` `--selector-header2=`(`none` で無効)`--selector-body=` で差し替える
+- 他: `--vp=1489|1920|2560` `--theme=…` `--view=lanes|sheet` `--party=8|4`(横に動かせる 8 人・1489 が既定)`--method=raf` `--keep-frames`(コマを `.baseline/frame-sync-frames/` に保存)
+- thumb(つまみのドラッグ): headless の Chromium は既定で `--hide-scrollbars` が付くので、この道具は起動時に外している(つまみが描かれる)。Firefox の headless はバーが描かれず「未対応」と出る
