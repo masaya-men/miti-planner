@@ -28,7 +28,10 @@ const SETTLE_FLOOR_MS = 2500;
 /** open 前の ready 事前チェックの前に、描画が落ち着くのを待つ時間 */
 const PRE_OPEN_WAIT_MS = 1200;
 /** 窓を開いた後、framer-motion など JS 駆動の登場アニメが終わるのを待つ時間(WAAPI は freeze が終点へ送るが JS 駆動は送れない) */
-const POST_OPEN_WAIT_MS = 900;
+const POST_OPEN_WAIT_MS = 500;
+/** 絵が止まったか(画面が連続 3 回同じか)を 150ms 間隔で見る。上限を過ぎたら諦めて進む(止まらない JS ループは hide/mask 側で処理する) */
+const STABLE_POLL_MS = 150;
+const STABLE_MAX_MS = 4000;
 /** ネットワーク要求ゼロが続くべき時間(ms) */
 const QUIET_MS = 500;
 /** 落ち着き待ちの上限(ms) */
@@ -96,6 +99,18 @@ export async function shootCondition(browser, baseUrl, cond, outFile, opts = {})
     }
     await page.evaluate(() => document.fonts.ready);
     if (entry.open) await page.waitForTimeout(POST_OPEN_WAIT_MS);
+    {
+      // JS 駆動のアニメ(framer-motion の登場・stagger)が終わるまで待つ: 連続 3 回同じ絵になったら止まったとみなす
+      const tStable = Date.now();
+      let prev = null;
+      let same = 0;
+      while (Date.now() - tStable < STABLE_MAX_MS && same < 2) {
+        const buf = await page.screenshot({ animations: 'disabled', scale: 'css' });
+        same = prev && buf.equals(prev) ? same + 1 : 0;
+        prev = buf;
+        if (same < 2) await page.waitForTimeout(STABLE_POLL_MS);
+      }
+    }
 
     await freeze(page, { hideSelectors: entry.hide ?? [] });
 

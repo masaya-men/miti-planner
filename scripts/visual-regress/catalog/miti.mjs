@@ -14,6 +14,9 @@ export const mk = (/** @type {'lanes'|'sheet'} */ view, /** @type {Record<string
   });
 const lanes = mk('lanes');
 
+/** チュートリアルの CLICK ピル(framer-motion の repeat:Infinity。JS 駆動で止められず、撮る瞬間の位相で絵が揺れる)を隠す */
+export const TUTORIAL_PILL = ['.fixed.pointer-events-none[class*="z-[10003]"]'];
+
 /** 保存済みプランが 1 件ある状態(共有ボタン・共有窓はプラン必須) */
 export const withPlan = (/** @type {{ theme: string, lang: string }} */ cond, /** @type {string | null} */ contentId = null, /** @type {Record<string, unknown>} */ planExtra = {}) => {
   const st = mk('lanes', { _loadedPlanId: 'rg-plan' })(cond);
@@ -88,7 +91,7 @@ export default [
     open: click('button:has-text("チュートリアルを見る"), button:has-text("View Tutorial")'), covers: ['TutorialMenu'] },
   { id: 'miti/menu-language', route: '/miti', storage: lanes, ready: 'body > div[class*="min-w-[130px]"]', axes: winAx,
     open: click('div[data-tutorial-always] button'), covers: ['LanguageSwitcher'] },
-  { id: 'miti/win-new-plan', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAxEn,
+  { id: 'miti/win-new-plan', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', hide: TUTORIAL_PILL, axes: winAxEn,
     open: click('[data-tutorial="new-plan-btn"]'), covers: ['NewPlanModal'] },
   { id: 'miti/win-backup-export', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAxEn,
     open: click('button:has(svg.lucide-hard-drive)'), covers: ['BackupExportModal'] },
@@ -177,7 +180,7 @@ export default [
     open: storeCall('useMitigationStore', (m) => m.useMitigationStore.setState({ aetherflowChainPrompt: { memberId: 'H2', startTime: 30 } })), covers: ['AetherflowChainPromptModal'] },
   { id: 'miti/win-astrologian-chain', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAx,
     open: storeCall('useMitigationStore', (m) => m.useMitigationStore.setState({ astrologianDrawChainPrompt: { memberId: 'H2', startTime: 30, startKind: 'astral_draw' } })), covers: ['AstrologianDrawChainPromptModal'] },
-  { id: 'miti/overlay-tutorial', route: '/miti', storage: lanes, ready: 'text=/STEP 1 \/ /', axes: winAx,
+  { id: 'miti/overlay-tutorial', route: '/miti', storage: lanes, ready: 'text=/STEP 1 \/ /', hide: TUTORIAL_PILL, axes: winAx,
     open: storeCall('useTutorialStore', (m) => m.useTutorialStore.getState().startTutorial('main')), covers: ['TutorialOverlay'] },
   { id: 'miti/panel-progress', route: '/miti', storage: withPlan, ready: 'button[aria-label="記録の詳細"]', axes: winAx,
     open: async (page) => { await page.click('text=クリックして攻略の軌跡を記録'); }, covers: ['ProgressRecordPanel', 'ProgressTrackingHUD'] },

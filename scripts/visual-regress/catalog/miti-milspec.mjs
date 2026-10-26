@@ -3,7 +3,7 @@
 // 窓の中身は標準の見た目のまま(ruling 16)なので、窓は 1489 × military-dark × ja の 1 条件。
 // MIL-SPEC には data-testid が無いため、aria-label と文言(ja)で特定する。
 import fs from 'node:fs';
-import { mk, withPlan, ROW, SHELL, PHOTO, textRe, click } from './miti.mjs';
+import { mk, withPlan, ROW, SHELL, PHOTO, textRe, click, TUTORIAL_PILL } from './miti.mjs';
 
 const lanes = mk('lanes');
 const sheet = mk('sheet');
@@ -51,7 +51,7 @@ export default [
     }, covers: ['AuxPanel', 'ShareModal'] },
 
   // ───────── サイドバー(MilspecSidebar)から開く窓 ─────────
-  { id: 'milspec/win-new-plan', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', hide: HIDE, axes: winAx,
+  { id: 'milspec/win-new-plan', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', hide: [...HIDE, ...TUTORIAL_PILL], axes: winAx,
     open: clickKey('新規作成'), covers: ['MilspecSidebar', 'MilspecContentTree', 'NewPlanModal'] },
   { id: 'milspec/win-local-import', route: '/miti', storage: withPlan, ready: SHELL, clip: 'ready', hide: HIDE, axes: winAx,
     open: clickKey('インポート'), covers: ['MilspecSidebar', 'LocalImportDialog'] },
