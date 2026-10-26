@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeAll, vi, afterEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import { SceneryVideo } from '../../components/housing/workspace/SceneryVideo';
 
 // happy-dom が matchMedia を持たない場合に備えてポリフィル
@@ -46,6 +46,40 @@ describe('SceneryVideo', () => {
     expect(paths.some((p) => p?.includes('/housing/scenery-day.mp4'))).toBe(true);
     expect(paths.some((p) => p?.includes('/housing/scenery-night.webm'))).toBe(true);
     expect(paths.some((p) => p?.includes('/housing/scenery-night.mp4'))).toBe(true);
+  });
+
+  // 2026-10-26 実機報告: iPhone で自動再生が拒否されると WebKit が動画中央に再生ボタンを出す
+  // (CSS の疑似要素では隠せなかった)。実際に流れている間だけ動画を見せ、それ以外は静止画。
+  describe('流れている間だけ動画を見せる', () => {
+    it('playing が来るまでアクティブな動画も透明', () => {
+      const { container } = render(<SceneryVideo theme="light" />);
+      const day = container.querySelector('video[data-scenery="day"]') as HTMLVideoElement;
+      expect(day.style.opacity).toBe('0');
+    });
+
+    it('playing で見え、pause でまた透明に戻る', () => {
+      const { container } = render(<SceneryVideo theme="light" />);
+      const day = container.querySelector('video[data-scenery="day"]') as HTMLVideoElement;
+      act(() => { day.dispatchEvent(new Event('playing')); });
+      expect(day.style.opacity).toBe('1');
+      act(() => { day.dispatchEvent(new Event('pause')); });
+      expect(day.style.opacity).toBe('0');
+    });
+
+    it('非アクティブな動画は playing でも透明', () => {
+      const { container } = render(<SceneryVideo theme="light" />);
+      const night = container.querySelector('video[data-scenery="night"]') as HTMLVideoElement;
+      act(() => { night.dispatchEvent(new Event('playing')); });
+      expect(night.style.opacity).toBe('0');
+    });
+
+    it('動画の後ろに今のテーマの静止画を敷く', () => {
+      const { container, rerender } = render(<SceneryVideo theme="light" />);
+      const poster = container.querySelector('[data-scenery-poster]');
+      expect(poster?.getAttribute('data-scenery-poster')).toBe('day');
+      rerender(<SceneryVideo theme="dark" />);
+      expect(container.querySelector('[data-scenery-poster]')?.getAttribute('data-scenery-poster')).toBe('night');
+    });
   });
 
   // 2026-08-12 実機指摘対応: 動画が猶予時間内に描画開始しなければ自動で load() し直す自己修復。
