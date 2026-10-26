@@ -66,9 +66,9 @@ export default [
     open: openFab, covers: ['MobileFAB'] },
   { id: 'mobile/fab-language', route: '/miti', storage: lanes, ready: 'body > button.fixed:has-text("EN")', axes: popAx,
     open: fabItem('globe'), covers: ['MobileFAB'] },
-  { id: 'mobile/fab-effect-mode', route: '/miti', storage: lanes, ready: 'body > button.fixed', axes: popAx,
+  { id: 'mobile/fab-effect-mode', route: '/miti', storage: lanes, ready: 'body > button.fixed:has-text("静止")', axes: popAx,
     open: fabItem('sparkles'), covers: ['MobileFAB'] },
-  { id: 'mobile/fab-party-visibility', route: '/miti', storage: lanes, ready: 'body > button.fixed', axes: popAx,
+  { id: 'mobile/fab-party-visibility', route: '/miti', storage: lanes, ready: 'body > button.fixed[type="button"]', axes: popAx,
     open: fabItem('users'), covers: ['MobileFAB'] },
 
   // ───────── 初回ガイド(抑止キーを外して撮る。1 ステップ目だけ) ─────────
