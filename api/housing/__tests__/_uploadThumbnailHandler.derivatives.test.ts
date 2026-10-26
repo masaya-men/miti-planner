@@ -156,7 +156,7 @@ describe('_uploadThumbnailHandler の中身検査', () => {
     await handler(req, res);
     expect(res.statusCode).toBe(200);
     expect(h.filePaths[0]).toMatch(/\.png$/);
-    expect(h.saveSpy.mock.calls[0][1]).toMatchObject({ contentType: 'image/png' });
+    expect((h.saveSpy.mock.calls[0] as unknown[])[1]).toMatchObject({ contentType: 'image/png' });
   });
 });
 
