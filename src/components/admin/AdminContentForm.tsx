@@ -501,7 +501,7 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
                 </p>
               )}
               {fflogsUrlStatus === 'error' && (
-                <p className="mt-1 text-app-sm text-app-yellow">
+                <p className="mt-1 text-app-sm text-app-amber">
                   この URL から ID を抽出できませんでした。FFLogs のランキングページ等の URL（encounter=数字 を含むもの）を貼り付けてください
                 </p>
               )}

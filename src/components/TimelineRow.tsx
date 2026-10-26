@@ -633,7 +633,7 @@ const TimelineRowContent = memo(({
                 }
                 className={clsx(
                     "w-[var(--col-counter-w)] min-w-[var(--col-counter-w)] md:max-w-[var(--col-counter-w)] border-r h-full flex flex-col items-center justify-center text-app-base md:text-app-2xl font-mono font-black group-hover:text-app-text cursor-pointer md:cursor-default",
-                    "border-app-border text-app-text-primary"
+                    "border-app-border text-app-text"
                 )}
                 onClick={(e) => {
                     if (window.innerWidth < 768 && onMobileDamageClick) {

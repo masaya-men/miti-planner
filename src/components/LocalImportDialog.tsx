@@ -511,8 +511,8 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                     >
                         {/* フィードバック箱 (失敗時のみ、帯の上に積み重なる) */}
                         {feedbackItems.length > 0 && (
-                            <div className="border-t border-app-border bg-app-yellow/10 px-6 py-3 text-left">
-                                <p className="text-app-md font-bold tracking-wide text-app-yellow mb-1">
+                            <div className="border-t border-app-border bg-app-amber/10 px-6 py-3 text-left">
+                                <p className="text-app-md font-bold tracking-wide text-app-amber mb-1">
                                     {t('local_import.feedback_box_title')}
                                 </p>
                                 <ul className="list-disc pl-5 text-app-base text-app-text-sec leading-[1.7]">
@@ -534,7 +534,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                                 className={clsx(
                                     "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
                                     summaryKind === 'success' && 'bg-app-blue/15 text-app-blue',
-                                    summaryKind === 'partial' && 'bg-app-yellow/15 text-app-yellow',
+                                    summaryKind === 'partial' && 'bg-app-amber/15 text-app-amber',
                                     summaryKind === 'failed' && 'bg-app-red/15 text-app-red',
                                 )}
                             >

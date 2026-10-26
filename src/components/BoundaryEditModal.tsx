@@ -149,7 +149,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                             <div>
                                 <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.name_label')}</label>
                                 <input type="text" value={nameInput} onChange={(e) => setNameInput(e.target.value)}
-                                    className="w-full bg-app-surface2 border border-app-border rounded-lg p-2.5 text-[16px] md:text-app-2xl text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
+                                    className="w-full bg-app-surface2 border border-app-border rounded-lg p-2.5 text-[16px] md:text-app-2xl text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all"
                                     placeholder={t('boundary_modal.name_placeholder')} autoFocus />
                             </div>
 
@@ -158,7 +158,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                                     <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.start_time')}</label>
                                     <div className="flex gap-2">
                                         <TimeInput value={startTime} onChange={setStartTime}
-                                            className="flex-1 bg-app-surface2 border border-app-border rounded-lg p-2 text-[16px] md:text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
+                                            className="flex-1 bg-app-surface2 border border-app-border rounded-lg p-2 text-[16px] md:text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all"
                                             placeholder="M:SS" />
                                         {onTimelineSelectStart && (
                                             <button type="button" onClick={() => { onTimelineSelectStart(); }}
@@ -176,7 +176,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                                     <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.end_time')}</label>
                                     <div className="flex gap-2">
                                         <TimeInput value={endTime} onChange={setEndTime}
-                                            className="flex-1 bg-app-surface2 border border-app-border rounded-lg p-2 text-[16px] md:text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
+                                            className="flex-1 bg-app-surface2 border border-app-border rounded-lg p-2 text-[16px] md:text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all"
                                             placeholder="M:SS" />
                                         {onTimelineSelectEnd && (
                                             <button type="button" onClick={() => { onTimelineSelectEnd(); }}

@@ -206,7 +206,7 @@ function PopularSearchView() {
                     <th className="text-left font-semibold py-1 pr-3 text-app-text-muted">Status</th>
                     <td className="py-1 font-semibold flex flex-wrap gap-2">
                       {plan.featured && (
-                        <span className="text-app-yellow flex items-center gap-1">
+                        <span className="text-app-amber flex items-center gap-1">
                           <Star size={14} fill="currentColor" />
                           {t('admin.featured_status_on')}
                         </span>

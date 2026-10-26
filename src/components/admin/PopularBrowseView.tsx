@@ -231,7 +231,7 @@ export function PopularBrowseView() {
                                     </span>
                                 )}
                                 {p.featured && (
-                                    <span className="text-app-yellow text-app-sm font-bold">
+                                    <span className="text-app-amber text-app-sm font-bold">
                                         {t('admin.popular_featured_badge')}
                                     </span>
                                 )}
@@ -315,7 +315,7 @@ export function PopularBrowseView() {
                                     disabled={patching || selected.hidden}
                                     className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-app-lg font-semibold transition-colors disabled:opacity-40 ${
                                         selected.featured
-                                            ? 'text-app-yellow hover:bg-app-yellow-dim'
+                                            ? 'text-app-amber hover:bg-app-amber-dim'
                                             : 'bg-app-blue text-white hover:bg-app-blue-hover'
                                     }`}
                                 >

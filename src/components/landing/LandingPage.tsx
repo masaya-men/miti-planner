@@ -212,15 +212,18 @@ export function LandingPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6 }}
         >
-          <NavLink onClick={() => navigate('/miti')}>
-            {t('portal.miti_button')}
-          </NavLink>
-          <NavLink onClick={() => navigate('/housing')}>
-            {t('portal.housing_button')}
-          </NavLink>
-          <NavLink onClick={() => navigate('/stgy')}>
-            {t('stgy.lp_title')}
-          </NavLink>
+          {/* スマホでは幅が足りず 1 文字ずつ縦に折れるので隠す(同じ 3 本は本文の TOOLS 一覧から行ける) */}
+          <div className="hidden md:flex items-center gap-6">
+            <NavLink onClick={() => navigate('/miti')}>
+              {t('portal.miti_button')}
+            </NavLink>
+            <NavLink onClick={() => navigate('/housing')}>
+              {t('portal.housing_button')}
+            </NavLink>
+            <NavLink onClick={() => navigate('/stgy')}>
+              {t('stgy.lp_title')}
+            </NavLink>
+          </div>
           <ThemeToggle />
           <LangToggle />
         </motion.nav>

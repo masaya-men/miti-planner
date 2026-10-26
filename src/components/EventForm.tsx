@@ -629,7 +629,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                     data-testid="event-time-input"
                     placeholder={t('modal.time_placeholder')}
                     className={clsx(
-                        "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all font-barlow border focus:outline-none focus:ring-1",
+                        "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all border focus:outline-none focus:ring-1",
                         "bg-app-surface2 border-app-border text-app-text focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
                     )}
                 />

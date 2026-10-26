@@ -58,7 +58,8 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="relative w-full max-w-lg bg-[#0f1115] border border-app-border shadow-sm rounded-2xl overflow-hidden flex flex-col"
+                    className="relative w-full max-w-lg glass-tier3 border border-app-border shadow-sm rounded-2xl overflow-hidden flex flex-col"
+                    style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
@@ -81,7 +82,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                             <p className="text-app-2xl text-app-text mb-2 leading-relaxed">
                                 {t('csv_import.description')}
                                 <br />
-                                <code className="bg-black/50 px-2 py-1 rounded mt-1 block w-fit border border-app-border text-cyan-300">
+                                <code className="bg-app-surface2 px-2 py-1 rounded mt-1 block w-fit border border-app-border text-app-text">
                                     {t('csv_import.format')}
                                 </code>
                             </p>

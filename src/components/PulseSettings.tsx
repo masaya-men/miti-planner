@@ -158,7 +158,7 @@ const SnapSlider: React.FC<{
 
     return (
         <div className="flex items-center gap-2">
-            <span className="text-app-xs text-app-text-muted w-4 text-right shrink-0">{leftLabel}</span>
+            <span className="text-app-xs text-app-text-muted min-w-4 whitespace-nowrap text-right shrink-0">{leftLabel}</span>
             <div
                 ref={trackRef}
                 className="relative flex-1 h-5 flex items-center cursor-pointer"
@@ -180,7 +180,7 @@ const SnapSlider: React.FC<{
                     style={{ left: `${percent}%` }}
                 />
             </div>
-            <span className="text-app-xs text-app-text-muted w-4 shrink-0">{rightLabel}</span>
+            <span className="text-app-xs text-app-text-muted min-w-4 whitespace-nowrap shrink-0">{rightLabel}</span>
         </div>
     );
 };

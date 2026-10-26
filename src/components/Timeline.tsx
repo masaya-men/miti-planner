@@ -3337,7 +3337,7 @@ const Timeline: React.FC = () => {
                     <div
                         ref={headerRef}
                         className={clsx(
-                            "flex-shrink-0 z-50 bg-app-surface2 border-b border-app-border text-app-md font-barlow font-medium text-app-text uppercase tracking-wider text-center h-10 select-none overflow-hidden",
+                            "flex-shrink-0 z-50 bg-app-surface2 border-b border-app-border text-app-md font-medium text-app-text uppercase tracking-wider text-center h-10 select-none overflow-hidden",
                             isMobileTimeline && "hidden"
                         )}
                     >

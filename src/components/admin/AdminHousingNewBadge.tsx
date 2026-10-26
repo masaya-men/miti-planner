@@ -208,7 +208,7 @@ export function AdminHousingNewBadge() {
                       <th className="text-left font-semibold py-1 pr-3 text-app-text-muted">Status</th>
                       <td className="py-1 font-semibold flex flex-wrap gap-2">
                         {isPinned ? (
-                          <span className="text-app-yellow flex items-center gap-1">
+                          <span className="text-app-amber flex items-center gap-1">
                             <Sparkles size={14} fill="currentColor" />
                             {t('admin.housing_new_badge.status_pinned', {
                               date: new Date(listing.pinnedNewUntil!).toLocaleString(),
