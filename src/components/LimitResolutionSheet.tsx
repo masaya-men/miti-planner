@@ -25,6 +25,7 @@ import { getPhaseName } from '../types';
 import type { DeleteProgressEvent } from '../lib/shareImportTypes';
 import type { SavedPlan } from '../types';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 
 /** 1 プランの削除進捗を 0-1 で返す (Phase B-1.5 polish 第 2 弾 #4 Revision)。
  *  ステージ重み: local_delete 33% / server_delete 66% / capacity_freed 100%。 */
@@ -114,6 +115,14 @@ export function LimitResolutionSheet() {
         return all.filter(p => p.contentId === limitContext.contentId);
     }, [plans, limitContext]);
 
+    const handleCancel = () => {
+        if (!limitContext || isDeleting) return;
+        limitContext.resolve('cancelled');
+        setLimitContext(null);
+    };
+    // Esc は「キャンセル」と同じ(削除中は閉じない)。共有の取り込みシートより後に開くので Esc はこちらが受ける
+    useEscapeClose(isOpen, handleCancel);
+
     if (!limitContext) return null;
 
     const activePlan: SavedPlan | undefined =
@@ -182,12 +191,6 @@ export function LimitResolutionSheet() {
         if (next.has(id)) next.delete(id);
         else next.add(id);
         setCheckedIds(next);
-    };
-
-    const handleCancel = () => {
-        if (isDeleting) return;
-        limitContext.resolve('cancelled');
-        setLimitContext(null);
     };
 
     const handleDelete = async () => {

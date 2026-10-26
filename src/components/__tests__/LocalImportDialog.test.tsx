@@ -24,6 +24,10 @@ vi.mock('../../hooks/useSkillsData', () => ({
     ],
 }));
 
+vi.mock('../../store/useTutorialStore', () => ({
+    useTutorialStore: { getState: () => ({ isActive: false }) },
+}));
+
 vi.mock('../../lib/scroll/useSmoothWheelScroll', () => ({
     useSmoothWheelScroll: () => {},
 }));
@@ -166,6 +170,46 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
         );
         fireEvent.click(screen.getByRole('button', { name: /local_import\.cancel/i }));
         expect(onClose).toHaveBeenCalledWith();
+    });
+
+    it('Esc で「あとで」と同じく onClose() を呼ぶ', () => {
+        const onClose = vi.fn();
+        render(
+            <LocalImportDialog
+                isOpen={true}
+                plans={[makePlan({})]}
+                onImport={vi.fn()}
+                onClose={onClose}
+            />,
+        );
+        fireEvent.keyDown(document, { key: 'Escape' });
+        expect(onClose).toHaveBeenCalledWith();
+    });
+
+    it('アップロード中は Esc で閉じない', async () => {
+        let resolveImport: (results: { id: string; status: 'success' | 'failed' }[]) => void;
+        const onImport = vi.fn().mockImplementation((_ids: string[], onProgress: (e: any) => void) => {
+            onProgress({ id: 'p1', status: 'uploading' });
+            return new Promise<{ id: string; status: 'success' | 'failed' }[]>((resolve) => {
+                resolveImport = resolve;
+            });
+        });
+        const onClose = vi.fn();
+        render(
+            <LocalImportDialog
+                isOpen={true}
+                plans={[makePlan({ id: 'p1' })]}
+                onImport={onImport}
+                onClose={onClose}
+            />,
+        );
+        fireEvent.click(screen.getByRole('button', { name: /local_import\.confirm/i }));
+        await waitFor(() => {
+            expect(screen.getByText('local_import.uploading_in_progress')).toBeDefined();
+        });
+        fireEvent.keyDown(document, { key: 'Escape' });
+        expect(onClose).not.toHaveBeenCalled();
+        resolveImport!([{ id: 'p1', status: 'success' }]);
     });
 
     it('「次回から表示しない」チェックボックスは廃止されており、描画されない', () => {

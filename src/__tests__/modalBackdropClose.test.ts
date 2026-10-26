@@ -9,7 +9,7 @@
  *   を持つファイルが、backdropClose を使っていなければ落ちる。
  *   - 下の ALLOWED は「今ある例外」。窓の背景ではない全画面要素(レイアウト・オーバーレイ・チュートリアル等)や、
  *     まだ未統一の窓。理由を添えてある。
- *   - 新しく窓を作るときは `{...backdropClose(onClose)}` を背景に付ける。窓以外の全画面要素なら理由を添えて ALLOWED に足す。
+ *   - 新しく窓を作るときは共通の殻 `ModalShell`(src/components/ui/ModalShell.tsx・中で backdropClose を使う)を使う。窓以外の全画面要素なら理由を添えて ALLOWED に足す。
  *   - 統一できたら ALLOWED から消す(消す方向は落ちない)。
  * 数えない: テストファイル。
  */
@@ -39,9 +39,7 @@ const ALLOWED: Record<string, string> = {
   'components/tutorial/animations/CompletionCard.tsx': 'チュートリアルの演出',
   'components/tutorial/animations/FakeCompletionCard.tsx': 'チュートリアルの演出',
   // 窓だが未統一(要対応)
-  'components/AvatarCropModal.tsx': '要統一(未調査)',
-  'components/LimitResolutionSheet.tsx': '要統一(未調査)',
-  'components/LocalImportDialog.tsx': '要統一(未調査)',
+  'components/LimitResolutionSheet.tsx': '要統一(下から出るシート。背景クリックは自前の onClick)',
   'components/WelcomeSetup.tsx': '要統一(初回設定。意図的に閉じない可能性)',
   'components/admin/AdminSystemNotifications.tsx': '管理画面(別担当)',
   'components/admin/CsvImportModal.tsx': '管理画面(別担当)',
@@ -76,7 +74,7 @@ describe('全画面の背景を持つ部品は backdropClose を使う', () => {
     const rel = relative(SRC, file).split(sep).join('/');
     const src = readFileSync(file, 'utf8');
     if (!hasFullScreenLayer(src)) { if (rel in ALLOWED) staleAllowed.push(rel); continue; }
-    if (src.includes('backdropClose')) continue;
+    if (src.includes('backdropClose') || src.includes('<ModalShell')) continue;
     if (!(rel in ALLOWED)) offenders.push(rel);
   }
   it('backdropClose を使っていない全画面の背景が新しく増えていない', () => {

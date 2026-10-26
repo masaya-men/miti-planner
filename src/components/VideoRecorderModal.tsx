@@ -113,7 +113,7 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 <motion.div
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                     {...backdropClose(onClose, { dirty: videoId !== null })}
-                    className="absolute inset-0 bg-black/50"
+                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
                 />
                 <motion.div
                     initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0 }}

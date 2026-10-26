@@ -18,7 +18,7 @@ export const PopularConsentDialog: React.FC<Props> = ({ isOpen, onCancel, onAcce
 
     return createPortal(
         <div
-            className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-[2px]"
+            className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-[2px]"
             {...backdropClose(onCancel)}
         >
             <div

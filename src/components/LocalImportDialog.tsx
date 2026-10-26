@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { CheckCircle2, AlertTriangle, CloudUpload, X as IconX } from 'lucide-react';
@@ -11,6 +10,7 @@ import { getPhaseName } from '../types';
 import i18n from '../i18n';
 import { parsePlanLimitError, type ParsedPlanLimit } from '../utils/planLimitError';
 import { SweepOverlay } from './SweepOverlay';
+import { ModalShell } from './ui/ModalShell';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 
 /** 1 件あたりに見せる sweep アニメーション秒数 (実 Firestore が早く返ってもこの時間以上はかける) */
@@ -338,306 +338,301 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
         return '';
     };
 
-    return createPortal(
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center">
-            {/* Backdrop: クリック無効化 (誤操作防止) */}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-[3px] animate-[fadeIn_300ms_ease-out]" />
-
-            <motion.div
-                data-lenis-prevent
-                initial={{ opacity: 0, scale: 0.92, y: 16 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
-                className={clsx(
-                    // max-h: ヘッダー(~90) + 6 行(60×6) + help(88) + footer(64) + 余白 ≒ 620px
-                    // これより長いリスト (7 件以上) は body 内 overflow-y-auto でスクロール
-                    "relative w-[480px] max-w-[92vw] max-h-[min(620px,90vh)] flex flex-col rounded-2xl glass-tier3 overflow-hidden",
-                )}
-                style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
-            >
-                {/* Header */}
-                <div className="px-6 pt-6 pb-3 shrink-0">
-                    <div className="flex items-center gap-3 mb-1">
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 20 }}
-                            className="p-1.5 rounded-full bg-app-blue/15"
-                        >
-                            <CloudUpload size={20} className="text-app-blue" />
-                        </motion.div>
-                        <h3 className="text-app-2xl font-black text-app-text tracking-wide">
-                            {t('local_import.title')}
-                        </h3>
-                    </div>
-                    <p className="text-app-md text-app-text-muted ml-10 min-h-[1.6em]">
-                        {renderSubtitle()}
-                    </p>
+    return (
+        // 外側クリックでは閉じない (誤操作防止)。Esc は「キャンセル」と同じ・アップロード中は閉じない
+        <ModalShell
+            isOpen
+            onClose={handleClose}
+            layer="confirm"
+            locked={phase === 'uploading'}
+            closeOnBackdrop={false}
+            panelProps={{ 'data-lenis-prevent': true }}
+            // max-h: ヘッダー(~90) + 6 行(60×6) + help(88) + footer(64) + 余白 ≒ 620px
+            // これより長いリスト (7 件以上) は body 内 overflow-y-auto でスクロール
+            className="w-[480px] max-w-[92vw] max-h-[min(620px,90vh)] flex flex-col rounded-2xl glass-tier3 overflow-hidden"
+            style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
+        >
+            {/* Header */}
+            <div className="px-6 pt-6 pb-3 shrink-0">
+                <div className="flex items-center gap-3 mb-1">
+                    <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 20 }}
+                        className="p-1.5 rounded-full bg-app-blue/15"
+                    >
+                        <CloudUpload size={20} className="text-app-blue" />
+                    </motion.div>
+                    <h3 className="text-app-2xl font-black text-app-text tracking-wide">
+                        {t('local_import.title')}
+                    </h3>
                 </div>
+                <p className="text-app-md text-app-text-muted ml-10 min-h-[1.6em]">
+                    {renderSubtitle()}
+                </p>
+            </div>
 
-                <div className="relative flex-1 overflow-y-auto" ref={bodyRef}>
-                    {/* List + Help (背景レイヤー。常に通常の見た目で残し、サマリーは P3 帯としてフッター直上に重なる) */}
-                    <div className={clsx(
-                        "transition-opacity duration-300",
-                        phase === 'done' && "pointer-events-none",
-                    )}>
-                        <div className="px-6 pb-3">
-                            <ul className="flex flex-col gap-1.5">
-                                {snapshotPlans.map((plan, idx) => {
-                                    const checked = checkedSet.has(plan.id);
-                                    const status = progressMap.get(plan.id);
-                                    const contentLabel = getContentLabel(plan);
-                                    const jobIcons = getMemberJobIcons(plan);
-                                    const isInProgress = phase !== 'idle';
-                                    // チェック外したプランも常時表示し、isOutOfImport で薄く見せる
-                                    // (行数が変動しないことでウィンドウのガタつきを完全に抑える)
-                                    const isOutOfImport = isInProgress && status === undefined;
+            <div className="relative flex-1 overflow-y-auto" ref={bodyRef}>
+                {/* List + Help (背景レイヤー。常に通常の見た目で残し、サマリーは P3 帯としてフッター直上に重なる) */}
+                <div className={clsx(
+                    "transition-opacity duration-300",
+                    phase === 'done' && "pointer-events-none",
+                )}>
+                    <div className="px-6 pb-3">
+                        <ul className="flex flex-col gap-1.5">
+                            {snapshotPlans.map((plan, idx) => {
+                                const checked = checkedSet.has(plan.id);
+                                const status = progressMap.get(plan.id);
+                                const contentLabel = getContentLabel(plan);
+                                const jobIcons = getMemberJobIcons(plan);
+                                const isInProgress = phase !== 'idle';
+                                // チェック外したプランも常時表示し、isOutOfImport で薄く見せる
+                                // (行数が変動しないことでウィンドウのガタつきを完全に抑える)
+                                const isOutOfImport = isInProgress && status === undefined;
 
-                                    return (
-                                        <motion.li
-                                            key={plan.id}
-                                            data-row-id={plan.id}
-                                            initial={{ opacity: 0, x: -12 }}
-                                            animate={{ opacity: isOutOfImport ? 0.35 : 1, x: 0 }}
-                                            transition={{
-                                                delay: phase === 'idle' ? 0.4 + idx * 0.08 : 0,
-                                                duration: 0.3,
-                                            }}
+                                return (
+                                    <motion.li
+                                        key={plan.id}
+                                        data-row-id={plan.id}
+                                        initial={{ opacity: 0, x: -12 }}
+                                        animate={{ opacity: isOutOfImport ? 0.35 : 1, x: 0 }}
+                                        transition={{
+                                            delay: phase === 'idle' ? 0.4 + idx * 0.08 : 0,
+                                            duration: 0.3,
+                                        }}
+                                    >
+                                        <label
+                                            className={clsx(
+                                                "relative flex items-center gap-3 p-2.5 rounded-lg select-none border transition-colors overflow-hidden",
+                                                isInProgress ? "cursor-default" : "cursor-pointer",
+                                                !isInProgress && checked && "bg-app-blue/10 border-app-blue/30",
+                                                !isInProgress && !checked && "bg-app-surface2/30 border-app-border",
+                                                !isInProgress && checked && "hover:bg-app-blue/15",
+                                                !isInProgress && !checked && "hover:bg-app-surface2/50",
+                                                isInProgress && status === 'success' && "border-app-blue/30",
+                                                isInProgress && status === 'failed' && "border-app-red/30",
+                                                isInProgress && (status === 'pending' || status === 'uploading') && "border-app-border",
+                                                isOutOfImport && "bg-app-surface2/20 border-app-border",
+                                            )}
                                         >
-                                            <label
-                                                className={clsx(
-                                                    "relative flex items-center gap-3 p-2.5 rounded-lg select-none border transition-colors overflow-hidden",
-                                                    isInProgress ? "cursor-default" : "cursor-pointer",
-                                                    !isInProgress && checked && "bg-app-blue/10 border-app-blue/30",
-                                                    !isInProgress && !checked && "bg-app-surface2/30 border-app-border",
-                                                    !isInProgress && checked && "hover:bg-app-blue/15",
-                                                    !isInProgress && !checked && "hover:bg-app-surface2/50",
-                                                    isInProgress && status === 'success' && "border-app-blue/30",
-                                                    isInProgress && status === 'failed' && "border-app-red/30",
-                                                    isInProgress && (status === 'pending' || status === 'uploading') && "border-app-border",
-                                                    isOutOfImport && "bg-app-surface2/20 border-app-border",
-                                                )}
-                                            >
-                                                {/* B2 sweep オーバーレイ (uploading 中の演出) */}
-                                                {isInProgress && !isOutOfImport && (
-                                                    <SweepOverlay
-                                                        status={
-                                                            status === 'pending' || !status
-                                                                ? 'idle'
-                                                                : status === 'uploading'
-                                                                    ? 'active'
-                                                                    : status  // 'success' | 'failed'
-                                                        }
-                                                        color="blue"
-                                                        durationMs={PER_PLAN_MS}
+                                            {/* B2 sweep オーバーレイ (uploading 中の演出) */}
+                                            {isInProgress && !isOutOfImport && (
+                                                <SweepOverlay
+                                                    status={
+                                                        status === 'pending' || !status
+                                                            ? 'idle'
+                                                            : status === 'uploading'
+                                                                ? 'active'
+                                                                : status  // 'success' | 'failed'
+                                                    }
+                                                    color="blue"
+                                                    durationMs={PER_PLAN_MS}
+                                                />
+                                            )}
+
+                                            <span className="relative z-[1] shrink-0 flex items-center justify-center w-[18px] h-[18px]">
+                                                {isInProgress ? (
+                                                    isOutOfImport ? (
+                                                        // 取り込み対象外: チェックマークなしの空チェックボックス風表示
+                                                        <span className="w-4 h-4 rounded border border-app-text-muted/40" />
+                                                    ) : (
+                                                        renderStatusIcon(status)
+                                                    )
+                                                ) : (
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={checked}
+                                                        onChange={() => toggle(plan.id)}
+                                                        className="w-4 h-4 cursor-pointer accent-app-blue shrink-0"
                                                     />
                                                 )}
-
-                                                <span className="relative z-[1] shrink-0 flex items-center justify-center w-[18px] h-[18px]">
-                                                    {isInProgress ? (
-                                                        isOutOfImport ? (
-                                                            // 取り込み対象外: チェックマークなしの空チェックボックス風表示
-                                                            <span className="w-4 h-4 rounded border border-app-text-muted/40" />
-                                                        ) : (
-                                                            renderStatusIcon(status)
-                                                        )
-                                                    ) : (
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={checked}
-                                                            onChange={() => toggle(plan.id)}
-                                                            className="w-4 h-4 cursor-pointer accent-app-blue shrink-0"
-                                                        />
-                                                    )}
-                                                </span>
-                                                <div className="relative z-[1] flex-1 min-w-0">
-                                                    <div className="flex items-baseline gap-2">
-                                                        {contentLabel && (
-                                                            <span className="text-app-base font-bold text-app-text-muted shrink-0">
-                                                                [{contentLabel}]
-                                                            </span>
-                                                        )}
-                                                        <span className="text-app-md font-medium text-app-text truncate">
-                                                            {plan.title || '—'}
+                                            </span>
+                                            <div className="relative z-[1] flex-1 min-w-0">
+                                                <div className="flex items-baseline gap-2">
+                                                    {contentLabel && (
+                                                        <span className="text-app-base font-bold text-app-text-muted shrink-0">
+                                                            [{contentLabel}]
                                                         </span>
-                                                    </div>
-                                                    {jobIcons.length > 0 && (
-                                                        <div className="flex items-center gap-0.5 mt-1">
-                                                            {jobIcons.slice(0, 8).map(j => (
-                                                                <img
-                                                                    key={j.id}
-                                                                    src={j.icon}
-                                                                    alt={j.jobName}
-                                                                    title={j.jobName}
-                                                                    className="w-5 h-5 object-contain opacity-80"
-                                                                />
-                                                            ))}
-                                                        </div>
                                                     )}
+                                                    <span className="text-app-md font-medium text-app-text truncate">
+                                                        {plan.title || '—'}
+                                                    </span>
                                                 </div>
-                                            </label>
-                                        </motion.li>
-                                    );
-                                })}
-                            </ul>
-                        </div>
-
-                        {/* Help 領域 (常時固定スペース確保。idle 時のみ内容表示でガタつき防止) */}
-                        <div className="px-6 pb-3 min-h-[88px]">
-                            {phase === 'idle' && (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.4 + snapshotPlans.length * 0.08 + 0.1, duration: 0.3 }}
-                                >
-                                    <p className="text-app-base text-app-text-muted leading-relaxed">
-                                        {t('local_import.help_text')}
-                                    </p>
-                                </motion.div>
-                            )}
-                        </div>
-
+                                                {jobIcons.length > 0 && (
+                                                    <div className="flex items-center gap-0.5 mt-1">
+                                                        {jobIcons.slice(0, 8).map(j => (
+                                                            <img
+                                                                key={j.id}
+                                                                src={j.icon}
+                                                                alt={j.jobName}
+                                                                title={j.jobName}
+                                                                className="w-5 h-5 object-contain opacity-80"
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </label>
+                                    </motion.li>
+                                );
+                            })}
+                        </ul>
                     </div>
+
+                    {/* Help 領域 (常時固定スペース確保。idle 時のみ内容表示でガタつき防止) */}
+                    <div className="px-6 pb-3 min-h-[88px]">
+                        {phase === 'idle' && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.4 + snapshotPlans.length * 0.08 + 0.1, duration: 0.3 }}
+                            >
+                                <p className="text-app-base text-app-text-muted leading-relaxed">
+                                    {t('local_import.help_text')}
+                                </p>
+                            </motion.div>
+                        )}
+                    </div>
+
                 </div>
+            </div>
 
-                {/* P3 帯: body の外、 footer の前に flex children として配置。
-                    body のスクロールから完全独立し、フッター直上の境界線にぴったり吸着して動かない */}
-                <AnimatePresence initial={false}>
-                    {phase === 'done' && summaryKind && (
-                        <motion.div
-                            key="summary-bar"
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.35, ease: [0.34, 1.56, 0.64, 1] }}
-                            className="shrink-0 overflow-hidden"
-                        >
-                            {/* フィードバック箱 (失敗時のみ、帯の上に積み重なる) */}
-                            {feedbackItems.length > 0 && (
-                                <div className="border-t border-app-border bg-app-yellow/10 px-6 py-3 text-left">
-                                    <p className="text-app-md font-bold tracking-wide text-app-yellow mb-1">
-                                        {t('local_import.feedback_box_title')}
-                                    </p>
-                                    <ul className="list-disc pl-5 text-app-base text-app-text-sec leading-[1.7]">
-                                        {feedbackItems.map((item, idx) => (
-                                            <li key={idx}>{item}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-                            {/* 帯本体: アイコン (左) + タイトル (右) 横並び、完全不透明、左右壁ぴったり */}
-                            <div
-                                className="border-t border-app-border flex items-center gap-3 px-6 py-3 shadow-[0_-6px_18px_rgba(0,0,0,0.18)]"
-                                style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
-                            >
-                                <motion.div
-                                    initial={{ scale: 0.5, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1], delay: 0.1 }}
-                                    className={clsx(
-                                        "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                                        summaryKind === 'success' && 'bg-app-blue/15 text-app-blue',
-                                        summaryKind === 'partial' && 'bg-app-yellow/15 text-app-yellow',
-                                        summaryKind === 'failed' && 'bg-app-red/15 text-app-red',
-                                    )}
-                                >
-                                    {summaryKind === 'success'
-                                        ? <CheckCircle2 size={22} />
-                                        : <AlertTriangle size={22} />}
-                                </motion.div>
-                                <div className="flex-1 min-w-0 text-left">
-                                    <h3 className="text-app-2xl font-black tracking-wide text-app-text leading-tight">
-                                        {summaryKind === 'success' && t('local_import.summary_success_title', { count: successCount })}
-                                        {summaryKind === 'partial' && t('local_import.summary_partial_title')}
-                                        {summaryKind === 'failed' && t('local_import.summary_all_failed_title')}
-                                    </h3>
-                                    {summaryKind === 'partial' && (
-                                        <div className="flex items-center gap-2 mt-0.5 text-app-md font-bold">
-                                            <span className="text-app-blue">
-                                                {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[0]}
-                                            </span>
-                                            <span className="opacity-40">/</span>
-                                            <span className="text-app-red">
-                                                {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[1] ?? ''}
-                                            </span>
-                                        </div>
-                                    )}
-                                    {(summaryKind === 'partial' || summaryKind === 'failed') && (
-                                        <p className="text-app-base text-app-text-muted mt-0.5 leading-snug">
-                                            {summaryKind === 'failed'
-                                                ? t('local_import.summary_all_failed_detail', { count: failedCount })
-                                                : t('local_import.summary_partial_detail')}
-                                        </p>
-                                    )}
-                                </div>
+            {/* P3 帯: body の外、 footer の前に flex children として配置。
+                body のスクロールから完全独立し、フッター直上の境界線にぴったり吸着して動かない */}
+            <AnimatePresence initial={false}>
+                {phase === 'done' && summaryKind && (
+                    <motion.div
+                        key="summary-bar"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.35, ease: [0.34, 1.56, 0.64, 1] }}
+                        className="shrink-0 overflow-hidden"
+                    >
+                        {/* フィードバック箱 (失敗時のみ、帯の上に積み重なる) */}
+                        {feedbackItems.length > 0 && (
+                            <div className="border-t border-app-border bg-app-yellow/10 px-6 py-3 text-left">
+                                <p className="text-app-md font-bold tracking-wide text-app-yellow mb-1">
+                                    {t('local_import.feedback_box_title')}
+                                </p>
+                                <ul className="list-disc pl-5 text-app-base text-app-text-sec leading-[1.7]">
+                                    {feedbackItems.map((item, idx) => (
+                                        <li key={idx}>{item}</li>
+                                    ))}
+                                </ul>
                             </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {/* Footer */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 + snapshotPlans.length * 0.08 + 0.2, duration: 0.3 }}
-                    className="shrink-0 flex items-center justify-end gap-2 px-6 py-4 border-t border-app-border"
-                >
-                    {phase === 'idle' && (
-                        <>
-                            <button
-                                type="button"
-                                onClick={handleClose}
-                                className="px-4 py-2 rounded-xl text-app-md font-black text-app-text-sec hover:text-app-text hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
+                        )}
+                        {/* 帯本体: アイコン (左) + タイトル (右) 横並び、完全不透明、左右壁ぴったり */}
+                        <div
+                            className="border-t border-app-border flex items-center gap-3 px-6 py-3 shadow-[0_-6px_18px_rgba(0,0,0,0.18)]"
+                            style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+                        >
+                            <motion.div
+                                initial={{ scale: 0.5, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1], delay: 0.1 }}
+                                className={clsx(
+                                    "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
+                                    summaryKind === 'success' && 'bg-app-blue/15 text-app-blue',
+                                    summaryKind === 'partial' && 'bg-app-yellow/15 text-app-yellow',
+                                    summaryKind === 'failed' && 'bg-app-red/15 text-app-red',
+                                )}
                             >
-                                {t('local_import.cancel')}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleStartImport}
-                                className="px-4 py-2 rounded-xl text-app-md font-bold text-white bg-app-blue hover:bg-app-blue-hover transition-all shadow-lg shadow-app-blue/25 cursor-pointer"
-                            >
-                                {t('local_import.confirm')}
-                            </button>
-                        </>
-                    )}
+                                {summaryKind === 'success'
+                                    ? <CheckCircle2 size={22} />
+                                    : <AlertTriangle size={22} />}
+                            </motion.div>
+                            <div className="flex-1 min-w-0 text-left">
+                                <h3 className="text-app-2xl font-black tracking-wide text-app-text leading-tight">
+                                    {summaryKind === 'success' && t('local_import.summary_success_title', { count: successCount })}
+                                    {summaryKind === 'partial' && t('local_import.summary_partial_title')}
+                                    {summaryKind === 'failed' && t('local_import.summary_all_failed_title')}
+                                </h3>
+                                {summaryKind === 'partial' && (
+                                    <div className="flex items-center gap-2 mt-0.5 text-app-md font-bold">
+                                        <span className="text-app-blue">
+                                            {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[0]}
+                                        </span>
+                                        <span className="opacity-40">/</span>
+                                        <span className="text-app-red">
+                                            {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[1] ?? ''}
+                                        </span>
+                                    </div>
+                                )}
+                                {(summaryKind === 'partial' || summaryKind === 'failed') && (
+                                    <p className="text-app-base text-app-text-muted mt-0.5 leading-snug">
+                                        {summaryKind === 'failed'
+                                            ? t('local_import.summary_all_failed_detail', { count: failedCount })
+                                            : t('local_import.summary_partial_detail')}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-                    {phase === 'uploading' && (
-                        <span className="text-app-md text-app-text-muted">
-                            {t('local_import.uploading_in_progress')}
-                        </span>
-                    )}
-
-                    {phase === 'done' && summaryKind === 'success' && (
+            {/* Footer */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 + snapshotPlans.length * 0.08 + 0.2, duration: 0.3 }}
+                className="shrink-0 flex items-center justify-end gap-2 px-6 py-4 border-t border-app-border"
+            >
+                {phase === 'idle' && (
+                    <>
                         <button
                             type="button"
                             onClick={handleClose}
+                            className="px-4 py-2 rounded-xl text-app-md font-black text-app-text-sec hover:text-app-text hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
+                        >
+                            {t('local_import.cancel')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleStartImport}
                             className="px-4 py-2 rounded-xl text-app-md font-bold text-white bg-app-blue hover:bg-app-blue-hover transition-all shadow-lg shadow-app-blue/25 cursor-pointer"
+                        >
+                            {t('local_import.confirm')}
+                        </button>
+                    </>
+                )}
+
+                {phase === 'uploading' && (
+                    <span className="text-app-md text-app-text-muted">
+                        {t('local_import.uploading_in_progress')}
+                    </span>
+                )}
+
+                {phase === 'done' && summaryKind === 'success' && (
+                    <button
+                        type="button"
+                        onClick={handleClose}
+                        className="px-4 py-2 rounded-xl text-app-md font-bold text-white bg-app-blue hover:bg-app-blue-hover transition-all shadow-lg shadow-app-blue/25 cursor-pointer"
+                    >
+                        {t('local_import.close')}
+                    </button>
+                )}
+
+                {phase === 'done' && (summaryKind === 'partial' || summaryKind === 'failed') && (
+                    <>
+                        <button
+                            type="button"
+                            onClick={handleClose}
+                            className="px-4 py-2 rounded-xl text-app-md font-black text-app-text-sec hover:text-app-text hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
                         >
                             {t('local_import.close')}
                         </button>
-                    )}
-
-                    {phase === 'done' && (summaryKind === 'partial' || summaryKind === 'failed') && (
-                        <>
-                            <button
-                                type="button"
-                                onClick={handleClose}
-                                className="px-4 py-2 rounded-xl text-app-md font-black text-app-text-sec hover:text-app-text hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
-                            >
-                                {t('local_import.close')}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleRetryFailed}
-                                className="px-4 py-2 rounded-xl text-app-md font-bold text-white bg-app-blue hover:bg-app-blue-hover transition-all shadow-lg shadow-app-blue/25 cursor-pointer"
-                            >
-                                {retryLabel}
-                            </button>
-                        </>
-                    )}
-                </motion.div>
+                        <button
+                            type="button"
+                            onClick={handleRetryFailed}
+                            className="px-4 py-2 rounded-xl text-app-md font-bold text-white bg-app-blue hover:bg-app-blue-hover transition-all shadow-lg shadow-app-blue/25 cursor-pointer"
+                        >
+                            {retryLabel}
+                        </button>
+                    </>
+                )}
             </motion.div>
-        </div>,
-        document.body,
+        </ModalShell>
     );
 };

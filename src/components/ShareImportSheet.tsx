@@ -20,6 +20,7 @@ import { MitigationSheetPreview } from './MitigationSheetPreview';
 import { SharePlanCard } from './SharePlanCard';
 import { ImportProgressOverlay } from './ImportProgressOverlay';
 import { executeShareImport } from '../lib/executeShareImport';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import type { ProgressEvent } from '../lib/shareImportTypes';
@@ -163,6 +164,8 @@ export function ShareImportSheet() {
         if (status === 'importing' || status === 'limit_hit' || status === 'loading') return;
         close();
     };
+    // Esc も外側クリックと同じ扱い (取り込み中・上限ヒット中・読み込み中は閉じない)
+    useEscapeClose(status !== 'idle', handleBackdropClick);
 
     // 読み込み中の演出フラグ。
     const isLoadingPhase = status === 'loading';

@@ -17,7 +17,7 @@ export const CollabEditConsentModal: React.FC<Props> = ({ isOpen, onAccept, onCa
   if (!isOpen) return null;
   return createPortal(
     <div
-      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-[2px]"
       {...backdropClose(onCancel)}
     >
       <div
