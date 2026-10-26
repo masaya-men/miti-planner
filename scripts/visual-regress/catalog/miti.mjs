@@ -1,0 +1,141 @@
+// @ts-check
+// 軽減表(/miti)標準シェル・PC のページと、ログイン不要の窓のカタログ。
+// MIL-SPEC 版(military-*)は miti-milspec.mjs、スマホは miti-mobile.mjs が受け持つ(ruling 16)。
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { baseStorage, mitiStorage } from '../fixtures/storage.mjs';
+
+/** standard-dark / standard-light から明るさを取り出して見本の localStorage を作る */
+const mk = (/** @type {'lanes'|'sheet'} */ view, /** @type {Record<string, unknown>} */ over = {}, /** @type {Record<string, unknown>} */ extra = {}) =>
+  (/** @type {{ theme: string, lang: string }} */ cond) => ({
+    ...baseStorage(),
+    ...mitiStorage({ view, party: 8, theme: { mode: cond.theme === 'standard-light' ? 'light' : 'dark', style: 'standard' }, lang: cond.lang, over }),
+    ...extra,
+  });
+const lanes = mk('lanes');
+
+/** 保存済みプランが 1 件ある状態(共有ボタン・共有窓はプラン必須) */
+const withPlan = (/** @type {{ theme: string, lang: string }} */ cond, /** @type {string | null} */ contentId = null) => {
+  const st = mk('lanes', { _loadedPlanId: 'rg-plan' })(cond);
+  const d = /** @type {any} */ (st['mitigation-storage']).state;
+  const data = {
+    currentLevel: 100, timelineEvents: d.timelineEvents, timelineMitigations: d.timelineMitigations, phases: d.phases,
+    partyMembers: d.partyMembers, aaSettings: d.aaSettings, schAetherflowPatterns: {}, hiddenPartyMemberIds: [], memos: d.memos,
+  };
+  return {
+    ...st,
+    'tutorial-storage': { state: { hasCompleted: true, hasVisitedShare: true, isActive: false, completed: { main: true, share: true } }, version: 0 },
+    'plan-storage': {
+      state: {
+        plans: [{ id: 'rg-plan', ownerId: 'guest', ownerDisplayName: '', title: '見本プラン', contentId, isPublic: false, copyCount: 0, useCount: 0, data, createdAt: 1, updatedAt: 1 }],
+        currentPlanId: 'rg-plan', lastActivePlanId: 'rg-plan', _dirtyPlanIds: [], _deletedPlanIds: [],
+      }, version: 2,
+    },
+  };
+};
+
+const THEMES = ['standard-dark', 'standard-light'];
+const pageAx = { vp: ['1489', '1920'], theme: THEMES, lang: ['ja', 'en'] };
+const POP = 'div.fixed.glass-tier3.rounded-lg';
+const winAx = { vp: ['1489'], theme: THEMES, lang: ['ja'] };
+const winAxEn = { vp: ['1489'], theme: THEMES, lang: ['ja', 'en'] };
+
+const PHOTO = fileURLToPath(new URL('../fixtures/images/photo-01.png', import.meta.url));
+const ROW = '[data-time-row]';
+const SHELL = '[data-modal-shell] [role="dialog"]';
+/** 日英どちらかの文言に当たる text セレクタ(正規表現。日英の語句を | でつなぐ) */
+const textRe = (/** @type {string} */ ja, /** @type {string} */ en) => `text=/${ja}|${en}/`;
+const click = (/** @type {string} */ sel) => async (/** @type {import('playwright').Page} */ page) => { await page.click(sel); };
+/** aria-label が日英どちらかのボタンを押す */
+const clickLabel = (/** @type {string} */ ja, /** @type {string} */ en) => async (/** @type {import('playwright').Page} */ page) => {
+  await page.click(`button[aria-label="${ja}"], button[aria-label="${en}"]`);
+};
+
+export default [
+  // ───────── ページ ─────────
+  { id: 'miti/page-lanes', route: '/miti', storage: lanes, ready: ROW, axes: pageAx,
+    covers: ['MitiPlannerPage', 'Layout', 'Timeline', 'TimelineRow', 'ConsolidatedHeader', 'Sidebar'] },
+  { id: 'miti/page-sheet', route: '/miti', storage: mk('sheet'), ready: ROW, axes: pageAx,
+    covers: ['MitiPlannerPage', 'Layout', 'Timeline', 'ConsolidatedHeader', 'Sidebar'] },
+
+  // ───────── 窓・ポップ(ログイン不要。clip:'ready' = 窓の枠だけ。ポップは全画面) ─────────
+  { id: 'miti/win-login', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAx,
+    open: click('button:has(svg.lucide-log-in)'), covers: ['LoginModal', 'ModalShell'] },
+  { id: 'miti/win-party-settings', route: '/miti', storage: lanes, ready: '[class*="z-[10000]"]', axes: winAxEn,
+    open: click('[data-tutorial="party-comp"]'), covers: ['PartySettingsModal'] },
+  { id: 'miti/win-party-status', route: '/miti', storage: lanes, ready: textRe('ステータス設定', 'Status Settings'), axes: winAx,
+    open: click('button:has-text("ステータス設定"), button:has-text("Stat Config")'), covers: ['PartyStatusPopover'] },
+  { id: 'miti/menu-import', route: '/miti', storage: lanes, ready: textRe('スプレッドシートから取り込み', 'Import from spreadsheet'), axes: winAx,
+    open: clickLabel('取り込み', 'Import'), covers: ['ImportMenu'] },
+  { id: 'miti/win-fflogs-import', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAxEn,
+    open: async (page) => { await clickLabel('取り込み', 'Import')(page); await page.click(textRe('FF Logs から取り込み', 'Import from FF Logs')); }, covers: ['ImportMenu', 'FFLogsImportModal'] },
+  { id: 'miti/win-grid-import', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAxEn,
+    open: async (page) => { await clickLabel('取り込み', 'Import')(page); await page.click(textRe('スプレッドシートから取り込み', 'Import from spreadsheet')); }, covers: ['SpreadsheetGridImportModal'] },
+  { id: 'miti/menu-tools', route: '/miti', storage: lanes, ready: 'body > div.fixed[class*="z-[99999]"]', axes: winAx,
+    open: clickLabel('その他', 'More'), covers: ['HeaderToolsMenu'] },
+  { id: 'miti/menu-tutorial', route: '/miti', storage: lanes, ready: 'body > div.fixed[class*="z-[99999]"]', axes: winAx,
+    open: click('button:has-text("チュートリアルを見る"), button:has-text("View Tutorial")'), covers: ['TutorialMenu'] },
+  { id: 'miti/menu-language', route: '/miti', storage: lanes, ready: 'body > div[class*="min-w-[130px]"]', axes: winAx,
+    open: click('div[data-tutorial-always] button'), covers: ['LanguageSwitcher'] },
+  { id: 'miti/win-new-plan', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAxEn,
+    open: click('[data-tutorial="new-plan-btn"]'), covers: ['NewPlanModal'] },
+  { id: 'miti/win-backup-export', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAxEn,
+    open: click('button:has(svg.lucide-hard-drive)'), covers: ['BackupExportModal'] },
+  { id: 'miti/win-backup-restore', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAxEn,
+    open: click('.flex.gap-1 > button:has(svg.lucide-download)'), covers: ['BackupRestoreModal'] },
+  { id: 'miti/win-share', route: '/miti', storage: withPlan, ready: SHELL, clip: 'ready', axes: winAx,
+    open: async (page) => {
+      // 共有窓の OG 画像(/api/og)は見本の画像で返す(POST /api/share は fixtures/api/share.json)
+      await page.route(/\/api\/og\?/, (route) => route.fulfill({ status: 200, contentType: 'image/png', body: fs.readFileSync(PHOTO) }));
+      await page.click('[data-tutorial="share-copy-btn"]');
+    }, covers: ['ShareModal', 'ShareButtons'] },
+  { id: 'miti/win-notification', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAx,
+    open: clickLabel('運営からの通知', 'Notifications from team'), covers: ['SystemNotificationModal', 'SystemNotificationBar'] },
+  { id: 'miti/win-event-add', route: '/miti', storage: lanes, ready: '[data-tutorial-modal]', clip: 'ready', axes: winAxEn,
+    open: async (page) => {
+      const row = page.locator(ROW).first();
+      await row.hover();
+      await row.locator('[aria-label="この時間にイベントを追加"], [aria-label="Add Event Here"]').first().dispatchEvent('click');
+    }, covers: ['EventModal', 'TimelineRow'] },
+  { id: 'miti/popover-aa', route: '/miti', storage: lanes, ready: textRe('オートアタック設定', 'Auto-Attack Settings'), axes: winAx,
+    open: click('button:has-text("AA追加"), button:has-text("Add AA")'), covers: ['AASettingsPopover'] },
+  { id: 'miti/popover-clear', route: '/miti', storage: lanes, ready: textRe('全ての軽減を削除', 'Clear all mitigations'), axes: winAx,
+    open: click('button:has(svg.lucide-trash-2):has(svg.lucide-chevron-down)'), covers: ['ClearMitigationsPopover'] },
+  { id: 'miti/win-confirm', route: '/miti', storage: lanes, ready: textRe('メモを全削除しますか', 'Delete all notes?|Clear all notes'), axes: winAx,
+    open: async (page) => { await page.click('button:has(svg.lucide-trash-2):has(svg.lucide-chevron-down)'); await page.click(textRe('メモを全削除', 'Delete all notes')); }, covers: ['ConfirmDialog', 'ClearMitigationsPopover'] },
+  // ───────── 追加の窓・ポップ ─────────
+  { id: 'miti/popover-phase', route: '/miti', storage: lanes, ready: POP, axes: winAx,
+    open: async (page) => { await page.waitForSelector(ROW); await page.keyboard.press('p'); }, covers: ['HeaderPhaseDropdown'] },
+  { id: 'miti/popover-gimmick', route: '/miti', storage: lanes, ready: POP, axes: winAx,
+    open: async (page) => { await page.waitForSelector(ROW); await page.keyboard.press('l'); }, covers: ['HeaderGimmickDropdown'] },
+  { id: 'miti/popover-time', route: '/miti', storage: lanes, ready: POP, axes: winAx,
+    open: async (page) => { await page.waitForSelector(ROW); await page.keyboard.press('t'); }, covers: ['HeaderTimeInput'] },
+  { id: 'miti/popover-search', route: '/miti', storage: lanes, ready: POP, axes: winAx,
+    open: async (page) => { await page.waitForSelector(ROW); await page.keyboard.press('a'); }, covers: ['HeaderMechanicSearch'] },
+  { id: 'miti/win-boundary-edit', route: '/miti', storage: lanes, ready: 'input[placeholder="M:SS"]', axes: winAxEn,
+    open: async (page) => {
+      // フェーズ列クリック → メニュー「フェーズを編集」 → BoundaryEditModal
+      await page.locator('[data-phase-col]').first().click();
+      await page.click('text=/^(フェーズを編集|Edit Phase)$/');
+    }, covers: ['BoundaryEditModal'] },
+  { id: 'miti/win-mitigation-selector', route: '/miti', storage: lanes, ready: '[data-tutorial-modal]', clip: 'ready', axes: winAx,
+    open: async (page) => { await page.locator(`${ROW} [class*="group/cell"]`).nth(10).click(); }, covers: ['MitigationSelector'] },
+  { id: 'miti/win-job-picker', route: '/miti', storage: lanes, ready: 'div.glass-tier3.rounded-xl', clip: 'ready', axes: winAx,
+    open: click('[data-testid="job-picker-trigger"] >> nth=0'), covers: ['JobPicker', 'JobPickerRow'] },
+  { id: 'miti/win-popular-consent', route: '/miti', storage: (cond) => { const s = withPlan(cond); delete s['lopo.popularDisplayConsent']; return s; },
+    ready: SHELL, clip: 'ready', axes: winAx,
+    open: async (page) => { await page.click('[data-tutorial="share-copy-btn"]'); }, covers: ['PopularConsentDialog'] },
+  { id: 'miti/ctx-plan-row', route: '/miti', storage: (cond) => withPlan(cond, 'm9s'), ready: 'text=名前変更', axes: winAx,
+    open: async (page) => { await page.locator('text=見本プラン').first().click({ button: 'right' }); }, covers: ['ContextMenu', 'Sidebar'] },
+  { id: 'miti/toast', route: '/miti', storage: lanes, ready: 'div.fixed.bottom-24', axes: winAx,
+    open: async (page) => {
+      await page.waitForSelector(ROW);
+      await page.evaluate(async () => { const m = await import('/src/components/Toast.tsx'); m.showToast('見本のトースト', 'success'); });
+    }, covers: ['Toast'] },
+  { id: 'miti/footer-legal', route: '/miti', storage: lanes, ready: 'footer a[href="/privacy"]', axes: winAx,
+    open: click('footer button.underline'), covers: ['AppFooter'] },
+  { id: 'miti/popover-pulse', route: '/miti', storage: lanes, ready: 'div.glass-tier3[class*="w-[240px]"]', axes: winAx,
+    open: click('footer button:has-text("パルス設定"), footer button:has-text("Pulse")'), covers: ['PulseSettings', 'AppFooter'] },
+  { id: 'miti/win-local-data-safety', route: '/miti', storage: withPlan, ready: SHELL, clip: 'ready', axes: winAx,
+    open: async (page) => { await page.click('text=この軽減表は今この端末'); }, covers: ['LocalDataSafetyModal', 'LocalDataSafetyBar'] },
+];
