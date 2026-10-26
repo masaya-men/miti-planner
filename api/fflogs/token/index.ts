@@ -12,6 +12,7 @@
  */
 
 import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
+import { applyRateLimit } from '../../../src/lib/rateLimit.js';
 import { fetchTokenWithFailover } from '../../../src/lib/fflogsTokenFailover.js';
 
 // 利用可能なAPIキーペアを環境変数から収集
@@ -62,6 +63,9 @@ export default async function handler(req: any, res: any) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
+
+    // 濫用対策: IP 単位 + 全体上限のレート制限
+    if (!(await applyRateLimit(req, res, 10, 60_000, { scope: 'fflogs-token', globalMax: 300 }))) return;
 
     const pairs = getCredentialPairs();
 

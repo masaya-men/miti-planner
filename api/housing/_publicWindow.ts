@@ -17,6 +17,7 @@
  * /api/housing) で従来どおり /api/housing/public を維持 (Cloudflare キャッシュ境界も不変)。
  */
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
+import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { projectPublicListing, projectHiddenListing } from '../../src/lib/housing/publicListingProjection.js';
 
 const COLLECTION = 'housing_listings';
@@ -44,6 +45,9 @@ export function isPubliclyViewable(d: any, now: number): boolean {
 export async function publicWindowHandler(req: any, res: any) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+  // 匿名で叩ける公開窓口の濫用対策: IP 単位 + 全体上限のレート制限
+  if (!(await applyRateLimit(req, res, 60, 60_000, { scope: 'housing-public', globalMax: 600 }))) return;
 
   try {
     initAdmin();
