@@ -7,6 +7,9 @@
 import sharp from 'sharp';
 import { rgbaToThumbHash } from 'thumbhash';
 
+// GHSA-wq5f-xc86-pv6w 対策: LoPo は SVG を変換しないので sharp の SVG 読込を無効化する
+sharp.block({ operation: ['VipsForeignLoadSvg'] });
+
 export async function computeCoverThumbHash(buf: Buffer): Promise<string | null> {
   try {
     const { data, info } = await sharp(buf)

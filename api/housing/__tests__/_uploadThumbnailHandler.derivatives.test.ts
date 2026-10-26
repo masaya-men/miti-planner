@@ -89,7 +89,8 @@ vi.mock('../_coverThumbHash.js', () => ({
 
 import handler from '../_uploadThumbnailHandler.js';
 
-const B64 = Buffer.from('pretend-image-bytes').toString('base64');
+// 先頭バイトが WebP (RIFF....WEBP) の最小フィクスチャ (中身検査を通すため)
+const B64 = Buffer.concat([Buffer.from('RIFF'), Buffer.alloc(4), Buffer.from('WEBPpretend')]).toString('base64');
 
 function makeBody(index?: number) {
   return {
@@ -137,6 +138,26 @@ beforeEach(() => {
   h.ogMetaSetSpy.mockReset().mockImplementation(() => Promise.resolve());
   fetchMock.mockReset().mockImplementation(async () => ({ ok: true }) as Response);
   global.fetch = fetchMock as unknown as typeof fetch;
+});
+
+describe('_uploadThumbnailHandler の中身検査', () => {
+  it('mimeType image/png で SVG 本体を送ると 400 unsupported_image_content', async () => {
+    const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"></svg>').toString('base64');
+    const { req, res } = makeReqRes({ listingId: 'listing1', base64: svg, mimeType: 'image/png', index: 0 });
+    await handler(req, res);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe('unsupported_image_content');
+    expect(h.saveSpy).not.toHaveBeenCalled();
+  });
+
+  it('申告と中身が違っても中身が許可形式なら、中身の形式で保存する (拡張子違いの原本対策)', async () => {
+    const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]).toString('base64');
+    const { req, res } = makeReqRes({ listingId: 'listing1', base64: png, mimeType: 'image/jpeg', index: 0 });
+    await handler(req, res);
+    expect(res.statusCode).toBe(200);
+    expect(h.filePaths[0]).toMatch(/\.png$/);
+    expect((h.saveSpy.mock.calls[0] as unknown[])[1]).toMatchObject({ contentType: 'image/png' });
+  });
 });
 
 describe('_uploadThumbnailHandler の派生生成 + coverThumbHash 保存', () => {

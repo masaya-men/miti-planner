@@ -385,12 +385,9 @@ service cloud.firestore {
       // 通報サブコレクション
       match /reports/{reportId} {
         // 読み: 管理者のみ
-        allow read: if request.auth != null && request.auth.token.admin == true;
-        // 作成: 認証ユーザー、 reporterUid は自分自身、 reason は有効値のみ
-        allow create: if isAuthenticated()
-                      && request.auth.uid == request.resource.data.reporterUid
-                      && request.resource.data.reason in ['wrong_info', 'griefing', 'nsfw', 'sold', 'other'];
-        allow update, delete: if false;
+        allow read: if request.auth != null && request.auth.token.role == 'admin';
+        // 書き込み: API (Admin SDK・レート制限つき) 経由のみ。クライアント直書きは禁止 (2026-10-26 O-3)
+        allow write: if false;
       }
     }
 
@@ -511,7 +508,7 @@ service cloud.firestore {
 
       // プロフィール通報 (API 経由のみ。読みは管理者)
       match /reports/{reportId} {
-        allow read: if request.auth != null && request.auth.token.admin == true;
+        allow read: if request.auth != null && request.auth.token.role == 'admin';
         allow write: if false;
       }
     }

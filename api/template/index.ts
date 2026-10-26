@@ -14,14 +14,17 @@ import autoRegisterHandler from './_autoRegisterHandler.js';
 import promoteHandler from './_promoteHandler.js';
 import publicNotificationsHandler from './_publicNotificationsHandler.js';
 import publicTemplateHandler from './_publicTemplateHandler.js';
+import { setPrivateNoStore } from '../../src/lib/privateNoStore.js';
 
 export default async function handler(req: any, res: any) {
   const action = req.query?.action;
 
   switch (action) {
     case 'auto-register':
+      setPrivateNoStore(res);
       return autoRegisterHandler(req, res);
     case 'promote':
+      setPrivateNoStore(res);
       return promoteHandler(req, res);
     case 'public-notifications':
       return publicNotificationsHandler(req, res);

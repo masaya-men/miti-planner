@@ -10,6 +10,9 @@
  */
 import sharp from 'sharp';
 
+// GHSA-wq5f-xc86-pv6w 対策: LoPo は SVG を変換しないので sharp の SVG 読込を無効化する
+sharp.block({ operation: ['VipsForeignLoadSvg'] });
+
 /**
  * PNG 兄弟変換の対象となる原本 MIME（satori 非対応形式）。
  * アップロードハンドラ側も「変換対象なのに null が返った = 変換失敗」の判定に使うため

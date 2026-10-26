@@ -54,6 +54,7 @@ import joinSharedTourHandler from './_joinSharedTourHandler.js';
 import gcSharedToursHandler from './_gcSharedToursHandler.js';
 import applyExpiredVisibilityHandler from './_applyExpiredVisibilityHandler.js';
 import { publicWindowHandler } from './_publicWindow.js';
+import { setPrivateNoStore } from '../../src/lib/privateNoStore.js';
 import fetchAllmarksShareHandler from './_fetchAllmarksShareHandler.js';
 
 // 公開読みキャッシュ窓口の action (App Check 不要・匿名可・Cloudflare キャッシュ対象)。
@@ -68,6 +69,9 @@ export default async function handler(req: any, res: any) {
   if (typeof action === 'string' && PUBLIC_WINDOW_ACTIONS.has(action)) {
     return publicWindowHandler(req, res);
   }
+
+  // 公開窓口以外は本人向け応答 → 共有キャッシュさせない
+  setPrivateNoStore(res);
 
   switch (action) {
     case 'can-register':

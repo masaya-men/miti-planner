@@ -17,9 +17,12 @@ describe('useMeasuredMemberLayout', () => {
       ['D1', { offsetLeft: 820, offsetWidth: 50 }],
     ]);
     originalResizeObserver = (global as any).ResizeObserver;
+    // happy-dom 新版は偽要素 (素のオブジェクト) を getComputedStyle に渡すと例外にするため、padding 0 で差し替える
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({ paddingLeft: '0px', paddingRight: '0px' } as any);
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     (global as any).ResizeObserver = originalResizeObserver;
   });
 
