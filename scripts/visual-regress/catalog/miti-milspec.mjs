@@ -18,17 +18,20 @@ const clickAria = (/** @type {string} */ label) => click(`button[aria-label="${l
 const clickKey = (/** @type {string} */ text) => click(`button:has(b:text-is("${text}"))`);
 const POPUP = 'body > div.fixed[class*="z-[99999]"]';
 
+// 全ページの撮影に常に写る MIL-SPEC の常設部品(昼夜の切替後の状態は別テーマのページ撮影が受け持つ)
+const PERSISTENT = ['MilspecRail', 'MilspecArmor', 'MilspecVent', 'MilspecFxLayer', 'MilspecRowPrinter', 'MilspecReticle', 'MilspecSwitches', 'MilspecPlanCore', 'HeaderLogo', 'Nameplate', 'ModeLever', 'ThemeRocker', 'MilspecStyleToggle'];
+
 export default [
   // ───────── ページ ─────────
   { id: 'milspec/page-lanes', route: '/miti', storage: lanes, ready: ROW, hide: HIDE, axes: pageAx,
-    covers: ['MilspecLayout', 'MilspecHeaderV11', 'MilspecSidebar', 'MilspecWorkspace', 'MilspecFooter', 'MilspecContentTree', 'MilspecBackdropVideo', 'MilspecDecor', 'PartyOps', 'AuxPanel', 'MilspecCrt', 'MilspecControlDeck', 'MilspecJackBoard', 'MilspecJackRow', 'MeterPanel'] },
+    covers: [...PERSISTENT, 'MilspecLayout', 'MilspecHeaderV11', 'MilspecSidebar', 'MilspecWorkspace', 'MilspecFooter', 'MilspecContentTree', 'MilspecBackdropVideo', 'MilspecDecor', 'PartyOps', 'AuxPanel', 'MilspecCrt', 'MilspecControlDeck', 'MilspecJackBoard', 'MilspecJackRow', 'MeterPanel'] },
   { id: 'milspec/page-sheet', route: '/miti', storage: sheet, ready: ROW, hide: HIDE, axes: pageAx,
-    covers: ['MilspecLayout', 'MilspecWorkspace', 'MilspecControlDeck', 'PartyOps'] },
+    covers: [...PERSISTENT, 'MilspecLayout', 'MilspecWorkspace', 'MilspecControlDeck', 'PartyOps'] },
 
   // ───────── ヘッダー(PartyOps / AuxPanel)から開く窓・ポップ ─────────
-  { id: 'milspec/win-party-settings', route: '/miti', storage: lanes, ready: '[class*="z-[10000]"]', hide: HIDE, axes: winAx,
+  { id: 'milspec/win-party-settings', route: '/miti', storage: lanes, ready: 'body > div.fixed.pointer-events-auto[class*="z-[10000]"]', hide: HIDE, axes: winAx,
     open: click('[data-tutorial="party-comp"]'), covers: ['PartyOps', 'PartySettingsModal'] },
-  { id: 'milspec/win-party-status', route: '/miti', storage: lanes, ready: textRe('ステータス設定', 'Status Settings'), hide: HIDE, axes: winAx,
+  { id: 'milspec/win-party-status', route: '/miti', storage: lanes, ready: 'body > div.fixed.pointer-events-auto[class*="z-[9999]"]', hide: HIDE, axes: winAx,
     open: clickAria('ステータス設定'), covers: ['PartyOps', 'PartyStatusPopover'] },
   { id: 'milspec/menu-import', route: '/miti', storage: lanes, ready: textRe('スプレッドシートから取り込み', 'Import from spreadsheet'), hide: HIDE, axes: winAx,
     open: clickAria('取り込み'), covers: ['PartyOps', 'ImportMenu'] },

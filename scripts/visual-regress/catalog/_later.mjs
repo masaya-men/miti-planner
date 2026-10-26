@@ -18,4 +18,5 @@ export default [
   { component: 'WelcomeSetup', stage: 2, reason: '新規ユーザー(useAuthStore.isNewUser)の初回設定窓。ログイン直後にしか出ない。ログイン状態の見本が要る。' },
   { component: 'VideoRecorderModal', stage: 3, reason: 'PiP メニューからの動画取り込み。PiP(Document Picture-in-Picture)と画面共有の権限が必要で自動撮影できない。' },
   { component: 'FFLogsImportModal', stage: 2, reason: '本体(URL 入力・プレビュー)はログイン必須。未ログインのログイン案内のみ段階 1 で撮影(miti/win-fflogs-import)' },
+  { component: 'MilspecDim', stage: 3, reason: '電源投入の演出は動きなので撮らない(設計書 §3)。撮影は演出完了後の静止状態' },
 ];
