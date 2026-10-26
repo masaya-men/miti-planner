@@ -27,6 +27,8 @@ const VIEWPORTS = {
 const SETTLE_FLOOR_MS = 2500;
 /** open 前の ready 事前チェックの前に、描画が落ち着くのを待つ時間 */
 const PRE_OPEN_WAIT_MS = 1200;
+/** 窓を開いた後、framer-motion など JS 駆動の登場アニメが終わるのを待つ時間(WAAPI は freeze が終点へ送るが JS 駆動は送れない) */
+const POST_OPEN_WAIT_MS = 900;
 /** ネットワーク要求ゼロが続くべき時間(ms) */
 const QUIET_MS = 500;
 /** 落ち着き待ちの上限(ms) */
@@ -93,6 +95,7 @@ export async function shootCondition(browser, baseUrl, cond, outFile, opts = {})
       await page.waitForTimeout(100);
     }
     await page.evaluate(() => document.fonts.ready);
+    if (entry.open) await page.waitForTimeout(POST_OPEN_WAIT_MS);
 
     await freeze(page, { hideSelectors: entry.hide ?? [] });
 

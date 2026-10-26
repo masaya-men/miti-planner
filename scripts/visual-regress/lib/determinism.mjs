@@ -168,6 +168,8 @@ export async function installDeterminism(context, { appOrigin, fixturesDir, font
   // 時刻: 固定値を起点に、そこから通常速度で進める(install 後に resume)
   await context.clock.install({ time: now });
   await context.clock.resume();
+  // Date.now()/new Date() は固定値のまま動かさない(タイマーは進む)。書き出し JSON のタイムスタンプ等の揺れを防ぐ
+  await context.clock.setFixedTime(now);
 
   // 乱数: 種付き mulberry32 に差し替え
   // 注入するのはテスト済みの mulberry32 そのもの(実装を 1 つに保つ)

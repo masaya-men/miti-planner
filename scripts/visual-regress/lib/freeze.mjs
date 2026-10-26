@@ -16,6 +16,10 @@ export async function freeze(page, { injectCss, hideSelectors = [] } = {}) {
         if (it === Infinity) { a.pause(); a.currentTime = 0; } else a.finish();
       } catch { try { a.pause(); } catch { /* 無視 */ } }
     }
+    // SVG の SMIL アニメ(<animate>/<animateMotion>)は getAnimations() に出ないので、全 svg を 0 秒で止める
+    for (const svg of document.querySelectorAll('svg')) {
+      try { svg.pauseAnimations(); svg.setCurrentTime(0); } catch { /* 無視 */ }
+    }
     for (const v of document.querySelectorAll('video')) {
       v.pause();
       try { v.currentTime = 0; await new Promise((r) => { const t = setTimeout(r, 1500); v.addEventListener('seeked', () => { clearTimeout(t); r(undefined); }, { once: true }); }); } catch { /* 無視 */ }
