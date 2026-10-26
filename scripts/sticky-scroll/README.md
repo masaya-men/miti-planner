@@ -117,3 +117,8 @@ JSON の形: `conds.<条件id>.items.<項目>`。位置は `[left, top, width, h
 - 目印: 試験用 CSS(`page.addStyleTag`)で見出し側に洋紅・本文のメンバー列に水色の 3px の縁(outline)を付ける。DOM が変わったら `--selector-header=` `--selector-header2=`(`none` で無効)`--selector-body=` で差し替える
 - 他: `--vp=1489|1920|2560` `--theme=…` `--view=lanes|sheet` `--party=8|4`(横に動かせる 8 人・1489 が既定)`--method=raf` `--keep-frames`(コマを `.baseline/frame-sync-frames/` に保存)
 - thumb(つまみのドラッグ): headless の Chromium は既定で `--hide-scrollbars` が付くので、この道具は起動時に外している(つまみが描かれる)。Firefox の headless はバーが描かれず「未対応」と出る
+- 終了コード: 0=成功 / 1=`--expect-zero` でずれたコマあり / 2=測定が成立していない(1 つも測れていない・失敗か「測定不成立」のモードがある・`--expect-zero` のとき未対応のモードがある)。環境で使えないモード(Firefox の thumb など)は `--allow-unsupported=thumb`(カンマ区切り)で許せる(未対応のものだけに効く。失敗・測定不成立は許せない)
+- 測定不成立: 読めなかったコマ(目印の左右の縁が両方見えない・間隔が DOM の実測と合わない=左端が切れたコマ)が全体の 20% を超える、または動いている間の有効なコマが 10 枚未満。出力に読めなかったコマの数と割合を出す
+- 目印の要素は 1 つずつ(最初に見つかったもの)。見出し側は `--selector-header=` と `--selector-header2=`、本文は `--selector-body=`、動かす入れ物は `--selector-scroll=`(既定 `.timeline-scroll-container`)で差し替える。**見出しの構造が変わったら(Task 10 以降)、リキャスト欄が無くなる等で `--selector-header2` の既定が見つからなくなる。使わない帯は `--selector-header2=none` を明示する**
+- 自己検証: `--self-test` は見出し側の目印も本文と同じ入れ物の中(本文の別の行の同じ列)に付ける。2 つは必ず一緒に動くので、ずれたコマ 0 と出れば道具の読み取りに偽のずれが無い。ずれを検出できる(今のコードで「ずれあり」)ことと対で確認する
+- しきい値は `--thresh=`(既定 0.5px。合否を動かすためには使わない)・`--mode-timeout=`(1 通りの上限 ms。既定 120000)

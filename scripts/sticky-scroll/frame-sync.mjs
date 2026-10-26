@@ -59,13 +59,22 @@ const VIEW = str('view', 'lanes');
 const PARTY = Number(str('party', '8'));
 const OUT = str('out', 'last');
 const EXPECT_ZERO = !!args['expect-zero'];
+/** 環境によって使えないモード(例: Firefox の thumb)を「未対応のままでも exit 2 にしない」ものとして許す。未対応(unsupported)だけに効く */
+const ALLOW_UNSUPPORTED = new Set(str('allow-unsupported', '').split(',').map((v) => v.trim()).filter(Boolean));
+/** 動かすスクロールの入れ物。見出しの構造が変わっても本文側は同じ入れ物のはず。差し替え用 */
+const SEL_SCROLL = str('selector-scroll', '.timeline-scroll-container');
+/** 自己検証: 見出し側の目印も本文と同じ入れ物の中(本文の別の行の同じ列)に付ける。2 つは必ず一緒に動く=ずれ 0 と出るはず */
+const SELF_TEST = !!args['self-test'];
+/** 読めなかったコマの上限(割合)と、動いている間の有効なコマの下限(枚)。外れたモードは「測定不成立」 */
+const MAX_INVALID_RATIO = 0.2;
+const MIN_MOVING_FRAMES = 10;
 /** 見出し側の目印は 2 つの帯: ボタンの欄の中のジョブ選択の行(controls)と、見出しの中のリキャスト欄(header)。どちらも transform で動く。 */
 const SEL_HEADER = str('selector-header', '#timeline-controls-inner [data-member-id]');
 const SEL_HEADER2 = str('selector-header2', '#timeline-header-inner .recast-cell');
-const HEADERS = [{ id: 'controls', sel: SEL_HEADER }, ...(SEL_HEADER2 === 'none' ? [] : [{ id: 'header', sel: SEL_HEADER2 }])];
-const SEL_BODY = str('selector-body', VIEW === 'sheet' ? '.timeline-scroll-container [data-time-row] [data-sheet-cols]' : '.timeline-scroll-container [data-time-row] [data-job-col]');
+const HEADERS = SELF_TEST ? [{ id: 'self-test', sel: '(本文の別の行の同じ列)' }] : [{ id: 'controls', sel: SEL_HEADER }, ...(SEL_HEADER2 === 'none' ? [] : [{ id: 'header', sel: SEL_HEADER2 }])];
+const SEL_BODY = str('selector-body', VIEW === 'sheet' ? `${SEL_SCROLL} [data-time-row] [data-sheet-cols]` : `${SEL_SCROLL} [data-time-row] [data-job-col]`);
 /** ずれたコマの判定(px)。合格させるために動かさない。 */
-const THRESH = 0.5;
+const THRESH = Number(str('thresh', '0.5'));
 
 const VPS = { '1489': { w: 1489, h: 679, dsf: 2.58 }, '1920': { w: 1920, h: 1080, dsf: 2 }, '2560': { w: 2560, h: 1440, dsf: 1 } };
 const THEMES = {
@@ -79,7 +88,7 @@ const MODES = MODE === 'all' ? ['wheel', 'thumb', 'key'] : [MODE];
 if (!MODES.every((m) => ['wheel', 'thumb', 'key'].includes(m))) { console.error(`--mode は wheel|thumb|key|all: ${MODE}`); process.exit(2); }
 
 /** 1 通りの測定の上限(ms)。ブラウザが固まっても全体が止まらないように */
-const MODE_TIMEOUT = 120000;
+const MODE_TIMEOUT = Number(str('mode-timeout', '120000'));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ───────────────────────────── 表のデータ(regress.mjs と同じ決定的な 8 人) ─────────────────────────────
@@ -106,11 +115,14 @@ function buildStorage() {
 }
 
 // ───────────────────────────── ページを開く ─────────────────────────────
+let currentBrowser = null;
 async function openPage() {
   const type = { chromium, webkit, firefox }[BROWSER];
   if (!type) throw new Error(`--browser は chromium|webkit|firefox: ${BROWSER}`);
   // headless の Chromium は既定で --hide-scrollbars が付く=つまみが無い。つまみのドラッグを再現するため外す。
   const browser = await type.launch(BROWSER === 'chromium' ? { ignoreDefaultArgs: ['--hide-scrollbars'] } : {});
+  currentBrowser = browser; // タイムアウトで外から閉じられるよう、launch の直後に覚える
+  try {
   const context = await browser.newContext({
     viewport: { width: vp.w, height: vp.h }, deviceScaleFactor: vp.dsf,
     colorScheme: theme.mode === 'light' ? 'light' : 'dark', reducedMotion: 'reduce',
@@ -138,38 +150,46 @@ async function openPage() {
   if (ok.light !== (theme.mode === 'light')) throw new Error(`明暗不一致: ${JSON.stringify(ok)}`);
   if (ok.noPlan) throw new Error('no-plan のまま(表が出ていない)');
   if (ok.sheet !== (VIEW === 'sheet')) throw new Error(`表示モード不一致: ${JSON.stringify(ok)}`);
-  // 試験用の目印(アプリのコードには入れない)。outline は寸法に影響しない
-  await page.addStyleTag({
-    content: `${HEADERS.map((h) => h.sel).join(',')}{outline:3px solid #f0f !important;outline-offset:-3px !important}
-${SEL_BODY}{outline:3px solid #0ff !important;outline-offset:-3px !important}`,
-  });
-  await page.waitForTimeout(300);
   return { browser, context, page };
+  } catch (e) {
+    try { await browser.close(); } catch { /* 無視 */ }
+    throw e;
+  }
 }
 
-/** ページ内の道具(目印の x の読み取り・rAF サンプラー)。 */
-const PAGE_TOOLS = ({ selHs, selB }) => {
-  const scEl = () => document.querySelector('.timeline-scroll-container');
-  /** 本文側: スクロールの入れ物の縦範囲に見えている最初の目印 */
-  const bodyEl = () => {
-    const sc = scEl(); const r = sc.getBoundingClientRect();
-    for (const e of document.querySelectorAll(selB)) {
-      const b = e.getBoundingClientRect();
-      if (b.height > 0 && b.bottom > r.top + 2 && b.top < r.bottom - 2) return e;
-    }
-    return null;
-  };
-  window.__fs = {
-    scEl, bodyEl,
-    headerEls: () => selHs.map((s) => document.querySelector(s)),
+/** ページ内の道具(目印の要素を決めて印を付ける・rAF サンプラー)。目印の要素は 1 つずつに限る(最初に見つかったもの)。 */
+const PAGE_TOOLS = ({ selHs, selB, selScroll, selfTest }) => {
+  const scEl = () => document.querySelector(selScroll);
+  /** 本文側: スクロールの入れ物の縦範囲に見えている最初の要素 */
+  const visibleIn = (e) => { const r = scEl().getBoundingClientRect(); const b = e.getBoundingClientRect(); return b.height > 0 && b.bottom > r.top + 2 && b.top < r.bottom - 2; };
+  const pickBody = () => [...document.querySelectorAll(selB)].find(visibleIn) || null;
+  const w = window;
+  w.__fs = {
+    scEl, bodyRef: null, headerRefs: [],
+    /** 自己検証: 本文と同じ列(左端が同じ)で、別の行(縦に 20px 以上離れた)の要素 */
+    pickSame(body) {
+      const bl = body.getBoundingClientRect();
+      return [...document.querySelectorAll(selB)].find((e) => { const r = e.getBoundingClientRect(); return e !== body && visibleIn(e) && Math.abs(r.left - bl.left) < 0.5 && Math.abs(r.top - bl.top) > 20; }) || null;
+    },
+    /** 要素を決めて data-fs-h(帯の番号)/ data-fs-b を付ける */
+    setup() {
+      const body = pickBody();
+      const hs = selfTest ? [body ? this.pickSame(body) : null] : selHs.map((s) => document.querySelector(s));
+      if (!body || !hs.every(Boolean)) return { error: `目印の要素が見つからない(header=${hs.map((h) => !!h)}, body=${!!body}; [data-member-id]=${document.querySelectorAll('[data-member-id]').length}, .recast-cell=${document.querySelectorAll('.recast-cell').length})` };
+      body.setAttribute('data-fs-b', '');
+      hs.forEach((h, i) => h.setAttribute('data-fs-h', String(i)));
+      this.bodyRef = body; this.headerRefs = hs;
+      const sc = scEl(); const sr = sc.getBoundingClientRect(); const br = body.getBoundingClientRect();
+      const rc = (e) => { const r = e.getBoundingClientRect(); return { top: r.top, h: r.height, w: r.width }; };
+      return { dDoms: hs.map((h) => h.getBoundingClientRect().left - br.left), hdr: hs.map(rc), body: rc(body), scrollMax: sc.scrollWidth - sc.clientWidth, scTop: sr.top, scH: sr.height };
+    },
     samples: [], running: false,
     start() {
       this.samples = []; this.running = true;
       const t0 = performance.now();
       const loop = () => {
         if (!this.running) return;
-        const hs = this.headerEls(); const b = bodyEl();
-        if (b && hs.every(Boolean)) this.samples.push({ t: performance.now() - t0, xhs: hs.map((h) => h.getBoundingClientRect().left), xb: b.getBoundingClientRect().left, sl: scEl().scrollLeft });
+        this.samples.push({ t: performance.now() - t0, xhs: this.headerRefs.map((h) => h.getBoundingClientRect().left), xb: this.bodyRef.getBoundingClientRect().left, sl: scEl().scrollLeft });
         requestAnimationFrame(loop);
       };
       requestAnimationFrame(loop);
@@ -240,61 +260,66 @@ const scoreMag = (r, g, b) => clamp01((Math.min(r, b) - g) / 255);
 /** 水色(#0ff)の被覆率 */
 const scoreCyan = (r, g, b) => clamp01((Math.min(g, b) - r) / 255);
 
-/** 1 行の画素から、最初の帯の重心 x(画素)を返す。見つからない/太すぎる帯は null */
-function bandCentroid(buf, width, ch, y, score, maxRun) {
-  const row = y * width * ch;
-  let x = 0;
-  while (x < width) {
-    const o = row + x * ch;
-    if (score(buf[o], buf[o + 1], buf[o + 2]) > 0.5) break;
-    x++;
-  }
+/** 画素の列 [from, ...) から、最初の帯(被覆率 > 0.5)を探して { 重心 x, 終わり } を返す。太すぎる帯・見つからない時は null */
+function findBand(buf, width, ch, row, score, from, maxRun) {
+  const at = (x) => { const o = row + x * ch; return score(buf[o], buf[o + 1], buf[o + 2]); };
+  let x = from;
+  while (x < width && at(x) <= 0.5) x++;
   if (x >= width) return null;
-  let s = x; // 帯の始まりを弱い画素まで広げる
-  while (s > 0 && score(buf[row + (s - 1) * ch], buf[row + (s - 1) * ch + 1], buf[row + (s - 1) * ch + 2]) > 0.08) s--;
-  let e = x;
-  while (e < width - 1 && score(buf[row + (e + 1) * ch], buf[row + (e + 1) * ch + 1], buf[row + (e + 1) * ch + 2]) > 0.08) e++;
-  if (e - s + 1 > maxRun) return null;
+  let s0 = x; while (s0 > from && at(s0 - 1) > 0.08) s0--; // 帯の始まりを弱い画素まで広げる
+  let e = x; while (e < width - 1 && at(e + 1) > 0.08) e++;
+  if (e - s0 + 1 > maxRun) return null;
   let sw = 0, sx = 0;
-  for (let i = s; i <= e; i++) { const o = row + i * ch; const w = score(buf[o], buf[o + 1], buf[o + 2]); sw += w; sx += w * (i + 0.5); }
-  return sw > 0 ? sx / sw : null;
+  for (let i = s0; i <= e; i++) { const w = at(i); sw += w; sx += w * (i + 0.5); }
+  return sw > 0 ? { c: sx / sw, end: e } : null;
+}
+/** 1 行から、要素の縁の左の帯と右の帯を探す。{ l, r }(画素)。片方でも見つからなければ null(縁が切れている) */
+function bandPair(buf, width, ch, y, score, maxRun) {
+  const row = y * width * ch;
+  const l = findBand(buf, width, ch, row, score, 0, maxRun);
+  if (!l) return null;
+  const r = findBand(buf, width, ch, row, score, l.end + 2, maxRun);
+  return r ? { l: l.c, r: r.c } : null;
 }
 const median = (a) => { const b = [...a].sort((p, q) => p - q); return b.length ? (b.length % 2 ? b[(b.length - 1) >> 1] : (b[b.length / 2 - 1] + b[b.length / 2]) / 2) : null; };
 
-/** 1 コマ(PNG の base64)から { xh, xb }(CSS px)を読む */
+/**
+ * 1 コマ(PNG の base64)から { xhs, xb }(CSS px・左の縁の重心)を読む。
+ * 読めたことの条件(I4): 左と右の縁の帯が両方見え、その間隔が DOM の実測(幅 - 3px)と 1.5px 以内で一致すること。
+ * 左端が入れ物の外へ切れると、別の縁(右の縁など)を左と取り違えて列の幅ぶんの嘘のずれが出る。間隔が合わないコマは null(=読めなかったコマ)にする。
+ */
 async function readFrame(b64, rows, vpW) {
   const { data, info } = await sharp(Buffer.from(b64, 'base64')).removeAlpha().raw().toBuffer({ resolveWithObject: true });
   const sx = info.width / vpW; // 画素 → CSS px
   const maxRun = Math.round(sx * 12);
-  const xs = (ys, score) => {
-    const v = ys.map((yCss) => bandCentroid(data, info.width, 3, Math.min(info.height - 1, Math.max(0, Math.round(yCss * sx))), score, maxRun)).filter((x) => x !== null);
+  const xs = (ys, w0, score) => {
+    const v = [];
+    for (const yCss of ys) {
+      const p = bandPair(data, info.width, 3, Math.min(info.height - 1, Math.max(0, Math.round(yCss * sx))), score, maxRun);
+      if (p && Math.abs((p.r - p.l) / sx - (w0 - 3)) <= 1.5) v.push(p.l);
+    }
     return v.length >= 2 ? median(v) / sx : null;
   };
-  return { xhs: rows.headers.map((ys) => xs(ys, scoreMag)), xb: xs(rows.body, scoreCyan), w: info.width, h: info.height };
+  return { xhs: rows.headers.map((h) => xs(h.ys, h.w, scoreMag)), xb: xs(rows.body.ys, rows.body.w, scoreCyan), w: info.width, h: info.height };
 }
 
 // ───────────────────────────── 1 通りの動かし方を測る ─────────────────────────────
-/** タイムアウトで閉じられるよう、開いたブラウザを覚えておく */
-let currentBrowser = null;
 async function measure(mode) {
   const { browser, context, page } = await openPage();
-  currentBrowser = browser;
   try {
-    await page.evaluate(PAGE_TOOLS, { selHs: HEADERS.map((h) => h.sel), selB: SEL_BODY });
-    const rest = await page.evaluate(() => {
-      const w = window.__fs; const sc = w.scEl(); const hs = w.headerEls(); const b = w.bodyEl();
-      if (!b || !hs.every(Boolean)) {
-        return { error: `目印の要素が見つからない(header=${hs.map((h) => !!h)}, body=${!!b}; [data-member-id]=${document.querySelectorAll('[data-member-id]').length}, .recast-cell=${document.querySelectorAll('.recast-cell').length})` };
-      }
-      const br = b.getBoundingClientRect(); const sr = sc.getBoundingClientRect();
-      return { dDoms: hs.map((h) => h.getBoundingClientRect().left - br.left), hdr: hs.map((h) => { const r = h.getBoundingClientRect(); return { top: r.top, h: r.height }; }), scrollMax: sc.scrollWidth - sc.clientWidth, scTop: sr.top, scH: sr.height };
-    });
+    await page.evaluate(PAGE_TOOLS, { selHs: HEADERS.map((h) => h.sel), selB: SEL_BODY, selScroll: SEL_SCROLL, selfTest: SELF_TEST });
+    const rest = await page.evaluate(() => window.__fs.setup());
     if (rest.error) throw new Error(rest.error);
     if (rest.scrollMax < 20) throw new Error(`横にスクロールできない(scrollMax=${rest.scrollMax})。--party=8 / --vp=1489 で実行する`);
-    const rows = {
-      headers: rest.hdr.map((r) => [0.3, 0.5, 0.7].map((f) => r.top + r.h * f)),
-      body: [0.2, 0.35, 0.5, 0.65, 0.8].map((f) => rest.scTop + rest.scH * f),
-    };
+    // 試験用の目印(アプリのコードには入れない)。印を付けた要素 1 つずつに outline を付ける(outline は寸法に影響しない)
+    await page.addStyleTag({
+      content: `[data-fs-h]{outline:3px solid #f0f !important;outline-offset:-3px !important}
+[data-fs-b]{outline:3px solid #0ff !important;outline-offset:-3px !important}`,
+    });
+    await page.waitForTimeout(300);
+    // 要素の縦の真ん中あたりの 3 行を走査する(上下の縁を避ける)
+    const rowsOf = (r) => ({ ys: [0.35, 0.5, 0.65].map((f) => r.top + r.h * f), w: r.w });
+    const rows = { headers: rest.hdr.map(rowsOf), body: rowsOf(rest.body) };
     const meta = { mode, browser: BROWSER, method: METHOD, scrollMax: rest.scrollMax, dDoms: rest.dDoms.map(r2) };
 
     let samples; let motion;
@@ -303,7 +328,6 @@ async function measure(mode) {
       const cdp = await context.newCDPSession(page);
       /** @type {{b64:string, ts:number, idx:number}[]} */
       const frames = [];
-      let restCount = -1;
       cdp.on('Page.screencastFrame', (ev) => {
         frames.push({ b64: ev.data, ts: ev.metadata.timestamp, idx: frames.length });
         cdp.send('Page.screencastFrameAck', { sessionId: ev.sessionId }).catch(() => {});
@@ -313,14 +337,14 @@ async function measure(mode) {
       await sleep(600);
       // 止まっている時のコマが 1 枚も来ないなら、絵を 1 回描き直させる(静止画は送られないことがある)
       if (frames.length === 0) { await page.mouse.move(5, 5); await sleep(400); }
-      restCount = frames.length;
+      const restCount = frames.length;
       const t0 = Date.now();
       motion = await MOTIONS[mode](page);
       await sleep(400);
       meta.motionMs = Date.now() - t0;
       await cdp.send('Page.stopScreencast');
       await sleep(100);
-      if (!motion.supported) return { ...meta, supported: false, reason: motion.reason, info: motion.info };
+      if (!motion.supported) return { ...meta, status: 'unsupported', supported: false, reason: motion.reason, info: motion.info };
       const decoded = [];
       for (const f of frames) decoded.push({ ...(await readFrame(f.b64, rows, vp.w)), ts: f.ts, idx: f.idx });
       if (args['keep-frames'] && frames.length) {
@@ -337,12 +361,17 @@ async function measure(mode) {
       await sleep(400);
       meta.motionMs = Date.now() - t0;
       const raw = await page.evaluate(() => window.__fs.stop());
-      if (!motion.supported) return { ...meta, supported: false, reason: motion.reason, info: motion.info };
+      if (!motion.supported) return { ...meta, status: 'unsupported', supported: false, reason: motion.reason, info: motion.info };
       samples = { kind: 'raf', raw };
     }
     const a = analyze(samples, rest.dDoms);
-    if (a.movingFrames === 0) return { ...meta, supported: false, reason: `動かしたのにスクロールが動かなかった(動いているコマ 0・コマ数 ${a.frames})`, info: motion.info };
-    return { ...meta, supported: true, motionInfo: motion.info, ...a };
+    if (a.movingFrames === 0) return { ...meta, status: 'unsupported', supported: false, reason: `動かしたのにスクロールが動かなかった(動いているコマ 0・コマ数 ${a.frames})`, info: motion.info };
+    // 測定不成立の判定(I2): 読めなかったコマが多すぎる / 動いている間の有効なコマが少なすぎる
+    const why = [];
+    if (a.invalidRatio > MAX_INVALID_RATIO) why.push(`読めなかったコマが ${a.invalidFrames}/${a.invalidFrames + a.frames}(${Math.round(a.invalidRatio * 100)}%)で上限 ${MAX_INVALID_RATIO * 100}% を超える`);
+    if (a.movingFrames < MIN_MOVING_FRAMES) why.push(`動いている間の有効なコマが ${a.movingFrames} 枚で下限 ${MIN_MOVING_FRAMES} 枚に足りない`);
+    if (why.length) return { ...meta, status: 'insufficient', supported: false, reason: `測定不成立: ${why.join('・')}`, info: motion.info, partial: a };
+    return { ...meta, status: 'ok', supported: true, motionInfo: motion.info, ...a };
   } finally {
     await browser.close();
   }
@@ -353,7 +382,7 @@ const r2 = (v) => (v === null || v === undefined ? null : Math.round(v * 100) / 
 /** 帯ごとに、コマごとの d = xh - xb を出し、止まっている時の d0 との差で判定する。ずれたコマ = どれかの帯が THRESH を超えたコマ */
 function analyze(samples, dDoms) {
   const nb = HEADERS.length;
-  /** @type {{ds:(number|null)[], xb:number, move:boolean}[]} */
+  /** @type {{ds:(number|null)[], xb:number, move:boolean, idx:number}[]} */
   const seq = [];
   let invalid = 0;
   /** @type {number[]} */ let d0s = [];
@@ -374,7 +403,7 @@ function analyze(samples, dDoms) {
     let prev = restF.length ? median(restF.map((f) => f.xb)) : null;
     for (const f of moveF) {
       if (!ok(f)) { invalid++; continue; }
-      seq.push({ ds: f.xhs.map((x) => x - f.xb), xb: f.xb, move: prev !== null && Math.abs(f.xb - prev) > 0.2 });
+      seq.push({ ds: f.xhs.map((x) => x - f.xb), xb: f.xb, move: prev !== null && Math.abs(f.xb - prev) > 0.2, idx: f.idx });
       prev = f.xb;
     }
     const last = seq[seq.length - 1];
@@ -383,7 +412,7 @@ function analyze(samples, dDoms) {
     d0s = [...dDoms]; d0src = 'DOM の実測(止まっている時)';
     let prevSl = null;
     for (const s of samples.raw) {
-      seq.push({ ds: s.xhs.map((x) => x - s.xb), xb: s.xb, move: prevSl !== null && Math.abs(s.sl - prevSl) > 0.01 });
+      seq.push({ ds: s.xhs.map((x) => x - s.xb), xb: s.xb, move: prevSl !== null && Math.abs(s.sl - prevSl) > 0.01, idx: -1 });
       prevSl = s.sl;
     }
   }
@@ -399,51 +428,72 @@ function analyze(samples, dDoms) {
   });
   const deviant = worst.filter((v) => v > THRESH).length;
   return {
-    frames: seq.length, invalidFrames: invalid, movingFrames: seq.filter((s) => s.move).length,
+    frames: seq.length, invalidFrames: invalid, invalidRatio: invalid + seq.length ? invalid / (invalid + seq.length) : 0, maxDevFrameIdx: mi >= 0 ? seq[mi].idx : null, movingFrames: seq.filter((s) => s.move).length,
     deviantFrames: deviant, maxDev: r2(maxAbs), maxDevSigned: mi >= 0 ? r2(dev[mi].reduce((p, c) => (Math.abs(c) > Math.abs(p) ? c : p), 0)) : null,
     d0Source: d0src, bands, devSeries: dev.map((v) => v.map(r2)), conclusion: deviant > 0 ? 'ずれあり' : 'ずれなし',
   };
 }
 
 // ───────────────────────────── main ─────────────────────────────
-const results = [];
-let hadHardFail = false;
-console.log(`frame-sync: browser=${BROWSER} method=${METHOD} vp=${VP_ID} theme=${THEME_ID} view=${VIEW} party=${PARTY} base=${BASE_URL}`);
-console.log(`目印: 見出し=${HEADERS.map((h) => `${h.id}:${h.sel}`).join(' | ')} / 本文=${SEL_BODY} / しきい値=${THRESH}px`);
-for (const mode of MODES) {
+/** 1 通りを測る。上限時間を超えたらブラウザを閉じ、測定の後始末が終わる(最大 10 秒待つ)まで次へ進まない */
+async function runMode(mode) {
+  currentBrowser = null;
+  const p = measure(mode);
+  p.catch(() => {});
+  let timer;
   try {
-    const r = await Promise.race([measure(mode), new Promise((_, rej) => setTimeout(() => rej(new Error(`${MODE_TIMEOUT / 1000} 秒で終わらない(止めた)`)), MODE_TIMEOUT))]);
-    results.push(r);
-    if (!r.supported) {
-      console.log(`[${mode}] 未対応: ${r.reason}`);
-    } else {
-      console.log(`[${mode}] コマ数=${r.frames}(動いているコマ=${r.movingFrames}・読めなかったコマ=${r.invalidFrames}) ずれたコマ数=${r.deviantFrames} 最大ずれ=${r.maxDev}px(符号付き ${r.maxDevSigned}) → ${r.conclusion}`);
-      for (const b of r.bands) console.log(`      帯 ${b.id}: ずれたコマ数=${b.deviantFrames} 最大ずれ=${b.maxDev}px(符号付き ${b.maxDevSigned}) d0=${b.d0}px 止まっている時のばらつき最大=${b.restNoiseMax}px 最後のコマと d0 の差=${b.lastFrameGap}px コマ読みと DOM の d0 差=${b.domVsFrameD0Gap}px`);
-      console.log(`      d0=${r.d0Source} 動かした時間=${r.motionMs}ms`);
-    }
+    return await Promise.race([p, new Promise((_, rej) => { timer = setTimeout(() => rej(new Error(`${MODE_TIMEOUT / 1000} 秒で終わらない(止めた)`)), MODE_TIMEOUT); })]);
   } catch (e) {
-    hadHardFail = true;
     try { await currentBrowser?.close(); } catch { /* 無視 */ }
-    console.log(`[${mode}] 測定失敗: ${e && e.message ? e.message : e}`);
-    results.push({ mode, supported: false, failed: true, reason: String(e && e.message ? e.message : e) });
+    await Promise.race([p.catch(() => {}), sleep(10000)]);
+    throw e;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
-const okRes = results.filter((r) => r.supported);
+const results = [];
+console.log(`frame-sync: browser=${BROWSER} method=${METHOD} vp=${VP_ID} theme=${THEME_ID} view=${VIEW} party=${PARTY} base=${BASE_URL}${SELF_TEST ? ' 【自己検証: 見出し側も本文と同じ入れ物の中】' : ''}`);
+console.log(`目印: 見出し=${HEADERS.map((h) => `${h.id}:${h.sel}`).join(' | ')} / 本文=${SEL_BODY} / 入れ物=${SEL_SCROLL} / しきい値=${THRESH}px`);
+for (const mode of MODES) {
+  try {
+    const r = await runMode(mode);
+    results.push(r);
+    if (r.status === 'ok') {
+      console.log(`[${mode}] コマ数=${r.frames}(動いているコマ=${r.movingFrames}・読めなかったコマ=${r.invalidFrames}=${Math.round(r.invalidRatio * 1000) / 10}%) ずれたコマ数=${r.deviantFrames} 最大ずれ=${r.maxDev}px(符号付き ${r.maxDevSigned}) → ${r.conclusion}`);
+      for (const b of r.bands) console.log(`      帯 ${b.id}: ずれたコマ数=${b.deviantFrames} 最大ずれ=${b.maxDev}px(符号付き ${b.maxDevSigned}) d0=${b.d0}px 止まっている時のばらつき最大=${b.restNoiseMax}px 最後のコマと d0 の差=${b.lastFrameGap}px コマ読みと DOM の d0 差=${b.domVsFrameD0Gap}px`);
+      console.log(`      d0=${r.d0Source} 動かした時間=${r.motionMs}ms ずれ最大のコマ番号=${r.maxDevFrameIdx}`);
+    } else if (r.status === 'insufficient') {
+      console.log(`[${mode}] ${r.reason}`);
+    } else {
+      console.log(`[${mode}] 未対応: ${r.reason}`);
+    }
+  } catch (e) {
+    console.log(`[${mode}] 測定失敗: ${e && e.message ? e.message : e}`);
+    results.push({ mode, status: 'failed', supported: false, failed: true, reason: String(e && e.message ? e.message : e) });
+  }
+}
+
+const okRes = results.filter((r) => r.status === 'ok');
 const totalFrames = okRes.reduce((a, r) => a + r.frames, 0);
 const totalDev = okRes.reduce((a, r) => a + r.deviantFrames, 0);
 const maxDev = okRes.length ? Math.max(...okRes.map((r) => r.maxDev)) : 0;
-const conclusion = !okRes.length ? '測定不成立' : totalDev > 0 ? 'ずれたコマあり' : 'ずれなし';
-console.log(`合計: コマ数=${totalFrames} ずれたコマ数=${totalDev} 最大ずれ=${r2(maxDev)}px → ${conclusion}`);
+/** 要求したのに測れなかったモード。失敗・測定不成立は常に、未対応は --allow-unsupported で許したもの以外が数に入る */
+const hard = results.filter((r) => r.status === 'failed' || r.status === 'insufficient');
+const unsupported = results.filter((r) => r.status === 'unsupported' && !ALLOW_UNSUPPORTED.has(r.mode));
+const unmeasured = results.filter((r) => r.status !== 'ok').map((r) => `${r.mode}(${r.status})`);
+const conclusion = !okRes.length ? '測定不成立' : totalDev > 0 ? 'ずれたコマあり' : unmeasured.length ? 'ずれなし(ただし未測定のモードあり)' : 'ずれなし';
+console.log(`合計: コマ数=${totalFrames} ずれたコマ数=${totalDev} 最大ずれ=${r2(maxDev)}px → ${conclusion}${unmeasured.length ? ` 未測定: ${unmeasured.join(', ')}` : ''}`);
 
 fs.mkdirSync(BASE_DIR, { recursive: true });
 const outFile = path.join(BASE_DIR, `frame-sync-${OUT}.json`);
 fs.writeFileSync(outFile, JSON.stringify({
-  meta: { at: new Date().toISOString(), browser: BROWSER, method: METHOD, vp: VP_ID, theme: THEME_ID, view: VIEW, party: PARTY, selectorHeaders: HEADERS, selectorBody: SEL_BODY, thresholdPx: THRESH },
-  total: { frames: totalFrames, deviantFrames: totalDev, maxDev: r2(maxDev), conclusion }, results,
+  meta: { at: new Date().toISOString(), browser: BROWSER, method: METHOD, vp: VP_ID, theme: THEME_ID, view: VIEW, party: PARTY, selectorHeaders: HEADERS, selectorBody: SEL_BODY, selectorScroll: SEL_SCROLL, selfTest: SELF_TEST, thresholdPx: THRESH, allowUnsupported: [...ALLOW_UNSUPPORTED] },
+  total: { frames: totalFrames, deviantFrames: totalDev, maxDev: r2(maxDev), conclusion, unmeasured }, results,
 }, null, 1));
 console.log(`結果: ${path.relative(process.cwd(), outFile)}`);
 
-if (!okRes.length || hadHardFail && !okRes.length) process.exit(2);
+// 終了コード: 2 = 測定が成立していない(1 つも測れていない / 失敗・測定不成立のモードがある / --expect-zero なのに許していない未対応がある)
+if (!okRes.length || hard.length || (EXPECT_ZERO && unsupported.length)) { console.log('exit 2: 測定が成立していない'); process.exit(2); }
 if (EXPECT_ZERO && totalDev > 0) { console.log('--expect-zero: ずれたコマがあるので exit 1'); process.exit(1); }
 process.exit(0);
