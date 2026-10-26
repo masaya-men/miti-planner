@@ -122,3 +122,11 @@ JSON の形: `conds.<条件id>.items.<項目>`。位置は `[left, top, width, h
 - 目印の要素は 1 つずつ(最初に見つかったもの)。見出し側は `--selector-header=` と `--selector-header2=`、本文は `--selector-body=`、動かす入れ物は `--selector-scroll=`(既定 `.timeline-scroll-container`)で差し替える。**見出しの構造が変わったら(Task 10 以降)、リキャスト欄が無くなる等で `--selector-header2` の既定が見つからなくなる。使わない帯は `--selector-header2=none` を明示する**
 - 自己検証: `--self-test` は見出し側の目印も本文と同じ入れ物の中(本文の別の行の同じ列)に付ける。2 つは必ず一緒に動くので、ずれたコマ 0 と出れば道具の読み取りに偽のずれが無い。ずれを検出できる(今のコードで「ずれあり」)ことと対で確認する
 - しきい値は `--thresh=`(既定 0.5px。合否を動かすためには使わない)・`--mode-timeout=`(1 通りの上限 ms。既定 120000)
+
+## 性能の基準(perf-baseline.mjs・run-measurements-wrap.mjs)
+設計書 §9・§10 段階 0-4。測定本体は `scripts/milspec-polish/scroll-perf.mjs`(引数 `--axis=x|y` `--dsr` `--view=lanes|sheet` `--dataset=synthetic|normal|heavy` `--mode=raf|wheel` `--runs` `--trace` `--out-dir` を追加。既定は従来どおり)。必ず**本番ビルド**で測る(MIL-SPEC を含めるには `.superpowers/sdd/2026-10-23-timeline-sticky-scroll/wip-build-recipe.md` の WIP 開放ビルド)。結果の置き場は `scripts/sticky-scroll/.baseline/perf/`(git に入れない)。
+- 24 条件(縦/横 × `standard`/`military` × `lanes`/`sheet` × `synthetic`/`normal`/`heavy`)を取る: `SP2_BASE_URL=http://localhost:4184 node scripts/sticky-scroll/perf-baseline.mjs --save --trace`(約 30〜40 分)。名前は `baseline-<axis>-<theme>-<view>-<dataset>`(例 `baseline-x-military-sheet-heavy`)。`--only=<文字>` で絞る・`--list` で一覧。
+- 変更後に比べる: `... perf-baseline.mjs --compare`(p95 または総ブロック時間が 10% 超悪化=exit 1、条件違い=exit 2)。別名で残すなら `--save --prefix=after-x`。
+- 本物のホイール(横は Shift)での 1 本: `node scripts/milspec-polish/scroll-perf.mjs --axis=x --dsr=2.58 --mode=wheel --out-dir=scripts/sticky-scroll/.baseline/perf --save=baseline-wheel-x-...`
+- 置く・消す(押してから描くまで): `SP2_BASE_URL=... node scripts/sticky-scroll/run-measurements-wrap.mjs --name=baseline-standard [--theme=military]` → `.baseline/perf/run-measurements-<name>.json`。親リポジトリの `run-measurements.cjs` は書き換えず、メモリ上で出力先・向き先・条件を差し替えて実行する。
+- Layerize / Commit の時間は `--trace` で各 JSON の `trace` に記録(通常の 5 回の後の追加 1 回・合否には使わない)。
