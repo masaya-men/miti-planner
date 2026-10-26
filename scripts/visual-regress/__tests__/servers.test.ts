@@ -5,7 +5,7 @@ import path from 'node:path';
 // @ts-expect-error mjs(型定義なし)
 import { planBaseWorktree, staleBaseDirs } from '../lib/servers.mjs';
 // @ts-expect-error mjs(型定義なし)
-import { exitCodeOf } from '../run.mjs';
+import { exitCodeOf, validateRunName, isInside } from '../run.mjs';
 
 describe('planBaseWorktree', () => {
   it('短いハッシュ名で、.claude/worktrees を含まない', () => {
@@ -36,4 +36,16 @@ describe('exitCodeOf', () => {
   it('全部 same は 0', () => expect(exitCodeOf({ a: r('same'), b: r('same') })).toBe(0));
   it('diff だけなら 1', () => expect(exitCodeOf({ a: r('same'), b: r('diff') })).toBe(1));
   it('diff と fail が混在すると 2', () => expect(exitCodeOf({ a: r('diff'), b: r('fail-head') })).toBe(2));
+});
+
+describe('validateRunName / isInside', () => {
+  it('安全な名前は通し、危ない名前は拒否する', () => {
+    expect(validateRunName('before-001')).toBeNull();
+    for (const bad of ['', '.', '..', '../..', 'a/b', 'a\\b', '/abs', 'C:\\x', 'C:x']) expect(validateRunName(bad), bad).not.toBeNull();
+  });
+  it('isInside は root の外・root 自身を false にする', () => {
+    expect(isInside('/o/.out', '/o/.out/x')).toBe(true);
+    expect(isInside('/o/.out', '/o/.out')).toBe(false);
+    expect(isInside('/o/.out', '/o/x')).toBe(false);
+  });
 });

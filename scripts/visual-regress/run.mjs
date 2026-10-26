@@ -36,6 +36,24 @@ export function exitCodeOf(result) {
   return 0;
 }
 
+/**
+ * --name / --save-as / --compare / --report-only の値は .out/ 直下の 1 階層の名前だけ許す。
+ * 問題があれば日本語のメッセージ、無ければ null。
+ * @param {string} name
+ */
+export function validateRunName(name) {
+  if (!name || name === '.' || name === '..' || /[\\/:\u0000]/.test(name) || path.isAbsolute(name) || path.win32.isAbsolute(name)) {
+    return `名前 '${name}' は使えません。英数字・ハイフンなど、フォルダ名 1 つ分だけにしてください(. や .. ・区切り文字・絶対パスは不可)`;
+  }
+  return null;
+}
+
+/** dir が root の中(root 自身は含めない)か。rm・書き込みの前の最終確認用 */
+export function isInside(root, dir) {
+  const rel = path.relative(root, dir);
+  return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel);
+}
+
 /** @param {string[]} argv */
 function parseArgs(argv) {
   /** @type {Record<string, string | true>} */
@@ -84,9 +102,15 @@ function cleanStale(repoRoot) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  for (const k of ['name', 'save-as', 'compare', 'report-only']) {
+    const v = args[k];
+    const msg = typeof v === 'string' ? validateRunName(v) : null;
+    if (msg) { console.error(`--${k}: ${msg}`); return 2; }
+  }
   // 報告だけ作り直す(dev サーバーも worktree も使わない)
   if (typeof args['report-only'] === 'string') {
     const dir = path.join(OUT_ROOT, args['report-only']);
+    if (!isInside(OUT_ROOT, dir)) { console.error('--report-only: .out の外は指定できません'); return 2; }
     if (!fs.existsSync(path.join(dir, 'result.json'))) { console.error(`結果がありません: ${dir}`); return 2; }
     console.log(`報告: ${await buildReport(dir)}`);
     return 0;
@@ -113,6 +137,7 @@ async function main() {
   const headOnly = Boolean(saveAs || compare || args.calibrate);
   const baselineDir = path.join(OUT_ROOT, 'baselines', String(saveAs ?? compare ?? ''));
 
+  if (![runDir, baselineDir].every((d) => d === path.join(OUT_ROOT, 'baselines') || isInside(OUT_ROOT, d))) { console.error('出力先が .out の外になります。名前を確認してください'); return 2; }
   if (compare && !fs.existsSync(baselineDir)) { console.error(`保存済みの基準 '${compare}' がありません`); return 2; }
 
   cleanStale(repoRoot);

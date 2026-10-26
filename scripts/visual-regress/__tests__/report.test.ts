@@ -42,7 +42,7 @@ describe('buildReportHtml', () => {
       name: 't',
       rows: [
         row('a/fail', 'fail-head', 1, { error: '撮影でタイムアウト' }),
-        row('b/size', 'diff', 1, { sizeMismatch: '100x200 vs 100x300' }),
+        row('b/size', 'diff', 1, { sizeMismatch: 'base 100x200 / head 100x300' }),
         row('c/same', 'same', 0),
       ],
       verdicts: { 'b/size': { verdict: 'broken', reason: '高さが伸びた' } },
@@ -50,7 +50,7 @@ describe('buildReportHtml', () => {
     expect(html).toContain('a/fail');
     expect(html).toContain('撮影でタイムアウト');
     expect(html).toContain('b/size');
-    expect(html).toContain('100x200 vs 100x300');
+    expect(html).toContain('base 100x200 / head 100x300');
     expect(html).toContain('高さが伸びた');
     expect(html).not.toContain('c/same'); // 同じ画面は行に出さない
   });
