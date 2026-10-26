@@ -116,9 +116,12 @@ export default async function handler(req: any, res: any) {
       return res.status(413).json({ error: 'too_large', maxBytes: MAX_BYTES, gotBytes: buf.length });
     }
 
-    // 中身の先頭バイトで実際の形式を判定し、申告 mimeType と一致しなければ拒否 (SVG 等の偽装対策)。
-    if (sniffUploadImageMime(buf) !== mimeType) {
-      return res.status(400).json({ error: 'mime_mismatch' });
+    // 中身の先頭バイトで実際の形式を判定し、許可形式でなければ拒否 (SVG 等の偽装対策)。
+    // 以降は申告ではなく中身の形式を正とする (圧縮ライブラリが原本をそのまま返した場合、
+    // 申告は拡張子由来になり、拡張子違いの原本で正規の画像を弾かないため)。
+    const actualMime = sniffUploadImageMime(buf);
+    if (!actualMime || !ALLOWED_MIME[actualMime]) {
+      return res.status(400).json({ error: 'unsupported_image_content' });
     }
 
     const adminDb = getAdminFirestore();
@@ -135,13 +138,13 @@ export default async function handler(req: any, res: any) {
     // 画像管理設計、 delete-thumbnail / reorder-thumbnails が Storage 側のファイル移動
     // を必要としないため)。 既存の main-{index}.{ext} 形式の URL はそのまま不透明な
     // 文字列として動作し続けるため、 過去データの移行は不要。
-    const ext = ALLOWED_MIME[mimeType];
+    const ext = ALLOWED_MIME[actualMime];
     const storage = getStorage();
     const bucket = storage.bucket();
     const filePath = `housing/listings/${listingId}/${randomUUID()}.${ext}`;
     const file = bucket.file(filePath);
     await file.save(buf, {
-      contentType: mimeType,
+      contentType: actualMime,
       // public URL を直接配信できるよう cache を長めに
       metadata: { cacheControl: 'public, max-age=31536000, immutable' },
     });
@@ -159,7 +162,7 @@ export default async function handler(req: any, res: any) {
           });
         }),
       );
-      const pngBuf = await convertToPngIfNeeded(buf, mimeType, {
+      const pngBuf = await convertToPngIfNeeded(buf, actualMime, {
         maxDimension: LISTING_THUMBNAIL_PNG_MAX_DIMENSION,
       });
       if (pngBuf) {
@@ -167,12 +170,12 @@ export default async function handler(req: any, res: any) {
           contentType: 'image/png',
           metadata: { cacheControl: 'public, max-age=31536000, immutable' },
         });
-      } else if (CONVERTIBLE_MIME.has(mimeType)) {
+      } else if (CONVERTIBLE_MIME.has(actualMime)) {
         // 原本が WebP/AVIF なのに null が返った = convertToPngIfNeeded 内部の
         // sharp 変換が失敗している(「変換不要」ではない)。png 兄弟は必須なので
         // ここで throw して下の catch → 500 に落とす(誤って sibling 無しのまま
         // 成功扱いにしない・spec §4.5)。
-        throw new Error(`png sibling conversion returned null for convertible mime: ${mimeType}`);
+        throw new Error(`png sibling conversion returned null for convertible mime: ${actualMime}`);
       }
     } catch (e) {
       console.error('[housing/upload-thumbnail] derivative/png generation failed:', e);

@@ -141,13 +141,22 @@ beforeEach(() => {
 });
 
 describe('_uploadThumbnailHandler の中身検査', () => {
-  it('mimeType image/png で SVG 本体を送ると 400 mime_mismatch', async () => {
+  it('mimeType image/png で SVG 本体を送ると 400 unsupported_image_content', async () => {
     const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"></svg>').toString('base64');
     const { req, res } = makeReqRes({ listingId: 'listing1', base64: svg, mimeType: 'image/png', index: 0 });
     await handler(req, res);
     expect(res.statusCode).toBe(400);
-    expect(res.body.error).toBe('mime_mismatch');
+    expect(res.body.error).toBe('unsupported_image_content');
     expect(h.saveSpy).not.toHaveBeenCalled();
+  });
+
+  it('申告と中身が違っても中身が許可形式なら、中身の形式で保存する (拡張子違いの原本対策)', async () => {
+    const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]).toString('base64');
+    const { req, res } = makeReqRes({ listingId: 'listing1', base64: png, mimeType: 'image/jpeg', index: 0 });
+    await handler(req, res);
+    expect(res.statusCode).toBe(200);
+    expect(h.filePaths[0]).toMatch(/\.png$/);
+    expect(h.saveSpy.mock.calls[0][1]).toMatchObject({ contentType: 'image/png' });
   });
 });
 
