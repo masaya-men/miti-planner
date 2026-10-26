@@ -3,7 +3,7 @@
  * 見本画像の生成(1 回だけ実行して images/*.png をコミットする)。
  *   node scripts/visual-regress/fixtures/make-images.mjs
  * 写真用 12 枚(1200x800)= 色相を 30° ずつずらした単色 + 中央に大きく番号。
- * アバター用 4 枚(256x256)= 同様に色相違い + 番号。
+ * アバター用 4 枚(256x256、images/avatars/)= 同様に色相違い + 番号。
  * SVG を読むのはこの生成スクリプトだけ(アプリ側は SVG 読込禁止のため PNG に落とす)。
  */
 import fs from 'node:fs';
@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'images');
-fs.mkdirSync(OUT, { recursive: true });
+fs.mkdirSync(path.join(OUT, 'avatars'), { recursive: true });
 
 /** HSL(度, 0-1, 0-1) → #rrggbb */
 function hsl(h, s, l) {
@@ -33,5 +33,5 @@ async function make(file, w, h, hue, label) {
 }
 
 for (let i = 0; i < 12; i++) await make(`photo-${String(i + 1).padStart(2, '0')}.png`, 1200, 800, i * 30, String(i + 1));
-for (let i = 0; i < 4; i++) await make(`avatar-${i + 1}.png`, 256, 256, i * 90 + 15, String(i + 1));
-console.log('生成:', fs.readdirSync(OUT).length, '枚');
+for (let i = 0; i < 4; i++) await make(`avatars/avatar-${i + 1}.png`, 256, 256, i * 90 + 15, String(i + 1));
+console.log('生成:', fs.readdirSync(OUT).length + fs.readdirSync(path.join(OUT, 'avatars')).length - 1, '枚');

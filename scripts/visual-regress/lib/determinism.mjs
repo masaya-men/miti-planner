@@ -55,7 +55,7 @@ export function apiFixtureKey(url) {
   const base = u.pathname.replace(/^\/api\//, '').replace(/\/+$/, '').split('/').join('-');
   const parts = [base];
   const action = u.searchParams.get('action');
-  const id = u.searchParams.get('id');
+  const id = u.searchParams.get('id') ?? u.searchParams.get('uid');
   if (action) parts.push(action);
   if (id) parts.push(id);
   return parts.join('.');
@@ -75,6 +75,25 @@ export function mulberry32(seed) {
 
 const sha1 = (s) => crypto.createHash('sha1').update(s).digest('hex');
 
+/** URL がアバター画像らしいか(パスに avatar を含む) */
+export function isAvatarUrl(url) {
+  try { return /avatar/i.test(new URL(url).pathname); } catch { return /avatar/i.test(url); }
+}
+
+/**
+ * 画像 URL から見本ファイルを決める(純関数)。アバターらしい URL はアバター群、それ以外は写真群だけから選ぶ。
+ * 群が空なら null。同じ URL なら常に同じファイル。
+ * @param {string} url
+ * @param {string[]} photos
+ * @param {string[]} avatars
+ * @returns {string|null} 'avatars/x.png' のように images/ からの相対パス
+ */
+export function pickImage(url, photos, avatars) {
+  const pool = isAvatarUrl(url) ? avatars.map((f) => `avatars/${f}`) : photos;
+  if (!pool.length) return null;
+  return pool[parseInt(sha1(url).slice(0, 8), 16) % pool.length];
+}
+
 /**
  * BrowserContext に決定性の層を入れる(context ごとに 1 回、ページを開く前に呼ぶ)。
  * @param {import('playwright').BrowserContext} context
@@ -88,8 +107,9 @@ export async function installDeterminism(context, { appOrigin, fixturesDir, font
   const apiDir = path.join(fixturesDir, 'api');
 
   // 見本画像の一覧(無ければ空 → 1x1 透明 PNG)
-  let images = [];
-  try { images = fs.readdirSync(imagesDir).filter((f) => /\.(png|jpe?g|webp)$/i.test(f)).sort(); } catch { /* 無い */ }
+  const list = (dir) => { try { return fs.readdirSync(dir).filter((f) => /\.(png|jpe?g|webp)$/i.test(f)).sort(); } catch { return []; } };
+  const photos = list(imagesDir);
+  const avatars = list(path.join(imagesDir, 'avatars'));
   const mime = (f) => (/\.png$/i.test(f) ? 'image/png' : /\.webp$/i.test(f) ? 'image/webp' : 'image/jpeg');
 
   await context.route('**/*', async (route) => {
@@ -109,8 +129,8 @@ export async function installDeterminism(context, { appOrigin, fixturesDir, font
         return route.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"no fixture"}' });
       }
       case 'image': {
-        if (!images.length) return route.fulfill({ status: 200, contentType: 'image/png', body: PIXEL_PNG });
-        const pick = images[parseInt(sha1(url).slice(0, 8), 16) % images.length];
+        const pick = pickImage(url, photos, avatars);
+        if (!pick) return route.fulfill({ status: 200, contentType: 'image/png', body: PIXEL_PNG });
         return route.fulfill({ status: 200, contentType: mime(pick), body: fs.readFileSync(path.join(imagesDir, pick)) });
       }
       case 'font': {
