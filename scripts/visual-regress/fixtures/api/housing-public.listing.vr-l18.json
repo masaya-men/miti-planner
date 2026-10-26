@@ -1,0 +1,31 @@
+{
+  "listing": {
+    "id": "vr-l18",
+    "ownerUid": "vr-user-h",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "벚꽃",
+      "정원"
+    ],
+    "buildingType": "house",
+    "createdAt": 1783911600000,
+    "lastConfirmedAt": 1783911600000,
+    "dc": "Korea",
+    "server": "Carbuncle",
+    "area": "LavenderBeds",
+    "ward": 12,
+    "plot": 33,
+    "size": "M",
+    "addressKey": "Korea|Carbuncle|LavenderBeds|W12|H33",
+    "title": "벚꽃 정원 별장",
+    "imageMode": "thumbnail",
+    "thumbnailPaths": [
+      "https://lopoly.app/housing-media/vr/1.webp",
+      "https://lopoly.app/housing-media/vr/4.webp"
+    ],
+    "thumbnailPath": "https://lopoly.app/housing-media/vr/1.webp"
+  },
+  "peers": []
+}

@@ -1,0 +1,30 @@
+{
+  "listing": {
+    "id": "vr-l23",
+    "ownerUid": "vr-user-m",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "夜市",
+      "燈籠"
+    ],
+    "buildingType": "house",
+    "createdAt": 1781319600000,
+    "lastConfirmedAt": 1781319600000,
+    "dc": "TW",
+    "server": "Phoenix",
+    "area": "Empyreum",
+    "ward": 21,
+    "plot": 4,
+    "size": "L",
+    "addressKey": "TW|Phoenix|Empyreum|W21|H4",
+    "title": "夜市燈籠庭院",
+    "imageMode": "thumbnail",
+    "thumbnailPaths": [
+      "https://lopoly.app/housing-media/vr/11.webp"
+    ],
+    "thumbnailPath": "https://lopoly.app/housing-media/vr/11.webp"
+  },
+  "peers": []
+}

@@ -16,7 +16,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { diffPng, toleranceFrom, BLOCK, BLOCK_MEAN } from '../visual-regress/lib/diff.mjs';
 import { freeze as freezeShared } from '../visual-regress/lib/freeze.mjs';
-import { launch, EVENT_FIXTURE, PHASE_FIXTURE, PARTY_FIXTURE, MITIGATION_FIXTURE } from '../milspec-sp2/_fixture.mjs';
+import { launch, MITIGATION_FIXTURE } from '../milspec-sp2/_fixture.mjs';
+import { mitiStorage } from '../visual-regress/fixtures/storage.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => {
   const [k, ...v] = a.replace(/^--/, '').split('=');
@@ -63,47 +64,15 @@ for (const theme of THEMES) {
   CONDS.push({ id: `mobile-390-${theme.id}`, vp: { id: 'mobile', w: 390, h: 844, dsf: 3 }, theme, view: 'lanes', party: 8, kind: 'mobile' });
 }
 
-// ───────────────────────────── 表のデータ(regress.mjs と同じ) ─────────────────────────────
-const ROLES = { MT: 'tank', ST: 'tank', H1: 'healer', H2: 'healer', D1: 'dps', D2: 'dps', D3: 'dps', D4: 'dps' };
-const STATS = { hp: 186846, mainStat: 6217, det: 2410, crt: 420, ten: 420, ss: 420, wd: 154 };
-const mkEvent = (id, time, target, i) => ({ id, time, name: { ja: `攻撃 ${i}`, en: `Attack ${i}` }, damageType: 'magical', damageAmount: 120000, target });
-const EVENTS = [mkEvent('rg-ev-a', 4, 'AoE', 100), mkEvent('rg-ev-b', 10, 'MT', 101), ...EVENT_FIXTURE.map((e, i) => ({ ...e, id: `rg-ev${i}`, target: 'AoE' }))];
-const PHASES = PHASE_FIXTURE.map((p, i) => ({ ...p, id: `rg-ph${i + 1}` }));
-const MEMOS = [
-  { id: 'rg-memo-1', text: 'メモ1', timeSec: 51, xRatio: 0.6, createdAt: 1, updatedAt: 1 },
-  { id: 'rg-memo-2', text: 'メモ2', timeSec: 87, xRatio: 0.85, createdAt: 2, updatedAt: 2 },
-  { id: 'rg-memo-3', text: 'メモ3', timeSec: 123, xRatio: 0.66, createdAt: 3, updatedAt: 3 },
-];
-function buildStorage(cond, over = {}) {
-  const four = cond.party === 4;
-  const members = PARTY_FIXTURE.map(([id, jobId]) => ({ id, jobId, role: ROLES[id], stats: STATS, computedValues: {} }));
-  const mits = MITIGATION_FIXTURE.map((m) => ({ ...m }));
-  return {
-    'mitigation-storage': {
-      state: {
-        currentLevel: 100, timelineEvents: EVENTS, timelineMitigations: mits, phases: PHASES, labels: [],
-        partyMembers: members, schAetherflowPatterns: {}, aaSettings: { damage: 0, type: 'magical', target: 'MT' },
-        myMemberId: null, myJobHighlight: false, hideEmptyRows: true, showRowBorders: false, timelineSortOrder: 'light_party',
-        hiddenPartyMemberIds: four ? ['ST', 'H2', 'D2', 'D4'] : [], memos: MEMOS.map((m) => ({ ...m })), progress: { points: [], cleared: false }, _loadedPlanId: null,
-        ...over,
-      },
-      version: 4,
-    },
-    'plan-storage': { state: { plans: [], currentPlanId: 'rg-debug', lastActivePlanId: null, _dirtyPlanIds: [], _deletedPlanIds: [] }, version: 2 },
-  };
-}
-
+// 表のデータ(localStorage の見本)は ../visual-regress/fixtures/storage.mjs の mitiStorage
 // ───────────────────────────── ページ操作 ─────────────────────────────
 async function openPage(cond, over = {}) {
   const { browser, page } = await launch({ theme: cond.theme.mode, viewport: { width: cond.vp.w, height: cond.vp.h }, dsf: cond.vp.dsf, motion: 'reduce' });
-  await page.addInitScript(({ storage, theme, view }) => {
+  await page.addInitScript((storage) => {
     try {
       for (const [k, v] of Object.entries(storage)) localStorage.setItem(k, JSON.stringify(v));
-      localStorage.setItem('theme-storage', JSON.stringify({
-        state: { theme: theme.mode, themeStyle: theme.style, contentLanguage: 'ja', mobileEffectBarMode: 'icon', timelineView: view }, version: 3,
-      }));
     } catch { /* 無視 */ }
-  }, { storage: buildStorage(cond, over), theme: cond.theme, view: cond.view });
+  }, mitiStorage({ view: cond.view, party: cond.party, theme: cond.theme, lang: 'ja', over }));
   await page.goto(`${BASE_URL}/miti`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => document.querySelectorAll('[data-time-row]').length > 3, null, { timeout: 30000 });
   await page.waitForTimeout(cond.theme.style === 'military' ? 2200 : 1200);

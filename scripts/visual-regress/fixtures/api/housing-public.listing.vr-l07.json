@@ -1,0 +1,36 @@
+{
+  "listing": {
+    "id": "vr-l07",
+    "ownerUid": "vr-user-b",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "星空"
+    ],
+    "buildingType": "house",
+    "createdAt": 1789095600000,
+    "lastConfirmedAt": 1789095600000,
+    "dc": "Meteor",
+    "server": "Zeromus",
+    "area": "LavenderBeds",
+    "ward": 5,
+    "plot": 22,
+    "size": "S",
+    "addressKey": "Meteor|Zeromus|LavenderBeds|W5|H22",
+    "title": "星降る丘の家",
+    "description": "見本データの説明文です。実在の家ではありません。",
+    "imageMode": "sns",
+    "tweetId": "1900000000000000006",
+    "postUrl": "https://x.com/vr_sample/status/1900000000000000006",
+    "sourceImageUrls": [
+      "https://pbs.twimg.com/media/vr-11.jpg",
+      "https://pbs.twimg.com/media/vr-12.jpg"
+    ],
+    "sourceImageAspectRatios": [
+      1.5,
+      1.5
+    ]
+  },
+  "peers": []
+}

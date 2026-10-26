@@ -1,0 +1,31 @@
+{
+  "listing": {
+    "id": "vr-l08",
+    "ownerUid": "vr-user-b",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "個室"
+    ],
+    "buildingType": "house",
+    "createdAt": 1788922800000,
+    "lastConfirmedAt": 1788922800000,
+    "dc": "Elemental",
+    "server": "Kujata",
+    "area": "Goblet",
+    "ward": 9,
+    "plot": 18,
+    "size": "M",
+    "roomKind": "private_chamber",
+    "roomNumber": 12,
+    "addressKey": "Elemental|Kujata|Goblet|W9|H18|C12",
+    "title": "個室:読書と紅茶",
+    "imageMode": "thumbnail",
+    "thumbnailPaths": [
+      "https://lopoly.app/housing-media/vr/3.webp"
+    ],
+    "thumbnailPath": "https://lopoly.app/housing-media/vr/3.webp"
+  },
+  "peers": []
+}

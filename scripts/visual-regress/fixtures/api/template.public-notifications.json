@@ -1,0 +1,32 @@
+{
+  "items": [
+    {
+      "id": "vr-notif-1",
+      "title": {
+        "ja": "お知らせ(見本)",
+        "en": "Notice (sample)"
+      },
+      "body": {
+        "ja": "これは見本の運営通知です。",
+        "en": "This is a sample notice."
+      },
+      "published": true,
+      "createdAt": 1790650800000,
+      "updatedAt": 1790650800000
+    },
+    {
+      "id": "vr-notif-2",
+      "title": {
+        "ja": "メンテナンスのお知らせ(見本)",
+        "en": "Maintenance (sample)"
+      },
+      "body": {
+        "ja": "見本のメンテナンス告知です。",
+        "en": "Sample maintenance notice."
+      },
+      "published": true,
+      "createdAt": 1790046000000,
+      "updatedAt": 1790046000000
+    }
+  ]
+}

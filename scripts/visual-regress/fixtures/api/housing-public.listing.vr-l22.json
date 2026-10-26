@@ -1,0 +1,32 @@
+{
+  "listing": {
+    "id": "vr-l22",
+    "ownerUid": "vr-user-l",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "海邊",
+      "小屋"
+    ],
+    "buildingType": "house",
+    "createdAt": 1782183600000,
+    "lastConfirmedAt": 1782183600000,
+    "dc": "TW",
+    "server": "Ifrit",
+    "area": "Mist",
+    "ward": 9,
+    "plot": 26,
+    "size": "S",
+    "addressKey": "TW|Ifrit|Mist|W9|H26",
+    "title": "海邊的白色小屋",
+    "description": "見本データの説明文です。実在の家ではありません。",
+    "imageMode": "thumbnail",
+    "thumbnailPaths": [
+      "https://lopoly.app/housing-media/vr/9.webp",
+      "https://lopoly.app/housing-media/vr/10.webp"
+    ],
+    "thumbnailPath": "https://lopoly.app/housing-media/vr/9.webp"
+  },
+  "peers": []
+}

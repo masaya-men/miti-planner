@@ -1,0 +1,36 @@
+{
+  "listing": {
+    "id": "vr-l05",
+    "ownerUid": "vr-user-a",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "書庫"
+    ],
+    "buildingType": "house",
+    "createdAt": 1789786800000,
+    "lastConfirmedAt": 1789786800000,
+    "dc": "Gaia",
+    "server": "Ifrit",
+    "area": "Empyreum",
+    "ward": 15,
+    "plot": 3,
+    "size": "L",
+    "addressKey": "Gaia|Ifrit|Empyreum|W15|H3",
+    "title": "天空の書庫",
+    "imageMode": "sns",
+    "tweetId": "1900000000000000004",
+    "postUrl": "https://x.com/vr_sample/status/1900000000000000004",
+    "videoUrl": "https://video.twimg.com/ext_tw_video/1900000000000000004/vid/vr.mp4",
+    "videoPosterUrl": "https://pbs.twimg.com/media/vr-9.jpg",
+    "videoAspectRatio": 1.78,
+    "sourceImageUrls": [
+      "https://pbs.twimg.com/media/vr-9.jpg"
+    ],
+    "sourceImageAspectRatios": [
+      1.78
+    ]
+  },
+  "peers": []
+}

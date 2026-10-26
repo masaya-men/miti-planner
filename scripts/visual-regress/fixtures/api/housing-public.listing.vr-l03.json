@@ -1,0 +1,29 @@
+{
+  "listing": {
+    "id": "vr-l03",
+    "ownerUid": "vr-user-a",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "カフェ"
+    ],
+    "buildingType": "house",
+    "createdAt": 1790573040000,
+    "lastConfirmedAt": 1790573040000,
+    "dc": "Mana",
+    "server": "Titan",
+    "area": "Goblet",
+    "ward": 20,
+    "plot": 8,
+    "size": "L",
+    "addressKey": "Mana|Titan|Goblet|W20|H8",
+    "title": "海辺のカフェ風ログハウス",
+    "imageMode": "thumbnail",
+    "thumbnailPaths": [
+      "https://lopoly.app/housing-media/vr/6.webp"
+    ],
+    "thumbnailPath": "https://lopoly.app/housing-media/vr/6.webp"
+  },
+  "peers": []
+}

@@ -1,0 +1,687 @@
+{
+  "listings": [
+    {
+      "id": "vr-l01",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "和風",
+        "庭園"
+      ],
+      "buildingType": "house",
+      "createdAt": 1790737200000,
+      "lastConfirmedAt": 1790737200000,
+      "dc": "Elemental",
+      "server": "Garuda",
+      "area": "Mist",
+      "ward": 3,
+      "plot": 12,
+      "size": "S",
+      "addressKey": "Elemental|Garuda|Mist|W3|H12",
+      "title": "白亜の庭園テラス",
+      "description": "見本データの説明文です。実在の家ではありません。",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/1.webp",
+        "https://lopoly.app/housing-media/vr/2.webp",
+        "https://lopoly.app/housing-media/vr/3.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/1.webp"
+    },
+    {
+      "id": "vr-l02",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "cozy",
+        "night"
+      ],
+      "buildingType": "house",
+      "createdAt": 1790650800000,
+      "lastConfirmedAt": 1790650800000,
+      "dc": "Gaia",
+      "server": "Bahamut",
+      "area": "LavenderBeds",
+      "ward": 11,
+      "plot": 34,
+      "size": "M",
+      "addressKey": "Gaia|Bahamut|LavenderBeds|W11|H34",
+      "title": "Moonlit Cottage",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/4.webp",
+        "https://lopoly.app/housing-media/vr/5.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/4.webp"
+    },
+    {
+      "id": "vr-l03",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "カフェ"
+      ],
+      "buildingType": "house",
+      "createdAt": 1790573040000,
+      "lastConfirmedAt": 1790573040000,
+      "dc": "Mana",
+      "server": "Titan",
+      "area": "Goblet",
+      "ward": 20,
+      "plot": 8,
+      "size": "L",
+      "addressKey": "Mana|Titan|Goblet|W20|H8",
+      "title": "海辺のカフェ風ログハウス",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/6.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/6.webp"
+    },
+    {
+      "id": "vr-l04",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "桜",
+        "和風"
+      ],
+      "buildingType": "house",
+      "createdAt": 1790046000000,
+      "lastConfirmedAt": 1790046000000,
+      "dc": "Elemental",
+      "server": "Typhon",
+      "area": "Shirogane",
+      "ward": 7,
+      "plot": 45,
+      "size": "M",
+      "addressKey": "Elemental|Typhon|Shirogane|W7|H45",
+      "title": "桜並木の見える茶屋",
+      "description": "見本データの説明文です。実在の家ではありません。",
+      "imageMode": "sns",
+      "tweetId": "1900000000000000003",
+      "postUrl": "https://x.com/vr_sample/status/1900000000000000003",
+      "sourceImageUrls": [
+        "https://pbs.twimg.com/media/vr-7.jpg",
+        "https://pbs.twimg.com/media/vr-8.jpg"
+      ],
+      "sourceImageAspectRatios": [
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "id": "vr-l05",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "書庫"
+      ],
+      "buildingType": "house",
+      "createdAt": 1789786800000,
+      "lastConfirmedAt": 1789786800000,
+      "dc": "Gaia",
+      "server": "Ifrit",
+      "area": "Empyreum",
+      "ward": 15,
+      "plot": 3,
+      "size": "L",
+      "addressKey": "Gaia|Ifrit|Empyreum|W15|H3",
+      "title": "天空の書庫",
+      "imageMode": "sns",
+      "tweetId": "1900000000000000004",
+      "postUrl": "https://x.com/vr_sample/status/1900000000000000004",
+      "videoUrl": "https://video.twimg.com/ext_tw_video/1900000000000000004/vid/vr.mp4",
+      "videoPosterUrl": "https://pbs.twimg.com/media/vr-9.jpg",
+      "videoAspectRatio": 1.78,
+      "sourceImageUrls": [
+        "https://pbs.twimg.com/media/vr-9.jpg"
+      ],
+      "sourceImageAspectRatios": [
+        1.78
+      ]
+    },
+    {
+      "id": "vr-l06",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "アパート"
+      ],
+      "buildingType": "apartment",
+      "createdAt": 1789527600000,
+      "lastConfirmedAt": 1789527600000,
+      "dc": "Mana",
+      "server": "Asura",
+      "area": "Mist",
+      "ward": 28,
+      "apartmentBuilding": 1,
+      "roomNumber": 34,
+      "addressKey": "Mana|Asura|Mist|W28|B1|A34",
+      "title": "小さな秘密基地(アパート)",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/10.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/10.webp"
+    },
+    {
+      "id": "vr-l07",
+      "ownerUid": "vr-user-b",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "星空"
+      ],
+      "buildingType": "house",
+      "createdAt": 1789095600000,
+      "lastConfirmedAt": 1789095600000,
+      "dc": "Meteor",
+      "server": "Zeromus",
+      "area": "LavenderBeds",
+      "ward": 5,
+      "plot": 22,
+      "size": "S",
+      "addressKey": "Meteor|Zeromus|LavenderBeds|W5|H22",
+      "title": "星降る丘の家",
+      "description": "見本データの説明文です。実在の家ではありません。",
+      "imageMode": "sns",
+      "tweetId": "1900000000000000006",
+      "postUrl": "https://x.com/vr_sample/status/1900000000000000006",
+      "sourceImageUrls": [
+        "https://pbs.twimg.com/media/vr-11.jpg",
+        "https://pbs.twimg.com/media/vr-12.jpg"
+      ],
+      "sourceImageAspectRatios": [
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "id": "vr-l08",
+      "ownerUid": "vr-user-b",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "個室"
+      ],
+      "buildingType": "house",
+      "createdAt": 1788922800000,
+      "lastConfirmedAt": 1788922800000,
+      "dc": "Elemental",
+      "server": "Kujata",
+      "area": "Goblet",
+      "ward": 9,
+      "plot": 18,
+      "size": "M",
+      "roomKind": "private_chamber",
+      "roomNumber": 12,
+      "addressKey": "Elemental|Kujata|Goblet|W9|H18|C12",
+      "title": "個室:読書と紅茶",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/3.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/3.webp"
+    },
+    {
+      "id": "vr-l09",
+      "ownerUid": "vr-user-b",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "雪"
+      ],
+      "buildingType": "house",
+      "createdAt": 1788663600000,
+      "lastConfirmedAt": 1788663600000,
+      "dc": "Gaia",
+      "server": "Durandal",
+      "area": "Shirogane",
+      "ward": 30,
+      "plot": 60,
+      "size": "L",
+      "addressKey": "Gaia|Durandal|Shirogane|W30|H60",
+      "title": "雪原のロッジ",
+      "imageMode": "sns",
+      "tweetId": "1900000000000000008",
+      "postUrl": "https://x.com/vr_sample/status/1900000000000000008",
+      "videoUrl": "https://video.twimg.com/ext_tw_video/1900000000000000008/vid/vr.mp4",
+      "videoPosterUrl": "https://pbs.twimg.com/media/vr-2.jpg",
+      "videoAspectRatio": 1.78,
+      "sourceImageUrls": [
+        "https://pbs.twimg.com/media/vr-2.jpg"
+      ],
+      "sourceImageAspectRatios": [
+        1.78
+      ]
+    },
+    {
+      "id": "vr-l10",
+      "ownerUid": "vr-user-b",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "ギャラリー"
+      ],
+      "buildingType": "house",
+      "createdAt": 1788231600000,
+      "lastConfirmedAt": 1788231600000,
+      "dc": "Mana",
+      "server": "Pandaemonium",
+      "area": "Empyreum",
+      "ward": 2,
+      "plot": 1,
+      "size": "M",
+      "addressKey": "Mana|Pandaemonium|Empyreum|W2|H1",
+      "title": "ガーデン&ギャラリー",
+      "description": "見本データの説明文です。実在の家ではありません。",
+      "imageMode": "sns",
+      "youtubeVideoId": "vrYt0000001",
+      "postUrl": "https://www.youtube.com/watch?v=vrYt0000001",
+      "ogImageUrl": "https://i.ytimg.com/vi/vrYt0000001/hqdefault.jpg"
+    },
+    {
+      "id": "vr-l11",
+      "ownerUid": "vr-user-b",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "夕焼け"
+      ],
+      "buildingType": "apartment",
+      "createdAt": 1787972400000,
+      "lastConfirmedAt": 1787972400000,
+      "dc": "Meteor",
+      "server": "Belias",
+      "area": "Mist",
+      "ward": 14,
+      "apartmentBuilding": 2,
+      "roomNumber": 57,
+      "addressKey": "Meteor|Belias|Mist|W14|B2|A57",
+      "title": "アパート 夕焼けのバルコニー",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/8.webp",
+        "https://lopoly.app/housing-media/vr/9.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/8.webp"
+    },
+    {
+      "id": "vr-l12",
+      "ownerUid": "vr-user-b",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [],
+      "buildingType": "house",
+      "createdAt": 1787367600000,
+      "lastConfirmedAt": 1787367600000,
+      "dc": "Elemental",
+      "server": "Aegis",
+      "area": "LavenderBeds",
+      "ward": 22,
+      "plot": 29,
+      "size": "S",
+      "addressKey": "Elemental|Aegis|LavenderBeds|W22|H29",
+      "imageMode": "none"
+    },
+    {
+      "id": "vr-l13",
+      "ownerUid": "vr-user-c",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "boutique"
+      ],
+      "buildingType": "house",
+      "createdAt": 1786935600000,
+      "lastConfirmedAt": 1786935600000,
+      "dc": "Aether",
+      "server": "Gilgamesh",
+      "area": "Goblet",
+      "ward": 6,
+      "plot": 14,
+      "size": "M",
+      "addressKey": "Aether|Gilgamesh|Goblet|W6|H14",
+      "title": "Seaside Boutique & Garden Party Hall with Fireworks",
+      "description": "見本データの説明文です。実在の家ではありません。",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/5.webp",
+        "https://lopoly.app/housing-media/vr/6.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/5.webp"
+    },
+    {
+      "id": "vr-l14",
+      "ownerUid": "vr-user-d",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "villa"
+      ],
+      "buildingType": "house",
+      "createdAt": 1786503600000,
+      "lastConfirmedAt": 1786503600000,
+      "dc": "Primal",
+      "server": "Behemoth",
+      "area": "Mist",
+      "ward": 1,
+      "plot": 9,
+      "size": "L",
+      "addressKey": "Primal|Behemoth|Mist|W1|H9",
+      "title": "Sunset Villa on the Cliff Overlooking the Endless Ocean",
+      "imageMode": "sns",
+      "youtubeVideoId": "vrYt0000002",
+      "postUrl": "https://www.youtube.com/watch?v=vrYt0000002",
+      "ogImageUrl": "https://i.ytimg.com/vi/vrYt0000002/hqdefault.jpg"
+    },
+    {
+      "id": "vr-l15",
+      "ownerUid": "vr-user-e",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "forest"
+      ],
+      "buildingType": "house",
+      "createdAt": 1786071600000,
+      "lastConfirmedAt": 1786071600000,
+      "dc": "Chaos",
+      "server": "Omega",
+      "area": "Shirogane",
+      "ward": 18,
+      "plot": 40,
+      "size": "M",
+      "addressKey": "Chaos|Omega|Shirogane|W18|H40",
+      "title": "Forest Hideout",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/7.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/7.webp"
+    },
+    {
+      "id": "vr-l16",
+      "ownerUid": "vr-user-f",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "loft"
+      ],
+      "buildingType": "apartment",
+      "createdAt": 1785639600000,
+      "lastConfirmedAt": 1785639600000,
+      "dc": "Light",
+      "server": "Odin",
+      "area": "Empyreum",
+      "ward": 25,
+      "apartmentBuilding": 2,
+      "roomNumber": 12,
+      "addressKey": "Light|Odin|Empyreum|W25|B2|A12",
+      "title": "Skyline Loft",
+      "description": "見本データの説明文です。実在の家ではありません。",
+      "imageMode": "sns",
+      "tweetId": "1900000000000000015",
+      "postUrl": "https://x.com/vr_sample/status/1900000000000000015",
+      "sourceImageUrls": [
+        "https://pbs.twimg.com/media/vr-10.jpg",
+        "https://pbs.twimg.com/media/vr-11.jpg"
+      ],
+      "sourceImageAspectRatios": [
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "id": "vr-l17",
+      "ownerUid": "vr-user-g",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "harbor"
+      ],
+      "buildingType": "house",
+      "createdAt": 1784775600000,
+      "lastConfirmedAt": 1784775600000,
+      "dc": "Materia",
+      "server": "Sophia",
+      "area": "Goblet",
+      "ward": 4,
+      "plot": 21,
+      "size": "S",
+      "addressKey": "Materia|Sophia|Goblet|W4|H21",
+      "title": "Little Harbor House",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/12.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/12.webp"
+    },
+    {
+      "id": "vr-l18",
+      "ownerUid": "vr-user-h",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "벚꽃",
+        "정원"
+      ],
+      "buildingType": "house",
+      "createdAt": 1783911600000,
+      "lastConfirmedAt": 1783911600000,
+      "dc": "Korea",
+      "server": "Carbuncle",
+      "area": "LavenderBeds",
+      "ward": 12,
+      "plot": 33,
+      "size": "M",
+      "addressKey": "Korea|Carbuncle|LavenderBeds|W12|H33",
+      "title": "벚꽃 정원 별장",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/1.webp",
+        "https://lopoly.app/housing-media/vr/4.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/1.webp"
+    },
+    {
+      "id": "vr-l19",
+      "ownerUid": "vr-user-i",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "전망"
+      ],
+      "buildingType": "apartment",
+      "createdAt": 1783479600000,
+      "lastConfirmedAt": 1783479600000,
+      "dc": "Korea",
+      "server": "Chocobo",
+      "area": "Mist",
+      "ward": 20,
+      "apartmentBuilding": 1,
+      "roomNumber": 70,
+      "addressKey": "Korea|Chocobo|Mist|W20|B1|A70",
+      "title": "하늘 전망 아파트",
+      "description": "見本データの説明文です。実在の家ではありません。",
+      "imageMode": "sns",
+      "tweetId": "1900000000000000018",
+      "postUrl": "https://x.com/vr_sample/status/1900000000000000018",
+      "sourceImageUrls": [
+        "https://pbs.twimg.com/media/vr-2.jpg"
+      ],
+      "sourceImageAspectRatios": [
+        1.5
+      ]
+    },
+    {
+      "id": "vr-l20",
+      "ownerUid": "vr-user-j",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "茶馆",
+        "云海"
+      ],
+      "buildingType": "house",
+      "createdAt": 1783047600000,
+      "lastConfirmedAt": 1783047600000,
+      "dc": "ChocoboCN",
+      "server": "Yanxia",
+      "area": "Shirogane",
+      "ward": 8,
+      "plot": 50,
+      "size": "L",
+      "addressKey": "ChocoboCN|Yanxia|Shirogane|W8|H50",
+      "title": "云海中的茶馆",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/3.webp",
+        "https://lopoly.app/housing-media/vr/6.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/3.webp"
+    },
+    {
+      "id": "vr-l21",
+      "ownerUid": "vr-user-k",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "花园"
+      ],
+      "buildingType": "house",
+      "createdAt": 1782615600000,
+      "lastConfirmedAt": 1782615600000,
+      "dc": "MoogleCN",
+      "server": "Shirogane",
+      "area": "Goblet",
+      "ward": 16,
+      "plot": 7,
+      "size": "M",
+      "addressKey": "MoogleCN|Shirogane|Goblet|W16|H7",
+      "title": "星光花园小屋",
+      "imageMode": "sns",
+      "tweetId": "1900000000000000020",
+      "postUrl": "https://x.com/vr_sample/status/1900000000000000020",
+      "sourceImageUrls": [
+        "https://pbs.twimg.com/media/vr-8.jpg"
+      ],
+      "sourceImageAspectRatios": [
+        1.5
+      ]
+    },
+    {
+      "id": "vr-l22",
+      "ownerUid": "vr-user-l",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "海邊",
+        "小屋"
+      ],
+      "buildingType": "house",
+      "createdAt": 1782183600000,
+      "lastConfirmedAt": 1782183600000,
+      "dc": "TW",
+      "server": "Ifrit",
+      "area": "Mist",
+      "ward": 9,
+      "plot": 26,
+      "size": "S",
+      "addressKey": "TW|Ifrit|Mist|W9|H26",
+      "title": "海邊的白色小屋",
+      "description": "見本データの説明文です。実在の家ではありません。",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/9.webp",
+        "https://lopoly.app/housing-media/vr/10.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/9.webp"
+    },
+    {
+      "id": "vr-l23",
+      "ownerUid": "vr-user-m",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "夜市",
+        "燈籠"
+      ],
+      "buildingType": "house",
+      "createdAt": 1781319600000,
+      "lastConfirmedAt": 1781319600000,
+      "dc": "TW",
+      "server": "Phoenix",
+      "area": "Empyreum",
+      "ward": 21,
+      "plot": 4,
+      "size": "L",
+      "addressKey": "TW|Phoenix|Empyreum|W21|H4",
+      "title": "夜市燈籠庭院",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/11.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/11.webp"
+    },
+    {
+      "id": "vr-l24",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "アトリエ"
+      ],
+      "buildingType": "house",
+      "createdAt": 1780455600000,
+      "lastConfirmedAt": 1780455600000,
+      "dc": "Mana",
+      "server": "Hades",
+      "area": "Shirogane",
+      "ward": 13,
+      "plot": 37,
+      "size": "L",
+      "roomKind": "private_chamber",
+      "roomNumber": 28,
+      "addressKey": "Mana|Hades|Shirogane|W13|H37|C28",
+      "title": "個室:雨音のアトリエ",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/12.webp",
+        "https://lopoly.app/housing-media/vr/1.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/12.webp"
+    }
+  ]
+}

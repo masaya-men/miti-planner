@@ -1,0 +1,29 @@
+{
+  "listing": {
+    "id": "vr-l15",
+    "ownerUid": "vr-user-e",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "forest"
+    ],
+    "buildingType": "house",
+    "createdAt": 1786071600000,
+    "lastConfirmedAt": 1786071600000,
+    "dc": "Chaos",
+    "server": "Omega",
+    "area": "Shirogane",
+    "ward": 18,
+    "plot": 40,
+    "size": "M",
+    "addressKey": "Chaos|Omega|Shirogane|W18|H40",
+    "title": "Forest Hideout",
+    "imageMode": "thumbnail",
+    "thumbnailPaths": [
+      "https://lopoly.app/housing-media/vr/7.webp"
+    ],
+    "thumbnailPath": "https://lopoly.app/housing-media/vr/7.webp"
+  },
+  "peers": []
+}

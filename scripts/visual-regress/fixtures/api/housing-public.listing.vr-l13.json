@@ -1,0 +1,31 @@
+{
+  "listing": {
+    "id": "vr-l13",
+    "ownerUid": "vr-user-c",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "boutique"
+    ],
+    "buildingType": "house",
+    "createdAt": 1786935600000,
+    "lastConfirmedAt": 1786935600000,
+    "dc": "Aether",
+    "server": "Gilgamesh",
+    "area": "Goblet",
+    "ward": 6,
+    "plot": 14,
+    "size": "M",
+    "addressKey": "Aether|Gilgamesh|Goblet|W6|H14",
+    "title": "Seaside Boutique & Garden Party Hall with Fireworks",
+    "description": "見本データの説明文です。実在の家ではありません。",
+    "imageMode": "thumbnail",
+    "thumbnailPaths": [
+      "https://lopoly.app/housing-media/vr/5.webp",
+      "https://lopoly.app/housing-media/vr/6.webp"
+    ],
+    "thumbnailPath": "https://lopoly.app/housing-media/vr/5.webp"
+  },
+  "peers": []
+}

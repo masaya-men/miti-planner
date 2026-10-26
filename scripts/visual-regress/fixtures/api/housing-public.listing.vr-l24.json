@@ -1,0 +1,32 @@
+{
+  "listing": {
+    "id": "vr-l24",
+    "ownerUid": "vr-user-a",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "アトリエ"
+    ],
+    "buildingType": "house",
+    "createdAt": 1780455600000,
+    "lastConfirmedAt": 1780455600000,
+    "dc": "Mana",
+    "server": "Hades",
+    "area": "Shirogane",
+    "ward": 13,
+    "plot": 37,
+    "size": "L",
+    "roomKind": "private_chamber",
+    "roomNumber": 28,
+    "addressKey": "Mana|Hades|Shirogane|W13|H37|C28",
+    "title": "個室:雨音のアトリエ",
+    "imageMode": "thumbnail",
+    "thumbnailPaths": [
+      "https://lopoly.app/housing-media/vr/12.webp",
+      "https://lopoly.app/housing-media/vr/1.webp"
+    ],
+    "thumbnailPath": "https://lopoly.app/housing-media/vr/12.webp"
+  },
+  "peers": []
+}

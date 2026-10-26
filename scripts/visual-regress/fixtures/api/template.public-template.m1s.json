@@ -1,0 +1,158 @@
+{
+  "contentId": "m1s",
+  "generatedAt": "2026-01-01T00:00:00.000Z",
+  "sourceLogsCount": 1,
+  "timelineEvents": [
+    {
+      "id": "vr-tpl-ev1",
+      "time": 5,
+      "name": {
+        "ja": "見本の攻撃 1",
+        "en": "Sample Attack 1"
+      },
+      "damageType": "physical",
+      "damageAmount": 95000,
+      "target": "MT"
+    },
+    {
+      "id": "vr-tpl-ev2",
+      "time": 25,
+      "name": {
+        "ja": "見本の攻撃 2",
+        "en": "Sample Attack 2"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "vr-tpl-ev3",
+      "time": 45,
+      "name": {
+        "ja": "見本の攻撃 3",
+        "en": "Sample Attack 3"
+      },
+      "damageType": "physical",
+      "damageAmount": 105000,
+      "target": "AoE"
+    },
+    {
+      "id": "vr-tpl-ev4",
+      "time": 65,
+      "name": {
+        "ja": "見本の攻撃 4",
+        "en": "Sample Attack 4"
+      },
+      "damageType": "magical",
+      "damageAmount": 110000,
+      "target": "MT"
+    },
+    {
+      "id": "vr-tpl-ev5",
+      "time": 85,
+      "name": {
+        "ja": "見本の攻撃 5",
+        "en": "Sample Attack 5"
+      },
+      "damageType": "physical",
+      "damageAmount": 115000,
+      "target": "AoE"
+    },
+    {
+      "id": "vr-tpl-ev6",
+      "time": 105,
+      "name": {
+        "ja": "見本の攻撃 6",
+        "en": "Sample Attack 6"
+      },
+      "damageType": "magical",
+      "damageAmount": 120000,
+      "target": "AoE"
+    },
+    {
+      "id": "vr-tpl-ev7",
+      "time": 125,
+      "name": {
+        "ja": "見本の攻撃 7",
+        "en": "Sample Attack 7"
+      },
+      "damageType": "physical",
+      "damageAmount": 125000,
+      "target": "MT"
+    },
+    {
+      "id": "vr-tpl-ev8",
+      "time": 145,
+      "name": {
+        "ja": "見本の攻撃 8",
+        "en": "Sample Attack 8"
+      },
+      "damageType": "magical",
+      "damageAmount": 130000,
+      "target": "AoE"
+    },
+    {
+      "id": "vr-tpl-ev9",
+      "time": 165,
+      "name": {
+        "ja": "見本の攻撃 9",
+        "en": "Sample Attack 9"
+      },
+      "damageType": "physical",
+      "damageAmount": 135000,
+      "target": "AoE"
+    },
+    {
+      "id": "vr-tpl-ev10",
+      "time": 185,
+      "name": {
+        "ja": "見本の攻撃 10",
+        "en": "Sample Attack 10"
+      },
+      "damageType": "magical",
+      "damageAmount": 140000,
+      "target": "MT"
+    },
+    {
+      "id": "vr-tpl-ev11",
+      "time": 205,
+      "name": {
+        "ja": "見本の攻撃 11",
+        "en": "Sample Attack 11"
+      },
+      "damageType": "physical",
+      "damageAmount": 145000,
+      "target": "AoE"
+    },
+    {
+      "id": "vr-tpl-ev12",
+      "time": 225,
+      "name": {
+        "ja": "見本の攻撃 12",
+        "en": "Sample Attack 12"
+      },
+      "damageType": "magical",
+      "damageAmount": 150000,
+      "target": "AoE"
+    }
+  ],
+  "phases": [
+    {
+      "id": 1,
+      "startTimeSec": 0,
+      "name": {
+        "ja": "フェーズ 1",
+        "en": "Phase 1"
+      }
+    },
+    {
+      "id": 2,
+      "startTimeSec": 130,
+      "name": {
+        "ja": "フェーズ 2",
+        "en": "Phase 2"
+      }
+    }
+  ],
+  "labels": []
+}

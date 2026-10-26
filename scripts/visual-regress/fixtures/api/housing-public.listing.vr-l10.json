@@ -1,0 +1,29 @@
+{
+  "listing": {
+    "id": "vr-l10",
+    "ownerUid": "vr-user-b",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "ギャラリー"
+    ],
+    "buildingType": "house",
+    "createdAt": 1788231600000,
+    "lastConfirmedAt": 1788231600000,
+    "dc": "Mana",
+    "server": "Pandaemonium",
+    "area": "Empyreum",
+    "ward": 2,
+    "plot": 1,
+    "size": "M",
+    "addressKey": "Mana|Pandaemonium|Empyreum|W2|H1",
+    "title": "ガーデン&ギャラリー",
+    "description": "見本データの説明文です。実在の家ではありません。",
+    "imageMode": "sns",
+    "youtubeVideoId": "vrYt0000001",
+    "postUrl": "https://www.youtube.com/watch?v=vrYt0000001",
+    "ogImageUrl": "https://i.ytimg.com/vi/vrYt0000001/hqdefault.jpg"
+  },
+  "peers": []
+}

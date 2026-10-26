@@ -1,0 +1,30 @@
+{
+  "listing": {
+    "id": "vr-l11",
+    "ownerUid": "vr-user-b",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "夕焼け"
+    ],
+    "buildingType": "apartment",
+    "createdAt": 1787972400000,
+    "lastConfirmedAt": 1787972400000,
+    "dc": "Meteor",
+    "server": "Belias",
+    "area": "Mist",
+    "ward": 14,
+    "apartmentBuilding": 2,
+    "roomNumber": 57,
+    "addressKey": "Meteor|Belias|Mist|W14|B2|A57",
+    "title": "アパート 夕焼けのバルコニー",
+    "imageMode": "thumbnail",
+    "thumbnailPaths": [
+      "https://lopoly.app/housing-media/vr/8.webp",
+      "https://lopoly.app/housing-media/vr/9.webp"
+    ],
+    "thumbnailPath": "https://lopoly.app/housing-media/vr/8.webp"
+  },
+  "peers": []
+}

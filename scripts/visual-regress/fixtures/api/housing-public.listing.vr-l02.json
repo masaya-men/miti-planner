@@ -1,0 +1,31 @@
+{
+  "listing": {
+    "id": "vr-l02",
+    "ownerUid": "vr-user-a",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "cozy",
+      "night"
+    ],
+    "buildingType": "house",
+    "createdAt": 1790650800000,
+    "lastConfirmedAt": 1790650800000,
+    "dc": "Gaia",
+    "server": "Bahamut",
+    "area": "LavenderBeds",
+    "ward": 11,
+    "plot": 34,
+    "size": "M",
+    "addressKey": "Gaia|Bahamut|LavenderBeds|W11|H34",
+    "title": "Moonlit Cottage",
+    "imageMode": "thumbnail",
+    "thumbnailPaths": [
+      "https://lopoly.app/housing-media/vr/4.webp",
+      "https://lopoly.app/housing-media/vr/5.webp"
+    ],
+    "thumbnailPath": "https://lopoly.app/housing-media/vr/4.webp"
+  },
+  "peers": []
+}

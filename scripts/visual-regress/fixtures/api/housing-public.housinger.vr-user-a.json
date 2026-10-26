@@ -1,0 +1,229 @@
+{
+  "listings": [
+    {
+      "id": "vr-l01",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "和風",
+        "庭園"
+      ],
+      "buildingType": "house",
+      "createdAt": 1790737200000,
+      "lastConfirmedAt": 1790737200000,
+      "dc": "Elemental",
+      "server": "Garuda",
+      "area": "Mist",
+      "ward": 3,
+      "plot": 12,
+      "size": "S",
+      "addressKey": "Elemental|Garuda|Mist|W3|H12",
+      "title": "白亜の庭園テラス",
+      "description": "見本データの説明文です。実在の家ではありません。",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/1.webp",
+        "https://lopoly.app/housing-media/vr/2.webp",
+        "https://lopoly.app/housing-media/vr/3.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/1.webp"
+    },
+    {
+      "id": "vr-l02",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "cozy",
+        "night"
+      ],
+      "buildingType": "house",
+      "createdAt": 1790650800000,
+      "lastConfirmedAt": 1790650800000,
+      "dc": "Gaia",
+      "server": "Bahamut",
+      "area": "LavenderBeds",
+      "ward": 11,
+      "plot": 34,
+      "size": "M",
+      "addressKey": "Gaia|Bahamut|LavenderBeds|W11|H34",
+      "title": "Moonlit Cottage",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/4.webp",
+        "https://lopoly.app/housing-media/vr/5.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/4.webp"
+    },
+    {
+      "id": "vr-l03",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "カフェ"
+      ],
+      "buildingType": "house",
+      "createdAt": 1790573040000,
+      "lastConfirmedAt": 1790573040000,
+      "dc": "Mana",
+      "server": "Titan",
+      "area": "Goblet",
+      "ward": 20,
+      "plot": 8,
+      "size": "L",
+      "addressKey": "Mana|Titan|Goblet|W20|H8",
+      "title": "海辺のカフェ風ログハウス",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/6.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/6.webp"
+    },
+    {
+      "id": "vr-l04",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "桜",
+        "和風"
+      ],
+      "buildingType": "house",
+      "createdAt": 1790046000000,
+      "lastConfirmedAt": 1790046000000,
+      "dc": "Elemental",
+      "server": "Typhon",
+      "area": "Shirogane",
+      "ward": 7,
+      "plot": 45,
+      "size": "M",
+      "addressKey": "Elemental|Typhon|Shirogane|W7|H45",
+      "title": "桜並木の見える茶屋",
+      "description": "見本データの説明文です。実在の家ではありません。",
+      "imageMode": "sns",
+      "tweetId": "1900000000000000003",
+      "postUrl": "https://x.com/vr_sample/status/1900000000000000003",
+      "sourceImageUrls": [
+        "https://pbs.twimg.com/media/vr-7.jpg",
+        "https://pbs.twimg.com/media/vr-8.jpg"
+      ],
+      "sourceImageAspectRatios": [
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "id": "vr-l05",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "書庫"
+      ],
+      "buildingType": "house",
+      "createdAt": 1789786800000,
+      "lastConfirmedAt": 1789786800000,
+      "dc": "Gaia",
+      "server": "Ifrit",
+      "area": "Empyreum",
+      "ward": 15,
+      "plot": 3,
+      "size": "L",
+      "addressKey": "Gaia|Ifrit|Empyreum|W15|H3",
+      "title": "天空の書庫",
+      "imageMode": "sns",
+      "tweetId": "1900000000000000004",
+      "postUrl": "https://x.com/vr_sample/status/1900000000000000004",
+      "videoUrl": "https://video.twimg.com/ext_tw_video/1900000000000000004/vid/vr.mp4",
+      "videoPosterUrl": "https://pbs.twimg.com/media/vr-9.jpg",
+      "videoAspectRatio": 1.78,
+      "sourceImageUrls": [
+        "https://pbs.twimg.com/media/vr-9.jpg"
+      ],
+      "sourceImageAspectRatios": [
+        1.78
+      ]
+    },
+    {
+      "id": "vr-l06",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "アパート"
+      ],
+      "buildingType": "apartment",
+      "createdAt": 1789527600000,
+      "lastConfirmedAt": 1789527600000,
+      "dc": "Mana",
+      "server": "Asura",
+      "area": "Mist",
+      "ward": 28,
+      "apartmentBuilding": 1,
+      "roomNumber": 34,
+      "addressKey": "Mana|Asura|Mist|W28|B1|A34",
+      "title": "小さな秘密基地(アパート)",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/10.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/10.webp"
+    },
+    {
+      "id": "vr-l24",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": false,
+      "deletedAt": null,
+      "tags": [
+        "アトリエ"
+      ],
+      "buildingType": "house",
+      "createdAt": 1780455600000,
+      "lastConfirmedAt": 1780455600000,
+      "dc": "Mana",
+      "server": "Hades",
+      "area": "Shirogane",
+      "ward": 13,
+      "plot": 37,
+      "size": "L",
+      "roomKind": "private_chamber",
+      "roomNumber": 28,
+      "addressKey": "Mana|Hades|Shirogane|W13|H37|C28",
+      "title": "個室:雨音のアトリエ",
+      "imageMode": "thumbnail",
+      "thumbnailPaths": [
+        "https://lopoly.app/housing-media/vr/12.webp",
+        "https://lopoly.app/housing-media/vr/1.webp"
+      ],
+      "thumbnailPath": "https://lopoly.app/housing-media/vr/12.webp"
+    }
+  ],
+  "hiddenListings": [
+    {
+      "id": "vr-h01",
+      "ownerUid": "vr-user-a",
+      "visibility": "public",
+      "isHidden": true,
+      "tags": [],
+      "buildingType": "house",
+      "title": "運営が非表示にした家(見本)",
+      "createdAt": 1773543600000,
+      "dc": "Elemental",
+      "server": "Garuda",
+      "area": "Mist",
+      "ward": 30,
+      "plot": 60,
+      "size": "L",
+      "addressKey": "Elemental|Garuda|Mist|W30|H60"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "listing": {
+    "id": "vr-l17",
+    "ownerUid": "vr-user-g",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "harbor"
+    ],
+    "buildingType": "house",
+    "createdAt": 1784775600000,
+    "lastConfirmedAt": 1784775600000,
+    "dc": "Materia",
+    "server": "Sophia",
+    "area": "Goblet",
+    "ward": 4,
+    "plot": 21,
+    "size": "S",
+    "addressKey": "Materia|Sophia|Goblet|W4|H21",
+    "title": "Little Harbor House",
+    "imageMode": "thumbnail",
+    "thumbnailPaths": [
+      "https://lopoly.app/housing-media/vr/12.webp"
+    ],
+    "thumbnailPath": "https://lopoly.app/housing-media/vr/12.webp"
+  },
+  "peers": []
+}

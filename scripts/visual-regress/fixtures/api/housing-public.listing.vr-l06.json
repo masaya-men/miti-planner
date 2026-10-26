@@ -1,0 +1,29 @@
+{
+  "listing": {
+    "id": "vr-l06",
+    "ownerUid": "vr-user-a",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "アパート"
+    ],
+    "buildingType": "apartment",
+    "createdAt": 1789527600000,
+    "lastConfirmedAt": 1789527600000,
+    "dc": "Mana",
+    "server": "Asura",
+    "area": "Mist",
+    "ward": 28,
+    "apartmentBuilding": 1,
+    "roomNumber": 34,
+    "addressKey": "Mana|Asura|Mist|W28|B1|A34",
+    "title": "小さな秘密基地(アパート)",
+    "imageMode": "thumbnail",
+    "thumbnailPaths": [
+      "https://lopoly.app/housing-media/vr/10.webp"
+    ],
+    "thumbnailPath": "https://lopoly.app/housing-media/vr/10.webp"
+  },
+  "peers": []
+}

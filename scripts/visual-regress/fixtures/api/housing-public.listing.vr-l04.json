@@ -1,0 +1,37 @@
+{
+  "listing": {
+    "id": "vr-l04",
+    "ownerUid": "vr-user-a",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "桜",
+      "和風"
+    ],
+    "buildingType": "house",
+    "createdAt": 1790046000000,
+    "lastConfirmedAt": 1790046000000,
+    "dc": "Elemental",
+    "server": "Typhon",
+    "area": "Shirogane",
+    "ward": 7,
+    "plot": 45,
+    "size": "M",
+    "addressKey": "Elemental|Typhon|Shirogane|W7|H45",
+    "title": "桜並木の見える茶屋",
+    "description": "見本データの説明文です。実在の家ではありません。",
+    "imageMode": "sns",
+    "tweetId": "1900000000000000003",
+    "postUrl": "https://x.com/vr_sample/status/1900000000000000003",
+    "sourceImageUrls": [
+      "https://pbs.twimg.com/media/vr-7.jpg",
+      "https://pbs.twimg.com/media/vr-8.jpg"
+    ],
+    "sourceImageAspectRatios": [
+      1.5,
+      1.5
+    ]
+  },
+  "peers": []
+}

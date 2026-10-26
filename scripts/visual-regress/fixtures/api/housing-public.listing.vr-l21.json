@@ -1,0 +1,33 @@
+{
+  "listing": {
+    "id": "vr-l21",
+    "ownerUid": "vr-user-k",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "花园"
+    ],
+    "buildingType": "house",
+    "createdAt": 1782615600000,
+    "lastConfirmedAt": 1782615600000,
+    "dc": "MoogleCN",
+    "server": "Shirogane",
+    "area": "Goblet",
+    "ward": 16,
+    "plot": 7,
+    "size": "M",
+    "addressKey": "MoogleCN|Shirogane|Goblet|W16|H7",
+    "title": "星光花园小屋",
+    "imageMode": "sns",
+    "tweetId": "1900000000000000020",
+    "postUrl": "https://x.com/vr_sample/status/1900000000000000020",
+    "sourceImageUrls": [
+      "https://pbs.twimg.com/media/vr-8.jpg"
+    ],
+    "sourceImageAspectRatios": [
+      1.5
+    ]
+  },
+  "peers": []
+}

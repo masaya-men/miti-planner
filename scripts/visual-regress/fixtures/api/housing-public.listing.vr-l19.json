@@ -1,0 +1,34 @@
+{
+  "listing": {
+    "id": "vr-l19",
+    "ownerUid": "vr-user-i",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "전망"
+    ],
+    "buildingType": "apartment",
+    "createdAt": 1783479600000,
+    "lastConfirmedAt": 1783479600000,
+    "dc": "Korea",
+    "server": "Chocobo",
+    "area": "Mist",
+    "ward": 20,
+    "apartmentBuilding": 1,
+    "roomNumber": 70,
+    "addressKey": "Korea|Chocobo|Mist|W20|B1|A70",
+    "title": "하늘 전망 아파트",
+    "description": "見本データの説明文です。実在の家ではありません。",
+    "imageMode": "sns",
+    "tweetId": "1900000000000000018",
+    "postUrl": "https://x.com/vr_sample/status/1900000000000000018",
+    "sourceImageUrls": [
+      "https://pbs.twimg.com/media/vr-2.jpg"
+    ],
+    "sourceImageAspectRatios": [
+      1.5
+    ]
+  },
+  "peers": []
+}

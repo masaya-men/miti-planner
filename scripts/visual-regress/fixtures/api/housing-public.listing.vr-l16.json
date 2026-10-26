@@ -1,0 +1,36 @@
+{
+  "listing": {
+    "id": "vr-l16",
+    "ownerUid": "vr-user-f",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "loft"
+    ],
+    "buildingType": "apartment",
+    "createdAt": 1785639600000,
+    "lastConfirmedAt": 1785639600000,
+    "dc": "Light",
+    "server": "Odin",
+    "area": "Empyreum",
+    "ward": 25,
+    "apartmentBuilding": 2,
+    "roomNumber": 12,
+    "addressKey": "Light|Odin|Empyreum|W25|B2|A12",
+    "title": "Skyline Loft",
+    "description": "見本データの説明文です。実在の家ではありません。",
+    "imageMode": "sns",
+    "tweetId": "1900000000000000015",
+    "postUrl": "https://x.com/vr_sample/status/1900000000000000015",
+    "sourceImageUrls": [
+      "https://pbs.twimg.com/media/vr-10.jpg",
+      "https://pbs.twimg.com/media/vr-11.jpg"
+    ],
+    "sourceImageAspectRatios": [
+      1.5,
+      1.5
+    ]
+  },
+  "peers": []
+}

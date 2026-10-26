@@ -1,0 +1,28 @@
+{
+  "listing": {
+    "id": "vr-l14",
+    "ownerUid": "vr-user-d",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "villa"
+    ],
+    "buildingType": "house",
+    "createdAt": 1786503600000,
+    "lastConfirmedAt": 1786503600000,
+    "dc": "Primal",
+    "server": "Behemoth",
+    "area": "Mist",
+    "ward": 1,
+    "plot": 9,
+    "size": "L",
+    "addressKey": "Primal|Behemoth|Mist|W1|H9",
+    "title": "Sunset Villa on the Cliff Overlooking the Endless Ocean",
+    "imageMode": "sns",
+    "youtubeVideoId": "vrYt0000002",
+    "postUrl": "https://www.youtube.com/watch?v=vrYt0000002",
+    "ogImageUrl": "https://i.ytimg.com/vi/vrYt0000002/hqdefault.jpg"
+  },
+  "peers": []
+}

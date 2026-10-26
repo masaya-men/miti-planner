@@ -1,0 +1,36 @@
+{
+  "listing": {
+    "id": "vr-l09",
+    "ownerUid": "vr-user-b",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [
+      "雪"
+    ],
+    "buildingType": "house",
+    "createdAt": 1788663600000,
+    "lastConfirmedAt": 1788663600000,
+    "dc": "Gaia",
+    "server": "Durandal",
+    "area": "Shirogane",
+    "ward": 30,
+    "plot": 60,
+    "size": "L",
+    "addressKey": "Gaia|Durandal|Shirogane|W30|H60",
+    "title": "雪原のロッジ",
+    "imageMode": "sns",
+    "tweetId": "1900000000000000008",
+    "postUrl": "https://x.com/vr_sample/status/1900000000000000008",
+    "videoUrl": "https://video.twimg.com/ext_tw_video/1900000000000000008/vid/vr.mp4",
+    "videoPosterUrl": "https://pbs.twimg.com/media/vr-2.jpg",
+    "videoAspectRatio": 1.78,
+    "sourceImageUrls": [
+      "https://pbs.twimg.com/media/vr-2.jpg"
+    ],
+    "sourceImageAspectRatios": [
+      1.78
+    ]
+  },
+  "peers": []
+}

@@ -1,0 +1,22 @@
+{
+  "listing": {
+    "id": "vr-l12",
+    "ownerUid": "vr-user-b",
+    "visibility": "public",
+    "isHidden": false,
+    "deletedAt": null,
+    "tags": [],
+    "buildingType": "house",
+    "createdAt": 1787367600000,
+    "lastConfirmedAt": 1787367600000,
+    "dc": "Elemental",
+    "server": "Aegis",
+    "area": "LavenderBeds",
+    "ward": 22,
+    "plot": 29,
+    "size": "S",
+    "addressKey": "Elemental|Aegis|LavenderBeds|W22|H29",
+    "imageMode": "none"
+  },
+  "peers": []
+}
