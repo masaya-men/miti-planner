@@ -16,6 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { launch, EVENT_FIXTURE, PHASE_FIXTURE, PARTY_FIXTURE, MITIGATION_FIXTURE } from '../milspec-sp2/_fixture.mjs';
 
@@ -36,6 +37,8 @@ const ALLOW = typeof args.allow === 'string' ? args.allow.split(',').map((s) => 
 const PROBE_FILTER = typeof args.probe === 'string' ? new Set(args.probe.split(',')) : null;
 const TOL = 0.5; // 位置・寸法の許容(px)
 const TOL_PRECISE = 0.01; // precise 配下(sheetWidth 実測など)の許容(px)
+/** 取得時の HEAD の SHA(baseline がどのコードで取られたか残す)。 */
+const gitSha = () => { try { return execSync('git rev-parse HEAD', { cwd: HERE }).toString().trim(); } catch { return null; } };
 const fileOf = (name) => path.join(BASE_DIR, `regress-${name}.json`);
 
 // ───────────────────────────── 条件 ─────────────────────────────
@@ -162,7 +165,24 @@ const HELPERS_SRC = `(() => {
 })();`;
 
 /** 「表を展開する/たたむ」(ふつうはボタン・MIL-SPEC は同名のスイッチ)を 1 回押す。 */
-const toggleExpand = (page) => page.getByText(/^(表を展開する|表をたたむ)$/).first().click();
+const toggleExpand = async (page) => {
+  // MIL-SPEC: 操作盤の横スライド(MilspecSwitches.tsx:103 `button[role=switch][data-deck=expand]`・aria-checked=展開中)。
+  // ラベル文字(span.milspec-lbl)のクリックでは切り替わらないので、スイッチ本体を直接押す。
+  const sw = page.locator('button[role="switch"][data-deck="expand"]');
+  if (await sw.count()) {
+    const before = await sw.first().getAttribute('aria-checked');
+    await sw.first().click();
+    const want = before === 'true' ? 'false' : 'true';
+    try {
+      await page.waitForFunction((w) => document.querySelector('button[role="switch"][data-deck="expand"]')?.getAttribute('aria-checked') === w, want, { timeout: 5000 });
+    } catch {
+      throw new Error(`表の展開スイッチが切り替わらない(aria-checked=${before} のまま)`);
+    }
+    return;
+  }
+  // ふつうテーマ: ボタンのラベル文字を押す
+  await page.getByText(/^(表を展開する|表をたたむ)$/).first().click();
+};
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /** dev の store を取り出して関数を実行する(アプリが読み込んだ URL と同じものを使う=別インスタンスにならない)。 */
@@ -1046,7 +1066,7 @@ async function main() {
   }
   const selCond = (c) => !ONLY || c.id.includes(ONLY);
   const result = {
-    meta: { baseUrl: BASE_URL, tolerancePx: TOL, tolerancePrecisePx: TOL_PRECISE, only: ONLY, node: process.version },
+    meta: { baseUrl: BASE_URL, tolerancePx: TOL, tolerancePrecisePx: TOL_PRECISE, only: ONLY, node: process.version, gitSha: gitSha() },
     conds: {},
   };
   const slot = (id) => (result.conds[id] ??= { items: {} }).items;
