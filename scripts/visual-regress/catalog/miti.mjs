@@ -6,16 +6,16 @@ import { fileURLToPath } from 'node:url';
 import { baseStorage, mitiStorage } from '../fixtures/storage.mjs';
 
 /** standard-dark / standard-light から明るさを取り出して見本の localStorage を作る */
-const mk = (/** @type {'lanes'|'sheet'} */ view, /** @type {Record<string, unknown>} */ over = {}, /** @type {Record<string, unknown>} */ extra = {}) =>
+export const mk = (/** @type {'lanes'|'sheet'} */ view, /** @type {Record<string, unknown>} */ over = {}, /** @type {Record<string, unknown>} */ extra = {}) =>
   (/** @type {{ theme: string, lang: string }} */ cond) => ({
     ...baseStorage(),
-    ...mitiStorage({ view, party: 8, theme: { mode: cond.theme === 'standard-light' ? 'light' : 'dark', style: 'standard' }, lang: cond.lang, over }),
+    ...mitiStorage({ view, party: 8, theme: { mode: cond.theme.endsWith('-light') ? 'light' : 'dark', style: cond.theme.startsWith('military') ? 'military' : 'standard' }, lang: cond.lang, over }),
     ...extra,
   });
 const lanes = mk('lanes');
 
 /** 保存済みプランが 1 件ある状態(共有ボタン・共有窓はプラン必須) */
-const withPlan = (/** @type {{ theme: string, lang: string }} */ cond, /** @type {string | null} */ contentId = null, /** @type {Record<string, unknown>} */ planExtra = {}) => {
+export const withPlan = (/** @type {{ theme: string, lang: string }} */ cond, /** @type {string | null} */ contentId = null, /** @type {Record<string, unknown>} */ planExtra = {}) => {
   const st = mk('lanes', { _loadedPlanId: 'rg-plan' })(cond);
   const d = /** @type {any} */ (st['mitigation-storage']).state;
   const data = {
@@ -40,15 +40,15 @@ const POP = 'div.fixed.glass-tier3.rounded-lg';
 const winAx = { vp: ['1489'], theme: THEMES, lang: ['ja'] };
 const winAxEn = { vp: ['1489'], theme: THEMES, lang: ['ja', 'en'] };
 
-const PHOTO = fileURLToPath(new URL('../fixtures/images/photo-01.png', import.meta.url));
-const ROW = '[data-time-row]';
-const SHELL = '[data-modal-shell] [role="dialog"]';
+export const PHOTO = fileURLToPath(new URL('../fixtures/images/photo-01.png', import.meta.url));
+export const ROW = '[data-time-row]';
+export const SHELL = '[data-modal-shell] [role="dialog"]';
 /** 日英どちらかの文言に当たる text セレクタ(正規表現。日英の語句を | でつなぐ) */
-const textRe = (/** @type {string} */ ja, /** @type {string} */ en) => `text=/${ja}|${en}/`;
+export const textRe = (/** @type {string} */ ja, /** @type {string} */ en) => `text=/${ja}|${en}/`;
 /** 行が出るまで待つだけ(自動で開く窓の撮影用) */
-const waitRows = async (/** @type {import('playwright').Page} */ page) => { await page.waitForSelector(ROW); };
+export const waitRows = async (/** @type {import('playwright').Page} */ page) => { await page.waitForSelector(ROW); };
 /** dev の動的 import で store を取り、fn(モジュール) を実行する */
-const storeCall = (/** @type {string} */ name, /** @type {(m: any) => any} */ fn) => async (/** @type {import('playwright').Page} */ page) => {
+export const storeCall = (/** @type {string} */ name, /** @type {(m: any) => any} */ fn) => async (/** @type {import('playwright').Page} */ page) => {
   await page.waitForSelector(ROW);
   await page.evaluate(async ([n, src]) => {
     const m = await import(/* @vite-ignore */ `/src/store/${n}.ts`);
@@ -56,9 +56,9 @@ const storeCall = (/** @type {string} */ name, /** @type {(m: any) => any} */ fn
     await (0, eval)(`(${src})`)(m);
   }, [name, fn.toString()]);
 };
-const click = (/** @type {string} */ sel) => async (/** @type {import('playwright').Page} */ page) => { await page.click(sel); };
+export const click = (/** @type {string} */ sel) => async (/** @type {import('playwright').Page} */ page) => { await page.click(sel); };
 /** aria-label が日英どちらかのボタンを押す */
-const clickLabel = (/** @type {string} */ ja, /** @type {string} */ en) => async (/** @type {import('playwright').Page} */ page) => {
+export const clickLabel = (/** @type {string} */ ja, /** @type {string} */ en) => async (/** @type {import('playwright').Page} */ page) => {
   await page.click(`button[aria-label="${ja}"], button[aria-label="${en}"]`);
 };
 
