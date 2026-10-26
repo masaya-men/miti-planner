@@ -75,7 +75,7 @@ function readTolerance() {
 function cleanStale(repoRoot) {
   for (const d of staleBaseDirs(os.tmpdir())) {
     console.log(`前回の残骸を掃除: ${d}`);
-    removeBaseWorktree(d, repoRoot);
+    if (!removeBaseWorktree(d, repoRoot)) throw new Error(`前回の残骸を削除できません。手動で消してから再実行してください: ${d}`);
   }
   try { execFileSync('git', ['worktree', 'prune'], { cwd: repoRoot, stdio: 'ignore' }); } catch { /* 続行 */ }
 }
@@ -114,6 +114,18 @@ async function main() {
   const servers = [];
   /** @type {import('playwright').Browser | null} */
   let browser = null;
+  // Ctrl+C・終了要求でも後片付けする(finally は走らないので同期で止めて消す)
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    for (const s of servers) { try { s.stop(); } catch { /* 続行 */ } }
+    if (baseDir) removeBaseWorktree(baseDir, repoRoot);
+  };
+  for (const sig of ['SIGINT', 'SIGTERM', 'SIGBREAK']) {
+    process.on(sig, () => { console.error(`
+${sig} を受けました。後片付けして終了します`); cleanup(); process.exit(2); });
+  }
   try {
     let baseUrl = '';
     if (!headOnly) {
@@ -155,7 +167,7 @@ async function main() {
           files.push(f);
         }
         const bufs = files.map((f) => fs.readFileSync(f));
-        const ds = await Promise.all([diffPng(bufs[0], bufs[1]), diffPng(bufs[0], bufs[2])]);
+        const ds = await Promise.all([diffPng(bufs[0], bufs[1]), diffPng(bufs[0], bufs[2]), diffPng(bufs[1], bufs[2])]);
         const tol = toleranceFrom(ds.map((d) => d.ratio), ds[0].total);
         tolFile[c.key] = tol;
         result[c.key] = { status: 'same', ratio: Math.max(...ds.map((d) => d.ratio)), tol };
@@ -204,8 +216,7 @@ async function main() {
   } finally {
     // 何があっても後片付け(サーバーのプロセスツリー停止 → worktree 削除)
     if (browser) await browser.close().catch(() => {});
-    for (const s of servers) s.stop();
-    if (baseDir) removeBaseWorktree(baseDir, repoRoot);
+    cleanup();
   }
 }
 

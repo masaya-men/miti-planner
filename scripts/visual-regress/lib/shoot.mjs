@@ -101,6 +101,7 @@ export async function shootCondition(browser, baseUrl, cond, outFile, opts = {})
         return els.length;
       }, m);
       if (n > 0) masks.push({ selector: m.selector, reason: m.reason });
+      else console.warn(`警告: ${cond.key}: mask '${m.selector}' に一致する要素がありません`);
     }
     if (masks.length) {
       await page.addStyleTag({ content: '[data-vr-mask]{background:#ff00ff !important;border-color:#ff00ff !important;box-shadow:none !important;outline:none !important;background-image:none !important}[data-vr-mask] *{visibility:hidden !important}' });
