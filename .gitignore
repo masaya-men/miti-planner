@@ -108,3 +108,7 @@ scripts/milspec-polish/.perf/
 
 # 軽減表の横スクロール計画: 回帰の自動確認の結果(コミットしない)
 scripts/sticky-scroll/.baseline/
+
+# 全画面の自動見た目比較: 撮影結果とキャッシュ(コミットしない)
+scripts/visual-regress/.out/
+scripts/visual-regress/.cache/

@@ -14,7 +14,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import sharp from 'sharp';
+import { diffPng, toleranceFrom, BLOCK, BLOCK_MEAN } from '../visual-regress/lib/diff.mjs';
+import { freeze as freezeShared } from '../visual-regress/lib/freeze.mjs';
 import { launch, EVENT_FIXTURE, PHASE_FIXTURE, PARTY_FIXTURE, MITIGATION_FIXTURE } from '../milspec-sp2/_fixture.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => {
@@ -35,8 +36,6 @@ const JOBS = Number(args.jobs) || 3;
 const FLOOR_RATIO = 0.0005; // 許容の下限 = 全画素の 0.05%
 const MIN_BLOCKS = 10; // 小さい切り出しでは 0.05% が数ブロックになり厳しすぎるので、ブロック数の下限も置く
 const MARGIN = 1.5; // 同じ画面を 3 回撮った 3 通りの差の最大値 × 1.5
-const BLOCK = 8; // 差を数えるブロックの一辺(画素)
-const BLOCK_MEAN = 6; // ブロック内の平均の色差(各画素の RGB 最大差)がこれを超えたら「違うブロック」
 
 // ───────────────────────────── 条件 ─────────────────────────────
 const VPS = [
@@ -121,24 +120,8 @@ async function openPage(cond, over = {}) {
   return { browser, page };
 }
 
-/** 動きを止める: 有限のアニメは終点へ・無限のものは 0 で停止・transition 無効・video は 0 秒で停止。 */
-async function freeze(page) {
-  if (INJECT_CSS) await page.addStyleTag({ content: INJECT_CSS });
-  await page.addStyleTag({ content: '*,*::before,*::after{transition:none!important;caret-color:transparent!important}.milspec-drums,.milspec-dtg-txt{visibility:hidden!important}' /* MIL-SPEC 見出しの実時刻の表示(日時の数字)は毎回変わるので隠す */ });
-  await page.evaluate(async () => {
-    for (const a of document.getAnimations()) {
-      try {
-        const it = a.effect?.getComputedTiming().iterations;
-        if (it === Infinity) { a.pause(); a.currentTime = 0; } else a.finish();
-      } catch { try { a.pause(); } catch { /* 無視 */ } }
-    }
-    for (const v of document.querySelectorAll('video')) {
-      v.pause();
-      try { v.currentTime = 0; await new Promise((r) => { const t = setTimeout(r, 1500); v.addEventListener('seeked', () => { clearTimeout(t); r(undefined); }, { once: true }); }); } catch { /* 無視 */ }
-    }
-  });
-  await page.waitForTimeout(250);
-}
+/** 動きを止める(共通部品)。INJECT_CSS と MIL-SPEC 見出しの実時刻の表示(日時の数字は毎回変わる)を渡す。 */
+const freeze = (page) => freezeShared(page, { injectCss: INJECT_CSS ?? undefined, hideSelectors: ['.milspec-drums', '.milspec-dtg-txt'] });
 
 const rectOf = (page, sel) => page.evaluate((sel) => { const e = document.querySelector(sel); if (!e) return null; const b = e.getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; }, sel);
 
@@ -243,29 +226,6 @@ async function takeAll(cond) {
   return shots;
 }
 
-// ───────────────────────────── 画像の差 ─────────────────────────────
-/** 2 枚の PNG の違う画素数(各チャンネルの差が CH_THRESHOLD を超えたもの)。大きさが違えば全画素を違いとする。 */
-async function diffPng(a, b) {
-  const [ra, rb] = await Promise.all([a, b].map((x) => sharp(x).ensureAlpha().raw().toBuffer({ resolveWithObject: true })));
-  const total = ra.info.width * ra.info.height;
-  if (ra.info.width !== rb.info.width || ra.info.height !== rb.info.height) {
-    return { pixels: Math.max(total, rb.info.width * rb.info.height), total, ratio: 1, sizeMismatch: `${ra.info.width}x${ra.info.height} vs ${rb.info.width}x${rb.info.height}` };
-  }
-  // MIL-SPEC の面には毎回ちがう粒状のノイズがある(同じ画面を撮り直して確認)。画素ごとではなく 8x8 のブロックの平均差で数え、粒を均す。
-  const A = ra.data, B = rb.data, W = ra.info.width, H = ra.info.height;
-  const bw = Math.ceil(W / BLOCK), bh = Math.ceil(H / BLOCK);
-  let n = 0;
-  for (let by = 0; by < bh; by++) for (let bx = 0; bx < bw; bx++) {
-    let sum = 0, cnt = 0;
-    for (let y = by * BLOCK; y < Math.min(H, (by + 1) * BLOCK); y++) for (let x = bx * BLOCK; x < Math.min(W, (bx + 1) * BLOCK); x++) {
-      const i = (y * W + x) * 4;
-      sum += Math.max(Math.abs(A[i] - B[i]), Math.abs(A[i + 1] - B[i + 1]), Math.abs(A[i + 2] - B[i + 2])); cnt++;
-    }
-    if (sum / cnt > BLOCK_MEAN) n++;
-  }
-  return { pixels: n, total: bw * bh, ratio: n / (bw * bh) };
-}
-
 async function pool(items, n, fn) {
   const q = [...items];
   await Promise.all(Array.from({ length: n }, async () => { while (q.length) { await fn(q.shift()); } }));
@@ -315,15 +275,15 @@ async function main() {
     const shotsTol = {};
     let maxRatio = 0;
     for (const [k, d] of Object.entries(calib)) {
-      const ratio = Math.max(d.ratio * MARGIN, FLOOR_RATIO, MIN_BLOCKS / d.total);
-      shotsTol[k] = { selfDiffBlocks: d.pixels, selfDiffRatio: d.ratio, tolRatio: ratio, tolBlocks: Math.ceil(ratio * d.total) };
+      const ratio = toleranceFrom([d.ratio], d.total);
+      shotsTol[k] = { selfDiffBlocks: d.blocks, selfDiffRatio: d.ratio, tolRatio: ratio, tolBlocks: Math.ceil(ratio * d.total) };
       maxRatio = Math.max(maxRatio, ratio);
     }
     const oldShots = ONLY && tolerance.shots ? tolerance.shots : {}; // --only の撮り直しは、撮っていない写真の許容を消さず混ぜ込む
     const mergedTol = { ...oldShots, ...shotsTol };
     maxRatio = Math.max(...Object.values(mergedTol).map((v) => v.tolRatio));
     tolerance = {
-      note: '同じ画面を 3 回撮った 3 通りの差の最大値 x1.5(下限 全体の 0.05% かつ 10 ブロック)。差は 8x8 ブロック単位(平均色差 > 6 を違いと数える)。pixels / total の単位はブロック。',
+      note: '同じ画面を 3 回撮った 3 通りの差の最大値 x1.5(下限 全体の 0.05% かつ 10 ブロック)。差は 8x8 ブロック単位(平均色差 > 6 を違いと数える)。blocks / total の単位はブロック。',
       marginX: MARGIN, floorRatio: FLOOR_RATIO, block: BLOCK, blockMean: BLOCK_MEAN,
       defaultTolRatio: maxRatio, createdAt: new Date().toISOString(), shots: mergedTol,
     };
@@ -350,7 +310,7 @@ async function main() {
         const d = await diffPng(fs.readFileSync(path.join(dA, f)), fs.readFileSync(path.join(dB, f)));
         const t = tolerance.shots[key]?.tolRatio ?? tolerance.defaultTolRatio;
         cmpN++; maxSeen = Math.max(maxSeen, d.ratio);
-        if (d.ratio > t) { bad++; console.log(`  差 ${key}: ${d.pixels} ブロック (${(d.ratio * 100).toFixed(4)}%) > 許容 ${(t * 100).toFixed(4)}%${d.sizeMismatch ? ' 大きさ違い ' + d.sizeMismatch : ''}`); }
+        if (d.ratio > t) { bad++; console.log(`  差 ${key}: ${d.blocks} ブロック (${(d.ratio * 100).toFixed(4)}%) > 許容 ${(t * 100).toFixed(4)}%${d.sizeMismatch ? ' 大きさ違い ' + d.sizeMismatch : ''}`); }
       }
     }
     if (cmpN === 0) { console.log('比べた写真が 0 枚(条件の指定か比較元を確認)'); return 1; }
