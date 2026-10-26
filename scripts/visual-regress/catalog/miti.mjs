@@ -102,7 +102,7 @@ export default [
     }, covers: ['ShareModal', 'ShareButtons'] },
   { id: 'miti/win-notification', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAx,
     open: clickLabel('運営からの通知', 'Notifications from team'), covers: ['SystemNotificationModal', 'SystemNotificationBar'] },
-  { id: 'miti/win-event-add', route: '/miti', storage: lanes, ready: '[data-tutorial-modal]', clip: 'ready', axes: winAxEn,
+  { id: 'miti/win-event-add', route: '/miti', storage: lanes, ready: '[data-tutorial-modal]:not([data-tutorial])', clip: 'ready', axes: winAxEn,
     open: async (page) => {
       const row = page.locator(ROW).first();
       await row.hover();
@@ -129,7 +129,7 @@ export default [
       await page.locator('[data-phase-col]').first().click();
       await page.click('text=/^(フェーズを編集|Edit Phase)$/');
     }, covers: ['BoundaryEditModal'] },
-  { id: 'miti/win-mitigation-selector', route: '/miti', storage: lanes, ready: '[data-tutorial-modal]', clip: 'ready', axes: winAx,
+  { id: 'miti/win-mitigation-selector', route: '/miti', storage: lanes, ready: '[data-tutorial-modal]:not([data-tutorial])', clip: 'ready', axes: winAx,
     open: async (page) => { await page.locator(`${ROW} [class*="group/cell"]`).nth(10).click(); }, covers: ['MitigationSelector'] },
   { id: 'miti/win-job-picker', route: '/miti', storage: lanes, ready: 'div.glass-tier3.rounded-xl', clip: 'ready', axes: winAx,
     open: click('[data-testid="job-picker-trigger"] >> nth=0'), covers: ['JobPicker', 'JobPickerRow'] },
@@ -152,7 +152,7 @@ export default [
 
   // ───────── ストア経由・条件作りが要る窓(dev の動的 import で store を直接叩く) ─────────
   { id: 'miti/win-archive-prompt', route: '/miti', storage: (cond) => withPlan(cond, null, { category: 'savage', level: 90 }),
-    ready: SHELL, clip: 'ready', axes: winAx, open: waitRows, covers: ['ArchivePromptModal'] },
+    ready: SHELL, clip: 'ready', axes: winAx, covers: ['ArchivePromptModal'] },
   { id: 'miti/win-local-import', route: '/miti', storage: withPlan, ready: SHELL, clip: 'ready', axes: winAx,
     open: storeCall('useLocalImportDialog', (m) => m.useLocalImportDialog.getState().open()), covers: ['LocalImportDialog'] },
   { id: 'miti/sheet-share-import', route: '/miti', storage: lanes, ready: '[data-testid="share-import-sheet"]', axes: winAx,

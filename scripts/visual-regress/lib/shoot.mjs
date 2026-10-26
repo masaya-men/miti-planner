@@ -72,7 +72,15 @@ export async function shootCondition(browser, baseUrl, cond, outFile, opts = {})
 
     const t0 = Date.now();
     await page.goto(new URL(entry.route, baseUrl).toString(), { waitUntil: 'domcontentloaded' });
-    if (entry.open) await entry.open(page, cond);
+    if (entry.open) {
+      // ready が開く前から満たされていたら、窓の目印になっていない(開かなくても撮れてしまう)ので失敗にする。
+      // 描画が落ち着く前は 0 件になりがちなので、少し待ってから数える
+      await page.waitForTimeout(1200);
+      if ((await page.locator(entry.ready).filter({ visible: true }).count()) > 0) {
+        return { ok: false, error: 'ready が開く前から満たされている(窓の目印になっていない)', unmocked };
+      }
+      await entry.open(page, cond);
+    }
     await page.waitForSelector(entry.ready, { state: 'visible', timeout: 15000 });
 
     // 落ち着き待ち: 下限経過 + 500ms 要求ゼロ + 字体

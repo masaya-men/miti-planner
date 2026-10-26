@@ -68,7 +68,7 @@ export default [
     ready: '[data-testid="housing-favorites-grid"]', axes: ax(), covers: ['FavoritesPage'] },
   { id: 'housing/tour-empty', route: '/housing/tour', storage, ready: 'main.housing-workspace', axes: ax(), covers: ['TourNavPage'] },
   { id: 'housing/detail', route: '/housing/listing/vr-l01', storage, ready: '.housing-detail-fullpage-main .housing-share', axes: ax(), covers: ['HousingDetailPage'] },
-  { id: 'housing/tour-tray', route: '/housing', storage, ready: '.housing-tour-tray-start', axes: ax(), open: openTourWithTray, covers: ['TourNavPage', 'TourTrayList', 'TourTrayBoard', 'TourTrayDetailPanel'] },
+  { id: 'housing/tour-tray', route: '/housing', storage, ready: '.housing-tour-tray-start:not([disabled])', axes: ax(), open: openTourWithTray, covers: ['TourNavPage', 'TourTrayList', 'TourTrayBoard', 'TourTrayDetailPanel'] },
   // 未ログインのログイン案内(HousingLoginPrompt)。tour は PC のツアー計画の右パネルに出る
   { id: 'housing/login-prompt-mypage', route: '/housing/mypage', storage, ready: '.housing-login-prompt[data-context="mypage"]', axes: ax(), covers: ['HousingLoginPrompt', 'HousingerPage'] },
   { id: 'housing/login-prompt-register', route: '/housing/register', storage, ready: '[data-testid="housing-register-login-prompt"]', axes: ax(), covers: ['HousingLoginPrompt', 'RegisterPage'] },
