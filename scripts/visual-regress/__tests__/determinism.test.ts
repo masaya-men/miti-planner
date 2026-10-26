@@ -10,6 +10,7 @@ describe('classifyRequest', () => {
     ['http://localhost:5182/housing/a.webp', 'app'],
     ['http://localhost:5182/api/housing/public?action=gallery', 'api'],
     ['http://localhost:5182/api/collab/_roomLogic.ts', 'app'],
+    ['http://localhost:5182/api/x.js', 'api'],
     ['https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen', 'block'],
     ['https://fonts.gstatic.com/s/x.woff2', 'font'],
     ['https://fonts.googleapis.com/css2?family=Inter', 'font'],

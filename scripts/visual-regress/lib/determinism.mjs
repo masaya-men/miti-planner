@@ -41,7 +41,7 @@ export function classifyRequest(url, appOrigin) {
   // アプリ自身(ws は http に読み替えて origin 比較)
   const app = new URL(appOrigin);
   // /api/ 配下でもソースファイル(Vite が配る .ts など。src から相対 import される)はアプリ扱い
-  if (u.host === app.host) return u.pathname.startsWith('/api/') && !/\.(?:[cm]?[jt]sx?)$/.test(u.pathname) ? 'api' : 'app';
+  if (u.host === app.host) return u.pathname.startsWith('/api/') && !/\.tsx?$/.test(u.pathname) ? 'api' : 'app';
   return 'unknown';
 }
 
@@ -150,16 +150,8 @@ export async function installDeterminism(context, { appOrigin, fixturesDir, font
   await context.clock.resume();
 
   // 乱数: 種付き mulberry32 に差し替え
-  await context.addInitScript(`(${((s) => {
-    let a = s >>> 0;
-    Math.random = () => {
-      a = (a + 0x6d2b79f5) >>> 0;
-      let t = a;
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }).toString()})(${Number(seed)})`);
+  // 注入するのはテスト済みの mulberry32 そのもの(実装を 1 つに保つ)
+  await context.addInitScript(`Math.random = (${mulberry32.toString()})(${Number(seed)});`);
 
   return { unmocked };
 }
