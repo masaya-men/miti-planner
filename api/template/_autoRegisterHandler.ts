@@ -9,6 +9,7 @@ import { writeAuditLog } from '../../src/lib/auditLog.js';
 import { sendDiscordNotification } from '../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
+import { CONTENT_ID_RE } from './_publicTemplateHandler.js';
 
 // 品質チェックの閾値
 const MIN_EVENT_COUNT: Record<string, number> = {
@@ -66,6 +67,10 @@ export default async function handler(req: any, res: any) {
     if (!body.contentId || !Array.isArray(body.timelineEvents)) {
       return res.status(400).json({ error: 'contentId and timelineEvents are required' });
     }
+    // contentId の形式検証 (パス区切り等を含む不正 ID で任意パスを読み書きさせない)
+    if (typeof body.contentId !== 'string' || !CONTENT_ID_RE.test(body.contentId)) {
+      return res.status(400).json({ error: 'invalid contentId' });
+    }
 
     // timelineEventsの各要素を検証（最低限の型チェック）
     // name は LocalizedString（{ ja, en }）またはレガシーの string
@@ -81,6 +86,14 @@ export default async function handler(req: any, res: any) {
     }
 
     const db = getAdminFirestore();
+
+    // contentId が master/contents に実在するか検証 (存在しない ID のテンプレート乱造を防ぐ)
+    const contentsSnap = await db.doc('master/contents').get();
+    const contentItems = contentsSnap.exists ? contentsSnap.data()?.items : null;
+    if (!Array.isArray(contentItems) || !contentItems.some((c: any) => c?.id === body.contentId)) {
+      return res.status(400).json({ error: 'unknown contentId' });
+    }
+
     const minEvents = MIN_EVENT_COUNT[body.category] || MIN_EVENT_COUNT.default;
 
     // 品質チェック
