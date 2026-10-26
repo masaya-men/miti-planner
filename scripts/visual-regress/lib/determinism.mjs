@@ -36,7 +36,7 @@ export function classifyRequest(url, appOrigin) {
   if (
     BLOCK_SUFFIXES.some((s) => host.endsWith(s)) ||
     BLOCK_HOSTS.some((h) => hostIs(host, h)) ||
-    (host === 'www.google.com' && u.pathname.startsWith('/recaptcha'))
+    (host === 'www.google.com' && (u.pathname.startsWith('/recaptcha') || u.pathname === '/images/cleardot.gif')) // cleardot = Firestore の疎通確認
   ) return 'block';
   // アプリ自身(ws は http に読み替えて origin 比較)
   const app = new URL(appOrigin);

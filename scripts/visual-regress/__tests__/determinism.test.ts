@@ -21,6 +21,7 @@ describe('classifyRequest', () => {
     ['https://i.ytimg.com/vi/x/hq.jpg', 'image'],
     ['https://www.google.com/recaptcha/api.js', 'block'],
     ['https://www.youtube.com/embed/x', 'block'],
+    ['https://www.google.com/images/cleardot.gif?zx=abc', 'block'],
     ['https://example.com/x', 'unknown'],
     ['wss://lopo-collab.x.workers.dev', 'block'],
   ];
