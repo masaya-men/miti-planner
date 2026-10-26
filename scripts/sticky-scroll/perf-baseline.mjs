@@ -23,7 +23,7 @@ const prefix = typeof args.prefix === 'string' ? args.prefix : 'baseline';
 
 const conds = [];
 for (const axis of ['y', 'x']) for (const theme of ['standard', 'military']) for (const view of ['lanes', 'sheet']) for (const dataset of ['synthetic', 'normal', 'heavy']) {
-    conds.push({ axis, theme, view, dataset, mode: 'raf', name: `${prefix}-${axis}-${theme}-${view}-${dataset}` });
+  conds.push({ axis, theme, view, dataset, mode: 'raf', name: `${prefix}-${axis}-${theme}-${view}-${dataset}` });
 }
 // 本物のホイール(横は Shift 併用)の基準 2 本: 標準・ふつう・normal
 for (const axis of ['x', 'y']) conds.push({ axis, theme: 'standard', view: 'lanes', dataset: 'normal', mode: 'wheel', name: `${prefix}-wheel-${axis}-standard-lanes-normal` });

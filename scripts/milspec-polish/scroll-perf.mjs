@@ -18,7 +18,7 @@
  *   --out-dir=<dir> --save / --compare の JSON の置き場所(既定 scripts/milspec-polish/.perf)。
  *   --trace      通常の runs の後に 1 回だけ追加でトレースを取り、Layerize / Commit の時間を trace として記録(合否には使わない)。
  * 本番ビルド(npm run build → npx vite preview --port 4173 --strictPort)で測る。dev では測らない。
- * 条件: 1489×679 / deviceScaleFactor 1 / 300 行超(1・2・3 段混在)/ 3 秒 × 5 回の中央値。
+ * 条件: 1489×679 / deviceScaleFactor 1 / 300 行超(1・2・3 段混在)/ 3 秒 × 既定 5 回の中央値(--runs で変更。perf-baseline は 9)。
  * 結果は scripts/milspec-polish/.perf/<name>.json(コミットしない)。
  * CPU は CDP Emulation.setCPUThrottlingRate で既定 4 倍に低速化(60Hz 上限で差が出ないため)。
  * 他に longtask(件数・ブロック時間=Σ(duration-50))と平均フレーム間隔も記録する。
@@ -284,12 +284,22 @@ while (discarded < MAX_DISCARD) {
   runs.push(r);
   printRun(r, runs.length - 1);
 }
+// 上限を使い切っても外れ値が残る / 最小コマ数を極端に下げた測定は「信頼できない」と印を付ける(判定は変えない)
+const unreliableReasons = [];
+{
+  const med = median(runs.map((r) => r.p95));
+  const worst = Math.max(...runs.map((r) => r.p95));
+  if (worst > med * 3) unreliableReasons.push(`捨てる上限(${MAX_DISCARD}回)を使い切っても外れ値が残った(p95 ${worst.toFixed(1)} > 中央値 ${med.toFixed(1)} の 3 倍)`);
+  if (MIN_FRAMES > 0 && MIN_FRAMES < 40) unreliableReasons.push(`min-frames=${MIN_FRAMES}(40 未満)で測定`);
+}
+const unreliable = unreliableReasons.length > 0;
+if (unreliable) console.error(`WARN unreliable: ${unreliableReasons.join(' / ')}`);
 let traceRun = null;
 if (args.trace) {
   try { traceRun = (await measureOnce(true)).trace ?? null; console.log(`trace: ${JSON.stringify(traceRun)}`); } catch (e) { console.log(`trace 取得失敗: ${e.message}`); }
 }
 const result = {
-  theme, cpu: CPU, viewport: `1489x679@${DSR}x`, ...(NONDEFAULT ? { axis: AXIS, dsr: DSR, view: VIEW, dataset: DATASET, mode: MODE } : {}), ...(traceRun ? { trace: traceRun } : {}), runs: RUNS, ...(discarded ? { discarded } : {}), durationMs: DURATION_MS, speedPxPerS: SPEED_PX_PER_S,
+  theme, cpu: CPU, viewport: `1489x679@${DSR}x`, ...(NONDEFAULT ? { axis: AXIS, dsr: DSR, view: VIEW, dataset: DATASET, mode: MODE } : {}), ...(traceRun ? { trace: traceRun } : {}), runs: RUNS, ...(discarded ? { discarded } : {}), ...(unreliable ? { unreliable: true, unreliableReason: unreliableReasons.join(' / ') } : {}), durationMs: DURATION_MS, speedPxPerS: SPEED_PX_PER_S,
   p50: median(runs.map((r) => r.p50)), p95: median(runs.map((r) => r.p95)), over: median(runs.map((r) => r.over)),
   mean: median(runs.map((r) => r.mean)), ltCount: median(runs.map((r) => r.ltCount)), blocked: median(runs.map((r) => r.blocked)),
   p95Spread: Math.max(...runs.map((r) => r.p95)) - Math.min(...runs.map((r) => r.p95)),
@@ -315,6 +325,7 @@ if (typeof args.compare === 'string') {
   }
   const ratio = result.p95 / base.p95 - 1;
   const bRatio = base.blocked > 0 ? result.blocked / base.blocked - 1 : (result.blocked > 50 ? 1 : 0);
+  console.log(`unreliable: 基準=${base.unreliable ? `あり(${base.unreliableReason})` : 'なし'} / 今回=${unreliable ? `あり(${unreliableReasons.join(' / ')})` : 'なし'}`);
   console.log(`compare ${args.compare}: p95 ${base.p95.toFixed(2)}->${result.p95.toFixed(2)} (${(ratio * 100).toFixed(1)}%) blocked ${base.blocked.toFixed(0)}->${result.blocked.toFixed(0)}ms (${(bRatio * 100).toFixed(1)}%)`);
   // 1 コマは 16.7ms 刻み: p95 は「2 コマ(33.4ms)以上」かつ 10% 超、ブロックは「100ms 以上」かつ 10% 超のときだけ悪化とみなす
   const p95Bad = ratio > THRESHOLD && result.p95 - base.p95 >= 33.3;
