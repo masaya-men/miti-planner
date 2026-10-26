@@ -83,16 +83,18 @@ JSON の形: `conds.<条件id>.items.<項目>`。位置は `[left, top, width, h
 ## 使い方
 - 撮る: `node scripts/sticky-scroll/shots.mjs --out=baseline`(約 8〜9 分。`tolerance.json` が無いときだけ、同じ画面を 3 回撮って許容を決める。`--calibrate` で撮り直し)
 - 比べる: `node scripts/sticky-scroll/shots.mjs --out=after --compare=baseline`(約 3 分。許容外があれば exit 1・撮影に失敗した条件があれば exit 2)
-- 絞る: `--only=<条件 id に含まれる文字>`・`--jobs=N`(既定 3)・`--list`
+- 絞る: `--only=<条件 id に含まれる文字>`・`--jobs=N`(既定 3)・`--list`。`--only` で許容を撮り直したときは、撮っていない写真の許容を残して混ぜ込む
+- 安全策: `--out` と `--compare` が同じ名前なら止める(比べる元が消えるため)・比べた写真が 0 枚なら exit 1
+- 検出力の確認(使い捨て): `--inject-css=<file>` で撮影時に CSS を足す(例 `#timeline-header-inner{transform:translateX(3px)}`)。比べて exit 1 になるかを見る。普段は使わない
 - 結果: `.baseline/shots/<out>/<条件id>/<写真名>.png`・許容 `.baseline/tolerance.json`(どちらも git に入れない)
 
-## 撮るもの(合計 164 枚 / 36 条件)
+## 撮るもの(合計 196 枚 / 36 条件)
 - デスクトップ 8 人 24 条件(画面 1489・1920・2560 × テーマ 4 × ふつう/スプシ、横スクロール 0): `page`(画面全体)・`top`(ボタンの欄+見出しの帯)・`scrollbar`(表の入れ物の下端 80px)
-- 1489・1920 の 16 条件だけ追加: `hover-info` `hover-lane`(0:15 の行に乗せた状態・B4.1)・`expanded`(表の展開・B6)・`myjob`(MYジョブ強調・B4.6)
+- 1489・1920 の 16 条件だけ追加: `hover-info` `hover-lane`(0:15 の行に乗せた状態・B4.1)・`expanded`(表の展開・B6)・`myjob`(MYジョブ強調・B4.6)・`conflict`(競合の赤い輪・B1.5。画面外の矢印は 1489 だけ出る=1920 以上では 465 秒の行も画面内)・`record`(進捗の記録モードでレーンに乗せた青い枠・B4.5)
 - 2560 の 4 人(横に短い・B9.2)8 条件: `page` `top` `scrollbar`
 - スマホ 390×844(DSR3)× テーマ 4(B8): `page`
 - 撮る前に動きを止める: reduced motion・transition 無効・有限のアニメは終点へ・無限のものは 0 で停止・video は 0 秒で停止。MIL-SPEC 見出しの実時刻の表示(`.milspec-drums` `.milspec-dtg-txt`)は毎回変わるので隠す。
-- 未対応(今は撮っていない): B1.5 競合の輪・矢印、B1.7 並べ替えの横すべり(動き)、B4.5 進捗の記録モード。
+- B1.7 並べ替えの横すべり(MIL-SPEC `slideOnSort`)は動きなので撮らない=**[目](ユーザーの実機確認)で確かめる**。
 
 ## 許容の決め方
 - 差は 8×8 画素のブロックごとの平均色差(RGB の最大差)が 6 を超えたブロックの数 / 全ブロック数。MIL-SPEC の面には毎回ちがう粒状ノイズがあり、画素ごとに数えると同じ画面でも約 0.4% 違うため、粒を均すブロック方式にした。

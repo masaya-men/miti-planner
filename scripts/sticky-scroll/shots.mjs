@@ -3,7 +3,7 @@
  * 軽減表の画面写真(横スクロール計画 §4 の [写] 項目・§10 段階 0-2)。アプリのコードは変えない。
  *
  * 使い方(README.md に詳細):
- *   node scripts/sticky-scroll/shots.mjs --out=baseline            撮る(tolerance.json が無ければ同じ画面を 2 回撮って許容を決める)
+ *   node scripts/sticky-scroll/shots.mjs --out=baseline            撮る(tolerance.json が無ければ同じ画面を 3 回撮って許容を決める)
  *   node scripts/sticky-scroll/shots.mjs --out=after --compare=baseline
  *   他: --calibrate(許容を撮り直す) --only=<文字>(条件 id に含まれる文字で絞る) --jobs=N --list
  *
@@ -29,10 +29,12 @@ const BASE_URL = process.env.REGRESS_BASE_URL || 'http://localhost:5173';
 const OUT = typeof args.out === 'string' ? args.out : 'after';
 const COMPARE = typeof args.compare === 'string' ? args.compare : null;
 const ONLY = typeof args.only === 'string' ? args.only : null;
+/** 検出力の確認用(--inject-css=<file>): 撮影時に CSS を足す。使い捨て・普段は使わない。 */
+const INJECT_CSS = typeof args['inject-css'] === 'string' ? fs.readFileSync(args['inject-css'], 'utf8') : null;
 const JOBS = Number(args.jobs) || 3;
 const FLOOR_RATIO = 0.0005; // 許容の下限 = 全画素の 0.05%
 const MIN_BLOCKS = 10; // 小さい切り出しでは 0.05% が数ブロックになり厳しすぎるので、ブロック数の下限も置く
-const MARGIN = 1.5; // 同じ画面を 2 回撮った差の最大値 × 1.5
+const MARGIN = 1.5; // 同じ画面を 3 回撮った 3 通りの差の最大値 × 1.5
 const BLOCK = 8; // 差を数えるブロックの一辺(画素)
 const BLOCK_MEAN = 6; // ブロック内の平均の色差(各画素の RGB 最大差)がこれを超えたら「違うブロック」
 
@@ -121,6 +123,7 @@ async function openPage(cond, over = {}) {
 
 /** 動きを止める: 有限のアニメは終点へ・無限のものは 0 で停止・transition 無効・video は 0 秒で停止。 */
 async function freeze(page) {
+  if (INJECT_CSS) await page.addStyleTag({ content: INJECT_CSS });
   await page.addStyleTag({ content: '*,*::before,*::after{transition:none!important;caret-color:transparent!important}.milspec-drums,.milspec-dtg-txt{visibility:hidden!important}' /* MIL-SPEC 見出しの実時刻の表示(日時の数字)は毎回変わるので隠す */ });
   await page.evaluate(async () => {
     for (const a of document.getAnimations()) {
@@ -207,6 +210,35 @@ async function takeAll(cond) {
   if (fullCond) {
     ({ browser, page } = await openPage(cond, { myMemberId: 'H1', myJobHighlight: true }));
     try { await freeze(page); await snap('myjob'); } finally { await browser.close(); }
+    // B1.5 競合の赤い輪・画面外の競合矢印(矢印は 1920 以上では 465 秒の行も画面内に入り出ない=輪だけ。regress.mjs の conflict と同じ配置。脈動は freeze で 0 秒に止まる)
+    ({ browser, page } = await openPage(cond, { timelineMitigations: [
+      ...MITIGATION_FIXTURE.map((m) => ({ ...m })),
+      { id: 'rg-c1', mitigationId: 'tactician', ownerId: 'D1', time: 465, duration: 15 },
+      { id: 'rg-c2', mitigationId: 'tactician', ownerId: 'D1', time: 483, duration: 15 },
+      { id: 'rg-c3', mitigationId: 'vengeance', ownerId: 'MT', time: 69, duration: 15 },
+    ] }));
+    try {
+      await freeze(page);
+      const n = await page.evaluate(() => ({ ring: document.querySelectorAll('.animate-conflict-pulse').length, arrow: document.querySelectorAll('button[aria-label*="競合あり"]').length }));
+      if (!n.ring) throw new Error(`競合の輪が出ない ${JSON.stringify(n)} / ${cond.id}`);
+      await snap('conflict');
+    } finally { await browser.close(); }
+    // B4.5 進捗の記録モード(dev の store で入り、レーンの上に乗せて青い枠を出す)
+    ({ browser, page } = await openPage(cond));
+    try {
+      await page.evaluate(async () => {
+        const url = performance.getEntriesByType('resource').map((x) => x.name).find((n) => n.includes('/src/components/progress/useProgressRecording.ts')) || '/src/components/progress/useProgressRecording.ts';
+        const m = await import(/* @vite-ignore */ url);
+        m.useProgressRecording.getState().startRecordMode();
+      });
+      await page.waitForTimeout(500);
+      const r = await rectOf(page, '[data-time-row="15"] [data-job-col]');
+      if (!r) throw new Error(`記録モードの対象行が無い / ${cond.id}`);
+      await page.mouse.move(r.x + r.w / 2, r.y + r.h / 2);
+      await page.waitForTimeout(800);
+      await freeze(page);
+      await snap('record');
+    } finally { await browser.close(); }
   }
   return shots;
 }
@@ -219,7 +251,7 @@ async function diffPng(a, b) {
   if (ra.info.width !== rb.info.width || ra.info.height !== rb.info.height) {
     return { pixels: Math.max(total, rb.info.width * rb.info.height), total, ratio: 1, sizeMismatch: `${ra.info.width}x${ra.info.height} vs ${rb.info.width}x${rb.info.height}` };
   }
-  // MIL-SPEC の面には毎回ちがう粒状のノイズがある(2 回撮りで確認)。画素ごとではなく 8x8 のブロックの平均差で数え、粒を均す。
+  // MIL-SPEC の面には毎回ちがう粒状のノイズがある(同じ画面を撮り直して確認)。画素ごとではなく 8x8 のブロックの平均差で数え、粒を均す。
   const A = ra.data, B = rb.data, W = ra.info.width, H = ra.info.height;
   const bw = Math.ceil(W / BLOCK), bh = Math.ceil(H / BLOCK);
   let n = 0;
@@ -243,6 +275,7 @@ async function pool(items, n, fn) {
 async function main() {
   const conds = CONDS.filter((c) => !ONLY || c.id.includes(ONLY));
   if (args.list) { for (const c of conds) console.log(c.id); console.log(`${conds.length} 条件`); return 0; }
+  if (COMPARE && COMPARE === OUT) { console.log('--out と --compare が同じ名前(比べる元が消える)'); return 1; }
   const outDir = path.join(SHOTS_DIR, OUT);
   fs.rmSync(outDir, { recursive: true, force: true });
   const calibrate = !COMPARE && (args.calibrate || !fs.existsSync(TOL_FILE));
@@ -260,7 +293,7 @@ async function main() {
       fs.mkdirSync(dir, { recursive: true });
       for (const [name, buf] of Object.entries(shots)) { fs.writeFileSync(path.join(dir, `${name}.png`), buf); count++; }
       if (calibrate) {
-        // 3 回撮って、3 通りの組み合わせの差のうち最大を採る(MIL-SPEC の粒状ノイズは回ごとにばらつくため 2 回では足りなかった)
+        // 3 回撮って、3 通りの組み合わせの差のうち最大を採る(MIL-SPEC の粒状ノイズは回ごとにばらつき 2 回撮りでは許容がぎりぎりだったため)
         const second = await takeAll(cond);
         const third = await takeAll(cond);
         for (const [name, buf] of Object.entries(shots)) {
@@ -286,15 +319,18 @@ async function main() {
       shotsTol[k] = { selfDiffBlocks: d.pixels, selfDiffRatio: d.ratio, tolRatio: ratio, tolBlocks: Math.ceil(ratio * d.total) };
       maxRatio = Math.max(maxRatio, ratio);
     }
+    const oldShots = ONLY && tolerance.shots ? tolerance.shots : {}; // --only の撮り直しは、撮っていない写真の許容を消さず混ぜ込む
+    const mergedTol = { ...oldShots, ...shotsTol };
+    maxRatio = Math.max(...Object.values(mergedTol).map((v) => v.tolRatio));
     tolerance = {
       note: '同じ画面を 3 回撮った 3 通りの差の最大値 x1.5(下限 全体の 0.05% かつ 10 ブロック)。差は 8x8 ブロック単位(平均色差 > 6 を違いと数える)。pixels / total の単位はブロック。',
       marginX: MARGIN, floorRatio: FLOOR_RATIO, block: BLOCK, blockMean: BLOCK_MEAN,
-      defaultTolRatio: maxRatio, createdAt: new Date().toISOString(), shots: shotsTol,
+      defaultTolRatio: maxRatio, createdAt: new Date().toISOString(), shots: mergedTol,
     };
     fs.mkdirSync(BASE_DIR, { recursive: true });
     fs.writeFileSync(TOL_FILE, JSON.stringify(tolerance, null, 1));
     const worst = Object.entries(shotsTol).sort((a, b) => b[1].selfDiffRatio - a[1].selfDiffRatio).slice(0, 5);
-    console.log(`許容を決めた: ${Object.keys(shotsTol).length} 枚 / 既定 ${(maxRatio * 100).toFixed(4)}% / 2 回撮りの差が大きい上位:`);
+    console.log(`許容を決めた: ${Object.keys(shotsTol).length} 枚 / 既定 ${(maxRatio * 100).toFixed(4)}% / 撮り直しの差が大きい上位:`);
     for (const [k, v] of worst) console.log(`  ${k}: ${v.selfDiffBlocks} ブロック (${(v.selfDiffRatio * 100).toFixed(4)}%)`);
   }
 
@@ -317,6 +353,7 @@ async function main() {
         if (d.ratio > t) { bad++; console.log(`  差 ${key}: ${d.pixels} ブロック (${(d.ratio * 100).toFixed(4)}%) > 許容 ${(t * 100).toFixed(4)}%${d.sizeMismatch ? ' 大きさ違い ' + d.sizeMismatch : ''}`); }
       }
     }
+    if (cmpN === 0) { console.log('比べた写真が 0 枚(条件の指定か比較元を確認)'); return 1; }
     console.log(`比較 ${cmpN} 枚: 許容外 ${bad} 枚 / 最大の差 ${(maxSeen * 100).toFixed(4)}%`);
   }
   if (errors.length) { console.log(`失敗 ${errors.length} 件:`); for (const e of errors) console.log('  ' + e); return 2; }
