@@ -72,9 +72,9 @@ export default [
   // ───────── 窓・ポップ(ログイン不要。clip:'ready' = 窓の枠だけ。ポップは全画面) ─────────
   { id: 'miti/win-login', route: '/miti', storage: lanes, ready: SHELL, clip: 'ready', axes: winAx,
     open: click('button:has(svg.lucide-log-in)'), covers: ['LoginModal', 'ModalShell'] },
-  { id: 'miti/win-party-settings', route: '/miti', storage: lanes, ready: '[class*="z-[10000]"]', axes: winAxEn,
+  { id: 'miti/win-party-settings', route: '/miti', storage: lanes, ready: 'body > div.fixed.pointer-events-auto[class*="z-[10000]"]', axes: winAxEn,
     open: click('[data-tutorial="party-comp"]'), covers: ['PartySettingsModal'] },
-  { id: 'miti/win-party-status', route: '/miti', storage: lanes, ready: textRe('ステータス設定', 'Status Settings'), axes: winAx,
+  { id: 'miti/win-party-status', route: '/miti', storage: lanes, ready: 'body > div.fixed.pointer-events-auto[class*="z-[9999]"]', axes: winAx,
     open: click('button:has-text("ステータス設定"), button:has-text("Stat Config")'), covers: ['PartyStatusPopover'] },
   { id: 'miti/menu-import', route: '/miti', storage: lanes, ready: textRe('スプレッドシートから取り込み', 'Import from spreadsheet'), axes: winAx,
     open: clickLabel('取り込み', 'Import'), covers: ['ImportMenu'] },
