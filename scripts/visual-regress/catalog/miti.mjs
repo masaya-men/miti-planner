@@ -152,7 +152,7 @@ export default [
 
   // ───────── ストア経由・条件作りが要る窓(dev の動的 import で store を直接叩く) ─────────
   { id: 'miti/win-archive-prompt', route: '/miti', storage: (cond) => withPlan(cond, null, { category: 'savage', level: 90 }),
-    ready: SHELL, clip: 'ready', axes: winAx, covers: ['ArchivePromptModal'] },
+    ready: `${SHELL}:has-text("過去拡張の軽減表をアーカイブしました")`, clip: 'ready', axes: winAx, covers: ['ArchivePromptModal'] },
   { id: 'miti/win-local-import', route: '/miti', storage: withPlan, ready: SHELL, clip: 'ready', axes: winAx,
     open: storeCall('useLocalImportDialog', (m) => m.useLocalImportDialog.getState().open()), covers: ['LocalImportDialog'] },
   { id: 'miti/sheet-share-import', route: '/miti', storage: lanes, ready: '[data-testid="share-import-sheet"]', axes: winAx,

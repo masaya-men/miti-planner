@@ -25,6 +25,8 @@ const VIEWPORTS = {
 
 /** 落ち着き待ちの下限(ms)。Firestore を塞いだ /miti は行表示まで約 2.2 秒の実測 → 余裕を足す */
 const SETTLE_FLOOR_MS = 2500;
+/** open 前の ready 事前チェックの前に、描画が落ち着くのを待つ時間 */
+const PRE_OPEN_WAIT_MS = 1200;
 /** ネットワーク要求ゼロが続くべき時間(ms) */
 const QUIET_MS = 500;
 /** 落ち着き待ちの上限(ms) */
@@ -75,7 +77,7 @@ export async function shootCondition(browser, baseUrl, cond, outFile, opts = {})
     if (entry.open) {
       // ready が開く前から満たされていたら、窓の目印になっていない(開かなくても撮れてしまう)ので失敗にする。
       // 描画が落ち着く前は 0 件になりがちなので、少し待ってから数える
-      await page.waitForTimeout(1200);
+      await page.waitForTimeout(PRE_OPEN_WAIT_MS);
       if ((await page.locator(entry.ready).filter({ visible: true }).count()) > 0) {
         return { ok: false, error: 'ready が開く前から満たされている(窓の目印になっていない)', unmocked };
       }

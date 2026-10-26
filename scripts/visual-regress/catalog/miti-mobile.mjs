@@ -23,6 +23,12 @@ const fabItem = (/** @type {string} */ icon) => async (/** @type {import('playwr
   await page.click(`${FAB} button:has(svg.lucide-${icon})`);
 };
 
+const POP = 'div.fixed.glass-tier3.rounded-lg';
+const fireEvent = (/** @type {string} */ name) => async (/** @type {import('playwright').Page} */ page) => {
+  await page.waitForSelector(ROW);
+  await page.evaluate((n) => window.dispatchEvent(new Event(n)), name);
+};
+
 export default [
   // ───────── ページ ─────────
   { id: 'mobile/page-lanes', route: '/miti', storage: lanes, ready: ROW, axes: pageAx,
@@ -70,6 +76,14 @@ export default [
     open: fabItem('sparkles'), covers: ['MobileFAB'] },
   { id: 'mobile/fab-party-visibility', route: '/miti', storage: lanes, ready: 'body > button.fixed[type="button"]', axes: popAx,
     open: fabItem('users'), covers: ['MobileFAB'] },
+
+  // ───────── FAB から開くジャンプ・検索(CustomEvent。Layout の FAB が送るのと同じイベント) ─────────
+  { id: 'mobile/popover-phase', route: '/miti', storage: lanes, ready: POP, axes: popAx,
+    open: fireEvent('mobile:phase-jump'), covers: ['HeaderPhaseDropdown'] },
+  { id: 'mobile/popover-gimmick', route: '/miti', storage: lanes, ready: POP, axes: popAx,
+    open: fireEvent('mobile:label-jump'), covers: ['HeaderGimmickDropdown'] },
+  { id: 'mobile/popover-search', route: '/miti', storage: lanes, ready: POP, axes: popAx,
+    open: fireEvent('mobile:mechanic-search'), covers: ['HeaderMechanicSearch'] },
 
   // ───────── 初回ガイド(抑止キーを外して撮る。1 ステップ目だけ) ─────────
   // 初回ガイドは「空のタイムライン・プラン無し・共有チュートリアル未訪問・抑止キー無し」の時だけ 600ms 後に出る

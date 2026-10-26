@@ -1,10 +1,10 @@
 // @ts-check
 // 段階 1 のカタログに入れなかった窓・画面(理由つき)。run.mjs は先頭 _ のファイルを読まない。
 // stage: 2 = 見本・撮影手順を足せば撮れる / 3 = 撮影対象外・専用の仕組みが要る
-/** @type {{ component: string, stage: 2 | 3, reason: string }[]} */
 // 管理画面のページ本体。/admin は AdminGuard が管理者ログイン(Firebase Auth + 管理者権限)を要求し、データも Firestore 直読みで見本に載せられない
 const ADMIN_PAGES = ['AdminLayout', 'AdminDashboard', 'AdminContents', 'AdminContentForm', 'AdminTemplates', 'AdminConfig', 'AdminSkills', 'AdminTranslations', 'AdminStats', 'AdminServers', 'AdminBackups', 'AdminLogs', 'AdminUgc', 'AdminFeatured', 'AdminSystemNotifications', 'AdminHousingReports', 'AdminHousingerReports', 'AdminHousingNewBadge'];
 
+/** @type {{ component: string, stage: 2 | 3, reason: string }[]} */
 export default [
   { component: 'HousingerPage', stage: 2, reason: '/housing/housinger/:uid は uid が hashed:<id> に正規化され、API が uid=hashed:vr-user-a で呼ばれる。見本ファイル名にコロンが入り Windows で作れず(apiFixtureKey の置換が要る)、プロフィール本体は Firestore 直読み(遮断中)で、撮ると見本の無い通信で失敗する。マイページのログイン案内側(/housing/mypage 未ログイン)だけ housing/login-prompt-mypage で撮影済み。' },
   { component: 'HousingerShortLinkPage', stage: 2, reason: '/h/:slug は Firestore getDocs で slug を解決する(遮断中)ため、実内容が出ない。HousingerPage と同じ理由で見本の拡張が要る。' },
