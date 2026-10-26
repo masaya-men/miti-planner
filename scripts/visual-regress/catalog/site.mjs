@@ -14,10 +14,11 @@ const axes = { vp: ['1489', '390'], theme: ['site-dark', 'site-light'], lang: ['
 /** @type {(id: string, route: string, ready: string, covers: string[]) => any} */
 const page = (id, route, ready, covers) => ({ id, route, storage: siteStorage, ready, axes, covers });
 
+// ready は「そのページ固有」の要素にする(別ページへ転送されても通ってしまわないように)。
 export default [
-  page('site/lp', '/', 'section', ['LandingPage']),
-  page('site/about', '/about', 'h1', ['AboutPage']),
-  page('site/privacy', '/privacy', 'h1', ['PrivacyPolicyPage']),
-  page('site/terms', '/terms', 'h1', ['TermsPage']),
-  page('site/stgy', '/stgy', 'h1', ['StrategyBoardPastePage']),
+  page('site/lp', '/', 'text=/Scroll to explore/i', ['LandingPage']),
+  page('site/about', '/about', 'h1:text-matches("運営について|About LoPo")', ['AboutPage']),
+  page('site/privacy', '/privacy', 'h1:text-matches("プライバシーポリシー|Privacy Policy")', ['PrivacyPolicyPage']),
+  page('site/terms', '/terms', 'h1:text-matches("利用規約|Terms of Service")', ['TermsPage']),
+  page('site/stgy', '/stgy', 'h1.stgy-title', ['StrategyBoardPastePage']),
 ];

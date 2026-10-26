@@ -1,6 +1,8 @@
 // @ts-check
 // ハウジング(/housing/*)のページと、ログイン不要の窓のカタログ。
 // 注: 表示切替(一覧/地図/タグ/ハウジンガー)は sessionStorage 保存のため、open() でボタンを押して切り替える。
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { baseStorage, housingStorage } from '../fixtures/storage.mjs';
 
 /** housing-dark / housing-light から明るさを取り出して見本の localStorage を作る */
@@ -26,15 +28,28 @@ const tapBottomNav = (/** @type {number} */ n) => async (/** @type {import('play
 };
 
 /** 探す画面からトレイに家を積み、クライアント遷移でツアー画面を開く(トレイはメモリだけなので store を直接叩く) */
-const openTourWithTray = async (/** @type {import('playwright').Page} */ page) => {
+const openTourWithTray = async (/** @type {import('playwright').Page} */ page, /** @type {any} */ idsOrCond) => {
+  // open() は (page, cond) で呼ばれるので、配列でなければ既定の 3 件にする
+  const ids = Array.isArray(idsOrCond) ? idsOrCond : ['vr-l01', 'vr-l02', 'vr-l03'];
   await page.waitForSelector('[data-testid="housing-listing-card"]', { state: 'visible', timeout: 15000 });
-  await page.evaluate(async () => {
+  await page.evaluate(async (idsArg) => {
     const m = await import('/src/store/useTourTrayStore.ts');
-    m.useTourTrayStore.getState().setTrayIds(['vr-l01', 'vr-l02', 'vr-l03']);
+    m.useTourTrayStore.getState().setTrayIds(idsArg);
     history.pushState({}, '', '/housing/tour');
     dispatchEvent(new PopStateEvent('popstate'));
-  });
+  }, ids);
 };
+
+/** トレイを積んで「はじめる」まで押し、ツアーを走らせる */
+const startTour = async (/** @type {import('playwright').Page} */ page, /** @type {string[]} */ ids) => {
+  await openTourWithTray(page, ids);
+  await page.click('.housing-tour-tray-start');
+  await page.click('.housing-manner-btn-start');
+};
+
+/** 見本の家の title(カード/ボタンの aria-label に使う。ja/en で同じ) */
+const GALLERY = JSON.parse(fs.readFileSync(fileURLToPath(new URL('../fixtures/api/housing-public.gallery.json', import.meta.url)), 'utf8')).listings;
+const cardOf = (/** @type {string} */ id) => `[data-testid="housing-listing-card"][aria-label=${JSON.stringify(GALLERY.find((/** @type {any} */ l) => l.id === id).title)}]`;
 
 const CARD = '[data-testid="housing-listing-card"]';
 
@@ -53,7 +68,34 @@ export default [
     ready: '[data-testid="housing-favorites-grid"]', axes: ax(), covers: ['FavoritesPage'] },
   { id: 'housing/tour-empty', route: '/housing/tour', storage, ready: 'main.housing-workspace', axes: ax(), covers: ['TourNavPage'] },
   { id: 'housing/detail', route: '/housing/listing/vr-l01', storage, ready: '.housing-detail-fullpage-main .housing-share', axes: ax(), covers: ['HousingDetailPage'] },
-  { id: 'housing/tour-tray', route: '/housing', storage, ready: '.housing-tour-tray-start', axes: ax(), open: openTourWithTray, covers: ['TourNavPage', 'TourTrayList', 'TourTrayBoard'] },
+  { id: 'housing/tour-tray', route: '/housing', storage, ready: '.housing-tour-tray-start', axes: ax(), open: openTourWithTray, covers: ['TourNavPage', 'TourTrayList', 'TourTrayBoard', 'TourTrayDetailPanel'] },
+  // 未ログインのログイン案内(HousingLoginPrompt)。tour は PC のツアー計画の右パネルに出る
+  { id: 'housing/login-prompt-mypage', route: '/housing/mypage', storage, ready: '.housing-login-prompt[data-context="mypage"]', axes: ax(), covers: ['HousingLoginPrompt', 'HousingerPage'] },
+  { id: 'housing/login-prompt-register', route: '/housing/register', storage, ready: '[data-testid="housing-register-login-prompt"]', axes: ax(), covers: ['HousingLoginPrompt', 'RegisterPage'] },
+  { id: 'housing/login-prompt-tour', route: '/housing', storage, ready: '.housing-login-prompt[data-context="tour"]', axes: ax(['1489']), open: (page) => startTour(page, ['vr-l01', 'vr-l02', 'vr-l03']), covers: ['HousingLoginPrompt', 'TourProgressPanel'] },
+  // ツアーを最後まで進めた完了画面(1 件だけ積み、「次へ/完了」を押す)
+  { id: 'housing/tour-complete', route: '/housing', storage, ready: '[data-testid="tour-complete-overlay"]', axes: ax(),
+    open: async (page) => {
+      await startTour(page, ['vr-l01']);
+      for (let i = 0; i < 5; i++) {
+        if (await page.locator('[data-testid="tour-complete-overlay"]').count()) break;
+        await page.click('.housing-tour-progress-action--next:visible, .housing-tour-mobilebar-btn--next:visible', { timeout: 5000 }).catch(() => {});
+        await page.waitForTimeout(300);
+      }
+    }, covers: ['TourNavPage'] },
+  // 地域が違う家を足そうとした時のエラー吹き出し(2.5 秒で消えるので、その時間だけ延ばしてから押す)
+  { id: 'housing/tour-add-error', route: '/housing', storage, ready: '[data-testid="housing-tour-error-bubble"]', axes: ax(['1489']),
+    open: async (page) => {
+      await page.waitForSelector(cardOf('vr-l13'), { state: 'visible', timeout: 15000 });
+      await page.evaluate(async () => {
+        const m = await import('/src/store/useTourTrayStore.ts');
+        m.useTourTrayStore.getState().setTrayIds(['vr-l01']);
+        const o = window.setTimeout.bind(window);
+        window.setTimeout = ((f, d, ...a) => o(f, d === 2500 ? 600000 : d, ...a));
+      });
+      await page.hover(cardOf('vr-l13'));
+      await page.click(`${cardOf('vr-l13')} .housing-card-add-btn`);
+    }, covers: ['HousingTourAddErrorBubble'] },
 
   // ───────── 窓(ログイン不要) ─────────
   // clip:'ready' = 窓の枠だけを撮る(要素矩形の撮影)
