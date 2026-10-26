@@ -3,6 +3,7 @@
  * 見た目の回帰テストの入口。base(比較元のコミット)と head(作業ツリー)を同じ条件で撮って比べる。
  *   node scripts/visual-regress/run.mjs [--base=<rev>] [--only=<文字>] [--jobs=N] [--name=<名前>]
  *     [--save-as=<名前> | --compare=<名前>] [--inject-css=<file>] [--calibrate] [--list]
+ *   node scripts/visual-regress/run.mjs --report-only=<名前>   (撮影せず、既存の PNG と verdicts.json から報告を作り直す)
  * 終了コード: 0=全部同じ / 1=差分あり / 2=失敗あり・実行不能
  */
 import fs from 'node:fs';
@@ -13,6 +14,7 @@ import { execFileSync } from 'node:child_process';
 import { chromium } from 'playwright';
 import { validateCatalog, expandConditions } from './lib/catalog.mjs';
 import { diffPng, toleranceFrom } from './lib/diff.mjs';
+import { buildReport } from './lib/report.mjs';
 import { shootCondition } from './lib/shoot.mjs';
 import {
   staleBaseDirs, packageJsonDiffers, startDevServer, createBaseWorktree, removeBaseWorktree,
@@ -82,6 +84,13 @@ function cleanStale(repoRoot) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  // 報告だけ作り直す(dev サーバーも worktree も使わない)
+  if (typeof args['report-only'] === 'string') {
+    const dir = path.join(OUT_ROOT, args['report-only']);
+    if (!fs.existsSync(path.join(dir, 'result.json'))) { console.error(`結果がありません: ${dir}`); return 2; }
+    console.log(`報告: ${await buildReport(dir)}`);
+    return 0;
+  }
   const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: HERE, encoding: 'utf8' }).trim();
   const entries = await loadCatalog();
   const only = typeof args.only === 'string' ? args.only : undefined;
@@ -211,6 +220,7 @@ ${sig} を受けました。後片付けして終了します`); cleanup(); proc
     fs.writeFileSync(path.join(runDir, 'result.json'), JSON.stringify(result, null, 2));
     const counts = {};
     for (const r of Object.values(result)) counts[r.status] = (counts[r.status] ?? 0) + 1;
+    if (!args.calibrate && !saveAs) console.log(`報告: ${await buildReport(runDir)}`);
     console.log(`完了(${((Date.now() - t0) / 1000).toFixed(1)} 秒): ${JSON.stringify(counts)}  結果: ${path.join(runDir, 'result.json')}`);
     return exitCodeOf(result);
   } finally {
