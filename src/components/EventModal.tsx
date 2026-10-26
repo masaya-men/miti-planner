@@ -2,7 +2,6 @@
 import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { clampToViewport } from '../utils/clampToViewport';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +10,7 @@ import { clsx } from 'clsx';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
 import EventForm from './EventForm';
+import { ModalHeader } from './ui/ModalParts';
 
 interface EventModalProps {
     isOpen: boolean;
@@ -102,7 +102,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     backgroundColor: 'var(--color-sheet-bg)',
                     borderTopLeftRadius: MOBILE_TOKENS.sheet.radius,
                     borderTopRightRadius: MOBILE_TOKENS.sheet.radius,
-                } : desktopStyle}
+                } : ({ ...desktopStyle, '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties)}
             >
                 {/* Mobile Drag Handle Indicator */}
                 {isMobile && (
@@ -141,20 +141,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     </div>
                 ) : (
                     /* PC Title Row */
-                    <div className={clsx(
-                        "flex justify-between items-center px-6 py-4 border-b flex-shrink-0 transition-colors",
-                        "border-app-border bg-app-surface2"
-                    )}>
-                        <h2 className={clsx(
-                            "text-app-2xl font-bold transition-colors",
-                            "text-app-text"
-                        )}>
-                            {initialData ? t('modal.edit_event') : t('modal.add_event')}
-                        </h2>
-                        <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90">
-                            <X size={16} />
-                        </button>
-                    </div>
+                    <ModalHeader
+                        title={initialData ? t('modal.edit_event') : t('modal.add_event')}
+                        onClose={onClose}
+                        closeLabel={t('common.close')}
+                    />
                 )}
 
                 <EventForm

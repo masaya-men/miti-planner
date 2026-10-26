@@ -7,7 +7,8 @@ import type { ContentLanguage } from '../store/useThemeStore';
 import { getPhaseName } from '../types';
 import { SKILL_DATA, calculateHpValue, calculatePotencyValue, calculateCriticalValue } from '../utils/calculator';
 import { useLevelModifiers } from '../hooks/useSkillsData';
-import { Shield, X } from 'lucide-react';
+import { Shield } from 'lucide-react';
+import { ModalHeader } from './ui/ModalParts';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import clsx from 'clsx';
@@ -199,6 +200,8 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                         : { y: '100%' }
                 }
                 transition={SPRING.gentle}
+                // PC の左パネルは窓と同じ地(ライトで白)にする。スマホの下シートはそのまま
+                style={window.innerWidth >= 768 ? ({ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties) : undefined}
             >
                 {/* Mobile drag handle */}
                 <div
@@ -211,22 +214,19 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                 </div>
 
                 {/* Header */}
-                <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-glass-header flex-shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-app-text/10 rounded-xl">
+                <ModalHeader
+                    icon={
+                        <span className="p-2 bg-app-text/10 rounded-xl">
                             <Shield className="text-app-text" size={16} />
-                        </div>
-                        <div>
-                            <h2 className="text-app-lg font-bold text-app-text tracking-wider">{t('party.settings_title', 'パラメータ設定')}</h2>
-                            <p className="text-app-sm text-app-text-sec mt-0.5 whitespace-pre-line">
-                                {t('party.settings_desc')}
-                            </p>
-                        </div>
-                    </div>
-                    <button onClick={onClose} className="text-app-text p-1.5 rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90">
-                        <X size={16} />
-                    </button>
-                </div>
+                        </span>
+                    }
+                    title={t('party.settings_title', 'パラメータ設定')}
+                    onClose={onClose}
+                    closeLabel={t('common.close')}
+                />
+                <p className="px-5 pt-2 text-app-sm text-app-text-sec whitespace-pre-line shrink-0">
+                    {t('party.settings_desc')}
+                </p>
 
                 <div className="p-4 flex-1 space-y-4">
 

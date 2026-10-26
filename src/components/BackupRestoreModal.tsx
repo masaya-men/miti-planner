@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { ModalShell } from './ui/ModalShell';
+import { ModalHeader, ModalFooter, ModalButton, INPUT_CLASS } from './ui/ModalParts';
 import { useTranslation } from 'react-i18next';
-import { X, Upload, FileUp, Loader, AlertTriangle } from 'lucide-react';
+import { Upload, FileUp, Loader, AlertTriangle } from 'lucide-react';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -106,20 +107,9 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
       isOpen
       onClose={handleClose}
       locked={stage === 'restoring'}
-      className="bg-app-bg border border-app-border rounded-xl shadow-2xl w-[90vw] max-w-[520px] max-h-[80vh] flex flex-col"
+      className="w-[90vw] max-w-[520px] max-h-[80vh]"
     >
-      {/* ヘッダー */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-app-border">
-        <h2 className="text-app-lg font-bold text-app-text">
-          {t('backup.restore_title')}
-        </h2>
-        <button
-          onClick={handleClose}
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
-        >
-          <X size={16} />
-        </button>
-      </div>
+      <ModalHeader title={t('backup.restore_title')} onClose={handleClose} closeLabel={t('common.close')} closeDisabled={stage === 'restoring'} />
 
       {/* ステージ: input */}
       {stage === 'input' && (
@@ -131,7 +121,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
             value={text}
             onChange={(e) => { setText(e.target.value); setError(''); }}
             placeholder={t('backup.restore_paste_placeholder')}
-            className="w-full h-40 bg-app-bg border border-app-border rounded-lg p-3 text-[16px] md:text-app-xs text-app-text font-mono resize-none focus:outline-none focus:border-app-text-muted transition-colors"
+            className={`${INPUT_CLASS} h-40 font-mono resize-none`}
           />
           <input
             ref={fileRef}
@@ -140,13 +130,10 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
             onChange={handleFileSelect}
             className="hidden"
           />
-          <button
-            onClick={() => fileRef.current?.click()}
-            className="flex items-center justify-center gap-2 py-2 rounded-lg border border-app-border text-app-text text-app-sm font-bold hover:bg-glass-hover transition-colors cursor-pointer"
-          >
+          <ModalButton variant="secondary" onClick={() => fileRef.current?.click()}>
             <FileUp size={14} />
             {t('backup.restore_file_select')}
-          </button>
+          </ModalButton>
           {error && (
             <p className="text-app-sm text-app-red">{error}</p>
           )}
@@ -155,6 +142,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       {/* ステージ: confirm1 */}
       {stage === 'confirm1' && (
+        <>
         <div className="px-5 py-6 flex flex-col gap-4 items-center text-center">
           <AlertTriangle size={32} className="text-app-amber" />
           <h3 className="text-app-md font-bold text-app-text">
@@ -163,25 +151,17 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <p className="text-app-sm text-app-text-muted">
             {t('backup.restore_confirm_1_message')}
           </p>
-          <div className="flex gap-2 w-full">
-            <button
-              onClick={handleClose}
-              className="flex-1 py-2 rounded-lg border border-app-border text-app-text text-app-sm font-bold hover:bg-glass-hover transition-colors cursor-pointer"
-            >
-              {t('common.cancel')}
-            </button>
-            <button
-              onClick={() => setStage('confirm2')}
-              className="flex-1 py-2 rounded-lg bg-app-amber text-black text-app-sm font-bold hover:bg-app-amber-hover transition-colors cursor-pointer"
-            >
-              {t('backup.restore_confirm_1_continue')}
-            </button>
-          </div>
         </div>
+        <ModalFooter>
+          <ModalButton variant="secondary" onClick={handleClose}>{t('common.cancel')}</ModalButton>
+          <ModalButton variant="warning" onClick={() => setStage('confirm2')}>{t('backup.restore_confirm_1_continue')}</ModalButton>
+        </ModalFooter>
+        </>
       )}
 
       {/* ステージ: confirm2 */}
       {stage === 'confirm2' && (
+        <>
         <div className="px-5 py-6 flex flex-col gap-4 items-center text-center">
           <AlertTriangle size={32} className="text-app-red" />
           <h3 className="text-app-md font-bold text-app-text">
@@ -193,21 +173,12 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
               backupCount,
             })}
           </p>
-          <div className="flex gap-2 w-full">
-            <button
-              onClick={handleClose}
-              className="flex-1 py-2 rounded-lg border border-app-border text-app-text text-app-sm font-bold hover:bg-glass-hover transition-colors cursor-pointer"
-            >
-              {t('backup.restore_confirm_2_cancel')}
-            </button>
-            <button
-              onClick={handleExecuteRestore}
-              className="flex-1 py-2 rounded-lg bg-app-red text-white text-app-sm font-bold hover:bg-app-red-hover transition-colors cursor-pointer"
-            >
-              {t('backup.restore_confirm_2_execute')}
-            </button>
-          </div>
         </div>
+        <ModalFooter>
+          <ModalButton variant="secondary" onClick={handleClose}>{t('backup.restore_confirm_2_cancel')}</ModalButton>
+          <ModalButton variant="danger" onClick={handleExecuteRestore}>{t('backup.restore_confirm_2_execute')}</ModalButton>
+        </ModalFooter>
+        </>
       )}
 
       {/* ステージ: restoring */}
@@ -222,20 +193,12 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       {/* フッター: inputステージのみ復元ボタン表示 */}
       {stage === 'input' && (
-        <div className="px-5 py-4 border-t border-app-border">
-          <button
-            onClick={handleStartRestore}
-            disabled={!text.trim()}
-            className={
-              text.trim()
-                ? "w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-app-toggle text-app-toggle-text text-app-sm font-bold hover:opacity-90 transition-opacity cursor-pointer"
-                : "w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-app-text/20 text-app-text-muted text-app-sm font-bold cursor-not-allowed"
-            }
-          >
+        <ModalFooter>
+          <ModalButton variant="primary" onClick={handleStartRestore} disabled={!text.trim()}>
             <Upload size={14} />
             {t('backup.restore_button_label')}
-          </button>
-        </div>
+          </ModalButton>
+        </ModalFooter>
       )}
     </ModalShell>
   );

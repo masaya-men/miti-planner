@@ -3,7 +3,10 @@ import React, { useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
-import { X, CloudDownload, AlertCircle, Link, Loader2, CheckCircle2, LogIn } from 'lucide-react';
+import { useIsMobile } from '../hooks/useIsMobile';
+import { ModalShell } from './ui/ModalShell';
+import { ModalHeader, ModalFooter, ModalButton, INPUT_CLASS } from './ui/ModalParts';
+import { CloudDownload, AlertCircle, Link, Loader2, CheckCircle2, LogIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import type { FFLogsRawEvent, FFLogsFight } from '../api/fflogs';
@@ -64,12 +67,14 @@ const slideUp = {
 };
 
 export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, onClose }) => {
-    useEscapeClose(isOpen, onClose);
+    const isMobile = useIsMobile();
     const { t } = useTranslation();
     const { importTimelineEvents } = useMitigationStore();
     const existingEventCount = useMitigationStore((s) => s.timelineEvents.length);
     const authUser = useAuthStore((s) => s.user);
     const isLoggedIn = !!authUser;
+    // Esc: スマホの下から出るシートだけ自前。PC とログイン案内は ModalShell が受け持つ
+    useEscapeClose(isOpen && isMobile && isLoggedIn, onClose);
 
     const [url, setUrl] = useState('');
     const [urlError, setUrlError] = useState<string | null>(null);
@@ -228,56 +233,36 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
     /* ────── ログイン必須ガード ────── */
     if (!isLoggedIn) {
-        return createPortal(
-            <AnimatePresence>
-                <div className="fixed inset-0 z-[200] flex items-center justify-center" {...backdropClose(handleClose)}>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        data-backdrop className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
-                    />
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                        className="relative w-full max-w-md mx-4 glass-tier3 shadow-sm rounded-2xl overflow-hidden"
-                        style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
-                        onClick={(e) => e.stopPropagation()}
+        return (
+            <ModalShell isOpen onClose={handleClose} className="w-full max-w-md">
+                <ModalHeader
+                    icon={<CloudDownload size={18} />}
+                    title={t('fflogs.title')}
+                    onClose={handleClose}
+                    closeLabel={t('common.close')}
+                />
+                <div className="p-6 space-y-4 overflow-y-auto">
+                    <div className="flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-app-text/10 flex items-center justify-center">
+                            <LogIn size={24} className="text-app-text" />
+                        </div>
+                    </div>
+                    <h3 className="text-center text-app-2xl-plus font-bold text-app-text">
+                        {t('fflogs.login_required_title')}
+                    </h3>
+                    <p className="text-center text-app-2xl text-app-text-muted leading-relaxed">
+                        {t('fflogs.login_required_description')}
+                    </p>
+                    <ModalButton
+                        variant="primary"
+                        onClick={() => { handleClose(); setShowLoginModal(true); }}
+                        className="w-full"
                     >
-                        <div className="px-5 py-4 border-b border-app-border flex items-center justify-between">
-                            <h2 className="text-app-3xl font-bold text-app-text flex items-center gap-2">
-                                <CloudDownload size={18} />
-                                {t('fflogs.title')}
-                            </h2>
-                            <button onClick={handleClose} className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90">
-                                <X size={18} />
-                            </button>
-                        </div>
-                        <div className="p-6 space-y-4">
-                            <div className="flex items-center justify-center">
-                                <div className="w-12 h-12 rounded-full bg-app-text/10 flex items-center justify-center">
-                                    <LogIn size={24} className="text-app-text" />
-                                </div>
-                            </div>
-                            <h3 className="text-center text-app-2xl-plus font-bold text-app-text">
-                                {t('fflogs.login_required_title')}
-                            </h3>
-                            <p className="text-center text-app-2xl text-app-text-muted leading-relaxed">
-                                {t('fflogs.login_required_description')}
-                            </p>
-                            <button
-                                onClick={() => { handleClose(); setShowLoginModal(true); }}
-                                className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-app-2xl font-bold bg-app-toggle text-app-toggle-text hover:opacity-80 transition-opacity cursor-pointer"
-                            >
-                                <LogIn size={16} />
-                                {t('fflogs.login_button')}
-                            </button>
-                        </div>
-                    </motion.div>
+                        <LogIn size={16} />
+                        {t('fflogs.login_button')}
+                    </ModalButton>
                 </div>
-            </AnimatePresence>,
-            document.body,
+            </ModalShell>
         );
     }
 
@@ -373,7 +358,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     value={url}
                     onChange={handleUrlChange}
                     disabled={isLoading || status.phase === 'preview'}
-                    className="w-full bg-app-surface2 border border-app-border rounded-xl py-3 pl-10 pr-3 text-[16px] md:text-app-2xl font-mono text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted disabled:opacity-50"
+                    className={`${INPUT_CLASS} !pl-10 font-mono`}
                     placeholder={t('fflogs.placeholder')}
                     spellCheck={false}
                 />
@@ -403,6 +388,53 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
         </>
     );
 
+    /* ────── Desktop: 中央の窓 ────── */
+    if (!isMobile) {
+        return (
+            <ModalShell isOpen onClose={handleClose} className="w-full max-w-lg">
+                <ModalHeader
+                    icon={<CloudDownload size={18} className="text-app-text" />}
+                    title={t('fflogs.title')}
+                    onClose={handleClose}
+                    closeLabel={t('common.close')}
+                />
+
+                {/* Content */}
+                <div className="p-5 flex-1 overflow-y-auto">
+                    {renderUrlInput()}
+                    {status.phase === 'preview' && (
+                        <div className="mt-4">
+                            {renderPreviewStats()}
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer */}
+                <ModalFooter>
+                    <ModalButton variant="secondary" onClick={handleClose} disabled={isLoading}>
+                        {t('common.cancel', 'キャンセル')}
+                    </ModalButton>
+
+                    {status.phase !== 'preview' ? (
+                        <ModalButton variant="primary" onClick={handleFetch} disabled={!canFetch}>
+                            {isLoading
+                                ? <Loader2 size={16} className="animate-spin" />
+                                : <CloudDownload size={16} />
+                            }
+                            {isLoading ? t('fflogs.fetching_button') : t('fflogs.fetch_button')}
+                        </ModalButton>
+                    ) : (
+                        <ModalButton variant="primary" onClick={handleImport}>
+                            <CheckCircle2 size={16} />
+                            {t('fflogs.import_button')}
+                        </ModalButton>
+                    )}
+                </ModalFooter>
+            </ModalShell>
+        );
+    }
+
+    /* ────── Mobile: 下から出るシート(step-by-step ボタン) ────── */
     return createPortal(
         <AnimatePresence>
             <div className="fixed inset-0 z-[200] flex md:items-center md:justify-center" {...backdropClose(handleClose)}>
@@ -436,18 +468,12 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         </div>
 
                         {/* Header */}
-                        <div className="px-5 py-3 border-b border-app-border flex items-center justify-between shrink-0">
-                            <h2 className="text-app-2xl-plus font-bold text-app-text flex items-center gap-2">
-                                <CloudDownload size={18} className="text-app-text" />
-                                {t('fflogs.title')}
-                            </h2>
-                            <button
-                                onClick={handleClose}
-                                className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
-                            >
-                                <X size={18} />
-                            </button>
-                        </div>
+                        <ModalHeader
+                            icon={<CloudDownload size={18} className="text-app-text" />}
+                            title={t('fflogs.title')}
+                            onClose={handleClose}
+                            closeLabel={t('common.close')}
+                        />
 
                         {/* Scrollable Content — ALL buttons are inline here, no fixed footer */}
                         <div className="flex-1 overflow-y-auto overscroll-contain p-5 pb-24">
@@ -515,77 +541,6 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     </motion.div>
                 </div>
 
-                {/* ─── Desktop: Centered Modal (unchanged) ─── */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="hidden md:flex relative z-[201] w-full max-w-lg glass-tier3 shadow-sm rounded-2xl overflow-hidden flex-col"
-                    style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    {/* Header */}
-                    <div className="px-5 py-4 border-b border-app-border bg-app-surface2 flex items-center justify-between shrink-0">
-                        <h2 className="text-app-3xl font-bold text-app-text flex items-center gap-2">
-                            <CloudDownload size={18} className="text-app-text" />
-                            {t('fflogs.title')}
-                        </h2>
-                        <button
-                            onClick={handleClose}
-                            className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
-                        >
-                            <X size={18} />
-                        </button>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-5 flex-1 overflow-y-auto">
-                        {renderUrlInput()}
-                        {status.phase === 'preview' && (
-                            <div className="mt-4">
-                                {renderPreviewStats()}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Footer — desktop only */}
-                    <div className="px-5 py-4 border-t border-app-border bg-app-surface2 flex justify-end gap-3 shrink-0">
-                        <button
-                            onClick={handleClose}
-                            disabled={isLoading}
-                            className="px-4 py-2 rounded-lg text-app-2xl font-bold text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 disabled:opacity-50 cursor-pointer active:scale-95"
-                        >
-                            {t('common.cancel', 'キャンセル')}
-                        </button>
-
-                        {status.phase !== 'preview' ? (
-                            <button
-                                onClick={handleFetch}
-                                disabled={!canFetch}
-                                className={clsx(
-                                    'flex items-center gap-2 px-5 py-2 rounded-lg text-app-2xl font-bold uppercase transition-all duration-300 cursor-pointer',
-                                    canFetch
-                                        ? 'bg-app-blue text-white hover:bg-app-blue-hover'
-                                        : 'bg-app-surface2 text-app-text-muted cursor-not-allowed'
-                                )}
-                            >
-                                {isLoading
-                                    ? <Loader2 size={16} className="animate-spin" />
-                                    : <CloudDownload size={16} />
-                                }
-                                {isLoading ? t('fflogs.fetching_button') : t('fflogs.fetch_button')}
-                            </button>
-                        ) : (
-                            <button
-                                onClick={handleImport}
-                                className="flex items-center gap-2 px-5 py-2 rounded-lg text-app-2xl font-bold uppercase transition-all duration-300 bg-app-blue text-white hover:bg-app-blue-hover cursor-pointer"
-                            >
-                                <CheckCircle2 size={16} />
-                                {t('fflogs.import_button')}
-                            </button>
-                        )}
-                    </div>
-                </motion.div>
             </div>
         </AnimatePresence>,
         document.body

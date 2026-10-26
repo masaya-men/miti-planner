@@ -1,10 +1,7 @@
-import { backdropClose } from '../utils/backdropClose';
 import React, { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useTranslation, Trans } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { X, Copy, Check, Loader2, ExternalLink, Upload, Trash2, RefreshCw } from 'lucide-react';
+import { Copy, Check, Loader2, ExternalLink, Upload, Trash2, RefreshCw } from 'lucide-react';
 import clsx from 'clsx';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -16,6 +13,8 @@ import { stripSharedPersonalData } from '../lib/sharePrivacy';
 import type { SavedPlan } from '../types';
 import { buildOgImageUrl, type OgpLang } from '../lib/ogpHelpers';
 import { PopularConsentDialog } from './PopularConsentDialog';
+import { ModalShell } from './ui/ModalShell';
+import { ModalHeader, ModalButton } from './ui/ModalParts';
 import { hasPopularConsent, setPopularConsent } from '../lib/popularConsent';
 
 interface ShareModalProps {
@@ -30,7 +29,6 @@ interface ShareModalProps {
 export const ShareModal: React.FC<ShareModalProps> = ({
     isOpen, onClose, contentLabel, currentPlan, bundlePlans,
 }) => {
-    useEscapeClose(isOpen, onClose);
     const { t, i18n } = useTranslation();
     const [shareUrl, setShareUrl] = useState<string | null>(null);
     const [ogImageUrl, setOgImageUrl] = useState<string | null>(null);
@@ -282,31 +280,17 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     if (!isOpen) return <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />;
 
     return (<>
-        {createPortal(
-        <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-[2px]"
-            {...backdropClose(onClose)}
-        >
-            <div
-                className="relative glass-tier3 rounded-2xl shadow-2xl w-[420px] max-w-[90vw] overflow-hidden"
-                style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
-                onClick={e => e.stopPropagation()}
-            >
+        <ModalShell isOpen onClose={onClose} className="w-[420px] max-w-[90vw]">
                 {/* ヘッダー */}
-                <div className="flex items-center justify-between px-5 py-3 border-b border-app-border bg-app-surface2/40">
-                    <h3 className="text-app-2xl font-bold text-app-text">
-                        {isBundle
-                            ? t('app.share_bundle_title')
-                            : t('app.share_modal_title')
-                        }
-                    </h3>
-                    <button
-                        onClick={onClose}
-                        className="w-7 h-7 rounded-full flex items-center justify-center text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
-                    >
-                        <X size={16} />
-                    </button>
-                </div>
+                <ModalHeader
+                    title={isBundle
+                        ? t('app.share_bundle_title')
+                        : t('app.share_modal_title')
+                    }
+                    onClose={onClose}
+                    closeLabel={t('common.close')}
+                />
+                <div className="overflow-y-auto min-h-0">
 
                 {/* OGPプレビュー（ロゴD&D対応） */}
                 <div className="px-5 py-4">
@@ -515,59 +499,36 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 
                     {/* URLコピー（生成中は非表示） */}
                     {(imageLoaded || !shareUrl) && (
-                        <button
-                            onClick={handleCopy}
-                            disabled={!shareUrl}
-                            className={clsx(
-                                "flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-app-2xl font-bold transition-all",
-                                shareUrl
-                                    ? "bg-app-toggle text-app-toggle-text hover:opacity-80 active:scale-[0.98] cursor-pointer"
-                                    : "bg-app-surface2 text-app-text-muted cursor-not-allowed"
-                            )}
-                        >
+                        <ModalButton variant="primary" onClick={handleCopy} disabled={!shareUrl} className="w-full">
                             {copied ? <Check size={16} /> : <Copy size={16} />}
                             {copied
                                 ? t('app.link_copied')
                                 : t('app.copy_share_url')
                             }
-                        </button>
+                        </ModalButton>
                     )}
 
                     {/* X共有（生成中は非表示） */}
                     {(imageLoaded || !shareUrl) && (
-                        <button
-                            onClick={handleShareX}
-                            disabled={!shareUrl}
-                            className={clsx(
-                                "flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-app-2xl font-bold transition-all border",
-                                shareUrl
-                                    ? "border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98] cursor-pointer"
-                                    : "border-app-border text-app-text-muted cursor-not-allowed"
-                            )}
-                        >
+                        <ModalButton variant="secondary" onClick={handleShareX} disabled={!shareUrl} className="w-full">
                             <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
                                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                             </svg>
                             {t('app.share_on_x')}
                             <ExternalLink size={12} className="text-app-text-muted" />
-                        </button>
+                        </ModalButton>
                     )}
 
                     {/* 画像無しで共有（URLだけコピー） */}
                     {shareUrl && (
-                        <button
-                            onClick={handleCopy}
-                            className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-app-lg text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer"
-                        >
+                        <ModalButton variant="secondary" onClick={handleCopy} className="w-full">
                             <Copy size={12} />
                             {t('app.share_url_only')}
-                        </button>
+                        </ModalButton>
                     )}
                 </div>
-            </div>
-        </div>,
-        document.body
-        )}
+                </div>
+        </ModalShell>
         <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
         <PopularConsentDialog
             isOpen={consentOpen}

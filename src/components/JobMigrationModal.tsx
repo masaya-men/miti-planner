@@ -1,14 +1,13 @@
-import { backdropClose } from '../utils/backdropClose';
 import React from 'react';
-import { createPortal } from 'react-dom';
 import clsx from 'clsx';
-import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useTranslation } from 'react-i18next';
 import type { MigrationMode } from '../utils/jobMigration';
 import { ArrowRightLeft, ShieldAlert, Check } from 'lucide-react';
 import type { Job } from '../types';
 import { getPhaseName } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
+import { ModalShell } from './ui/ModalShell';
+import { ModalHeader, ModalFooter, ModalButton } from './ui/ModalParts';
 
 interface JobMigrationModalProps {
     isOpen: boolean;
@@ -32,7 +31,6 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const [selectedMode, setSelectedMode] = React.useState<MigrationMode>('inherit');
-    useEscapeClose(isOpen, onCancel);
 
     // Reset selection when opened
     React.useEffect(() => {
@@ -41,45 +39,31 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
         }
     }, [isOpen]);
 
-    if (!isOpen) return null;
-
-    return createPortal(
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
-                {...backdropClose(onCancel)}
-            />
-
-            {/* Modal Box */}
-            <div
-                className="relative glass-tier3 shadow-sm rounded-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col"
-                style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
-            >
-
+    return (
+        <ModalShell isOpen={isOpen} onClose={onCancel} className="w-full max-w-md">
                 {/* Header */}
-                <div className="px-5 py-4 border-b border-app-border flex items-center gap-3">
-                    <div className="p-2 bg-app-text/10 rounded-xl text-app-text">
-                        <ArrowRightLeft size={20} />
-                    </div>
-                    <div>
-                        <h2 className="text-app-2xl font-bold text-app-text tracking-wide">
-                            {t('migration.title')}
-                        </h2>
-                        <p className="text-app-base text-app-text mt-0.5">
-                            {batchTasks && batchTasks.length >= 2
-                                ? t('migration.batch_desc', { count: batchTasks.length })
-                                : t('migration.individual_desc', { 
-                                    member: memberName, 
-                                    oldJob: oldJob ? getPhaseName(oldJob.name, contentLanguage) : t('common.unassigned', '未設定'),
-                                    newJob: newJob ? getPhaseName(newJob.name, contentLanguage) : ''
-                                  })}
-                        </p>
-                    </div>
-                </div>
+                <ModalHeader
+                    icon={
+                        <span className="p-2 bg-app-text/10 rounded-xl text-app-text">
+                            <ArrowRightLeft size={20} />
+                        </span>
+                    }
+                    title={t('migration.title')}
+                    onClose={onCancel}
+                    closeLabel={t('common.close')}
+                />
 
                 {/* Content */}
-                <div className="p-5 flex flex-col gap-3">
+                <div className="p-5 flex flex-col gap-3 overflow-y-auto">
+                    <p className="text-app-base text-app-text-muted">
+                        {batchTasks && batchTasks.length >= 2
+                            ? t('migration.batch_desc', { count: batchTasks.length })
+                            : t('migration.individual_desc', {
+                                member: memberName,
+                                oldJob: oldJob ? getPhaseName(oldJob.name, contentLanguage) : t('common.unassigned', '未設定'),
+                                newJob: newJob ? getPhaseName(newJob.name, contentLanguage) : ''
+                              })}
+                    </p>
                     <p className="text-app-lg text-app-text mb-2 leading-relaxed">
                         {t('migration.description', 'すでに配置されているタイムライン上のスキルをどのように処理するか選択してください。')}
                     </p>
@@ -161,27 +145,17 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                 </div>
 
                 {/* Footer Controls */}
-                <div className="px-5 py-3 border-t border-app-border flex justify-end gap-2 shrink-0">
-                    <button
-                        onClick={onCancel}
-                        className="px-4 py-2 rounded-lg text-app-lg font-medium text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-95"
-                    >
+                <ModalFooter>
+                    <ModalButton variant="secondary" onClick={onCancel}>
                         {t('common.cancel', 'キャンセル')}
-                    </button>
-                    <button
+                    </ModalButton>
+                    <ModalButton
+                        variant={selectedMode === 'reset' ? 'danger' : 'primary'}
                         onClick={() => onConfirm(selectedMode)}
-                        className={clsx(
-                            "px-6 py-2 rounded-lg text-app-lg font-bold transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer",
-                            selectedMode === 'inherit' ? "bg-app-blue text-white hover:bg-app-blue-hover" :
-                                selectedMode === 'common_only' ? "bg-app-blue text-white hover:bg-app-blue-hover" :
-                                    "bg-app-red hover:bg-app-red-hover text-white shadow-red-500/30"
-                        )}
                     >
                         {t('migration.confirm', '変更を実行')}
-                    </button>
-                </div>
-            </div>
-        </div>,
-        document.body
+                    </ModalButton>
+                </ModalFooter>
+        </ModalShell>
     );
 };

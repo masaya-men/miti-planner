@@ -9,24 +9,9 @@ const EXCLUDED_DIRS = ['housing', 'admin', 'military', '__tests__'];
 
 /** 殻を使っていない既存の部品。載せ替えたら消す(消し忘れも下のテストで落ちる)。 */
 const LEGACY: Record<string, 'window' | 'not-window'> = {
-    // 殻に載せ替えていない窓(Esc・暗さ50%+ぼかしは対応済み)。触るときに殻へ移す
-    'AetherflowChainPromptModal.tsx': 'window',
-    'AstrologianDrawChainPromptModal.tsx': 'window',
+    // 殻に載せない窓(クリック位置に出る・スマホは下から出る形。Esc・暗さ50%+ぼかしは対応済み)
     'BoundaryEditModal.tsx': 'window',
-    'CollabEditConsentModal.tsx': 'window',
-    'ConfirmDialog.tsx': 'window',
-    'CsvImportModal.tsx': 'window',
-    'FFLogsImportModal.tsx': 'window',
-    'JobMigrationModal.tsx': 'window',
-    'LoginModal.tsx': 'window',
     'MitigationSelector.tsx': 'window',
-    'NewPlanModal.tsx': 'window',
-    'PopularConsentDialog.tsx': 'window',
-    'SaveDialog.tsx': 'window',
-    'ShareModal.tsx': 'window',
-    'SpreadsheetGridImportModal.tsx': 'window',
-    'SystemNotificationModal.tsx': 'window',
-    'VideoRecorderModal.tsx': 'window',
     // 下から出るシート(見た目は独自・Esc は対応済み)
     'LimitResolutionSheet.tsx': 'window',
     'ShareImportSheet.tsx': 'window',

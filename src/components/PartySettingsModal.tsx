@@ -4,7 +4,8 @@ import { createPortal } from 'react-dom';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useJobs } from '../hooks/useSkillsData';
-import { User, Trash2, Star, X } from 'lucide-react';
+import { User, Trash2, Star } from 'lucide-react';
+import { ModalHeader, CloseButton } from './ui/ModalParts';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { JobMigrationModal } from './JobMigrationModal';
@@ -597,7 +598,11 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         : { y: '100%' }
                 }
                 transition={SPRING.gentle}
-                style={{ bottom: window.innerWidth < 768 ? 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' : undefined }}
+                style={{
+                    bottom: window.innerWidth < 768 ? 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' : undefined,
+                    // PC の左パネルは窓と同じ地(ライトで白)にする。スマホの下シートはそのまま
+                    ...(window.innerWidth >= 768 ? { '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties : {}),
+                }}
             >
                 {/* Mobile drag handle */}
                 <div
@@ -610,28 +615,28 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 </div>
 
                 {/* ヘッダーエリア */}
-                <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-glass-header flex-shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-app-text/10 rounded-xl">
+                <ModalHeader
+                    icon={
+                        <span className="p-2 bg-app-text/10 rounded-xl">
                             <User className="text-app-text" size={16} />
-                        </div>
-                        <div>
-                            <h2 className="text-app-2xl font-black text-app-text tracking-widest dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{t('party.configuration_title')}</h2>
-                            <p className="text-app-base mt-0.5 font-bold">
-                                {focusedSlot !== null
-                                    ? <span className="flex items-center gap-1.5 font-black animate-pulse" style={{ color: 'var(--color-app-green)' }}>
-                                        <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: 'var(--color-app-green)' }} />
-                                        {t('party.manual_mode_desc', { slot: partyMembers[focusedSlot].id })}
-                                    </span>
-                                    : <span className="text-app-text dark:drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] font-bold">{t('party.configuration_desc')}</span>
-                                }
-                            </p>
-                        </div>
-                    </div>
-                    <button data-tutorial="party-settings-close-btn" onClick={handleAttemptClose} className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90">
-                        <X size={18} />
-                    </button>
-                </div>
+                        </span>
+                    }
+                    title={t('party.configuration_title')}
+                    extra={
+                        <span data-tutorial="party-settings-close-btn" className="inline-flex">
+                            <CloseButton onClick={handleAttemptClose} label={t('common.close')} />
+                        </span>
+                    }
+                />
+                <p className="px-5 pt-2 text-app-base font-bold shrink-0">
+                    {focusedSlot !== null
+                        ? <span className="flex items-center gap-1.5 font-black animate-pulse" style={{ color: 'var(--color-app-green)' }}>
+                            <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: 'var(--color-app-green)' }} />
+                            {t('party.manual_mode_desc', { slot: partyMembers[focusedSlot].id })}
+                        </span>
+                        : <span className="text-app-text dark:drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] font-bold">{t('party.configuration_desc')}</span>
+                    }
+                </p>
 
                 {/* 上部セクション：8つのスロット（スクロール可能領域） */}
                 <div className="flex-1 flex flex-col md:flex-col-reverse overflow-hidden">
@@ -645,9 +650,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     <span className="text-app-base font-black text-app-text-muted uppercase tracking-wider">
                                         {draftMembers[focusedSlot]?.id} — {t('party.select_job', 'ジョブを選択')}
                                     </span>
-                                    <button onClick={() => setFocusedSlot(null)} className="text-app-text-muted p-1 cursor-pointer">
-                                        <X size={14} />
-                                    </button>
+                                    <CloseButton onClick={() => setFocusedSlot(null)} label={t('common.close')} />
                                 </div>
                                 <div className="grid grid-cols-6 gap-1.5">
                                     {JOBS.map(job => (

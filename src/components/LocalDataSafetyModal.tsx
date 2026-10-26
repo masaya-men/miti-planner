@@ -1,7 +1,8 @@
 import React from 'react';
 import { ModalShell } from './ui/ModalShell';
+import { ModalHeader, ModalFooter, ModalButton } from './ui/ModalParts';
 import { useTranslation } from 'react-i18next';
-import { X, ShieldAlert, Download, Smartphone, LogIn } from 'lucide-react';
+import { ShieldAlert, Download, Smartphone, LogIn } from 'lucide-react';
 import { isIOS } from '../utils/isIOS';
 
 interface Props {
@@ -43,22 +44,14 @@ export const LocalDataSafetyModal: React.FC<Props> = ({ isOpen, onClose, onOpenB
     <ModalShell
       isOpen
       onClose={onClose}
-      className="bg-app-bg border border-app-border rounded-xl shadow-2xl w-[90vw] max-w-[520px] max-h-[80vh] flex flex-col"
+      className="w-[90vw] max-w-[520px] max-h-[80vh]"
     >
-      {/* ヘッダー */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-app-border">
-        <h2 className="flex items-center gap-2 text-app-lg font-bold text-app-text">
-          <ShieldAlert size={18} aria-hidden="true" />
-          {t('local_safety.modal.title')}
-        </h2>
-        <button
-          onClick={onClose}
-          aria-label={t('local_safety.modal.close')}
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
-        >
-          <X size={16} />
-        </button>
-      </div>
+      <ModalHeader
+        icon={<ShieldAlert size={18} aria-hidden="true" />}
+        title={t('local_safety.modal.title')}
+        onClose={onClose}
+        closeLabel={t('local_safety.modal.close')}
+      />
 
       {/* 本文 */}
       <div className="px-5 py-4 flex flex-col gap-4 overflow-y-auto">
@@ -77,15 +70,9 @@ export const LocalDataSafetyModal: React.FC<Props> = ({ isOpen, onClose, onOpenB
         </section>
       </div>
 
-      {/* フッター */}
-      <div className="flex items-center justify-end px-5 py-4 border-t border-app-border">
-        <button
-          onClick={onClose}
-          className="px-4 py-2 rounded-lg bg-app-toggle text-app-toggle-text text-app-sm font-bold hover:opacity-90 transition-opacity cursor-pointer"
-        >
-          {t('local_safety.modal.close')}
-        </button>
-      </div>
+      <ModalFooter>
+        <ModalButton variant="primary" onClick={onClose}>{t('local_safety.modal.close')}</ModalButton>
+      </ModalFooter>
     </ModalShell>
   );
 };

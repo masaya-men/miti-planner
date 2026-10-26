@@ -1,8 +1,5 @@
-import { backdropClose } from '../utils/backdropClose';
 import React from 'react';
-import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { X, LogOut, Shield, Pencil, Camera, Download } from 'lucide-react';
@@ -14,6 +11,8 @@ import { ConfirmDialog } from './ConfirmDialog';
 import { DisplayNameEditor } from './DisplayNameEditor';
 import { AvatarCropModal } from './AvatarCropModal';
 import { showToast } from './Toast';
+import { ModalShell } from './ui/ModalShell';
+import { ModalHeader, ModalButton } from './ui/ModalParts';
 import { useAccountActions } from '../hooks/auth/useAccountActions';
 
 interface LoginModalProps {
@@ -36,7 +35,6 @@ const providers = [
 ];
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
-    useEscapeClose(isOpen, onClose);
     const { t } = useTranslation();
     const { user, signInWith, isAdmin } = useAuthStore();
     const profileDisplayName = useAuthStore(s => s.profileDisplayName);
@@ -131,51 +129,27 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     };
 
     // ログイン成功時のウェルカム画面はLayout.tsxで一括管理
-    if (!isOpen) return null;
-
     const handleSignIn = (providerId: 'discord') => {
         signInWith(providerId);
     };
 
     const handleClose = onClose;
 
-    return createPortal(
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-[2px] animate-[fadeIn_150ms_ease-out]"
-                {...backdropClose(handleClose)}
-            />
-
-            {/* Modal */}
-            <div className={clsx(
-                "relative w-[380px] max-w-[90vw] rounded-2xl glass-tier3",
-                "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]"
-            )}
-            style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}>
-
+    return (
+        <ModalShell isOpen={isOpen} onClose={handleClose} layer="confirm" className="w-[380px] max-w-[90vw]">
                 {/* ===== 通常画面 ===== */}
                 {(
                     <>
                         {/* ヘッダー */}
-                        <div className="flex items-center justify-between px-6 pt-6 pb-2">
-                            <h2
-                                className="text-app-3xl text-app-text tracking-wide"
-                                style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif", fontWeight: 700 }}
-                            >
-                                {user ? (profileDisplayName || 'Account') : t('login.title')}
-                            </h2>
-                            <button
-                                onClick={onClose}
-                                className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
-                            >
-                                <X size={16} />
-                            </button>
-                        </div>
+                        <ModalHeader
+                            title={user ? (profileDisplayName || 'Account') : t('login.title')}
+                            onClose={onClose}
+                            closeLabel={t('common.close')}
+                        />
 
                         {/* ログイン済み */}
                         {user && (
-                            <div className="px-6 pb-6 pt-2">
+                            <div className="px-6 pb-6 pt-4 overflow-y-auto">
                                 <div className="flex items-center gap-3 mb-5 p-3 rounded-xl bg-app-surface2/50 border border-app-border">
                                         <div className="flex flex-col items-center gap-1 shrink-0">
                                         <button
@@ -246,21 +220,19 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                 </div>
 
                                 {isAdmin && (
-                                    <button
+                                    <ModalButton
+                                        variant="secondary"
                                         onClick={() => { navigate('/admin'); onClose(); }}
-                                        className={clsx(
-                                            "w-full px-4 py-2.5 rounded-xl text-app-lg font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer mb-2",
-                                            "text-app-amber border border-app-amber/30 hover:bg-app-amber/10 hover:border-app-amber/60"
-                                        )}
+                                        className="w-full mb-2"
                                     >
                                         <Settings size={14} />
                                         {t('nav.adminPanel')}
-                                    </button>
+                                    </ModalButton>
                                 )}
 
                                 {localPlanCount > 0 && (
-                                    <button
-                                        type="button"
+                                    <ModalButton
+                                        variant="primary"
                                         onClick={() => {
                                             if (!user) return;
                                             // B-1 Revision 3: ダイアログを開くだけ。実際のアップロードは
@@ -268,26 +240,21 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                             openLocalImport();
                                             onClose();
                                         }}
-                                        className={clsx(
-                                            "w-full px-4 py-2.5 rounded-xl text-app-lg font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer mb-2",
-                                            "text-app-toggle border border-app-toggle/40 hover:bg-app-toggle/10 hover:border-app-toggle"
-                                        )}
+                                        className="w-full mb-2"
                                     >
                                         <Download size={14} />
                                         {t('local_import.modal_button', { count: localPlanCount })}
-                                    </button>
+                                    </ModalButton>
                                 )}
 
-                                <button
+                                <ModalButton
+                                    variant="danger"
                                     onClick={async () => { await accountActions.signOut(); onClose(); }}
-                                    className={clsx(
-                                        "w-full px-4 py-2.5 rounded-xl text-app-lg font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer",
-                                        "text-app-red border border-app-red-border hover:bg-app-red-dim hover:border-app-red"
-                                    )}
+                                    className="w-full"
                                 >
                                     <LogOut size={14} />
                                     {t('app.sign_out')}
-                                </button>
+                                </ModalButton>
 
                                 {/* アカウント削除（控えめ配置） */}
                                 <button
@@ -325,7 +292,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
                         {/* 未ログイン: プロバイダー選択 */}
                         {!user && (
-                            <div className="px-6 pb-6 pt-1">
+                            <div className="px-6 pb-6 pt-4 overflow-y-auto">
                                 <p className="text-app-md text-app-text-muted leading-relaxed mb-4">
                                     {t('login.benefit_message')}
                                 </p>
@@ -375,8 +342,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                         )}
                     </>
                 )}
-            </div>
-        </div>,
-        document.body
+        </ModalShell>
     );
 };

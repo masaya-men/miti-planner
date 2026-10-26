@@ -1,8 +1,4 @@
-import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
-import { useEscapeClose } from '../hooks/useEscapeClose';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
     CATEGORY_LABELS,
@@ -18,8 +14,10 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { PLAN_LIMITS } from '../types/firebase';
 import { LoginModal } from './LoginModal';
-import { X, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import clsx from 'clsx';
+import { ModalShell } from './ui/ModalShell';
+import { ModalHeader, ModalFooter, ModalButton, CloseButton, INPUT_CLASS } from './ui/ModalParts';
 
 interface NewPlanModalProps {
     isOpen: boolean;
@@ -33,7 +31,6 @@ const LEVEL_OPTIONS: ContentLevel[] = [100, 90, 80, 70];
 const CATEGORY_OPTIONS: ContentCategory[] = ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
 
 export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, initialContentId }) => {
-    useEscapeClose(isOpen, () => onClose());
     const { t, i18n } = useTranslation();
     const lang = i18n.language === 'en' ? 'en' : 'ja';
 
@@ -52,13 +49,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, ini
     const [category, setCategory] = useState<ContentCategory | null>(null);
     const [boss, setBoss] = useState<ContentDefinition | null>(null);
     const [title, setTitle] = useState('');
-    const [mounted, setMounted] = useState(false);
     const skipCategoryResetRef = useRef(false);
-
-    useEffect(() => {
-        setMounted(true);
-        return () => setMounted(false);
-    }, []);
 
     // モーダルが開くたびにリセット。initialContentId があればそのコンテンツを選択済みにする。
     useEffect(() => {
@@ -211,7 +202,6 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, ini
     };
 
     if (!isOpen) return null;
-    if (!mounted || !isOpen) return null;
 
     // 未入力項目の案内メッセージ
     const getMissingMessage = (): string | null => {
@@ -224,39 +214,22 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, ini
     const missingMessage = getMissingMessage();
 
     return (<>
-        {createPortal(
-        <AnimatePresence mode="wait">
-            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4" onKeyDown={handleKeyDown}>
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    {...backdropClose(() => onClose())}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
-                />
-
-                <motion.div
-                    data-tutorial-modal
-                    initial={{ scale: 0.9, opacity: 0, y: 30 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.9, opacity: 0, y: 30 }}
-                    className="relative w-full max-w-[440px] glass-tier3 rounded-2xl shadow-sm overflow-hidden flex flex-col pointer-events-auto"
-                    style={{ maxHeight: 'min(720px, calc(100vh - 64px))', '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
-                >
+        <ModalShell
+            isOpen
+            onClose={() => onClose()}
+            className="w-full max-w-[440px]"
+            style={{ maxHeight: 'min(720px, calc(100vh - 64px))' }}
+            panelProps={{ 'data-tutorial-modal': true, onKeyDown: handleKeyDown }}
+        >
                     {/* Header */}
-                    <div className="px-6 py-5 border-b border-glass-border/30 flex items-center justify-between bg-glass-header/30">
-                        <h2 className="text-app-xl font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
-                            <span className="w-1.5 h-4 bg-app-text rounded-full" />
-                            {t('new_plan.modal_title')}
-                        </h2>
-                        <button
-                            data-tutorial="new-plan-close"
-                            onClick={() => onClose()}
-                            className="p-2 rounded-full text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
-                        >
-                            <X size={18} />
-                        </button>
-                    </div>
+                    <ModalHeader
+                        title={t('new_plan.modal_title')}
+                        extra={
+                            <span data-tutorial="new-plan-close" className="inline-flex">
+                                <CloseButton onClick={() => onClose()} label={t('common.close')} />
+                            </span>
+                        }
+                    />
 
                     <div className="p-6 space-y-7 overflow-y-auto no-scrollbar">
                         {/* Level Tabs */}
@@ -363,7 +336,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, ini
                                     onChange={(e) => setTitle(e.target.value)}
                                     onFocus={(e) => e.target.select()}
                                     placeholder={t('new_plan.plan_name_placeholder')}
-                                    className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[16px] md:text-app-xl focus:outline-none focus:border-app-text focus:ring-4 ring-app-text/10 transition-all font-black placeholder:text-app-text-muted/30"
+                                    className={INPUT_CLASS}
                                 />
                             </div>
                         )}
@@ -383,7 +356,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, ini
                                     onChange={(e) => setTitle(e.target.value)}
                                     onFocus={(e) => e.target.select()}
                                     placeholder={t('new_plan.free_name_placeholder')}
-                                    className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[16px] md:text-app-xl focus:outline-none focus:border-app-text focus:ring-4 ring-app-text/10 transition-all font-black placeholder:text-app-text-muted/30"
+                                    className={INPUT_CLASS}
                                 />
                             </div>
                         )}
@@ -415,10 +388,10 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, ini
                     )}
 
                     {/* Footer */}
-                    <div className="p-6 bg-glass-card/10 border-t border-glass-border/20 flex flex-col gap-3">
+                    <ModalFooter className="flex-wrap">
                         {/* 非ログイン時のさりげない案内 */}
                         {!user && (
-                            <p className="text-app-base text-app-text-muted text-center leading-relaxed">
+                            <p className="w-full text-app-base text-app-text-muted text-center leading-relaxed">
                                 {t('new_plan.guest_hint')
                                     .split(/<\/?login>/)
                                     .map((part, i) =>
@@ -438,35 +411,21 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, ini
                         )}
                         {/* 未入力項目の案内 */}
                         {missingMessage && !isBlocked && (
-                            <p className="text-app-base text-app-text-muted text-center">{missingMessage}</p>
+                            <p className="w-full text-app-base text-app-text-muted text-center">{missingMessage}</p>
                         )}
-                        <div className="flex gap-4">
-                            <button
-                                onClick={() => onClose()}
-                                className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-app-md font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
-                            >
-                                {t('new_plan.cancel_button')}
-                            </button>
-                            <button
-                                data-tutorial="create-plan-btn"
-                                onClick={handleCreate}
-                                disabled={!canCreate || isBlocked}
-                                className={clsx(
-                                    "flex-[2] py-3.5 rounded-2xl text-app-md font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95",
-                                    canCreate && !isBlocked
-                                        ? "bg-app-blue text-white hover:bg-app-blue-hover"
-                                        : "bg-glass-card/40 text-app-text-muted cursor-not-allowed opacity-40 grayscale"
-                                )}
-                            >
-                                {t('new_plan.create_button')}
-                            </button>
-                        </div>
-                    </div>
-                </motion.div>
-            </div>
-        </AnimatePresence>,
-        document.body
-        )}
+                        <ModalButton variant="secondary" onClick={() => onClose()}>
+                            {t('new_plan.cancel_button')}
+                        </ModalButton>
+                        <ModalButton
+                            data-tutorial="create-plan-btn"
+                            variant="primary"
+                            onClick={handleCreate}
+                            disabled={!canCreate || isBlocked}
+                        >
+                            {t('new_plan.create_button')}
+                        </ModalButton>
+                    </ModalFooter>
+        </ModalShell>
         <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
     </>);
 };

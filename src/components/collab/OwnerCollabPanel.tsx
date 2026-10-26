@@ -4,8 +4,9 @@
 // 参加者の表示名は nameForClient(clientId)で生成(awareness の生 ID を隠す・個人情報なし)。
 import React from 'react';
 import { ModalShell } from '../ui/ModalShell';
+import { ModalHeader, ModalFooter, ModalButton, INPUT_CLASS } from '../ui/ModalParts';
 import { useTranslation } from 'react-i18next';
-import { X, Minus, Plus, Link2 } from 'lucide-react';
+import { Minus, Plus, Link2 } from 'lucide-react';
 import { useCollabSessionStore } from '../../store/useCollabSessionStore';
 import { useCollabPresenceStore } from '../../store/useCollabPresenceStore';
 import { usePlanStore } from '../../store/usePlanStore';
@@ -96,19 +97,9 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
     <ModalShell
       isOpen
       onClose={onClose}
-      className="glass-tier3 rounded-2xl shadow-2xl w-[600px] max-w-[94vw] max-h-[90vh] flex flex-col overflow-hidden"
-      style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
+      className="glass-tier3 rounded-2xl w-[600px] max-w-[94vw] max-h-[90vh]"
     >
-      {/* ヘッダー */}
-      <div className="flex items-center gap-2 px-5 py-3 border-b border-app-border bg-app-surface2/40 shrink-0">
-        <h3 className="text-app-2xl font-bold text-app-text flex-1">{t('collab.panel_title')}</h3>
-        <button
-          onClick={onClose}
-          className="w-7 h-7 rounded-full flex items-center justify-center text-app-text border border-transparent cursor-pointer hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200 active:scale-90"
-        >
-          <X size={16} />
-        </button>
-      </div>
+      <ModalHeader title={t('collab.panel_title')} onClose={onClose} closeLabel={t('common.close')} />
 
       {/* 本体(スクロール) */}
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
@@ -133,7 +124,7 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
                 onChange={e => setLabel(e.target.value)}
                 maxLength={40}
                 placeholder={t('collab.label_placeholder')}
-                className="w-full h-9 px-2.5 rounded-lg border border-app-border bg-app-surface2/60 text-app-text text-app-sm outline-none placeholder:text-app-text-muted"
+                className={INPUT_CLASS}
               />
             </div>
 
@@ -146,13 +137,9 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
                 <button aria-label="inc-people" disabled={maxBusy} onClick={() => step(1)} className="w-8 h-8 rounded-lg border border-app-border bg-app-surface2/60 flex items-center justify-center text-app-text cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><Plus size={15} /></button>
                 <span className="text-app-sm text-app-text-muted">{t('collab.people_unit')}</span>
                 {draftMax !== maxParticipants && (
-                  <button
-                    disabled={maxBusy}
-                    onClick={handleConfirmMax}
-                    className="px-3 h-8 rounded-lg bg-app-text text-app-bg font-bold text-app-sm cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
+                  <ModalButton variant="primary" disabled={maxBusy} onClick={handleConfirmMax}>
                     {t('collab.confirm_max', { count: draftMax })}
-                  </button>
+                  </ModalButton>
                 )}
               </div>
               <div className="text-app-xs text-app-text-muted mt-1">{t('collab.people_hint', { max: SYSTEM_MAX_PARTICIPANTS })}</div>
@@ -192,22 +179,22 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
               <Link2 size={13} className="shrink-0" />
               <input readOnly value={url} className="flex-1 bg-transparent outline-none text-app-sm font-mono truncate" />
             </div>
-            <button onClick={handleCopy} className="px-3 h-9 rounded-lg bg-app-text text-app-bg font-bold text-app-sm cursor-pointer active:scale-95 transition-transform">
+            <ModalButton variant="primary" onClick={handleCopy}>
               {copied ? t('collab.copied') : t('collab.copy')}
-            </button>
+            </ModalButton>
           </div>
         </div>
       </div>
 
       {/* フッター: 操作 */}
-      <div className="flex gap-2 px-5 py-3 border-t border-app-border bg-app-surface2/20 shrink-0">
-        <button disabled={busy} onClick={handleReissue} className="flex-1 h-9 rounded-lg border border-app-border bg-app-surface2/60 text-app-text text-app-sm cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+      <ModalFooter>
+        <ModalButton variant="secondary" disabled={busy} onClick={handleReissue}>
           {t('collab.reissue')}
-        </button>
-        <button disabled={busy} onClick={() => setConfirmOff(true)} className="flex-1 h-9 rounded-lg border border-app-red/40 bg-app-red-dim text-app-red font-bold text-app-sm cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+        </ModalButton>
+        <ModalButton variant="danger" disabled={busy} onClick={() => setConfirmOff(true)}>
           {t('collab.turn_off')}
-        </button>
-      </div>
+        </ModalButton>
+      </ModalFooter>
     </ModalShell>
 
       {/* OFF(失効)は確認 1 枚を挟む(誤操作で全員を締め出さない)。

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ModalShell } from './ui/ModalShell';
+import { ModalHeader, ModalFooter, ModalButton, INPUT_CLASS } from './ui/ModalParts';
 import { useTranslation } from 'react-i18next';
-import { X, Copy, Download, Loader, CheckSquare, Square } from 'lucide-react';
+import { Copy, Download, Loader, CheckSquare, Square } from 'lucide-react';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -132,20 +133,9 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
     <ModalShell
       isOpen
       onClose={onClose}
-      className="bg-app-bg border border-app-border rounded-xl shadow-2xl w-[90vw] max-w-[520px] max-h-[80vh] flex flex-col"
+      className="w-[90vw] max-w-[520px] max-h-[80vh]"
     >
-      {/* ヘッダー */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-app-border">
-        <h2 className="text-app-lg font-bold text-app-text">
-          {t('backup.export_title')}
-        </h2>
-        <button
-          onClick={onClose}
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
-        >
-          <X size={16} />
-        </button>
-      </div>
+      <ModalHeader title={t('backup.export_title')} onClose={onClose} closeLabel={t('common.close')} />
 
       {/* 本文 */}
       <div className="px-5 py-4 flex flex-col gap-3 overflow-y-auto">
@@ -208,7 +198,7 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 data-backup-json
                 readOnly
                 value={json}
-                className="w-full h-28 bg-app-bg border border-app-border rounded-lg p-3 text-[16px] md:text-app-xs text-app-text-muted font-mono resize-none focus:outline-none"
+                className={`${INPUT_CLASS} h-28 font-mono resize-none`}
               />
             )}
           </>
@@ -217,32 +207,26 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       {/* フッター */}
       {!syncing && ready && (
-        <div className="flex flex-col gap-2 px-5 py-4 border-t border-app-border">
+        <ModalFooter className="flex-wrap">
           {/* iOS: 共有シートが開くため「ファイルに保存」を選ぶよう注意（黄色＝警告） */}
           {iosShare && (
-            <p className="text-app-xs text-app-amber font-bold text-center">
+            <p className="w-full text-app-xs text-app-amber font-bold text-center">
               {t('backup.ios_save_hint')}
             </p>
           )}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleCopy}
-              disabled={selectedCount === 0}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-app-toggle text-app-toggle-text text-app-sm font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Copy size={14} />
-              {t('backup.copy_button')}
-            </button>
-            <button
-              onClick={iosShare ? handleShare : handleDownload}
-              disabled={selectedCount === 0}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border border-app-border text-app-text text-app-sm font-bold hover:bg-glass-hover transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Download size={14} />
-              {t('backup.download_button')}
-            </button>
-          </div>
-        </div>
+          <ModalButton
+            variant="secondary"
+            onClick={iosShare ? handleShare : handleDownload}
+            disabled={selectedCount === 0}
+          >
+            <Download size={14} />
+            {t('backup.download_button')}
+          </ModalButton>
+          <ModalButton variant="primary" onClick={handleCopy} disabled={selectedCount === 0}>
+            <Copy size={14} />
+            {t('backup.copy_button')}
+          </ModalButton>
+        </ModalFooter>
       )}
     </ModalShell>
   );

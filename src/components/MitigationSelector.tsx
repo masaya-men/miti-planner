@@ -1,6 +1,7 @@
 import { backdropClose } from '../utils/backdropClose';
 import React from 'react';
-import { X, ChevronLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
+import { CloseButton } from './ui/ModalParts';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { useMitigations, useJobs, getMitigationPriority } from '../hooks/useSkillsData';
@@ -308,7 +309,13 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                         : "rounded-xl w-64",
                     !isCentered && !isMobile ? "fixed" : "relative"
                 )}
-                style={isMobile && !isCentered ? { maxHeight: '75vh' } : !isCentered ? { left: adjustedPos.x || position.x, top: adjustedPos.y || position.y, maxHeight: '50vh' } : { maxHeight: '60vh' }}
+                style={isMobile && !isCentered
+                    ? { maxHeight: '75vh' }
+                    // PC は他の窓と同じ地(ライトで白)
+                    : {
+                        ...({ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties),
+                        ...(!isCentered ? { left: adjustedPos.x || position.x, top: adjustedPos.y || position.y, maxHeight: '50vh' } : { maxHeight: '60vh' }),
+                    }}
             >
                 {isMobile && !isCentered && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mb-3 shrink-0" />}
                 <div className="flex justify-between items-center mb-2 pb-2 border-b border-app-border px-1 shrink-0 relative z-[101]">
@@ -343,9 +350,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                             )}
                         </div>
                     </div>
-                    <button onClick={handleClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90 shrink-0">
-                        <X size={14} />
-                    </button>
+                    <CloseButton onClick={handleClose} label={t('common.close')} />
                 </div>
 
                 <div className="relative h-[280px] sm:h-[320px] overflow-hidden rounded-lg">

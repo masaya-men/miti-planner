@@ -1,10 +1,8 @@
-import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { X, Play, Pause, RotateCcw, Plus, Undo2 } from 'lucide-react';
-import { useEscapeClose } from '../hooks/useEscapeClose';
+import { Play, Pause, RotateCcw, Plus, Undo2 } from 'lucide-react';
+import { ModalShell } from './ui/ModalShell';
+import { CloseButton, ModalButton, INPUT_CLASS } from './ui/ModalParts';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
 import { getContentById } from '../data/contentRegistry';
@@ -23,7 +21,6 @@ interface Props {
 }
 
 const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
-    useEscapeClose(isOpen, onClose);
     const { t, i18n } = useTranslation();
     const lang = (i18n.language || 'ja') as 'ja' | 'en' | 'zh' | 'ko';
 
@@ -103,31 +100,21 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
         setFormTime(null);
     }, [addEvent]);
 
-    if (!isOpen) return null;
-
     const combatStarted = combatStartSec != null;
 
-    return createPortal(
-        <AnimatePresence>
-            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-                <motion.div
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    {...backdropClose(onClose, { dirty: videoId !== null })}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
-                />
-                <motion.div
-                    initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0 }}
-                    className="relative glass-tier3 rounded-2xl shadow-2xl w-full max-w-[1400px] max-h-[92vh] overflow-hidden flex flex-col"
-                    style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
-                >
+    return (
+        <ModalShell
+            isOpen={isOpen}
+            onClose={onClose}
+            backdropOptions={{ dirty: videoId !== null }}
+            className="w-full max-w-[1400px] max-h-[92vh]"
+        >
                     {/* 閉じる: 動画を最大化するためヘッダー行は置かず、右上角に小さくフロート (Esc / 外側クリックでも閉じる) */}
-                    <button
+                    <CloseButton
                         onClick={onClose}
-                        aria-label={t('common.close', '閉じる')}
-                        className="absolute top-2.5 right-2.5 z-20 p-1.5 rounded-full bg-app-bg/50 text-app-text/50 hover:text-app-text hover:bg-app-text/10 transition-colors cursor-pointer active:scale-90"
-                    >
-                        <X size={16} />
-                    </button>
+                        label={t('common.close', '閉じる')}
+                        className="absolute top-2.5 right-2.5 z-20"
+                    />
 
                     {/* 本体: 左=動画, 右=記録UI */}
                     <div className="flex flex-col md:flex-row gap-4 p-4 overflow-y-auto">
@@ -147,15 +134,12 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         autoCorrect="off"
                                         autoCapitalize="off"
                                         spellCheck={false}
-                                        className="w-full rounded-lg p-3 bg-app-surface2 border border-app-border text-app-text focus:outline-none focus:border-app-text"
+                                        className={INPUT_CLASS}
                                     />
                                     {urlError && <span className="text-app-base text-app-red">{t('timeline.recorder.video_url_error')}</span>}
-                                    <button
-                                        onClick={handleLoadUrl}
-                                        className="self-start rounded-lg bg-app-blue px-5 py-2.5 text-white font-bold hover:bg-app-blue-hover active:scale-95 cursor-pointer"
-                                    >
+                                    <ModalButton variant="primary" onClick={handleLoadUrl} className="self-start">
                                         {t('timeline.recorder.video_load')}
-                                    </button>
+                                    </ModalButton>
                                 </div>
                             ) : (
                                 <div className="flex flex-col gap-2">
@@ -255,10 +239,7 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             )}
                         </div>
                     </div>
-                </motion.div>
-            </div>
-        </AnimatePresence>,
-        document.body
+        </ModalShell>
     );
 };
 

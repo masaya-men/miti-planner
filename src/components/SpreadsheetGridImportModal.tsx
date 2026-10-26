@@ -1,11 +1,9 @@
-import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, FileSpreadsheet, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, ClipboardPaste, Plus, ChevronRight } from 'lucide-react';
+import { ModalShell } from './ui/ModalShell';
+import { ModalHeader, ModalButton, INPUT_CLASS } from './ui/ModalParts';
+import { FileSpreadsheet, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, ClipboardPaste, Plus, ChevronRight } from 'lucide-react';
 import clsx from 'clsx';
-import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { getJobsFromStore, getMitigationsFromStore } from '../hooks/useSkillsData';
 import type { Job, TimelineEvent } from '../types';
@@ -144,7 +142,6 @@ export function sortResultPartyBySlots(result: SheetImportResult): SheetImportRe
 }
 
 export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, onImport, defaultSelection }) => {
-  useEscapeClose(isOpen, onClose);
   const { t, i18n } = useTranslation();
   const lang = i18n.language === 'en' ? 'en' : 'ja';
   // gridRowsFromResult / ジョブ名表示には zh-Hant を含む5言語を正確に渡す(ImportContentSelector 向けの 2 値 lang とは別)。
@@ -572,28 +569,24 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
 
   if (!isOpen) return null;
 
-  const node = (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-[500] flex items-center justify-center p-3" {...backdropClose(onClose, { dirty: step > 1 || source !== 'none' })}>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          data-backdrop className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }}
-          className="relative z-[201] w-[96vw] max-w-[1280px] h-[88dvh] glass-tier3 rounded-2xl overflow-hidden flex flex-col"
-          style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
-          onClick={(e) => e.stopPropagation()}>
+  return (
+        <ModalShell
+          isOpen
+          onClose={onClose}
+          backdropOptions={{ dirty: step > 1 || source !== 'none' }}
+          className="w-[96vw] max-w-[1280px] h-[88dvh]">
           {/* ヘッダー(ステップ表示をタイトル行へ集約=モック v2 準拠・独立行を廃止してグリッドを広げる) */}
-          <div className="px-5 py-4 border-b border-app-border bg-app-surface2 flex items-center justify-between gap-3 shrink-0">
-            <div className="flex items-center gap-2 min-w-0">
-              <h2 className="text-app-3xl font-bold text-app-text flex items-center gap-2 shrink-0">
-                <FileSpreadsheet size={18} /> {t('gridImport.title')}
-              </h2>
+          <ModalHeader
+            icon={<FileSpreadsheet size={18} />}
+            title={t('gridImport.title')}
+            extra={
               <span className="text-app-lg text-app-text-muted truncate">
-                · {step}/3 · {t(step === 1 ? 'gridImport.step_content' : step === 2 ? 'gridImport.step_grid' : 'gridImport.step_party')}
+                {step}/3 · {t(step === 1 ? 'gridImport.step_content' : step === 2 ? 'gridImport.step_grid' : 'gridImport.step_party')}
               </span>
-            </div>
-            <button onClick={onClose} className="p-1.5 rounded-lg text-app-text hover:bg-app-toggle hover:text-app-toggle-text shrink-0"><X size={18} /></button>
-          </div>
+            }
+            onClose={onClose}
+            closeLabel={t('common.close')}
+          />
 
           {/* ── Step 1: コンテンツ選択 ── */}
           {step === 1 && (
@@ -624,16 +617,13 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                         value={phaseName}
                         onChange={(e) => setPhaseName(e.target.value)}
                         placeholder={t('gridImport.phase_name_placeholder')}
-                        className="min-w-[180px] bg-app-surface2 border border-app-border rounded-lg px-3 py-1.5 text-app-2xl text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted"
+                        className={`${INPUT_CLASS} !w-auto min-w-[180px]`}
                         spellCheck={false}
                         aria-label={t('gridImport.phase_name_label')}
                       />
-                      <button
-                        onClick={commitPendingDraft}
-                        className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-app-2xl font-bold bg-app-blue text-white hover:bg-app-blue-hover transition-all duration-200 active:scale-95 shrink-0"
-                      >
+                      <ModalButton variant="primary" onClick={commitPendingDraft} className="shrink-0">
                         <Plus size={16} /> {t('gridImport.add_phase_next')}
-                      </button>
+                      </ModalButton>
                     </>
                   )}
                   {/* 追加済みフェーズ✓チップ(右寄せ・横並び・draft を消しても残る) */}
@@ -794,13 +784,9 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                       <p className="text-app-3xl font-bold text-app-text">{t('gridImport.paste_prompt')}</p>
                       <p className="text-app-lg text-app-text-muted">{t('gridImport.paste_hint')}</p>
                       {/* スマホでも確実に貼り付けられるボタン(div の onPaste は iOS で出ないため) */}
-                      <button
-                        type="button"
-                        onClick={handlePasteFromClipboard}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-app-2xl font-bold bg-app-toggle text-app-toggle-text hover:opacity-80 transition-all duration-200 cursor-pointer select-none"
-                      >
+                      <ModalButton variant="primary" onClick={handlePasteFromClipboard} className="select-none">
                         <ClipboardPaste size={18} /> {t('gridImport.paste_button')}
-                      </button>
+                      </ModalButton>
                       {pasteError && (
                         <p className="text-app-lg text-app-amber">{t('gridImport.paste_error')}</p>
                       )}
@@ -824,56 +810,41 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
           )}
 
           {/* フッター */}
-          <div className="px-5 py-3 border-t border-app-border bg-app-surface2 flex flex-col gap-1.5 shrink-0">
+          <div className="px-5 py-3 border-t border-app-border flex flex-col gap-1.5 shrink-0">
             <div className="flex items-center justify-between gap-3">
               {/* 左: 戻る/キャンセル + クリア */}
               <div className="flex items-center gap-2">
                 {step === 1 ? (
-                  <button
-                    onClick={onClose}
-                    className="px-4 py-2 rounded-lg text-app-2xl font-bold text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200"
-                  >
+                  <ModalButton variant="secondary" onClick={onClose}>
                     {t('common.cancel')}
-                  </button>
+                  </ModalButton>
                 ) : (
-                  <button
-                    onClick={() => setStep((s) => (s === 3 ? 2 : 1) as WizardStep)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-app-2xl font-bold text-app-text border border-app-border hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200"
-                  >
+                  <ModalButton variant="secondary" onClick={() => setStep((s) => (s === 3 ? 2 : 1) as WizardStep)}>
                     <ArrowLeft size={16} /> {t('gridImport.back')}
-                  </button>
+                  </ModalButton>
                 )}
                 {/* クリア(やり直す): step2/3 で表示。貼った内容を全消去 */}
                 {step !== 1 && (entries.length > 0 || source !== 'none') && (
-                  <button
-                    onClick={() => { resetAll(); setStep(2); }}
-                    className="px-3 py-2 rounded-lg text-app-lg font-bold text-app-text-muted border border-transparent hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200"
-                  >
+                  <ModalButton variant="secondary" onClick={() => { resetAll(); setStep(2); }}>
                     {t('gridImport.clear')}
-                  </button>
+                  </ModalButton>
                 )}
               </div>
 
               {/* 右: ステップ別の主アクション */}
               {step === 1 ? (
-                <button
-                  onClick={() => setStep(2)}
-                  className="flex items-center gap-2 px-5 py-2 rounded-lg text-app-2xl font-bold bg-app-toggle text-app-toggle-text hover:opacity-80 transition-all duration-200"
-                >
+                <ModalButton variant="primary" onClick={() => setStep(2)}>
                   {t('gridImport.next')} <ArrowRight size={16} />
-                </button>
+                </ModalButton>
               ) : step === 2 && !isGrid ? (
                 // matrix: 次へ(割当へ)。何も無ければ無効。
-                <button
+                <ModalButton
+                  variant="primary"
                   onClick={goToParty}
                   disabled={source === 'none' && entries.length === 0}
-                  className={clsx('flex items-center gap-2 px-5 py-2 rounded-lg text-app-2xl font-bold',
-                    (source === 'none' && entries.length === 0)
-                      ? 'bg-app-surface2 text-app-text-muted cursor-not-allowed'
-                      : 'bg-app-toggle text-app-toggle-text hover:opacity-80 transition-all duration-200')}
                 >
                   {t('gridImport.next_to_party')} <ArrowRight size={16} />
-                </button>
+                </ModalButton>
               ) : (
                 // grid(step2) / matrix(step3): 作成ブロック
                 <div className="flex items-center gap-3 flex-wrap justify-end">
@@ -892,14 +863,9 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                       {t('gridImport.skipped_count', { count: skipped.length })}
                     </span>
                   )}
-                  <button
-                    onClick={handleConfirm}
-                    disabled={!canConfirm}
-                    className={clsx('flex items-center gap-2 px-5 py-2 rounded-lg text-app-2xl font-bold',
-                      canConfirm ? 'bg-app-toggle text-app-toggle-text' : 'bg-app-surface2 text-app-text-muted cursor-not-allowed')}
-                  >
+                  <ModalButton variant="primary" onClick={handleConfirm} disabled={!canConfirm}>
                     <CheckCircle2 size={16} /> {t('gridImport.create')}
-                  </button>
+                  </ModalButton>
                 </div>
               )}
             </div>
@@ -913,11 +879,8 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
               </div>
             )}
           </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
+        </ModalShell>
   );
-  return createPortal(node, document.body);
 };
 
 /** グリッド本体: 列ヘッダー(チップ)+ 行データ。member 列は MT→D4 順(gridRowsFromResult が party 順=PARTY_SLOTS 順に出力)。 */

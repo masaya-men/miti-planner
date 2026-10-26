@@ -2,9 +2,10 @@ import React, { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 import type { Area } from 'react-easy-crop';
 import { useTranslation } from 'react-i18next';
-import { X, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import clsx from 'clsx';
 import { ModalShell } from './ui/ModalShell';
+import { ModalHeader, ModalFooter, ModalButton } from './ui/ModalParts';
 import { cropAndResize, validateAvatarFile } from '../utils/avatarUpload';
 
 interface AvatarCropModalProps {
@@ -69,20 +70,9 @@ export const AvatarCropModal: React.FC<AvatarCropModalProps> = ({
             isOpen
             onClose={handleReset}
             layer="confirm"
-            className="w-[380px] max-w-[90vw] rounded-2xl glass-tier3 overflow-hidden"
+            className="w-[380px] max-w-[90vw]"
         >
-            {/* ヘッダー */}
-            <div className="flex items-center justify-between px-6 pt-5 pb-3">
-                <h2 className="text-app-xl font-bold text-app-text">
-                    {t('avatar.crop_title')}
-                </h2>
-                <button
-                    onClick={handleReset}
-                    className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
-                >
-                    <X size={16} />
-                </button>
-            </div>
+            <ModalHeader title={t('avatar.crop_title')} onClose={handleReset} closeLabel={t('common.close')} />
 
             {!imageSrc ? (
                 /* ファイル選択 */
@@ -135,18 +125,12 @@ export const AvatarCropModal: React.FC<AvatarCropModalProps> = ({
                         />
                     </div>
                     {/* 確定ボタン */}
-                    <div className="px-6 pb-5">
-                        <button
-                            onClick={handleConfirm}
-                            className={clsx(
-                                "w-full py-2.5 rounded-xl text-app-lg font-bold flex items-center justify-center gap-2 cursor-pointer",
-                                "bg-app-toggle text-app-toggle-text hover:opacity-90 transition-all active:scale-[0.98]"
-                            )}
-                        >
+                    <ModalFooter>
+                        <ModalButton variant="primary" onClick={handleConfirm}>
                             <Check size={16} />
                             {t('avatar.confirm')}
-                        </button>
-                    </div>
+                        </ModalButton>
+                    </ModalFooter>
                 </>
             )}
         </ModalShell>

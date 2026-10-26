@@ -2,13 +2,14 @@ import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, Trash2, Crosshair } from 'lucide-react';
+import { Trash2, Crosshair } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { clampToViewport } from '../utils/clampToViewport';
 import { useThemeStore } from '../store/useThemeStore';
 import type { LocalizedString } from '../types';
 import { TimeInput } from './ui/TimeInput';
+import { ModalHeader, ModalButton, INPUT_CLASS } from './ui/ModalParts';
 
 interface BoundaryEditModalProps {
     isOpen: boolean;
@@ -138,18 +139,13 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                     >
                         {isMobile && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mt-3 shrink-0" />}
 
-                        <div className="flex justify-between items-center px-6 py-4 border-b border-app-border bg-app-surface2/40 shrink-0">
-                            <h2 className="text-app-2xl font-bold text-app-text">{t(titleKey)}</h2>
-                            <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90">
-                                <X size={16} />
-                            </button>
-                        </div>
+                        <ModalHeader title={t(titleKey)} onClose={onClose} closeLabel={t('common.close')} />
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div>
                                 <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.name_label')}</label>
                                 <input type="text" value={nameInput} onChange={(e) => setNameInput(e.target.value)}
-                                    className="w-full bg-app-surface2 border border-app-border rounded-lg p-2.5 text-[16px] md:text-app-2xl text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all"
+                                    className={INPUT_CLASS}
                                     placeholder={t('boundary_modal.name_placeholder')} autoFocus />
                             </div>
 
@@ -158,14 +154,13 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                                     <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.start_time')}</label>
                                     <div className="flex gap-2">
                                         <TimeInput value={startTime} onChange={setStartTime}
-                                            className="flex-1 bg-app-surface2 border border-app-border rounded-lg p-2 text-[16px] md:text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all"
+                                            className={`${INPUT_CLASS} flex-1`}
                                             placeholder="M:SS" />
                                         {onTimelineSelectStart && (
-                                            <button type="button" onClick={() => { onTimelineSelectStart(); }}
-                                                className="px-3 py-2 text-app-text rounded-lg border border-app-border hover:bg-app-surface2 transition-colors flex items-center gap-1.5 text-app-sm cursor-pointer">
+                                            <ModalButton variant="secondary" onClick={() => { onTimelineSelectStart(); }}>
                                                 <Crosshair size={14} />
                                                 <span>{t('boundary_modal.select_on_timeline')}</span>
-                                            </button>
+                                            </ModalButton>
                                         )}
                                     </div>
                                 </div>
@@ -176,14 +171,13 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                                     <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.end_time')}</label>
                                     <div className="flex gap-2">
                                         <TimeInput value={endTime} onChange={setEndTime}
-                                            className="flex-1 bg-app-surface2 border border-app-border rounded-lg p-2 text-[16px] md:text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all"
+                                            className={`${INPUT_CLASS} flex-1`}
                                             placeholder="M:SS" />
                                         {onTimelineSelectEnd && (
-                                            <button type="button" onClick={() => { onTimelineSelectEnd(); }}
-                                                className="px-3 py-2 text-app-text rounded-lg border border-app-border hover:bg-app-surface2 transition-colors flex items-center gap-1.5 text-app-sm cursor-pointer">
+                                            <ModalButton variant="secondary" onClick={() => { onTimelineSelectEnd(); }}>
                                                 <Crosshair size={14} />
                                                 <span>{t('boundary_modal.select_on_timeline')}</span>
-                                            </button>
+                                            </ModalButton>
                                         )}
                                     </div>
                                 </div>
@@ -191,21 +185,18 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
 
                             <div className="flex justify-between items-center pt-2">
                                 {isEdit && onDelete ? (
-                                    <button type="button" onClick={() => { onDelete(); onClose(); }}
-                                        className="px-3 py-1.5 text-app-red hover:text-app-red-hover hover:bg-app-red-dim rounded-md flex items-center gap-1.5 transition-colors text-app-lg cursor-pointer">
+                                    <ModalButton variant="danger" onClick={() => { onDelete(); onClose(); }}>
                                         <Trash2 size={14} />
                                         <span>{t('modal.delete')}</span>
-                                    </button>
+                                    </ModalButton>
                                 ) : <div />}
                                 <div className="flex gap-2">
-                                    <button type="button" onClick={onClose}
-                                        className="px-4 py-1.5 text-app-text rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 text-app-lg font-medium cursor-pointer active:scale-95">
+                                    <ModalButton variant="secondary" onClick={onClose}>
                                         {t('modal.cancel')}
-                                    </button>
-                                    <button type="submit"
-                                        className="px-4 py-1.5 bg-app-blue text-white hover:bg-app-blue-hover rounded-md text-app-lg font-semibold transition-all uppercase cursor-pointer">
+                                    </ModalButton>
+                                    <ModalButton variant="primary" type="submit">
                                         {t('modal.save')}
-                                    </button>
+                                    </ModalButton>
                                 </div>
                             </div>
                         </form>

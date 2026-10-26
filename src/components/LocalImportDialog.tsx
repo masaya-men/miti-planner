@@ -11,6 +11,7 @@ import i18n from '../i18n';
 import { parsePlanLimitError, type ParsedPlanLimit } from '../utils/planLimitError';
 import { SweepOverlay } from './SweepOverlay';
 import { ModalShell } from './ui/ModalShell';
+import { ModalHeader, ModalFooter, ModalButton } from './ui/ModalParts';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 
 /** 1 件あたりに見せる sweep アニメーション秒数 (実 Firestore が早く返ってもこの時間以上はかける) */
@@ -349,12 +350,11 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
             panelProps={{ 'data-lenis-prevent': true }}
             // max-h: ヘッダー(~90) + 6 行(60×6) + help(88) + footer(64) + 余白 ≒ 620px
             // これより長いリスト (7 件以上) は body 内 overflow-y-auto でスクロール
-            className="w-[480px] max-w-[92vw] max-h-[min(620px,90vh)] flex flex-col rounded-2xl glass-tier3 overflow-hidden"
-            style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
+            className="w-[480px] max-w-[92vw] max-h-[min(620px,90vh)]"
         >
             {/* Header */}
-            <div className="px-6 pt-6 pb-3 shrink-0">
-                <div className="flex items-center gap-3 mb-1">
+            <ModalHeader
+                icon={
                     <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
@@ -363,15 +363,15 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                     >
                         <CloudUpload size={20} className="text-app-blue" />
                     </motion.div>
-                    <h3 className="text-app-2xl font-black text-app-text tracking-wide">
-                        {t('local_import.title')}
-                    </h3>
-                </div>
-                <p className="text-app-md text-app-text-muted ml-10 min-h-[1.6em]">
-                    {renderSubtitle()}
-                </p>
-            </div>
-
+                }
+                title={t('local_import.title')}
+                onClose={handleClose}
+                closeLabel={t('common.close')}
+                closeDisabled={phase === 'uploading'}
+            />
+            <p className="px-6 pt-3 pb-3 text-app-md text-app-text-muted min-h-[1.6em] shrink-0">
+                {renderSubtitle()}
+            </p>
             <div className="relative flex-1 overflow-y-auto" ref={bodyRef}>
                 {/* List + Help (背景レイヤー。常に通常の見た目で残し、サマリーは P3 帯としてフッター直上に重なる) */}
                 <div className={clsx(
@@ -577,61 +577,40 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 + snapshotPlans.length * 0.08 + 0.2, duration: 0.3 }}
-                className="shrink-0 flex items-center justify-end gap-2 px-6 py-4 border-t border-app-border"
+                className="shrink-0"
             >
-                {phase === 'idle' && (
-                    <>
-                        <button
-                            type="button"
-                            onClick={handleClose}
-                            className="px-4 py-2 rounded-xl text-app-md font-black text-app-text-sec hover:text-app-text hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
-                        >
-                            {t('local_import.cancel')}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleStartImport}
-                            className="px-4 py-2 rounded-xl text-app-md font-bold text-white bg-app-blue hover:bg-app-blue-hover transition-all shadow-lg shadow-app-blue/25 cursor-pointer"
-                        >
-                            {t('local_import.confirm')}
-                        </button>
-                    </>
-                )}
-
-                {phase === 'uploading' && (
-                    <span className="text-app-md text-app-text-muted">
-                        {t('local_import.uploading_in_progress')}
-                    </span>
-                )}
-
-                {phase === 'done' && summaryKind === 'success' && (
-                    <button
-                        type="button"
-                        onClick={handleClose}
-                        className="px-4 py-2 rounded-xl text-app-md font-bold text-white bg-app-blue hover:bg-app-blue-hover transition-all shadow-lg shadow-app-blue/25 cursor-pointer"
-                    >
-                        {t('local_import.close')}
-                    </button>
-                )}
-
-                {phase === 'done' && (summaryKind === 'partial' || summaryKind === 'failed') && (
-                    <>
-                        <button
-                            type="button"
-                            onClick={handleClose}
-                            className="px-4 py-2 rounded-xl text-app-md font-black text-app-text-sec hover:text-app-text hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
-                        >
+                <ModalFooter>
+                    {phase === 'idle' && (
+                        <>
+                            <ModalButton variant="secondary" onClick={handleClose}>
+                                {t('local_import.cancel')}
+                            </ModalButton>
+                            <ModalButton variant="primary" onClick={handleStartImport}>
+                                {t('local_import.confirm')}
+                            </ModalButton>
+                        </>
+                    )}
+                    {phase === 'uploading' && (
+                        <span className="text-app-md text-app-text-muted">
+                            {t('local_import.uploading_in_progress')}
+                        </span>
+                    )}
+                    {phase === 'done' && summaryKind === 'success' && (
+                        <ModalButton variant="primary" onClick={handleClose}>
                             {t('local_import.close')}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleRetryFailed}
-                            className="px-4 py-2 rounded-xl text-app-md font-bold text-white bg-app-blue hover:bg-app-blue-hover transition-all shadow-lg shadow-app-blue/25 cursor-pointer"
-                        >
-                            {retryLabel}
-                        </button>
-                    </>
-                )}
+                        </ModalButton>
+                    )}
+                    {phase === 'done' && (summaryKind === 'partial' || summaryKind === 'failed') && (
+                        <>
+                            <ModalButton variant="secondary" onClick={handleClose}>
+                                {t('local_import.close')}
+                            </ModalButton>
+                            <ModalButton variant="primary" onClick={handleRetryFailed}>
+                                {retryLabel}
+                            </ModalButton>
+                        </>
+                    )}
+                </ModalFooter>
             </motion.div>
         </ModalShell>
     );

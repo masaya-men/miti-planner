@@ -3,8 +3,9 @@
 // 発行は時間がかかるため、collabBusy 中はボタンを無効化+スピナー表示で二重発行(=満員誤判定)を防ぐ。
 import React from 'react';
 import { ModalShell } from '../ui/ModalShell';
+import { ModalHeader } from '../ui/ModalParts';
 import { useTranslation } from 'react-i18next';
-import { X, Copy, Users, Loader2 } from 'lucide-react';
+import { Copy, Users, Loader2 } from 'lucide-react';
 
 interface ShareChoiceModalProps {
   onCopy: () => void;
@@ -19,13 +20,9 @@ export const ShareChoiceModal: React.FC<ShareChoiceModalProps> = ({ onCopy, onCo
     <ModalShell
       isOpen
       onClose={onClose}
-      className="glass-tier3 rounded-2xl shadow-2xl w-[340px] max-w-[90vw] overflow-hidden"
-      style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
+      className="w-[340px] max-w-[90vw]"
     >
-      <div className="flex items-center justify-between px-5 py-3 border-b border-app-border bg-app-surface2/40">
-        <h3 className="text-app-2xl font-bold text-app-text">{t('collab.choice_title')}</h3>
-        <button onClick={onClose} className="w-7 h-7 rounded-full flex items-center justify-center text-app-text border border-transparent cursor-pointer hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200 active:scale-90"><X size={16} /></button>
-      </div>
+      <ModalHeader title={t('collab.choice_title')} onClose={onClose} closeLabel={t('common.close')} />
       <div className="p-4 space-y-2.5">
         <button onClick={onCopy} disabled={collabBusy} className="w-full flex items-center gap-3 p-3 rounded-xl border border-app-border bg-app-surface2/40 cursor-pointer hover:bg-app-surface2/70 transition-colors text-left active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
           <span className="w-8 h-8 rounded-lg bg-app-surface2 flex items-center justify-center shrink-0"><Copy size={16} className="text-app-text" /></span>

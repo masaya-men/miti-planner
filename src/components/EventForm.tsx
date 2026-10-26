@@ -17,6 +17,7 @@ import { computeInitialDamageState } from '../lib/eventFormDamageState';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { NumericInput } from './ui/NumericInput';
 import { TimeInput } from './ui/TimeInput';
+import { INPUT_CLASS } from './ui/ModalParts';
 
 // 軽減 ID から burst / crit / crit_protraction の接尾辞を剥がして base ID を返す
 const stripVariantSuffix = (id: string): string => {
@@ -628,10 +629,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                     onChange={(sec) => setTime(sec ?? 0)}
                     data-testid="event-time-input"
                     placeholder={t('modal.time_placeholder')}
-                    className={clsx(
-                        "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all border focus:outline-none focus:ring-1",
-                        "bg-app-surface2 border-app-border text-app-text focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
-                    )}
+                    className={INPUT_CLASS}
                 />
                 <p className="mt-1 text-app-sm text-app-text-muted">{t('modal.time_format_hint')}</p>
             </div>
@@ -645,10 +643,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                     lang={t('app.language') === 'English' ? 'en' : 'ja'}
                     value={contentLanguage === 'en' ? name.en : name.ja}
                     onChange={(e) => setName({ ...name, [contentLanguage === 'en' ? 'en' : 'ja']: e.target.value })}
-                    className={clsx(
-                        "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all border focus:outline-none focus:ring-1",
-                        "bg-app-surface2 border-app-border text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
-                    )}
+                    className={INPUT_CLASS}
                     required
                     placeholder={t('mechanic_modal.placeholder')}
                 />
@@ -660,10 +655,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                     lang={t('app.language') === 'English' ? 'en' : 'ja'}
                     value={contentLanguage === 'en' ? altName.en : altName.ja}
                     onChange={(e) => setAltName({ ...altName, [contentLanguage === 'en' ? 'en' : 'ja']: e.target.value })}
-                    className={clsx(
-                        "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all border focus:outline-none focus:ring-1",
-                        "bg-app-surface2 border-app-border text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
-                    )}
+                    className={INPUT_CLASS}
                     placeholder={t('event.alt_name_placeholder')}
                 />
             </div>
