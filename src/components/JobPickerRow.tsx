@@ -98,6 +98,7 @@ export const JobPickerRow: React.FC<JobPickerRowProps> = ({
                             className={clsx(
                                 "flex items-center justify-center w-full h-full rounded cursor-pointer transition-all duration-300 relative",
                             )}
+                            data-testid="job-picker-trigger"
                             onClick={(e) => handleJobIconClick(member.id, e)}
                             onContextMenu={(e) => {
                                 e.preventDefault();
