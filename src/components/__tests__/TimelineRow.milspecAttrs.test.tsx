@@ -19,6 +19,7 @@ vi.mock('../../store/useThemeStore', () => ({
         const st = { contentLanguage: 'ja', themeStyle };
         return sel ? sel(st) : st;
     },
+    useEffectiveThemeStyle: () => themeStyle,
 }));
 vi.mock('../../hooks/useSkillsData', () => ({ useJobs: () => [], useMitigations: () => [] }));
 vi.mock('../progress/useProgressRecording', () => ({

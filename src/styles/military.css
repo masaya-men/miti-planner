@@ -26,6 +26,10 @@
   --ms-tune-channel: 0.5;
   --ms-tune-weather: 0.3;
   --ms-tune-wear: 0.25;
+  /* C面(面取り)の幅は明るさに依らない形の値なので共通に置く(ライトで未定義→初期値 3px になっていた・2026-10-26)。
+     幅は --tune-relief で伸縮(小部品は cham-sm、装甲板は cham-lg)。 */
+  --ms-cham-lg:  min(calc(1.6px + 1.9px * var(--ms-tune-relief)), 10px);   /* 装甲板・構造パネルの面取り幅(上限10px) */
+  --ms-cham-sm:  min(calc(0.8px + 1.1px * var(--ms-tune-relief)), 5px);    /* ボタン・タイル・小部品の面取り幅(上限5px) */
 }
 
 /* --- 背景グリーブル模様(2026-09-14 参考画像 = Chris Hodgson の techno panel render を受けて追加・強化)
@@ -69,9 +73,7 @@
 
   /* ===== C面(面取り)= パネルを「削り出した金属の塊」として描くための斜面 =====
      太い4色ボーダーが4枚の斜面になり、角は 45° で留め継がれる。光源 = 左上。
-     幅は --tune-relief で伸縮(小部品は cham-sm、装甲板は cham-lg)。 */
-  --ms-cham-lg:  min(calc(1.6px + 1.9px * var(--ms-tune-relief)), 10px);   /* 装甲板・構造パネルの面取り幅(上限10px) */
-  --ms-cham-sm:  min(calc(0.8px + 1.1px * var(--ms-tune-relief)), 5px);    /* ボタン・タイル・小部品の面取り幅(上限5px) */
+     幅(--ms-cham-lg / --ms-cham-sm)は明るさ共通なので先頭の .theme-military に置いている。 */
   /* raised(手前に出る面)の面取り4面 — 上=最明 / 左=明 / 右=暗 / 下=最暗 */
   --ms-cr-t: #6a7783;  --ms-cr-l: #56626e;  --ms-cr-r: #272f38;  --ms-cr-b: #10151b;
   /* recess(沈んだ面)の面取り4面 — 見えるのは斜面の裏側なので反転: 上=最暗 / 下=最明 */

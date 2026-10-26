@@ -8,7 +8,7 @@ import { formatEventName } from '../utils/eventName';
 import { getColumnCssVar } from '../utils/calculator';
 import { getEffectiveTarget } from '../utils/effectiveTarget';
 import { useTranslation } from 'react-i18next';
-import { useThemeStore } from '../store/useThemeStore';
+import { useThemeStore, useEffectiveThemeStyle } from '../store/useThemeStore';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useProgressRecording } from './progress/useProgressRecording';
@@ -136,7 +136,7 @@ export const PcTypeToggle: React.FC<{ event: TimelineEvent }> = ({ event }) => {
     const { t } = useTranslation();
     const updateEvent = useMitigationStore(state => state.updateEvent);
     // 軍事の表の見た目用の印は軍事のときだけ付ける(標準の DOM は 1 文字も変えない)
-    const isMilspec = useThemeStore(state => state.themeStyle) === 'military';
+    const isMilspec = useEffectiveThemeStyle() === 'military';
     // enrage(時間切れ)はアイコンを持たない種別なので、空のクリック領域を作らないよう非表示。
     if (!event.damageType || event.damageType === 'enrage') return null;
     const stateLabel = event.ignoresDebuffMitigation ? 'ON' : 'OFF';
@@ -412,8 +412,8 @@ const TimelineRowContent = memo(({
     phases,
     labels,
 }: TimelineRowContentProps) => {
-    const { contentLanguage, themeStyle } = useThemeStore();
-    const isMilspec = themeStyle === 'military';
+    const contentLanguage = useThemeStore(state => state.contentLanguage);
+    const isMilspec = useEffectiveThemeStyle() === 'military';
     const myMemberId = useMitigationStore(state => state.myMemberId);
     const orConnector = labels.orConnector;
     const getEventName = (ev: TimelineEvent) => formatEventName(ev, contentLanguage, orConnector);

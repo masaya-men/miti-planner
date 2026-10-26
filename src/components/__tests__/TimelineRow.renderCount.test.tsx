@@ -24,6 +24,7 @@ vi.mock('../../store/useThemeStore', () => ({
         const st = { contentLanguage: 'ja', themeStyle: 'standard' };
         return sel ? sel(st) : st;
     },
+    useEffectiveThemeStyle: () => 'standard',
 }));
 const MITS = [{ id: 'reprisal', icon: '', isTankSwap: false }, { id: 'provoke', icon: '', isTankSwap: true }];
 vi.mock('../../hooks/useSkillsData', () => ({ useJobs: () => [], useMitigations: () => MITS }));

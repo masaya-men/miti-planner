@@ -17,7 +17,11 @@ vi.mock('../../store/useMitigationStore', () => ({
     useMitigationStore: (sel: any) => sel(storeState),
 }));
 vi.mock('../../store/useThemeStore', () => ({
-    useThemeStore: () => ({ contentLanguage: 'ja' }),
+    useThemeStore: (sel?: any) => {
+        const st = { contentLanguage: 'ja' };
+        return sel ? sel(st) : st;
+    },
+    useEffectiveThemeStyle: () => 'standard',
 }));
 vi.mock('../../hooks/useSkillsData', () => ({
     useJobs: () => [],

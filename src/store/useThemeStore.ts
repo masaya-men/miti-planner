@@ -75,14 +75,23 @@ export const useThemeStore = create<ThemeState>()(
     )
 );
 
-/** <html> のテーマクラス3種(theme-dark / theme-light / theme-military)を正しい状態へ正規化する。
+/** スタイルごとに <html> へ足すクラス(standard は明るさクラスだけ)。
+ *  スタイルを増やすときはここと index.html の起動時スクリプトの両方に足す(themeStyleClasses.test.ts が突き合わせる)。 */
+export const THEME_STYLE_CLASS: Record<ThemeStyle, string | null> = {
+    standard: null,
+    military: 'theme-military',
+};
+
+/** <html> のテーマクラス(明るさ theme-dark / theme-light + スタイル別クラス)を正しい状態へ正規化する。
  *  App.tsx の useEffect と store の setter が共用し、付与ロジックを1箇所に閉じる。 */
 export function applyThemeClasses(theme: Theme, style: ThemeStyle): void {
     if (typeof document === 'undefined') return;
     const root = document.documentElement;
-    root.classList.remove('theme-dark', 'theme-light', 'theme-military');
+    const styleClasses = Object.values(THEME_STYLE_CLASS).filter((c): c is string => c !== null);
+    root.classList.remove('theme-dark', 'theme-light', ...styleClasses);
     root.classList.add(`theme-${theme}`);
-    if (style === 'military') root.classList.add('theme-military');
+    const styleClass = THEME_STYLE_CLASS[style];
+    if (styleClass) root.classList.add(styleClass);
 }
 
 /** 実際に使うスタイル。保存値が 'military' でも、WIP 閲覧権限(DEV か管理者)が無ければ 'standard'。

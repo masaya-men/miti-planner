@@ -192,6 +192,14 @@
         "start_button": "开始使用",
         "authenticating": "登录中..."
     },
+    "welcome": {
+        "title": "欢迎来到 LoPo",
+        "subtitle": "请设定您的名字",
+        "display_name_label": "显示名称",
+        "display_name_placeholder": "输入喜欢的名字",
+        "start_button": "开始",
+        "avatar_hint": "头像也可以稍后再设置"
+    },
     "avatar": {
         "crop_title": "设置头像",
         "select_image": "选择图片",
@@ -377,6 +385,8 @@
         "astrologian_draw_chain_prompt_yes": "是",
         "unavailable_dissipation": "不可用（转化中）",
         "unavailable_dissipation_dup": "不可用（转化中）",
+        "requires_fairy_not_seraph": "需要小仙女，炽天使召唤期间无法使用",
+        "cancels_seraphism": "使用转化会解除炽天附体",
         "no_aetherflow": "无以太超流",
         "no_addersgall": "无蛇胆",
         "no_lily": "无治疗百合",
@@ -825,6 +835,8 @@
         "privacy_section1_plan_items": "减伤表内容（时间轴、队伍配置、减伤配置等）,减伤表标题和创建日期,团队标志图片（仅在您主动上传时）",
         "privacy_section1_auto_title": "自动收集的信息",
         "privacy_section1_auto_items": "为准确统计共享的减伤表的浏览人数，我们记录经过转换且无法还原为原始地址的 IP 地址版本,为防止滥用，我们临时记录 IP 地址（最多 1 分钟内自动删除）,为了准确统计热门减伤表，我们会接收您浏览器生成的随机匿名ID（不能识别个人的字符串）",
+        "privacy_section1b_title": "关于登录时从外部服务收到的信息",
+        "privacy_section1b_body": "使用 Discord 登录时，由于认证机制，您的账号信息（用户 ID、显示名称、头像图片 URL 等）会通过外部服务的 API 暂时传送到服务器。但本服务只提取用户 ID，其他信息一律不保存、不记录，并立即丢弃。显示名称和头像仅使用您自己设定的内容。",
         "privacy_section1d_title": "Discord 用户 ID 的处理方式",
         "privacy_section1d_body": "LoPo 仅保存 Discord 用户 ID 与服务器端密钥结合后的 HMAC-SHA256 哈希值。原始 Discord ID 不会保存在 LoPo 数据库中，包括 LoPo 运营者在内的任何人都无法从内部恢复。通过这种哈希化，即使 LoPo 数据发生泄露，用户的 Discord 账号被识别的风险也极低。",
         "privacy_section1c_title": "关于支持（Ko-fi）",

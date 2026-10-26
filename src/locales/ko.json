@@ -192,6 +192,14 @@
         "start_button": "시작하기",
         "authenticating": "로그인 중..."
     },
+    "welcome": {
+        "title": "LoPo에 오신 것을 환영합니다",
+        "subtitle": "표시 이름을 정해 주세요",
+        "display_name_label": "표시 이름",
+        "display_name_placeholder": "원하는 이름을 입력",
+        "start_button": "시작하기",
+        "avatar_hint": "아이콘은 나중에 설정할 수도 있습니다"
+    },
     "avatar": {
         "crop_title": "아이콘 설정",
         "select_image": "이미지 선택",
@@ -377,6 +385,8 @@
         "astrologian_draw_chain_prompt_yes": "예",
         "unavailable_dissipation": "사용 불가 (전개)",
         "unavailable_dissipation_dup": "사용 불가 (전개)",
+        "requires_fairy_not_seraph": "요정이 필요하므로 세라핌 소환 중에는 사용할 수 없습니다",
+        "cancels_seraphism": "에테르 전환을 사용하면 세라피즘이 해제됩니다",
         "no_aetherflow": "에테르 플로우 없음",
         "no_addersgall": "아더스갈 없음",
         "no_lily": "릴리 없음",
@@ -825,6 +835,8 @@
         "privacy_section1_plan_items": "경감표 콘텐츠(타임라인, 파티 구성, 경감 배치 등),경감표 제목 및 생성일,팀 로고 이미지(직접 업로드한 경우에만)",
         "privacy_section1_auto_title": "자동으로 수집되는 정보",
         "privacy_section1_auto_items": "공유된 경감표의 조회수를 정확히 집계하기 위해 원본으로 복원할 수 없는 변환된 IP 주소를 기록합니다,악용 방지를 위해 IP 주소를 일시적으로 기록합니다(최대 1분 이내에 자동 삭제),인기 경감표를 정확하게 집계하기 위해, 브라우저에서 생성된 무작위 익명 ID(개인을 식별할 수 없는 문자열)를 수신합니다",
+        "privacy_section1b_title": "로그인 시 외부 서비스에서 전달되는 정보에 대해",
+        "privacy_section1b_body": "Discord로 로그인할 때 인증 구조상 외부 서비스의 API를 통해 계정 정보(사용자 ID·표시 이름·아이콘 이미지 URL 등)가 서버에 일시적으로 전달됩니다. 다만 본 서비스는 사용자 ID만 추출하며, 그 외의 정보는 일절 저장·기록하지 않고 즉시 폐기합니다. 표시 이름과 아이콘은 본인이 직접 설정한 것만 사용합니다.",
         "privacy_section1d_title": "Discord 사용자 ID 처리 방법",
         "privacy_section1d_body": "LoPo는 Discord 사용자 ID를 서버 측에 보관된 비밀 키와 결합해 HMAC-SHA256으로 해시화한 값만 저장합니다. 원본 Discord ID는 LoPo의 데이터베이스에 일절 저장되지 않으며 LoPo 운영자를 포함한 LoPo 내부에서도 복원할 수 없습니다. 이 해시화로 인해 만일 LoPo의 데이터가 유출되더라도 이용자의 Discord 계정이 특정될 위험은 극히 낮습니다.",
         "privacy_section1c_title": "후원(Ko-fi)에 대해",
