@@ -9,7 +9,7 @@ const lanes = mk('lanes');
 const THEMES = ['standard-dark', 'standard-light'];
 const pageAx = { vp: ['390'], theme: THEMES, lang: ['ja', 'en'] };
 const popAx = { vp: ['390'], theme: THEMES, lang: ['ja'] };
-const sheetAxEn = { vp: ['390'], theme: THEMES, lang: ['ja', 'en'] };
+const sheetAxEn = { vp: ['390'], theme: THEMES, lang: ['ja'] };
 
 /** 開いたシートの外枠(MobileBottomSheet の本体)を、文言つきで指す */
 const sheet = (/** @type {string} */ ja, /** @type {string} */ en) => `div.fixed[class*="z-[301]"]:has-text("${ja}"), div.fixed[class*="z-[301]"]:has-text("${en}")`;

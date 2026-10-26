@@ -14,6 +14,9 @@ const storage = mkStorage();
 
 const ax = (/** @type {string[]} */ vp = ['1489', '390']) => ({ vp, theme: ['housing-dark', 'housing-light'], lang: ['ja', 'en'] });
 
+// 時間削減(設計書 §10 の削り順 1)=窓(housing/win-*)の en 軸は外した。戻すときは axWin を ax に戻す
+const axWin = (/** @type {string[]} */ vp = ['1489', '390']) => ({ ...ax(vp), lang: ['ja'] });
+
 /** 探す画面の表示切替ボタンを押す(PC のみ) */
 const switchView = (/** @type {string} */ view) => async (/** @type {import('playwright').Page} */ page) => {
   await page.waitForSelector(`[role="tab"][data-view="${view}"]`, { state: 'visible', timeout: 15000 });
@@ -99,18 +102,18 @@ export default [
 
   // ───────── 窓(ログイン不要) ─────────
   // clip:'ready' = 窓の枠だけを撮る(要素矩形の撮影)
-  { id: 'housing/win-login-pc', route: '/housing', storage, ready: '.housing-panel-modal-shell', clip: 'ready', axes: ax(['1489']),
+  { id: 'housing/win-login-pc', route: '/housing', storage, ready: '.housing-panel-modal-shell', clip: 'ready', axes: axWin(['1489']),
     open: async (page) => { await page.click('.housing-top-login-btn'); }, covers: ['HousingLoginModal'] },
-  { id: 'housing/win-login-mobile', route: '/housing', storage, ready: '.housing-panel-modal-shell', clip: 'ready', axes: ax(['390']),
+  { id: 'housing/win-login-mobile', route: '/housing', storage, ready: '.housing-panel-modal-shell', clip: 'ready', axes: axWin(['390']),
     open: tapBottomNav(5), covers: ['HousingLoginModal'] },
-  { id: 'housing/win-filter-sheet', route: '/housing', storage, ready: '.housing-mobile-sheet', axes: ax(['390']),
+  { id: 'housing/win-filter-sheet', route: '/housing', storage, ready: '.housing-mobile-sheet', axes: axWin(['390']),
     open: async (page) => { await page.click('.housing-app-header-filterbtn'); }, covers: ['HousingFilterSheet'] },
-  { id: 'housing/win-settings-sheet', route: '/housing', storage, ready: '.housing-mobile-sheet', axes: ax(['390']),
+  { id: 'housing/win-settings-sheet', route: '/housing', storage, ready: '.housing-mobile-sheet', axes: axWin(['390']),
     open: tapBottomNav(4), covers: ['HousingSettingsSheet'] },
-  { id: 'housing/win-manner', route: '/housing', storage, ready: '.housing-manner-card', clip: 'ready', axes: ax(),
+  { id: 'housing/win-manner', route: '/housing', storage, ready: '.housing-manner-card', clip: 'ready', axes: axWin(),
     open: async (page) => { await openTourWithTray(page); await page.click('.housing-tour-tray-start'); }, covers: ['MannerNoticeDialog'] },
-  { id: 'housing/win-share-menu', route: '/housing/listing/vr-l01', storage, ready: '.housing-share-menu', axes: ax(['1489']),
+  { id: 'housing/win-share-menu', route: '/housing/listing/vr-l01', storage, ready: '.housing-share-menu', axes: axWin(['1489']),
     open: async (page) => { await page.click('.housing-share > button[aria-haspopup="menu"]'); }, covers: ['HousingShareButton'] },
-  { id: 'housing/win-ephemeral-add', route: '/housing/tour', storage, ready: '.housing-ephemeral-panel', axes: ax(),
+  { id: 'housing/win-ephemeral-add', route: '/housing/tour', storage, ready: '.housing-ephemeral-panel', axes: axWin(),
     open: async (page) => { await page.click('.housing-ephemeral-toggle'); }, covers: ['EphemeralAddPanel'] },
 ];

@@ -28,7 +28,7 @@ const SETTLE_FLOOR_MS = 2500;
 /** open 前の ready 事前チェックの前に、描画が落ち着くのを待つ時間 */
 const PRE_OPEN_WAIT_MS = 1200;
 /** 窓を開いた後、framer-motion など JS 駆動の登場アニメが終わるのを待つ時間(WAAPI は freeze が終点へ送るが JS 駆動は送れない) */
-const POST_OPEN_WAIT_MS = 500;
+const POST_OPEN_WAIT_MS = 250;
 /** 絵が止まったか(画面が連続 3 回同じか)を 150ms 間隔で見る。上限を過ぎたら諦めて進む(止まらない JS ループは hide/mask 側で処理する) */
 const STABLE_POLL_MS = 150;
 const STABLE_MAX_MS = 4000;

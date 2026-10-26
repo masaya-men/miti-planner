@@ -41,7 +41,8 @@ const THEMES = ['standard-dark', 'standard-light'];
 const pageAx = { vp: ['1489', '1920'], theme: THEMES, lang: ['ja', 'en'] };
 const POP = 'div.fixed.glass-tier3.rounded-lg';
 const winAx = { vp: ['1489'], theme: THEMES, lang: ['ja'] };
-const winAxEn = { vp: ['1489'], theme: THEMES, lang: ['ja', 'en'] };
+// 時間削減(設計書 §10 の削り順 1)=窓の en 軸は外した(15 分に収まらなかったため)。戻すときは lang に 'en' を足す
+const winAxEn = { vp: ['1489'], theme: THEMES, lang: ['ja'] };
 
 export const PHOTO = fileURLToPath(new URL('../fixtures/images/photo-01.png', import.meta.url));
 export const ROW = '[data-time-row]';
