@@ -324,15 +324,14 @@
   background: #000;
   pointer-events: none;
 }
-/* 実機報告(2026-10-26 iPhone Safari): 低電力モード等で自動再生が拒否されると、
-   WebKit が背景動画の中央に標準の再生ボタンを出す。背景は飾りなのでボタンは常に隠し、
-   再生できない間は poster の静止画を見せる。 */
-.housing-scenery video::-webkit-media-controls-start-playback-button,
-.housing-scenery video::-webkit-media-controls-overlay-play-button,
-.housing-scenery video::-webkit-media-controls {
-  display: none !important;
-  -webkit-appearance: none;
+/* 動画が流れていない間(読込中・iPhone が自動再生を拒否した時)に見せる静止画。
+   動画は SceneryVideo が流れている間だけ不透明にする。 */
+.housing-scenery-poster {
+  position: absolute; inset: 0;
+  background-position: center; background-size: cover; background-repeat: no-repeat;
 }
+.housing-scenery-poster[data-scenery-poster="day"] { background-image: url(/housing/scenery-day-poster.webp); }
+.housing-scenery-poster[data-scenery-poster="night"] { background-image: url(/housing/scenery-night-poster.webp); }
 .housing-scenery::before,
 .housing-scenery::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
