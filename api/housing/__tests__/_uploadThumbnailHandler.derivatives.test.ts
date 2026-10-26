@@ -89,7 +89,8 @@ vi.mock('../_coverThumbHash.js', () => ({
 
 import handler from '../_uploadThumbnailHandler.js';
 
-const B64 = Buffer.from('pretend-image-bytes').toString('base64');
+// 先頭バイトが WebP (RIFF....WEBP) の最小フィクスチャ (中身検査を通すため)
+const B64 = Buffer.concat([Buffer.from('RIFF'), Buffer.alloc(4), Buffer.from('WEBPpretend')]).toString('base64');
 
 function makeBody(index?: number) {
   return {
@@ -137,6 +138,17 @@ beforeEach(() => {
   h.ogMetaSetSpy.mockReset().mockImplementation(() => Promise.resolve());
   fetchMock.mockReset().mockImplementation(async () => ({ ok: true }) as Response);
   global.fetch = fetchMock as unknown as typeof fetch;
+});
+
+describe('_uploadThumbnailHandler の中身検査', () => {
+  it('mimeType image/png で SVG 本体を送ると 400 mime_mismatch', async () => {
+    const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"></svg>').toString('base64');
+    const { req, res } = makeReqRes({ listingId: 'listing1', base64: svg, mimeType: 'image/png', index: 0 });
+    await handler(req, res);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe('mime_mismatch');
+    expect(h.saveSpy).not.toHaveBeenCalled();
+  });
 });
 
 describe('_uploadThumbnailHandler の派生生成 + coverThumbHash 保存', () => {

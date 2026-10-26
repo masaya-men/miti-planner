@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import sharp from 'sharp';
-import { convertToPngIfNeeded } from '../_imageFormatConvert.js';
+import { convertToPngIfNeeded, resizeToWebp } from '../_imageFormatConvert.js';
 
 describe('convertToPngIfNeeded', () => {
   it('WebPをPNGに変換する', async () => {
@@ -67,5 +67,12 @@ describe('convertToPngIfNeeded', () => {
     const meta = await sharp(result!).metadata();
     expect(meta.width).toBe(50);
     expect(meta.height).toBe(50);
+  });
+});
+
+describe('sharp の SVG 読込ブロック', () => {
+  it('SVG バッファを resizeToWebp に渡すと失敗する', async () => {
+    const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"><rect width="4" height="4"/></svg>');
+    await expect(resizeToWebp(svg, 480)).rejects.toThrow();
   });
 });

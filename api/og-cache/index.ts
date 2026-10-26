@@ -22,6 +22,9 @@ import { getStorage } from 'firebase-admin/storage';
 import sharp from 'sharp';
 import { isValidOgImageMeta, buildInternalOgUrl } from './_ogCacheLogic.js';
 
+// GHSA-wq5f-xc86-pv6w 対策: LoPo は SVG を変換しないので sharp の SVG 読込を無効化する
+sharp.block({ operation: ['VipsForeignLoadSvg'] });
+
 const STORAGE_BUCKET = 'lopo-7793e.firebasestorage.app';
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
 const HASH_PATTERN = /^[a-f0-9]{16}$/;

@@ -29,6 +29,7 @@
  *    sourceImageUrls / sourceImageAspectRatios / tweetId / youtubeVideoId /
  *    videoUrl / videoPosterUrl / videoAspectRatio) をクリア (postUrl は維持)
  */
+import { sniffUploadImageMime } from './_sniffImageMime.js';
 import { randomUUID } from 'node:crypto';
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
@@ -113,6 +114,11 @@ export default async function handler(req: any, res: any) {
     if (buf.length === 0) return res.status(400).json({ error: 'empty_image' });
     if (buf.length > MAX_BYTES) {
       return res.status(413).json({ error: 'too_large', maxBytes: MAX_BYTES, gotBytes: buf.length });
+    }
+
+    // 中身の先頭バイトで実際の形式を判定し、申告 mimeType と一致しなければ拒否 (SVG 等の偽装対策)。
+    if (sniffUploadImageMime(buf) !== mimeType) {
+      return res.status(400).json({ error: 'mime_mismatch' });
     }
 
     const adminDb = getAdminFirestore();
