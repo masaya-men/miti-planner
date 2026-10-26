@@ -2,6 +2,9 @@
 // 段階 1 のカタログに入れなかった窓・画面(理由つき)。run.mjs は先頭 _ のファイルを読まない。
 // stage: 2 = 見本・撮影手順を足せば撮れる / 3 = 撮影対象外・専用の仕組みが要る
 /** @type {{ component: string, stage: 2 | 3, reason: string }[]} */
+// 管理画面のページ本体。/admin は AdminGuard が管理者ログイン(Firebase Auth + 管理者権限)を要求し、データも Firestore 直読みで見本に載せられない
+const ADMIN_PAGES = ['AdminLayout', 'AdminDashboard', 'AdminContents', 'AdminContentForm', 'AdminTemplates', 'AdminConfig', 'AdminSkills', 'AdminTranslations', 'AdminStats', 'AdminServers', 'AdminBackups', 'AdminLogs', 'AdminUgc', 'AdminFeatured', 'AdminSystemNotifications', 'AdminHousingReports', 'AdminHousingerReports', 'AdminHousingNewBadge'];
+
 export default [
   { component: 'HousingerPage', stage: 2, reason: '/housing/housinger/:uid は uid が hashed:<id> に正規化され、API が uid=hashed:vr-user-a で呼ばれる。見本ファイル名にコロンが入り Windows で作れず(apiFixtureKey の置換が要る)、プロフィール本体は Firestore 直読み(遮断中)で、撮ると見本の無い通信で失敗する。マイページのログイン案内側(/housing/mypage 未ログイン)だけ housing/login-prompt-mypage で撮影済み。' },
   { component: 'HousingerShortLinkPage', stage: 2, reason: '/h/:slug は Firestore getDocs で slug を解決する(遮断中)ため、実内容が出ない。HousingerPage と同じ理由で見本の拡張が要る。' },
@@ -19,4 +22,32 @@ export default [
   { component: 'VideoRecorderModal', stage: 3, reason: 'PiP メニューからの動画取り込み。PiP(Document Picture-in-Picture)と画面共有の権限が必要で自動撮影できない。' },
   { component: 'FFLogsImportModal', stage: 2, reason: '本体(URL 入力・プレビュー)はログイン必須。未ログインのログイン案内のみ段階 1 で撮影(miti/win-fflogs-import)' },
   { component: 'MilspecDim', stage: 3, reason: '電源投入の演出は動きなので撮らない(設計書 §3)。撮影は演出完了後の静止状態' },
+  // ───────── 段階 2: 管理画面(管理者ログイン + 管理データが必須) ─────────
+  ...ADMIN_PAGES.map((component) => ({ component, stage: /** @type {const} */ (2), reason: '/admin 配下の管理画面。AdminGuard が管理者ログインを要求し、表示データも Firestore の管理用コレクション(遮断中)から読む。管理者ログイン状態と管理データの見本が要る。' })),
+  { component: 'PlanToTemplateModal', stage: 2, reason: '管理画面 AdminTemplates の「プランからテンプレート化」窓。管理者ログイン + 保存済みプランが必須。' },
+  { component: 'CsvImportModal', stage: 2, reason: '管理画面(src/components/admin/CsvImportModal.tsx)の CSV 取り込み窓。管理者ログインが必須。(src/components/CsvImportModal.tsx は未使用で別物)' },
+  { component: 'FflogsTranslationModal', stage: 2, reason: '管理画面 AdminTranslations の FFLogs 翻訳取り込み窓。管理者ログインと FFLogs API 通信が必須。' },
+  { component: 'FflogsTimelineImportModal', stage: 2, reason: '管理画面 AdminTemplates の FFLogs タイムライン取り込み窓。管理者ログインと FFLogs API 通信が必須。' },
+  { component: 'SheetTargetMatchModal', stage: 2, reason: '管理画面 AdminTemplates のスプレッドシート対象照合窓。管理者ログインとテンプレート編集状態が必須。' },
+  { component: 'BulkEditPopover', stage: 2, reason: '管理画面 AdminTemplates のテンプレート一括編集ポップ。管理者ログイン + テンプレートの複数選択が必須。' },
+  { component: 'SkillFormModal', stage: 2, reason: '管理画面 AdminSkills のスキル追加・編集窓。管理者ログインが必須。' },
+  { component: 'EditModal', stage: 2, reason: '管理画面 AdminSystemNotifications の通知編集窓(同ファイル内の内部コンポーネント。削除確認はブラウザ標準の confirm)。管理者ログインが必須。' },
+  // ───────── 段階 2: ログイン必須の窓(軽減表スマホ・ハウジング) ─────────
+  { component: 'MobileAccountMenu', stage: 2, reason: '軽減表スマホのアカウントシート(Layout.tsx の mobileAccountOpen)。ログイン済みユーザーの時だけ開く(未ログインは下ナビ「ログイン」がログイン窓を開く)。' },
+  { component: 'HousingAccountModal', stage: 2, reason: 'ハウジングのアカウント窓(確認ダイアログ含む)。ログイン済みの時だけ開く。' },
+  { component: 'HousingAvatarCropModal', stage: 2, reason: 'ハウジングのアバター切り抜き窓。マイページ/アカウント窓のログイン済み操作でしか開かない。' },
+  { component: 'NotificationDropdown', stage: 2, reason: 'ハウジングの通知ドロップダウン。ログイン済みヘッダーにだけ出る。' },
+  { component: 'HousingReportModal', stage: 2, reason: 'ハウジング詳細の報告窓。ログイン必須で他人の投稿の時だけ出る。' },
+  { component: 'HousingDetailKebab', stage: 2, reason: 'ハウジング詳細のオーナー用ケバブメニュー。投稿者本人のログインが必須。' },
+  { component: 'HousingDeleteConfirm', stage: 2, reason: 'ハウジング投稿の削除確認。ケバブ(オーナー)経由で、ログイン必須。' },
+  { component: 'HousingerReportModal', stage: 2, reason: 'ハウジンガーページの報告窓。ログイン必須。ハウジンガーページ自体も見本が未対応(HousingerPage 参照)。' },
+  { component: 'VisibilityConfirmModal', stage: 2, reason: 'マイページの公開範囲変更の確認窓。ログイン + 自分の投稿が必須。' },
+  { component: 'HousingerProfileSection', stage: 2, reason: 'マイページのハウジンガープロフィール編集欄。ログイン必須。' },
+  { component: 'HousingDateTimePicker', stage: 2, reason: 'ハウジング登録画面の日時選択ポップ。登録画面はログイン必須(未ログインはログイン案内のみ)。' },
+  { component: 'HousingDuplicateWarningDialog', stage: 2, reason: 'ハウジング登録の重複警告。ログイン + 重複住所の登録操作が必須。' },
+  { component: 'TourAddressExposureDialog', stage: 2, reason: 'ツアー招待作成時の住所公開確認。ログイン必須(招待作成はログイン済みのみ)。' },
+  { component: 'RegisterPage', stage: 2, reason: 'ハウジング登録画面の本体。ログイン必須で、未ログイン時のログイン案内(HousingLoginPrompt)のみ housing/login-prompt-register で撮影済み。' },
+  { component: 'HousingEditPage', stage: 2, reason: 'ハウジング編集画面(/housing/listing/:id/edit)。ログイン + 自分の投稿が必須。' },
+  // ───────── 段階 3: 共同編集 ─────────
+  { component: 'CollabJoinerPage', stage: 3, reason: '/collab/:roomToken の参加画面。部屋への WebSocket 接続とログインが必須で、撮影対象外。' },
 ];
