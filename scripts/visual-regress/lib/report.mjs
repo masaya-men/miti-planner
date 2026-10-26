@@ -83,7 +83,7 @@ export function buildReportHtml({ name, rows, verdicts }) {
     const im = r.images ?? {};
     return `<section class="row ${r.status.startsWith('fail') ? 'is-fail' : ''}">
 <h2>${esc(r.key)}</h2>
-<p class="meta"><span class="st">${esc(STATUS_LABEL[r.status] ?? r.status)}</span> 差 ${(r.ratio * 100).toFixed(2)}% / 許容 ${(r.tol * 100).toFixed(2)}% <span class="verdict ${vcls}">${vtxt}</span></p>
+<p class="meta"><span class="st">${esc(STATUS_LABEL[r.status] ?? r.status)}</span>${r.status.startsWith('fail') ? '' : ` 差 ${(r.ratio * 100).toFixed(2)}% / 許容 ${(r.tol * 100).toFixed(2)}%`} <span class="verdict ${vcls}">${vtxt}</span></p>
 ${r.sizeMismatch ? `<p class="warn">画像の大きさが違います: ${esc(r.sizeMismatch)}</p>` : ''}
 ${r.error ? `<pre class="err">${esc(r.error)}</pre>` : ''}
 <div class="imgs">${img(im.base, 'base')}${img(im.head, 'head')}${img(im.overlay, '差(赤)')}</div>
@@ -158,6 +158,15 @@ async function cropOf(/** @type {Buffer} */ base, /** @type {Buffer} */ head, /*
   return sharp(sheet).resize({ width: CROP_MAX_SIDE, height: CROP_MAX_SIDE, fit: 'inside', withoutEnlargement: true }).png().toBuffer();
 }
 
+/** 2 枚を大きい方の W×H に揃える(足りない所は灰色)。head が伸びた分も差と切り出しに入れるため */
+async function padToSame(/** @type {Buffer} */ a, /** @type {Buffer} */ b) {
+  const [ma, mb] = await Promise.all([sharp(a).metadata(), sharp(b).metadata()]);
+  const W = Math.max(ma.width ?? 0, mb.width ?? 0), H = Math.max(ma.height ?? 0, mb.height ?? 0);
+  const pad = (/** @type {Buffer} */ png, /** @type {any} */ m) => (m.width === W && m.height === H ? png
+    : sharp(png).ensureAlpha().extend({ right: W - m.width, bottom: H - m.height, background: { r: 128, g: 128, b: 128, alpha: 1 } }).png().toBuffer());
+  return Promise.all([pad(a, ma), pad(b, mb)]);
+}
+
 /** @param {string} p */
 function readJson(p) { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return {}; } }
 /** @param {string} p @param {Buffer} buf */
@@ -180,8 +189,9 @@ export async function buildReport(runDir) {
     if (has('base')) images.base = rel('base');
     if (has('head')) images.head = rel('head');
     if (r.status === 'diff' && images.base && images.head) {
-      const base = fs.readFileSync(path.join(runDir, images.base));
-      const head = fs.readFileSync(path.join(runDir, images.head));
+      let base = fs.readFileSync(path.join(runDir, images.base));
+      let head = fs.readFileSync(path.join(runDir, images.head));
+      if (r.sizeMismatch) [base, head] = await padToSame(base, head);
       const d = await diffPng(base, head);
       const bbox = bboxOfMask(d.mask, d.bw, d.bh);
       if (bbox) {

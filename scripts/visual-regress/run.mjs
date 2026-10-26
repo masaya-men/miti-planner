@@ -161,6 +161,13 @@ ${sig} を受けました。後片付けして終了します`); cleanup(); proc
     await shootCondition(browser, headUrl, conds[0], path.join(runDir, '_warmup.png'));
     fs.rmSync(path.join(runDir, '_warmup.png'), { force: true });
 
+    // 同じ --name の再実行: 古い画像と仕分けが新しい画像に紛れないよう片付ける(calibrate は別の置き場なので触らない)
+    if (!args.calibrate) {
+      for (const d of ['base', 'head', 'overlay', 'crops']) fs.rmSync(path.join(runDir, d), { recursive: true, force: true });
+      const vf = path.join(runDir, 'verdicts.json');
+      if (fs.existsSync(vf)) fs.renameSync(vf, path.join(runDir, 'verdicts.prev.json'));
+    }
+
     const t0 = Date.now();
     /** @type {Record<string, any>} */
     const result = {};

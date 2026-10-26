@@ -25,7 +25,7 @@ export async function diffPng(a, b) {
     const total = Math.max(bwA * bhA, Math.ceil(rb.info.width / BLOCK) * Math.ceil(rb.info.height / BLOCK));
     return {
       blocks: total, total, ratio: 1,
-      sizeMismatch: `${ra.info.width}x${ra.info.height} vs ${rb.info.width}x${rb.info.height}`,
+      sizeMismatch: `base ${ra.info.width}x${ra.info.height} / head ${rb.info.width}x${rb.info.height}`,
       mask: new Uint8Array(bwA * bhA).fill(1), bw: bwA, bh: bhA,
     };
   }

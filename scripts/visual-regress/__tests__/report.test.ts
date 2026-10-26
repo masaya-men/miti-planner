@@ -92,4 +92,23 @@ describe('buildReport(実画像)', () => {
     expect(Math.max(crop.width!, crop.height!)).toBeLessThanOrEqual(1200);
     expect(fs.existsSync(path.join(dir, 'overlay', 'a', 'k.png'))).toBe(true);
   });
+
+  it('大きさが違うとき、head が伸びた領域も切り出しに入る', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vr-report-'));
+    const solid = (w: number, h: number, gray: number) => sharp(Buffer.alloc(w * h * 3, gray), { raw: { width: w, height: h, channels: 3 } }).png().toBuffer();
+    fs.mkdirSync(path.join(dir, 'base'), { recursive: true });
+    fs.mkdirSync(path.join(dir, 'head'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'base', 'k.png'), await solid(100, 100, 200));
+    fs.writeFileSync(path.join(dir, 'head', 'k.png'), await solid(100, 300, 200));
+    fs.writeFileSync(path.join(dir, 'result.json'), JSON.stringify({ k: { status: 'diff', ratio: 1, tol: 0.001, sizeMismatch: 'base 100x100 / head 100x300' } }));
+    await buildReport(dir);
+    const crop = await sharp(path.join(dir, 'crops', 'k.png')).metadata();
+    // base だけの大きさ(100x100)で切ると高さ/幅は約 0.3。伸びた領域(~300 高さ)を含めば 0.5 を超える
+    expect(crop.height! / crop.width!).toBeGreaterThan(0.5);
+  });
+  it('fail 行に偽の差・許容の数字を出さない', () => {
+    const html = buildReportHtml({ name: 't', rows: [row('f', 'fail-head', 1, { tol: 0, error: 'boom' })], verdicts: {} });
+    expect(html).toContain('boom');
+    expect(html).not.toContain('100.00%');
+  });
 });

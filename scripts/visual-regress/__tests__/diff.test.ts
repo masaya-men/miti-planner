@@ -45,7 +45,7 @@ describe('diffPng', () => {
   it('大きさが違うと ratio=1 と sizeMismatch', async () => {
     const d = await diffPng(await solid(64, 64, 100), await solid(64, 72, 100));
     expect(d.ratio).toBe(1);
-    expect(d.sizeMismatch).toBe('64x64 vs 64x72');
+    expect(d.sizeMismatch).toBe('base 64x64 / head 64x72');
   });
 });
 
