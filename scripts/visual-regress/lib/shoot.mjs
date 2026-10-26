@@ -35,9 +35,10 @@ const SETTLE_MAX_MS = 15000;
  * @param {string} baseUrl
  * @param {{ key: string, entry: any, vp: string, theme: string, lang: string }} cond
  * @param {string} outFile
- * @returns {Promise<{ ok: true, file: string } | { ok: false, error: string, unmocked: string[] }>}
+ * @param {{ injectCss?: string }} [opts] injectCss: 撮影直前に足す CSS(検出力の確認用)
+ * @returns {Promise<{ ok: true, file: string, masks: { selector: string, reason: string }[] } | { ok: false, error: string, unmocked: string[] }>}
  */
-export async function shootCondition(browser, baseUrl, cond, outFile) {
+export async function shootCondition(browser, baseUrl, cond, outFile, opts = {}) {
   const { entry, vp } = cond;
   const spec = VIEWPORTS[vp];
   if (!spec) return { ok: false, error: `未知の vp: ${vp}`, unmocked: [] };
@@ -85,6 +86,26 @@ export async function shootCondition(browser, baseUrl, cond, outFile) {
 
     await freeze(page, { hideSelectors: entry.hide ?? [] });
 
+    // 検出力の確認用の CSS(head 側だけに足す)
+    if (opts.injectCss) await page.addStyleTag({ content: opts.injectCss });
+
+    // mask: 該当要素を不透明な単色で塗り、子は隠す(中身の揺れを比較から外す)。塗った分だけ記録する
+    /** @type {{ selector: string, reason: string }[]} */
+    const masks = [];
+    for (const m of entry.mask ?? []) {
+      const n = await page.evaluate(({ selector }) => {
+        const els = document.querySelectorAll(selector);
+        els.forEach((el) => {
+          el.setAttribute('data-vr-mask', '1');
+        });
+        return els.length;
+      }, m);
+      if (n > 0) masks.push({ selector: m.selector, reason: m.reason });
+    }
+    if (masks.length) {
+      await page.addStyleTag({ content: '[data-vr-mask]{background:#ff00ff !important;border-color:#ff00ff !important;box-shadow:none !important;outline:none !important;background-image:none !important}[data-vr-mask] *{visibility:hidden !important}' });
+    }
+
     fs.mkdirSync(path.dirname(outFile), { recursive: true });
     if (entry.clip === 'ready') {
       await page.locator(entry.ready).first().screenshot({ path: outFile, animations: 'disabled' });
@@ -93,7 +114,7 @@ export async function shootCondition(browser, baseUrl, cond, outFile) {
     }
 
     if (unmocked.length) return { ok: false, error: `見本の無い通信が ${unmocked.length} 件ありました`, unmocked };
-    return { ok: true, file: outFile };
+    return { ok: true, file: outFile, masks };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e), unmocked };
   } finally {
