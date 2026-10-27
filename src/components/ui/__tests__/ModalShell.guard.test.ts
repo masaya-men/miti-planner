@@ -20,7 +20,7 @@ const LEGACY: Record<string, 'window' | 'not-window'> = {
     'MobileGuide.tsx': 'not-window',
     'PipView.tsx': 'not-window',
     'Sidebar.tsx': 'not-window',
-    'Timeline.tsx': 'not-window',
+    'timeline/TimelinePopovers.tsx': 'not-window',
     'WelcomeSetup.tsx': 'not-window',
     'tutorial/TutorialOverlay.tsx': 'not-window',
     'tutorial/animations/CompletionCard.tsx': 'not-window',
