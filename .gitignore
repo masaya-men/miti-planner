@@ -118,3 +118,4 @@ scripts/visual-regress/.cache/
 /temp_*
 /build_errors*.txt
 /*.xlsx
+scripts/housing-css/.out/
