@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect, useRef, useContext, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { MobileContextMenu } from './MobileContextMenu';
 import { MobileEffectBarLayer } from './MobileEffectBarLayer';
@@ -25,9 +24,8 @@ import {
     MOBILE_EFFECT_BAR_SLOT_PITCH,
 } from '../utils/mobileEffectBar';
 import {
-    X, Undo2, Redo2, CloudDownload, Sword, ChevronLeft, Settings, Crosshair
+    X, Undo2, Redo2, CloudDownload, ChevronLeft
 } from 'lucide-react';
-import VideoRecorderModal from './VideoRecorderModal';
 import { useJobs, useMitigations, getMitigationPriority } from '../hooks/useSkillsData';
 import clsx from 'clsx';
 import { DEFAULT_FIGHT_DURATION_SEC } from '../constants/timeline';
@@ -75,6 +73,7 @@ import { TimelineRows } from './timeline/TimelineRows';
 import { TimelineBands } from './timeline/TimelineBands';
 import { TimelineMitigationLayer } from './timeline/TimelineMitigationLayer';
 import { TimelinePopovers } from './timeline/TimelinePopovers';
+import { TimelineModeBars } from './timeline/TimelineModeBars';
 
 // 軍事専用部品は標準テーマに配信しないよう遅延読み込み(useSortSlide は軽い hook なので静的のまま)
 const MilspecReticle = React.lazy(() => import('./military/table/MilspecReticle').then(m => ({ default: m.MilspecReticle })));
@@ -1390,85 +1389,20 @@ const Timeline: React.FC = () => {
                 setMobileMitiFlow={setMobileMitiFlow}
             />
 
-            {/* AA 配置モード フローティングバー */}
-            {createPortal(
-                <div className={clsx(
-                    "fixed bottom-6 left-1/2 z-[99980] flex items-center gap-3 px-5 py-2.5",
-                    "bg-app-bg border border-app-text/15 rounded-2xl",
-                    "shadow-[0_8px_32px_rgba(0,0,0,.6)]",
-                    "transition-all duration-300",
-                    isAaModeEnabled
-                        ? "opacity-100 -translate-x-1/2 translate-y-0 pointer-events-auto"
-                        : "opacity-0 -translate-x-1/2 translate-y-10 pointer-events-none"
-                )}>
-                    {/* 現在の設定ラベル */}
-                    <span className="text-app-md font-black text-app-text whitespace-nowrap">
-                        <Sword size={12} className="inline mr-1.5 -mt-0.5" />
-                        {t('aa_settings.floating_label', {
-                            damage: aaSettings.damage.toLocaleString(),
-                            target: aaSettings.target,
-                            type: t(`aa_settings.${aaSettings.type === 'magical' ? 'magic' : aaSettings.type === 'physical' ? 'phys' : 'dark'}`)
-                        })}
-                    </span>
-                    <div className="w-px h-5 bg-app-text/10 shrink-0" />
-                    {/* 設定変更ボタン */}
-                    <button
-                        onClick={() => setAaSettingsOpen(true)}
-                        className="py-1.5 px-3 rounded-lg text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
-                    >
-                        <Settings size={12} className="inline mr-1 -mt-0.5" />
-                        {t('aa_settings.change_settings')}
-                    </button>
-                    <div className="w-px h-5 bg-app-text/10 shrink-0" />
-                    {/* 終了ボタン */}
-                    <button
-                        onClick={() => setIsAaModeEnabled(false)}
-                        className="py-1.5 px-3 rounded-lg text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
-                    >
-                        <X size={12} className="inline mr-1 -mt-0.5" />
-                        {t('aa_settings.end_mode')}
-                    </button>
-                </div>,
-                document.body
-            )}
-
-            {/* TL選択モード フローティングバー */}
-            {createPortal(
-                <div className={clsx(
-                    "fixed bottom-6 left-1/2 z-[99980] flex items-center gap-3 px-5 py-2.5",
-                    "bg-app-bg border border-app-blue/30 rounded-2xl",
-                    "shadow-[0_8px_32px_rgba(0,0,0,.6)]",
-                    "transition-all duration-300",
-                    (timelineSelectMode || labelSelectMode)
-                        ? "opacity-100 -translate-x-1/2 translate-y-0 pointer-events-auto"
-                        : "opacity-0 -translate-x-1/2 translate-y-10 pointer-events-none"
-                )}>
-                    <Crosshair size={14} className="text-app-blue shrink-0" />
-                    <span className="text-app-md font-black text-app-text whitespace-nowrap">
-                        {(timelineSelectMode?.field === 'startTime' || labelSelectMode?.field === 'startTime')
-                            ? t('boundary_modal.select_banner_start')
-                            : t('boundary_modal.select_banner')}
-                    </span>
-                    <div className="w-px h-5 bg-app-text/10 shrink-0" />
-                    <button
-                        onClick={() => {
-                            if (timelineSelectMode) {
-                                setTimelineSelectMode(null);
-                                throttledUpdatePreview(null);
-                            }
-                            if (labelSelectMode) {
-                                setLabelSelectMode(null);
-                                throttledUpdatePreview(null);
-                            }
-                        }}
-                        className="py-1.5 px-3 rounded-lg text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
-                    >
-                        <X size={12} className="inline mr-1 -mt-0.5" />
-                        {t('modal.cancel')}
-                    </button>
-                </div>,
-                document.body
-            )}
+            <TimelineModeBars
+                t={t}
+                isAaModeEnabled={isAaModeEnabled}
+                setIsAaModeEnabled={setIsAaModeEnabled}
+                setAaSettingsOpen={setAaSettingsOpen}
+                aaSettings={aaSettings}
+                timelineSelectMode={timelineSelectMode}
+                setTimelineSelectMode={setTimelineSelectMode}
+                labelSelectMode={labelSelectMode}
+                setLabelSelectMode={setLabelSelectMode}
+                throttledUpdatePreview={throttledUpdatePreview}
+                videoModalOpen={videoModalOpen}
+                setVideoModalOpen={setVideoModalOpen}
+            />
 
             <TimelinePipLayer
                 t={t}
@@ -1483,9 +1417,6 @@ const Timeline: React.FC = () => {
                 handleClosePip={handleClosePip}
                 onOpenVideoModal={() => setVideoModalOpen(true)}
             />
-
-            {/* 動画埋め込み式タイムライン作成モーダル */}
-            <VideoRecorderModal isOpen={videoModalOpen} onClose={() => setVideoModalOpen(false)} />
         </>
     );
 };
