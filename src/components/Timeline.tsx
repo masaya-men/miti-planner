@@ -42,7 +42,6 @@ import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import clsx from 'clsx';
 import { getSortedPartyMemberIds } from '../constants/party';
 import { DEFAULT_FIGHT_DURATION_SEC } from '../constants/timeline';
-import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { ConflictOffscreenArrows } from './timeline/ConflictOffscreenArrows';
@@ -55,6 +54,7 @@ import { resolveMitigationTap } from '../utils/mitigationTapResolver';
 import { resolveSeraphismMitigation } from '../utils/scholarShieldRules';
 import { useTimelineMobileScrollChrome } from './timeline/useTimelineMobileScrollChrome';
 import { useTimelineAaEscape, useTimelineShortcutKeys, useTimelineEscapeKeys } from './timeline/useTimelineKeyboard';
+import { useTimelineAutoPlan } from './timeline/useTimelineAutoPlan';
 import { useTimelineHeaderEvents, useTimelineTutorialEvents, useTimelineProgressJump, useTimelineResetUiEvent, useTimelineClearMenuOutsideClick } from './timeline/useTimelineWindowEvents';
 import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
 import type { MemberRefEntry } from './Timeline.layoutHooks';
@@ -95,12 +95,8 @@ import { MemoFloatingBar } from './Memo/MemoFloatingBar';
 import { yToTimeSec, pxToXRatio, xRatioToPx, reanchorScrollTop } from './Memo/coords';
 import { CursorOverlay } from './collab/CursorOverlay';
 import { useCollabPresenceStore } from '../store/useCollabPresenceStore';
-import { showToast } from './Toast';
 import { useProgressRecording } from './progress/useProgressRecording';
 import { SpreadsheetGridImportModal } from './SpreadsheetGridImportModal';
-import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
-import { importWithLimitCheck } from '../lib/sheetImport/importWithLimitCheck';
-import type { ContentSelectionDefault } from '../lib/contentSelection';
 import { shieldEffectBarEndsOnBarrierExhaustion } from '../utils/barrierStacking';
 
 import { PlacementToast } from './timeline/sheet/PlacementToast';
@@ -402,43 +398,23 @@ const Timeline: React.FC = () => {
     // リロードで null に戻るため、開き直した時は既存競合が両方光る(自己責任)。
     const lastPlacedMitigationId = useMitigationStore(s => s.lastPlacedMitigationId);
 
-    // 取り込み・オートプラン・AA の state(effect を渡すフックより前で必要なため、元の宣言位置から上へ移動。useState のみ・順序影響なし)。
+    // 取り込み・確認ダイアログの state(effect を渡すフックより前で必要なため、元の宣言位置から上へ移動。useState のみ・順序影響なし)。
     const [importModalOpen, setImportModalOpen] = useState(false);
     const [showGridImport, setShowGridImport] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning'; confirmLabel?: string; cancelLabel?: string } | null>(null);
-    const [isMitiSheetOpen, setIsMitiSheetOpen] = useState(false);
-    const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
-    const [aaSettingsOpen, setAaSettingsOpen] = useState(false);
 
-    const handleAutoPlan = useCallback(() => {
-        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
-        const executePlan = () => {
-            const { timelineEvents, partyMembers, currentLevel } = useMitigationStore.getState();
-            const result = generateAutoPlan(timelineEvents, partyMembers, currentLevel);
-            useMitigationStore.getState().applyAutoPlan(result);
-        };
+    // 現在のプラン(sheetImportDefault と currentContentId の元)。使う位置(上)へ元の宣言位置から移動(store 購読のみ・順序影響なし)。
+    const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
+    // ⑤-3b: ジョイナー(SavedPlan 無し)は一時セッションの contentId にフォールバック。
+    const joinerContentId = useCollabJoinerSession(s => s.contentId);
+    const currentContentId = resolveContentId(currentPlan?.contentId ?? null, joinerContentId);
 
-        if (typeof window !== 'undefined' && window.innerWidth < 768) {
-            setTimeout(() => {
-                const isConfirmed = window.confirm(
-                    t('timeline.auto_plan_confirm_mobile', "オートプランを実行しますか？\n\n※現在の軽減の配置はすべて削除され、新しく上書きされます。")
-                );
-                if (isConfirmed) {
-                    executePlan();
-                }
-            }, 150);
-        } else {
-            setConfirmDialog({
-                title: t('timeline.auto_plan_title', 'オートプラン実行'),
-                message: t('timeline.auto_plan_confirm', '現在のタイムラインに基づいて軽減プランを自動生成します。\n既存の配置はすべて削除され、新しく上書きされます。実行しますか？'),
-                variant: 'warning',
-                onConfirm: () => {
-                    executePlan();
-                    setConfirmDialog(null);
-                },
-            });
-        }
-    }, [t]);
+    const {
+        handleAutoPlan, sheetImportDefault, handleSheetImport,
+        isMitiSheetOpen, setIsMitiSheetOpen,
+        isAaModeEnabled, setIsAaModeEnabled,
+        aaSettingsOpen, setAaSettingsOpen,
+    } = useTimelineAutoPlan({ readOnlyRef, setConfirmDialog, currentContentId, currentPlan, t });
 
     useTimelineHeaderEvents({ handleAutoPlan, setImportModalOpen, setShowGridImport });
 
@@ -500,32 +476,6 @@ const Timeline: React.FC = () => {
             useMitigationStore.getState().setHideEmptyRows(true);
         }
     }, [currentPlanId, joinerRoomToken]);
-
-    const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
-    // ⑤-3b: ジョイナー(SavedPlan 無し)は一時セッションの contentId にフォールバック。
-    const joinerContentId = useCollabJoinerSession(s => s.contentId);
-    const currentContentId = resolveContentId(currentPlan?.contentId ?? null, joinerContentId);
-
-    const sheetImportDefault = useMemo<ContentSelectionDefault>(() => ({
-        contentId: currentContentId,
-        level: currentPlan?.level ?? null,
-        category: currentPlan?.category ?? null,
-        title: currentPlan?.title ?? '',
-    }), [currentContentId, currentPlan]);
-
-    // スプシ取り込み: コンテンツ選択値で確定。満杯時は LimitResolutionSheet で削除を待つ。
-    const handleSheetImport = useCallback(
-        async (result: SheetImportResult, opts: { contentId: string | null }): Promise<boolean> => {
-            const committed = await importWithLimitCheck(
-                result,
-                opts.contentId,
-                t('sheetImport.default_plan_title'),
-            );
-            if (committed) showToast(t('sheetImport.created'));
-            return committed;
-        },
-        [t],
-    );
 
     const aaSettingsButtonRef = useRef<HTMLButtonElement>(null);
     useSmoothWheelScroll(scrollContainerRef, { horizontalScrollOnShift: true, stiffness: 80, wheelMultiplier: 1.5 });
