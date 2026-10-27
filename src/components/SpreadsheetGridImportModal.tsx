@@ -1,16 +1,18 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ModalShell } from './ui/ModalShell';
-import { ModalHeader, ModalButton, INPUT_CLASS } from './ui/ModalParts';
-import { FileSpreadsheet, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, ClipboardPaste, Plus, ChevronRight } from 'lucide-react';
+import { ModalHeader } from './ui/ModalParts';
+import { FileSpreadsheet, AlertCircle } from 'lucide-react';
 import clsx from 'clsx';
 import { getJobsFromStore, getMitigationsFromStore } from '../hooks/useSkillsData';
 import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
-import { SLOTS_BY_ROLE, type PartySlot } from '../lib/sheetImport/partyAssignment';
 import { ImportContentSelector } from './ImportContentSelector';
 import type { ContentSelectionDefault } from '../lib/contentSelection';
 import type { WizardStep, Lang4 } from './gridImport/gridImportModel';
-import { GridView } from './gridImport/GridView';
+import { GridImportPhaseBar } from './gridImport/GridImportPhaseBar';
+import { GridImportMobilePaste } from './gridImport/GridImportMobilePaste';
+import { GridImportPcSurface } from './gridImport/GridImportPcSurface';
+import { GridImportFooter } from './gridImport/GridImportFooter';
 import { PartyAssignmentStep } from './gridImport/PartyAssignmentStep';
 import { useGridImportSelection } from './gridImport/useGridImportSelection';
 import { useGridImportPaste } from './gridImport/useGridImportPaste';
@@ -93,45 +95,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                   matrix 貼付中 or 追加済みありのとき表示。自作は phase 列で帯を作るため入力欄は不要。
                   チップは ml-auto で右へ寄せ、draft を消した後も進捗として残す。 */}
               {(source === 'matrix' || entries.length > 0) && (
-                <div className="px-5 py-2 border-b border-app-border bg-app-surface2/40 flex flex-wrap items-center gap-2 shrink-0">
-                  {source === 'matrix' && (
-                    <>
-                      <span className="text-app-lg text-app-text-muted shrink-0">{t('gridImport.phase_name_label')}</span>
-                      <input
-                        type="text"
-                        value={phaseName}
-                        onChange={(e) => setPhaseName(e.target.value)}
-                        placeholder={t('gridImport.phase_name_placeholder')}
-                        className={`${INPUT_CLASS} !w-auto min-w-[180px]`}
-                        spellCheck={false}
-                        aria-label={t('gridImport.phase_name_label')}
-                      />
-                      <ModalButton variant="primary" onClick={commitPendingDraft} className="shrink-0">
-                        <Plus size={16} /> {t('gridImport.add_phase_next')}
-                      </ModalButton>
-                    </>
-                  )}
-                  {/* 追加済みフェーズ✓チップ(右寄せ・横並び・draft を消しても残る) */}
-                  {entries.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-2 ml-auto">
-                      {entries.map((entry, i) => {
-                        const name = entry.phaseName || `Phase ${i + 1}`;
-                        const events = entry.parsed.rows.length;
-                        const mits = perPhaseMits[i] ?? 0;
-                        return (
-                          <span
-                            key={i}
-                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-app-text/5 border border-app-border text-app-lg text-app-text shrink-0"
-                            title={t('gridImport.detected_phase', { name, events, mits })}
-                          >
-                            <CheckCircle2 size={14} className="shrink-0 text-app-text-muted" />
-                            {name}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+                <GridImportPhaseBar source={source} phaseName={phaseName} setPhaseName={setPhaseName} commitPendingDraft={commitPendingDraft} entries={entries} perPhaseMits={perPhaseMits} />
               )}
 
               {/* ③ flow(Ctrl+A 導線・1行) + 列ごと貼り付けトグル。スマホでは非表示。standalone help 行は畳み(この列は? の title へ寄せた)。 */}
@@ -159,126 +123,9 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
 
               {/* グリッド本体: スマホ=textarea 貼付+確認サマリー / PC=従来の GridView */}
               {isMobile ? (
-                <div className="flex-1 overflow-auto px-5 py-5 flex flex-col gap-4">
-                  {/* コピー手順(折りたたみ・短文のみ) */}
-                  <div>
-                    <button
-                      type="button"
-                      onClick={() => setMobileCopyHintOpen((o) => !o)}
-                      className="flex items-center gap-1.5 text-app-lg text-app-text-muted"
-                    >
-                      <ChevronRight size={14} className={clsx('transition-transform duration-200', mobileCopyHintOpen && 'rotate-90')} />
-                      {t('gridImport.mobile_copy_hint_toggle')}
-                    </button>
-                    {mobileCopyHintOpen && (
-                      <p className="mt-2 text-app-lg text-app-text-muted leading-relaxed">{t('gridImport.mobile_copy_hint')}</p>
-                    )}
-                  </div>
-
-                  {/* 貼付 textarea(長押し→ペースト) */}
-                  <textarea
-                    value={pasteBuffer}
-                    onChange={handleMobilePasteChange}
-                    placeholder={t('gridImport.mobile_paste_placeholder')}
-                    aria-label={t('gridImport.mobile_paste_label')}
-                    rows={4}
-                    spellCheck={false}
-                    autoCapitalize="off"
-                    autoCorrect="off"
-                    className="w-full rounded-xl border border-app-border bg-app-surface2 px-4 py-3 text-app-2xl text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted"
-                  />
-
-                  {/* 確認サマリー or 未貼付メッセージ */}
-                  {source !== 'none' ? (
-                    <div className="flex items-center gap-2 text-app-2xl text-app-text">
-                      <CheckCircle2 size={16} className="text-app-text-muted shrink-0" />
-                      {t('gridImport.mobile_read_ok', { events: mobileEventCount })}
-                    </div>
-                  ) : (
-                    <p className="text-app-lg text-app-text-muted">{t('gridImport.mobile_paste_empty')}</p>
-                  )}
-
-                  {/* スマホ grid: メンバー列ごとに枠(MT/ST/H1…)を割り当てるリスト */}
-                  {source === 'grid' && mobileMemberColumns.length > 0 && (
-                    <div className="flex flex-col gap-2">
-                      <p className="text-app-2xl font-bold text-app-text">{t('gridImport.mobile_assign_party')}</p>
-                      {mobileMemberColumns.map(({ col, ci, role }) => {
-                        const job = jobs.find((j) => j.id === col.jobId);
-                        const jobLabel = job ? (job.name[gridLang as keyof typeof job.name] ?? job.name.ja) : (col.jobId ?? col.header);
-                        return (
-                          <div key={ci} className="flex items-center gap-3">
-                            <span className="flex-1 truncate text-app-2xl text-app-text">{jobLabel}</span>
-                            <select
-                              value={col.slot ?? ''}
-                              aria-label={t('gridImport.assign_slot')}
-                              onChange={(e) => setMobileColumnSlot(ci, (e.target.value as PartySlot) || null)}
-                              className="appearance-none bg-app-surface2 border border-app-border rounded-lg px-3 py-2 text-app-2xl text-app-text focus:outline-none"
-                            >
-                              <option value="">{t('gridImport.slot_empty')}</option>
-                              {role && SLOTS_BY_ROLE[role].map((s) => (
-                                <option key={s} value={s}>{s}</option>
-                              ))}
-                            </select>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {/* スマホ grid: フッターの冗長ステータスをスクロール本体に移設(フッターを最小高さに保つ) */}
-                  {source === 'grid' && (
-                    <div className="flex flex-col gap-1.5">
-                      {blockMsg && (
-                        <span className={clsx('flex items-start gap-1.5 text-app-2xl', blockMsg.tone === 'red' ? 'text-app-red' : 'text-app-amber')}>
-                          <AlertCircle size={14} className="shrink-0 mt-0.5" /> {blockMsg.text}
-                        </span>
-                      )}
-                      {skipped.length > 0 && (
-                        <>
-                          <span className="text-app-2xl text-app-amber">{t('gridImport.skipped_count', { count: skipped.length })}</span>
-                          <span className="text-app-sm text-app-amber/80">{t('gridImport.unresolved_note')}</span>
-                        </>
-                      )}
-                      <p className="text-app-sm text-app-text-muted/60">{t('gridImport.rights_notice')}</p>
-                    </div>
-                  )}
-                </div>
+                <GridImportMobilePaste mobileCopyHintOpen={mobileCopyHintOpen} setMobileCopyHintOpen={setMobileCopyHintOpen} pasteBuffer={pasteBuffer} handleMobilePasteChange={handleMobilePasteChange} source={source} mobileEventCount={mobileEventCount} mobileMemberColumns={mobileMemberColumns} jobs={jobs} gridLang={gridLang} setMobileColumnSlot={setMobileColumnSlot} blockMsg={blockMsg} skipped={skipped} />
               ) : (
-                <div
-                  ref={pasteSurfaceRef}
-                  tabIndex={0}
-                  onPaste={handleGridPaste}
-                  className="flex-1 overflow-auto focus:outline-none focus:ring-2 focus:ring-app-blue/40"
-                  aria-label={t('gridImport.paste_prompt')}
-                >
-                  <GridView
-                    table={table} setTable={setTable} deps={{ mitigations, jobs }}
-                    source={source}
-                    byColumnMode={byColumnMode && source !== 'matrix'}
-                    onColumnPaste={onColumnPaste}
-                    previewEvents={[...displayedPreviewEvents].sort((a, b) => a.time - b.time)}
-                    templateEvents={templateEvents}
-                    targetOverrides={targetOverrides}
-                    onTargetOverride={(key, value) => setTargetOverrides((prev) => ({ ...prev, [key]: value }))}
-                    gridLang={gridLang}
-                  />
-                  {/* 空状態: グリッド本体エリアに大きく貼り付けプロンプトを出す */}
-                  {isGridEmpty && (
-                    <div className="flex flex-col items-center justify-center gap-3 py-16 px-5 text-center select-none">
-                      <ClipboardPaste size={36} className="text-app-text-muted" />
-                      <p className="text-app-3xl font-bold text-app-text">{t('gridImport.paste_prompt')}</p>
-                      <p className="text-app-lg text-app-text-muted">{t('gridImport.paste_hint')}</p>
-                      {/* スマホでも確実に貼り付けられるボタン(div の onPaste は iOS で出ないため) */}
-                      <ModalButton variant="primary" onClick={handlePasteFromClipboard} className="select-none">
-                        <ClipboardPaste size={18} /> {t('gridImport.paste_button')}
-                      </ModalButton>
-                      {pasteError && (
-                        <p className="text-app-lg text-app-amber">{t('gridImport.paste_error')}</p>
-                      )}
-                      <p className="text-app-lg text-app-text-muted/70">{t('gridImport.format_hint')}</p>
-                    </div>
-                  )}
-                </div>
+                <GridImportPcSurface pasteSurfaceRef={pasteSurfaceRef} handleGridPaste={handleGridPaste} table={table} setTable={setTable} mitigations={mitigations} jobs={jobs} source={source} byColumnMode={byColumnMode} onColumnPaste={onColumnPaste} displayedPreviewEvents={displayedPreviewEvents} templateEvents={templateEvents} targetOverrides={targetOverrides} setTargetOverrides={setTargetOverrides} gridLang={gridLang} isGridEmpty={isGridEmpty} handlePasteFromClipboard={handlePasteFromClipboard} pasteError={pasteError} />
               )}
             </div>
           )}
@@ -295,75 +142,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
           )}
 
           {/* フッター */}
-          <div className="px-5 py-3 border-t border-app-border flex flex-col gap-1.5 shrink-0">
-            <div className="flex items-center justify-between gap-3">
-              {/* 左: 戻る/キャンセル + クリア */}
-              <div className="flex items-center gap-2">
-                {step === 1 ? (
-                  <ModalButton variant="secondary" onClick={onClose}>
-                    {t('common.cancel')}
-                  </ModalButton>
-                ) : (
-                  <ModalButton variant="secondary" onClick={() => setStep((s) => (s === 3 ? 2 : 1) as WizardStep)}>
-                    <ArrowLeft size={16} /> {t('gridImport.back')}
-                  </ModalButton>
-                )}
-                {/* クリア(やり直す): step2/3 で表示。貼った内容を全消去 */}
-                {step !== 1 && (entries.length > 0 || source !== 'none') && (
-                  <ModalButton variant="secondary" onClick={() => { resetAll(); setStep(2); }}>
-                    {t('gridImport.clear')}
-                  </ModalButton>
-                )}
-              </div>
-
-              {/* 右: ステップ別の主アクション */}
-              {step === 1 ? (
-                <ModalButton variant="primary" onClick={() => setStep(2)}>
-                  {t('gridImport.next')} <ArrowRight size={16} />
-                </ModalButton>
-              ) : step === 2 && !isGrid ? (
-                // matrix: 次へ(割当へ)。何も無ければ無効。
-                <ModalButton
-                  variant="primary"
-                  onClick={goToParty}
-                  disabled={source === 'none' && entries.length === 0}
-                >
-                  {t('gridImport.next_to_party')} <ArrowRight size={16} />
-                </ModalButton>
-              ) : (
-                // grid(step2) / matrix(step3): 作成ブロック
-                <div className="flex items-center gap-3 flex-wrap justify-end">
-                  {!isMobile && (blockMsg ? (
-                    <span className={clsx('flex items-center gap-1.5 text-app-2xl',
-                      blockMsg.tone === 'red' ? 'text-app-red' : 'text-app-amber')}>
-                      <AlertCircle size={14} className="shrink-0" /> {blockMsg.text}
-                    </span>
-                  ) : (
-                    <span className="text-app-2xl text-app-text-muted">
-                      {preview && t('gridImport.summary', { labels: preview.labels.length, events: preview.timelineEvents.length, mits: preview.timelineMitigations.length })}
-                    </span>
-                  ))}
-                  {!isMobile && skipped.length > 0 && (
-                    <span className="text-app-2xl text-app-amber">
-                      {t('gridImport.skipped_count', { count: skipped.length })}
-                    </span>
-                  )}
-                  <ModalButton variant="primary" onClick={handleConfirm} disabled={!canConfirm}>
-                    <CheckCircle2 size={16} /> {t('gridImport.create')}
-                  </ModalButton>
-                </div>
-              )}
-            </div>
-            {/* 補足(読めない技の説明=skipped時)+ 権利表記。作成ブロック表示時のみ。スマホは本体スクロール内に移設済み。 */}
-            {!isMobile && showCreateBlock && (
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-app-sm text-app-amber/80 truncate">
-                  {skipped.length > 0 ? t('gridImport.unresolved_note') : ''}
-                </span>
-                <p className="text-app-sm text-app-text-muted/60 shrink-0">{t('gridImport.rights_notice')}</p>
-              </div>
-            )}
-          </div>
+          <GridImportFooter step={step} setStep={setStep} onClose={onClose} entries={entries} source={source} resetAll={resetAll} isGrid={isGrid} goToParty={goToParty} isMobile={isMobile} blockMsg={blockMsg} preview={preview} skipped={skipped} handleConfirm={handleConfirm} canConfirm={canConfirm} showCreateBlock={showCreateBlock} />
         </ModalShell>
   );
 };
