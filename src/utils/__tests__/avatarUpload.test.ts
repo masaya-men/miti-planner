@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 
 const uploadBytesMock = vi.fn().mockResolvedValue(undefined);
 const getDownloadURLMock = vi.fn()
@@ -22,6 +22,17 @@ vi.mock('firebase/firestore', () => ({
 vi.mock('../../lib/firebase', () => ({ storage: {}, db: {} }));
 
 // createImageBitmap / canvas は jsdom に無いため最小限のグローバルモックを用意する。
+// canvas の prototype は同じ作業プロセスで後に走る別ファイルにも残るため、終わったら必ず元に戻す
+// (戻さないと ProgressTrackingHUD の DOM 不変テストで canvas に width/height が付いて落ちていた)。
+const originalGetContext = HTMLCanvasElement.prototype.getContext;
+const originalToBlob = HTMLCanvasElement.prototype.toBlob;
+const originalCreateImageBitmap = globalThis.createImageBitmap;
+afterAll(() => {
+  HTMLCanvasElement.prototype.getContext = originalGetContext;
+  HTMLCanvasElement.prototype.toBlob = originalToBlob;
+  globalThis.createImageBitmap = originalCreateImageBitmap;
+});
+
 beforeEach(() => {
   uploadBytesMock.mockClear();
   updateDocMock.mockClear();
