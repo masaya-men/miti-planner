@@ -63,6 +63,31 @@ describe('buildReportHtml', () => {
     expect(html).toContain('.clock');
     expect(html).toContain('時刻表示は毎回変わる');
   });
+  it('失敗行に見本の無い通信の URL を列挙し、エスケープする', () => {
+    const html = buildReportHtml({
+      name: 't',
+      rows: [row('u', 'fail-head', 1, { error: '見本の無い通信が 2 件ありました', unmocked: ['https://x.example/a?b=1&c=<2>', 'https://y.example/z'] })],
+      verdicts: {},
+    });
+    expect(html).toContain('https://y.example/z');
+    expect(html).toContain('https://x.example/a?b=1&amp;c=&lt;2&gt;');
+    expect(html).not.toContain('c=<2>');
+  });
+  it('撮り直しの件数と、撮り直して same になった行(firstRatio)を出す', () => {
+    const html = buildReportHtml({
+      name: 't',
+      rows: [
+        row('r/same', 'same', 0, { retried: true, firstRatio: 0.0123 }),
+        row('r/diff', 'diff', 0.2, { retried: true, firstRatio: 0.2 }),
+        row('r/plain', 'same', 0),
+      ],
+      verdicts: {},
+    });
+    expect(html).toContain('撮り直し 2');
+    expect(html).toContain('r/same');
+    expect(html).toContain('1.23%');
+    expect(html).not.toContain('r/plain');
+  });
   it('HTML を壊す文字はエスケープする', () => {
     const html = buildReportHtml({ name: 't', rows: [row('x', 'fail-head', 1, { error: '<script>x</script>' })], verdicts: {} });
     expect(html).not.toContain('<script>x');

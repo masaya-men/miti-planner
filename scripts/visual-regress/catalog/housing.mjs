@@ -52,7 +52,11 @@ const startTour = async (/** @type {import('playwright').Page} */ page, /** @typ
 
 /** 見本の家の title(カード/ボタンの aria-label に使う。ja/en で同じ) */
 const GALLERY = JSON.parse(fs.readFileSync(fileURLToPath(new URL('../fixtures/api/housing-public.gallery.json', import.meta.url)), 'utf8')).listings;
-const cardOf = (/** @type {string} */ id) => `[data-testid="housing-listing-card"][aria-label=${JSON.stringify(GALLERY.find((/** @type {any} */ l) => l.id === id).title)}]`;
+const cardOf = (/** @type {string} */ id) => {
+  const l = GALLERY.find((/** @type {any} */ x) => x.id === id);
+  if (!l) throw new Error(`見本 gallery に ${id} がありません`);
+  return `[data-testid="housing-listing-card"][aria-label=${JSON.stringify(l.title)}]`;
+};
 
 const CARD = '[data-testid="housing-listing-card"]';
 

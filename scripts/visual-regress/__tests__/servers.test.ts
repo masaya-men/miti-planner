@@ -41,7 +41,7 @@ describe('exitCodeOf', () => {
 describe('validateRunName / isInside', () => {
   it('安全な名前は通し、危ない名前は拒否する', () => {
     expect(validateRunName('before-001')).toBeNull();
-    for (const bad of ['', '.', '..', '../..', 'a/b', 'a\\b', '/abs', 'C:\\x', 'C:x']) expect(validateRunName(bad), bad).not.toBeNull();
+    for (const bad of ['', '.', '..', '../..', 'a/b', 'a\\b', '/abs', 'C:\\x', 'C:x', 'baselines', 'tolerance.json']) expect(validateRunName(bad), bad).not.toBeNull();
   });
   it('isInside は root の外・root 自身を false にする', () => {
     expect(isInside('/o/.out', '/o/.out/x')).toBe(true);

@@ -42,7 +42,7 @@ export function exitCodeOf(result) {
  * @param {string} name
  */
 export function validateRunName(name) {
-  if (!name || name === '.' || name === '..' || /[\\/:\u0000]/.test(name) || path.isAbsolute(name) || path.win32.isAbsolute(name)) {
+  if (!name || name === '.' || name === '..' || name === 'baselines' || name === 'tolerance.json' || /[\\/:\u0000]/.test(name) || path.isAbsolute(name) || path.win32.isAbsolute(name)) {
     return `名前 '${name}' は使えません。英数字・ハイフンなど、フォルダ名 1 つ分だけにしてください(. や .. ・区切り文字・絶対パスは不可)`;
   }
   return null;
@@ -184,6 +184,7 @@ ${sig} を受けました。後片付けして終了します`); cleanup(); proc
     // ウォームアップ(Ruling 10): 初回の Google Fonts 取得が 15 秒を超えうるので、先に 1 回撮って捨てる
     console.log('ウォームアップ中(字体キャッシュ)...');
     await shootCondition(browser, headUrl, conds[0], path.join(runDir, '_warmup.png'));
+    if (baseUrl) await shootCondition(browser, baseUrl, conds[0], path.join(runDir, '_warmup.png')); // A/B では base 側の字体キャッシュも温める
     fs.rmSync(path.join(runDir, '_warmup.png'), { force: true });
 
     // 同じ --name の再実行: 古い画像と仕分けが新しい画像に紛れないよう片付ける(calibrate は別の置き場なので触らない)
@@ -221,6 +222,8 @@ ${sig} を受けました。後片付けして終了します`); cleanup(); proc
         const baseFile = path.join(runDir, 'base', `${c.key}.png`);
         const headFile = path.join(runDir, 'head', `${c.key}.png`);
         const saveFile = saveAs ? path.join(baselineDir, `${c.key}.png`) : null;
+        /** 見本の無い通信の URL 一覧を失敗行に残す */
+        const unm = (/** @type {{ unmocked?: string[] }} */ r) => (r.unmocked?.length ? { unmocked: r.unmocked } : {});
         /** @type {{ selector: string, reason: string }[] | undefined} */
         let masks;
         // base と head を同じ枠で続けて撮る
@@ -231,11 +234,11 @@ ${sig} を受けました。後片付けして終了します`); cleanup(); proc
           fs.copyFileSync(src, baseFile);
         } else if (!saveAs) {
           const rb = await shootCondition(browser, baseUrl, c, baseFile);
-          if (!rb.ok) { result[c.key] = { status: 'fail-base', ratio: 1, tol: 0, error: rb.error }; return; }
+          if (!rb.ok) { result[c.key] = { status: 'fail-base', ratio: 1, tol: 0, error: rb.error, ...unm(rb) }; return; }
           masks = rb.masks;
         }
         const rh = await shootCondition(browser, headUrl, c, saveFile ?? headFile, { injectCss });
-        if (!rh.ok) { result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error: rh.error }; return; }
+        if (!rh.ok) { result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error: rh.error, ...unm(rh) }; return; }
         masks = masks ?? rh.masks;
         /** @param {string} a @param {string} b */
         const judge = async (a, b) => {
@@ -245,18 +248,23 @@ ${sig} を受けました。後片付けして終了します`); cleanup(); proc
         if (saveAs) {
           // 基準は 2 回撮って一致を確かめる。負荷でまれに別の絵(ボタン下端が 1px 伸びる等)になるため、違えば 3 回目で多数決
           const extra = path.join(runDir, 'save-check', `${c.key}.png`);
-          const again = async () => { const r = await shootCondition(browser, headUrl, c, extra); return r.ok ? null : r.error; };
-          let err = await again();
-          if (err) { result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error: err }; return; }
+          const again = () => shootCondition(browser, headUrl, c, extra);
+          /** 失敗扱いにする時は基準 PNG も消す(失敗した絵を基準に残さない) */
+          const failSave = (/** @type {string} */ error, /** @type {{ unmocked?: string[] }} */ r = {}) => {
+            fs.rmSync(/** @type {string} */ (saveFile), { force: true });
+            result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error, ...unm(r) };
+          };
+          const again1 = await again();
+          if (!again1.ok) { failSave(again1.error, again1); return; }
           let j = await judge(/** @type {string} */ (saveFile), extra);
           if (j.d.ratio > j.tol) {
             const second = path.join(runDir, 'save-check', `${c.key}.2.png`);
             fs.renameSync(extra, second);
-            err = await again();
-            if (err) { result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error: err }; return; }
+            const again2 = await again();
+            if (!again2.ok) { failSave(again2.error, again2); return; }
             if ((j = await judge(/** @type {string} */ (saveFile), extra)).d.ratio > j.tol) {
               if ((await judge(second, extra)).d.ratio > j.tol) {
-                result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error: '基準を 3 回撮って 3 回とも違う絵でした(撮るたびに変わる画面)' }; return;
+                failSave('基準を 3 回撮って 3 回とも違う絵でした(撮るたびに変わる画面)'); return;
               }
               fs.copyFileSync(extra, /** @type {string} */ (saveFile));
             }
@@ -265,20 +273,21 @@ ${sig} を受けました。後片付けして終了します`); cleanup(); proc
         }
         let { d, tol } = await judge(baseFile, headFile);
         let retried = false;
+        const firstRatio = d.ratio;
         if (d.ratio > tol) {
           // 差が出たものだけ 1 回撮り直して比べ直す(本物の変化は撮り直しても差が出る)
           retried = true;
           if (!compare) {
             const rb = await shootCondition(browser, baseUrl, c, baseFile);
-            if (!rb.ok) { result[c.key] = { status: 'fail-base', ratio: 1, tol: 0, error: rb.error }; return; }
+            if (!rb.ok) { result[c.key] = { status: 'fail-base', ratio: 1, tol: 0, error: rb.error, ...unm(rb) }; return; }
           }
           const rh2 = await shootCondition(browser, headUrl, c, headFile, { injectCss });
-          if (!rh2.ok) { result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error: rh2.error }; return; }
+          if (!rh2.ok) { result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error: rh2.error, ...unm(rh2) }; return; }
           ({ d, tol } = await judge(baseFile, headFile));
         }
         result[c.key] = {
           status: d.ratio > tol ? 'diff' : 'same', ratio: d.ratio, tol,
-          ...(retried ? { retried: true } : {}),
+          ...(retried ? { retried: true, firstRatio } : {}),
           ...(d.sizeMismatch ? { sizeMismatch: d.sizeMismatch } : {}),
           ...(masks?.length ? { masks } : {}),
         };
@@ -290,6 +299,8 @@ ${sig} を受けました。後片付けして終了します`); cleanup(); proc
     const counts = {};
     for (const r of Object.values(result)) counts[r.status] = (counts[r.status] ?? 0) + 1;
     if (!args.calibrate && !saveAs) console.log(`報告: ${await buildReport(runDir)}`);
+    const retriedN = Object.values(result).filter((r) => r.retried).length;
+    if (retriedN) console.log(`撮り直し: ${retriedN} 件(差が出て 1 回撮り直した条件。報告に一覧あり)`);
     console.log(`完了(${((Date.now() - t0) / 1000).toFixed(1)} 秒): ${JSON.stringify(counts)}  結果: ${path.join(runDir, 'result.json')}`);
     return exitCodeOf(result);
   } finally {

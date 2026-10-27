@@ -52,9 +52,14 @@ export async function shootCondition(browser, baseUrl, cond, outFile, opts = {})
   const { entry, vp } = cond;
   const spec = VIEWPORTS[vp];
   if (!spec) return { ok: false, error: `未知の vp: ${vp}`, unmocked: [] };
-  const context = await browser.newContext({ ...spec, reducedMotion: 'reduce', locale: cond.lang === 'en' ? 'en-US' : 'ja-JP' });
+  const context = await browser.newContext({ ...spec, reducedMotion: 'reduce', locale: cond.lang === 'en' ? 'en-US' : 'ja-JP', timezoneId: 'Asia/Tokyo' });
   /** @type {string[]} */
   let unmocked = [];
+  /** 失敗で返す時は、撮りかけ・撮り終えた PNG を残さない(save-as では outFile が基準そのもの) */
+  const fail = (/** @type {string} */ error) => {
+    fs.rmSync(outFile, { force: true });
+    return /** @type {const} */ ({ ok: false, error, unmocked });
+  };
   try {
     const det = await installDeterminism(context, {
       appOrigin: new URL(baseUrl).origin,
@@ -87,7 +92,7 @@ export async function shootCondition(browser, baseUrl, cond, outFile, opts = {})
       // 描画が落ち着く前は 0 件になりがちなので、少し待ってから数える
       await page.waitForTimeout(PRE_OPEN_WAIT_MS);
       if ((await page.locator(entry.ready).filter({ visible: true }).count()) > 0) {
-        return { ok: false, error: 'ready が開く前から満たされている(窓の目印になっていない)', unmocked };
+        return fail('ready が開く前から満たされている(窓の目印になっていない)');
       }
       await entry.open(page, cond);
     }
@@ -97,7 +102,7 @@ export async function shootCondition(browser, baseUrl, cond, outFile, opts = {})
     while (true) {
       const now = Date.now();
       if (now - t0 >= SETTLE_FLOOR_MS && inflight === 0 && now - lastActivity >= QUIET_MS) break;
-      if (now - t0 > SETTLE_MAX_MS) return { ok: false, error: `ネットワークが落ち着きませんでした(未完了 ${inflight} 件)`, unmocked };
+      if (now - t0 > SETTLE_MAX_MS) return fail(`ネットワークが落ち着きませんでした(未完了 ${inflight} 件)`);
       await page.waitForTimeout(100);
     }
     await page.evaluate(() => document.fonts.ready);
@@ -145,10 +150,10 @@ export async function shootCondition(browser, baseUrl, cond, outFile, opts = {})
       await page.screenshot({ path: outFile, animations: 'disabled' });
     }
 
-    if (unmocked.length) return { ok: false, error: `見本の無い通信が ${unmocked.length} 件ありました`, unmocked };
+    if (unmocked.length) return fail(`見本の無い通信が ${unmocked.length} 件ありました`);
     return { ok: true, file: outFile, masks };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e), unmocked };
+    return fail(e instanceof Error ? e.message : String(e));
   } finally {
     await context.close();
   }

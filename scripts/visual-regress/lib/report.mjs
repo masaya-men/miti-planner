@@ -65,12 +65,13 @@ const STATUS_LABEL = /** @type {Record<string, string>} */ ({ diff: '差あり',
  * @param {{ name: string, rows: any[], verdicts: Record<string, { verdict: string, reason: string }> }} p
  */
 export function buildReportHtml({ name, rows, verdicts }) {
-  const count = { same: 0, diff: 0, fail: 0, masked: 0 };
+  const count = { same: 0, diff: 0, fail: 0, masked: 0, retried: 0 };
   for (const r of rows) {
     if (r.status === 'same') count.same++;
     else if (r.status === 'diff') count.diff++;
     else count.fail++;
     if (r.masks?.length) count.masked++;
+    if (r.retried) count.retried++;
   }
   const shown = sortForReport(rows.filter((r) => r.status !== 'same'), verdicts);
   const img = (/** @type {string|undefined} */ p, /** @type {string} */ label) => p
@@ -86,12 +87,17 @@ export function buildReportHtml({ name, rows, verdicts }) {
 <p class="meta"><span class="st">${esc(STATUS_LABEL[r.status] ?? r.status)}</span>${r.status.startsWith('fail') ? '' : ` 差 ${(r.ratio * 100).toFixed(2)}% / 許容 ${(r.tol * 100).toFixed(2)}%`} <span class="verdict ${vcls}">${vtxt}</span></p>
 ${r.sizeMismatch ? `<p class="warn">画像の大きさが違います: ${esc(r.sizeMismatch)}</p>` : ''}
 ${r.error ? `<pre class="err">${esc(r.error)}</pre>` : ''}
+${r.unmocked?.length ? `<p class="warn">見本の無い通信:</p><ul class="unm">${r.unmocked.map((/** @type {string} */ u) => `<li><code>${esc(u)}</code></li>`).join('')}</ul>` : ''}
 <div class="imgs">${img(im.base, 'base')}${img(im.head, 'head')}${img(im.overlay, '差(赤)')}</div>
 ${im.crop ? `<p><a href="${esc(url(im.crop))}">切り出し画像を開く</a></p>` : ''}
 </section>`;
   }).join('\n');
   const maskItems = rows.filter((r) => r.masks?.length).map((r) =>
     `<li><b>${esc(r.key)}</b><ul>${r.masks.map((/** @type {{selector:string,reason:string}} */ m) => `<li><code>${esc(m.selector)}</code> ${esc(m.reason)}</li>`).join('')}</ul></li>`).join('');
+  // 撮り直して same になった行(1 回目は差が出ていた = 揺れの目安)。差ありのまま残った行は上の行に出ている
+  const retriedSame = rows.filter((r) => r.status === 'same' && r.retried);
+  const retriedItems = retriedSame.map((r) =>
+    `<li><code>${esc(r.key)}</code> 1 回目の差 ${typeof r.firstRatio === 'number' ? (r.firstRatio * 100).toFixed(2) + '%' : '不明'}</li>`).join('');
   return `<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>見た目の回帰 報告 ${esc(name)}</title>
@@ -109,11 +115,13 @@ h1{font-size:20px}h2{font-size:15px;margin:0 0 4px;word-break:break-all}
 .imgs{display:flex;gap:12px;flex-wrap:wrap}.imgs figure{margin:0;flex:1 1 30%;min-width:260px}
 .imgs img{max-width:100%;max-height:360px;border:1px solid var(--line);display:block}
 .none div{padding:40px 0;text-align:center;color:var(--sub);border:1px dashed var(--line)}
+h2.faint,ul.faint{color:var(--sub)}ul.faint{font-size:12px}
 figcaption{color:var(--sub);font-size:12px}a{color:inherit}code{background:var(--card);padding:0 4px}
 </style></head><body>
 <h1>見た目の回帰 報告(${esc(name)})</h1>
-<p class="sum"><span>同じ ${count.same}</span><span>差あり ${count.diff}</span><span>撮影失敗 ${count.fail}</span><span>mask あり ${count.masked}</span></p>
+<p class="sum"><span>同じ ${count.same}</span><span>差あり ${count.diff}</span><span>撮影失敗 ${count.fail}</span><span>mask あり ${count.masked}</span><span>撮り直し ${count.retried}</span></p>
 ${shown.length ? rowHtml : '<p>差のある画面・撮影に失敗した画面はありません。</p>'}
+${retriedItems ? `<h2 class="faint">撮り直して同じになった画面</h2><ul class="faint">${retriedItems}</ul>` : ''}
 <h2>隠した領域(mask)</h2>
 ${maskItems ? `<ul>${maskItems}</ul>` : '<p>なし</p>'}
 </body></html>

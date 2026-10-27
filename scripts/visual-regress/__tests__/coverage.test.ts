@@ -120,6 +120,7 @@ describe('カタログ漏れの検査', () => {
     expect(shellFound).toContain('NewPlanModal');
     console.log(`殻検出 ${shellFound.length} 件: ${shellFound.join(' ')}`);
     for (const n of HAND_WRITTEN) if (!wanted.has(n)) wanted.set(n, '手書き一覧');
+    expect(routeComponents().length).toBeGreaterThan(20); // App.tsx の書式変更でルートが 0 件になる退行を落とす
     for (const r of routeComponents()) wanted.set(r.component, `ルート ${r.route}`);
 
     const missing = [...wanted].filter(([n]) => !known.has(n))
