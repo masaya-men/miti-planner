@@ -48,6 +48,14 @@ export default [
   { component: 'TourAddressExposureDialog', stage: 2, reason: 'ツアー招待作成時の住所公開確認。ログイン必須(招待作成はログイン済みのみ)。' },
   { component: 'RegisterPage', stage: 2, reason: 'ハウジング登録画面の本体。ログイン必須で、未ログイン時のログイン案内(HousingLoginPrompt)のみ housing/login-prompt-register で撮影済み。' },
   { component: 'HousingEditPage', stage: 2, reason: 'ハウジング編集画面(/housing/listing/:id/edit)。ログイン + 自分の投稿が必須。' },
+  // ───────── 段階 2: カタログ網羅検査(coverage.test.ts)で見つかった載せ漏れ ─────────
+  { component: 'HousingBottomNav', stage: 2, reason: '段階 1 で載せ漏れ。ハウジングのスマホ下ナビのアカウントメニュー(role=menu)は、ログイン済みの時だけ開く(housing-bottomnav-account-menu)。ログイン状態の見本が要る。' },
+  { component: 'SharePage', stage: 2, reason: '段階 1 で載せ漏れ。/share/:shareId は共有プランを /api/share から読む。share.get の見本 JSON を用意すれば開ける見込み(未検証)。' },
+  { component: 'HousingShell', stage: 3, reason: '全ハウジング画面の外枠(ヘッダー・下ナビ)。個別画面の撮影にすべて写り込むため単独では撮らない。/h/:slug の中身は HousingerShortLinkPage 参照。' },
+  { component: 'ContentWizard', stage: 2, reason: '管理画面 /admin/content-wizard。管理者ログインと管理データ(Firestore)が必須。' },
+  { component: 'TemplateWizard', stage: 2, reason: '管理画面 /admin/template-wizard。管理者ログインと管理データ(Firestore)が必須。' },
+  { component: 'JobWizard', stage: 2, reason: '管理画面 /admin/job-wizard。管理者ログインと管理データ(Firestore)が必須。' },
+  { component: 'StatsWizard', stage: 2, reason: '管理画面 /admin/stats-wizard。管理者ログインと管理データ(Firestore)が必須。' },
   // ───────── 段階 3: 共同編集 ─────────
   { component: 'CollabJoinerPage', stage: 3, reason: '/collab/:roomToken の参加画面。部屋への WebSocket 接続とログインが必須で、撮影対象外。' },
 ];
