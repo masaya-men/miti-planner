@@ -38,14 +38,14 @@ export default [
 
   // ───────── 下ナビから開くシート ─────────
   { id: 'mobile/sheet-menu', route: '/miti', storage: lanes, ready: sheet('メニュー', 'Menu'), axes: sheetAxEn,
-    open: nav('メニュー', 'Menu'), covers: ['MobileBottomSheet', 'Sidebar'] },
+    open: nav('メニュー', 'Menu'), covers: ['MobileBottomSheet', 'Sidebar', 'MobileTopSheets'] },
   { id: 'mobile/sheet-party', route: '/miti', storage: lanes, ready: sheet('パーティ', 'Party'), axes: sheetAxEn,
     open: async (page) => { await page.waitForSelector(ROW); await page.evaluate(() => window.dispatchEvent(new CustomEvent('timeline:party-settings', { detail: { open: true } }))); },
-    covers: ['MobileBottomSheet', 'MobilePartyWithTabs'] },
+    covers: ['MobileBottomSheet', 'MobilePartyWithTabs', 'MobileTopSheets'] },
   { id: 'mobile/sheet-import', route: '/miti', storage: lanes, ready: sheet('インポート', 'Import'), axes: sheetAxEn,
     open: nav('インポート', 'Import'), covers: ['MobileBottomSheet'] },
   { id: 'mobile/cue-fullscreen', route: '/miti', storage: lanes, ready: 'div.fixed.inset-0[class*="z-[9999]"]', axes: popAx,
-    open: nav('カンペ', 'Cue'), covers: ['PipView'] },
+    open: nav('カンペ', 'Cue'), covers: ['PipView', 'LayoutOverlays'] },
   { id: 'mobile/share', route: '/miti', storage: withPlan, ready: 'div[role="dialog"], [data-modal-shell]', axes: popAx,
     open: async (page) => {
       // 共有窓の OG 画像(/api/og)は見本の画像で返す(PC の miti/win-share と同じ)
