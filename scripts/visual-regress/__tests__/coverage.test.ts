@@ -51,7 +51,7 @@ function usesShell(src: string): boolean {
   for (const m of src.matchAll(importRe)) {
     for (const n of (m[1] ?? m[2] ?? '').split(',')) imported.add(n.trim().split(/\s+as\s+/).pop() ?? '');
   }
-  return SHELLS.some((s) => imported.has(s) && new RegExp(`<${s}[\s>/]`).test(src));
+  return SHELLS.some((s) => imported.has(s) && new RegExp(`<${s}[\\s>/]`).test(src));
 }
 
 function routeComponents(): { route: string; component: string }[] {
@@ -97,7 +97,7 @@ describe('カタログ漏れの検査', () => {
 
   it('手書き一覧・除外一覧の実在確認(古くなった名前を残さない)', () => {
     const names = new Set(walk(SRC).map(base));
-    for (const n of HAND_WRITTEN) expect(names.has(n) || n === 'AASettingsPopover', `手書き一覧に実在しない部品: ${n}`).toBe(true);
+    for (const n of HAND_WRITTEN) expect(names.has(n), `手書き一覧に実在しない部品: ${n}`).toBe(true);
     for (const p of UNUSED_PATHS) expect(fs.existsSync(path.join(ROOT, p)), `除外一覧に実在しないファイル: ${p}`).toBe(true);
   });
 
@@ -109,10 +109,16 @@ describe('カタログ漏れの検査', () => {
     for (const p of files) {
       const name = base(p);
       if (NOT_WINDOWS.includes(name)) continue;
+      if (rel(p).startsWith('src/components/housing/dev/')) continue; // 開発専用ページ(本番ビルドで除去)
       const src = fs.readFileSync(p, 'utf8');
       if (usesShell(src)) wanted.set(name, `殻を使う窓 ${rel(p)}`);
       else if (/role=["']menu["']/.test(src)) wanted.set(name, `role="menu" ${rel(p)}`);
     }
+    // 検出の固定: 殻を使う実在ファイルが集合に入っていること(検出が 0 件になる退行を落とす)
+    const shellFound = [...wanted].filter(([, why]) => why.startsWith('殻を使う窓')).map(([n]) => n);
+    expect(shellFound.length, `殻を使う窓の検出数: ${shellFound.length}`).toBeGreaterThan(20);
+    expect(shellFound).toContain('NewPlanModal');
+    console.log(`殻検出 ${shellFound.length} 件: ${shellFound.join(' ')}`);
     for (const n of HAND_WRITTEN) if (!wanted.has(n)) wanted.set(n, '手書き一覧');
     for (const r of routeComponents()) wanted.set(r.component, `ルート ${r.route}`);
 

@@ -56,6 +56,8 @@ export default [
   { component: 'TemplateWizard', stage: 2, reason: '管理画面 /admin/template-wizard。管理者ログインと管理データ(Firestore)が必須。' },
   { component: 'JobWizard', stage: 2, reason: '管理画面 /admin/job-wizard。管理者ログインと管理データ(Firestore)が必須。' },
   { component: 'StatsWizard', stage: 2, reason: '管理画面 /admin/stats-wizard。管理者ログインと管理データ(Firestore)が必須。' },
+  { component: 'MobilePartySettings', stage: 2, reason: '段階 1 で載せ漏れ。軽減表スマホのパーティ設定シート(Layout 内)。MobilePartyWithTabs は撮影済みで、同ファイルのアカウントシート側(MobileAccountMenu)はログイン済みが必要。ファイル単位の照合のため残りの窓を確認して撮影見込み(未検証)。' },
+  { component: 'ProgressDetailPanel', stage: 2, reason: '段階 1 で載せ漏れ。攻略の軌跡パネル(ProgressRecordPanel、撮影済み)内の折りたたみ詳細。ChevronToggle を押して開く見込み(未検証)。' },
   // ───────── 段階 3: 共同編集 ─────────
   { component: 'CollabJoinerPage', stage: 3, reason: '/collab/:roomToken の参加画面。部屋への WebSocket 接続とログインが必須で、撮影対象外。' },
 ];
