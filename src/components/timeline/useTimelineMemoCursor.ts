@@ -95,7 +95,7 @@ export function useTimelineMemo({
             timeSec,
             xRatio,
         });
-    }, [isMemoMode, memos.length, t, isSheetView]);
+    }, [isMemoMode, memos.length, sheetContainerRef, timeToYMapRef, isSheetView, memberXMapRef, t]);
 
     // メモ: InputBox の保存ハンドラ (新規 = addMemo、 編集 = updateMemo or 空文字で deleteMemo)
     const handleMemoSave = useCallback((text: string) => {
@@ -129,21 +129,21 @@ export function useTimelineMemo({
             }
         }
         setMemoInput(null);
-    }, [memoInput, t, reflectMemosToPlan]);
+    }, [readOnlyRef, memoInput, reflectMemosToPlan, t]);
 
     // メモ: DnD 確定 (pointerup) → 座標更新 + Plan へ反映
     const handleMemoDragEnd = useCallback((id: string, coords: { timeSec: number; xRatio: number }) => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         useMitigationStore.getState().updateMemo(id, coords);
         reflectMemosToPlan();
-    }, [reflectMemosToPlan]);
+    }, [readOnlyRef, reflectMemosToPlan]);
 
     // メモ: 右クリック → 1 件削除 (確認なし、 spec §4.5 誤操作リスク低)
     const handleMemoDelete = useCallback((id: string) => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         useMitigationStore.getState().deleteMemo(id);
         reflectMemosToPlan();
-    }, [reflectMemosToPlan]);
+    }, [readOnlyRef, reflectMemosToPlan]);
 
     // メモ: 既存メモクリック → 編集モードで InputBox を開く
     const handleMemoClick = useCallback((memo: PlanMemo) => {
@@ -162,7 +162,8 @@ export function useTimelineMemo({
             editingId: memo.id,
             initialText: memo.text,
         });
-    }, [isMemoMode, sheetWidth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sheetWidth が変わった時にも作り直す従来の挙動を維持する(関数内では読まないが幅変化で座標を再計算させる意図)
+    }, [isMemoMode, sheetWidth, memberXMapRef, readOnlyRef, sheetContainerRef, timeToYMapRef]);
 
     return { memoInput, setMemoInput, reflectMemosToPlan, handleSheetClick, handleMemoSave, handleMemoDragEnd, handleMemoDelete, handleMemoClick };
 }
@@ -223,5 +224,5 @@ export function useTimelineCursorSend({
             container.removeEventListener('pointermove', onMove);
             cancelAnimationFrame(raf);
         };
-    }, [myCursorEnabled, sheetWidth]);
+    }, [memberXMapRef, myCursorEnabled, sheetContainerRef, sheetWidth, timeToYMapRef]);
 }

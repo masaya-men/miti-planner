@@ -131,6 +131,7 @@ const MobilePartySettings: React.FC = () => {
             setMemberJob(existingMember.id, null as unknown as string);
         }
         handleJobChange(targetId, job.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleJobChange / setMemberJob は毎回作り直される参照。partyMembers が変わった時だけ作り直す。要確認(handleJobChange 内の timelineMitigations / JOBS が古いまま残りうる)
     }, [partyMembers]);
 
     const drag = useDragAndDrop<Job>({ onDrop: handleDrop });
@@ -150,6 +151,7 @@ const MobilePartySettings: React.FC = () => {
             }
         });
         drag.setActiveTarget(found);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- drag は毎回作り直されるオブジェクト。ドラッグ中フラグと移動・対象設定の関数が変わった時だけ作り直す
     }, [drag.isDragging, drag.moveDrag, drag.setActiveTarget]);
 
     // スロットのジョブ除去（長押し）

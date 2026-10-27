@@ -164,5 +164,5 @@ export function usePlanAutoSave(isRemoteLoadingRef: React.MutableRefObject<boole
             window.removeEventListener('beforeunload', onBeforeUnload);
             document.removeEventListener('visibilitychange', onVisibilityChange);
         };
-    }, [t]);
+    }, [isRemoteLoadingRef, t]);
 }

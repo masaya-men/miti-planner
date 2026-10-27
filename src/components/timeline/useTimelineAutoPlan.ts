@@ -61,7 +61,7 @@ export function useTimelineAutoPlan({
                 },
             });
         }
-    }, [t]);
+    }, [readOnlyRef, setConfirmDialog, t]);
 
     const sheetImportDefault = useMemo<ContentSelectionDefault>(() => ({
         contentId: currentContentId,

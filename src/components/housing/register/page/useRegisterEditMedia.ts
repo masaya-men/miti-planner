@@ -23,7 +23,7 @@ export function useRegisterEditMedia({ f, initialValues, buildDraft, updateListi
         setEditVideoPreview(null);
       }
     },
-    [sourceImageUrls.length, editVideoPreview],
+    [setEditThumbnailPaths, sourceImageUrls.length, editVideoPreview, setSourceImageUrls, setEditVideoPreview],
   );
 
   /**
@@ -142,7 +142,7 @@ export function useRegisterEditMedia({ f, initialValues, buildDraft, updateListi
       await useHousingListingsStore.getState().fetchAndUpsert(initialValues.id);
       return { ok: true };
     },
-    [initialValues, buildDraft, updateListing, sourcePostUrls, editVideoPreview, postUrl],
+    [initialValues, buildDraft, sourcePostUrls, updateListing, setSnsCapture, setSourceImageUrls, setSourcePostUrls, setEditThumbnailPaths, setEditVideoPreview, editVideoPreview, postUrl, setPostUrl],
   );
 
   return { handleEditThumbnailPathsChange, commitEditSnsFetch };

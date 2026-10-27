@@ -76,6 +76,7 @@ export function AnimatedDamage({ value, isLethal = false, className }: AnimatedD
                 timerRef.current = null;
             });
         }, totalExit);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- value / isLethal が変わった時だけ走らせる。renderState.entering.length は effect 内で現在の表示文字数を読むだけで、依存に入れると自分の setRenderState で再実行され二重アニメになる
     }, [value, isLethal]);
 
     // Cleanup on unmount

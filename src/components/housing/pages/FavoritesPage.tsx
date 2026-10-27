@@ -114,7 +114,7 @@ export const FavoritesPage: React.FC = () => {
       }
     }
     if (blocked) showToast(t('housing.tour.region_block'), 'error');
-  }, [trayIds, allListings, t]);
+  }, [allListings, trayIds, t, setTrayIds]);
 
   // ハンドラ群
   const handleAddToTour = useCallback((id: string) => addToTray([id]), [addToTray]);

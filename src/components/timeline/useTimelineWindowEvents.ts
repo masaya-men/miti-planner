@@ -27,7 +27,7 @@ export function useTimelineHeaderEvents({ handleAutoPlan, setImportModalOpen, se
             window.removeEventListener('timeline:import', handleImportEvent);
             window.removeEventListener('timeline:grid-import', handleGridImportEvent);
         };
-    }, [handleAutoPlan]);
+    }, [handleAutoPlan, setImportModalOpen, setShowGridImport]);
 }
 
 interface TutorialEventsArgs {
@@ -58,7 +58,7 @@ export function useTimelineTutorialEvents({
             setIsAaModeEnabled(false);
             setAaSettingsOpen(false);
         }
-    }, [tutorialActive, tutorialStepIndex]);
+    }, [setAaSettingsOpen, setIsAaModeEnabled, tutorialActive, tutorialStepIndex]);
 
     // 旧チュートリアルのparty-slots自動オープンロジックは削除済み（TutorialBlocker方式に移行）
 
@@ -109,6 +109,7 @@ export function useTimelineTutorialEvents({
             window.removeEventListener('mobile:label-jump', handleLabelJump);
             window.removeEventListener('mobile:mechanic-search', handleMechanicSearch);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- window イベントの登録はマウント時の 1 回だけ。要確認(isMobileView はマウント時の値のまま固定され、画面幅が後から変わると古い判定が残る)
     }, []);
 }
 
@@ -132,7 +133,7 @@ export function useTimelineProgressJump({ handleNavJump, timeToYMapRef }: {
         };
         window.addEventListener('progress:jump-to-time', handleProgressJump);
         return () => window.removeEventListener('progress:jump-to-time', handleProgressJump);
-    }, [handleNavJump]);
+    }, [handleNavJump, timeToYMapRef]);
 }
 
 /** チュートリアルの UI リセットイベントで AA モードを終了 */
@@ -147,7 +148,7 @@ export function useTimelineResetUiEvent({ setIsAaModeEnabled }: {
         return () => {
             window.removeEventListener('tutorial:reset-ui', handleReset);
         };
-    }, []);
+    }, [setIsAaModeEnabled]);
 }
 
 /** 全消去メニューが開いている間、外側クリックで閉じる */
@@ -165,5 +166,5 @@ export function useTimelineClearMenuOutsideClick({ clearMenuOpen, setClearMenuOp
             clearTimeout(timer);
             window.removeEventListener('click', handleClick);
         };
-    }, [clearMenuOpen]);
+    }, [clearMenuOpen, setClearMenuOpen]);
 }

@@ -253,6 +253,7 @@ export function useTimelineDamage({
         });
 
         return { map, livingDeadTriggers, shieldExhaustedAt, barrierOverwrittenAt };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 軽減の効果計算は eventsByTime / 軽減配置 / パーティ / フェーズが変わった時だけ再計算する(timelineEvents・MITIGATIONS は依存に入れると走る回数が変わる)
     }, [eventsByTime, timelineMitigations, partyMembers, phases]);
 
     // 中身が同じ行の damages は前回と同じ参照にして、TimelineRow の memo が効くようにする(置く・消すで全行が再描画されない)

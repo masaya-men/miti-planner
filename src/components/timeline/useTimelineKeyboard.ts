@@ -22,7 +22,7 @@ export function useTimelineAaEscape({ isAaModeEnabled, setIsAaModeEnabled }: {
         };
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [isAaModeEnabled]);
+    }, [isAaModeEnabled, setIsAaModeEnabled]);
 }
 
 interface ShortcutKeysArgs {
@@ -93,6 +93,7 @@ export function useTimelineShortcutKeys({
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- キー入力の登録はドロップダウン開閉が変わった時だけ張り直す。handleToggle* は毎回作り直される関数(中身は functional setState のみ)で、readOnlyRef と set* は安定
     }, [phaseDropdownOpen, gimmickDropdownOpen]);
 }
 
@@ -124,7 +125,7 @@ export function useTimelineEscapeKeys({
         };
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [eventPopover]);
+    }, [eventPopover, setEventPopover]);
 
     // コピーモード: Escapeでキャンセル
     useEffect(() => {
@@ -136,7 +137,7 @@ export function useTimelineEscapeKeys({
         };
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [clipboardEvent]);
+    }, [clipboardEvent, setClipboardEvent]);
 
     // TL選択モード: Escapeでキャンセル
     useEffect(() => {
@@ -156,5 +157,5 @@ export function useTimelineEscapeKeys({
             window.addEventListener('keydown', handleKeyDown);
             return () => window.removeEventListener('keydown', handleKeyDown);
         }
-    }, [timelineSelectMode, labelSelectMode, throttledUpdatePreview]);
+    }, [timelineSelectMode, labelSelectMode, throttledUpdatePreview, setTimelineSelectMode, setLabelSelectMode]);
 }

@@ -98,7 +98,7 @@ export function useTimelineEditing({
         setSelectedEvent(null);
         setIsModalOpen(true);
         useTutorialStore.getState().completeEvent('create:event-modal-opened');
-    }, [isAaModeEnabled]);
+    }, [isAaModeEnabled, readOnlyRef, setEventModalPosition, setIsModalOpen, setSelectedEvent, setSelectedTime]);
 
     const handlePhaseAdd = useCallback((time: number, e: React.MouseEvent) => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
@@ -116,7 +116,7 @@ export function useTimelineEditing({
             setSelectedPhase(null);
             setIsPhaseModalOpen(true);
         }
-    }, [phases]);
+    }, [phases, readOnlyRef, setIsPhaseModalOpen, setPhaseModalPosition, setPhasePopover, setSelectedPhase, setSelectedPhaseTime]);
 
     const handlePhaseEdit = (phase: Phase, e: React.MouseEvent) => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
@@ -165,7 +165,7 @@ export function useTimelineEditing({
             setSelectedLabel(null);
             setIsLabelModalOpen(true);
         }
-    }, [labels]);
+    }, [labels, readOnlyRef, setIsLabelModalOpen, setLabelModalPosition, setLabelPopover, setSelectedLabel, setSelectedLabelTime]);
 
     const handleLabelEdit = (label: Label, e: React.MouseEvent) => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
@@ -208,7 +208,7 @@ export function useTimelineEditing({
         }
 
         setEventPopover({ event, position: { x: e.clientX, y: e.clientY } });
-    }, [isAaModeEnabled]);
+    }, [isAaModeEnabled, setEventPopover, setIsAaModeEnabled]);
 
     const handlePopoverEdit = () => {
         if (!eventPopover) return;
@@ -374,7 +374,7 @@ export function useTimelineMitigationEditing({
         setMitigationSelectorOpen(true);
         // ── Tutorial: セルクリックイベント ──
         useTutorialStore.getState().completeEvent('mitigation:cell-clicked');
-    }, [handleSheetCellTap]);
+    }, [handleSheetCellTap, readOnlyRef, setMitigationSelectorOpen, setSelectedMemberId, setSelectedMitigationTime, setSelectorPosition, sheetColumnMapRef]);
 
     const handleMobileDamageClick = useCallback((time: number, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -383,7 +383,7 @@ export function useTimelineMitigationEditing({
         setMobileToolsOpen(false);
         setMobileMenuOpen(false);
         setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null, pending: null });
-    }, [setMobilePartyOpen, setMobileToolsOpen, setMobileMenuOpen]);
+    }, [setMobilePartyOpen, setMobileToolsOpen, setMobileMenuOpen, setMobileMitiFlow]);
 
     const handleMobileLongPress = useCallback((event: TimelineEvent | null, time: number) => {
         setMobilePartyOpen(false);
@@ -397,7 +397,7 @@ export function useTimelineMitigationEditing({
             return;
         }
         setMobileContextMenu({ isOpen: true, event, time });
-    }, [setMobilePartyOpen, setMobileToolsOpen, setMobileMenuOpen]);
+    }, [setMobilePartyOpen, setMobileToolsOpen, setMobileMenuOpen, setMobileContextMenu, setSelectedEvent, setSelectedTime, setIsModalOpen]);
 
     // 行(TimelineRow/MobileTimelineRow)の onTimelineSelect / onTimelineSelectHover。
     // PC・スマホで中身が同じなので1組にまとめる(元はレンダー行のループ内でそれぞれ別の
@@ -447,7 +447,7 @@ export function useTimelineMitigationEditing({
         setSelectedTime(mobileContextMenu.time);
         setIsModalOpen(true);
         setMobileContextMenu(null);
-    }, [mobileContextMenu]);
+    }, [mobileContextMenu, setIsModalOpen, setMobileContextMenu, setSelectedEvent, setSelectedTime]);
 
     const handleContextAdd = useCallback(() => {
         if (!mobileContextMenu) return;
@@ -455,7 +455,7 @@ export function useTimelineMitigationEditing({
         setSelectedTime(mobileContextMenu.time);
         setIsModalOpen(true);
         setMobileContextMenu(null);
-    }, [mobileContextMenu]);
+    }, [mobileContextMenu, setIsModalOpen, setMobileContextMenu, setSelectedEvent, setSelectedTime]);
 
     const handleContextDelete = useCallback(() => {
         if (!mobileContextMenu?.event) return;
@@ -469,14 +469,14 @@ export function useTimelineMitigationEditing({
                 setMobileContextMenu(null);
             },
         });
-    }, [mobileContextMenu, t, removeEvent]);
+    }, [mobileContextMenu, t, removeEvent, setConfirmDialog, setMobileContextMenu]);
 
     // 他のボトムメニューが開いたら軽減追加シートを閉じる
     useEffect(() => {
         const close = () => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }));
         window.addEventListener('mobile:close-miti-flow', close);
         return () => window.removeEventListener('mobile:close-miti-flow', close);
-    }, []);
+    }, [setMobileMitiFlow]);
 
     const handleMitigationSelect = (mitigation: Mitigation & { _targetId?: string; _linkedMitigationId?: string }) => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用

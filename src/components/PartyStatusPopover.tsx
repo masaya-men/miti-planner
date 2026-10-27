@@ -141,6 +141,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
             healerTop: PREVIEW_SKILLS.healerTop.map(compute).filter((p) => p !== null),
             healerBottom: PREVIEW_SKILLS.healerBottom.map(compute).filter((p) => p !== null),
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ステータス値(hp・メインステ・DET・WD)とレベル・言語が変わった時だけ再計算する(パネル開閉では再計算しない)。PREVIEW_SKILLS は毎回作り直される固定の一覧
     }, [tankRep?.stats.hp, healerRep?.stats.hp, healerRep?.stats.mainStat, healerRep?.stats.det, healerRep?.stats.wd, currentLevel, contentLanguage]);
 
     if (!mounted) return null;

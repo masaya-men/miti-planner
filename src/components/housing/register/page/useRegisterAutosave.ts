@@ -239,12 +239,12 @@ export function useRegisterAutosave({ f, mode, user }: { f: RegisterFields; mode
     setUrlSlotCount(1);
     // 最終レビュー指摘: 復元下書きを破棄したら、その下書き由来の抽出失敗バナーも残さない。
     setAddressExtractFailed(false);
-  }, [autosaveValues, fieldState]);
+  }, [addressAppliedRef, autosaveValues, capturedVideoRef, fieldState, restoreRefetchGuardRef, setAddress, setAddressExtractFailed, setAllowPromoTweet, setDescription, setLocalImages, setMediaKey, setPostUrl, setPublishUntil, setRestoredSnsUrl, setSnsCapture, setSourceImageUrls, setSourcePostUrls, setTags, setTitle, setUrlSlotCount, setVisibility, setVisibilityTouched]);
 
   // ユーザーが URL 欄を手入力したら復元 guard を外す (以降の再取得は全フィールド上書きに戻す)。
   const handleUrlUserEdit = useCallback(() => {
     restoreRefetchGuardRef.current = false;
-  }, []);
+  }, [restoreRefetchGuardRef]);
 
   return { restoredNoticeVisible, handleDiscardRestore, handleUrlUserEdit };
 }

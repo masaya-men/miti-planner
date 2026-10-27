@@ -33,6 +33,7 @@ export function MilspecRowPrinter({ scrollRef }: { scrollRef: RefObject<HTMLElem
     return () => {
       off(); cancelAnimationFrame(raf.current);
       // 標準へ戻すとき: 走っているアニメ・milspec-pr クラス・listener を片付ける
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- cleanup 時点の scrollRef.current(最新の DOM 要素)に対して後片付けしたいので、effect 実行時の要素に写さない
       if (scrollRef.current) cancelPrintRows(scrollRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

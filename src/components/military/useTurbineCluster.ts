@@ -221,14 +221,15 @@ export function useTurbineCluster(fanCount: number, opts: UseTurbineClusterOptio
     document.addEventListener('visibilitychange', onVis);
     if (!document.hidden) run();
 
+    const timers = timersRef.current;
     return () => {
       document.removeEventListener('visibilitychange', onVis);
       halt();
       lastTRef.current = null;
       rigsRef.current = [];
       // 起動中のタイマー(拍・起動の遅延・終了)を全部止める
-      timersRef.current.forEach((id) => window.clearTimeout(id));
-      timersRef.current.clear();
+      timers.forEach((id) => window.clearTimeout(id));
+      timers.clear();
       activeRef.current = false;
     };
   }, [vaneRefs, frameRefs]);

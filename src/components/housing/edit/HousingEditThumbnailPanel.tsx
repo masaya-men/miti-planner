@@ -53,6 +53,7 @@ export function HousingEditThumbnailPanel({ listingId, images, onImagesChange }:
         setUploading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- images は枚数(length)が変わった時だけ作り直す。既存配列の中身が変わっても枚数が同じなら古い images を参照する(フォールバック経路のみ)
     [listingId, images.length, onImagesChange, t],
   );
 

@@ -64,7 +64,7 @@ export function useGridImportPaste(args: {
     setEntries([]);
     setAssignment(emptyAssignment());
     setTargetOverrides({});
-  }, [t]);
+  }, [setTargetOverrides, t]);
 
   // モーダルを開くたびに step1 へリセット
   useEffect(() => {
@@ -200,7 +200,7 @@ export function useGridImportPaste(args: {
   const goToParty = useCallback(() => {
     commitPendingDraft();
     setStep(3);
-  }, [commitPendingDraft]);
+  }, [commitPendingDraft, setStep]);
 
   return { table, setTable, source, matrixParsed, parseFailed, byColumnMode, setByColumnMode, phaseName, setPhaseName, pasteBuffer, mobileCopyHintOpen, setMobileCopyHintOpen, entries, assignment, setAssignment, pasteSurfaceRef, resetAll, handleGridPaste, pasteError, handlePasteFromClipboard, isMobile, handleMobilePasteChange, onColumnPaste, commitPendingDraft, goToParty };
 }

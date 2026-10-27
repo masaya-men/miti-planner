@@ -95,13 +95,13 @@ export function useTimelineSheetTap({
                 });
                 return;
         }
-    }, []);
+    }, [setSheetPopover, setSheetToast]);
 
     useEffect(() => {
         if (!sheetToast) return;
         const timer = setTimeout(() => setSheetToast(null), 2500);
         return () => clearTimeout(timer);
-    }, [sheetToast]);
+    }, [setSheetToast, sheetToast]);
 
     const handleSheetPopoverPick = useCallback((pick: { targetId?: string; linkedMitigationId?: string }) => {
         if (sheetPopover && !readOnlyRef.current) {
@@ -115,8 +115,8 @@ export function useTimelineSheetTap({
             }
         }
         setSheetPopover(null);
-    }, [sheetPopover]);
-    const handleSheetPopoverClose = useCallback(() => setSheetPopover(null), []);
+    }, [readOnlyRef, setSheetPopover, setSheetToast, sheetPopover]);
+    const handleSheetPopoverClose = useCallback(() => setSheetPopover(null), [setSheetPopover]);
 
     return { handleSheetCellTap, handleSheetPopoverPick, handleSheetPopoverClose };
 }

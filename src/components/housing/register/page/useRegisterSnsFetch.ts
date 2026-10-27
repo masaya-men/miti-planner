@@ -95,7 +95,8 @@ export function useRegisterSnsFetch(f: RegisterFields, applyExtractedResult: (re
         setPostUrl((prev) => prev || source.postUrl);
       }
     },
-    [applyExtractedAddress, snsCapture, sourcePostUrls, t],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- snsCapture の ogp / tweetData / youtube が変わった時にも作り直す従来の挙動を維持する(関数内では snsCapture 全体を読まない)
+    [applyExtractedAddress, snsCapture, sourcePostUrls, t, capturedVideoRef, setPostUrl, setSnsCapture, setSourceImageUrls, setSourcePostUrls, snsCapture.ogp, snsCapture.tweetData, snsCapture.youtube],
   );
 
   const handleYoutubeFetched = useCallback(
@@ -124,7 +125,7 @@ export function useRegisterSnsFetch(f: RegisterFields, applyExtractedResult: (re
       setSourcePostUrls((prev) => [...prev, data.postUrl]);
       setPostUrl((prev) => prev || data.postUrl);
     },
-    [applyExtractedAddress, sourcePostUrls, t],
+    [applyExtractedAddress, capturedVideoRef, setAddressExtractFailed, setPostUrl, setSnsCapture, setSourcePostUrls, sourcePostUrls, t],
   );
 
   const handleOgpFetched = useCallback(
@@ -186,18 +187,19 @@ export function useRegisterSnsFetch(f: RegisterFields, applyExtractedResult: (re
       setSourcePostUrls((prev) => [...prev, data.postUrl]);
       setPostUrl((prev) => prev || data.postUrl);
     },
-    [applyExtractedResult, snsCapture, sourcePostUrls, t],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- snsCapture の tweetData / youtube が変わった時にも作り直す従来の挙動を維持する(関数内では snsCapture 全体を読まない)
+    [applyExtractedResult, snsCapture, sourcePostUrls, t, setAddressExtractFailed, setPostUrl, setSnsCapture, setSourceImageUrls, setSourcePostUrls, snsCapture.tweetData, snsCapture.youtube],
   );
 
   const handleAddUrlSlot = useCallback(() => {
     setUrlSlotCount((prev) => Math.min(5, prev + 1));
-  }, []);
+  }, [setUrlSlotCount]);
    
   const handleRemoveUrlSlot = useCallback((_index: number) => {
     // 欄を1つ減らす。既に取得済みの画像/住所/動画は取り消さない (個別画像削除は既存グリッドUIで行う、
     // ブレスト2026-07-21で「個別削除で十分」と確定済み)。
     setUrlSlotCount((prev) => Math.max(1, prev - 1));
-  }, []);
+  }, [setUrlSlotCount]);
 
   return { handleTweetFetched, handleYoutubeFetched, handleOgpFetched, handleAddUrlSlot, handleRemoveUrlSlot };
 }

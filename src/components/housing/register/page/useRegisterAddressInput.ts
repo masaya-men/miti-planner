@@ -30,7 +30,7 @@ export function useRegisterAddressInput(f: RegisterFields) {
         fieldState.confirm(name);
       }
     }
-  }, [address, fieldState]);
+  }, [address, fieldState, setAddressConfirmed]);
 
   /**
    * size は (エリア × 区画) から一意に決まるので、**この effect が size の唯一の書き込み口**。
@@ -70,7 +70,7 @@ export function useRegisterAddressInput(f: RegisterFields) {
     if (fieldState.getState('size') !== 'empty') {
       fieldState.clearField('size');
     }
-  }, [address.buildingType, address.area, address.plot, address.size, fieldState]);
+  }, [address.buildingType, address.area, address.plot, address.size, fieldState, setAddress]);
 
   /**
    * parseHousingFromText の抽出結果を住所フィールドへ自動入力する共通処理。
@@ -163,7 +163,7 @@ export function useRegisterAddressInput(f: RegisterFields) {
         });
       }
     },
-    [fieldState],
+    [addressAppliedRef, addressRef, fieldState, restoreRefetchGuardRef, setAddress, setAddressConfirmed, setAddressExtractFailed],
   );
 
   /**

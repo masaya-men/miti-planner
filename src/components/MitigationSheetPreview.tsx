@@ -81,6 +81,7 @@ export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading, dis
     });
 
     return { rows: built, rowTimes: times };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- jobs は行データの計算では読まないが、ジョブ一覧(言語切替等)が変わった時に再計算させる従来の挙動を維持する
   }, [planData, lang, jobs]);
 
   // 各セル: この行で「開始する」軽減と「アクティブだが開始済み」の軽減を分離

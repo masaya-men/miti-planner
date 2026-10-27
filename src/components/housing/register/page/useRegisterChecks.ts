@@ -70,6 +70,7 @@ export function useRegisterChecks(f: RegisterFields, mode: 'create' | 'edit', ef
       // confirm = 必須項目が揃って登録可能になったら done (isReadyToPublish)。
       confirm: canSubmit,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mode は計算では読まないが、従来どおり mode が変わった時にも再計算させる
     [mode, hasMedia, fieldState, introDone, visibilityTouched, canSubmit],
   );
 

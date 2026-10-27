@@ -29,7 +29,7 @@ export function useGridImportParty(args: {
       ...prev,
       columns: prev.columns.map((c, i) => (i === ci ? { ...c, slot } : c)),
     }));
-  }, []);
+  }, [setTable]);
 
   // スマホ grid 割当リスト対象: jobId 付き member 列(プレイヤー)
   const mobileMemberColumns = useMemo(
@@ -57,13 +57,13 @@ export function useGridImportParty(args: {
   // 検出ジョブが変わるたびに割当を再シード。手動済み枠は保持し、空き枠を resolveImportParty 既定で埋める。
   useEffect(() => {
     setAssignment((prev) => seedAssignment(prev, detectedJobIds, jobs));
-  }, [detectedJobIds, jobs]);
+  }, [detectedJobIds, jobs, setAssignment]);
 
   const handleSlotChange = useCallback(
     (slot: PartySlot, jobId: string | null) => {
       setAssignment((prev) => autoFillSingles(assignSlot(prev, slot, jobId), detectedByRole));
     },
-    [detectedByRole],
+    [detectedByRole, setAssignment],
   );
 
   return { setMobileColumnSlot, mobileMemberColumns, detectedByRole, handleSlotChange };

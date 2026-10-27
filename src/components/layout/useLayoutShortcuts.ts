@@ -72,5 +72,6 @@ export function useLayoutShortcuts({ isMobile, isSidebarOpen, isHeaderCollapsed,
             window.removeEventListener('shortcut:exit-focus', handleExitFocus);
             window.removeEventListener('shortcut:enter-focus', handleEnterFocus);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- キー入力の登録は isMobile / サイドバー開閉 / ヘッダー折りたたみが変わった時だけ張り直す(setSidebarPersisted は毎回作り直される関数。入れると毎描画で張り直す)
     }, [isMobile, isSidebarOpen, isHeaderCollapsed]);
 }

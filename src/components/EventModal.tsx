@@ -48,6 +48,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         const vp = { w: window.innerWidth, h: window.innerHeight };
         const c = clampToViewport({ x: position.x + 20, y: position.y }, size, vp, 8);
         setClampedPos({ left: c.x, top: c.y });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 位置は position の x / y が変わった時だけ測り直す(position オブジェクトは毎回作り直されるため座標値で比較)
     }, [isOpen, isMobile, isTutorialActive, position?.x, position?.y]);
 
     if (!isOpen) return null;

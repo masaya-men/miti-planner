@@ -296,6 +296,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
             seenNames.add(nameEN);
             return true;
         });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- EXCLUDED_IDS と isPureHealOnly はコンポーネント内で毎回作り直される定義(中身は固定)。レベルと軽減一覧が変わった時だけ再計算する
     }, [currentLevel, MITIGATIONS]);
 
     const sortedMitigations = useMemo(() => {
@@ -320,6 +321,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
             if (ka.recast !== kb.recast) return ka.recast - kb.recast;
             return (a.name.ja || "").localeCompare(b.name.ja || "");
         });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- getSortKey は毎回作り直される関数(JOBS 参照)。軽減一覧が変わった時と JOBS が変わった時だけ並べ直す
     }, [uniqueMitigations, JOBS]);
 
     // Calculate Raw Damage
@@ -491,6 +493,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
             const calculated = handleCalculate();
             setDamageAmount(calculated);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleCalculate は毎回作り直される関数。列挙した入力値が変わった時だけ逆算して damageAmount を更新する
     }, [calcActualDamage, selectedMitigations, mitigationTargets, damageType, inputMode, target, ignoresDebuffMitigation]);
 
     // --- Tutorial Progression Logic ---
@@ -585,6 +588,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                 tutorialState.completeEvent('create:miti-selected');
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- チュートリアル進行の副作用。列挙した値が変わった時だけ走らせる(MITIGATIONS は Reprisal の id 検索にしか使わない)
     }, [name, contentLanguage, calcActualDamage, selectedMitigations, isTutorialActive, currentStep?.id, targetActualDamage, tutorialState]);
 
     const getTooltipText = (mit: typeof MITIGATIONS[0]) => {

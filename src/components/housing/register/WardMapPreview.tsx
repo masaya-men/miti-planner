@@ -56,6 +56,7 @@ export const WardMapPreview: React.FC<Props> = ({
       cancelled = true;
     };
     // ref は resolveWardMapRef の戻り値オブジェクトなので mapKey/highlightPlot/highlightKind を明示依存に
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- ref は毎回作り直されるオブジェクトなので mapKey / highlightPlot / highlightKind の値で比較する(直上のコメント参照)
   }, [ref?.mapKey, ref?.highlightPlot, ref?.highlightKind]);
 
   if (!ref) {

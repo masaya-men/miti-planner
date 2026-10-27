@@ -99,6 +99,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         if (Math.abs(nx - adjustedPos.x) > 1 || Math.abs(ny - adjustedPos.y) > 1) {
             setAdjustedPos({ x: nx, y: ny });
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- adjustedPos は差分判定の読み取り専用。依存に入れると自分の setAdjustedPos で再実行されるため、開閉・位置・モバイル・中央表示が変わった時だけ走らせる
     }, [isOpen, position.x, position.y, isMobile, isCentered]);
 
     React.useEffect(() => {

@@ -222,6 +222,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
             modalRef.current.style.transform = '';
             modalRef.current.style.transition = 'all 0.3s cubic-bezier(0.2,0,0,1)';
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ドラッグ判定のコールバックは初回のまま使う。要確認(handleClose は毎回作り直される関数で、onClose が後から変わると古い onClose を呼ぶ)
     }, []);
 
     if (!isOpen) {

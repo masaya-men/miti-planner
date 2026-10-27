@@ -137,6 +137,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
         setPreviewData(null);
         setPreviewLoading(false);
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- getRepresentativeEntry は毎回作り直される関数。選択 ID と人気データが変わった時だけプレビューを取得する
   }, [selectedId, popularData]);
 
   // --- タブ自動選択 + 初期選択（シート開時1回だけ） ---
@@ -288,6 +289,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     const entry = getRepresentativeEntry(selectedId);
     if (!entry) return;
     await runCopy([entry]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- getRepresentativeEntry は毎回作り直される関数。選択 ID と人気データが変わった時だけ作り直す
   }, [selectedId, popularData, runCopy]);
 
   // まとめてコピー
@@ -297,6 +299,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
       .map(id => getRepresentativeEntry(id))
       .filter((e): e is PopularEntry => !!e);
     await runCopy(entries);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- getRepresentativeEntry は毎回作り直される関数。タブと人気データが変わった時だけ作り直す
   }, [activeTab, popularData, runCopy]);
 
   // 選択コピー
@@ -307,6 +310,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     await runCopy(entries);
     setSelectMode(false);
     setCheckedIds(new Set());
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- getRepresentativeEntry は毎回作り直される関数。チェック済み ID と人気データが変わった時だけ作り直す
   }, [checkedIds, popularData, runCopy]);
 
   // カードクリック

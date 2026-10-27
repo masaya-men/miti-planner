@@ -243,8 +243,9 @@ export function PartyAutoFill({ onComplete }: PartyAutoFillProps) {
 
     orbitStateRef.current.frameId = requestAnimationFrame(tick);
 
+    const orbitState = orbitStateRef.current;
     return () => {
-      cancelAnimationFrame(orbitStateRef.current.frameId);
+      cancelAnimationFrame(orbitState.frameId);
       clearTimeout(flyTimer);
     };
   }, [phase, jobs]);

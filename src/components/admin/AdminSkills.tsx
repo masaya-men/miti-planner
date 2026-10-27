@@ -54,6 +54,7 @@ export function AdminSkills() {
         } finally {
             setLoading(false);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- user が変わった時にコールバックを作り直し、呼び出し側の effect で再取得させる
     }, [user, t, selectedJobId]);
 
     useEffect(() => {

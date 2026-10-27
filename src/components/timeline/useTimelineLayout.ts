@@ -45,7 +45,7 @@ export function useTimelineSheetWidth({ sheetContainerRef }: { sheetContainerRef
         const observer = new ResizeObserver(updateWidth);
         observer.observe(el);
         return () => observer.disconnect();
-    }, []);
+    }, [sheetContainerRef]);
     // ④-b-2: CursorOverlay の rAF が再描画なしで最新幅を読めるよう ref ミラーを保持(sheetWidth は低頻度更新)。
     const sheetWidthRef = useRef(sheetWidth);
     sheetWidthRef.current = sheetWidth;
@@ -276,7 +276,7 @@ export function useTimelineMemberXMap({
         if (!containerEl || !firstMemberEl) return;
         setMemberStartPx(firstMemberEl.getBoundingClientRect().left - containerEl.getBoundingClientRect().left);
         setScrollViewportW(scrollContainerRef.current?.clientWidth ?? 0);
-    }, [memberLayout, isSheetView, sheetWidth, scrollContainerRef]);
+    }, [memberLayout, isSheetView, sheetWidth, scrollContainerRef, sheetContainerRef]);
     const memberXMap = useMemo(() => {
         if (!isSheetView) {
             return {

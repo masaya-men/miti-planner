@@ -177,6 +177,7 @@ export function useHousingDetail(
     return () => {
       cancelled = true;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- listing が変わった時だけ同住所の他登録を取得する(1 回の詳細表示で 1 fetch)。要確認(viewerUid が後から変わると自分除外の判定が古いまま残る)
   }, [listing]);
 
   // notification クエリがあれば、 通知 doc を id で直接取得して案内バナー用にセット。

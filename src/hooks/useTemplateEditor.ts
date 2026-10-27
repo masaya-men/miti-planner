@@ -76,6 +76,7 @@ export function useTemplateEditor() {
   // visibleEvents: current を deleted 除外してフィルタ
   const visibleEvents = useMemo(
     () => state.current.filter((ev) => !state.deleted.has(ev.id)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- state のうち current と deleted が変わった時だけ再計算する(state 全体を入れると他の項目の変化でも走る)
     [state.current, state.deleted],
   );
 

@@ -57,7 +57,7 @@ export function useSidebarPlanSync({ setSelectedContentId, setActiveTab, setArch
                 setArchivePrompt({ planIds: oldSavagePlans.map(p => p.id) });
             });
         }
-    }, [plans]);
+    }, [plans, setArchivePrompt]);
 
     return {
         pendingContent,

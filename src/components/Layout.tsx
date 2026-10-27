@@ -68,7 +68,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             // effect 内から動き付き setter(flushSync)を呼ぶと反映が遅れて動きがずれるため、ここだけ即時展開
             setIsHeaderCollapsed(false);
         }
-    }, [isTutorialActive]);
+    }, [isTutorialActive, setIsSidebarOpen]);
     const sheets = useMobileSheets(isTutorialActive);
 
     // iOS Safari のビューポートずれ補正(共通フック。マウント時 1 回 + resize/focusout)

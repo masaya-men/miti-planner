@@ -91,6 +91,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             pendingPostRef.current = generateShareUrl;
             setConsentOpen(true);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- モーダルが開いた時だけ共有 URL を生成する(generateShareUrl は毎回作り直される関数。依存に入れると毎描画で再生成してしまう)
     }, [isOpen]);
 
     const generateShareUrl = async () => {

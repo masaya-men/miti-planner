@@ -149,7 +149,7 @@ export function useLoginMigration(isRemoteLoadingRef: React.MutableRefObject<boo
                 }, 40);
             }
         });
-    }, [authUser, authLoading, hasMigrated]);
+    }, [authUser, authLoading, hasMigrated, isRemoteLoadingRef]);
 
     return { isOpen: localImportOpen, plans: localImportPlans, onImport: handleLocalImport, onClose: handleLocalImportClose };
 }

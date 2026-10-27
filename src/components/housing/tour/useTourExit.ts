@@ -36,7 +36,7 @@ export function useTourExit(tourToken: string | null, setCompleted: (v: boolean)
     reset();
     setCompleted(false);
     navigate('/housing');
-  }, [tourToken, stop, exitTourMode, reset, navigate]);
+  }, [tourToken, stop, exitTourMode, reset, setCompleted, navigate]);
 
   const backToFavorites = useCallback(() => {
     // 完了後にツアーを離れる＝共有中なら live を ended にして参加者を追従させる（孤児 live 防止・onFinish と同型）。
@@ -49,7 +49,7 @@ export function useTourExit(tourToken: string | null, setCompleted: (v: boolean)
     reset();
     setCompleted(false);
     navigate('/housing/favorites');
-  }, [tourToken, stop, exitTourMode, reset, navigate]);
+  }, [tourToken, stop, exitTourMode, reset, setCompleted, navigate]);
 
   return { onFinish, backToBrowse, backToFavorites };
 }

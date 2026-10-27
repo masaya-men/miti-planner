@@ -86,6 +86,7 @@ export function AdminTemplates() {
         setContents(data.items ?? []);
       }
     } catch { /* コンテンツ取得失敗はテンプレート画面としては致命的でない */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- user が変わった時にコールバックを作り直し、呼び出し側の effect で再取得させる
   }, [user]);
 
   /** テンプレート一覧を取得 */
@@ -110,6 +111,7 @@ export function AdminTemplates() {
     } finally {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- user が変わった時にコールバックを作り直し、呼び出し側の effect で再取得させる
   }, [user, t]);
 
   /** 昇格候補を取得 */
@@ -121,6 +123,7 @@ export function AdminTemplates() {
         setCandidates(data.candidates ?? []);
       }
     } catch { /* 昇格候補取得失敗は致命的でない */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- user が変わった時にコールバックを作り直し、呼び出し側の effect で再取得させる
   }, [user]);
 
   useEffect(() => {

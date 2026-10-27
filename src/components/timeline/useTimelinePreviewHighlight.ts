@@ -68,7 +68,7 @@ export function useTimelinePreviewHighlight({
             overlayRef.current.style.height = `${height}px`;
             overlayRef.current.style.display = height > 0 ? '' : 'none';
         }
-    }, [timelineSelectMode, labelSelectMode, showPreStart]);
+    }, [scrollContainerRef, timelineSelectMode, labelSelectMode, rowLayoutRef, showPreStart]);
 
     const throttledUpdatePreview = useCallback((time: number | null) => {
         previewEndTimeRef.current = time;

@@ -27,7 +27,7 @@ export function useTimelineNavJump({
     const handleNavJump = useCallback((time: number) => {
         if (!scrollContainerRef.current) return;
         scrollContainerRef.current.scrollTo({ top: rowLayoutRef.current.topOf(time), behavior: 'smooth' });
-    }, []);
+    }, [rowLayoutRef, scrollContainerRef]);
     return { handleNavJump };
 }
 
@@ -62,7 +62,7 @@ export function useTimelinePlanScrollReset({
         } else {
             useMitigationStore.getState().setHideEmptyRows(true);
         }
-    }, [currentPlanId, joinerRoomToken]);
+    }, [currentPlanId, joinerRoomToken, scrollContainerRef]);
 
     useSmoothWheelScroll(scrollContainerRef, { horizontalScrollOnShift: true, stiffness: 80, wheelMultiplier: 1.5 });
 }
@@ -130,7 +130,7 @@ export function useTimelineScrollSync({
         const anchor = lastCenterTimeRef.current;
         if (!c || anchor === null) return;
         c.scrollTop = reanchorScrollTop(anchor, timeToYMapRef.current, c.clientHeight);
-    }, [hideEmptyRows]);
+    }, [hideEmptyRows, scrollContainerRef, timeToYMapRef]);
 
 
     useEffect(() => {
@@ -145,7 +145,7 @@ export function useTimelineScrollSync({
         syncPadding();
         window.addEventListener('resize', syncPadding);
         return () => window.removeEventListener('resize', syncPadding);
-    }, []);
+    }, [controlBarRef, headerRef, scrollContainerRef]);
 
     // リキャスト行: スクロールに連動して current time を更新 (GPU 描画、 React 再レンダーなし)
     // セッション 18 案 C1: RecastRow は header (scroll container の外) に物理移動したので、
@@ -184,7 +184,7 @@ export function useTimelineScrollSync({
             currentTime = offsetTime;
         }
         recastRowRef.current?.update(currentTime);
-    }, [showPreStart, recastRowVisible]);
+    }, [recastRowVisible, scrollContainerRef, showPreStart, sortedTimeYRef, recastRowRef]);
 
     useEffect(() => {
         const container = scrollContainerRef.current;
@@ -192,7 +192,7 @@ export function useTimelineScrollSync({
         syncRecastRow(); // 初期化
         container.addEventListener('scroll', syncRecastRow, { passive: true });
         return () => container.removeEventListener('scroll', syncRecastRow);
-    }, [syncRecastRow]);
+    }, [scrollContainerRef, syncRecastRow]);
 
     // 配置 (timelineMitigations) が変わったら、 スクロールを待たずに即リキャスト行を再同期する。
     // update() はスクロール時にしか呼ばれないため、 これが無いと「現在のスクロール位置では

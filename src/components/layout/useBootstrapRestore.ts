@@ -31,5 +31,5 @@ export function useBootstrapRestore(isRemoteLoadingRef: React.MutableRefObject<b
                 useMitigationStore.getState().setLoadedPlanId(currentPlanId);
             }
         }
-    }, []);
+    }, [isRemoteLoadingRef]);
 }

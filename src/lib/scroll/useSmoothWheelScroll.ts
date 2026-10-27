@@ -153,6 +153,7 @@ export function useSmoothWheelScroll(
         el.addEventListener('wheel', onWheel, { passive: false });
         el.addEventListener('scroll', onScroll, { passive: true });
 
+        const state = stateRef.current;
         return (): void => {
             el.removeEventListener('wheel', onWheel);
             el.removeEventListener('scroll', onScroll);
@@ -160,9 +161,9 @@ export function useSmoothWheelScroll(
                 cancelAnimationFrame(rafRef.current);
                 rafRef.current = null;
             }
-            stateRef.current.targetDy = 0;
-            stateRef.current.velY = 0;
-            stateRef.current.lastTime = 0;
+            state.targetDy = 0;
+            state.velY = 0;
+            state.lastTime = 0;
         };
     }, [ref, stiffness, disabled, horizontalScrollOnShift, wheelMultiplier, stopPropagation, enabled]);
 }

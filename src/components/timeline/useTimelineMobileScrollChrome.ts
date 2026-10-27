@@ -94,7 +94,7 @@ export function useTimelineMobileScrollChrome({
 
         curEl.style.transform = `translateX(${-p * 100}%)`;
         nextEl.style.transform = `translateX(${(1 - p) * 100}%)`;
-    }, [phases, contentLanguage, t]);
+    }, [scrollContainerRef, rowLayoutRef, phases, t, contentLanguage]);
 
     useEffect(() => {
         const container = scrollContainerRef.current;
@@ -102,7 +102,7 @@ export function useTimelineMobileScrollChrome({
         syncMobilePhaseLabel();
         container.addEventListener('scroll', syncMobilePhaseLabel, { passive: true });
         return () => container.removeEventListener('scroll', syncMobilePhaseLabel);
-    }, [syncMobilePhaseLabel, isMobileTimeline]);
+    }, [syncMobilePhaseLabel, isMobileTimeline, scrollContainerRef]);
 
     // エフェクト棒トグル: スクロール中だけ data-mobile-scrolling="1" を立て、
     // 専用行アイコン⇄エフェクト棒の表示切り替えをCSS側に任せる(React再レンダーなし)。
@@ -162,7 +162,7 @@ export function useTimelineMobileScrollChrome({
             window.dispatchEvent(new CustomEvent('mobile:timeline-scroll-state', { detail: { scrolling: false } }));
             undoRedoWrapRef.current?.removeAttribute('data-hidden');
         }, idleMs);
-    }, []);
+    }, [scrollContainerRef]);
 
     const syncMobileEffectBarVisibility = useCallback(() => {
         const container = scrollContainerRef.current;
@@ -216,7 +216,7 @@ export function useTimelineMobileScrollChrome({
         container.style.setProperty('--mobile-effect-bar-progress', progress.toFixed(3));
 
         scheduleMobileEffectBarHide();
-    }, [scheduleMobileEffectBarHide, mobileEffectBarMode]);
+    }, [scrollContainerRef, mobileEffectBarMode, scheduleMobileEffectBarHide]);
 
     const handleMobileEffectBarTouchStart = useCallback(() => {
         // ここでは data-mobile-scrolling を新規に立てない(スクロールを伴わない
@@ -245,7 +245,7 @@ export function useTimelineMobileScrollChrome({
             container.removeEventListener('touchcancel', handleMobileEffectBarTouchEnd);
             if (mobileEffectBarIdleTimerRef.current) clearTimeout(mobileEffectBarIdleTimerRef.current);
         };
-    }, [syncMobileEffectBarVisibility, handleMobileEffectBarTouchStart, handleMobileEffectBarTouchEnd, isMobileTimeline]);
+    }, [syncMobileEffectBarVisibility, handleMobileEffectBarTouchStart, handleMobileEffectBarTouchEnd, isMobileTimeline, scrollContainerRef]);
 
     // 'bar'(常時エフェクト棒)モードはスクロールなしで最初から表示、'icon'/'scroll'へ切替時は
     // 静止状態(アイコン)に戻す。実際のスクロール中はsyncMobileEffectBarVisibility側が
@@ -261,7 +261,7 @@ export function useTimelineMobileScrollChrome({
             container.removeAttribute('data-mobile-scrolling');
             container.style.setProperty('--mobile-effect-bar-progress', '0');
         }
-    }, [mobileEffectBarMode, isMobileTimeline]);
+    }, [mobileEffectBarMode, isMobileTimeline, scrollContainerRef]);
 
     useEffect(() => {
         syncMobilePhaseLabel();
