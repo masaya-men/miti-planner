@@ -169,7 +169,7 @@ export function drawerSVG(spec: DrawerSpec, pal: ArmorPalette, id: string): stri
   return s;
 }
 
-export { machinedEdge } from './machinedEdge';
+;
 
 /** 配線 6 本(上段 3 + 下段 3)。TILE ごとに折れを繰り返す。[基準の y, 折れの列 [x, y]] */
 const TRACES: [number, [number, number][]][] = [

@@ -37,7 +37,7 @@ export function nodeToPointIn(json: WardMapJson, nodeId: string): { x: number; y
   return { x: n.x * json.viewBox.w, y: n.y * json.viewBox.h };
 }
 /** origin ノード → goal ノード の道なり px 点列(json 引数版)。未知ノード/到達不能で null。 */
-export function buildRoutePointsIn(json: WardMapJson, originNodeId: string, goalNodeId: string): [number, number][] | null {
+function buildRoutePointsIn(json: WardMapJson, originNodeId: string, goalNodeId: string): [number, number][] | null {
   const nodeById = new Map(json.nodes.map((n) => [n.id, n]));
   if (!nodeById.has(originNodeId) || !nodeById.has(goalNodeId)) return null;
   const w = json.viewBox.w, h = json.viewBox.h; const edges = json.edges as unknown as EdgeData[];

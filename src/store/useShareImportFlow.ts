@@ -26,7 +26,7 @@ import type {
  *   - 3500ms 頃: 1.5 breath 完了 + 余韻
  * → MIN を 3500ms に設定。 API が早くてもパディングして必ずこの所要時間を保証。
  */
-export const MIN_LOADING_VISIBLE_MS = 3500;
+const MIN_LOADING_VISIBLE_MS = 3500;
 
 const padLoadingDelay = async (startedAt: number): Promise<void> => {
   const elapsed = Date.now() - startedAt;
@@ -37,7 +37,7 @@ const padLoadingDelay = async (startedAt: number): Promise<void> => {
   }
 };
 
-export type ShareImportStatus =
+type ShareImportStatus =
   | 'idle'
   | 'loading'
   | 'preview'

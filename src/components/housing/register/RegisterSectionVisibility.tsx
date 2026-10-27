@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HousingDateTimePicker } from './HousingDateTimePicker';
 
-export interface RegisterVisibilityValues {
+interface RegisterVisibilityValues {
   visibility: 'public' | 'unlisted' | 'private';
   publishUntil: number | null;
   afterExpiryVisibility: 'unlisted' | 'private';

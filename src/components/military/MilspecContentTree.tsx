@@ -60,7 +60,7 @@ export interface MilspecTreeSelect {
  * 開く = 460ms で高さ 0 → +5px の行き過ぎ → 本来の高さ、子は 110ms + 45ms*i 遅れて左から滑り込む。
  * 閉じる = 340ms で +3px 膨らんでから 0 へ。reduced(または animate 非対応)なら hidden を切り替えるだけ。
  */
-export function foldDrawer(list: HTMLElement, open: boolean, reduced: boolean): void {
+function foldDrawer(list: HTMLElement, open: boolean, reduced: boolean): void {
   if (reduced || typeof list.animate !== 'function') { list.hidden = !open; return; }
   if (open) {
     list.hidden = false;

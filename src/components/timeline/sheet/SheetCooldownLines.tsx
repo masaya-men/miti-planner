@@ -20,7 +20,7 @@ interface Props {
 }
 
 /** 線の見える形。joinY より上は切り(帯の下に隠れる部分)、joinY から 4px かけて 6px 幅 → 4px 幅に細くする。joinY = 0(帯なし)は最初から 4px 幅 */
-export function cdClipPath(joinY: number): string {
+function cdClipPath(joinY: number): string {
     if (joinY <= 0) return 'polygon(1px 0, calc(100% - 1px) 0, calc(100% - 1px) 100%, 1px 100%)';
     const j = `${joinY}px`;
     const j2 = `${joinY + 4}px`;

@@ -10,7 +10,7 @@
  * UI 側ではこの返り値が null かどうかで「上限到達 → 件数付き専用文言」と
  * 「その他失敗 → 汎用フィードバック (通信確認・再ログイン・時間置く)」を出し分ける。
  */
-export type PlanLimitReason = 'max_total' | 'max_per_content';
+type PlanLimitReason = 'max_total' | 'max_per_content';
 
 export interface ParsedPlanLimit {
     reason: PlanLimitReason;

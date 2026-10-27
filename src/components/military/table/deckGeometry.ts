@@ -4,12 +4,12 @@ import type { CapSpec, PlacedPanel, PocketSpec, Pt, StretchFrame } from '../armo
 // 表の操作列の形(見本 v11 js:942-962)。座標は見本の区画座標(操作列の装甲の左上が原点)。
 
 /** 見本の JX: 副装甲(ジョブの基板)の左端 */
-export const DECK_JX = 574;
+const DECK_JX = 574;
 /** 操作列の装甲の幅(JX - 4) */
 export const DECK_W = DECK_JX - 4;
 export const DECK_H = 40;
 /** 副装甲の基準幅(見本の区画 MW=1189 のとき MW - JX)。実幅は MilspecArmor が親の実寸へ伸ばす */
-export const BOARD_W0 = 1189 - DECK_JX;
+const BOARD_W0 = 1189 - DECK_JX;
 
 /** キー列(.kc)の原点。キーは各 cap の bbox の位置に置く */
 export const DECK_COLS = { aa: { x: 342, y: 12 }, ur: { x: 418, y: 12 }, tr: { x: 478, y: 12 } } as const;

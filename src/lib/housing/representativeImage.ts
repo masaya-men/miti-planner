@@ -15,7 +15,7 @@ import type { MockListing } from '../../data/housing/mockListings';
  * FavoritesPreviewStrip.tsx のローカル実装はスコープ外のためまだ移設していない
  * (将来別途移行)。
  */
-export const LISTING_IMAGE_PLACEHOLDER = '/housing/mock-thumbs/1.svg';
+const LISTING_IMAGE_PLACEHOLDER = '/housing/mock-thumbs/1.svg';
 
 export function representativeImage(listing: MockListing): string {
   if (listing.imageMode === 'thumbnail' && listing.thumbnailPath) return listing.thumbnailPath;

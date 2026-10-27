@@ -7,7 +7,7 @@ import { joinSharedTour } from '../housingApiClient';
 import type { SharedTourMeta, SharedTourLiveState } from '../../types/sharedTour';
 
 /** useJoinTour の状態種別。connecting=接続中、notfound=存在しない/読めない、full=満員、ended=終了済み、viewing=閲覧中 */
-export type JoinTourKind = 'connecting' | 'notfound' | 'full' | 'ended' | 'viewing';
+type JoinTourKind = 'connecting' | 'notfound' | 'full' | 'ended' | 'viewing';
 
 export interface JoinTourState {
   kind: JoinTourKind;

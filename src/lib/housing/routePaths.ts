@@ -1,7 +1,5 @@
 export type Pt = [number, number];
 export interface RouteSegment { kind: 'road' | 'jump'; points: Pt[] }
-export interface RouteOverride { segments: RouteSegment[] }
-
 const ARC_K = 0.4; // 弧の膨らみ = 区間長 × この割合(ジャンプらしく高く跳ねる)
 const f = (n: number) => n.toFixed(1);
 

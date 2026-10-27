@@ -1,20 +1,4 @@
 /**
- * Memo 座標変換ヘルパ。
- *
- * LoPo 軽減表は縦軸 = 時間で「行ごとに高さが動的」 ([Timeline.tsx:2409] の sheet container
- * height は gridLines を累積した動的計算)。 そのため線形変換 (y = time × pps) は使えず、
- * Timeline が持つ `timeToYMap` (Map<time, y>) を逆引きする必要がある。
- *
- * - timeSec: 連続値の秒数 (= 時間軸上の絶対値)
- * - xRatio:  シート横幅に対する 0.0〜1.0 比率
- */
-
-export interface MemoCoords {
-    timeSec: number;
-    xRatio: number;
-}
-
-/**
  * timeToYMap (time → y) を時刻昇順の配列に変換。
  * gridLines が含む全 time に対応する y を返す (gridLines 順で y も増加)。
  *

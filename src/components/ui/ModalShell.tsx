@@ -21,7 +21,7 @@ const LAYER_CLASS = {
     top: 'z-[100000]',
 } as const;
 
-export type ModalLayer = keyof typeof LAYER_CLASS;
+type ModalLayer = keyof typeof LAYER_CLASS;
 
 interface ModalShellProps {
     isOpen: boolean;

@@ -12,7 +12,7 @@ import { useRemoteCursorsStore } from '../../store/useRemoteCursorsStore';
 import './cursor.css';
 
 // roster から描く相手(自分以外 & cursorEnabled)だけを取り出した最小情報。位置は持たない(rAF が store から読む)。
-export interface RemoteCursorPeer {
+interface RemoteCursorPeer {
   clientId: number;
   color: string;
   jobId: string | null;

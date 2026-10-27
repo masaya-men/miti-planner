@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-export type PanelDirection = 'left' | 'right';
+type PanelDirection = 'left' | 'right';
 
 export interface PanelCloseButtonProps {
     direction: PanelDirection;

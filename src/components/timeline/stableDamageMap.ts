@@ -20,7 +20,7 @@ function sameStates(a: DamageLike['mitigationStates'], b: DamageLike['mitigation
     return ka.every(k => k in b && a[k]?.stacks === b[k]?.stacks);
 }
 
-export function sameDamage(a: DamageLike, b: DamageLike): boolean {
+function sameDamage(a: DamageLike, b: DamageLike): boolean {
     return a.unmitigated === b.unmitigated
         && a.mitigated === b.mitigated
         && a.mitigationPercent === b.mitigationPercent

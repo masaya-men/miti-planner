@@ -98,7 +98,7 @@ export interface RegistrationDraft extends AddressInput {
   videoAspectRatio?: number;
 }
 
-export type ValidationErrors = Partial<Record<string, string>>;
+type ValidationErrors = Partial<Record<string, string>>;
 export interface ValidationResult { ok: boolean; errors: ValidationErrors; }
 
 const ok = (): ValidationResult => ({ ok: true, errors: {} });
@@ -183,7 +183,7 @@ export function validateAddress(addr: AddressInput): ValidationResult {
  * タグ検証。 2026-05-27 にタグ optional 化 (0 件 OK)。 上限 5 件は維持。
  * 個人タグ機能 (1 ユーザー 1 タグ) と公式タグ刷新は別セッションで設計予定 (docs/.private/2026-05-27-tag-system-redesign.md)。
  */
-export function validateTags(tags: string[]): ValidationResult {
+function validateTags(tags: string[]): ValidationResult {
   if (!Array.isArray(tags)) return fail({ tags: 'invalid_type' });
   if (tags.length > HOUSING_LIMITS.MAX_TAGS_PER_LISTING) return fail({ tags: 'max_exceeded' });
   if (new Set(tags).size !== tags.length) return fail({ tags: 'duplicate' });
@@ -193,7 +193,7 @@ export function validateTags(tags: string[]): ValidationResult {
   return ok();
 }
 
-export function validateDescription(desc: string | undefined): ValidationResult {
+function validateDescription(desc: string | undefined): ValidationResult {
   if (desc === undefined || desc === '') return ok();
   if (typeof desc !== 'string') return fail({ description: 'invalid_type' });
   if (desc.length > HOUSING_LIMITS.MAX_DESCRIPTION_LENGTH) return fail({ description: 'too_long' });

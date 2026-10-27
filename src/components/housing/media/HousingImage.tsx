@@ -28,9 +28,9 @@ import {
 import { nextYoutubeThumbnailFallback } from '../../../lib/housing/youtubeUrl';
 import { handleYoutubeThumbnailLoad } from '../../../lib/housing/youtubeImgFallback';
 
-export type HousingImageVariant = 'thumb' | 'small' | 'card' | 'gallery' | 'original';
+type HousingImageVariant = 'thumb' | 'small' | 'card' | 'gallery' | 'original';
 
-export const GALLERY_IMAGE_SIZES = '(max-width: 767px) 100vw, 800px';
+const GALLERY_IMAGE_SIZES = '(max-width: 767px) 100vw, 800px';
 
 export interface HousingImageProps {
   src: string;

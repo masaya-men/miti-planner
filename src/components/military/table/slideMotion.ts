@@ -11,12 +11,12 @@ const keys = (dx: number, lift: number, scale: number, sink: number, settle: num
 ];
 
 /** 差込口(880ms) */
-export const jackSlideKeyframes = (dx: number): Keyframe[] => keys(dx, -3.4, 1.04, 0.9, -0.3, 0.985);
+const jackSlideKeyframes = (dx: number): Keyframe[] => keys(dx, -3.4, 1.04, 0.9, -0.3, 0.985);
 /** 効果アイコン(820ms) */
-export const mitSlideKeyframes = (dx: number): Keyframe[] => keys(dx, -3, 1.06, 0.8, -0.25, 0.99);
+const mitSlideKeyframes = (dx: number): Keyframe[] => keys(dx, -3, 1.06, 0.8, -0.25, 0.99);
 
-export const JACK_SLIDE_MS = 880;
-export const MIT_SLIDE_MS = 820;
+const JACK_SLIDE_MS = 880;
+const MIT_SLIDE_MS = 820;
 
 const running = new WeakMap<Element, Animation>();
 

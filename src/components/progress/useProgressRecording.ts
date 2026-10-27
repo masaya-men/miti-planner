@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { classifyRecord, computeProgressPercent } from '../../lib/progressLogic';
 
-export interface ProgressToast {
+interface ProgressToast {
     kind: 'update' | 'nice';
     pct: number;
     ts: number; // 再生トリガ（同じ kind/pct でも ts 変化で再再生）

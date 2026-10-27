@@ -29,7 +29,7 @@ export interface RowLayoutInput {
     unitPx: number;
 }
 
-export interface RowBox {
+interface RowBox {
     time: number;
     /** 行の上端。隠れた秒は次の可視行の上端 */
     top: number;

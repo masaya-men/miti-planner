@@ -12,7 +12,7 @@
  * 行は「✓ 住所」、不足アクションは「住所を入力してください」と、それぞれ自然に読める。
  */
 
-export type RegisterChecklistKey = 'address' | 'title' | 'image';
+type RegisterChecklistKey = 'address' | 'title' | 'image';
 
 export interface RegisterChecklistItem {
   key: RegisterChecklistKey;

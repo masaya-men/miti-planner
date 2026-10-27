@@ -110,7 +110,7 @@ describe("PlanData の共同編集の網羅", () => {
 
   it("worker の seed と読み出し(保存の元)が同期項目をすべて扱う", () => {
     const src = ["yjsPlanData.ts", "yjsMitigations.ts"].map((f) => readFileSync(resolve(ROOT, "workers/collab/src", f), "utf8")).join("\n");
-    const constOf = new Map([...src.matchAll(/export const (\w+) = "(\w+)"/g)].map((m) => [m[2], m[1]]));
+    const constOf = new Map([...src.matchAll(/^(?:export )?const (\w+) = "(\w+)"/gm)].map((m) => [m[2], m[1]]));
     const body = (fn: string) => {
       const start = src.indexOf(`export function ${fn}(`);
       expect(start, fn).toBeGreaterThanOrEqual(0);

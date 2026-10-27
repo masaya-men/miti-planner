@@ -1,5 +1,5 @@
-export type TourPhase = 'moving' | 'viewing';
-export type TourStatus = 'live' | 'ended';
+type TourPhase = 'moving' | 'viewing';
+type TourStatus = 'live' | 'ended';
 
 /** 家1件の送信用スナップショット（MockListing の縮約・画像本体は含めず外部URL文字列のみ） */
 export interface TourSnapshot {

@@ -19,7 +19,7 @@ export const DPS_MAGIC_RANGED: readonly string[] = ['blm', 'smn', 'rdm', 'pct'];
  * DPS の並び順を平坦化した順序付きリスト(近接 → 遠隔物理 → キャスター)。
  * 先頭ほど D1 寄り(近接を左)。このリストに無い jobId は dpsRank で末尾扱い。
  */
-export const DPS_SUBROLE_ORDER: readonly string[] = [
+const DPS_SUBROLE_ORDER: readonly string[] = [
   ...DPS_MELEE,
   ...DPS_PHYS_RANGED,
   ...DPS_MAGIC_RANGED,
@@ -36,14 +36,14 @@ export function dpsRank(jobId: string): number {
 }
 
 /** タンクの並び順(MT→ST の既定)。FF14 公式ジョブガイド順。MT/ST はジョブで一意に決まらないため決定的な既定として使う。 */
-export const TANK_ORDER: readonly string[] = ['pld', 'war', 'drk', 'gnb'];
+const TANK_ORDER: readonly string[] = ['pld', 'war', 'drk', 'gnb'];
 
 /** ピュアヒラ(PH = H1 寄り)。 */
-export const HEALER_PURE: readonly string[] = ['whm', 'ast'];
+const HEALER_PURE: readonly string[] = ['whm', 'ast'];
 /** バリアヒラ(BH = H2 寄り)。 */
-export const HEALER_BARRIER: readonly string[] = ['sch', 'sge'];
+const HEALER_BARRIER: readonly string[] = ['sch', 'sge'];
 /** ヒラの並び順(PH → BH = H1→H2 の既定)。 */
-export const HEALER_ORDER: readonly string[] = [...HEALER_PURE, ...HEALER_BARRIER];
+const HEALER_ORDER: readonly string[] = [...HEALER_PURE, ...HEALER_BARRIER];
 
 /** jobId のタンク並び順ランク(小さいほど MT 寄り)。未知は末尾。 */
 export function tankRank(jobId: string): number {

@@ -9,7 +9,7 @@ import type { TimelineEvent } from '../types';
 import { clsx } from 'clsx';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
-import EventForm from './EventForm';
+import { EventForm } from './EventForm';
 import { ModalHeader } from './ui/ModalParts';
 
 interface EventModalProps {

@@ -91,7 +91,7 @@ let _tokenExpiresAt: number = 0;
  * - Development: falls back to VITE_FFLOGS_CLIENT_ID / VITE_FFLOGS_CLIENT_SECRET
  *   from .env.local for local testing convenience.
  */
-export async function getAccessToken(): Promise<string> {
+async function getAccessToken(): Promise<string> {
     const now = Date.now();
 
     // Return cached token if still valid (subtract 60s for safety margin)
@@ -210,7 +210,7 @@ interface FightsQueryResult {
  * Returns all boss pulls (killType: Encounters) — both kills and wipes.
  * Trash fights are excluded by the Encounters filter.
  */
-export async function fetchFights(reportCode: string): Promise<FFLogsFight[]> {
+async function fetchFights(reportCode: string): Promise<FFLogsFight[]> {
     const token = await getAccessToken();
     const data = await gql<FightsQueryResult>(token, FIGHTS_QUERY, { reportCode });
     const fights = data.reportData.report.fights;
@@ -453,7 +453,7 @@ export async function fetchDeathEvents(
 // Player Details (role breakdown: tanks / healers / dps)
 // ─────────────────────────────────────────────────────────────
 
-export interface PlayerInfo {
+interface PlayerInfo {
     id: number;
     name: string;
     type: string;

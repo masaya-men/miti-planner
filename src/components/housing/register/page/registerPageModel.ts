@@ -119,7 +119,7 @@ export function buildDraftImageFields(
  * ステッパー/scroll-spy が対象とする5セクション (spec 正典順: media → address → intro →
  * visibility → confirm)。id はステッパーの表示順そのもの。
  */
-export const STEP_IDS = ['media', 'address', 'intro', 'visibility', 'confirm'] as const;
+const STEP_IDS = ['media', 'address', 'intro', 'visibility', 'confirm'] as const;
 export type StepId = (typeof STEP_IDS)[number];
 export const STEP_LABEL_KEYS: Record<StepId, string> = {
   media: 'housing.register.step.media',

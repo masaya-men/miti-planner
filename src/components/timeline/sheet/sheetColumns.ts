@@ -7,9 +7,6 @@ import { SERAPHISM_TRANSFORMS } from '../../../utils/scholarShieldRules';
 export const SHEET_COL_W = 28;
 /** 置いたアイコンの 1 辺 (px) */
 export const SHEET_ICON_PX = 18;
-/** 帯(効果時間)の幅 (px) */
-export const SHEET_BAND_W = 6;
-
 export interface SheetColumn {
     mitigationId: string;
     def: Mitigation;

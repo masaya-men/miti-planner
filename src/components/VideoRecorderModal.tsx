@@ -9,7 +9,7 @@ import { getContentById } from '../data/contentRegistry';
 import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import { parseYouTubeId } from '../utils/youtube';
 import { formatStopwatch, snapToSecond } from '../utils/stopwatch';
-import EventForm from './EventForm';
+import { EventForm } from './EventForm';
 import type { TimelineEvent } from '../types';
 
 const genId = () =>

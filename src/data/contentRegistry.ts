@@ -183,10 +183,6 @@ function getContentSeriesList(): ContentSeries[] {
 // Registry Helper Functions
 // ==========================================
 
-export function getContentByLevel(level: ContentLevel): ContentDefinition[] {
-    return getContentDefinitions().filter(c => c.level === level);
-}
-
 export function getSeriesByLevel(level: ContentLevel): ContentSeries[] {
     return getContentSeriesList().filter(s => s.level === level);
 }
@@ -213,11 +209,6 @@ export function levelForContent(contentId: string | null | undefined): ContentLe
     return ((contentId ? getContentById(contentId)?.level : undefined) ?? 100) as ContentLevel;
 }
 
-export function getCategoriesByLevel(_level: ContentLevel): ContentCategory[] {
-    // Return all standard categories in preferred order, even if empty
-    return ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
-}
-
 /**
  * Gets the project label (e.g. "至天の座アルカディア") for a given level and category.
  */
@@ -234,20 +225,6 @@ export function getProjectLabel(level: ContentLevel, category: ContentCategory):
 
     const key = levelToProjectKey[level];
     return key ? PROJECT_LABELS[key] : null;
-}
-
-// ==========================================
-// Firestore対応ラベルアクセサ（新規export）
-// ==========================================
-
-export function getCategoryLabel(category: ContentCategory): LocalizedString {
-    const store = useMasterDataStore.getState();
-    return store.config?.categoryLabels?.[category] ?? STATIC_CATEGORY_LABELS[category];
-}
-
-export function getLevelLabel(level: ContentLevel): LocalizedString {
-    const store = useMasterDataStore.getState();
-    return store.config?.levelLabels?.[level] ?? STATIC_LEVEL_LABELS[level];
 }
 
 // ==========================================

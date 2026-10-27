@@ -10,7 +10,7 @@ export const hex = (h: string): Rgb => {
 export const mix = (a: Rgb, b: Rgb, t: number): Rgb => a.map((v, i) => Math.round(v + (b[i] - v) * t)) as Rgb;
 export const css = (c: Rgb): string => `rgb(${c[0]},${c[1]},${c[2]})`;
 const norm = (v: number[]): number[] => { const l = Math.hypot(...v); return v.map((x) => x / l); };
-export const LIGHT = norm([-0.42, -0.9, 1.0]);
+const LIGHT = norm([-0.42, -0.9, 1.0]);
 export const FLAT = LIGHT[2];
 /** 面の明るさ(向き ox,oy から光を計算)。raised=false ならくぼみ */
 export const shade = (ox: number, oy: number, raised: boolean): number => {

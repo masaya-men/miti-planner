@@ -10,12 +10,6 @@
 import type { SyntheticEvent } from 'react';
 import { nextYoutubeThumbnailFallback, parseYoutubeThumbnailUrl } from './youtubeUrl';
 
-export function handleYoutubeThumbnailError(e: SyntheticEvent<HTMLImageElement>): void {
-  const img = e.currentTarget;
-  const next = nextYoutubeThumbnailFallback(img.src);
-  if (next) img.src = next;
-}
-
 export function handleYoutubeThumbnailLoad(e: SyntheticEvent<HTMLImageElement>): void {
   const img = e.currentTarget;
   if (img.naturalWidth !== 120 || img.naturalHeight !== 90) return;

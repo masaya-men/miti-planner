@@ -18,7 +18,7 @@ const firebaseConfig = {
     measurementId: "G-HCQPS9N74D"
 };
 
-export const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 // Firestoreオフライン永続化（読み取り回数50%削減）
@@ -29,7 +29,7 @@ export const db = initializeFirestore(app, {
 });
 
 // Analytics（SSR/テスト環境では無効化）
-export const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
+void isSupported().then(yes => yes ? getAnalytics(app) : null);
 
 // Storage（アイコン管理用）
 export const storage = getStorage(app);

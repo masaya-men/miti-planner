@@ -57,7 +57,7 @@ export function MilspecHRocker({ label, ariaLabel, checked, onToggle, deckId, wr
 }
 
 /** つまみの動き(見本 js:722-731 slideKnob の値そのまま) */
-export function slideKnobFrames(on: boolean): Keyframe[] {
+function slideKnobFrames(on: boolean): Keyframe[] {
   const from = on ? 0 : 17, to = on ? 17 : 0, d = Math.sign(to - from);
   return [
     { transform: `translateX(${from}px)`, easing: 'cubic-bezier(.5,0,1,.6)' },

@@ -3,23 +3,23 @@
 import * as Y from "yjs";
 import { MITIGATIONS_KEY, type MitigationRecord } from "./yjsMitigations";
 
-export const TIMELINE_EVENTS_KEY = "timelineEvents";
-export const PHASES_KEY = "phases";
-export const LABELS_KEY = "labels";
-export const MEMOS_KEY = "memos";
-export const PROGRESS_POINTS_KEY = "progressPoints";
-export const META_PROGRESS_CLEARED = "progressCleared";
-export const META_PROGRESS_DAYS = "progressActiveDays";
-export const META_PROGRESS_HOURS = "progressActiveHours";
-export const PARTY_MEMBERS_KEY = "partyMembers";
-export const PLAN_META_KEY = "planMeta";
-export const META_LEVEL = "currentLevel";
-export const META_AA = "aaSettings";
-export const META_SCH = "schAetherflowPatterns";
+const TIMELINE_EVENTS_KEY = "timelineEvents";
+const PHASES_KEY = "phases";
+const LABELS_KEY = "labels";
+const MEMOS_KEY = "memos";
+const PROGRESS_POINTS_KEY = "progressPoints";
+const META_PROGRESS_CLEARED = "progressCleared";
+const META_PROGRESS_DAYS = "progressActiveDays";
+const META_PROGRESS_HOURS = "progressActiveHours";
+const PARTY_MEMBERS_KEY = "partyMembers";
+const PLAN_META_KEY = "planMeta";
+const META_LEVEL = "currentLevel";
+const META_AA = "aaSettings";
+const META_SCH = "schAetherflowPatterns";
 // ⑤-3b: ボス/コンテンツ識別子。seed のみ(save 経路では読まない=オーナー属性を書き戻さない)。
-export const META_CONTENT_ID = "contentId";
+const META_CONTENT_ID = "contentId";
 // ⑤-3c: オーナーが発行時に付けた部屋ラベル。seed のみ(save 経路では読まない)。
-export const META_OWNER_LABEL = "ownerLabel";
+const META_OWNER_LABEL = "ownerLabel";
 
 // worker は要素の中身を見ない。最小制約 = id を持つ + 任意フィールド(index signature)。
 // mitigations だけは ②-a 由来の固定型 MitigationRecord(index signature 無し)を使う。

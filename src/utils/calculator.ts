@@ -191,11 +191,6 @@ export const SKILL_DATA = {
     // CSV Names seem to match keys used here.
 };
 
-// Test constants export (will be removed in phase 3)
-export const CONSTANTS = {
-    // Leaving placeholder for any test passing for now
-};
-
 export const calculateMemberValues = (member: PartyMember, currentLevel: number = 100): Record<string, number> => {
     const results: Record<string, number> = {};
     const levelMods = getLevelModifiersFromStore();

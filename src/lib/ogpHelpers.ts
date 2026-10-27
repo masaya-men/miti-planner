@@ -21,7 +21,7 @@ import { CONTENTS_OGP_DATA } from './contentsOgpData.js';
  */
 export const CONTENT_META = CONTENTS_OGP_DATA;
 
-export const CATEGORY_LABELS: Record<string, string> = {
+const CATEGORY_LABELS: Record<string, string> = {
     savage: 'Savage',
     ultimate: 'Ultimate',
     dungeon: 'Dungeon',

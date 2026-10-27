@@ -1,7 +1,7 @@
 /** 装甲・キー描画エンジンの型(見本 milspec-v11.js の使われ方から起こしたもの) */
 export type Pt = [number, number];
 export type Rgb = [number, number, number];
-export type Tone = 'pri' | 'sec' | 'chs' | 'key';
+type Tone = 'pri' | 'sec' | 'chs' | 'key';
 
 /** 汚し(使い込み)の指定 */
 export interface WeatherSpec {

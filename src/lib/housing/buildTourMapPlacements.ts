@@ -13,7 +13,7 @@ import { getRouteOverride } from './wardRouteOverrides';
 import { followRoadSegments } from './followRoad';
 import { routeToPaths, arcJumpPath } from './routePaths';
 
-export interface TourMapPlacement { index: number; x: number; y: number; status: StepStatus }
+interface TourMapPlacement { index: number; x: number; y: number; status: StepStatus }
 export interface TourMapModel {
   target: { x: number; y: number } | null;   // 現在の目的地(家)ハイライト中心 (リング用)
   placed: TourMapPlacement[];                  // 同一ワード地図の全ステップ番号ノード

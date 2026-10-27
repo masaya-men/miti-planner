@@ -1,5 +1,5 @@
 import * as Y from "yjs";
-import type { TimelineEvent, Phase, Label, PlanMemo, PlanData } from "../../types";
+import type { PlanData } from "../../types";
 
 /** ②-b-1 で同期する Y.Doc トップレベルのキー(②-a の timelineMitigations と並ぶ)。 */
 export const TIMELINE_EVENTS_KEY = "timelineEvents";
@@ -228,6 +228,3 @@ export const PLAN_DATA_COLLAB = {
   hiddenPartyMemberIds: { notSynced: "表示の絞り込みは人ごと(共同編集に入るとき解除する)" },
   timelineSortOrder: { notSynced: "メンバーの並び順は人ごと(共同編集に入るとき既定に戻す)" },
 } as const satisfies Record<keyof PlanData, { sync: readonly CollabSyncTarget[] } | { notSynced: string }>;
-
-/** 型エクスポート(consumer の参照用)。 */
-export type { TimelineEvent, Phase, Label, PlanMemo };

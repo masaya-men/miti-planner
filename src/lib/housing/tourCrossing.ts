@@ -11,10 +11,10 @@ export type TourCrossing =
 type Loc = Pick<MockListing, 'region' | 'dc' | 'server' | 'area' | 'ward'>;
 
 /** リージョン→移動可能圏。KR/CN/TW は物理分離、それ以外(JP/NA/EU/OCE)は相互移動可能なグローバル圏。 */
-export type TravelGroup = 'GLOBAL' | 'KR' | 'CN' | 'TW';
+type TravelGroup = 'GLOBAL' | 'KR' | 'CN' | 'TW';
 
 /** リージョン→移動可能圏。KR/CN/TW は物理分離、それ以外(JP/NA/EU/OCE)は相互移動可能なグローバル圏。 */
-export function travelGroupOf(region: string): TravelGroup {
+function travelGroupOf(region: string): TravelGroup {
   return region === 'KR' ? 'KR' : region === 'CN' ? 'CN' : region === 'TW' ? 'TW' : 'GLOBAL';
 }
 

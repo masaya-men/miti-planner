@@ -24,7 +24,7 @@ export const mwFor = (zoneWidth: number, scale: number): number =>
   Math.max(HDR_BASE_MW, Math.round(zoneWidth / scale));
 
 /** ヘッダーの伸縮線(w0 / h0 の基準)。headerLayout が板ごとに sx を決めて使う(relayout の継ぎ目は HDR_BANDS を使い、これは使わない) */
-export const HDR_FRAME: StretchFrame = { w0: HDR_BASE_MW, h0: HDR_H, sx: 700, sy: 9999 };
+const HDR_FRAME: StretchFrame = { w0: HDR_BASE_MW, h0: HDR_H, sx: 700, sy: 9999 };
 
 /** 上の板の切れ目(区画座標・1189 基準)。外枠 700 / 上段(H3)714 / 下段(H5)683。左の板だけが滑る */
 export const HDR_CUTS = { chs: 700, h3: 714, h5: 683 } as const;

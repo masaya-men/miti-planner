@@ -5,7 +5,7 @@
  * 即時に止めたい場合は Cloudflare でパスをブロックする
  * (手順: docs/.private/2026-07-14-p0-dashboard-ops.md)。
  */
-export function isPublicReadApiDisabled(): boolean {
+function isPublicReadApiDisabled(): boolean {
   return process.env.PUBLIC_READ_API_DISABLED === 'true';
 }
 

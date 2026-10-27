@@ -12,34 +12,6 @@ import type { PlanData } from './index';
 // Firestoreドキュメント型（サーバー側の型）
 // ========================================
 
-/** users/{uid} ドキュメント */
-export interface FirestoreUser {
-  /** ユーザーが設定した表示名（本名ではない） */
-  displayName: string;
-  /** アバター画像URL */
-  avatarUrl: string | null;
-  /** WebP非対応環境向けのPNG変換済みアバターコピー(2026-07-31追加、既存ユーザーはnullのまま)。 */
-  avatarPngUrl?: string | null;
-  /** 認証プロバイダ */
-  provider: 'discord' | 'twitter';
-  /** アカウント作成日時 */
-  createdAt: Timestamp;
-  /** 最終更新日時 */
-  updatedAt: Timestamp;
-  /** アプリ設定 */
-  settings: UserSettings;
-  /** チームロゴのダウンロードURL（Firebase Storage） */
-  teamLogoUrl?: string | null;
-}
-
-/** ユーザー設定 */
-export interface UserSettings {
-  /** 表示言語 */
-  language: 'ja' | 'en';
-  /** デフォルトのレベル同期設定 */
-  defaultLevel: number;
-}
-
 /** plans/{planId} ドキュメント */
 export interface FirestorePlan {
   /** プラン所有者のFirebase Auth UID */
@@ -78,24 +50,6 @@ export interface FirestorePlan {
   collabMaxParticipants?: number;
 }
 
-/** sharedPlanMeta/{shareId} ドキュメント */
-export interface FirestoreSharedPlanMeta {
-  /** 実プランのドキュメントID */
-  planId: string;
-  /** プラン所有者のUID */
-  ownerId: string;
-  /** 所有者の表示名 */
-  ownerDisplayName: string;
-  /** プラン名 */
-  title: string;
-  /** コンテンツID */
-  contentId: string;
-  /** 作成日時 */
-  createdAt: Timestamp;
-  /** プランが有効かどうか（削除時にfalse） */
-  isActive: boolean;
-}
-
 /** userPlanCounts/{uid} ドキュメント */
 export interface FirestoreUserPlanCounts {
   /** 全プラン数 */
@@ -104,56 +58,6 @@ export interface FirestoreUserPlanCounts {
   byContent: Record<string, number>;
   /** 最終更新日時 */
   updatedAt: Timestamp;
-}
-
-// ========================================
-// クライアント側の型（Timestamp → number変換後）
-// ========================================
-
-/** Firestoreから取得後のプラン型 */
-export interface ClientPlan {
-  /** FirestoreドキュメントID */
-  id: string;
-  ownerId: string;
-  ownerDisplayName: string;
-  title: string;
-  contentId: string;
-  isPublic: boolean;
-  shareId: string | null;
-  copyCount: number;
-  useCount: number;
-  data: PlanData;
-  version: number;
-  /** ミリ秒タイムスタンプ */
-  createdAt: number;
-  /** ミリ秒タイムスタンプ */
-  updatedAt: number;
-  archivedAt: number | null;
-}
-
-/** プラン一覧表示用の軽量型（dataフィールドを除外） */
-export interface PlanListItem {
-  id: string;
-  ownerId: string;
-  ownerDisplayName: string;
-  title: string;
-  contentId: string;
-  isPublic: boolean;
-  shareId: string | null;
-  copyCount: number;
-  updatedAt: number;
-}
-
-/** 共有プランのメタデータ（クライアント側） */
-export interface ClientSharedPlanMeta {
-  shareId: string;
-  planId: string;
-  ownerId: string;
-  ownerDisplayName: string;
-  title: string;
-  contentId: string;
-  createdAt: number;
-  isActive: boolean;
 }
 
 // ========================================

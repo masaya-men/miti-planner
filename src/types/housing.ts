@@ -24,26 +24,26 @@
 export const HOUSING_AREAS = ['Mist', 'LavenderBeds', 'Goblet', 'Shirogane', 'Empyreum'] as const;
 export type HousingArea = typeof HOUSING_AREAS[number];
 
-export const HOUSING_SIZES = ['S', 'M', 'L'] as const;
+const HOUSING_SIZES = ['S', 'M', 'L'] as const;
 export type HousingSize = typeof HOUSING_SIZES[number];
 
 // ─────────────────────────────────────────────
 // 個室・アパート対応 (spec 2026-05-18 §3.1)
 // ─────────────────────────────────────────────
 
-export const BUILDING_TYPES = ['house', 'apartment'] as const;
+const BUILDING_TYPES = ['house', 'apartment'] as const;
 export type BuildingType = typeof BUILDING_TYPES[number];
 
-export const ROOM_KINDS = ['private_chamber', 'apartment_room'] as const;
+const ROOM_KINDS = ['private_chamber', 'apartment_room'] as const;
 export type RoomKind = typeof ROOM_KINDS[number];
 
-export const IMAGE_MODES = ['sns', 'thumbnail', 'none'] as const;
+const IMAGE_MODES = ['sns', 'thumbnail', 'none'] as const;
 export type ImageMode = typeof IMAGE_MODES[number];
 
 export const REPORT_REASONS = ['wrong_info', 'griefing', 'nsfw', 'sold', 'other'] as const;
 export type ReportReason = typeof REPORT_REASONS[number];
 
-export const FEATURE_TOOLS = ['miti', 'housing'] as const;
+const FEATURE_TOOLS = ['miti', 'housing'] as const;
 export type FeatureTool = typeof FEATURE_TOOLS[number];
 
 // ─────────────────────────────────────────────
@@ -60,10 +60,6 @@ export function isValidHousingSize(value: string): value is HousingSize {
 
 export function isValidBuildingType(value: string): value is BuildingType {
   return (BUILDING_TYPES as readonly string[]).includes(value);
-}
-
-export function isValidRoomKind(value: string): value is RoomKind {
-  return (ROOM_KINDS as readonly string[]).includes(value);
 }
 
 export function isValidImageMode(value: string): value is ImageMode {

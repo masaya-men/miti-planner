@@ -9,9 +9,7 @@ import { registerTutorialBridge } from './tutorialBridge';
 // ─────────────────────────────────────────────
 // 後方互換: 旧コードが TUTORIAL_STEPS を import している箇所向け
 // ─────────────────────────────────────────────
-export { type TutorialStep } from '../data/tutorialDefinitions';
-export const TUTORIAL_STEPS = TUTORIALS.main.steps;
-
+;
 // ─────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────

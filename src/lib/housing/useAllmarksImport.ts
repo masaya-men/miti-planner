@@ -13,9 +13,9 @@ import type { RegisterAddressValues } from '../../components/housing/register/Re
 /** 一度に並行して処理する件数。外部サービス(Twitter/YouTube等)への負荷と速さのバランス。 */
 const CONCURRENCY = 2;
 
-export type AllmarksImportStatus = 'idle' | 'fetching-list' | 'importing' | 'choosing-region' | 'done';
+type AllmarksImportStatus = 'idle' | 'fetching-list' | 'importing' | 'choosing-region' | 'done';
 
-export interface AllmarksRegionChoice {
+interface AllmarksRegionChoice {
   region: Region;
   count: number;
 }

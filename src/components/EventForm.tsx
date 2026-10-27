@@ -24,7 +24,7 @@ const stripVariantSuffix = (id: string): string => {
     return id.replace(/:(burst|crit|crit_protraction)$/, '');
 };
 
-export interface EventFormLabels {
+interface EventFormLabels {
     /** 保存ボタンの文言(i18n キー)。未指定なら 'mechanic_modal.add_button' */
     saveButtonKey?: string;
 }
@@ -975,5 +975,3 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
         </form>
     );
 };
-
-export default EventForm;

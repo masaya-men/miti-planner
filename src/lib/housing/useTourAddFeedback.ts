@@ -5,8 +5,8 @@ import { useHousingListingsStore } from '../../store/useHousingListingsStore';
 import { useEphemeralListingsStore } from '../../store/useEphemeralListingsStore';
 import { canAddToTour, tourAnchorRegion } from './tourCrossing';
 
-export type TourAddAnimState = 'idle' | 'success' | 'error';
-export type TourAddOutcome = 'added' | 'removed' | 'blocked';
+type TourAddAnimState = 'idle' | 'success' | 'error';
+type TourAddOutcome = 'added' | 'removed' | 'blocked';
 
 /** 成功フラーリッシュ(bounce+glow+ring)の表示時間。housing-check-ripple(600ms)より少し長め。 */
 const SUCCESS_ANIM_MS = 700;

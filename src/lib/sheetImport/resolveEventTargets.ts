@@ -1,7 +1,7 @@
 import type { TimelineEvent } from '../../types';
 import { matchTemplateTarget, type CarryTarget } from './carryOverTargets';
 
-export type TargetSource = 'manual' | 'sheet' | 'template' | 'none';
+type TargetSource = 'manual' | 'sheet' | 'template' | 'none';
 export interface ResolvedTarget { target: CarryTarget | null; source: TargetSource; }
 
 /** 実効対象を解決。優先: 手動(overrides) > 自作対象列(ev.target) > テンプレ > なし。

@@ -1,4 +1,4 @@
-export type BarrierStackGroup = 'galvanize' | 'eukrasian_prognosis' | 'eukrasian_diagnosis';
+type BarrierStackGroup = 'galvanize' | 'eukrasian_prognosis' | 'eukrasian_diagnosis';
 
 export interface BarrierConflictInput {
   group?: BarrierStackGroup;

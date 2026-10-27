@@ -97,7 +97,7 @@ export interface RateLimitOptions {
  * レート制限チェック（非同期）
  * @returns true = 許可, false = 制限超過
  */
-export async function checkRateLimit(
+async function checkRateLimit(
   ip: string,
   maxRequests = 10,
   windowMs = 60_000,

@@ -18,7 +18,7 @@ import { headerClose, headerOpen } from './header';
 
 export { PHASE_DUR, PHASE_GAP, CARRIAGE_LAG, CARRIAGE_DUR } from './motion';
 export { splitZone } from './split';
-export type { Box, Seam, SplitZone } from './split';
+;
 export { cancelRelayout } from './run';
 
 export function relayoutZones(app: HTMLElement, change: () => void, kind: Kind, reduced: boolean): void {

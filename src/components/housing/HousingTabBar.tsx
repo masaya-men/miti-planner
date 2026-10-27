@@ -6,7 +6,7 @@ import { Tooltip } from '../ui/Tooltip';
 import { useAuthStore } from '../../store/useAuthStore';
 import { LoginModal } from '../LoginModal';
 
-export type HousingTab = 'search' | 'tour' | 'register';
+type HousingTab = 'search' | 'tour' | 'register';
 
 interface Props {
   activeTab: HousingTab;

@@ -13,7 +13,7 @@ import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
 import { LOPO_X_URL, DEVELOPER_X_URL, DISCORD_INVITE_URL, SE_MATERIAL_TERMS_URL } from '../constants/external';
 
 /** i18nキーで「,」区切りのリストを配列に変換 */
-export function splitItems(value: string): string[] {
+function splitItems(value: string): string[] {
     return value.split(',').map((s) => s.trim()).filter(Boolean);
 }
 
@@ -358,7 +358,7 @@ export const TermsPage: React.FC = () => {
 // 共通レイアウト
 // ========================================
 
-export const LegalPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const LegalPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const navigate = useNavigate();
     const { theme, setTheme } = useThemeStore();
     const { runTransition } = useTransitionOverlay();

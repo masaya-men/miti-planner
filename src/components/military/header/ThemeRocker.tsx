@@ -10,7 +10,7 @@ const SUN = <svg viewBox="0 0 8 8"><circle cx="4" cy="4" r="1.5" /><path d="M4 .
 const MOON = <svg viewBox="0 0 8 8"><path d="M6.6 5A3 3 0 0 1 3 1.4a3 3 0 1 0 3.6 3.6z" /></svg>;
 
 /** 走査線を body 直下に出して流し、終わったら消す(見本 css:616-617 / js:1087 の値) */
-export function playWipe(): void {
+function playWipe(): void {
   const el = document.createElement('div');
   el.className = 'milspec-wipe';
   el.setAttribute('aria-hidden', 'true');

@@ -1,7 +1,6 @@
 import type { AppliedMitigation, Mitigation } from '../types';
 import { shieldEffectBarEndsOnBarrierExhaustion } from './barrierStacking';
 
-export const MOBILE_EFFECT_BAR_ICON_SIZE = 15;
 export const MOBILE_EFFECT_BAR_WIDTH = 4;
 export const MOBILE_EFFECT_BAR_SLOT_PITCH = 17;
 export const MOBILE_EFFECT_BAR_ROW_INSET = 12;
@@ -14,8 +13,6 @@ export const MOBILE_EFFECT_BAR_SCROLL_IDLE_MS = 150;
 export const MOBILE_MITI_ICON_PITCH_PX = 28;
 /** MobileTimelineRow.tsx の行コンテンツ左右余白(px-3=12px)と同じ値。片側分。 */
 export const MOBILE_MITI_ICONS_ROW_PADDING_PX = 12;
-/** クロスフェードの最大不透明度(index.cssのフォールバック値と同じ数を維持すること)。 */
-export const MOBILE_EFFECT_BAR_MAX_OPACITY = 0.55;
 /**
  * 変身が完了するまでに必要なスクロール量(px)。速度ではなく「今回の連続スクロールで
  * 何pxスクロールしたか(絶対値)」で進み具合を決める(2026-08-13、ユーザー判断=速さは無関係)。

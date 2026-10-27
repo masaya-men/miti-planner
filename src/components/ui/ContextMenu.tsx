@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 
-export interface ContextMenuItem {
+interface ContextMenuItem {
     label: string;
     icon?: React.ReactNode;
     onClick: () => void;

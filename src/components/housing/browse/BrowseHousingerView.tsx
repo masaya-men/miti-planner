@@ -19,7 +19,7 @@ export interface BrowseHousingerViewProps {
 const MAX_THUMBS = 3;
 
 /** 頭文字の見出し: 英字は大文字 1 字、かなは「かな」、それ以外は「漢字」 (見本 H3 と同じ)。 */
-export function housingerInitialHeading(name: string): string {
+function housingerInitialHeading(name: string): string {
   const c = name.replace(/^[^\p{L}\p{N}]+/u, '').charAt(0) || name.charAt(0);
   if (/[A-Za-z]/.test(c)) return c.toUpperCase();
   if (/[぀-ヿ]/.test(c)) return 'かな';

@@ -112,7 +112,7 @@ function getAetherflowGainTimes(upToTime: number, placedMitigations: AppliedMiti
     return Array.from(new Set(times)).sort((a, b) => a - b);
 }
 
-export function getAetherflowStacks(
+function getAetherflowStacks(
     time: number,
     placedMitigations: AppliedMitigation[]
 ): number {
@@ -223,7 +223,7 @@ export function getAddersgallStacks(
  * Healing Lily (WHM) - Starts at 3, regenerates 1 every 20s in combat, max 3
  * Afflatus Solace / Afflatus Rapture costs 1
  */
-export function getLilyStacks(
+function getLilyStacks(
     time: number,
     placedMitigations: AppliedMitigation[]
 ): number {
@@ -269,7 +269,7 @@ export function getLilyStacks(
 /**
  * Check if the fairy is actively responding to commands at `time`.
  */
-export function isFairyAvailable(time: number, placedMitigations: AppliedMitigation[]): boolean {
+function isFairyAvailable(time: number, placedMitigations: AppliedMitigation[]): boolean {
     const activeDissipations = placedMitigations.filter(
         m => m.mitigationId === 'dissipation' && time >= m.time && time < m.time + m.duration
     );
@@ -281,7 +281,7 @@ export function isFairyAvailable(time: number, placedMitigations: AppliedMitigat
 /**
  * Summon Seraph availability (must not overlap its duration with Dissipation)
  */
-export function canUseSummonSeraph(time: number, placedMitigations: AppliedMitigation[]): boolean {
+function canUseSummonSeraph(time: number, placedMitigations: AppliedMitigation[]): boolean {
     // Summon Seraph requires the fairy to be available at the time of summoning.
     // Future Dissipations do not block summoning Seraph (as per real game mechanics).
     return isFairyAvailable(time, placedMitigations);
@@ -293,7 +293,7 @@ export function canUseSummonSeraph(time: number, placedMitigations: AppliedMitig
  * 1. Window charges (has `requires`): counts uses within active prerequisite window
  * 2. Recast charges (no `requires`): simulates game charge system (start at max, regen per cooldown)
  */
-export function getRemainingCharges(
+function getRemainingCharges(
     mitigationId: string,
     selectedTime: number,
     activeMitigations: AppliedMitigation[]
@@ -385,7 +385,7 @@ export function chargeStateAt(
  * - getRemainingCharges と同じ充電シミュレーションを行い、最後に充電タイマーの残りを秒で返す。
  * モーダルの「次チャージ ○○秒」表示用 (通常技の「CD ○○秒」に相当)。
  */
-export function getTimeUntilNextCharge(
+function getTimeUntilNextCharge(
     mitigationId: string,
     selectedTime: number,
     activeMitigations: AppliedMitigation[]

@@ -20,7 +20,7 @@ export function offsetPoly(pts: Pt[], d: number): Pt[] {
 }
 
 /** 折れ線(開いた線)を平行にずらす */
-export function offsetLine(pts: Pt[], d: number): Pt[] {
+function offsetLine(pts: Pt[], d: number): Pt[] {
   const n = pts.length, L: Edge[] = [];
   for (let i = 0; i < n - 1; i++) { const a = pts[i], b = pts[i + 1]; let dx = b[0] - a[0], dy = b[1] - a[1]; const l = Math.hypot(dx, dy); dx /= l; dy /= l; L.push({ p: [a[0] - dy * d, a[1] + dx * d], d: [dx, dy] }); }
   return pts.map((_, i): Pt => {

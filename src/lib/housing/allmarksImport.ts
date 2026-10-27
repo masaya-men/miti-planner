@@ -34,7 +34,7 @@ export function isValidAllmarksShareId(id: string): boolean {
 }
 
 /** SNS 由来のメタデータ (登録リンク引き継ぎ + 代表画像)。EphemeralAddPanel.tsx の SnsSource と同形。 */
-export interface AllmarksImportSource {
+interface AllmarksImportSource {
   postUrl: string;
   ogImageUrl?: string;
   sourceImageUrls?: string[];

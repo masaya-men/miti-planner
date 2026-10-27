@@ -41,7 +41,7 @@ function timingSafeEqualHex(a: string, b: string): boolean {
   return diff === 0;
 }
 
-export async function signTourInviteOgCardParams(params: URLSearchParams, secret: string): Promise<string> {
+async function signTourInviteOgCardParams(params: URLSearchParams, secret: string): Promise<string> {
   const fullHex = await hmacSha256Hex(secret, params.toString());
   return fullHex.slice(0, SIG_HEX_LENGTH);
 }

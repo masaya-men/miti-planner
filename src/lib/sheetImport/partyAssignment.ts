@@ -5,7 +5,7 @@ export const PARTY_SLOTS = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'] as c
 export type PartySlot = (typeof PARTY_SLOTS)[number];
 export type SlotRole = 'tank' | 'healer' | 'dps';
 
-export const SLOT_ROLE: Record<PartySlot, SlotRole> = {
+const SLOT_ROLE: Record<PartySlot, SlotRole> = {
   MT: 'tank', ST: 'tank', H1: 'healer', H2: 'healer',
   D1: 'dps', D2: 'dps', D3: 'dps', D4: 'dps',
 };

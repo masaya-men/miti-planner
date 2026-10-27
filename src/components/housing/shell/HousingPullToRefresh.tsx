@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 /** 離したときに更新が走る引っ張り量(px・抵抗適用後)。見本 R2 の THRESH */
-export const PTR_THRESHOLD = 70;
+const PTR_THRESHOLD = 70;
 /** 引っ張り量の上限(px)。見本 R2 の MAX */
 const PTR_MAX = 110;
 /** 引っ張り量に掛ける抵抗。見本 R2 の 0.55 */
@@ -21,7 +21,7 @@ const PTR_SLOP = 6;
  * - 入力欄
  * - data-no-pull-refresh を付けた要素の中
  */
-export const PTR_EXCLUDE_SELECTOR = [
+const PTR_EXCLUDE_SELECTOR = [
   '[data-no-pull-refresh]',
   '[role="dialog"]',
   '[aria-modal="true"]',
@@ -38,7 +38,7 @@ export const PTR_EXCLUDE_SELECTOR = [
 ].join(',');
 
 /** ホーム画面アプリ(PWA)として起動していて、タッチ端末か */
-export function isStandaloneTouch(): boolean {
+function isStandaloneTouch(): boolean {
   if (typeof window === 'undefined') return false;
   const standalone =
     (typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches) ||

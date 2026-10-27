@@ -38,10 +38,6 @@ export const DC_SERVER_MAP: Record<string, DCServers> = {
 export const ALL_DCS: string[] = Object.keys(DC_SERVER_MAP);
 export const ALL_REGIONS: Region[] = ['JP', 'NA', 'EU', 'OCE', 'KR', 'CN', 'TW'];
 
-export function dcsForRegion(region: Region): string[] {
-    return ALL_DCS.filter((dc) => DC_SERVER_MAP[dc].region === region);
-}
-
 export function serversForDC(dc: string): string[] {
     return DC_SERVER_MAP[dc]?.servers ?? [];
 }
@@ -57,7 +53,7 @@ export function regionForDC(dc: string): Region | null {
  * 北米/欧州/オセアニアのワールドは公式カタカナが無いため対象外 (英語検索のまま)。
  * 読みはユーザー (FF14 プレイヤー) 検証済み (2026-07-13)。
  */
-export const JP_KATAKANA_READINGS: Record<string, string> = {
+const JP_KATAKANA_READINGS: Record<string, string> = {
     // DC
     Elemental: 'エレメンタル', Gaia: 'ガイア', Mana: 'マナ', Meteor: 'メテオ',
     // Elemental ワールド

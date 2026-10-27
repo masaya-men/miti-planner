@@ -30,13 +30,3 @@ export interface SystemNotifReadState {
   readIds: string[];
   updatedAt: number;
 }
-
-/** Admin API のリクエストペイロード */
-export interface SystemNotifCreatePayload {
-  title: LocalizedText;
-  body: LocalizedText;
-  published: boolean;
-}
-export interface SystemNotifUpdatePayload extends Partial<SystemNotifCreatePayload> {
-  /** undefined を Firestore で「変更なし」 として扱う */
-}

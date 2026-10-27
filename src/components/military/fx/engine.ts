@@ -96,7 +96,7 @@ export function burst(prefix: string, o: PulseOpts & { n?: number; stagger?: num
 }
 
 /** path 上で (x,y) にいちばん近い位置の長さ(121 点で探す) */
-export function lenAt(p: SVGPathElement, x: number, y: number): number {
+function lenAt(p: SVGPathElement, x: number, y: number): number {
   const L = p.getTotalLength();
   let best = 0, bd = Infinity;
   for (let i = 0; i <= 120; i++) {
@@ -107,7 +107,7 @@ export function lenAt(p: SVGPathElement, x: number, y: number): number {
 }
 
 /** 画面座標 → その path の座標(getScreenCTM の逆行列) */
-export function toPathSpace(path: SVGPathElement, clientX: number, clientY: number): { x: number; y: number } | null {
+function toPathSpace(path: SVGPathElement, clientX: number, clientY: number): { x: number; y: number } | null {
   const ctm = path.getScreenCTM?.();
   if (!ctm) return null; // 変換できないときは誤った位置を返さない
   const m = ctm.inverse();
@@ -132,11 +132,11 @@ export function trafficBp(d = 0, o: PulseOpts = {}): void {
   burst('bp:m', { n: 8, delay: d + 300, stagger: 26, speed: 2.8, len: 8, ...o });
 }
 
-export const leak = (name: string, delay = 0, o: PulseOpts = {}): number =>
+const leak = (name: string, delay = 0, o: PulseOpts = {}): number =>
   pulse(name, { delay, len: 26, speed: 1.05, chain: false, ...o });
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
-export function dotFlash(svg: SVGElement | null, x: number, y: number, delay: number): void {
+function dotFlash(svg: SVGElement | null, x: number, y: number, delay: number): void {
   if (!svg || !isFxActive()) return;
   const c = document.createElementNS(SVG_NS, 'circle');
   c.setAttribute('cx', String(x)); c.setAttribute('cy', String(y)); c.setAttribute('r', '1.4');

@@ -22,7 +22,7 @@
  */
 
 export const HOUSING_TAG_KINDS = ['official', 'season', 'theme', 'beginner'] as const;
-export type HousingTagKind = typeof HOUSING_TAG_KINDS[number];
+type HousingTagKind = typeof HOUSING_TAG_KINDS[number];
 
 /**
  * 静的レジストリを持つ kind。 2026-08-04 に personal kind が廃止されたため、 現時点では

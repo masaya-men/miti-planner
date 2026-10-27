@@ -8,7 +8,7 @@
 const TIMEOUT_MS = 10_000;
 
 /** syndication CDN の暗黙トークン (公開リバースエンジニアリング済みの既知アルゴリズム) */
-export function syndicationToken(id: string): string {
+function syndicationToken(id: string): string {
   return ((Number(id) / 1e15) * Math.PI).toString(36).replace(/(0+|\.)/g, '');
 }
 

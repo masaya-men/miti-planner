@@ -17,13 +17,6 @@ export function getPhaseName(name: string | LocalizedString, lang?: string): str
     return name.en || name.ja || '';
 }
 
-/** Firestore旧データ(string)をLocalizedStringに正規化 */
-export function normalizeLocalizedString(v: string | LocalizedString | undefined): LocalizedString | undefined {
-    if (v === undefined || v === null) return undefined;
-    if (typeof v === 'string') return v ? { ja: v, en: '' } : undefined;
-    return v;
-}
-
 export interface Job {
     id: string;
     name: LocalizedString;
@@ -174,7 +167,7 @@ export interface PlayerStats {
     wd: number;
 }
 
-export type Role = 'tank' | 'healer' | 'dps';
+type Role = 'tank' | 'healer' | 'dps';
 
 export interface PartyMember {
     id: string; // "MT", "ST", "H1", "H2", "D1", "D2", "D3", "D4"

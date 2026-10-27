@@ -10,7 +10,7 @@ export type ImportSource = 'none' | 'grid' | 'matrix';
 export type WizardStep = 1 | 2 | 3;
 
 /** 固定の正典列(member は検出後に動的追加)。 */
-export const BASE_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 'target', 'damageType'];
+const BASE_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 'target', 'damageType'];
 
 /**
  * 「この列は？」セレクタに表示する割当可能フィールド。モジュールレベルで定義してレンダーごとの再生成を避ける。

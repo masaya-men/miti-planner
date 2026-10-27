@@ -7,7 +7,7 @@
 export const HOUSINGER_BIO_MAX_LENGTH = 100;
 
 /** SNS リンク許可ホスト (spec §6.1)。拡張はここに 1 行足すだけ。 */
-export const HOUSINGER_SNS_ALLOWED_HOSTS = [
+const HOUSINGER_SNS_ALLOWED_HOSTS = [
   'x.com', 'www.x.com',
   'twitter.com', 'www.twitter.com',
   'youtube.com', 'www.youtube.com', 'youtu.be',

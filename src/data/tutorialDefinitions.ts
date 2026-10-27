@@ -3,7 +3,7 @@
 
 export type PillLabel = 'click' | 'tap' | 'check' | 'next';
 
-export interface TypewriterFieldConfig {
+interface TypewriterFieldConfig {
   /** CSSセレクタ（入力先の input 要素） */
   target: string;
   /** i18n キー or 直値（数値文字列等） */

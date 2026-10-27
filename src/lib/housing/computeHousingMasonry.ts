@@ -1,5 +1,5 @@
 /** masonry レイアウトのカード定義 */
-export interface MasonryCard {
+interface MasonryCard {
   readonly id: string;
   /** カバーの縦横比 (w/h)。resolveCoverAspectRatio で必ず正の数になっている前提。 */
   readonly aspectRatio: number;
@@ -19,7 +19,7 @@ export interface MasonryInput {
 }
 
 /** 各カードの絶対座標と寸法 */
-export interface MasonryPosition {
+interface MasonryPosition {
   readonly x: number;
   readonly y: number;
   readonly w: number;

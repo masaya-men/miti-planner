@@ -41,8 +41,6 @@ export interface FullAddressViewModel extends AddressViewModel {
   server: string;
 }
 
-const COMPACT_AREA_MAX_CHARS = 6;
-
 /** カード表題・詳細画面ヘッダ用のフル住所表記。 */
 export function formatHousingAddress(
   addr: AddressViewModel,
@@ -98,34 +96,6 @@ export function formatFullHousingAddress(
   return `${region} / ${displayDcName(addr.dc, locale)} / ${displayWorldName(addr.dc, addr.server, locale)} / ${local}`;
 }
 
-/** MapBubbleCard 等の狭いラベル用。 area 名を先頭数文字で省略。 */
-export function formatHousingAddressCompact(
-  addr: AddressViewModel,
-  lang: string | undefined | null,
-): string {
-  const masterLang = toMasterLang(lang);
-  const areaName = getAreaName(addr.area, masterLang);
-  const shortArea =
-    areaName.length > COMPACT_AREA_MAX_CHARS ? areaName.slice(0, COMPACT_AREA_MAX_CHARS) : areaName;
-
-  if (
-    addr.buildingType === 'apartment'
-    && (addr.apartmentBuilding === 1 || addr.apartmentBuilding === 2)
-    && addr.roomNumber !== undefined
-  ) {
-    const aptName = getApartmentName(addr.area, masterLang);
-    if (masterLang === 'en') {
-      return `${shortArea} W${addr.ward} ${aptName} #${addr.roomNumber}`;
-    }
-    return `${shortArea} ${addr.ward} ${aptName}${addr.apartmentBuilding} #${addr.roomNumber}`;
-  }
-
-  if (addr.plot !== undefined) {
-    return `${shortArea} ${addr.ward}-${addr.plot}`;
-  }
-  return `${shortArea} ${addr.ward}`;
-}
-
 /**
  * サイズ id ('S'|'M'|'L') を表示ラベルへ変換する (2026-07-13 round2 A-1/⑨)。
  * `housingSizeMasterData` の label は日本語 ("Sハウス" 等) だが、ユーザー要望により
@@ -137,19 +107,4 @@ export function housingSizeDisplayLabel(size?: 'S' | 'M' | 'L'): string {
   if (size === 'M') return 'Medium';
   if (size === 'L') return 'Large';
   return '';
-}
-
-/** aria-label / 画像 alt 用の短いテキスト (常に英数 + 数字)、 i18n 不要 */
-export function formatHousingAddressAria(addr: AddressViewModel): string {
-  if (
-    addr.buildingType === 'apartment'
-    && (addr.apartmentBuilding === 1 || addr.apartmentBuilding === 2)
-    && addr.roomNumber !== undefined
-  ) {
-    return `${addr.area} W${addr.ward} Apt Bldg${addr.apartmentBuilding} #${addr.roomNumber}`;
-  }
-  if (addr.plot !== undefined) {
-    return `${addr.area} ${addr.ward}-${addr.plot}`;
-  }
-  return `${addr.area} ${addr.ward}`;
 }

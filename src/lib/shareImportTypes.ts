@@ -3,7 +3,7 @@ import type { PlanData } from '../types';
 // 共有 API (`/api/share?id=...`) のレスポンス型。
 // 単一プラン (SharedSingle) と複数プランバンドル (SharedBundle) の union。
 // SharePage / useShareImportFlow から共通参照される。
-export interface SharedSingle {
+interface SharedSingle {
   shareId: string;
   title: string;
   contentId: string | null;
@@ -11,13 +11,13 @@ export interface SharedSingle {
   createdAt: number;
 }
 
-export interface SharedBundlePlan {
+interface SharedBundlePlan {
   contentId: string | null;
   title: string;
   planData: PlanData;
 }
 
-export interface SharedBundle {
+interface SharedBundle {
   shareId: string;
   type: 'bundle';
   plans: SharedBundlePlan[];
@@ -27,10 +27,6 @@ export interface SharedBundle {
 export type SharedData = SharedSingle | SharedBundle;
 
 // SharedBundle 判定の型ガード
-export function isSharedBundle(data: SharedData): data is SharedBundle {
-  return 'type' in data && data.type === 'bundle';
-}
-
 export interface ShareImportItem {
   sourceShareId: string;
   contentId: string | null;
@@ -39,8 +35,8 @@ export interface ShareImportItem {
   sourcePlanId?: string; // バンドル内の元 plan id (ログ用)
 }
 
-export type ProgressStage = 'check' | 'local' | 'server';
-export type ProgressStatus = 'in_progress' | 'success' | 'failed' | 'skipped' | 'cancelled';
+type ProgressStage = 'check' | 'local' | 'server';
+type ProgressStatus = 'in_progress' | 'success' | 'failed' | 'skipped' | 'cancelled';
 
 export interface ProgressEvent {
   planId: string; // ShareImportItem 内で一意な識別子 (sourcePlanId or sourceShareId)
@@ -49,7 +45,7 @@ export interface ProgressEvent {
   error?: string;
 }
 
-export type DeleteProgressStage = 'local_delete' | 'server_delete' | 'capacity_freed';
+type DeleteProgressStage = 'local_delete' | 'server_delete' | 'capacity_freed';
 
 export interface DeleteProgressEvent {
   planId: string;

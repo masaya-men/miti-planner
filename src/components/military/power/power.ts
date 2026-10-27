@@ -28,7 +28,7 @@ const BOOT_FRAMES: Keyframe[] = BRIGHTNESS.map(({ o, at }) => ({ opacity: +(DIM 
 const FLICKER_OPACITY = [1, 0.2, 1, 1, 0.1, 0.9, 0.4, 1, 1, 0].map((v) => +(v * 0.55).toFixed(3));
 const FLICKER_OFFSET = [0, 0.08, 0.16, 0.34, 0.4, 0.46, 0.52, 0.58, 0.72, 1];
 /** 電源投入で順に点灯する区画の順番(決定事項: 見本の 7 区画を本体の 6 区画に) */
-export const POWER_ZONES = ['sidebar', 'rail', 'header', 'vent', 'workspace', 'footer'] as const;
+const POWER_ZONES = ['sidebar', 'rail', 'header', 'vent', 'workspace', 'footer'] as const;
 
 const root = () => document.documentElement;
 const prefersReduced = (): boolean =>

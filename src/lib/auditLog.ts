@@ -5,7 +5,7 @@
  */
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
-export type AuditAction = 'create' | 'update' | 'delete' | 'set_role';
+type AuditAction = 'create' | 'update' | 'delete' | 'set_role';
 
 interface AuditLogEntry {
   action: AuditAction;

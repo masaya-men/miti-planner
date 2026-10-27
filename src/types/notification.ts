@@ -1,9 +1,9 @@
 import type { ReportReason } from './housing';
 
-export const NOTIFICATION_TYPES = ['housing_report', 'duplicate_alert'] as const;
+const NOTIFICATION_TYPES = ['housing_report', 'duplicate_alert'] as const;
 export type NotificationType = typeof NOTIFICATION_TYPES[number];
 
-export const NOTIFICATION_SEVERITIES = ['normal', 'high'] as const;
+const NOTIFICATION_SEVERITIES = ['normal', 'high'] as const;
 export type NotificationSeverity = typeof NOTIFICATION_SEVERITIES[number];
 
 export function isValidNotificationType(value: string): value is NotificationType {

@@ -86,7 +86,7 @@ const labelPos = (cx: number, cy: number, bx: number, by: number, off?: Pt) => (
  * - latch: 連動キー。pressed が外れたら弾かれて戻る
  * btnRef は effect 時点で button を指していること(MilspecKeyCap は祖先の button を探して渡す)
  */
-export function useKeyPressMotion(o: { btnRef: RefObject<HTMLElement | null>; kfRef: RefObject<HTMLElement | null>; pressed?: boolean; latch?: boolean }): void {
+function useKeyPressMotion(o: { btnRef: RefObject<HTMLElement | null>; kfRef: RefObject<HTMLElement | null>; pressed?: boolean; latch?: boolean }): void {
   const { btnRef, kfRef, pressed, latch } = o;
   const reduced = useReducedMotion();
   const live = useRef({ pressed, latch, reduced });

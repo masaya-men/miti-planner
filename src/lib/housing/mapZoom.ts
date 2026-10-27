@@ -2,7 +2,7 @@
 export interface MapView { scale: number; tx: number; ty: number }
 
 export const MIN_SCALE = 1;
-export const MAX_SCALE = 8;
+const MAX_SCALE = 8;
 /** 既定表示(経路フィット)の寄りすぎ上限。手動ズームは MAX_SCALE まで可能だが、
  *  ステップ着地時の既定は「地図1枚全体=1倍」基準で最大 MAX_DEFAULT_SCALE 倍までに抑える
  *  (短い経路でも寄りすぎない=適度なズーム。2026-07-08 ユーザー選定 scale 2)。 */

@@ -40,7 +40,7 @@ export const gridConfig = {
 // 段階→実際の線幅（px）: 0.25px刻み
 const LINE_WIDTH_MAP: number[] = [0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75];
 
-export function getGridLineWidth(): number {
+function getGridLineWidth(): number {
     return LINE_WIDTH_MAP[gridConfig.lineWidth] ?? LINE_WIDTH_MAP[4];
 }
 
@@ -99,7 +99,7 @@ export const PULSE_COLOR_PRESETS: Record<string, { dark: string; light: string }
 };
 
 // グローレベル定義（0-5の6段階スライダー、微少な段階差）
-export const GLOW_LEVELS = [
+const GLOW_LEVELS = [
     { blur: 0,  radius: 0, opacity: 0 },      // 0: なし（デフォルト）
     { blur: 3,  radius: 2, opacity: 0.2 },    // 1: ほんのり
     { blur: 6,  radius: 3, opacity: 0.25 },   // 2: 控えめ
@@ -122,7 +122,7 @@ const WIDTH_MAP: number[] = [
     1.5,  // 10
 ];
 
-export function getPulseLineWidth(): number {
+function getPulseLineWidth(): number {
     return WIDTH_MAP[pulseVisualConfig.width - 1] ?? WIDTH_MAP[2];
 }
 
@@ -140,11 +140,11 @@ const OPACITY_MAP: number[] = [
     1.0,  // 10
 ];
 
-export function getPulseMaxOpacity(): number {
+function getPulseMaxOpacity(): number {
     return OPACITY_MAP[pulseVisualConfig.opacity - 1] ?? OPACITY_MAP[2];
 }
 
-export function getPulseColor(isDark: boolean): string {
+function getPulseColor(isDark: boolean): string {
     if (pulseVisualConfig.colorId === 'custom') {
         return pulseVisualConfig.customColor;
     }
@@ -152,7 +152,7 @@ export function getPulseColor(isDark: boolean): string {
     return isDark ? preset.dark : preset.light;
 }
 
-export function getGlowLevel() {
+function getGlowLevel() {
     return GLOW_LEVELS[pulseVisualConfig.glow] ?? GLOW_LEVELS[2];
 }
 const PULSE_FADE_DURATION = 300;

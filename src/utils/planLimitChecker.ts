@@ -1,7 +1,7 @@
 import { PLAN_LIMITS } from '../types/firebase';
 import type { SavedPlan } from '../types';
 
-export type PlanLimitReason = 'max_total' | 'max_per_content';
+type PlanLimitReason = 'max_total' | 'max_per_content';
 
 export interface PlanLimitCheckResult {
   exceeded: boolean;

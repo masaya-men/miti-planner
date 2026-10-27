@@ -39,7 +39,7 @@ export interface BackplaneOpts {
 }
 
 /** 基板の床の輪郭(副装甲の窪みを 1.8 広げたもの。見本 js:434) */
-export function backplaneBoard(pw: number): string {
+function backplaneBoard(pw: number): string {
   const bw = pw + 9;
   const pocket: Pt[] = [[14, 4], [bw - 5, 4], [bw - 5, 36], [4, 36], [4, 14]];
   return `<polygon points="${P(offsetPoly(pocket, 1.8).map(([x, y]): Pt => [x - 4, y - 4]))}" class="brd"/>`;
@@ -90,4 +90,3 @@ export function backplaneSVG(o: BackplaneOpts): string {
   out += silk(2.5, 6.5, 'BUS');
   return out;
 }
-

@@ -3,7 +3,7 @@
 // 対応言語コード (i18n キーと整合)
 export const MASTER_LANGS = ['ja', 'en', 'ko', 'zh', 'zh-Hant'] as const;
 export type MasterLang = typeof MASTER_LANGS[number];
-export type LocalizedString = Record<MasterLang, string>;
+type LocalizedString = Record<MasterLang, string>;
 
 // サーバーマスターデータの型
 interface ServerData {

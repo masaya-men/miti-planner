@@ -68,7 +68,7 @@ function extractEncounterIdFromUrl(input: string): number | null {
 }
 
 /** 空のフォームデータ */
-export function emptyContent(): ContentData {
+function emptyContent(): ContentData {
   return {
     id: '',
     nameJa: '',

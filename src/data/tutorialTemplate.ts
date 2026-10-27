@@ -6,9 +6,9 @@
 import type { TimelineEvent } from '../types';
 
 /** AoE: ヒーラーHPの108%（軽減なしで致死） */
-export const TUTORIAL_AOE_RATIO = 1.08;
+const TUTORIAL_AOE_RATIO = 1.08;
 /** TB: タンクHPの195%（軽減なしで致死） */
-export const TUTORIAL_TB_RATIO = 1.95;
+const TUTORIAL_TB_RATIO = 1.95;
 
 /**
  * パーティのステータスに基づいてチュートリアル用イベントを生成する。

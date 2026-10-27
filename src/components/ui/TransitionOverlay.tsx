@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 
-export type TransitionVariant = 'theme' | 'language' | 'plan' | 'default';
+type TransitionVariant = 'theme' | 'language' | 'plan' | 'default';
 
 const ANIM_LEAD_TIME = 500;
 const SETTLE_DELAY = 400;
