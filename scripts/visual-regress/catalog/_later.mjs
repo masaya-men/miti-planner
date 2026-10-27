@@ -41,6 +41,7 @@ export default [
   { component: 'HousingDetailKebab', stage: 2, reason: 'ハウジング詳細のオーナー用ケバブメニュー。投稿者本人のログインが必須。' },
   { component: 'HousingDeleteConfirm', stage: 2, reason: 'ハウジング投稿の削除確認。ケバブ(オーナー)経由で、ログイン必須。' },
   { component: 'HousingerReportModal', stage: 2, reason: 'ハウジンガーページの報告窓。ログイン必須。ハウジンガーページ自体も見本が未対応(HousingerPage 参照)。' },
+  { component: 'HousingerReportMenu', stage: 2, reason: 'ハウジンガーページの「…」メニュー(通報・本人以外にだけ出る)。HousingerPage から切り出した部品で、ハウジンガーページ自体が見本未対応(HousingerPage 参照)。' },
   { component: 'VisibilityConfirmModal', stage: 2, reason: 'マイページの公開範囲変更の確認窓。ログイン + 自分の投稿が必須。' },
   { component: 'HousingerProfileSection', stage: 2, reason: 'マイページのハウジンガープロフィール編集欄。ログイン必須。' },
   { component: 'HousingDateTimePicker', stage: 2, reason: 'ハウジング登録画面の日時選択ポップ。登録画面はログイン必須(未ログインはログイン案内のみ)。' },

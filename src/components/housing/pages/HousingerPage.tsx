@@ -2,67 +2,44 @@
  * Task 7: ハウジンガーページ (spec 2026-07-10-housinger-profile-design.md §4.3)
  * 2026-07-24 拡張: `/housing/mypage` (:uid なし) はマイページとして同コンポーネントを流用する。
  *
+ * このファイルは指揮役 (uid の解決・本人判定と、部品/処理のつなぎ込み) のみ。処理は housinger/ 配下:
+ * - 取得 (プロフィール+一覧・再訪の即表示・失敗時の縮退) = useHousingerPageData
+ * - 代表作・背景の選択 (本人のみ) = useOgRepresentativeSelection
+ * - 公開状態切替 (本人のみ) = useMyListingVisibilityChange
+ * - まとめてツアー (他人のみ) = useHousingerTourAll
+ * - アイコン+名前 (本人はその場編集) = HousingerIdentity / 「…」メニュー (通報・他人のみ) = HousingerReportMenu
+ * - 未ログイン/読み込み中/非公開の画面 = HousingerPageStates
+ *
  * - `/housing/housinger/:uid` (シェル子ルート、`listing/:listingId` と同型)。
- *   profile と ハウジング一覧を別々に取得し、 届いた方から表示する (同じ人の再訪は前回の一覧を即表示)。
- * - 非公開・存在しない uid は housing トンマナの既存 NotFound (HousingDetailPage.tsx:40-57) を
- *   同一形 (unavailable 文言 + ← 探すへ戻る Link) で踏襲する。
  * - 一覧は探すのカードグリッド (ListingGrid) を流用する。 他人のページではカードに「ツアーに追加」
  *   (PC=ホバーで下端の帯・タッチ端末=右下の＋) を出す (tourAddVariant='overlay')。 本人のページには出さない。
- * - 本人閲覧時 (:uid なし、または :uid が自分) は名前横の鉛筆アイコンから /housing/mypage へ。
- *   一覧も本人のときだけ myListings ストア (公開/住所非公開/完全非公開すべて) を使う。
- *   他人閲覧時は getHousingerListings (公開分のみ) のまま不変。
- * - uid 切替 (同一コンポーネントのまま :uid だけ変わる遷移) 時は前の人のプロフィール/一覧を
- *   保持したまま表示しない (useHousingerProfile の stale 対策と同じ理由で fetch 開始前に必ず
- *   null/空へ戻す)。
- * - Task9: 本人以外が見ているときだけ、 プロフィール右のアクション列に控えめな「…」メニュー
- *   (通報) を出す。 HousingDetailKebab.tsx と同じ popover 仕様 (クリック/Esc/外側クリックで
- *   閉じる) をこのページ専用に軽量実装 (項目が「報告する」1つだけなので共有コンポーネント化はしない)。
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Pencil, Camera } from 'lucide-react';
 import { useAuthStore } from '../../../store/useAuthStore';
-import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
-import { useTourTrayStore } from '../../../store/useTourTrayStore';
-import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
-import { useAccountActions } from '../../../hooks/auth/useAccountActions';
-import { DisplayNameEditor } from '../../DisplayNameEditor';
-import { HousingLoginPrompt } from '../HousingLoginPrompt';
-import { HousingAvatarCropModal } from '../mypage/HousingAvatarCropModal';
-import {
-  getHousingerProfile,
-  getHousingerListingsWithHidden,
-  upsertHousingerProfile,
-} from '../../../lib/housing/housingerProfileService';
-import { isEligibleForOgRepresentative, mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { normalizeHousingerUid, buildHousingerShortSlug } from '../../../lib/housing/housingerProfile';
-import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
 import { HousingShareButton } from '../listing/HousingShareButton';
-import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
-import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
-import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { ListingGrid } from '../browse/ListingGrid';
 import { useSkeletonReveal } from '../../../lib/housing/useSkeletonReveal';
-import {
-  getCachedHousingerListings,
-  setCachedHousingerListings,
-} from '../../../lib/housing/housingerListingsCache';
-import { ListingGridSkeleton } from '../browse/ListingGridSkeleton';
-import { HousingerProfileSkeleton, TourAllButtonSkeleton } from '../skeleton/HousingSkeletons';
+import { TourAllButtonSkeleton } from '../skeleton/HousingSkeletons';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
-import { HousingerAvatar } from '../housinger/HousingerAvatar';
-import { HousingerReportModal } from '../report/HousingerReportModal';
 import { VisibilityConfirmModal } from '../mypage/VisibilityConfirmModal';
 import { HousingerProfileSection } from '../mypage/HousingerProfileSection';
-import {
-  useHousingVisibilityUpdate,
-  type HousingVisibilityValue,
-} from '../mypage/useHousingVisibilityUpdate';
-import { showToast } from '../../Toast';
-import type { HousingerProfile } from '../../../types/housing';
-import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingListOrderStore } from '../../../store/useHousingListOrderStore';
+import { useHousingerPageData } from '../housinger/useHousingerPageData';
+import { useOgRepresentativeSelection } from '../housinger/useOgRepresentativeSelection';
+import { useMyListingVisibilityChange } from '../housinger/useMyListingVisibilityChange';
+import { useHousingerTourAll } from '../housinger/useHousingerTourAll';
+import { HousingerIdentity } from '../housinger/HousingerIdentity';
+import { HousingerReportMenu } from '../housinger/HousingerReportMenu';
+import {
+  HousingerBackLink,
+  HousingerListingsSkeleton,
+  HousingerLoadingView,
+  HousingerLoginView,
+  HousingerUnavailableView,
+} from '../housinger/HousingerPageStates';
 import '../../../styles/housing.css';
 
 /** 他人視点のツアー追加: トレイへの追加は ListingCard の attemptToggle が済ませる。表示スイッチ用。 */
@@ -96,151 +73,26 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
   // useAuthStore 値を優先表示する (更新直後の即時反映のため。HousingerProfileSection と同じ考え方)。
   const authDisplayName = useAuthStore((s) => s.profileDisplayName);
   const authAvatarUrl = useAuthStore((s) => s.profileAvatarUrl);
-  const accountActions = useAccountActions();
 
-  const [profile, setProfile] = useState<HousingerProfile | null>(null);
-  const [listings, setListings] = useState<MockListing[]>([]);
-  // 運営非表示の家 (他人閲覧時のみ・帯カード表示専用。ツアー等の対象には使わない)。
-  const [hiddenListings, setHiddenListings] = useState<MockListing[]>([]);
-  // プロフィール取得中 / 家一覧取得中を分ける (プロフィールが先に届いたら先に出す)。
-  const [profileLoading, setProfileLoading] = useState(true);
-  const [listingsLoading, setListingsLoading] = useState(true);
+  const { profile, listings, setListings, hiddenListings, profileLoading, listingsLoading } =
+    useHousingerPageData(uid, isSelf);
   // ダミーが見えた後に本物へ替わったときだけ「ふわっと表示」を付ける (プロフィール列・一覧列を別々に)。
   const profileReveal = useSkeletonReveal(profileLoading);
   const listingsReveal = useSkeletonReveal(listingsLoading);
-  const [kebabOpen, setKebabOpen] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
-  // マイページ: 名前/アイコンをその場編集する (鉛筆クリックで名前編集モードへ)。
-  const [editingName, setEditingName] = useState(false);
-  const [isSavingName, setIsSavingName] = useState(false);
-  const [showAvatarCrop, setShowAvatarCrop] = useState(false);
-  const [isAvatarBusy, setIsAvatarBusy] = useState(false);
-  // マイページ: 公開状態切替の確認モーダル (対象 listing + 切替先)。
-  const [visibilityTarget, setVisibilityTarget] = useState<{
-    listingId: string;
-    listingTitle: string;
-    next: HousingVisibilityValue;
-  } | null>(null);
-  const { updateVisibility, loading: visibilityUpdating } = useHousingVisibilityUpdate();
-  const kebabRef = useRef<HTMLDivElement>(null);
+  const { ogSelectionSet, ogBackgroundId, toggleOgSelect, toggleOgBackground } =
+    useOgRepresentativeSelection(isSelf, profile, listings);
+  const {
+    visibilityTarget,
+    visibilityUpdating,
+    requestVisibilityChange,
+    cancelVisibilityChange,
+    confirmVisibilityChange,
+  } = useMyListingVisibilityChange(listings, setListings);
+  const onTourAll = useHousingerTourAll(listings, viewerUid);
   // 並び替え選択は探すページと共通のストアに保持する (詳細ページ往復で選択が保持される)。
   // ランダムは選択肢に含めない (探すページのみの機能、既存仕様どおり新着順/古い順の2択)。
   const sort = useHousingListOrderStore((s) => s.entries.housinger.sortMode);
   const setSort = (v: BrowseSortOrder) => useHousingListOrderStore.getState().setSortMode('housinger', v);
-
-  useEffect(() => {
-    if (!uid) {
-      setProfile(null);
-      setListings([]);
-      setProfileLoading(false);
-      setListingsLoading(false);
-      return;
-    }
-    let cancelled = false;
-    // uid 切替時、 前の人の profile/一覧を保持したまま表示しない (別人のデータが一瞬出る事故防止)。
-    setProfile(null);
-    setProfileLoading(true);
-    // 同じ人の再訪: 一覧は前回の内容を即表示 (ダミーを出さない) し、裏で最新を取り直して差し替える。
-    // 他人視点 = モジュール内メモリキャッシュ (uid ごと) / 自分視点 = 読み込み済みの myListings ストア。
-    // いずれも無ければ従来どおり空にしてダミー表示。別 uid の内容は決して使わない (キャッシュは uid ごと・
-    // 自分視点のストアは自分の uid のときだけ参照)。
-    const cached = isSelf ? undefined : getCachedHousingerListings(uid);
-    const selfReady = isSelf && useHousingListingsStore.getState().myStatus === 'ready';
-    const hasInstant = Boolean(cached) || selfReady;
-    if (cached) {
-      setListings(cached.listings);
-      setHiddenListings(cached.hiddenListings);
-    } else if (selfReady) {
-      setListings(sortListingsForGallery(useHousingListingsStore.getState().myListings));
-      setHiddenListings([]);
-    } else {
-      setListings([]);
-      setHiddenListings([]);
-    }
-    setListingsLoading(!hasInstant);
-
-    // プロフィールと家一覧は別々に取得し、届いた方から先に表示する (プロフィールが先に出て、
-    // 一覧部分だけダミー表示)。 どちらかが失敗しても無限ローディングにならないよう、
-    // 失敗時は従来どおり unavailable 表示へ縮退する (profile=null・一覧空・両フラグ解除)。
-    const degrade = (err: unknown) => {
-      if (cancelled) return;
-      // getHousingerProfile は自身のエラーを飲み込み null を返すが、getHousingerListings は
-      // reject しうる (デプロイ直後の複合インデックス未反映、一時的な Firestore エラー等)。
-      console.warn('[HousingerPage] failed to load profile/listings', err);
-      setProfile(null);
-      setListings([]);
-      setHiddenListings([]);
-      setProfileLoading(false);
-      setListingsLoading(false);
-    };
-    // 一覧だけの失敗: 即表示済み (キャッシュ/読み込み済みストア) なら表示を維持して警告のみ
-    // (「公開されていません」へ縮退させない)。即表示が無かったときは従来どおり縮退する。
-    const degradeListings = (err: unknown) => {
-      if (cancelled) return;
-      if (!hasInstant) {
-        degrade(err);
-        return;
-      }
-      console.warn('[HousingerPage] failed to refresh listings (keeping cached view)', err);
-      setListingsLoading(false);
-    };
-
-    const profilePromise = (isSelf ? getHousingerProfile(uid, { isSelf: true }) : getHousingerProfile(uid)).then((profileResult) => {
-      if (cancelled) return;
-      setProfile(profileResult);
-      setProfileLoading(false);
-    });
-
-    const listingsPromise = isSelf
-      ? // 自分の場合: 公開/住所非公開/完全非公開すべて (myListings ストア、visibility 問わず)。
-        // 他人視点の表示 (getHousingerListings、公開分のみ) はこの分岐に入らない限り不変。
-        useHousingListingsStore
-          .getState()
-          .loadMine(uid)
-          .then(() => {
-            if (cancelled) return;
-            setListings(sortListingsForGallery(useHousingListingsStore.getState().myListings));
-            setListingsLoading(false);
-          })
-      : getHousingerListingsWithHidden(uid).then((listingResult) => {
-          if (cancelled) return;
-          // 運営非表示の家: 一覧表示専用 (件数・帯カード)。 ツアー/OGP代表作/お気に入り等の対象 (listings) には含めない。
-          const hiddenCards = listingResult.hiddenListings
-            .map(firestoreToGalleryListing)
-            .filter((l): l is MockListing => l !== null)
-            .map((l) => ({ ...l, imageMode: 'none' as const, adminHidden: true }));
-          const nextListings = sortListingsForGallery(
-            listingResult.listings.map(firestoreToGalleryListing).filter((l): l is MockListing => l !== null),
-          );
-          setCachedHousingerListings(uid, { listings: nextListings, hiddenListings: hiddenCards });
-          setHiddenListings(hiddenCards);
-          setListings(nextListings);
-          setListingsLoading(false);
-        });
-
-    profilePromise.catch(degrade);
-    listingsPromise.catch(degradeListings);
-    return () => {
-      cancelled = true;
-    };
-  }, [uid, isSelf]);
-
-  // 「…」メニュー: クリック/Esc/外側クリックで閉じる (HousingDetailKebab.tsx と同じ仕様)。
-  useEffect(() => {
-    if (!kebabOpen) return;
-    const onClickOutside = (e: MouseEvent) => {
-      if (kebabRef.current && !kebabRef.current.contains(e.target as Node)) setKebabOpen(false);
-    };
-    const onEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setKebabOpen(false);
-    };
-    document.addEventListener('mousedown', onClickOutside);
-    document.addEventListener('keydown', onEsc);
-    return () => {
-      document.removeEventListener('mousedown', onClickOutside);
-      document.removeEventListener('keydown', onEsc);
-    };
-  }, [kebabOpen]);
 
   // BrowsePage と同じ「新着順/古い順」ローカル並び替え。sortListingsForGallery (住所グルーピング)
   // は基礎データの整形用で、 表示順は BrowseSortSelect の選択で上書きする。
@@ -254,244 +106,13 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
     [listings, hiddenListings, sort],
   );
 
-  // マイページ一覧: カードの切替メニューで選んだ内容を確認モーダルへ渡す (実行はモーダルの確認で)。
-  const onRequestVisibilityChange = (id: string, next: HousingVisibilityValue) => {
-    const target = listings.find((l) => l.id === id);
-    if (!target) return;
-    setVisibilityTarget({ listingId: id, listingTitle: target.title || '', next });
-  };
-
   const onEditListing = (id: string) => {
     navigate(`/housing/listing/${id}/edit`);
   };
 
-  // OGP代表作選択(本人閲覧時のみ)。初期値: profile.ogRepresentativeListingIds があればそれ、
-  // 無ければ新着順上位10件を自動採用(spec: 何もしなくてもシェアできる状態にする)。
-  const [ogSelectionIds, setOgSelectionIds] = useState<string[]>([]);
-  useEffect(() => {
-    if (!isSelf) return;
-    const saved = profile?.ogRepresentativeListingIds;
-    if (saved && saved.length > 0) {
-      setOgSelectionIds(saved);
-      return;
-    }
-    const nowMs = Date.now();
-    const defaultIds = [...listings]
-      .sort((a, b) => b.createdAt - a.createdAt)
-      .filter((l) => isEligibleForOgRepresentative(l, nowMs))
-      .slice(0, 10)
-      .map((l) => l.id);
-    setOgSelectionIds(defaultIds);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSelf, profile?.ogRepresentativeListingIds, listings]);
-
-  // OGP背景選択(本人閲覧時のみ)。初期値: profile.ogBackgroundListingId。未設定ならnull
-  // (ogSelectionIds[0]が自動的に背景として使われる、既存フォールバック)。
-  const [ogBackgroundId, setOgBackgroundId] = useState<string | null>(null);
-  useEffect(() => {
-    if (!isSelf) return;
-    setOgBackgroundId(profile?.ogBackgroundListingId ?? null);
-  }, [isSelf, profile?.ogBackgroundListingId]);
-
-  const ogSelectionSet = useMemo(() => new Set(ogSelectionIds), [ogSelectionIds]);
-
-  const handleToggleOgSelect = async (id: string) => {
-    const target = listings.find((l) => l.id === id);
-    if (!target) return;
-    const isSelected = ogSelectionIds.includes(id);
-    if (!isSelected && !isEligibleForOgRepresentative(target, Date.now())) {
-      showToast(t('housing.housinger.ogSelect.publicOnly'), 'error');
-      return;
-    }
-    if (!isSelected && ogSelectionIds.length >= 10) {
-      showToast(t('housing.housinger.ogSelect.maxReached'), 'error');
-      return;
-    }
-    const previousSelection = ogSelectionIds;
-    const previousBackground = ogBackgroundId;
-    const next = isSelected ? ogSelectionIds.filter((x) => x !== id) : [...ogSelectionIds, id];
-    // 背景に指定していたカードを代表作から外す場合は、背景指定も一緒に解除する
-    // (外れたlistingが背景のまま残ると、次回描画時にサーバー側フォールバックで無視されるだけで
-    // 見た目には問題ないが、UI上の状態としては矛盾するため明示的に解除する)。
-    const clearsBackground = isSelected && ogBackgroundId === id;
-    setOgSelectionIds(next);
-    if (clearsBackground) setOgBackgroundId(null);
-    const result = await upsertHousingerProfile({
-      ogRepresentativeListingIds: next,
-      ...(clearsBackground ? { ogBackgroundListingId: null } : {}),
-    });
-    if (!result.ok) {
-      setOgSelectionIds(previousSelection);
-      if (clearsBackground) setOgBackgroundId(previousBackground);
-      showToast(t('housing.housinger.account.toastError'), 'error');
-    }
-  };
-
-  const handleToggleOgBackground = async (id: string) => {
-    if (!ogSelectionIds.includes(id)) return;
-    const previous = ogBackgroundId;
-    const next = ogBackgroundId === id ? null : id;
-    setOgBackgroundId(next);
-    const result = await upsertHousingerProfile({ ogRepresentativeListingIds: ogSelectionIds, ogBackgroundListingId: next });
-    if (!result.ok) {
-      setOgBackgroundId(previous);
-      showToast(t('housing.housinger.account.toastError'), 'error');
-    }
-  };
-
-  const onConfirmVisibilityChange = async () => {
-    if (!visibilityTarget) return;
-    const { listingId, next } = visibilityTarget;
-    const result = await updateVisibility(listingId, next);
-    if (result.ok) {
-      // 楽観的更新: publishUntil は update-visibility ハンドラと同じ規則 (unlisted/private は null)。
-      setListings((prev) =>
-        prev.map((l) =>
-          l.id === listingId
-            ? { ...l, visibility: next, publishUntil: next === 'public' ? l.publishUntil : null }
-            : l,
-        ),
-      );
-      // 公開状態切替の直後に再訪しても古い一覧が即表示されないよう、myListings ストアにも反映する。
-      useHousingListingsStore.setState((s) => ({
-        myListings: s.myListings.map((l) =>
-          l.id === listingId
-            ? { ...l, visibility: next, publishUntil: next === 'public' ? l.publishUntil : null }
-            : l,
-        ),
-      }));
-      setVisibilityTarget(null);
-    } else {
-      showToast(t('housing.mypage.visibilityConfirm.error'), 'error');
-    }
-  };
-
-  // 名前/アイコンのその場編集。HousingAccountModal.tsx と同じロジック (useAccountActions 経由)。
-  // 成功後は useAuthStore が更新され、displayName/avatarUrl (下記算出) が自動で最新表示に切り替わる。
-  const handleSaveName = async (newName: string) => {
-    setIsSavingName(true);
-    try {
-      await accountActions.updateDisplayName(newName);
-      setEditingName(false);
-      showToast(t('profile.toast_name_updated'));
-    } catch (err) {
-      console.error('Display name update error:', err);
-      showToast(t('profile.toast_name_error'), 'error');
-    } finally {
-      setIsSavingName(false);
-    }
-  };
-
-  const handleAvatarComplete = async (blob: Blob) => {
-    setIsAvatarBusy(true);
-    setShowAvatarCrop(false);
-    try {
-      await accountActions.uploadAvatar(blob);
-      showToast(t('avatar.toast_uploaded'));
-    } catch (err) {
-      console.error('Avatar upload error:', err);
-      showToast(t('avatar.toast_upload_error'), 'error');
-    } finally {
-      setIsAvatarBusy(false);
-    }
-  };
-
-  // HousingActionBar.tsx の onReportClick と同形 (未ログインならログイン案内、それ以外はモーダルを開く)。
-  const onReportClick = () => {
-    if (!viewerUid) {
-      showToast(t('housing.detail.login_required'), 'info');
-      return;
-    }
-    setReportOpen(true);
-  };
-
-  // まとめてツアー: ツアーは開始せず、既存トレイ + この人の家を「並び替え画面」(/housing/tour) のトレイに
-  // 入れて遷移するだけ。開始は並び替え画面の開始ボタン (マナー確認もそちら)。
-  // 以前(2026-08-10 バグ修正)の「トレイ + この人の家をマージする」挙動は維持する。
-  const onTourAll = () => {
-    if (listings.length === 0) return;
-    const trayIds = useTourTrayStore.getState().trayIds;
-    const newIds = listings.map((l) => l.id);
-    const mergedIds = [...trayIds, ...newIds.filter((id) => !trayIds.includes(id))];
-    // トレイ内の id はこの人以外の家も含みうるため、探すページと同じ合流プールで解決する。
-    const publicListings = useHousingListingsStore.getState().listings;
-    const myListings = useHousingListingsStore.getState().myListings;
-    const ephemeral = useEphemeralListingsStore.getState().ephemeralListings;
-    const pool = [
-      ...mergeListingsForViewer(publicListings, myListings, viewerUid, Date.now()),
-      ...ephemeral,
-      ...listings,
-    ];
-    const orderedIds = orderTourStopIds(mergedIds, pool);
-    const stops = orderedIds
-      .map((id) => pool.find((l) => l.id === id))
-      .filter((l): l is MockListing => Boolean(l));
-    const conflict = tourRegionConflict(stops);
-    if (conflict) {
-      showToast(t('housing.tour.region_block_start', { regions: conflict.join(' / ') }), 'error');
-      return;
-    }
-    useTourTrayStore.getState().setTrayIds(orderedIds);
-    navigate('/housing/tour');
-  };
-
-  // マイページ (:uid なし) は未ログインだとそもそも表示する自分が居ないので、
-  // 読み込み表示を挟まずログイン導線を出す。
-  if (isMyPageRoute && !viewerUid) {
-    return (
-      <div className="housing-detail-panel">
-        <div className="housing-detail-shell housinger-page-login-shell">
-          <main className="housing-detail-fullpage-main housinger-page-login-main">
-            <HousingLoginPrompt context="mypage" />
-          </main>
-        </div>
-      </div>
-    );
-  }
-
-  if (profileLoading) {
-    return (
-      <div className="housing-detail-panel">
-        <div className="housing-detail-shell">
-          <header className="housing-detail-fullpage-header housinger-page-headerbar">
-            <Link to="/housing" className="housing-detail-back" aria-label={t('housing.detail.back_aria')}>
-              ← {t('housing.detail.back_aria')}
-            </Link>
-          </header>
-          <main className="housing-detail-fullpage-main housinger-page-main">
-            <div className="housinger-page-body">
-              <HousingerProfileSkeleton />
-              <div className="housinger-page-listings-col">
-                <div className="housing-listing-grid-wrap">
-                  <div className="housing-listing-grid-toolbar housing-skel-toolbar-reserve" aria-hidden="true" />
-                  <ListingGridSkeleton withFooter={false} rows={1} />
-                </div>
-              </div>
-            </div>
-          </main>
-        </div>
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="housing-detail-panel">
-        <div className="housing-detail-shell">
-          <main className="housing-detail-fullpage-main">
-            <p>{t('housing.housinger.unavailable')}</p>
-            <Link
-              to="/housing"
-              className="housing-detail-back"
-              aria-label={t('housing.detail.back_aria')}
-            >
-              ← {t('housing.detail.back_aria')}
-            </Link>
-          </main>
-        </div>
-      </div>
-    );
-  }
+  if (isMyPageRoute && !viewerUid) return <HousingerLoginView />;
+  if (profileLoading) return <HousingerLoadingView />;
+  if (!profile) return <HousingerUnavailableView />;
 
   // 本人閲覧時は housing_profiles の転記を待たず useAuthStore の最新値を表示する
   // (未転記でも空にならないよう profile 側をフォールバックにする)。
@@ -520,13 +141,7 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
     <div className="housing-detail-panel">
       <div className="housing-detail-shell">
         <header className="housing-detail-fullpage-header housinger-page-headerbar">
-          <Link
-            to="/housing"
-            className="housing-detail-back"
-            aria-label={t('housing.detail.back_aria')}
-          >
-            ← {t('housing.detail.back_aria')}
-          </Link>
+          <HousingerBackLink />
         </header>
         <main className="housing-detail-fullpage-main housinger-page-main">
           {/* 2026-07-24 レイアウト刷新: 1枚のパネルを左右に分けるだけ (パネル分割はしない)。
@@ -534,60 +149,7 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
               右列 = 一覧グリッド (この列だけがスクロールする)。 */}
           <div className="housinger-page-body">
             <div className={`housinger-page-profile-col${profileReveal ? ' housing-reveal' : ''}`} data-reveal={profileReveal || undefined}>
-              <div className="housinger-page-identity">
-                {isSelf ? (
-                  <div className="housinger-page-avatar-wrap">
-                    <HousingerAvatar
-                      avatarUrl={avatarUrl}
-                      name={displayName}
-                      className="housinger-page-avatar"
-                    />
-                    <button
-                      type="button"
-                      className="housinger-page-avatar-edit-btn"
-                      onClick={() => setShowAvatarCrop(true)}
-                      disabled={isAvatarBusy}
-                      aria-label={t('housing.account.avatarChange')}
-                      title={t('housing.account.avatarChange')}
-                    >
-                      <Camera size={13} aria-hidden="true" />
-                    </button>
-                  </div>
-                ) : (
-                  <HousingerAvatar
-                    avatarUrl={avatarUrl}
-                    name={displayName}
-                    className="housinger-page-avatar"
-                  />
-                )}
-                {/* 本人閲覧時のみ: 鉛筆アイコンで名前をその場編集 (旧: /housing/mypage への
-                    ナビゲーションだったが、マイページ自体でも押せる導線だったため意味を持たなかった)。 */}
-                {isSelf && editingName ? (
-                  <div className="housinger-page-name-editor">
-                    <DisplayNameEditor
-                      value={displayName || ''}
-                      onSave={handleSaveName}
-                      onCancel={() => setEditingName(false)}
-                      isSaving={isSavingName}
-                    />
-                  </div>
-                ) : (
-                  <>
-                    <h2 className="housinger-page-name">{displayName}</h2>
-                    {isSelf && (
-                      <button
-                        type="button"
-                        className="housinger-page-edit-btn"
-                        aria-label={t('housing.housinger.editProfile')}
-                        title={t('housing.housinger.editProfile')}
-                        onClick={() => setEditingName(true)}
-                      >
-                        <Pencil size={14} aria-hidden="true" />
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
+              <HousingerIdentity isSelf={isSelf} displayName={displayName} avatarUrl={avatarUrl} />
               {/* 本人閲覧時は自己紹介文・SNSリンクをここで直接編集できる (旧: 設定ウィンドウ内の
                   セクションだったが 2026-07-24 にマイページへ移動、設定ウィンドウはアイコン/名前/
                   ログアウト/退会のみのシンプル構成に縮小した)。
@@ -614,36 +176,7 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
                     {/* Task9 の「…」メニュー (通報) も本人以外にだけここに置く。 */}
                     <div className="housinger-page-profile-actions">
                       <HousingShareButton url={shareUrl} title={profile.displayName} />
-                      <div className="housing-kebab" ref={kebabRef}>
-                        <button
-                          type="button"
-                          aria-label={t('housing.detail.kebab.aria_label')}
-                          aria-haspopup="menu"
-                          aria-expanded={kebabOpen}
-                          className="housing-kebab-trigger housinger-page-kebab-trigger"
-                          onClick={() => setKebabOpen((v) => !v)}
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
-                            <circle cx="12" cy="5" r="2" fill="currentColor" />
-                            <circle cx="12" cy="12" r="2" fill="currentColor" />
-                            <circle cx="12" cy="19" r="2" fill="currentColor" />
-                          </svg>
-                        </button>
-                        {kebabOpen && (
-                          <div role="menu" className="housing-kebab-menu">
-                            <button
-                              type="button"
-                              role="menuitem"
-                              onClick={() => {
-                                setKebabOpen(false);
-                                onReportClick();
-                              }}
-                            >
-                              {t('housing.housinger.report.menuItem')}
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      <HousingerReportMenu viewerUid={viewerUid} housingerUid={uid ?? ''} />
                     </div>
                   </div>
                   {profile.bio && <p className="housinger-page-bio">{profile.bio}</p>}
@@ -663,10 +196,7 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
 
             <div className={`housinger-page-listings-col${listingsReveal ? ' housing-reveal' : ''}`} data-reveal={listingsReveal || undefined}>
               {listingsLoading ? (
-                <div className="housing-listing-grid-wrap">
-                  <div className="housing-listing-grid-toolbar housing-skel-toolbar-reserve" aria-hidden="true" />
-                  <ListingGridSkeleton withFooter={false} rows={1} />
-                </div>
+                <HousingerListingsSkeleton />
               ) : sorted.length === 0 ? (
                 <p className="housinger-page-empty">{t('housing.housinger.noListings')}</p>
               ) : (
@@ -681,13 +211,13 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
                   tourAddVariant={isSelf ? undefined : 'overlay'}
                   tourExtraPool={isSelf ? undefined : listings}
                   showOwnerControls={isSelf}
-                  onRequestVisibilityChange={isSelf ? onRequestVisibilityChange : undefined}
+                  onRequestVisibilityChange={isSelf ? requestVisibilityChange : undefined}
                   onEditListing={isSelf ? onEditListing : undefined}
                   selectable={isSelf}
                   selectedIds={isSelf ? ogSelectionSet : undefined}
-                  onToggleSelect={isSelf ? handleToggleOgSelect : undefined}
+                  onToggleSelect={isSelf ? toggleOgSelect : undefined}
                   backgroundId={isSelf ? ogBackgroundId : undefined}
-                  onToggleBackground={isSelf ? handleToggleOgBackground : undefined}
+                  onToggleBackground={isSelf ? toggleOgBackground : undefined}
                 />
               )}
             </div>
@@ -695,28 +225,14 @@ export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride 
         </main>
       </div>
 
-      {reportOpen && (
-        <HousingerReportModal
-          open={reportOpen}
-          housingerUid={uid ?? ''}
-          onClose={() => setReportOpen(false)}
-        />
-      )}
       {visibilityTarget && (
         <VisibilityConfirmModal
           open={Boolean(visibilityTarget)}
           listingTitle={visibilityTarget.listingTitle}
           targetVisibility={visibilityTarget.next}
           loading={visibilityUpdating}
-          onCancel={() => setVisibilityTarget(null)}
-          onConfirm={onConfirmVisibilityChange}
-        />
-      )}
-      {isSelf && (
-        <HousingAvatarCropModal
-          isOpen={showAvatarCrop}
-          onClose={() => setShowAvatarCrop(false)}
-          onComplete={handleAvatarComplete}
+          onCancel={cancelVisibilityChange}
+          onConfirm={confirmVisibilityChange}
         />
       )}
     </div>
