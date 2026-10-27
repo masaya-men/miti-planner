@@ -1,0 +1,487 @@
+/* ===== お気に入り一括操作バー (FavoritesBulkBar) ===== */
+/* タブ行ラッパ (実機FB第5弾): PC では箱を作らない (display:contents) = レイアウト不変。
+   スマホ側 media でタブ+選択カウントの1行 flex に切り替える。 */
+.housing-fav-tabsrow {
+  display: contents;
+}
+.housing-fav-bulkbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: calc(8px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  flex: 0 0 auto;
+}
+.housing-fav-bulkbar-count {
+  font-size: var(--housing-text-sm);
+  font-weight: 700;
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border-radius: calc(999px * var(--housing-scale));
+  padding: calc(2px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.housing-fav-bulkbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: calc(6px * var(--housing-scale));
+  flex: 1 1 auto;
+}
+.housing-fav-bulkbar-group {
+  display: flex;
+  align-items: center;
+  gap: calc(4px * var(--housing-scale));
+}
+/* 2つのグループを左右に分ける */
+.housing-fav-bulkbar-group:first-child {
+  margin-right: auto;
+}
+.housing-fav-bulkbar-btn {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  height: calc(28px * var(--housing-scale));
+  padding: 0 calc(10px * var(--housing-scale));
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-dim);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(8px * var(--housing-scale));
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  white-space: nowrap;
+}
+.housing-fav-bulkbar-btn:hover:not(:disabled) {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+.housing-fav-bulkbar-btn:disabled {
+  opacity: var(--housing-disabled-opacity);
+  cursor: not-allowed;
+}
+/* すべてツアーに追加 = ハニー主アクション */
+.housing-fav-bulkbar-btn--primary {
+  color: var(--housing-honey-text);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  border-color: transparent;
+  box-shadow: 0 calc(2px * var(--housing-scale)) calc(8px * var(--housing-scale)) var(--housing-honey-shadow-soft);
+}
+.housing-fav-bulkbar-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  color: var(--housing-honey-text);
+}
+/* 選択だけ追加 = ハニー副アクション (弱め)。青 vs ハニーの最終色は実画面ゲートでユーザー判断待ち。 */
+.housing-fav-bulkbar-btn--accent {
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+}
+.housing-fav-bulkbar-btn--accent:hover:not(:disabled) {
+  background: var(--housing-honey-strong);
+  color: var(--housing-candle);
+}
+/* お気に入りから外す = danger */
+.housing-fav-bulkbar-btn--danger:hover:not(:disabled) {
+  color: var(--housing-danger);
+  border-color: var(--housing-danger);
+  background: var(--housing-danger-soft);
+}
+.housing-fav-bulkbar-btn:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: 1px;
+}
+
+/* ===== お気に入り左カラム: はじめての方へ (オンボ・教育のみ / ✅進捗ではない) ===== */
+.housing-fav-onboarding {
+  display: flex;
+  flex-direction: column;
+  gap: calc(14px * var(--housing-scale));
+  min-height: 0;
+  overflow-y: auto;
+}
+.housing-fav-onboarding-title {
+  margin: 0;
+  font-size: var(--housing-text-lg);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-fav-onboarding-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+}
+.housing-fav-onboarding-step {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(10px * var(--housing-scale));
+}
+/* ステップ番号 = 青 (進行アクセント = spec 2アクセント体系の「ステップ番号」) */
+.housing-fav-onboarding-num {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(24px * var(--housing-scale));
+  height: calc(24px * var(--housing-scale));
+  border-radius: calc(999px * var(--housing-scale));
+  font-size: var(--housing-text-sm);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--housing-aether);
+  background: var(--housing-aether-medium);
+  border: 1px solid var(--housing-aether-border);
+}
+.housing-fav-onboarding-body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2px * var(--housing-scale));
+  min-width: 0;
+}
+.housing-fav-onboarding-step-title {
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-fav-onboarding-step-desc {
+  font-size: var(--housing-text-sm);
+  line-height: 1.5;
+  color: var(--housing-text-dim);
+}
+/* AI 風の色付き alert ボックスを避け、静かな注記に (ヘアライン区切り + 装飾なしのグレー文字)。 */
+.housing-fav-onboarding-tip {
+  margin: 0;
+  padding-top: calc(12px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
+
+/* ============================================================
+ * 入口オーサリングページ (開発専用ツール): 全区画の入口マーカーを
+ * ドラッグ補正し JSON 書き出しするための最小UI。本番非露出。
+ * ============================================================ */
+/* 開発専用オーサリング: ツアーパネル chrome (overflow:hidden/固定aspect/overlay pointer-events:none) は
+ * 流用しない。地図全体を見せる専用ステージ + 操作可能オーバーレイにする。 */
+.housing-entrance-authoring { position: relative; width: 100%; min-height: 100dvh; padding: calc(16px * var(--housing-scale)); }
+/* 地図ステージ: aspect-ratio(=viewBox)と max-width(高さを 82vh に収める)は inline style で付与。 */
+.housing-entrance-stage {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(14px * var(--housing-scale));
+}
+.housing-entrance-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: auto; overflow: visible; }
+.housing-entrance-marker {
+  fill: var(--housing-entrance-marker);
+  r: calc(var(--housing-entrance-marker-size) / 2); /* CSS r で presentation 属性(フォールバック用 r={7})を上書き */
+  pointer-events: auto;
+  cursor: grab;
+}
+.housing-entrance-marker--corrected { fill: var(--housing-entrance-marker-corrected); }
+.housing-entrance-marker-label { fill: var(--housing-map-light); font-size: calc(10px * var(--housing-scale)); pointer-events: none; }
+
+/* ===== DEV専用: 全住所ツアープレビュー操作バー (本番非露出) ===== */
+.housing-dev-tourpreview { display: flex; flex-direction: column; height: 100vh; }
+.housing-dev-tourpreview .housing-tour-page { flex: 1; min-height: 0; }
+.housing-dev-tourpreview-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: calc(12px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) var(--housing-main-padding);
+  background: var(--housing-panel-bg-solid);
+  color: var(--housing-text);
+  border-bottom: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+}
+.housing-dev-tourpreview-count { color: var(--housing-text-mute); }
+/* DEV 経路エディタの操作ヒント。以前は撤去した .housing-tour-map-legend を流用していたため専用化。 */
+.housing-route-editor-hint { margin: 0; color: var(--housing-text-mute); }
+.housing-dev-tourpreview-label { font-weight: 600; }
+.housing-dev-tourpreview-badge {
+  padding: calc(2px * var(--housing-scale)) calc(8px * var(--housing-scale)); border-radius: calc(6px * var(--housing-scale)); border: 1px solid var(--housing-divider);
+}
+.housing-dev-tourpreview-badge--entrance { color: var(--housing-honey); }
+.housing-dev-tourpreview-badge--geo { color: var(--housing-text-mute); }
+.housing-dev-tourpreview-btn {
+  padding: calc(4px * var(--housing-scale)) calc(10px * var(--housing-scale)); border: 1px solid var(--housing-divider); border-radius: calc(6px * var(--housing-scale));
+  background: transparent; color: var(--housing-text); cursor: pointer;
+}
+.housing-dev-tourpreview-jump { margin-left: auto; max-width: calc(240px * var(--housing-scale)); }
+
+/* ============================================================
+ * 未ログイン時のログイン案内 (HousingLoginPrompt)
+ * 2026-07-10: LoPo 汎用トークン (bg-app-blue 等) を撤去しハウジング トンマナへ。
+ * 版面は TourEmptyState と同じ静かな中央寄せ空状態。CTA はハニー (主アクション)。
+ * ============================================================ */
+.housing-login-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: calc(10px * var(--housing-scale));
+  padding: calc(32px * var(--housing-scale)) calc(16px * var(--housing-scale));
+  max-width: 34em;
+}
+.housing-login-prompt-title {
+  margin: 0;
+  font-size: var(--housing-text-base);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-login-prompt-lead {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  line-height: 1.6;
+  color: var(--housing-text-mute);
+}
+/* .housing-action-btn の小さめ padding を、単独 CTA として押しやすいサイズへ上書き。
+   色・グラデ・影・hover/active は .housing-btn-primary (ハニー主アクション正典) が担う。 */
+.housing-login-prompt-cta {
+  margin-top: calc(6px * var(--housing-scale));
+  padding: calc(10px * var(--housing-scale)) calc(18px * var(--housing-scale));
+  font-size: var(--housing-text-sm);
+}
+
+/* ツアーの「みんなを招待」コーナーパネル(240px幅)に出す場合は、RegisterPage の
+   大きい中央寄せカードではなく詰めた左寄せに調整する(未ログインでも招待の入口が
+   わかるように、この場所だけログイン案内へ差し替える)。 */
+.housing-tour-invite--login .housing-login-prompt {
+  padding: 0;
+  align-items: flex-start;
+  text-align: left;
+  gap: calc(8px * var(--housing-scale));
+  max-width: none;
+}
+.housing-tour-invite--login .housing-login-prompt-cta {
+  width: 100%;
+  /* 土台 .housing-action-btn は justify-content 未指定(=flex-start)のため、全幅にすると
+     文字が左に寄って見える(register の主CTAと同じ既知パターン)。中央寄せに揃える。 */
+  justify-content: center;
+}
+
+/* 未ログイン時 (panel-solo) は案内をパネルの中央に置く。
+   .housing-register-col は height:100% + flex column なので既定だと上端に貼り付く。
+   margin:auto は overflow-y:auto でも上端が切れない安全な中央寄せ (justify-content:center は切れる)。 */
+.housing-register-panel-solo .housing-register-col {
+  align-items: center;
+}
+.housing-register-panel-solo .housing-register-col > * {
+  margin: auto;
+}
+
+/* ============================================================
+ * 重複チェック: 「見つかった」ときは赤で強く出す
+ * 見落とすと二重登録になるため。ただし色地の alert 箱にはせず、
+ * 赤いヘアライン + 赤文字 + ⚠ アイコン で示す (housing-design.md と両立)。
+ * ============================================================ */
+.housing-register-dup-panel[data-state="found"] .housing-register-dup-panel-title {
+  color: var(--housing-danger);
+}
+.housing-register-dup-found-lead {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--housing-scale));
+  margin: 0;
+  padding-bottom: calc(10px * var(--housing-scale));
+  border-bottom: 1px solid var(--housing-danger);
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-danger);
+}
+.housing-register-dup-found-icon {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-md);
+  line-height: 1;
+}
+/* 重複カード自体も赤縁にして、一覧の中で「これが重複だ」と分かるようにする。 */
+.housing-register-dup-panel[data-state="found"] .housing-register-dup-public-card {
+  border-color: var(--housing-danger);
+  background: var(--housing-danger-soft);
+}
+
+/* ============================================================
+ * 地図の奥行き演出 (案C・2026-07-10)
+ * rotateX で実際に傾けるのは不可: .housing-map-zoom は translate()scale() の
+ * アフィン変換前提で、mapZoom.ts の zoomAt がその逆算をしている。3D を入れると
+ *   (a) ホイール/ピンチのカーソル固定アンカーが破綻
+ *   (b) エーテライトラベルは兄弟要素で手動投影しているためマーカーとズレる
+ *   (c) 3D レイヤー昇格で拡大時の滲みが再発 (意図的に避けてある)
+ * ため、座標系には一切触れず、方向を持たない全周ヴィネットだけを重ねる。
+ * (上端だけ落とす案は「遠方」でなく「帯」に見えてバランスを崩したので撤回)
+ * wrap は transform でスタッキングコンテキストを作るので HUD(z-index:7) より下に収まる。
+ * ============================================================ */
+.housing-tour-map-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse 76% 76% at 50% 50%,
+    transparent var(--housing-map-depth-start),
+    var(--housing-map-depth-vignette) 100%
+  );
+}
+/* エーテライトラベルは奥行きオーバーレイより上に (読めなくならないように)。 */
+.housing-tour-map-aetheryte-label {
+  z-index: 2;
+}
+
+/* ============================================================
+ * モバイルシェル基盤 (Task1: ボトムナビ / FAB / フィルタ・設定シート)
+ * ============================================================ */
+
+/* ----- ボトムナビ ----- */
+.housing-bottomnav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--housing-z-mobile-chrome);
+  display: flex;
+  align-items: stretch;
+  height: var(--housing-bottomnav-h);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* 常設ナビは従来どおり軽く透ける (ユーザー訂正: 不透明にするのはシートの方)。 */
+  background: var(--housing-panel-bg-solid);
+  border-top: 1px solid var(--housing-panel-border);
+  box-shadow: inset 0 calc(1.5px * var(--housing-scale)) calc(1px * var(--housing-scale)) rgba(255, 255, 255, 0.14);
+}
+.housing-bottomnav-item {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(3px * var(--housing-scale));
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--housing-text-mute);
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.housing-bottomnav-item.is-active {
+  color: var(--housing-honey);
+}
+.housing-bottomnav-icon {
+  position: relative;
+  display: inline-flex;
+}
+/* 実機FB⑧: ログイン項目のアバター(顔写真/頭文字絵文字)。他の lucide アイコン(size=20)と
+   同じ視覚サイズに合わせた円形サムネイル。 */
+.housing-bottomnav-avatar {
+  width: calc(20px * var(--housing-scale));
+  height: calc(20px * var(--housing-scale));
+  border-radius: calc(999px * var(--housing-scale));
+  overflow: hidden;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--housing-avatar-ring);
+  background: var(--housing-avatar-bg);
+}
+.housing-bottomnav-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(11px * var(--housing-scale));
+  line-height: 1;
+}
+.housing-bottomnav-badge {
+  position: absolute;
+  top: calc(-2px * var(--housing-scale));
+  right: calc(-3px * var(--housing-scale));
+  width: var(--housing-notif-dot-size);
+  height: var(--housing-notif-dot-size);
+  border-radius: 50%;
+  background: var(--housing-notif-badge-bg);
+}
+.housing-bottomnav-label {
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+/* 2026-07-24: ログイン中のアカウント項目 (マイページ/アカウント設定の2択ポップオーバー)。 */
+.housing-bottomnav-account {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+}
+.housing-bottomnav-account .housing-bottomnav-item {
+  flex: 1 1 0;
+}
+.housing-bottomnav-account-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + calc(8px * var(--housing-scale)));
+  min-width: calc(168px * var(--housing-scale));
+  border-radius: calc(12px * var(--housing-scale));
+  padding: calc(6px * var(--housing-scale));
+  display: flex;
+  flex-direction: column;
+  gap: calc(2px * var(--housing-scale));
+  z-index: var(--housing-popover-z-stack);
+}
+.housing-bottomnav-account-menu button {
+  background: transparent;
+  border: none;
+  color: var(--housing-text);
+  font-size: var(--housing-text-base);
+  text-align: left;
+  padding: calc(10px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  cursor: pointer;
+  border-radius: calc(8px * var(--housing-scale));
+}
+.housing-bottomnav-account-menu button:hover {
+  background: var(--housing-honey-medium);
+}
+
+/* ----- 登録 FAB ----- */
+.housing-mobile-fab {
+  position: fixed;
+  right: var(--housing-fab-offset);
+  bottom: calc(var(--housing-bottomnav-h) + var(--housing-fab-gap) + env(safe-area-inset-bottom, 0px));
+  z-index: var(--housing-z-mobile-chrome);
+  width: var(--housing-fab-size);
+  height: var(--housing-fab-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: var(--housing-honey);
+  color: var(--housing-honey-text-strong);
+  box-shadow: var(--housing-panel-shadow);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.housing-mobile-fab:active {
+  transform: scale(0.94);
+}
+
+/* ----- フィルターシート ----- */
+.housing-mobile-filter-search {
+  margin-bottom: calc(12px * var(--housing-scale));
+}
+/* タグ欄はフィルター本文 (.housing-panel-body・左右 16px) の外に置かれているので、同じ左右余白で上の欄と端をそろえる。 */
+.housing-mobile-sheet .housing-tagpicker-inline {
+  padding-left: calc(16px * var(--housing-scale));
+  padding-right: calc(16px * var(--housing-scale));
+}
+

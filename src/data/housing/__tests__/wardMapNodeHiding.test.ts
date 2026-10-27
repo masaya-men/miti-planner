@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { readCssBundle } from '../../../styles/__tests__/readCssBundle';
 
 /**
  * ワードマップの Node 赤丸 (#FF0000) 隠蔽の回帰テスト。
@@ -38,7 +39,7 @@ const MAP_FILES = [
   'empyreumSub.generated.svg',
 ];
 
-const css = readFileSync(CSS_PATH, 'utf8');
+const css = readCssBundle(CSS_PATH);
 
 /** housing.css から `.<host> svg <SELECTOR> { display: none }` の SELECTOR を取り出す */
 function hidingSelectorFor(host: string): string | null {

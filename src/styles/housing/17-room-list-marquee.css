@@ -1,0 +1,487 @@
+/* 吹き出しカード (2026-07-12 案B): フル ListingCard を常時1枚描画し、区画中央にアンカー。
+ * 通常時は面の scale で小さく (--housing-bmap-scale-collapsed)、hover/focus で面の scale を
+ * 打ち消す逆スケール (--housing-bmap-scale-inv = 1/actualScale) で画面固定サイズへ膨らむ。
+ * しっぽ (::after) と flip は廃止 (中央アンカー)。frosted glass は入れ子 transform で崩れうるため
+ * 実機で崩れたら background を --housing-panel-bg-solid へ寄せ backdrop-filter を外す (spec §3.5)。 */
+.housing-bmap-card {
+  --housing-bmap-clamp-x: 0px;
+  --housing-bmap-clamp-y: 0px;
+  --housing-bmap-scale: var(--housing-bmap-scale-collapsed);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: var(--housing-bmap-card-w);
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+  pointer-events: auto;
+  cursor: pointer;
+  border-radius: calc(14px * var(--housing-scale));
+  background: var(--housing-panel-bg);
+  --tw-backdrop-blur: blur(calc(8px * var(--housing-scale)));
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  transform-origin: 50% 50%;
+  transform: translate(
+      calc(-50% + var(--housing-bmap-clamp-x)),
+      calc(-50% + var(--housing-bmap-clamp-y))
+    )
+    scale(var(--housing-bmap-scale));
+  transition: transform 180ms ease;
+}
+/* hover/focus 中 (= 親が expandedKey に選んだスポット): 面の scale を打ち消して画面固定サイズへ。 */
+.housing-bmap-card[data-expanded="true"] {
+  --housing-bmap-scale: var(--housing-bmap-scale-inv);
+  z-index: 10;
+}
+/* 拡大中スポットの marker-pos を兄弟より前面へ (自スタッキングコンテキストの底上げ)。 */
+.housing-bmap-marker-pos:has(.housing-bmap-card[data-expanded="true"]) {
+  z-index: 1;
+}
+
+/* 複数スポットの「N件を見る」導線 (パネルを開く)。AI 風ピルを避け、ヘアライン + 静かなグレー文字。 */
+.housing-bmap-card-more {
+  align-self: stretch;
+  appearance: none;
+  cursor: pointer;
+  padding: calc(5px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-panel-bg-solid);
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-xs);
+  text-align: center;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.housing-bmap-card-more:hover {
+  border-color: var(--housing-honey-border);
+  color: var(--housing-candle);
+}
+
+/* ============================================================
+ * RoomListPanel (②-b): 1スポット大量部屋の専用パネル (A案・地図に重なる)。
+ * 地図はマウントしたまま裏に残す。質感A案 (濃紺フラット)・全 token 経由。
+ * mask の #000/transparent は alpha 専用 (色トークン対象外・.housing-tour-steps-list と同規約)。
+ * ============================================================ */
+.housing-bmap-roompanel {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  /* 透明感のあるフロスト = 色は載せず backdrop のぼかしのみ。後ろの地図がぼんやり透ける
+     (ユーザー確定: 地図は隠さずぼかす)。★角丸は --housing-mapctl-areas-radius を使う: 半径が違うと裏のピルの角がパネルの角から
+     はみ出て「四角い出っ張り」に見えるため (2026-07-12 ユーザー指摘で判明)。clip-path は
+     ぼかし込みで要素を角丸に切り抜く保険 (border-radius と同値)。 */
+  border-radius: var(--housing-mapctl-areas-radius);
+  clip-path: inset(0 round var(--housing-mapctl-areas-radius));
+  border: 1px solid var(--housing-panel-border);
+  --tw-backdrop-blur: blur(calc(8px * var(--housing-scale)));
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  animation: housing-bmap-roompanel-in 190ms ease;
+}
+@keyframes housing-bmap-roompanel-in {
+  /* opacity のみ (transform を使うと backdrop-filter との合成で角がちらつくため)。 */
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.housing-bmap-roompanel-header {
+  display: flex;
+  align-items: center;
+  gap: calc(12px * var(--housing-scale));
+  padding: calc(12px * var(--housing-scale)) calc(16px * var(--housing-scale));
+  /* 地はパネル全体のぼかしが担うので、ヘッダーは区切り線だけ (帯の個別背景は撤去)。 */
+  border-bottom: 1px solid var(--housing-divider);
+}
+.housing-bmap-roompanel-back {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(4px * var(--housing-scale));
+  appearance: none;
+  cursor: pointer;
+  padding: calc(6px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-sm);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.housing-bmap-roompanel-back:hover {
+  border-color: var(--housing-honey-border);
+  color: var(--housing-candle);
+}
+.housing-bmap-roompanel-title {
+  font-size: var(--housing-text-md);
+  font-weight: 600;
+  color: var(--housing-text);
+}
+.housing-bmap-roompanel-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  /* 横パディングは一覧グリッド (.housing-listing-grid: 4px) に合わせて詰める。ここが広いと
+     グリッドの実効幅が狭まり列数が減って1枚が大きくなる (=一覧とカード寸法がずれる原因)。 */
+  padding: calc(8px * var(--housing-scale)) calc(4px * var(--housing-scale)) calc(12px * var(--housing-scale)) calc(4px * var(--housing-scale));
+  scrollbar-width: none; /* Firefox: スクロールバー非表示 (端はフェードで示す) */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--housing-bmap-roompanel-fade), #000 calc(100% - var(--housing-bmap-roompanel-fade)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--housing-bmap-roompanel-fade), #000 calc(100% - var(--housing-bmap-roompanel-fade)), transparent 100%);
+}
+.housing-bmap-roompanel-body::-webkit-scrollbar { display: none; } /* WebKit: スクロールバー非表示 */
+.housing-bmap-roompanel-section-label {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+  margin: calc(4px * var(--housing-scale)) 0 calc(10px * var(--housing-scale));
+}
+.housing-bmap-roompanel-house {
+  max-width: var(--housing-bmap-card-w);
+  margin-bottom: calc(16px * var(--housing-scale));
+}
+/* 探す一覧 (.housing-listing-grid) と同一のサイズ規則でカードを完全一致させる (ユーザー指摘)。
+   grid-auto-rows:max-content はフッター(ツアー追加)切れ (B8) 回避。overflow はパネル本体側が持つ
+   (家全体+見出し+個室を一緒にスクロールさせるため grid 自体には持たせない)。カードの
+   content-visibility は .housing-listing-card 側 (contain-intrinsic-size:0 205px) が内蔵済み。 */
+.housing-bmap-roompanel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--housing-listing-card-min-w), 1fr));
+  grid-auto-rows: max-content;
+  gap: var(--housing-main-gap);
+  align-content: start;
+}
+
+
+.housing-listing-grid {
+  display: grid;
+  /* 参考UI準拠で密に (中央幅で4列以上)。左右パネルを狭めた分、一覧性を上げる。 */
+  grid-template-columns: repeat(auto-fill, minmax(var(--housing-listing-card-min-w), 1fr));
+  /* 行高は必ずカード実寸 (max-content) で作る。既定の grid-auto-rows:auto は、
+     カードのメディアが padding-top:75% (%パディング) で高さを作る構造だと、
+     ログイン後に自分の登録が後から読み込まれてカードが動的に増える再レイアウト時に
+     %パディングを 0 とみなして行を ~32px に潰し、フッター(ツアー追加ボタン)を
+     overflow:hidden で切り落とす (登録所有者=ログイン時のみ再現の実機バグ)。
+     max-content にすると %パディングが正しく解決され、静的/動的どちらでも実寸になる。 */
+  grid-auto-rows: max-content;
+  gap: var(--housing-main-gap);
+  overflow-y: auto;
+  min-height: 0;
+  /* カード枚数が少なくパネルより低くても、パネル下端まで枠自体は埋める
+     (2026-08-14ユーザー提案: 上のツールバー集約とセットで、下端に余白を残さない)。
+     flex-shrink は既定の 1 のまま (カードが多くて溢れる場合は従来通り縮んで内部スクロール)。 */
+  flex: 1 1 auto;
+  /* ホバーの浮き上がり (translateY(-2px)) がスクロール枠の上端で切れないよう
+     上に余白を確保し、negative margin で見た目の開始位置は変えない。 */
+  padding: calc(4px * var(--housing-scale)) calc(4px * var(--housing-scale)) calc(4px * var(--housing-scale)) 0;
+  margin-top: calc(-4px * var(--housing-scale));
+  align-content: start;
+}
+
+/* 生きたカード = 画像タイル (比率 token) + 画像に被らない常設フッター (ツアーに追加)。
+   情報はホバー時に画像の下端からせり上がるオーバーレイパネル (行高さに影響しない)。
+   全カードが同一構造なので高さが一意に決まり、グリッド行の高さ計算バグ (B8) が構造的に起きない。 */
+.housing-listing-card {
+  display: flex; flex-direction: column;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(14px * var(--housing-scale));
+  overflow: hidden;
+  contain-intrinsic-size: 0 calc(205px * var(--housing-scale));
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.housing-listing-card:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+.housing-listing-card:hover {
+  transform: translateY(calc(-2px * var(--housing-scale)));
+  border-color: var(--housing-honey-border);
+  box-shadow: 0 calc(8px * var(--housing-scale)) calc(24px * var(--housing-scale)) rgba(0, 0, 0, 0.35), 0 0 0 calc(1px * var(--housing-scale)) var(--housing-honey-inset);
+}
+/* 画像エリア。高さは %パディング (=幅×3/4) で作る: 中身は全て absolute 配置なので
+   これだけで箱が成立し、aspect-ratio の intrinsic 計算バグ (B8) を完全に迂回する。
+   flex 圧縮禁止も維持。 */
+.housing-listing-card-media {
+  position: relative;
+  flex: 0 0 auto;
+  padding-top: var(--housing-listing-card-media-pad);
+  background: var(--housing-card-thumb-bg);
+  overflow: hidden;
+}
+.housing-listing-card-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: opacity var(--housing-card-blur-fade) ease;
+}
+/* ThumbHash ぼかしプレースホルダ (§5.5)。メイン <img> より DOM 上で前 = 背面に描かれる。
+   背景画像は data URI を TSX の inline style で当てる (テーマ色ではなくデータなのでトークン外)。 */
+.housing-listing-card-blur {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: opacity var(--housing-card-blur-fade) ease;
+}
+.housing-listing-card-blur[data-hidden] {
+  opacity: 0;
+}
+/* ぼかし表示中 (coverThumbHash あり & メイン画像 load 前) はメイン画像を opacity:0 にし、
+   load 完了で data-blur-pending が外れると 0→1 にトランジションして「ぼかしの上に鮮明画像が
+   現れる」本物のリビール (§5.5) にする。coverThumbHash 無しのカードは data-blur-pending が
+   付かないため既定 opacity:1 のまま = 従来挙動。 */
+.housing-listing-card-media[data-blur-pending] .housing-listing-card-img {
+  opacity: 0;
+}
+/* 運営非表示の家 (ハウジンガーページ専用): 非リンク・画像なしの無地タイル + 横向きの帯。 */
+.housing-listing-card-admin-hidden { cursor: default; }
+.housing-listing-card-admin-hidden:hover {
+  transform: none;
+  border-color: var(--housing-panel-border);
+  box-shadow: none;
+}
+.housing-listing-card-admin-hidden-band {
+  position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+  padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  background: var(--housing-panel-bg-solid);
+  border-top: 1px solid var(--housing-divider);
+  border-bottom: 1px solid var(--housing-divider);
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm); font-weight: 600;
+  text-align: center;
+}
+/* 画像に被らない常設フッター (主アクション) */
+.housing-listing-card-footer {
+  flex: 0 0 auto;
+  padding: calc(8px * var(--housing-scale)) calc(10px * var(--housing-scale)) calc(10px * var(--housing-scale));
+}
+.housing-listing-card-footer .housing-card-add-btn {
+  width: 100%;
+  margin-top: 0;
+}
+/* マイページ専用: 画像タイル右上に重ねる公開状態バッジ (HousingFavHeart と排他・同じ位置)。
+   旧: 画像の下に専用フッター行を作っていたためカードが縦に長く、一度に見える件数が
+   少なかった (2026-07-24 実機指摘・画像上のオーバーレイに統合して行数を稼ぐ)。 */
+.housing-card-visibility-badge-overlay {
+  position: absolute;
+  top: calc(8px * var(--housing-scale));
+  right: calc(8px * var(--housing-scale));
+  z-index: 2;
+  max-width: calc(100% - calc(16px * var(--housing-scale)));
+  border-color: var(--housing-panel-border);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--housing-text);
+}
+.housing-card-visibility-badge-overlay:hover {
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--housing-text);
+}
+/* カード (.housing-listing-card) が overflow:hidden を持つため、メニューは
+   createPortal で document.body 直下に出す (ListingCard.tsx)。カード内の相対配置ではなく
+   画面座標の position:fixed で、ボタンの位置を基準に top/right を inline style で指定する
+   (2026-07-24 実機指摘: カード内に収めようとして表示が崩れていた)。
+   .housing-card-visibility-menu (下方定義、position:absolute) より詳細度を上げて確実に勝たせる
+   ため複合セレクタにする (単純にファイル内の定義順で上書きすると将来の並べ替えで壊れやすい)。 */
+.housing-card-visibility-menu.housing-card-visibility-menu-portal {
+  position: fixed;
+  left: auto;
+  bottom: auto;
+}
+/* body 直下の portal は .housing-workspace の外なので --housing-* が未解決になる
+   (2026-07-24 実機バグ)。ただし .housing-workspace 側の共有ブロックには token 定義に加えて
+   ページ全体のシェルレイアウト (width:100%/height:100vh/position:relative 等) も同居しており、
+   丸ごと同じセレクタに加えるとメニューがそのシェルサイズ(画面いっぱい)に引き伸ばされてしまう
+   (実機で幅819px×高さ673pxの巨大な板になる不具合を確認済み)。他の3クラス
+   (.housing-panel-modal-backdrop 等) は自前で position:fixed/inset:0 を上書きしているため
+   実害が出ていなかっただけで、この menu には無関係な副作用だった。そのため共有ブロックには
+   加えず、実際に使っている --housing-* だけをここで個別に再定義する
+   (.housing-panel-modal-backdrop が font-family/color を自前で持つのと同じやり方)。 */
+.housing-card-visibility-menu-portal {
+  --housing-popover-z-stack: 90;
+  --housing-panel-bg-solid: rgba(13, 18, 30, 0.74);
+  --housing-panel-border: rgba(255, 255, 255, 0.16);
+  --housing-popover-shadow-glass:
+    0 calc(20px * var(--housing-scale)) calc(56px * var(--housing-scale)) rgba(0, 0, 0, 0.5),
+    inset 0 calc(1.5px * var(--housing-scale)) calc(1px * var(--housing-scale)) rgba(255, 255, 255, 0.14),
+    inset 0 calc(-1.5px * var(--housing-scale)) calc(2px * var(--housing-scale)) rgba(255, 255, 255, 0.05),
+    inset 0 0 calc(22px * var(--housing-scale)) rgba(255, 255, 255, 0.03);
+  --housing-text: #ffffff;
+  --housing-text-base: calc(14px * var(--housing-scale));
+  --housing-honey-medium: rgba(255, 201, 135, 0.14);
+  --housing-disabled-opacity: 0.35;
+}
+.housing-card-visibility-badge {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: calc(6px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text-dim);
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.housing-card-visibility-badge:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+.housing-card-visibility-menu {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + calc(4px * var(--housing-scale)));
+  min-width: calc(140px * var(--housing-scale));
+  border-radius: calc(12px * var(--housing-scale));
+  padding: calc(6px * var(--housing-scale));
+  display: flex;
+  flex-direction: column;
+  gap: calc(2px * var(--housing-scale));
+  z-index: var(--housing-popover-z-stack);
+}
+.housing-card-visibility-menu button {
+  background: transparent;
+  border: none;
+  color: var(--housing-text);
+  font-size: var(--housing-text-base);
+  text-align: left;
+  padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  cursor: pointer;
+  border-radius: calc(8px * var(--housing-scale));
+}
+.housing-card-visibility-menu button:hover:not(:disabled) {
+  background: var(--housing-honey-medium);
+}
+.housing-card-visibility-menu button:disabled {
+  opacity: var(--housing-disabled-opacity);
+  cursor: not-allowed;
+}
+.housing-card-edit-btn {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: calc(6px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text-dim);
+}
+.housing-card-edit-btn:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+/* マイページ専用: 画像タイル右下に重ねる編集ボタン。.housing-card-fav (右上) と同じ
+   丸背景トーンに揃える。 */
+.housing-card-edit-btn-overlay {
+  position: absolute;
+  bottom: calc(8px * var(--housing-scale));
+  right: calc(8px * var(--housing-scale));
+  z-index: 2;
+  width: calc(30px * var(--housing-scale));
+  height: calc(30px * var(--housing-scale));
+  border-radius: 50%;
+  border-color: var(--housing-panel-border);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--housing-text);
+}
+.housing-card-edit-btn-overlay:hover {
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--housing-text);
+}
+/* 左上の常時表示列: 選択チェック + 非公開/期限切れ印 */
+.housing-listing-card-topleft {
+  position: absolute; top: calc(8px * var(--housing-scale)); left: calc(8px * var(--housing-scale)); z-index: 2;
+  display: flex; align-items: center; gap: calc(6px * var(--housing-scale));
+}
+/* 下端の常時キャプション (タイトル1行・グラデーションで画像を邪魔しない)。
+   タグ・住所・サイズは出さない (2026-07-03 ユーザー合意: 情報は詳細ページ/フィルタが担い、
+   カードは「静かな画像タイル + タイトル」だけにする)。 */
+.housing-listing-card-caption {
+  /* z-content(3) で動画オーバーレイ(video=2)より前面に。これが無いと動画再生中に
+     タイトルが動画に覆われて消える (静止カードは出るのに動画カードだけ消えるバグ)。 */
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: var(--housing-card-overlay-z-content);
+  padding: calc(20px * var(--housing-scale)) calc(12px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0));
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm); font-weight: 600;
+  pointer-events: none;
+}
+/* ===== カード内 1行ループマーキー (HousingCardMarqueeLine) =====
+   見切れたタイトルだけ、カードホバー中に「あいうえお　　あいうえお　　…」と
+   ゆっくり左へ流れ続ける (往復型 lopo-name-marquee とは別の静かなティッカー)。
+   距離/時間は ResizeObserver 計測で --marquee-distance / --marquee-duration に注入。 */
+.housing-marquee-clip {
+  display: block; min-width: 0;
+  overflow: hidden; white-space: nowrap;
+}
+.housing-marquee-track {
+  display: inline-flex;
+}
+.housing-marquee-copy {
+  display: inline-flex; align-items: center; gap: calc(5px * var(--housing-scale));
+  white-space: nowrap;
+  line-height: 1.35;
+  /* コピー間の間隔 (ループの「余白」)。offsetWidth に含めて1周距離の計測を単純化する */
+  padding-right: var(--housing-marquee-gap);
+}
+@keyframes housing-marquee-loop {
+  from { transform: translateX(0); }
+  to   { transform: translateX(var(--marquee-distance, 0)); }
+}
+.housing-listing-card:hover .housing-marquee-clip[data-clipped] .housing-marquee-track,
+.housing-listing-card:focus-within .housing-marquee-clip[data-clipped] .housing-marquee-track {
+  animation: housing-marquee-loop var(--marquee-duration, 10s) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-listing-card .housing-marquee-track { animation: none !important; }
+}
+.housing-card-fav {
+  position: absolute; top: calc(8px * var(--housing-scale)); right: calc(8px * var(--housing-scale)); z-index: 2;
+  width: calc(30px * var(--housing-scale)); height: calc(30px * var(--housing-scale)); border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--housing-panel-border);
+  color: var(--housing-text); cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.housing-card-fav:hover { background: rgba(0, 0, 0, 0.6); }
+.housing-card-fav:active { transform: scale(0.92); }
+.housing-card-fav.is-on { color: var(--housing-honey); }
+.housing-card-fav.is-on svg { fill: currentColor; }
+/* いいね押下フィードバック: ハートの pop バウンド(拡大+軽いひねりで settle) + 多方向パーティクル飛散
+   (追加時のみ)。 2026-07-20 ユーザー要望で強化: 土台の「弾んで粒が飛ぶ」仕組みは変えず、
+   スケール/ひねり/粒の量と飛距離をより派手に。 */
+.housing-card-fav.is-pop svg {
+  animation: housing-fav-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+}
+@keyframes housing-fav-pop {
+  0% { transform: scale(1) rotate(0deg); }
+  38% { transform: scale(1.5) rotate(-10deg); }
+  62% { transform: scale(1.26) rotate(6deg); }
+  82% { transform: scale(1.08) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.housing-fav-particle {
+  position: absolute; top: 50%; left: 50%;
+  width: var(--fav-size, calc(5px * var(--housing-scale))); height: var(--fav-size, calc(5px * var(--housing-scale)));
+  margin: calc(var(--fav-size, calc(5px * var(--housing-scale))) / -2) 0 0 calc(var(--fav-size, calc(5px * var(--housing-scale))) / -2);
+  border-radius: 50%; background: var(--housing-honey);
+  pointer-events: none;
+  animation: housing-fav-fly 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--fav-delay, 0ms);
+}
+@keyframes housing-fav-fly {
+  to { transform: translate(var(--fav-tx), var(--fav-ty)) scale(0); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-card-fav.is-pop svg { animation: none; }
+  .housing-fav-particle { display: none; }
+}
+

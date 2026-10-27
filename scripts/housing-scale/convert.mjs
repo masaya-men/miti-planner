@@ -8,8 +8,16 @@
 //  (e) それ以外(トークン定義・calc/clamp/min/max 内・transform・keyframes 内)は全て変換
 import fs from 'node:fs';
 
-const FILE = new URL('../../src/styles/housing.css', import.meta.url);
+// housing.css は入口。変換するのは入口の @import に並ぶ分割ファイル (src/styles/housing/*.css) を 1 本ずつ。
+// (center-tokens は center-tokens.mjs が生成するファイルなので対象外。分割の切れ目はルールの外なので 1 本ずつでも結果は同じ)
+const DIR = new URL('../../src/styles/', import.meta.url);
+const entry = fs.readFileSync(new URL('housing.css', DIR), 'utf8');
+const FILES = [...entry.matchAll(/@import\s+"\.\/(housing\/[^"]+)";/g)]
+  .map((m) => m[1])
+  .filter((f) => !f.endsWith('-center-tokens.css'))
+  .map((f) => new URL(f, DIR));
 const dry = process.argv.includes('--dry');
+for (const FILE of FILES) {
 const src = fs.readFileSync(FILE, 'utf8');
 
 const stats = { converted: 0, skipMobile: 0, skipHairline: 0, skipZero: 0, skipOther: 0 };
@@ -112,3 +120,4 @@ out += seg;
 
 console.log(JSON.stringify(stats));
 if (!dry) fs.writeFileSync(FILE, out);
+}

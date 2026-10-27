@@ -1,0 +1,321 @@
+/* ============================================================
+ * Housing workspace — independent design system.
+ * Does NOT inherit LoPo white/black or Inter-ban rules.
+ * Source of truth: docs/.private/housing-tour-mockup/index.html
+ * ============================================================ */
+
+.housing-workspace,
+.housing-panel-modal-backdrop,
+.housing-modal-backdrop,
+.housing-dev-tourpreview {
+  /* ===== Color tokens =====
+     workspace と portal 化されたモーダルの両方で token を解決させる。
+     モーダルは createPortal で body 直下に出るため、 .housing-workspace
+     外でも var(--housing-*) を効かせる必要がある。 */
+  --housing-honey: #ffc987;
+  --housing-honey-glow: #ffb35a;
+  --housing-candle: #ffe2b3;
+  --housing-ribbon-shine: rgba(255, 255, 255, 0.75); /* NEW の帯の上を通る光沢 */
+  /* マップ用 (Mist 等のワード地図 / エーテライト) */
+  --housing-aether: #00BFFF;        /* FF14 エーテライト水晶のシアン */
+  --housing-aether-soft: #9fe9ff;
+  --housing-aether-medium: rgba(0, 191, 255, 0.14);  /* 青バッジ面 (オンボのステップ番号等) */
+  --housing-aether-border: rgba(0, 191, 255, 0.5);   /* 青バッジ枠 */
+  /* 確認 CTA (B案・2026-07-15): 「この住所で間違いありません」を鮮やかな青の塗りボタンで強調。
+     ハニー (=主アクション「公開する」) と役割を分けるため青系。青面に濃紺文字を乗せる
+     (ハニー塗り+濃文字と対称)。glow は未確認パルスの誘導色。light/dark 共通 (パネルは常に濃紺)。 */
+  --housing-aether-cta-bg: #00BFFF;
+  --housing-aether-cta-bg-hover: #33ccff;
+  --housing-aether-cta-text: #04222f;
+  --housing-aether-glow-soft: rgba(0, 191, 255, 0.42);
+  --housing-aether-glow-strong: rgba(0, 191, 255, 0.85);
+  --housing-map-light: #ffffff;     /* 道なぞりの先頭の白い光 */
+  /* 質感A案 (2026-07-01): 参考UIへ寄せる。白テキストが読める濃紺の面へ。
+     動画背景は veil で後退させ、パネルは半不透明の濃紺で「落ち着いた面」にする。
+     旧値 rgba(255,255,255,0.04) は透けすぎて暗幕頼みだった。light/dark 共通 (text は常に白)。 */
+  --housing-panel-bg: rgba(17, 23, 37, 0.56);
+  --housing-panel-bg-solid: rgba(13, 18, 30, 0.74);
+  /* ハウジンガーページのカード上の「ツアーに追加」帯/丸ボタンの面 (2026-10-22 見本) */
+  --housing-card-add-glass: rgba(13, 18, 30, 0.72);
+  --housing-card-add-glass-hover: rgba(30, 38, 58, 0.9);
+  /* 「…」メニュー専用: 背後の本文が透けて読めないよう、濃紺をほぼ不透明に (blur/大影なし) */
+  --housing-menu-bg-opaque: rgba(13, 18, 30, 0.96);
+  /* 実機FB第2弾#1(訂正): 完全不透明面は「常設ボトムナビ」ではなく「シート(フィルター/設定)」用。
+     ナビは従来どおり panel-bg-solid の透けを残し、開いたシートだけ中身が透けないようにする。 */
+  --housing-mobile-chrome-bg: rgb(13, 18, 30);
+  /* 探す地図② 大量部屋パネルの角丸 (旧: 区画セグメント .housing-mapctl-areas と共有していた値)。大量部屋パネル
+     (.housing-bmap-roompanel) が同じ角丸で上に重なるので、裏のピルの角が
+     パネルの角からはみ出さないよう共有する (2026-07-12 ユーザー指摘)。 */
+  --housing-mapctl-areas-radius: calc(9px * var(--housing-scale));
+  --housing-panel-border: rgba(255, 255, 255, 0.16);
+  --housing-panel-border-strong: rgba(255, 255, 255, 0.28);
+  --housing-panel-inner: rgba(255, 255, 255, 0.05);
+  --housing-panel-shadow: 0 calc(16px * var(--housing-scale)) calc(40px * var(--housing-scale)) rgba(0, 0, 0, 0.4);
+  --housing-skeleton-block: rgba(255, 255, 255, 0.10);
+  --housing-skeleton-block-soft: rgba(255, 255, 255, 0.08);
+  --housing-toast-info-bg: rgba(0, 0, 0, 0.85);
+  --housing-toast-error-bg: rgba(255, 128, 128, 0.95);
+  --housing-text: #ffffff;
+  --housing-text-dim: rgba(255, 255, 255, 0.78);
+  --housing-text-mute: rgba(255, 255, 255, 0.55);
+  --housing-divider: rgba(255, 255, 255, 0.12);
+  --housing-register-stepper-ring-w: 2;
+  --housing-text-shadow: 0 calc(1px * var(--housing-scale)) calc(2px * var(--housing-scale)) rgba(0, 0, 0, 0.55), 0 0 calc(10px * var(--housing-scale)) rgba(0, 0, 0, 0.32);
+
+  /* DEV 経路エディタ: ナビ赤線の可視化(本番非表示・DEVのみ)。 */
+  --housing-dev-navline: #ff3b3b;
+  --housing-dev-navline-w: calc(1.5px * var(--housing-scale));
+
+  /* ===== Honey accent transparencies ===== */
+  --housing-honey-soft: rgba(255, 201, 135, 0.08);
+  --housing-honey-medium: rgba(255, 201, 135, 0.14);
+  --housing-honey-strong: rgba(255, 201, 135, 0.18);
+  --housing-honey-border: rgba(255, 201, 135, 0.55);
+  --housing-honey-inset: rgba(255, 201, 135, 0.2);
+  /* 入力途中で外側クリックしたときの枠の縁取り(index.css の .backdrop-nudge)をハチミツ色に */
+  --backdrop-nudge-rgb: 255, 201, 135;
+  --housing-honey-knob-ring: rgba(255, 201, 135, 0.28);
+  --housing-honey-fill-glow: rgba(255, 180, 90, 0.5);
+  --housing-honey-shadow-soft: rgba(255, 180, 90, 0.45);
+  --housing-honey-shadow-strong: rgba(255, 180, 90, 0.55);
+  --housing-ripple: rgba(255, 201, 135, 0.4);   /* クリックリップルの拡散色 (ハニー系alpha) */
+  /* ハニー面の上に乗る濃い文字色 (テーマ追加時に取り残さないよう token 化)。 */
+  --housing-honey-text: #241a0a;
+  --housing-honey-text-strong: #1a1006;
+
+  /* ===== Register modal field tokens ===== */
+  --housing-field-bg-auto: rgba(255, 201, 135, 0.16);
+  --housing-field-bg-confirmed: rgba(120, 200, 130, 0.18);
+  --housing-field-bg-error: rgba(255, 90, 90, 0.16);
+  --housing-field-border-auto: rgba(255, 201, 135, 0.6);
+  --housing-field-border-confirmed: rgba(120, 200, 130, 0.6);
+  --housing-field-border-error: rgba(255, 90, 90, 0.7);
+  --housing-badge-glow: 0 0 calc(12px * var(--housing-scale)) rgba(255, 201, 135, 0.7);
+  --housing-field-spacing-xs: calc(6px * var(--housing-scale));
+
+  /* ===== Surface variants ===== */
+  --housing-chip-bg: rgba(255, 255, 255, 0.05);
+  --housing-chip-bg-hover: rgba(255, 255, 255, 0.08);
+  --housing-chip-bg-active: var(--housing-honey-medium);
+  /* 暗く沈んだチップ/コントロール基調色 (公開設定チップ・トグルトラック等)。--housing-chip-bg は明るい半透明白で別用途のため流用しない */
+  --housing-chip-sunken-bg: rgba(0, 0, 0, 0.42);
+  --housing-overlay-strong: rgba(0, 0, 0, 0.35);
+  --housing-bubble-bg: rgba(0, 0, 0, 0.45);
+  --housing-bubble-shadow: 0 calc(4px * var(--housing-scale)) calc(12px * var(--housing-scale)) rgba(0, 0, 0, 0.4);
+  --housing-card-thumb-bg: rgba(0, 0, 0, 0.3);
+  --housing-card-tag-bg: rgba(255, 255, 255, 0.08);
+
+  /* ===== 2026-05-27 動画 / ambient slideshow オーバーレイ ===== */
+  --housing-slideshow-fade-ms: 600ms;
+  --housing-slideshow-img-fit: cover;
+  --housing-card-overlay-z-ambient: 1;
+  --housing-card-overlay-z-video: 2;
+  --housing-card-overlay-z-content: 3;
+  /* 2026-08-31: カード画像の ThumbHash ぼかしプレースホルダが load 完了でフェードアウトする時間。 */
+  --housing-card-blur-fade: 400ms;
+
+  /* ===== Semantic / status ===== */
+  --housing-warning: #ff8080;
+  --housing-danger: #ff8a6c;          /* 警告系赤 (削除タイトル / kebab 削除項目) */
+  --housing-danger-soft: rgba(255, 138, 108, 0.16);
+  --housing-danger-btn: #c44a3a;      /* 削除ボタン */
+  --housing-danger-btn-hover: #d85b4a;
+  --housing-disabled-opacity: 0.35;
+
+  /* 地図の奥行き演出 (2026-07-10・案C: 実際に傾けない)。
+     rotateX は pan/zoom の座標逆変換とラベル投影を壊すため使わない。
+     当初は上端だけ落として「遠方」を表現したが、傾いていない平面で片側だけ暗くすると
+     奥行きでなく「帯」に見えてバランスが崩れたため、方向を持たない全周ヴィネットに変更。 */
+  --housing-map-depth-vignette: rgba(0, 0, 0, 0.30); /* 四隅が沈む量 */
+  --housing-map-depth-start: 58%;                    /* ここまでは完全に透明 (中心を汚さない) */
+
+  /* ===== Modal / popover surfaces ===== */
+  --housing-modal-overlay: rgba(0, 0, 0, 0.55);
+  --housing-popover-bg: rgba(20, 14, 8, 0.96);
+  --housing-popover-bg-strong: rgba(20, 14, 8, 0.98);
+  --housing-popover-shadow: 0 calc(12px * var(--housing-scale)) calc(32px * var(--housing-scale)) rgba(0, 0, 0, 0.5);
+  /* 通知/ケバブ/警告ダイアログのガラス面 (#D)。周囲の質感A案パネル (.housing-panel) と同じ
+     「半透明ネイビー + 縁の光」に揃えるための影 = ドロップ影 + 上端リム + 下端リム + 微かな内側グロー。
+     旧 --housing-popover-bg-navy (不透明ネイビーの箱) は撤去し、面自体は panel-bg-solid(0.74) を使う。 */
+  --housing-popover-shadow-glass:
+    0 calc(20px * var(--housing-scale)) calc(56px * var(--housing-scale)) rgba(0, 0, 0, 0.5),
+    inset 0 calc(1.5px * var(--housing-scale)) calc(1px * var(--housing-scale)) rgba(255, 255, 255, 0.14),
+    inset 0 calc(-1.5px * var(--housing-scale)) calc(2px * var(--housing-scale)) rgba(255, 255, 255, 0.05),
+    inset 0 0 calc(22px * var(--housing-scale)) rgba(255, 255, 255, 0.03);
+  --housing-popover-z: 80;
+  --housing-popover-z-stack: 90;
+  --housing-tour-complete-z: 60;      /* ツアー完了オーバーレイ(3パネルの上・detail 70/popover 80 未満) */
+  --housing-tour-complete-veil: rgba(255, 255, 255, 0.1); /* 完了オーバーレイ: ほんの少し白いフロスト(暗幕にしない) */
+
+  /* ===== Detail (Phase 3) ===== */
+  --housing-detail-backdrop-bg: rgba(0, 0, 0, 0.6);
+  --housing-detail-title-size: calc(22px * var(--housing-scale));
+  --housing-detail-tag-bg: var(--housing-honey-medium);
+  --housing-detail-tag-border: var(--housing-honey-border);
+  --housing-detail-empty-h: calc(240px * var(--housing-scale));
+  --housing-detail-side-w: calc(320px * var(--housing-scale));         /* 右レールの列幅 (md+) */
+  --housing-detail-map-h: calc(180px * var(--housing-scale));          /* 区画マップの帯高 (md+) */
+  --housing-detail-map-h-mobile: calc(320px * var(--housing-scale));   /* 単一カラム時のマップ高 (モバイル) */
+  --housing-detail-thumbrail-w: calc(84px * var(--housing-scale));     /* 縦サムネイル列の幅 (メインの右) */
+  --housing-detail-fullpage-max-w: calc(1200px * var(--housing-scale));
+
+  /* ===== Task 7: ハウジンガー登録者行 / ハウジンガーページ ===== */
+  --housinger-avatar-size-sm: calc(20px * var(--housing-scale));       /* 詳細パネルの登録者行 */
+  --housinger-avatar-size-lg: calc(64px * var(--housing-scale));       /* ハウジンガーページのヘッダー (2026-07-24: 96px から 2/3 に縮小) */
+  --housinger-avatar-bg: var(--housing-chip-bg);
+  --housinger-avatar-text: var(--housing-honey);
+  --housinger-page-name-size: calc(18px * var(--housing-scale));       /* ハウジンガー名 (2026-07-24: 22px から 4/5 に縮小) */
+
+  /* ===== Phase 3 Group D: report / notifications ===== */
+  --housing-report-modal-max-w: calc(440px * var(--housing-scale));
+  --housing-report-modal-padding: calc(24px * var(--housing-scale));
+  --housing-report-title-size: calc(18px * var(--housing-scale));
+  --housing-input-bg: rgba(255, 255, 255, 0.05);
+  --housing-input-bg-strong: rgba(255, 255, 255, 0.08);
+  --housing-input-bg-hover: rgba(255, 255, 255, 0.12);
+  --housing-input-radius-sm: calc(10px * var(--housing-scale));
+  --housing-notif-bell-size: calc(40px * var(--housing-scale));
+  --housing-notif-badge-bg: var(--housing-danger-btn);
+  --housing-notif-badge-color: #ffffff;
+  --housing-notif-badge-size: calc(18px * var(--housing-scale));
+  --housing-notif-badge-offset: calc(-4px * var(--housing-scale));
+  --housing-notif-badge-padding-x: calc(5px * var(--housing-scale));
+  --housing-notif-badge-radius: calc(999px * var(--housing-scale));
+  --housing-notif-dropdown-w: calc(360px * var(--housing-scale));
+  --housing-notif-dropdown-max-vw-pad: calc(24px * var(--housing-scale));
+  --housing-notif-dropdown-gap: calc(8px * var(--housing-scale));
+  --housing-notif-dropdown-radius: calc(14px * var(--housing-scale));
+  --housing-notif-dropdown-z: 95;
+  --housing-notif-list-max-h: calc(360px * var(--housing-scale));
+  --housing-notif-item-divider: rgba(255, 255, 255, 0.04);
+  --housing-notif-time-size: calc(11px * var(--housing-scale));
+  --housing-notif-dot-size: calc(8px * var(--housing-scale));
+  --housing-guide-comment-bg: rgba(255, 255, 255, 0.05);
+  --housing-guide-comment-border: var(--housing-honey);
+
+  /* ===== Typography sizes (px-based, mockup-aligned) ===== */
+  --housing-text-xs: calc(11px * var(--housing-scale));
+  --housing-text-sm: calc(12px * var(--housing-scale));
+  --housing-text-md: calc(13px * var(--housing-scale));
+  --housing-text-base: calc(14px * var(--housing-scale));
+  --housing-text-lg: calc(16px * var(--housing-scale));
+  --housing-text-input: calc(12.5px * var(--housing-scale));
+  --housing-ad-label-size: calc(10px * var(--housing-scale));
+  --housing-text-xl: calc(18px * var(--housing-scale));
+
+  /* ===== Z-index tokens ===== */
+  --housing-z-modal-base: 50;
+  --housing-z-modal-stack: 60;
+  --housing-z-header-dropdown: 40;
+
+  /* ===== Layout tokens ===== */
+  --housing-header-h: calc(60px * var(--housing-scale));
+  --housing-status-h: calc(40px * var(--housing-scale));
+  --housing-panel-radius: calc(18px * var(--housing-scale));
+  --housing-main-gap: calc(14px * var(--housing-scale));
+  --housing-main-padding: calc(14px * var(--housing-scale));
+  /* 参考UI準拠: 左右パネルを狭め、中央グリッドを広く(4列の一覧性を確保)。 */
+  --housing-left-w: calc(240px * var(--housing-scale));
+  --housing-right-w: calc(300px * var(--housing-scale));
+  /* ツアー中ページ Phase3: 左=目的地ショーケース(広め) / 右=進行状況(狭め)。
+     共有の --housing-left-w/--housing-right-w とは独立 (workspace 等に波及させない)。 */
+  --housing-tour-showcase-w: calc(300px * var(--housing-scale));
+  --housing-tour-progress-w: calc(240px * var(--housing-scale));
+  /* ツアー計画画面 (未開始・トレイに行き先あり): 左=選択中の家の詳細パネル固定幅 / 右=蛇行グリッド。
+     蛇行グリッドの --housing-snake-row-h / --housing-snake-col-w は TourTrayBoard 側で
+     行数計算と揃える必要があるため、同コンポーネントの inline style で与えている。 */
+  --housing-tour-plan-detail-w: calc(320px * var(--housing-scale));
+  /* 共有ツアー同期 (Task 2.1): 幹事の招待オーバーレイ (中央地図パネル右下)。
+     地図内部オーバーレイ(cross z:6/label z:4)より前面・完了オーバーレイ(60)/ヘッダードロップダウン(40)より背面。 */
+  --housing-tour-invite-w: calc(240px * var(--housing-scale));
+  --housing-tour-invite-z: 15;
+  --housing-bubble-w: calc(80px * var(--housing-scale));
+  --housing-bubble-pin: calc(6px * var(--housing-scale));
+  --housing-listing-card-min-w: calc(198px * var(--housing-scale));
+  /* Task7 ハウジンガーページ 2026-07-24 レイアウト刷新: 左列(プロフィール)固定幅 + 自己紹介文の
+     内部スクロール上限。 */
+  --housinger-page-profile-col-w: calc(260px * var(--housing-scale));
+  --housinger-page-bio-max-h: calc(200px * var(--housing-scale));
+  /* 探す地図: 拡大カード (ListingCard 素通し) の幅は一覧グリッドのカードと同一に見せる。
+     グリッドは minmax(--housing-listing-card-min-w, 1fr) で実測 ~203px。フロートするカードは
+     1fr 伸長ができないため同じ基準トークンに連動させる (誤差数px・知覚不可・テーマ追従)。
+     2026-07-11 ユーザー要望で旧 280px から一覧カード基準へ変更。 */
+  --housing-bmap-card-w: var(--housing-listing-card-min-w);
+  /* 探す地図: マーカー上のカードの縮小率 (未 hover 時)。hover で scale 1 へ拡大する。
+     2026-07-12 ユーザー要望: 小さいカードが hover でそのまま膨らむ演出。実機で微調整可。 */
+  /* PC 倍率下でも「未 hover の見た目の大きさは地図に対して一定」(旧 zoom 版と同じ) になるよう、
+     カード幅に掛かる --housing-scale を打ち消す (÷倍率)。 */
+  --housing-bmap-scale-collapsed: calc(0.5 / var(--housing-scale));
+  /* 大量部屋パネルのスクロール上下端フェード距離 (スクロールバー代わり)。 */
+  --housing-bmap-roompanel-fade: calc(24px * var(--housing-scale));
+  /* カード画像部の縦横比 (2026-07-03 ユーザー選定: 4:3 = 約1.33倍)。
+     aspect-ratio ではなく「幅に対する%パディング」で高さを作る (3/4 = 75%)。
+     aspect-ratio はグリッド行の高さ計算で Chrome のバージョンによって取りこぼされ、
+     フッターや画像が切り落とされる (B8 実機再発 2026-07-03)。%パディングは全ブラウザで確実。 */
+  --housing-listing-card-media-pad: 75%;
+  /* ループマーキーのコピー間余白 (「あいうえお　　あいうえお」の空白部分) */
+  --housing-marquee-gap: calc(48px * var(--housing-scale));
+  --housing-fav-thumb-min: calc(64px * var(--housing-scale));
+  --housing-ad-slot-bg: rgba(255, 255, 255, 0.02);
+  --housing-panel-corner-size: calc(72px * var(--housing-scale));
+  /* ===== ツアー中(Nav) 左カラム: 進捗パネル (Task4) ===== */
+  --housing-tour-ring-size: calc(108px * var(--housing-scale));      /* 進捗リングの表示直径 */
+  --housing-tour-ring-stroke: calc(8px * var(--housing-scale));      /* 進捗リングの線幅 (トラック/進捗弧 共通) */
+  --housing-tour-steps-fade: calc(32px * var(--housing-scale));      /* ステップ一覧の上下端フェード(スクロール示唆)の距離 */
+  --housing-filter-body-fade: calc(28px * var(--housing-scale));     /* フィルターパネル本文の上下端フェード距離 */
+  --housing-detail-textscroll-fade: calc(32px * var(--housing-scale)); /* 詳細パネル本文スクロールの上下端 alpha フェード距離 */
+  --housing-tour-map-intro-dur: 0.75s;  /* 目的地変更時「全景→ズームイン」演出の尺 */
+  --housing-tour-map-intro-ease: cubic-bezier(0.22, 1, 0.36, 1); /* 同・イージング(ease-out系) */
+  --housing-tour-map-fade-dur: 0.4s;    /* 目的地変更時の地図クロスフェード(dip)の尺 */
+  --housing-tour-step-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* ステップ連結線の伸び/ドットのポップ(バネ・オーバーシュート) */
+  /* ===== 入口オーサリングページ (開発専用ツール・Task5 sub) ===== */
+  --housing-entrance-marker: var(--housing-text-mute);       /* 未補正(幾何のまま) */
+  --housing-entrance-marker-corrected: var(--housing-honey); /* 補正済(ドラッグした) */
+  --housing-entrance-marker-size: calc(14px * var(--housing-scale));
+  /* ===== ツアー中地図: 区画/道路の枠線色 (改善8・トークン化) =====
+     元SVGの stroke="black" (純黒) を世界観の淡色へ CSS で上書きする。
+     初期案A(キャンドル系淡線)。最終色は実画面(CSS1489/DPR2.58)でユーザーが確定する。 */
+  --housing-map-label-bg: rgba(58, 66, 82, 0.66);        /* エーテライト名ラベルの地。地図の中間スレートに寄せ、黒浮きを避けグレー系に統一 */
+  --housing-map-stroke: rgba(255, 226, 179, 0.42);       /* 区画/アパートの輪郭 (道と同格=枠線の品質を揃える。旧0.30は道より薄く「品質差」に見えた) */
+  --housing-map-stroke-road: rgba(255, 226, 179, 0.42);  /* 道路本体 */
+
+  /* ===== 再構築シェル (Rebuild) tokens ===== */
+  --housing-tab-active: var(--housing-honey);
+
+  /* ===== モバイルシェル基盤 (Task1: ボトムナビ/FAB/フィルタ・設定シート) =====
+     --housing-bottomnav-h は MobileBottomSheet の bottom:calc(3.5rem + safe-area) 着地と
+     一致させる値 (3.5rem=56px)。シートは housing 専用トークンを持たない共有コンポーネントの
+     ため、こちらの値をシート側の着地位置に合わせて選んだ。 */
+  --housing-bottomnav-h: 3.5rem;
+  --housing-fab-size: 3.25rem;
+  --housing-fab-gap: 0.75rem;
+  --housing-fab-offset: 1rem;
+  --housing-z-mobile-chrome: 45; /* 通常コンテンツより前面、モーダル(--housing-z-modal-base=50)より背面 */
+
+  /* ===== Task4: ツアーのスマホ横持ちUI(案A) =====
+     行き方+前へ/見学/次への下部操作バーの高さ目安(可変・min-heightとして使用)。 */
+  --housing-tour-mobilebar-h: 3rem;
+  --housing-traybar-h: calc(86px * var(--housing-scale)); /* スマホの浮かぶツアートレイ (2 段) の高さ。一覧末尾の余白計算用 */
+  --housing-tour-mobilebar-top-h: 2rem; /* 下部バー上段 (順番を変える) の高さ */
+  --housing-visited-opacity: 0.6; /* ナビ中の並び替え: 見学済みの薄さ */
+
+  /* ===== Typography ===== */
+  font-family: "Inter", "Helvetica Neue", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
+  font-size: calc(14px * var(--housing-scale));
+  line-height: 1.55;
+  color: var(--housing-text);
+  text-shadow: var(--housing-text-shadow);
+  -webkit-font-smoothing: antialiased;
+
+  background: #000;
+  position: relative;
+  /* 実機FB⑦: iOS Safari の 100vh はアドレスバー込みの大きい viewport を指すため、overflow:hidden な
+     この根っこの高さがアドレスバー表示時の実visible領域よりはみ出し、下端寄りの子要素(絶対配置の
+     モバイル UI 等)が画面外(見切れ)になる。.housing-shell 側は 767px 以下で既に dvh 対応済みだが、
+     その親であるここ (.housing-workspace) は未対応だった。dvh 対応ブラウザは 2 行目が勝つ。 */
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+}
+

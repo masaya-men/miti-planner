@@ -1,0 +1,40 @@
+/* ============================================================
+ * PC (≥768px) の表示倍率と文字サイズ (旧 ?typo=c を正式採用・CSS zoom は使わない)
+ * 長さ(px)は convert.mjs で calc(Npx * var(--housing-scale)) に変換済み。
+ * 倍率は下の 2 トークンを変えるだけで全体に効く:
+ *   --housing-scale-pc     = 全体(ヘッダー・左右パネル・各ページ)
+ *   --housing-scale-center = 探すページの中央パネル (.housing-browse-col-center)
+ * スマホ (≤767px) は常に 1 (変化なし)。
+ * ============================================================ */
+:root {
+  --housing-scale-pc: 0.8;
+  --housing-scale-center: 0.75;
+  --housing-scale: 1;
+}
+@media (min-width: 768px) {
+  :root { --housing-scale: var(--housing-scale-pc); }
+  .housing-browse-col-center { --housing-scale: var(--housing-scale-center); }
+  /* html:root = 旧お試し版 (html の属性セレクタ) と同じ詳細度を保つ (既存ルールに負けないため) */
+  /* 文字: 読む文字を zoom 版 C 案と同じ大きさに (倍率は別途掛かる) */
+  html:root .housing-workspace,
+  html:root .housing-card-visibility-menu-portal,
+  html:root .housing-tour-error-bubble {
+    --housing-text-xs: calc(13px * var(--housing-scale));
+    --housing-text-sm: calc(14px * var(--housing-scale));
+    --housing-text-md: calc(15.5px * var(--housing-scale));
+    --housing-text-base: calc(16.5px * var(--housing-scale));
+    --housing-text-input: calc(15px * var(--housing-scale));
+    --housing-text-lg: calc(21px * var(--housing-scale));
+    --housing-text-xl: calc(23.5px * var(--housing-scale));
+  }
+  /* 見出し・強調: 太字で強弱を付ける */
+  html:root .housing-listing-card-caption { font-size: calc(16px * var(--housing-scale)); font-weight: 700; }
+  html:root .housing-listing-grid-heading { font-size: calc(17px * var(--housing-scale)); font-weight: 700; }
+  html:root .housing-listing-grid-count { font-size: calc(17px * var(--housing-scale)); font-weight: 700; }
+  html:root .housing-result-count .now { font-size: calc(18px * var(--housing-scale)); font-weight: 700; }
+  html:root .housing-tour-tray-title { font-size: calc(17px * var(--housing-scale)); font-weight: 700; }
+  /* 補足 */
+  html:root .housing-filter-label,
+  html:root .housing-card-size { color: var(--housing-text-mute); }
+}
+

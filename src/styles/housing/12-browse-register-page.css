@@ -1,0 +1,407 @@
+/* ===== 探すページ (3カラム) ===== */
+.housing-browse {
+  display: grid;
+  grid-template-columns: var(--housing-left-w) 1fr var(--housing-right-w);
+  gap: var(--housing-main-gap);
+  padding: var(--housing-main-padding);
+  min-height: 0;
+  height: 100%;
+}
+/* フラットパネル (液体ガラスの外側湾曲/屈折は不採用=ユーザー確定 2026-07-01)。
+   落ち着いた濃紺の面 + 1px 枠 + 控えめな影のみ。開閉しない固定パネル。 */
+.housing-browse-panel {
+  position: relative;
+  display: flex; flex-direction: column;
+  min-height: 0; height: 100%;
+  background: var(--housing-panel-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: var(--housing-panel-radius);
+  box-shadow: var(--housing-panel-shadow);
+  overflow: hidden;
+}
+.housing-browse-col {
+  display: flex; flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  /* 内側余白 = 文字がガラス枠にぶつかって見切れるのを防ぐ。 */
+  padding: calc(14px * var(--housing-scale)) calc(16px * var(--housing-scale));
+}
+/* 中央カラムだけ下側の内側余白を0に(2026-08-14ユーザー指定=フェード演出をパネル下端まで
+   使い切りたいので、いったん詰めてみる)。左右カラム(FilterPanel/TourTray)は元のまま。 */
+.housing-browse-col-center { overflow: hidden; padding-bottom: 0; }
+/* 探すページだけ: 「一覧|マップ|タグ」+「件数・並び替え」を1段に集約した分、ツールバーと
+   カードの境目が曖昧にならないよう常時区切り線を出す(2026-08-14ユーザー指定)。
+   他ページ(ハウジンガー等)のListingGrid再利用箇所には影響させない。
+   padding-bottom = 文字と線の間の余白、wrap側のgapが線とカードの間の余白を担う。 */
+.housing-browse-col-center .housing-listing-grid-toolbar {
+  padding: 0 0 calc(8px * var(--housing-scale)) 0;
+  border-bottom: 1px solid var(--housing-divider);
+}
+/* 探すページ中央だけ: 見出し→カードの二重余白(toolbar padding + wrap gap)を詰めて 8 枚を見切れなく収める
+   という元の狙いは維持しつつ、区切り線とカードの間にも最低限の余白を持たせる。 */
+.housing-browse-col-center .housing-listing-grid-wrap { gap: calc(10px * var(--housing-scale)); }
+/* パネルの高さが行の高さの整数倍にならない画面(実機1489x679等)では、最後の行がタイトル/ボタン
+   無しで画像だけ中途半端に見切れる(2026-08-14ユーザー実機指摘=カード表示エリアの下端がおかしい)。
+   カードを大きくして埋めるのではなく、下端をソフトフェードにして「まだ続きがある」と読める
+   見え方にする(スクロール位置に関わらず常時、下端40pxをグラデーションで透過)。
+   マスクは実際にスクロールする .housing-listing-grid 本体ではなく、その親(スクロールしない
+   .housing-listing-grid-wrap)に掛ける。wrap は toolbar(flex:0 0 auto)+ grid(flex:1 1 auto)の
+   縦積みで、grid が残り全部を埋めるため wrap の下端 = grid の下端(見た目は変わらない)。
+   スクロールする要素自身に mask-image を掛けると、スクロール中にマスクの再合成が毎フレーム
+   走り体感が重くなる(iOS Safari実機で顕著)ため、この分離で回避する
+   (2026-08-14ユーザー実機報告「スマホでスクロールが重い」の根本原因・修正)。 */
+.housing-browse-col-center .housing-listing-grid-wrap {
+  mask-image: linear-gradient(to bottom, black calc(100% - calc(40px * var(--housing-scale))), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - calc(40px * var(--housing-scale))), transparent 100%);
+}
+/* 左フィルタは FilterPanel の head/body が縦余白を持つので、横はカラム余白に一本化 (二重余白回避)。 */
+.housing-browse-col-left .housing-panel-head { padding-left: 0; padding-right: 0; }
+.housing-browse-col-left .housing-panel-body { padding-left: 0; padding-right: 0; }
+
+/* ===== 登録ページ (3カラム、探すページと同じ骨格) ===== */
+.housing-register {
+  display: grid;
+  grid-template-columns: var(--housing-left-w) 1fr var(--housing-right-w);
+  gap: var(--housing-main-gap);
+  padding: var(--housing-main-padding);
+  min-height: 0;
+  height: 100%;
+}
+/* 未ログイン時 (ログイン案内のみ) は3カラムでなく中央1枚に寄せる。 */
+.housing-register-panel-solo {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.housing-register-panel {
+  position: relative;
+  display: flex; flex-direction: column;
+  min-height: 0; height: 100%;
+  background: var(--housing-panel-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: var(--housing-panel-radius);
+  box-shadow: var(--housing-panel-shadow);
+  overflow: hidden;
+}
+.housing-register-col {
+  display: flex; flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  padding: calc(14px * var(--housing-scale)) calc(16px * var(--housing-scale));
+}
+/* 中央・右カラムは縦スクロール可に (#6)。右カラムは入力チェック + 重複 + 地図で伸びる。 */
+.housing-register-col-center,
+.housing-register-col-right { overflow-y: auto; }
+
+/* 左カラム (#6 改): ステッパーをスクロール領域に入れ (ガイドは右カラムへ移設済)、本日の登録枠 (残数) は
+   スクロールの外=左パネル最下部に固定する。低い viewport でも残数が常に見えるようにする。 */
+.housing-register-col-left { overflow: hidden; }
+.housing-register-left-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+}
+.housing-register-left-remaining {
+  flex: 0 0 auto;
+  margin: 0;
+  padding-top: calc(12px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
+/* はじめの登録チケットが尽きた後どうなるかの添え書き(常時ではなくチケット残あり時だけ)。
+   新しい区切り線は足さず、上の残数表示に寄り添う静かな1行にする。 */
+.housing-register-left-remaining-hint {
+  flex: 0 0 auto;
+  margin: calc(4px * var(--housing-scale)) 0 0;
+  font-size: var(--housing-text-xs);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
+
+/* 登録フォームの中央カラム: セクション単位で縦積み。要素毎の padding-bottom ではなく
+   コンテナ gap で余白リズムを揃える (housing-design.md 質感A案・余白リズム原則)。 */
+.housing-register-sections {
+  display: flex; flex-direction: column;
+  gap: calc(20px * var(--housing-scale));
+}
+.housing-register-section {
+  display: flex; flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+}
+/* セクション見出し = 質感A案「青 = 進行」の縦アクセント。ハニーは主アクション専用に温存する。 */
+.housing-register-section-title {
+  position: relative;
+  margin: 0;
+  padding-left: calc(10px * var(--housing-scale));
+  font-size: var(--housing-text-base);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-section-title::before {
+  content: '';
+  position: absolute;
+  left: 0; top: calc(1px * var(--housing-scale)); bottom: calc(1px * var(--housing-scale));
+  width: calc(3px * var(--housing-scale));
+  border-radius: calc(2px * var(--housing-scale));
+  background: var(--housing-aether);
+}
+.housing-register-required-mark {
+  margin-left: calc(4px * var(--housing-scale));
+  color: var(--housing-aether);
+}
+.housing-register-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(12px * var(--housing-scale));
+}
+.housing-register-fields-grid > .housing-field-full {
+  grid-column: 1 / -1;
+}
+/* 別リージョン DC 選択時の赤字注記。DC/サーバー行の直下に全幅で出して必ず目に入れる。 */
+.housing-register-fields-grid > .housing-register-cross-region-notice {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+/* 数値入力の自作 ▲▼ ステッパー。ネイティブ spinner を隠し「未入力+下→最大」を実現する
+   (HousingNumberStepper)。ボタンは input の内側右端にネスト、角丸は input(8px)に合わせる。 */
+.housing-stepper { position: relative; }
+.housing-stepper-input {
+  appearance: textfield;
+  -moz-appearance: textfield;
+  padding-right: calc(30px * var(--housing-scale));
+}
+.housing-stepper-input::-webkit-outer-spin-button,
+.housing-stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.housing-stepper-btns {
+  position: absolute; top: calc(1px * var(--housing-scale)); right: calc(1px * var(--housing-scale)); bottom: calc(1px * var(--housing-scale));
+  display: flex; flex-direction: column; width: calc(24px * var(--housing-scale));
+  border-left: 1px solid var(--housing-panel-border);
+  border-radius: 0 calc(7px * var(--housing-scale)) calc(7px * var(--housing-scale)) 0;
+  overflow: hidden;
+}
+.housing-stepper-btn {
+  flex: 1 1 0; min-height: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: transparent; cursor: pointer;
+  color: var(--housing-text-mute); font-size: calc(8px * var(--housing-scale)); line-height: 1;
+  transition: color 120ms ease, background-color 120ms ease;
+}
+.housing-stepper-up { border-bottom: 1px solid var(--housing-panel-border); }
+.housing-stepper-btn:hover { color: var(--housing-honey); background-color: var(--housing-honey-soft); }
+.housing-stepper-btn:active { color: var(--housing-honey); }
+.housing-stepper-btn:disabled {
+  cursor: not-allowed; opacity: 0.35;
+  color: var(--housing-text-mute); background-color: transparent;
+}
+
+/* ハウジンガー公開 CTA (Task9): 確認セクション直前の任意ブロック。何も要求しない導線なので
+   `.housing-register-section` の青アクセント見出し (= 必須ステップ扱い) は使わず、
+   ヘアライン区切り + 静かな見出しに留める (housing-design.md 「AI 感の払拭」原則)。 */
+.housing-register-housinger-cta {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+  padding-top: calc(16px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+}
+/* ボタンだけ内容幅に留める (見出し/説明はコンテナ幅いっぱいに広げたいので align-items は stretch のまま)。
+   .housing-action-btn 自身の display:inline-flex は「ボタン内部」の並びにのみ効き、
+   親 flex (column) の cross-axis サイズ (= 幅) は align-self で個別に制御する必要がある。 */
+.housing-register-housinger-cta .housing-action-btn {
+  align-self: flex-start;
+}
+.housing-register-housinger-cta-title {
+  margin: 0;
+  font-size: var(--housing-text-base);
+  font-weight: 600;
+  color: var(--housing-text);
+}
+.housing-register-housinger-cta-desc {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+  line-height: 1.5;
+}
+.housing-register-housinger-cta-published {
+  margin: 0;
+  padding-top: calc(16px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
+/* 画像/SNS URL セクション (Task11): 取得中スケルトン / 成功時枚数 / 失敗時の静かな注記。
+   質感A案の「AI 感の払拭」原則により、失敗通知は色付き alert 箱にせず
+   ヘアライン区切り + グレー文字の静かな注記にする (housing-design.md 参照)。 */
+.housing-register-media-skeleton-row {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+}
+.housing-register-media-success-note {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+/* B: 動画ツイートの最小プレビュー (poster 1枚 + 「動画あり」バッジ)。 token 経由・装飾ピルにしない。 */
+.housing-register-media-video {
+  position: relative;
+  margin-top: calc(8px * var(--housing-scale));
+  border-radius: calc(10px * var(--housing-scale));
+  overflow: hidden;
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-register-media-video-poster {
+  display: block;
+  width: 100%;
+  max-height: calc(200px * var(--housing-scale));
+  object-fit: cover;
+}
+.housing-register-media-video-badge {
+  position: absolute;
+  left: calc(8px * var(--housing-scale));
+  bottom: calc(8px * var(--housing-scale));
+  padding: calc(3px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  border-radius: calc(6px * var(--housing-scale));
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  color: var(--housing-candle);
+  background: var(--housing-overlay-strong);
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-register-media-quiet-notice {
+  margin: 0;
+  padding-top: calc(10px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--housing-scale));
+}
+.housing-register-media-quiet-notice-text {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-media-quiet-notice-hint {
+  margin: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+
+/* Batch2: 複数投稿URL入力欄 (HousingRegisterMultiUrlField) */
+.housing-register-multi-url-field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+}
+.housing-register-multi-url-row {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(8px * var(--housing-scale));
+}
+.housing-register-multi-url-row > *:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.housing-register-multi-url-remove {
+  flex: 0 0 auto;
+  width: calc(32px * var(--housing-scale));
+  height: calc(32px * var(--housing-scale));
+  margin-top: calc(2px * var(--housing-scale));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  appearance: none;
+  cursor: pointer;
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text-mute);
+  font-size: var(--housing-text-sm);
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.housing-register-multi-url-remove:hover {
+  background: var(--housing-warning);
+  border-color: var(--housing-warning);
+  color: var(--housing-honey-text-strong);
+}
+.housing-register-multi-url-remove:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+.housing-register-multi-url-add {
+  align-self: flex-start;
+  appearance: none;
+  cursor: pointer;
+  padding: calc(6px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px dashed var(--housing-aether-border);
+  background: transparent;
+  color: var(--housing-aether-soft);
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 500;
+  transition: background 0.12s ease, border-style 0.12s ease;
+}
+.housing-register-multi-url-add:hover {
+  background: var(--housing-aether-medium);
+  border-style: solid;
+}
+.housing-register-multi-url-add:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+
+/* Batch2: 画像/動画の上限案内 (静かな注記・alert箱にしない) */
+.housing-register-image-limit-note {
+  margin: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+
+/* Batch2: アップロード欄の折りたたみトグル (URL優先UI)。byline/元の投稿リンクと同じ静かなリンク見た目。 */
+.housing-register-toggle-upload {
+  align-self: flex-start;
+  appearance: none;
+  cursor: pointer;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--housing-aether-soft);
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: color 0.12s ease, text-decoration-color 0.12s ease;
+}
+.housing-register-toggle-upload:hover {
+  color: var(--housing-candle);
+  text-decoration-color: currentColor;
+}
+.housing-register-toggle-upload:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+.housing-register-upload-warning {
+  margin: 0 0 calc(8px * var(--housing-scale));
+  padding-top: calc(10px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+

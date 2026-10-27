@@ -2,6 +2,7 @@
 paths:
   - "src/components/housing/**"
   - "src/styles/housing.css"
+  - "src/styles/housing/**"
   - "src/__tests__/housing/**"
   - "src/pages/housing/**"
 ---

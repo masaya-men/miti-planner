@@ -1,0 +1,24 @@
+/* ===== SVG アイコン寸法の倍率 (PC のみ) =====
+   lucide などの <svg width="N" height="N"> は属性値なので CSS 変換できない。
+   属性値ごとに width/height を倍率付きで上書きする。:where() で詳細度 0 にし、
+   クラス側で寸法を指定している箇所はそちらを優先する。/housing 配下 (html[data-housing]) 限定。 */
+@media (min-width: 768px) {
+  :where(html[data-housing] svg[width="8"][height="8"]) { width: calc(8px * var(--housing-scale)); height: calc(8px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="10"][height="10"]) { width: calc(10px * var(--housing-scale)); height: calc(10px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="11"][height="11"]) { width: calc(11px * var(--housing-scale)); height: calc(11px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="12"][height="12"]) { width: calc(12px * var(--housing-scale)); height: calc(12px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="13"][height="13"]) { width: calc(13px * var(--housing-scale)); height: calc(13px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="14"][height="14"]) { width: calc(14px * var(--housing-scale)); height: calc(14px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="15"][height="15"]) { width: calc(15px * var(--housing-scale)); height: calc(15px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="16"][height="16"]) { width: calc(16px * var(--housing-scale)); height: calc(16px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="17"][height="17"]) { width: calc(17px * var(--housing-scale)); height: calc(17px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="18"][height="18"]) { width: calc(18px * var(--housing-scale)); height: calc(18px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="20"][height="20"]) { width: calc(20px * var(--housing-scale)); height: calc(20px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="22"][height="22"]) { width: calc(22px * var(--housing-scale)); height: calc(22px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="24"][height="24"]) { width: calc(24px * var(--housing-scale)); height: calc(24px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="28"][height="28"]) { width: calc(28px * var(--housing-scale)); height: calc(28px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="32"][height="32"]) { width: calc(32px * var(--housing-scale)); height: calc(32px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="40"][height="40"]) { width: calc(40px * var(--housing-scale)); height: calc(40px * var(--housing-scale)); }
+  :where(html[data-housing] svg[width="48"][height="48"]) { width: calc(48px * var(--housing-scale)); height: calc(48px * var(--housing-scale)); }
+}
+

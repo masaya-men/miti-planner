@@ -1,8 +1,9 @@
-import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { readCssBundle } from '../../../styles/__tests__/readCssBundle';
 
 // PC 倍率方式 (CSS zoom 不使用) の取り決めを housing.css に対して固定するテスト
-const css = readFileSync(new URL('../../../styles/housing.css', import.meta.url), 'utf8');
+const css = readCssBundle(fileURLToPath(new URL('../../../styles/housing.css', import.meta.url)));
 
 describe('housing.css の PC 倍率', () => {
   it('CSS zoom と ?typo 用の属性セレクタが残っていない', () => {

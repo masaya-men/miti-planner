@@ -1,0 +1,471 @@
+/* DC メニュー (「マップ」ボタンの下)。スクロールバーは出さず上下端フェードで続きを示す。 */
+.housing-dcmenu {
+  position: absolute;
+  top: calc(100% + calc(6px * var(--housing-scale)));
+  left: 0;
+  z-index: 30;
+  width: calc(300px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(4px * var(--housing-scale)) calc(8px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-panel-border-strong);
+  border-radius: calc(12px * var(--housing-scale));
+  box-shadow: var(--housing-popover-shadow);
+  -webkit-backdrop-filter: blur(calc(14px * var(--housing-scale)));
+  backdrop-filter: blur(calc(14px * var(--housing-scale)));
+  animation: housing-dcmenu-in 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes housing-dcmenu-in { from { opacity: 0; transform: translateY(calc(-6px * var(--housing-scale))); } }
+.housing-dcmenu-scroll,
+.housing-maprail-scroll {
+  --fade-top: var(--housing-filter-body-fade);
+  --fade-bottom: var(--housing-filter-body-fade);
+  overflow-y: auto;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+}
+.housing-dcmenu-scroll::-webkit-scrollbar,
+.housing-maprail-scroll::-webkit-scrollbar { display: none; }
+.housing-dcmenu[data-at-top="true"] .housing-dcmenu-scroll,
+.housing-maprail[data-at-top="true"] .housing-maprail-scroll { --fade-top: 0px; }
+.housing-dcmenu[data-at-bottom="true"] .housing-dcmenu-scroll,
+.housing-maprail[data-at-bottom="true"] .housing-maprail-scroll { --fade-bottom: 0px; }
+/* 高さの上限は画面の高さだけ (中央パネルに余裕があれば全 DC をスクロールなしで見せる・2026-10-22 masaya 指摘)。 */
+.housing-dcmenu-scroll { max-height: calc(100dvh - calc(200px * var(--housing-scale))); padding-right: calc(4px * var(--housing-scale)); }
+.housing-dcmenu-heading {
+  margin: calc(8px * var(--housing-scale)) calc(8px * var(--housing-scale)) calc(4px * var(--housing-scale));
+  font-size: var(--housing-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--housing-text-mute);
+}
+.housing-dcmenu-group:first-child .housing-dcmenu-heading { margin-top: 0; }
+.housing-dcmenu-row {
+  appearance: none; cursor: pointer; width: 100%;
+  display: flex; align-items: center; gap: calc(10px * var(--housing-scale));
+  padding: calc(7px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-md); text-align: left;
+  color: var(--housing-text-dim);
+  background: transparent; border: 0; border-radius: calc(8px * var(--housing-scale));
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.housing-dcmenu-row:hover:not(:disabled) { background: var(--housing-honey-soft); color: var(--housing-text); }
+.housing-dcmenu-row[data-selected="true"] { background: var(--housing-honey-medium); color: var(--housing-text); }
+.housing-dcmenu-row:disabled { opacity: var(--housing-disabled-opacity); cursor: default; }
+.housing-dcmenu-name { flex: 1 1 auto; font-weight: 700; }
+.housing-dcmenu-bar {
+  flex: 0 0 auto; width: calc(70px * var(--housing-scale)); height: calc(4px * var(--housing-scale)); border-radius: calc(2px * var(--housing-scale));
+  background: var(--housing-panel-inner); overflow: hidden;
+}
+.housing-dcmenu-bar i, .housing-maprail-mini i { display: block; height: 100%; background: var(--housing-honey); }
+.housing-dcmenu-n {
+  flex: 0 0 auto; min-width: calc(40px * var(--housing-scale)); text-align: right;
+  font-size: var(--housing-text-sm); font-variant-numeric: tabular-nums;
+}
+
+/* 案内板 (地図の左): ワールド → エリア → 区 → 本街/拡張街。 */
+.housing-maprail {
+  flex: 0 0 calc(236px * var(--housing-scale));
+  width: calc(236px * var(--housing-scale));
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.housing-maprail-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(14px * var(--housing-scale));
+}
+.housing-maprail-head {
+  margin: 0 0 calc(6px * var(--housing-scale));
+  display: flex; justify-content: space-between;
+  font-size: var(--housing-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--housing-text-mute);
+}
+.housing-maprail-row {
+  appearance: none; cursor: pointer; width: 100%;
+  display: flex; align-items: center; gap: calc(8px * var(--housing-scale));
+  padding: calc(6px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-md); text-align: left;
+  color: var(--housing-text-dim);
+  background: transparent;
+  border: 1px solid transparent; border-radius: calc(8px * var(--housing-scale));
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.housing-maprail-row:hover:not(:disabled) { background: var(--housing-honey-soft); }
+.housing-maprail-row[aria-pressed="true"] {
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+  color: var(--housing-text);
+}
+.housing-maprail-row:disabled { opacity: var(--housing-disabled-opacity); cursor: default; }
+.housing-maprail-nm { flex: 1 1 auto; min-width: 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.housing-maprail-mini {
+  flex: 0 0 auto; width: calc(48px * var(--housing-scale)); height: calc(4px * var(--housing-scale)); border-radius: calc(2px * var(--housing-scale));
+  background: var(--housing-panel-inner); overflow: hidden;
+}
+.housing-maprail-ct {
+  flex: 0 0 auto; min-width: calc(22px * var(--housing-scale)); text-align: right;
+  font-size: var(--housing-text-sm); font-variant-numeric: tabular-nums;
+}
+.housing-maprail-wards { display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(6px * var(--housing-scale)); }
+.housing-maprail-ward {
+  appearance: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center;
+  padding: calc(6px * var(--housing-scale)) 0 calc(5px * var(--housing-scale)); line-height: 1.1;
+  font-family: inherit;
+  color: var(--housing-text);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(8px * var(--housing-scale));
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.housing-maprail-ward:hover { border-color: var(--housing-honey-border); }
+.housing-maprail-ward b { font-size: var(--housing-text-md); }
+.housing-maprail-ward small { margin-top: calc(2px * var(--housing-scale)); font-size: calc(10px * var(--housing-scale)); color: var(--housing-text-mute); }
+.housing-maprail-ward[aria-pressed="true"] {
+  background: var(--housing-honey);
+  border-color: var(--housing-honey);
+  color: var(--housing-honey-text);
+}
+.housing-maprail-ward[aria-pressed="true"] small { color: var(--housing-honey-text); opacity: 0.7; }
+.housing-maprail-kinds {
+  margin-top: calc(8px * var(--housing-scale));
+  display: inline-flex;
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(8px * var(--housing-scale));
+  overflow: hidden;
+}
+.housing-maprail-kind {
+  appearance: none; cursor: pointer;
+  padding: calc(3px * var(--housing-scale)) calc(9px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+  background: transparent; border: 0;
+}
+.housing-maprail-kind[aria-pressed="true"] { background: var(--housing-honey-medium); color: var(--housing-text); }
+.housing-maprail-kind:disabled { opacity: var(--housing-disabled-opacity); cursor: default; }
+
+
+/* タグ検索ビュー (探すページ 3タブ目「タグ」・design 2026-07-27)。
+   WorldSelectGate と同じ chip の見た目 (section/label/grid/chip) を踏襲しつつ、
+   ゲートと違い1画面に収めず縦スクロールする長尺レイアウトにする。 */
+/* 探すページ「ハウジンガー」表示 (見本 H3: 行 = アイコン + 名前/紹介文1行 + 右に代表作の小サムネ)。
+ * 頭文字見出しは sticky、スクロールはこのビュー内で完結。 */
+.housing-housinger-view {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 calc(4px * var(--housing-scale)) calc(var(--housing-bottomnav-h) + calc(24px * var(--housing-scale)));
+}
+.housing-housinger-count {
+  padding: calc(2px * var(--housing-scale)) calc(4px * var(--housing-scale)) calc(6px * var(--housing-scale));
+  text-align: right;
+  font-size: var(--housing-text-md);
+  color: var(--housing-text-mute);
+}
+.housing-housinger-heading {
+  position: sticky; top: 0; z-index: 2;
+  padding: calc(6px * var(--housing-scale)) calc(4px * var(--housing-scale));
+  font-size: var(--housing-text-sm); font-weight: 800; letter-spacing: 0.08em;
+  color: var(--housing-honey);
+  background: var(--housing-panel-bg-solid);
+  border-bottom: 1px solid var(--housing-panel-border);
+}
+.housing-housinger-row {
+  display: flex; align-items: center; gap: calc(12px * var(--housing-scale));
+  padding: calc(10px * var(--housing-scale)) calc(4px * var(--housing-scale));
+  color: var(--housing-text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--housing-panel-border);
+  transition: background 0.15s ease;
+}
+.housing-housinger-row:hover { background: var(--housing-panel-inner); }
+.housing-housinger-row:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(-2px * var(--housing-scale)); }
+.housing-housinger-row-avatar { width: calc(40px * var(--housing-scale)); height: calc(40px * var(--housing-scale)); }
+.housing-housinger-row-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: calc(2px * var(--housing-scale)); }
+.housing-housinger-row-name {
+  font-size: var(--housing-text-base); font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.housing-housinger-row-bio {
+  font-size: var(--housing-text-sm); line-height: 1.5; color: var(--housing-text-mute);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.housing-housinger-row-thumbs { display: flex; gap: calc(4px * var(--housing-scale)); flex: 0 0 auto; }
+.housing-housinger-row-thumbs img {
+  width: calc(54px * var(--housing-scale)); height: calc(40px * var(--housing-scale)); object-fit: cover; display: block;
+  border-radius: calc(6px * var(--housing-scale)); background: var(--housing-panel-inner);
+}
+.housing-housinger-empty {
+  padding: calc(48px * var(--housing-scale)) calc(16px * var(--housing-scale)); text-align: center;
+  font-size: var(--housing-text-base); color: var(--housing-text-dim);
+}
+@media (max-width: 767px) {
+  .housing-housinger-row-thumbs img { width: 38px; height: 30px; }
+  .housing-housinger-row-thumbs img:nth-child(3) { display: none; }
+}
+
+.housing-tagpicker-view {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: calc(8px * var(--housing-scale)) calc(4px * var(--housing-scale)) calc(24px * var(--housing-scale));
+}
+.housing-tagpicker {
+  display: flex;
+  flex-direction: column;
+  gap: calc(20px * var(--housing-scale));
+}
+.housing-tagpicker-section {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+}
+.housing-tagpicker-section-header {
+  appearance: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-family: inherit;
+}
+.housing-tagpicker-section-title {
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text);
+}
+.housing-tagpicker-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(14px * var(--housing-scale));
+}
+.housing-tagpicker-status {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-tagpicker-kind-group {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+  padding-top: calc(12px * var(--housing-scale));
+}
+.housing-tagpicker-kind-group:first-child {
+  padding-top: 0;
+}
+.housing-tagpicker-kind-group:not(:first-child) {
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-tagpicker-kind-label {
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--housing-text-dim);
+}
+.housing-tagpicker-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(6px * var(--housing-scale));
+}
+.housing-tagpicker-chip {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(6px * var(--housing-scale));
+  height: calc(32px * var(--housing-scale));
+  padding: 0 calc(12px * var(--housing-scale));
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-dim);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.housing-tagpicker-chip:hover {
+  border-color: var(--housing-panel-border-strong);
+  color: var(--housing-text);
+}
+.housing-tagpicker-chip[data-selected="true"] {
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+}
+.housing-tagpicker-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(12px * var(--housing-scale));
+  margin-top: calc(4px * var(--housing-scale));
+  padding: calc(12px * var(--housing-scale)) calc(4px * var(--housing-scale)) calc(4px * var(--housing-scale));
+  background: var(--housing-panel-bg-solid);
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-tagpicker-preview {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-tagpicker-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--housing-scale));
+}
+.housing-tagpicker-clear-btn {
+  appearance: none;
+  cursor: pointer;
+  padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-dim);
+  background: transparent;
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.housing-tagpicker-clear-btn:hover {
+  color: var(--housing-text);
+  border-color: var(--housing-panel-border-strong);
+  background: var(--housing-chip-bg-hover);
+}
+.housing-tagpicker-apply-btn {
+  appearance: none;
+  cursor: pointer;
+  padding: calc(8px * var(--housing-scale)) calc(16px * var(--housing-scale));
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-candle);
+  background: var(--housing-honey-soft);
+  border: 1px solid var(--housing-honey-border);
+  border-radius: calc(9px * var(--housing-scale));
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.housing-tagpicker-apply-btn:hover {
+  background: var(--housing-honey-medium);
+  box-shadow: 0 0 0 calc(1px * var(--housing-scale)) var(--housing-honey-inset) inset, 0 0 calc(12px * var(--housing-scale)) var(--housing-honey-shadow-soft);
+}
+.housing-tagpicker-inline-body {
+  padding-top: calc(12px * var(--housing-scale));
+}
+
+/* ============================================================
+ * 探す専用ワード地図 (BrowseWardMap, Task4)。SVG+パン/ズーム+マーカーレイヤ。
+ * ツアーの .housing-tour-map-wrap 系とは完全に独立(ツアー無傷方針・共有クラスは
+ * 赤ナビ隠蔽用の .housing-map-svg-host のみ流用)。
+ * ============================================================ */
+.housing-bmap-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: none; /* パン/ピンチをブラウザのスクロール/ズームに奪われない */
+  border-radius: calc(14px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-panel-inner);
+  cursor: grab;
+}
+.housing-bmap-wrap:active { cursor: grabbing; }
+
+/* ロード中/エラーの静かな案内(装飾箱にしない・housing-empty-result 系と同じ抑制トーン)。 */
+.housing-bmap-message {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(10px * var(--housing-scale));
+  padding: calc(24px * var(--housing-scale));
+  text-align: center;
+}
+.housing-bmap-message-text {
+  color: var(--housing-text-mute);
+  font-size: var(--housing-text-sm);
+}
+
+/* 北コンパス + 操作ヒント (探す地図): ツアー地図 (TourNavMap / .housing-tour-map-compass・-hint) と
+   見た目をそろえるため同一トークン・同一寸法で複製 (tour 側 DOM/CSS は触らない = 回帰なし)。
+   FF14 のワード地図は北=上なので needle-n を上向き固定・静的。どちらも pointer-events:none。 */
+.housing-bmap-compass {
+  position: absolute;
+  top: calc(10px * var(--housing-scale));
+  right: calc(10px * var(--housing-scale));
+  width: calc(40px * var(--housing-scale));
+  height: calc(40px * var(--housing-scale));
+  pointer-events: none;
+  z-index: 2;
+}
+.housing-bmap-compass svg { width: 100%; height: 100%; display: block; }
+.housing-bmap-compass-ring {
+  fill: var(--housing-panel-bg);
+  stroke: var(--housing-panel-border);
+  stroke-width: 1.5;
+}
+.housing-bmap-compass-needle-n { fill: var(--housing-honey); }
+.housing-bmap-compass-needle-s { fill: var(--housing-text-mute); }
+.housing-bmap-compass-n {
+  fill: var(--housing-candle);
+  font-size: calc(8px * var(--housing-scale));
+  font-weight: 700;
+  text-anchor: middle;
+}
+.housing-bmap-hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(8px * var(--housing-scale));
+  transform: translateX(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  letter-spacing: 0.02em;
+}
+
+/* ステージ: viewBox px 実寸で確保し、translate→scale(0,0起点)でパン/ズームする。
+ * will-change は付けない(TourNavMap と同じ理由 = SVG が拡大時ににじむのを避け、ベクターのまま再描画させる)。 */
+.housing-bmap-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+/* カードレイヤ = 地図 stage と同一 transform の面 (2026-07-12 案B ②-c: カードを地図面へ移し
+ * 家と一体でパン/ズーム = カサカサ根治)。自身は pointer-events:none で地図操作を透過し、
+ * カード (.housing-bmap-card) だけ auto に戻す。transform/transform-origin は BrowseWardMap が
+ * stage と同じ view から算出するため常に一致する。 */
+.housing-bmap-card-plane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+/* 位置決めラッパ: JS 側で区画座標 translate(m.x, m.y) を当てる (面の scale で家と一緒に拡縮)。
+ * class 名は維持 (BrowseWardMap の pointerdown / 空白クリックの closest 判定が依存)。 */
+.housing-bmap-marker-pos {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+/* ドラッグ由来のゴースト画像を抑止 (カード内 <img> 起点のドラッグとパンの紛れを防ぐ)。 */
+.housing-bmap-card,
+.housing-bmap-card img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+

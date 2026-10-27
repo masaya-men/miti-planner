@@ -5,6 +5,7 @@ paths:
 exclude:
   - "src/components/housing/**"
   - "src/styles/housing.css"
+  - "src/styles/housing/**"
   - "src/pages/housing/**"
 ---
 

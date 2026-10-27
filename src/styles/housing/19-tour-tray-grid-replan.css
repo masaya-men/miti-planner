@@ -1,0 +1,432 @@
+/* ===== ツアー計画画面: 蛇行グリッド (TourTrayBoard・2026-08-11) =====
+   列を上下交互に埋めながら右へ続く一本道。画面に入りきらない分は横スクロール。 */
+.housing-tour-board {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+  min-height: 0;
+  flex: 1 1 auto;
+}
+.housing-tour-board-toolbar {
+  display: flex;
+  align-items: flex-start;
+  padding-bottom: calc(10px * var(--housing-scale));
+  border-bottom: 1px solid var(--housing-divider);
+  justify-content: space-between;
+  gap: calc(12px * var(--housing-scale));
+  flex: 0 0 auto;
+}
+.housing-tour-board-heading {
+  display: flex; flex-direction: column; gap: calc(4px * var(--housing-scale)); min-width: 0;
+}
+.housing-tour-board-title {
+  margin: 0;
+  font-size: var(--housing-text-xl);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-tour-plan-detail-note {
+  margin: 0; flex: 0 0 auto;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-board-hint {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-board-scroll {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* ホバーの浮き上がり (translateY) や影の滲みが overflow-y:hidden に切られないよう
+     上下に少し余白を確保する (.housing-listing-grid の同種対策と同じ考え方)。
+     接続線は角丸ポリライン方式 (2026-08-11) でカード中心の範囲内に収まるため、
+     これ以上の余白は不要。 */
+  padding: calc(14px * var(--housing-scale)) 0;
+}
+.housing-tour-board-grid {
+  position: relative;
+  display: grid;
+  /* 自動フロー指定は持たない: セルはすべて inline style の gridRow/gridColumn で明示配置するため
+     効かない (対して grid-auto-columns は暗黙列トラックの幅として必要なので残す)。 */
+  grid-auto-columns: var(--housing-snake-col-w);
+  height: 100%;
+}
+.housing-tour-board-path {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.housing-tour-board-path path {
+  fill: none;
+  /* 実機指摘(2026-08-11): 動画背景の上だと --housing-aether-border(50%薄め・元はバッジ枠用)
+     では線が埋もれて見えなかった。他の経路線(register stepper 等)と同じ不透明トークンに揃える。 */
+  stroke: var(--housing-aether);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* カードの裏を通る区間も「光る一本道」として続いて見えるよう淡いグローを足す
+     (カード自体は不透明トークンだが完全な100%ではないため、グローがうっすら透けて見える)。 */
+  filter: drop-shadow(0 0 calc(6px * var(--housing-scale)) var(--housing-aether-glow-soft));
+  transition: d 0.2s ease;
+}
+/* 巡る順番を示す、線の上をすーっと流れる光の玉 (2026-08-11)。 */
+.housing-tour-board-path-glow {
+  fill: var(--housing-map-light);
+  filter: drop-shadow(0 0 calc(6px * var(--housing-scale)) var(--housing-aether)) drop-shadow(0 0 calc(10px * var(--housing-scale)) var(--housing-aether-glow-strong));
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-tour-board-path-glow {
+    display: none;
+  }
+}
+.housing-tour-board-cell {
+  /* 実機指摘(2026-08-11): position指定なし(static)だと、position:absoluteの接続線
+     (.housing-tour-board-path)がDOM順に関係なく常に手前に描画されてしまうため、
+     カードの方をpositioned要素にしてDOM順どおり(線→カード)の重なりに揃える。 */
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: calc(4px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  cursor: pointer;
+}
+.housing-tour-board-cell .housing-tour-tray-item {
+  width: 100%;
+  /* 実機指摘(2026-08-11): サイドバートレイと共有の --housing-panel-inner(白5%)は、
+     パネルに囲まれず動画背景に直接浮くこのグリッドだと透けすぎて見えたため、
+     このグリッド内のカードだけ不透明な板トークンに差し替える(サイドバー側は変更なし)。 */
+  background: var(--housing-panel-bg-solid);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+/* ホバーで軽く浮き上がる (.housing-listing-card:hover と同系のインタラクション)。
+   選択状態 (青枠) とは独立に効かせてよい (:hover はドラッグ中は dnd-kit の inline transform が
+   上書きするため無視される)。 */
+.housing-tour-board-cell .housing-tour-tray-item:hover {
+  transform: translateY(calc(-2px * var(--housing-scale)));
+  box-shadow: 0 calc(4px * var(--housing-scale)) calc(12px * var(--housing-scale)) rgba(0, 0, 0, 0.35);
+}
+/* 選択中のカード: 左の詳細パネルに出ている家がどれかを示す。
+   既存の選択表現 (.housing-register-visibility-chip[data-selected="true"]) と同じ青系トークンで揃える。
+   実際に見えている枠は cell 内の .housing-tour-tray-item なのでそちらへ当てる。 */
+.housing-tour-board-cell[data-selected="true"] .housing-tour-tray-item {
+  border-color: var(--housing-aether-border);
+  box-shadow: 0 0 0 calc(1px * var(--housing-scale)) var(--housing-aether-border) inset;
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-tour-board-path path {
+    transition: none;
+  }
+}
+
+.housing-tour-tray-sortbtn {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(6px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-mute);
+  background: transparent;
+  border: 1px solid var(--housing-panel-border); border-radius: calc(10px * var(--housing-scale));
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.housing-tour-tray-sortbtn:hover { color: var(--housing-text); border-color: var(--housing-honey-border); background: var(--housing-chip-bg-hover); }
+.housing-tour-tray-sortbtn:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+
+.housing-tour-tray-actions {
+  display: flex; flex-direction: column; gap: calc(8px * var(--housing-scale)); flex: 0 0 auto;
+  padding-top: calc(12px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+}
+/* 副アクション = 枠ボタン (.housing-tour-progress-action--view と同じ見た目)。 */
+.housing-tour-tray-reorder {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(8px * var(--housing-scale));
+  padding: calc(10px * var(--housing-scale)) calc(14px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border); border-radius: calc(10px * var(--housing-scale));
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-tray-reorder:hover:not(:disabled) { background: var(--housing-chip-bg-hover); }
+.housing-tour-tray-reorder:active:not(:disabled) { transform: scale(0.98); }
+.housing-tour-tray-reorder:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+.housing-tour-tray-reorder:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+
+/* ===== ナビ中の並び替え (TourNavPage replanning・2026-10-22) ===== */
+/* 「ルートのステップ」見出し行: 右に小さな枠ボタン。 */
+.housing-tour-steps-head {
+  display: flex; align-items: center; justify-content: space-between; gap: calc(8px * var(--housing-scale));
+  flex: 0 0 auto;
+}
+/* 小さな枠ボタン = 副アクション (.housing-tour-progress-action--view と同じ見た目)。 */
+.housing-tour-reorder-btn {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; gap: calc(6px * var(--housing-scale));
+  padding: calc(4px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-xs); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border); border-radius: calc(8px * var(--housing-scale));
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-reorder-btn:hover { background: var(--housing-chip-bg-hover); }
+.housing-tour-reorder-btn:active { transform: scale(0.98); }
+.housing-tour-reorder-btn:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+/* 並び替え画面の小見出し (見学済み / これから行く順番)。 */
+.housing-tour-replan-subtitle {
+  margin: 0; flex: 0 0 auto;
+  font-size: var(--housing-text-xs); font-weight: 600; letter-spacing: 0.04em;
+  color: var(--housing-text-mute);
+}
+/* 見学済みの固定リスト: 薄く・ドラッグ不可 (TourVisitedList)。 */
+.housing-tour-visited-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: calc(6px * var(--housing-scale));
+  flex: 0 1 auto; min-height: 0; max-height: 30%; overflow-y: auto;
+}
+.housing-tour-visited-item {
+  display: flex; align-items: center; gap: calc(10px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  opacity: var(--housing-visited-opacity);
+}
+.housing-tour-visited-lock { flex: 0 0 auto; color: var(--housing-text-mute); }
+.housing-tour-visited-num {
+  flex: 0 0 auto; min-width: 1.5em; text-align: center;
+  font-size: var(--housing-text-sm); font-weight: 700; color: var(--housing-text-mute);
+}
+.housing-tour-visited-tag {
+  flex: 0 0 auto; font-size: var(--housing-text-xs); color: var(--housing-text-mute);
+}
+/* 「向かっている」= 青 (選択・進行の色)。装飾ピルにせず文字色のみ。 */
+.housing-tour-tray-current-tag {
+  flex: 0 0 auto; font-size: var(--housing-text-xs); font-weight: 700;
+  color: var(--housing-aether);
+}
+.housing-tour-tray-item[data-current="true"] { border-color: var(--housing-aether-border); }
+/* スマホ下部バー: 上段 (右寄せで「順番を変える」)。 */
+.housing-tour-mobilebar-top {
+  flex: 1 0 100%; display: flex; justify-content: flex-end;
+}
+
+.housing-tour-tray-start {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(8px * var(--housing-scale));
+  padding: calc(11px * var(--housing-scale)) calc(14px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-md); font-weight: 700;
+  color: var(--housing-honey-text);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  border: 0; border-radius: calc(10px * var(--housing-scale));
+  box-shadow: 0 calc(4px * var(--housing-scale)) calc(14px * var(--housing-scale)) var(--housing-honey-shadow-soft);
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-tray-start:hover:not(:disabled) { filter: brightness(1.05); }
+.housing-tour-tray-start:active:not(:disabled) { transform: scale(0.98); }
+.housing-tour-tray-start:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+
+/* 一時 listing の「一時」バッジ (計画: 住所登録なし一時ツアー Task4)。
+   トレイ行 (TourTray) とショーケースのタイトル横 (TourShowcasePanel) で共用。
+   badge_private 系 (.housing-listing-card-mine-note) と同じ質感。 */
+.housing-ephemeral-badge {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-xs); color: var(--housing-text-dim);
+  background: var(--housing-chip-sunken-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(6px * var(--housing-scale)); padding: calc(2px * var(--housing-scale)) calc(7px * var(--housing-scale));
+  white-space: nowrap;
+}
+
+/* ============================================================
+ * 「+ 住所から追加」 一時の家 追加パネル (計画: 住所登録なし一時ツアー Task3)
+ * トレイ (TourTray) とツアー空状態 (TourEmptyState) の両方から使う。
+ * 質感A案: 装飾ピル/honeyグラデ/色付きalert箱は使わず、静かな面 + ヘアライン注記。
+ * ============================================================ */
+.housing-ephemeral-toggle {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(6px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px dashed var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  transition: background 0.15s ease;
+}
+.housing-ephemeral-toggle:hover { background: var(--housing-chip-bg-hover); }
+.housing-ephemeral-toggle:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+.housing-ephemeral-toggle[aria-expanded="true"] { border-style: solid; background: var(--housing-chip-bg-hover); }
+
+/* モーダル body 内のフォームの器 (2026-07-12 モーダル化)。面/枠/余白はモーダル側 (HousingPanelModal)
+   が持つので、ここは縦積みのリズムだけ。ヘッダー (タイトル + 閉じる) もモーダル側。 */
+.housing-ephemeral-panel {
+  display: flex; flex-direction: column; gap: calc(10px * var(--housing-scale));
+}
+.housing-ephemeral-field { display: flex; flex-direction: column; }
+.housing-ephemeral-text { min-height: 0; }
+.housing-ephemeral-chips { display: flex; flex-wrap: wrap; gap: calc(6px * var(--housing-scale)); }
+.housing-ephemeral-chip {
+  display: inline-flex; align-items: center; gap: calc(4px * var(--housing-scale));
+  padding: calc(3px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  font-size: var(--housing-text-sm); color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(8px * var(--housing-scale));
+}
+.housing-ephemeral-chip-label {
+  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
+}
+.housing-ephemeral-manual {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(8px * var(--housing-scale));
+}
+.housing-ephemeral-type-toggle { grid-column: 1 / -1; display: flex; gap: calc(6px * var(--housing-scale)); }
+.housing-ephemeral-type-btn {
+  appearance: none; cursor: pointer; flex: 1 1 0;
+  padding: calc(7px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-mute);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(8px * var(--housing-scale));
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.housing-ephemeral-type-btn:hover { background: var(--housing-chip-bg-hover); }
+.housing-ephemeral-type-btn[aria-pressed="true"] {
+  color: var(--housing-text);
+  background: var(--housing-chip-bg-active);
+  border-color: var(--housing-honey);
+}
+.housing-ephemeral-type-btn:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+.housing-ephemeral-added {
+  margin: 0; font-size: var(--housing-text-sm); color: var(--housing-candle);
+}
+/* 追加ボタンをモーダルスクロール内で最下部固定にする footer バー。
+   .housing-panel-modal-body の padding(16px) 分を負マージンで打ち消して縁まで伸ばし、
+   自身の padding で同じ余白を作り直す(sticky + 親paddingの定番パターン。housing-tagpicker-footer と同型)。 */
+.housing-ephemeral-footer {
+  position: sticky;
+  bottom: 0;
+  margin: calc(4px * var(--housing-scale)) calc(-16px * var(--housing-scale)) calc(-16px * var(--housing-scale));
+  padding: calc(12px * var(--housing-scale)) calc(16px * var(--housing-scale));
+  background: var(--housing-panel-bg-solid);
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-ephemeral-add {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  width: 100%;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(8px * var(--housing-scale));
+  padding: calc(9px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 700;
+  color: var(--housing-honey-text);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  border: 0; border-radius: calc(10px * var(--housing-scale));
+  box-shadow: 0 calc(4px * var(--housing-scale)) calc(14px * var(--housing-scale)) var(--housing-honey-shadow-soft);
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housing-ephemeral-add:hover:not(:disabled) { filter: brightness(1.05); }
+.housing-ephemeral-add:active:not(:disabled) { transform: scale(0.98); }
+.housing-ephemeral-add:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+.housing-ephemeral-note {
+  margin: 0; padding-top: calc(8px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
+}
+/* パネル最上部に置く導入説明。footnote 用の上罫線・極小文字ではなく、
+   読みやすい本文サイズ + 下罫線でフォームと区切る (色付き箱にはしない)。 */
+.housing-ephemeral-note-lead {
+  padding-top: 0; padding-bottom: calc(10px * var(--housing-scale));
+  border-top: none;
+  border-bottom: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm); color: var(--housing-text-dim);
+  line-height: 1.5;
+}
+/* 注記内のインラインリンク (Allmarksまとめてインポートの導線等)。
+   housing-design.md「青 = 選択・進行・リンク」に合わせる。 */
+.housing-ephemeral-note a {
+  color: var(--housing-aether-soft);
+  text-decoration: underline;
+  text-underline-offset: calc(2px * var(--housing-scale));
+}
+.housing-ephemeral-note a:hover {
+  color: var(--housing-aether);
+}
+
+/* ツアー空状態内の入口 (簡易リスト + 開始ボタン込み)。中央寄せの空状態の中で左寄せに戻す。 */
+.housing-tour-empty-ephemeral {
+  width: 100%; max-width: calc(380px * var(--housing-scale));
+  margin-top: calc(12px * var(--housing-scale)); padding-top: calc(12px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  display: flex; flex-direction: column; gap: calc(10px * var(--housing-scale));
+  text-align: left;
+}
+.housing-tour-empty-ephemeral-list { overflow-y: visible; }
+
+/* ============================================================
+ * ツアー中(Nav) 左カラム: 進捗パネル (Task4・TourProgressPanel/ProgressRing)
+ * ============================================================ */
+/* Phase3 の新ツアーナビ右パネル。旧 .housing-tour-progress (workspace/TourProgressList・
+   RightPanel 経由の /housing/tour/:tourId) と同名クラスのため、--reorg でスコープして
+   旧ブロック(css:1602) の flex-direction:column / padding:12px の漏れを断つ。
+   旧ブロックは --reorg 配下に無いので無改変で維持される。 */
+.housing-tour-page--reorg .housing-tour-progress {
+  display: flex; flex-direction: column;
+  min-height: 0; flex: 1 1 auto;
+  gap: calc(16px * var(--housing-scale));
+  padding: 0;
+}
+.housing-tour-page--reorg .housing-tour-progress-head {
+  display: flex; flex-direction: row; align-items: center; justify-content: space-between;
+  flex: 0 0 auto;
+}
+.housing-tour-progress-title {
+  font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-text);
+}
+/* 進捗はヘッダー右端の N/M インジケーターのみ(ピルにしない)。リングは撤去しステップを広く。 */
+.housing-tour-progress-count {
+  font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-candle);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 進捗リング (ProgressRing.tsx) */
+.housing-tour-progress-ring {
+  position: relative;
+  width: var(--housing-tour-ring-size); height: var(--housing-tour-ring-size);
+  margin: 0 auto;
+  flex: 0 0 auto;
+}
+.housing-tour-progress-ring-svg { width: 100%; height: 100%; display: block; }
+.housing-tour-progress-ring-track {
+  fill: none;
+  stroke: var(--housing-divider);
+  stroke-width: var(--housing-tour-ring-stroke);
+}
+.housing-tour-progress-ring-fill {
+  fill: none;
+  stroke: var(--housing-aether);
+  stroke-width: var(--housing-tour-ring-stroke);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+.housing-tour-progress-ring-label {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 calc(10px * var(--housing-scale));
+  text-align: center;
+  font-size: var(--housing-text-sm); font-weight: 700; color: var(--housing-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 進捗リング (円インジケーターのみ。到着済み/残りの箱は撤去) */
+.housing-tour-progress-summary {
+  display: flex;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.housing-tour-progress-summary .housing-tour-progress-ring {
+  margin: 0;
+}
+

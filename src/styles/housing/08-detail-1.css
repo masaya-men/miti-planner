@@ -1,0 +1,267 @@
+/* ============================================================
+ * Detail (Phase 3) — モーダル / フルページ / アクションバー / ギャラリー
+ * ============================================================ */
+.housing-action-bar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(8px * var(--housing-scale));
+    /* 実機FB(ユーザー指摘2026-07-20): ♡(30px固定)/…メニュー(40px固定)/テキストボタン群
+       (パディング差で32〜35px)がバラバラだった。行内の全ボタンをこの高さに揃える。 */
+    --housing-action-bar-btn-h: calc(32px * var(--housing-scale));
+}
+.housing-action-bar .housing-action-btn {
+    height: var(--housing-action-bar-btn-h);
+    padding: 0 calc(12px * var(--housing-scale));
+    background: var(--housing-chip-bg-hover);
+    border: 1px solid var(--housing-panel-border);
+    border-radius: calc(8px * var(--housing-scale));
+    color: var(--housing-text);
+    font-size: var(--housing-text-sm);
+    cursor: pointer;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+/* X アイコンだけのボタン(is-icon)は元々パディングが左右対称の小さめ値(6px)なので、
+   横パディングだけ縮めて正方形寄りに保つ(高さは共通トークンで統一)。 */
+.housing-action-bar .housing-action-btn.is-icon {
+    padding: 0 calc(6px * var(--housing-scale));
+}
+.housing-action-bar .housing-action-btn:hover {
+    background: var(--housing-honey-medium);
+}
+/* 2026-05-27 Phase 2-3: 「今もあります」 ボタン (家主の現役確認) */
+.housing-action-bar .housing-action-btn--still-here {
+    background: var(--housing-honey-soft);
+    border-color: var(--housing-honey-border);
+    color: var(--housing-candle);
+}
+.housing-action-bar .housing-action-btn--still-here:hover {
+    background: var(--housing-honey);
+    color: var(--housing-bg);
+}
+.housing-action-bar .housing-action-btn--still-here:disabled {
+    opacity: 0.5;
+    cursor: progress;
+}
+/* 探すページの HousingFavHeart を詳細の操作バー内で使う: カード角固定(absolute)を行内へ戻す。
+   実機FB(ユーザー指摘2026-07-20): カードのグリッド用サイズ(30px)のままだと行内の他ボタンと
+   高さが揃わないため、行内トークンに合わせて明示サイズを当てる。 */
+.housing-action-bar .housing-card-fav {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: var(--housing-action-bar-btn-h);
+    height: var(--housing-action-bar-btn-h);
+}
+/* 実機FB②: カードと同じ「＋ツアーに追加」ボタンを操作バーの行内で使う。
+   カード側の margin-top はフッター内前提の値なので、行内では 0 に戻す。
+   実機FB(ユーザー指摘2026-07-20): カード側パディング(7px)のままだと他ボタンより高くなるため、
+   行内トークンに高さを揃える。 */
+/* .housing-card-add-btn 単体クラスより後の定義だが同じ特異度(0,1,0)のため、確実に上書きされる
+   よう2クラス指定(0,2,0)にしてソース順に依存しないようにする。 */
+.housing-card-add-btn.housing-action-bar-add-tour {
+    margin-top: 0;
+    height: var(--housing-action-bar-btn-h);
+    padding: 0 calc(10px * var(--housing-scale));
+}
+/* 家主専用「…」メニュー(HousingDetailKebab)は既定 40px 固定だが、行内の他ボタンと揃える。
+   .housing-kebab-trigger はハウジンガーページの別文脈でも使うため、ここでは操作バー内だけに
+   scope した override に留める(共有クラスの既定値は変えない)。 */
+.housing-action-bar .housing-kebab-trigger {
+    width: var(--housing-action-bar-btn-h);
+    height: var(--housing-action-bar-btn-h);
+}
+.housing-action-bar-confirmed-at {
+    color: var(--housing-text-muted);
+    font-size: var(--housing-text-small);
+    align-self: center;
+}
+.housing-share {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: calc(8px * var(--housing-scale));
+}
+.housing-share-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + calc(4px * var(--housing-scale)));
+    background: var(--housing-popover-bg-strong);
+    border: 1px solid var(--housing-panel-border-strong);
+    border-radius: calc(12px * var(--housing-scale));
+    padding: calc(6px * var(--housing-scale));
+    z-index: var(--housing-popover-z-stack);
+    display: flex;
+    flex-direction: column;
+    gap: calc(2px * var(--housing-scale));
+    min-width: calc(180px * var(--housing-scale));
+    box-shadow: var(--housing-popover-shadow);
+}
+.housing-share-menu button {
+    background: transparent;
+    border: none;
+    padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+    color: var(--housing-text);
+    text-align: left;
+    cursor: pointer;
+    border-radius: calc(8px * var(--housing-scale));
+    font-size: var(--housing-text-base);
+}
+.housing-share-menu button:hover {
+    background: var(--housing-honey-medium);
+}
+
+/* 2026-07-09 再設計: 大メイン写真 + 縦サムネイル列。 ギャラリーは横並び (stage | rail)。 */
+.housing-gallery {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: row;
+    gap: calc(10px * var(--housing-scale));
+}
+/* メインステージ: 選択中メディアを「絶対に切り抜かず」全体表示 (object-fit:contain)。
+   単独の箱なので旧グリッドのはみ出しクリップ (下端/角の見切れ) は構造的に起きない。 */
+.housing-gallery-stage {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--housing-card-thumb-bg);
+    border-radius: calc(12px * var(--housing-scale));
+}
+.housing-gallery-main {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: calc(8px * var(--housing-scale));
+}
+.housing-gallery-video {
+    position: relative;
+    width: 100%;
+    max-height: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--housing-card-thumb-bg);
+    overflow: hidden;
+    border-radius: calc(8px * var(--housing-scale));
+}
+.housing-gallery-video > video,
+.housing-gallery-video > iframe {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border: none;
+    object-fit: contain;
+}
+.housing-gallery-empty {
+    width: 100%;
+    height: var(--housing-detail-empty-h);
+    display: grid;
+    place-items: center;
+    background: var(--housing-panel-bg);
+    color: var(--housing-text-mute);
+    border-radius: calc(12px * var(--housing-scale));
+    font-size: var(--housing-text-base);
+}
+/* 縦サムネイル列。 wrap = 非スクロールのフェード枠 / 中の ul が内部縦スクロール。 */
+.housing-detail-thumbrail-wrap {
+    position: relative;
+    flex: 0 0 var(--housing-detail-thumbrail-w);
+    align-self: stretch;
+    min-height: 0;
+    overflow: hidden;
+}
+.housing-detail-thumbrail {
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: calc(8px * var(--housing-scale));
+    padding: calc(2px * var(--housing-scale));
+    margin: 0;
+    list-style: none;
+    scrollbar-width: none;            /* Firefox: スクロールバー非表示 */
+}
+.housing-detail-thumbrail::-webkit-scrollbar {
+    display: none;                    /* WebKit: スクロールバー非表示 */
+}
+.housing-detail-thumb {
+    position: relative;
+    flex: 0 0 auto;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    padding: 0;
+    border: calc(2px * var(--housing-scale)) solid transparent;
+    border-radius: calc(6px * var(--housing-scale));
+    background: var(--housing-card-thumb-bg);
+    cursor: pointer;
+    overflow: hidden;
+    opacity: 0.6;
+    transition: opacity 150ms ease, border-color 150ms ease;
+}
+.housing-detail-thumb:hover {
+    opacity: 1;
+}
+.housing-detail-thumb[data-active="true"] {
+    opacity: 1;
+    border-color: var(--housing-aether);   /* 青 = 選択 */
+}
+.housing-detail-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;                /* サムネは cover でよい (小さい一覧・元画像は main で全体表示) */
+    display: block;
+}
+.housing-detail-thumb-videobg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--housing-panel-bg-solid);
+}
+.housing-detail-thumb-play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: var(--housing-overlay-strong);
+    color: var(--housing-candle);
+    font-size: var(--housing-text-sm);
+    pointer-events: none;
+}
+/* スクロールフェード (強め・端で smooth に外れる)。 wrap は非スクロールなので端に留まる。
+   scroll が端に達すると Task1 が data-at-top/at-bottom を true にし、 その端の opacity が 0 へ遷移。 */
+.housing-detail-thumbrail-wrap::before,
+.housing-detail-thumbrail-wrap::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: calc(40px * var(--housing-scale));
+    pointer-events: none;
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 0.22s ease;
+}
+.housing-detail-thumbrail-wrap::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--housing-panel-bg-solid), transparent);
+}
+.housing-detail-thumbrail-wrap::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--housing-panel-bg-solid), transparent);
+}
+.housing-detail-thumbrail-wrap[data-at-top="true"]::before {
+    opacity: 0;
+}
+.housing-detail-thumbrail-wrap[data-at-bottom="true"]::after {
+    opacity: 0;
+}
+

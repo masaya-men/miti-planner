@@ -1,0 +1,295 @@
+/* ----- モバイル (<=767px) レイアウト調整 ----- */
+@media (max-width: 767px) {
+  /* StatusBar 行は設定シートへ統合したので、シェルの grid から丸ごと外す
+     (行を残すと --housing-status-h ぶんの空白が下端に残ってしまう)。 */
+  .housing-shell {
+    grid-template-rows: calc(var(--housing-header-h) + env(safe-area-inset-top, 0px)) 1fr;
+    /* 実機FB#9: iOS Safari の 100vh はブラウザUI込みの大きい viewport を指し、下端(ボトムナビ余白ごと)が
+       画面外に沈んでカードがナビの裏に隠れる。dvh (実際に見えている高さ) で追随させる。
+       非対応ブラウザは 1 行目の 100vh へフォールバック。 */
+    height: 100vh;
+    height: 100dvh;
+  }
+  /* ヘッダーを約 2/3 に (60px→40px)。浮いた縦スペースを中央パネルに回す。 */
+  .housing-workspace {
+    --housing-header-h: 40px;
+  }
+  .housing-status {
+    display: none;
+  }
+  /* 実機FB第4弾: 本体をナビの上で切らず、カードは透けたナビの下まで流し込む
+     (ナビ被り対策は各スクロールコンテナ側の padding-bottom が持つ)。 */
+  /* ヘッダーはブランドのみ残し、横断検索/タブ/右群 (通知・テーマ・アバター) は
+     ボトムナビ/シート側に移設したので隠す。 */
+  .housing-app-header .housing-app-search,
+  .housing-app-header .housing-tabbar,
+  .housing-app-header .housing-app-header-right {
+    display: none;
+  }
+  /* 実機FB第2弾#2: フィルターをボトムナビからヘッダーへ移設 (探すページのみ・AppHeader が isMobile ゲート)。
+     .housing-app-header-right は上で非表示なので、その外の独立要素として右寄せする
+     (ヘッダー自体が display:flex なので margin-left:auto で右端に付く)。 */
+  /* 実機FB第3弾: 囲いなしのテキストボタン「フィルター ▼」(丸チップをやめる)。 */
+  .housing-app-header-filterbtn {
+    margin-left: auto;
+    flex-shrink: 0;
+    appearance: none;
+    background: none;
+    border: none;
+    padding: 6px 4px;
+    font-family: inherit;
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    color: var(--housing-text);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .housing-app-header-filterbtn:active {
+    opacity: 0.7;
+  }
+
+  /* ----- 探す/お気に入り: 左右パネル非表示 + 中央1カラム全幅 -----
+     左=フィルターパネル (ボトムナビのフィルターシートへ移設)、
+     右=ツアートレイ/お気に入りプレビュー (別導線)。 */
+  .housing-browse {
+    grid-template-columns: 1fr;
+    /* 外側インセットを除去して中央パネルを画面いっぱいに。 */
+    padding: 0;
+  }
+  .housing-browse-panel[data-region="left"],
+  .housing-browse-panel[data-region="right"] {
+    display: none;
+  }
+  /* 中央パネルを上下左右フラッシュ: 角丸と横枠を消して全幅・全高で使う
+     (内側の .housing-browse-col padding は残すので文字は枠に当たらない)。 */
+  .housing-browse-panel[data-region="center"] {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  /* 「ハウジング一覧 N件 / 並び替え」バーの上の無駄な縦余白を詰める:
+     一覧|マップ 切替トグルはスマホ非表示 (.housing-view-toggle:none) なので上の切替バーは
+     実質空 → 余白ゼロ。中央カラムの上パディングも詰めて見出し・カードを上へ寄せる。 */
+  /* 実機FB第4弾: 右パディングを外してスクロールバーを画面右端へ (カードの内側余白は grid 側で確保)。 */
+  .housing-browse-col-center { padding-top: 6px; padding-right: 0; }
+  .housing-browse-col-center .housing-browse-toolbar { padding: 0; }
+  /* 「ハウジング一覧 N件 / 並び替え」バーはグリッド(cards)の外にあるため、上の
+     .housing-browse-col-center { padding-right: 0 } の影響をそのまま受けて右端に張り付いて
+     しまう(区切り線も同様)。padding だとボックス自体は画面端まで伸びたままで区切り線
+     (border-bottom)は右端に残るため、margin でボックス自体を右に狭める。
+     カード側の右12px(.housing-listing-gridのpadding)と揃える
+     (2026-08-14ユーザー実機指摘=並び替えボタンと線が右端にくっついて見える)。 */
+  .housing-browse-col-center .housing-listing-grid-toolbar { margin-right: 12px; }
+  /* カードグリッドは auto-fill の可変列数をやめ、2列固定にする
+     (探す/お気に入り共通の .housing-listing-grid)。 */
+  .housing-listing-grid {
+    grid-template-columns: repeat(2, 1fr);
+    /* 実機FB第4弾: カードは透けたナビの下まで流れる。末尾はナビ高さ+余裕ぶん確保して
+       最後のカードがナビに隠れたままスクロールが止まらないようにする (実機FB#9 の改訂)。
+       右12px = カードと画面端の間 (スクロールバーはこの外側=画面右端に出る)。
+       この左0/右12pxは「探す」ページが自前の左右余白をゼロにしている前提の値
+       (下の .housinger-page-listings-col 側では上書きする)。 */
+    padding: 4px 12px calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px) 0;
+  }
+  /* 2026-07-31 実機指摘: ハウジンガーページ/マイページは .housing-detail-fullpage-main が
+     既に左右24pxの均等余白を持っているため、上の「探す」専用の左0/右12pxがそのまま乗ると
+     右だけ12px広くなり全体が左に寄って見える (探す/お気に入りとは前提が違う)。
+     左右を揃えて中央に来るようにする。 */
+  .housinger-page-listings-col .housing-listing-grid {
+    padding: 4px 0 calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px) 0;
+  }
+  /* 浮かぶツアートレイがあるときは、最後のカードがトレイの裏に隠れないよう余白を足す (2026-10-22 実測)。 */
+  .housing-shell:has(.housing-tour-traybar) .housing-listing-grid {
+    padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--housing-fab-gap) + var(--housing-traybar-h) + 12px);
+  }
+  /* スクロールバー: 画面右端・太め (WebKit/Android。iOS Safari は太さ指定非対応=位置のみ改善)。 */
+  .housing-listing-grid::-webkit-scrollbar {
+    width: 8px;
+  }
+  .housing-listing-grid::-webkit-scrollbar-thumb {
+    background: var(--housing-text-dim);
+    border-radius: 8px;
+  }
+  .housing-listing-grid::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  /* 一覧|地図 の切替トグル。スマホは常に一覧固定 (BrowsePage.tsx の effectiveView) なので隠す。 */
+  /* スマホは地図・タグ非対応: 切替は「一覧 | ハウジンガー」の 2 つだけ出す。 */
+  .housing-view-toggle-btn[data-view="map"],
+  .housing-view-toggle-btn[data-view="tags"] {
+    display: none;
+  }
+
+  /* ----- お気に入り: 「すべてツアーに追加」を見出し行の右端へ (実機FB第2弾#3) -----
+     一括バー (FavoritesBulkBar) の主アクションはタブの下にあり、件数が多いと
+     スクロールしないと見えない。見出し行にも控えめなチップとして複製し、
+     元の一括バー側のボタンは非表示にして同じ主張の強いボタンが2つ並ばないようにする。 */
+  .housing-fav-addall-top {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    height: 28px;
+    padding: 0 12px;
+    font-family: inherit;
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    color: var(--housing-text-dim);
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .housing-fav-addall-top:hover:not(:disabled) {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+  }
+  .housing-fav-addall-top:disabled {
+    opacity: var(--housing-disabled-opacity);
+    cursor: not-allowed;
+  }
+  .housing-fav-bulkbar-btn--primary {
+    display: none;
+  }
+
+  /* ----- Task3: 登録/編集フォーム (.housing-register) -----
+     探す/お気に入りと同じ3カラム骨格 (左=ステッパー+登録枠、右=チェック・重複・地図・ガイド)。
+     左右パネルは非表示にし中央カラム(フォーム本体)のみ全幅表示する。中央カラムは
+     デスクトップと同じ height:100% + 内部スクロールのまま変更しない
+     (RegisterPage.tsx のスクロール連動ステッパー進捗/最下部検知が .housing-register-col-center
+     の scroll イベントに依存しているため、ここを崩すと進捗表示が止まる)。
+     右カラムのチェック内容/住所重複警告は中央カラムの確認セクション (RegisterSectionConfirm) に
+     不足アクション一覧として重複表示済み、重複警告ダイアログは送信時に別途表示されるため、
+     右パネルを隠しても入力ゲート自体は機能する。 */
+  .housing-register {
+    grid-template-columns: 1fr;
+  }
+  .housing-register-panel[data-region="left"],
+  .housing-register-panel[data-region="right"] {
+    display: none;
+  }
+  /* 実機FB#11(第4弾改訂): 本体がナビの下まで届くようになったため、フォーム末尾はナビ高さ+余裕を確保。 */
+  .housing-register-col-center {
+    padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px);
+  }
+
+  /* ----- Task3: ハウジンガーPF (HousingerPage) -----
+     プロフィールヘッダーはアバター+名前列と操作ボタン列 (まとめてツアー/シェア) が
+     スマホ幅で並びきらないため、操作ボタン列を折り返して2段目・右寄せにする。 */
+  .housinger-page-header {
+    flex-wrap: wrap;
+  }
+  .housinger-page-header-actions {
+    flex-basis: 100%;
+    justify-content: flex-end;
+  }
+
+  /* ----- Task4: ツアー(TourNavPage)横持ちUI(案A) -----
+     左=ショーケース/右=進行状況パネルを隠し、中央地図パネルを全画面高にする。
+     下部に細い操作バー(TourMobileBar)を固定し、そのぶん地図パネルへ下端余白を確保する。
+     完了オーバーレイ(.housing-tour-complete-overlay)は既存のまま(触らない)。 */
+  .housing-tour-page-panel[data-region="left"],
+  .housing-tour-page-panel[data-region="right"] {
+    display: none;
+  }
+  .housing-tour-page {
+    grid-template-columns: 1fr;
+    /* 実機FB#7: 外側インセット/パネル間隔を除去して地図を画面いっぱいに (探すの全面化と同型)。 */
+    padding: 0;
+    gap: 0;
+  }
+  .housing-tour-page-panel {
+    border-radius: 0;
+    border: none;
+  }
+  .housing-tour-page-panel[data-region="center"] {
+    padding-bottom: calc(var(--housing-tour-mobilebar-h) + env(safe-area-inset-bottom, 0px));
+  }
+  /* 「順番を変える」の上段があるとき (幹事のみ) だけバーが 1 段高い。参加者には足さない。 */
+  .housing-tour-page:has(.housing-tour-mobilebar[data-has-top]) .housing-tour-page-panel[data-region="center"] {
+    padding-bottom: calc(var(--housing-tour-mobilebar-h) + var(--housing-tour-mobilebar-top-h) + env(safe-area-inset-bottom, 0px));
+  }
+  /* 実機FB#7: 地図右下フロートの招待パネルはスマホでは出さない (招待/コピーは下部バーに一本化)。 */
+  .housing-tour-invite {
+    display: none;
+  }
+
+  /* 最終レビュー指摘(Critical): 計画画面(スマホ)は末尾に「ツアーを開始する」ボタンが来るが、
+     固定下部ナビ (.housing-bottomnav) に隠れて押せなかった。.housing-register-col-center と
+     同型でナビ高さ+セーフエリア+余裕を下端に確保する (padding-bottom のみ上書き)。 */
+  .housing-tour-plan-mobile {
+    padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px);
+  }
+
+  /* ----- ツアー地図(TourNavMap): 行き方を地図下部の帯へ/フル住所2行折返し/ホイールヒント非表示 (実機2回目FB#4/#6) -----
+     下部バー(TourMobileBar)の1行省略表示だと行き方が読み切れなかったため、地図側の帯へ全文で移す。
+     実機FB第6弾#7: 1行目=最寄りエーテライト/2行目以降=行き方本文の2段に分け、行き方は省略せず
+     全文折返しで表示する(行数制限は設けない)。入れ替えに伴い、マウス向けの「ホイールでズーム・
+     ドラッグで移動」ヒントはスマホでは不要になるため非表示にする。 */
+  .housing-tour-map-hint {
+    display: none;
+  }
+  /* 実機スクショFB: 左上フル住所オーバーレイと文言が重なって不格好だったため、
+     「デフォルト表示に戻す」ボタンはスマホでは非表示(ピンチ/ダブルタップで代替可能)。PC は不変。 */
+  .housing-tour-map-reset {
+    display: none;
+  }
+  .housing-tour-map-directions {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 14px;
+    background: var(--housing-panel-bg-solid);
+    color: var(--housing-candle);
+    text-shadow: var(--housing-text-shadow);
+    pointer-events: none;
+  }
+  .housing-tour-map-directions-teleport {
+    font-size: var(--housing-text-sm);
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .housing-tour-map-directions-body {
+    font-size: var(--housing-text-sm);
+    font-weight: 500;
+    line-height: 1.45;
+    white-space: normal;
+  }
+  /* 招待の案内(2026-08-12): 行き方と同じ帯に相乗り。行き方がある時は上に薄い区切りを入れて分離する。 */
+  .housing-tour-map-invite-hint {
+    font-size: var(--housing-text-xs);
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--housing-candle);
+    opacity: 0.85;
+  }
+  .housing-tour-map-directions-teleport + .housing-tour-map-invite-hint,
+  .housing-tour-map-directions-body + .housing-tour-map-invite-hint {
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px solid var(--housing-divider);
+  }
+  /* 実機2回目FB#6: フル住所チップは省略せず全文(最大2行折返し)で表示する(PC は1行ellipsisのまま維持)。
+     右側はコンパス(40px + right:10px + 余白)を避けるよう100%からその分を差し引く
+     (--housing-panel-radius は左インセットと同じ変数を使い、値が変わっても追随する)。
+     実機スクショFB: 左上インセットが広すぎて「デフォルト表示に戻す」文言と重なっていたため、
+     スマホはコンパスの top/right:10px に揃えてもっと左上寄りから開始する。折返し幅もこの新インセットを
+     基準に、右のコンパス(40px + right:10px + 余白10px)を避けるぶんを差し引く。 */
+  .housing-tour-map-address {
+    top: 10px;
+    left: 10px;
+    max-width: calc(100% - 10px - 60px);
+  }
+  .housing-tour-map-address-full-text,
+  .housing-tour-map-address-aetheryte {
+    white-space: normal;
+    text-overflow: clip;
+  }
+
+}

@@ -1,0 +1,442 @@
+/* ============================================================
+ * 登録ページ中央カラム: 公開設定セクション (Task12)
+ * 選択系 UI = 青トークン (質感A案「青 = 選択」)。期限切れ自動非公開の注記は
+ * ヘアライン+グレーの静かな注記にする (色付き alert 箱を避ける)。
+ * ============================================================ */
+.housing-register-visibility-chip {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  gap: calc(4px * var(--housing-scale));
+  min-width: calc(84px * var(--housing-scale));
+  padding: calc(9px * var(--housing-scale)) calc(14px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-chip-sunken-bg);
+  color: var(--housing-text);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+.housing-register-visibility-chip-title {
+  font-size: var(--housing-text-sm);
+  font-weight: 500;
+  color: var(--housing-text);
+}
+.housing-register-visibility-chip-desc {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  line-height: 1.35;
+}
+.housing-register-visibility-chip:hover {
+  background: var(--housing-chip-bg-hover);
+  border-color: var(--housing-aether-border);
+}
+.housing-register-visibility-chip[data-selected="true"] {
+  background: var(--housing-aether-medium);
+  border-color: var(--housing-aether-border);
+  color: var(--housing-text);
+  box-shadow: 0 0 0 calc(1px * var(--housing-scale)) var(--housing-aether-border) inset;
+}
+.housing-register-visibility-chip:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-aether);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+.housing-register-visibility-enddate {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+}
+/* 期限切れ後の倒し先 (2択チップ)。日時ピッカーの下に少し間を空けて続ける。 */
+.housing-register-visibility-after-expiry {
+  margin-top: calc(12px * var(--housing-scale));
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+}
+.housing-register-visibility-enddate-toggle,
+.housing-register-promo-toggle,
+.housing-register-room-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(8px * var(--housing-scale));
+  font-size: var(--housing-text-md);
+  color: var(--housing-text);
+  cursor: pointer;
+  width: fit-content;
+  /* 1px 不可視 checkbox (下記) の containing block を必ずこの label にする。
+     これが無いと checkbox が外側の .housing-register-panel (position:relative) に
+     アンカーされ、中央カラムのスクロールに追従せず置き去りになる。その状態で
+     クリック (=focus) すると Chrome の focus-scroll が置き去り位置を見せようと
+     overflow:hidden のパネル自体を内部スクロールさせ、中央カラム全体が画面外へ
+     吹き飛んで空表示になる (実機ゲート B2・SNS画像でフォームが長い時のみ顕在化)。 */
+  position: relative;
+}
+.housing-register-visibility-enddate-toggle input[type="checkbox"],
+.housing-register-promo-toggle input[type="checkbox"],
+.housing-register-room-toggle input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: calc(1px * var(--housing-scale));
+  height: calc(1px * var(--housing-scale));
+}
+.housing-register-visibility-enddate-toggle-track,
+.housing-register-promo-toggle-track,
+.housing-register-room-toggle-track {
+  flex: 0 0 auto;
+  position: relative;
+  width: calc(34px * var(--housing-scale));
+  height: calc(20px * var(--housing-scale));
+  border-radius: calc(999px * var(--housing-scale));
+  background: var(--housing-chip-sunken-bg);
+  border: 1px solid var(--housing-panel-border);
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.housing-register-visibility-enddate-toggle-knob,
+.housing-register-promo-toggle-knob,
+.housing-register-room-toggle-knob {
+  position: absolute;
+  top: calc(1px * var(--housing-scale));
+  left: calc(1px * var(--housing-scale));
+  width: calc(16px * var(--housing-scale));
+  height: calc(16px * var(--housing-scale));
+  border-radius: calc(999px * var(--housing-scale));
+  background: var(--housing-text-dim);
+  transition: transform 150ms ease, background 150ms ease;
+}
+.housing-register-visibility-enddate-toggle input[type="checkbox"]:checked
+  + .housing-register-visibility-enddate-toggle-track,
+.housing-register-promo-toggle input[type="checkbox"]:checked
+  + .housing-register-promo-toggle-track,
+.housing-register-room-toggle input[type="checkbox"]:checked
+  + .housing-register-room-toggle-track {
+  background: var(--housing-aether-medium);
+  border-color: var(--housing-aether-border);
+}
+.housing-register-visibility-enddate-toggle input[type="checkbox"]:checked
+  + .housing-register-visibility-enddate-toggle-track
+  .housing-register-visibility-enddate-toggle-knob,
+.housing-register-promo-toggle input[type="checkbox"]:checked
+  + .housing-register-promo-toggle-track
+  .housing-register-promo-toggle-knob,
+.housing-register-room-toggle input[type="checkbox"]:checked
+  + .housing-register-room-toggle-track
+  .housing-register-room-toggle-knob {
+  transform: translateX(calc(14px * var(--housing-scale)));
+  background: var(--housing-aether);
+}
+.housing-register-visibility-enddate-toggle input[type="checkbox"]:focus-visible
+  + .housing-register-visibility-enddate-toggle-track,
+.housing-register-promo-toggle input[type="checkbox"]:focus-visible
+  + .housing-register-promo-toggle-track,
+.housing-register-room-toggle input[type="checkbox"]:focus-visible
+  + .housing-register-room-toggle-track {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-aether);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-register-visibility-enddate-toggle-track,
+  .housing-register-visibility-enddate-toggle-knob,
+  .housing-register-promo-toggle-track,
+  .housing-register-promo-toggle-knob,
+  .housing-register-room-toggle-track,
+  .housing-register-room-toggle-knob {
+    transition: none;
+  }
+}
+/* ===== カスタム日時ピッカー (D5) =====
+   ネイティブ datetime-local のポップアップはブラウザ chrome でスタイル不能のため自作。
+   選択=青 (--housing-aether 系)・今日=ハニーの輪郭、質感A案の濃紺ポップオーバー。 */
+.housing-dtp {
+  position: relative;
+  width: 100%;
+}
+.housing-dtp-trigger {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--housing-scale));
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+.housing-dtp-trigger-icon {
+  flex: 0 0 auto;
+  color: var(--housing-text-dim);
+}
+.housing-dtp-placeholder {
+  color: var(--housing-text-mute);
+}
+.housing-dtp-popover {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + calc(6px * var(--housing-scale)));
+  left: 0;
+  width: calc(300px * var(--housing-scale));
+  padding: calc(12px * var(--housing-scale));
+  border-radius: calc(10px * var(--housing-scale));
+  /* panel-bg-solid (α0.74) だと後ろのフォーム文字が透ける。他ポップオーバーと同じ不透明面を使う */
+  background: var(--housing-popover-bg);
+  border: 1px solid var(--housing-panel-border-strong);
+  box-shadow: var(--housing-popover-shadow);
+}
+.housing-dtp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: calc(8px * var(--housing-scale));
+}
+.housing-dtp-month {
+  font-size: var(--housing-text-md);
+  font-weight: 600;
+  color: var(--housing-text);
+}
+.housing-dtp-nav {
+  display: flex;
+  gap: calc(4px * var(--housing-scale));
+}
+.housing-dtp-nav-btn {
+  display: grid;
+  place-items: center;
+  width: calc(26px * var(--housing-scale));
+  height: calc(26px * var(--housing-scale));
+  border-radius: calc(6px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text-dim);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.housing-dtp-nav-btn:hover {
+  background: var(--housing-chip-sunken-bg);
+  color: var(--housing-text);
+}
+.housing-dtp-weekdays,
+.housing-dtp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: calc(2px * var(--housing-scale));
+}
+.housing-dtp-weekdays {
+  margin-bottom: calc(4px * var(--housing-scale));
+}
+.housing-dtp-weekday {
+  text-align: center;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  padding: calc(2px * var(--housing-scale)) 0;
+}
+/* 日曜/土曜のヘッダーだけ淡く色分け (FF14 らしさより控えめに) */
+.housing-dtp-weekday[data-dow="0"] { color: var(--housing-account-danger-text); }
+.housing-dtp-weekday[data-dow="6"] { color: var(--housing-aether-soft); }
+.housing-dtp-day {
+  display: grid;
+  place-items: center;
+  height: calc(32px * var(--housing-scale));
+  border-radius: calc(6px * var(--housing-scale));
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.housing-dtp-day[data-in-month="false"] {
+  color: var(--housing-text-mute);
+}
+.housing-dtp-day:hover {
+  background: var(--housing-chip-sunken-bg);
+}
+.housing-dtp-day[data-today="true"] {
+  border-color: var(--housing-avatar-ring);
+}
+.housing-dtp-day[data-selected="true"] {
+  background: var(--housing-aether-medium);
+  border-color: var(--housing-aether-border);
+  color: var(--housing-aether-soft);
+  font-weight: 600;
+}
+.housing-dtp-time-row {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--housing-scale));
+  margin-top: calc(10px * var(--housing-scale));
+  padding-top: calc(10px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-dtp-time-label {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-dtp-time-input {
+  width: calc(88px * var(--housing-scale));
+  text-align: center;
+}
+.housing-dtp-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: calc(4px * var(--housing-scale));
+  margin-top: calc(10px * var(--housing-scale));
+}
+.housing-dtp-action {
+  padding: calc(5px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(6px * var(--housing-scale));
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-sm);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.housing-dtp-action:hover {
+  background: var(--housing-chip-sunken-bg);
+  color: var(--housing-text);
+}
+.housing-dtp-action-primary {
+  color: var(--housing-aether-soft);
+  border-color: var(--housing-aether-border);
+}
+
+.housing-register-visibility-note {
+  margin: 0;
+  padding-top: calc(10px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
+/* 「公開」選択時だけ出る「LoPo 公式 X で紹介してよいか」トグル行。
+   トグル本体のスタイルは .housing-register-promo-toggle* (上部・enddate と共有)。 */
+.housing-register-promo {
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+  margin-top: calc(4px * var(--housing-scale));
+}
+.housing-register-promo-note {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
+/* ============================================================
+ * 登録ページ右カラム: 入力チェックパネル (Task13)
+ * 質感A案「青 = 進行」。done/todo はアイコン色だけで差をつけ、色付き alert 箱にしない。
+ * ============================================================ */
+.housing-register-check-panel {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+}
+.housing-register-check-panel-title {
+  margin: 0;
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-check-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+}
+.housing-register-check-row {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  background: var(--housing-chip-sunken-bg);
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-register-check-icon {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-md);
+  line-height: 1;
+}
+.housing-register-check-row.is-done .housing-register-check-icon {
+  color: var(--housing-aether);
+}
+.housing-register-check-row.is-todo .housing-register-check-icon {
+  color: var(--housing-text-mute);
+}
+.housing-register-check-label {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-register-check-row.is-done .housing-register-check-label {
+  color: var(--housing-text);
+}
+
+/* ============================================================
+ * 登録ページ右カラム: 重複チェックパネル (Task13)
+ * 非公開一致は件数のみの静かな注記 (色付き alert 箱にしない)。公開重複は
+ * HousingDuplicateWarningDialog と同じ範囲のカード表示 (id/createdAt/tags のみ)。
+ * ============================================================ */
+.housing-register-dup-panel {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+}
+.housing-register-dup-panel-title {
+  margin: 0;
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-dup-quiet-text {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-dup-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+}
+.housing-register-dup-skeleton-row {
+  height: calc(36px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  background: var(--housing-skeleton-block);
+  animation: housing-skeleton-pulse 1.4s ease-in-out infinite;
+}
+.housing-register-dup-found {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+}
+.housing-register-dup-public-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+}
+.housing-register-dup-public-card {
+  padding: calc(10px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  background: var(--housing-chip-sunken-bg);
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-register-dup-public-date {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+}
+.housing-register-dup-public-tags {
+  margin: calc(4px * var(--housing-scale)) 0 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-register-dup-private-note {
+  margin: 0;
+  padding-top: calc(10px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+

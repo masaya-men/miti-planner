@@ -1,0 +1,432 @@
+/* ===========================================
+ * Account Modal
+ * =========================================== */
+.housing-account-profile {
+    display: flex;
+    align-items: center;
+    gap: calc(16px * var(--housing-scale));
+    padding: calc(16px * var(--housing-scale));
+    border-radius: calc(12px * var(--housing-scale));
+    background: var(--housing-account-button-bg);
+    border: 1px solid var(--housing-account-button-border);
+    margin-bottom: calc(20px * var(--housing-scale));
+}
+.housing-account-avatar {
+    width: calc(56px * var(--housing-scale));
+    height: calc(56px * var(--housing-scale));
+    border-radius: calc(999px * var(--housing-scale));
+    overflow: hidden;
+    border: calc(2px * var(--housing-scale)) solid var(--housing-avatar-ring);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.housing-account-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.housing-account-info {
+    flex: 1;
+    min-width: 0;
+}
+.housing-account-name-row {
+    display: flex;
+    align-items: center;
+    gap: calc(6px * var(--housing-scale));
+}
+.housing-account-name-edit-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: calc(4px * var(--housing-scale));
+    color: var(--housing-text-mute);
+}
+.housing-account-name-edit-btn:hover {
+    color: var(--housing-honey);
+}
+.housing-account-name-note {
+    margin: calc(4px * var(--housing-scale)) 0 0;
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+}
+.housing-account-divider {
+    height: calc(1px * var(--housing-scale));
+    background: var(--housing-account-divider);
+    margin: calc(20px * var(--housing-scale)) 0;
+}
+.housing-account-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(8px * var(--housing-scale));
+    width: 100%;
+    padding: calc(10px * var(--housing-scale)) calc(14px * var(--housing-scale));
+    border-radius: calc(10px * var(--housing-scale));
+    background: var(--housing-account-button-bg);
+    color: var(--housing-text);
+    font-size: var(--housing-text-sm);
+    font-weight: 500;
+    border: 1px solid var(--housing-account-button-border);
+    cursor: pointer;
+    transition: background 180ms ease;
+    margin-bottom: calc(8px * var(--housing-scale));
+}
+.housing-account-button:hover {
+    background: var(--housing-account-button-bg-hover);
+}
+.housing-account-button-danger {
+    color: var(--housing-account-danger-text);
+    border-color: var(--housing-account-danger-border);
+}
+.housing-account-button-danger:hover {
+    background: var(--housing-account-danger-bg-hover);
+}
+.housing-account-delete-link {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: transparent;
+    border: none;
+    color: var(--housing-account-delete-link-text);
+    font-size: var(--housing-text-xs);
+    padding: calc(8px * var(--housing-scale));
+    margin-top: calc(12px * var(--housing-scale));
+    cursor: pointer;
+    transition: color 180ms ease;
+}
+.housing-account-delete-link:hover {
+    color: var(--housing-account-danger-text);
+}
+
+/* ===== ハウジンガー公開セクション (Task 6) ===== */
+.housing-account-housinger {
+    display: flex;
+    flex-direction: column;
+    gap: calc(10px * var(--housing-scale));
+    padding-top: calc(16px * var(--housing-scale));
+    margin-top: calc(4px * var(--housing-scale));
+    margin-bottom: calc(8px * var(--housing-scale));
+    border-top: 1px solid var(--housing-account-divider);
+}
+/* 2026-07-31: タイトル + 共有ボタン(マイページのみ)を横並びにする行。 */
+.housing-account-housinger-titlerow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(8px * var(--housing-scale));
+}
+.housing-account-housinger-title {
+    margin: 0;
+    font-size: var(--housing-text-base);
+    font-weight: 600;
+    color: var(--housing-text);
+}
+.housing-account-housinger-desc {
+    margin: 0;
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+    line-height: 1.5;
+}
+.housing-account-housinger-status {
+    margin: 0;
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    color: var(--housing-honey);
+}
+.housing-account-housinger-published {
+    display: flex;
+    flex-direction: column;
+    gap: calc(12px * var(--housing-scale));
+}
+.housing-account-housinger .housing-account-button {
+    margin-bottom: 0;
+}
+
+/* アイコン変更モーダル (HousingAvatarCropModal.tsx)。react-easy-crop の Cropper 本体は
+   ライブラリ側の絶対配置 canvas なのでそのまま、周辺の枠だけ housing トンマナに揃える。 */
+.housing-avatar-crop {
+    display: flex;
+    flex-direction: column;
+    gap: calc(16px * var(--housing-scale));
+}
+.housing-avatar-crop-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: calc(6px * var(--housing-scale));
+    padding: calc(40px * var(--housing-scale)) calc(16px * var(--housing-scale));
+    border-radius: calc(14px * var(--housing-scale));
+    border: 1px dashed var(--housing-panel-border);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+.housing-avatar-crop-dropzone:hover {
+    border-color: var(--housing-honey-border);
+    background: var(--housing-chip-bg-hover);
+}
+.housing-avatar-crop-dropzone-label {
+    font-size: var(--housing-text-base);
+    color: var(--housing-text);
+}
+.housing-avatar-crop-dropzone-hint {
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+}
+.housing-avatar-crop-input {
+    display: none;
+}
+/* クロップ表示エリア: cropShape="round" (Cropper 側の丸ガイド) が実際に表示されるアイコン形状と
+   一致することを保証する。枠自体は正方形+角丸でクロップの土台であることを示す。 */
+.housing-avatar-crop-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: calc(12px * var(--housing-scale));
+    overflow: hidden;
+    background: #000;
+}
+.housing-avatar-crop-zoom {
+    width: 100%;
+    accent-color: var(--housing-honey);
+}
+/* 確定ボタン = 主アクション。.housinger-page-tour-btn と同じ honey CTA パターン。 */
+.housing-avatar-crop-confirm {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(8px * var(--housing-scale));
+    width: 100%;
+    padding: calc(11px * var(--housing-scale)) calc(16px * var(--housing-scale));
+    font-family: inherit;
+    font-size: var(--housing-text-md);
+    font-weight: 700;
+    color: var(--housing-honey-text);
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+    border: 0;
+    border-radius: calc(10px * var(--housing-scale));
+    box-shadow: 0 calc(4px * var(--housing-scale)) calc(14px * var(--housing-scale)) var(--housing-honey-shadow-soft);
+    transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housing-avatar-crop-confirm:hover {
+    filter: brightness(1.05);
+}
+.housing-avatar-crop-confirm:active {
+    transform: scale(0.98);
+}
+
+/* ============================================================
+ * Phase 3: 編集 / 削除 / kebab メニュー (家主専用 UI)
+ * ============================================================ */
+
+/* 共通モーダルバックドロップ (削除確認等で利用) */
+.housing-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--housing-popover-z);
+    background: var(--housing-modal-overlay);
+    display: grid;
+    place-items: center;
+}
+
+/* 削除確認カード */
+.housing-delete-confirm-card {
+    background: var(--housing-popover-bg);
+    border: 1px solid var(--housing-panel-border-strong);
+    border-radius: var(--housing-panel-radius);
+    padding: calc(24px * var(--housing-scale)) calc(28px * var(--housing-scale));
+    max-width: calc(420px * var(--housing-scale));
+    width: calc(100% - calc(32px * var(--housing-scale)));
+    color: var(--housing-text);
+    font-size: var(--housing-text-base);
+    box-shadow: var(--housing-popover-shadow);
+}
+.housing-delete-confirm-title {
+    font-size: var(--housing-text-xl);
+    font-weight: 600;
+    margin: 0 0 calc(12px * var(--housing-scale));
+    color: var(--housing-danger);
+}
+.housing-delete-confirm-target {
+    margin: 0 0 calc(16px * var(--housing-scale));
+    color: var(--housing-text-dim);
+}
+.housing-delete-confirm-body {
+    list-style: disc inside;
+    margin: 0 0 calc(24px * var(--housing-scale));
+    padding: 0;
+    color: var(--housing-text-dim);
+    line-height: 1.6;
+}
+.housing-delete-confirm-actions {
+    display: flex;
+    gap: calc(8px * var(--housing-scale));
+    justify-content: flex-end;
+}
+.housing-delete-confirm-actions button {
+    padding: calc(8px * var(--housing-scale)) calc(16px * var(--housing-scale));
+    border-radius: calc(10px * var(--housing-scale));
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    font-size: var(--housing-text-base);
+}
+.housing-delete-confirm-actions button:hover:not(:disabled) {
+    background: var(--housing-chip-bg-hover);
+}
+.housing-delete-confirm-actions button:disabled {
+    opacity: var(--housing-disabled-opacity);
+    cursor: not-allowed;
+}
+
+/* 通知/ケバブ/警告ダイアログ 共通のガラス面 (#D)。濃紺の不透明箱 (旧 --housing-popover-bg-navy)
+   をやめ、周囲の質感A案パネル (.housing-panel) と同じ「半透明ネイビー(0.74) + 縁の光」に統一する。
+   ブラーは付けない (A案パネルも --liquid-filter 未設定でブラー無し。材質をパネルへ揃える)。
+   個別ルールは border-radius / padding / 寸法だけを持ち、面(bg/border/影)はここへ集約。 */
+.housing-tour-expose-card,
+.housing-notif-dropdown,
+.housing-card-visibility-menu,
+.housing-bottomnav-account-menu {
+    background: var(--housing-panel-bg-solid);
+    border: 1px solid var(--housing-panel-border);
+    box-shadow: var(--housing-popover-shadow-glass);
+}
+
+/* 住所露出警告カード (Task 2.2・共有ツアー招待の直前確認) */
+.housing-tour-expose-card {
+    border-radius: var(--housing-panel-radius);
+    padding: calc(24px * var(--housing-scale)) calc(28px * var(--housing-scale));
+    max-width: calc(440px * var(--housing-scale));
+    width: calc(100% - calc(32px * var(--housing-scale)));
+    color: var(--housing-text);
+    font-size: var(--housing-text-base);
+}
+.housing-tour-expose-head {
+    display: flex;
+    align-items: center;
+    gap: calc(12px * var(--housing-scale));
+    margin: 0 0 calc(14px * var(--housing-scale));
+}
+.housing-tour-expose-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(40px * var(--housing-scale));
+    height: calc(40px * var(--housing-scale));
+    flex: 0 0 auto;
+    border-radius: 50%;
+    color: var(--housing-honey);
+    background: var(--housing-honey-medium);
+    border: 1px solid var(--housing-honey-border);
+}
+.housing-tour-expose-title {
+    font-size: var(--housing-text-xl);
+    font-weight: 600;
+    margin: 0;
+    color: var(--housing-text);
+    line-height: 1.3;
+}
+.housing-tour-expose-body {
+    margin: 0 0 calc(20px * var(--housing-scale));
+    color: var(--housing-text-dim);
+    line-height: 1.6;
+}
+.housing-tour-expose-note {
+    margin: 0 0 calc(22px * var(--housing-scale));
+    padding-top: calc(14px * var(--housing-scale));
+    border-top: 1px solid var(--housing-divider);
+    color: var(--housing-text-mute);
+    font-size: var(--housing-text-sm);
+    line-height: 1.55;
+}
+.housing-tour-expose-actions {
+    display: flex;
+    gap: calc(8px * var(--housing-scale));
+    justify-content: flex-end;
+}
+/* 「やめる」/「このまま招待する」の共通の箱寸法をここへ集約。招待側は .housing-btn-primary
+   (色/グラデ/影のみ・border-radius 無し) 単体だったため角丸が効かず四角く見えていた。
+   両ボタンをこの子孫セレクタで揃える (角丸 10px・padding・文字サイズ)。色は各自のクラスで付ける。 */
+.housing-tour-expose-actions button {
+    padding: calc(8px * var(--housing-scale)) calc(16px * var(--housing-scale));
+    border-radius: calc(10px * var(--housing-scale));
+    font-size: var(--housing-text-base);
+    cursor: pointer;
+}
+.housing-tour-expose-cancel {
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    transition: background 0.15s ease;
+}
+.housing-tour-expose-cancel:hover:not(:disabled) {
+    background: var(--housing-chip-bg-hover);
+}
+.housing-btn-danger {
+    background: var(--housing-danger-btn) !important;
+    border-color: var(--housing-danger-btn) !important;
+    color: #fff !important;
+}
+.housing-btn-danger:hover:not(:disabled) {
+    background: var(--housing-danger-btn-hover) !important;
+}
+
+/* Kebab (︙) メニュー */
+.housing-kebab {
+    position: relative;
+    display: inline-block;
+}
+.housing-kebab-trigger {
+    width: calc(40px * var(--housing-scale));
+    height: calc(40px * var(--housing-scale));
+    border-radius: 50%;
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+.housing-kebab-trigger:hover {
+    background: var(--housing-chip-bg-hover);
+}
+.housing-kebab-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + calc(4px * var(--housing-scale)));
+    min-width: calc(160px * var(--housing-scale));
+    border-radius: calc(12px * var(--housing-scale));
+    padding: calc(6px * var(--housing-scale));
+    /* 共通ガラス面ルールから外し、濃紺ほぼ不透明の面にする (本文が透けない) */
+    background: var(--housing-menu-bg-opaque);
+    border: 1px solid var(--housing-panel-border);
+    box-shadow: var(--housing-popover-shadow-glass);
+    display: flex;
+    flex-direction: column;
+    gap: calc(2px * var(--housing-scale));
+    z-index: var(--housing-popover-z-stack);
+}
+.housing-kebab-menu button {
+    background: transparent;
+    border: none;
+    color: var(--housing-text);
+    font-size: var(--housing-text-base);
+    text-align: left;
+    padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+    cursor: pointer;
+    border-radius: calc(8px * var(--housing-scale));
+    white-space: nowrap;
+}
+.housing-kebab-menu button:hover {
+    background: var(--housing-honey-medium);
+}
+.housing-kebab-item-danger {
+    color: var(--housing-danger) !important;
+}
+.housing-kebab-item-danger:hover {
+    background: var(--housing-danger-soft) !important;
+}
+

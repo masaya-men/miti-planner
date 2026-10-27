@@ -1,0 +1,433 @@
+/* チェック描画アニメ (bounce + path draw + ripple + glow) */
+@keyframes housing-check-bounce {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.3); }
+  60%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+@keyframes housing-check-draw {
+  from { stroke-dashoffset: 24; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes housing-check-ripple {
+  0%   { transform: scale(0.6); opacity: 0.55; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes housing-check-glow {
+  0%   { box-shadow: 0 0 0 rgba(255, 201, 135, 0); }
+  40%  { box-shadow: 0 0 calc(24px * var(--housing-scale)) rgba(255, 201, 135, 0.85); }
+  100% { box-shadow: 0 0 0 rgba(255, 201, 135, 0); }
+}
+
+.housing-confirm-button[data-animating="true"] {
+  animation: housing-check-bounce 400ms cubic-bezier(0.34, 1.56, 0.64, 1), housing-check-glow 300ms ease-in-out;
+}
+
+.housing-confirm-button[data-animating="true"] svg path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: housing-check-draw 200ms ease-out 60ms forwards;
+}
+
+.housing-confirm-button[data-animating="true"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  animation: housing-check-ripple 600ms ease-out;
+  pointer-events: none;
+}
+
+/* フィールド state class (背景遷移) */
+.housing-field {
+  position: relative;
+  background: transparent;
+  border: 1px solid var(--housing-panel-border);
+  transition: background 300ms ease-out, border-color 300ms ease-out;
+}
+
+.housing-field[data-state="auto-filled"] {
+  background: var(--housing-field-bg-auto);
+  border-color: var(--housing-field-border-auto);
+}
+
+.housing-field[data-state="confirmed"] {
+  background: var(--housing-field-bg-confirmed);
+  border-color: var(--housing-field-border-confirmed);
+}
+
+.housing-field[data-state="error"] {
+  background: var(--housing-field-bg-error);
+  border-color: var(--housing-field-border-error);
+}
+
+/* タイピングアニメのカーソル */
+@keyframes housing-typing-cursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.housing-typing-cursor {
+  display: inline-block;
+  width: calc(1px * var(--housing-scale));
+  background: var(--housing-honey);
+  animation: housing-typing-cursor 530ms steps(2) infinite;
+}
+
+/* ローディングスピナー (リキッドグラス調円形) */
+@keyframes housing-spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+
+.housing-spinner {
+  display: inline-block;
+  width: calc(18px * var(--housing-scale));
+  height: calc(18px * var(--housing-scale));
+  border-radius: 50%;
+  border: calc(2px * var(--housing-scale)) solid var(--housing-honey-strong);
+  border-top-color: var(--housing-honey);
+  animation: housing-spinner-rotate 1.2s linear infinite;
+}
+
+.housing-fetch-indicator {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--housing-scale));
+  margin-top: calc(6px * var(--housing-scale));
+}
+
+/* 動的フィールド (タイプ別の追加フィールド) のスライドイン/アウト */
+@keyframes housing-field-slide-in {
+  from { opacity: 0; transform: translateY(calc(8px * var(--housing-scale))); max-height: 0; }
+  to   { opacity: 1; transform: translateY(0); max-height: calc(400px * var(--housing-scale)); }
+}
+
+@keyframes housing-field-slide-out {
+  from { opacity: 1; transform: translateY(0); max-height: calc(400px * var(--housing-scale)); }
+  to   { opacity: 0; transform: translateY(calc(-8px * var(--housing-scale))); max-height: 0; }
+}
+
+.housing-conditional-field {
+  overflow: hidden;
+  animation: housing-field-slide-in 300ms cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+}
+
+.housing-conditional-field[data-exiting="true"] {
+  animation: housing-field-slide-out 200ms ease-in forwards;
+}
+
+/* Allmarksまとめてインポート (2026-08-19)。演出は AllmarksWaveLoader コンポーネント側
+   (波打つバー+跳ねるボール、ユーザー提供デザインを移植)。 バーの色変化は元コードの
+   RGB直接補間ではなく、aetherトーンの重ね(不透明度アニメ)で表現し token 経由を徹底。 */
+.housing-allmarks-import-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(14px * var(--housing-scale));
+  padding: calc(28px * var(--housing-scale)) calc(16px * var(--housing-scale)) calc(20px * var(--housing-scale));
+  text-align: center;
+}
+
+.housing-allmarks-wave-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: calc(12px * var(--housing-scale)) 0;
+}
+
+/* スマホ幅ではトラック (固定 ~394px) が収まらず右端の家が見切れていたため、
+   AllmarksWaveLoader.tsx が利用可能幅を採寸して transform: scale で縮小する。
+   この wrapper が縮小後の実寸を占め、外側の中央寄せ・縦レイアウトを崩さない。 */
+.housing-allmarks-wave-loader-fit {
+  position: relative;
+}
+
+.housing-allmarks-wave-loader-track {
+  position: relative;
+  height: calc(150px * var(--housing-scale));
+  display: flex;
+  align-items: flex-end;
+}
+
+.housing-allmarks-wave-bar-wrap {
+  position: relative;
+  height: calc(64px * var(--housing-scale));
+  margin-right: calc(8px * var(--housing-scale));
+  display: flex;
+  align-items: flex-end;
+}
+
+.housing-allmarks-wave-bar-wrap:last-of-type {
+  margin-right: 0;
+}
+
+.housing-allmarks-wave-bar-base {
+  width: 100%;
+  height: calc(16px * var(--housing-scale));
+  border-radius: calc(999px * var(--housing-scale));
+  background: var(--housing-divider);
+}
+
+.housing-allmarks-wave-bar-glow {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  border-radius: calc(999px * var(--housing-scale));
+  background: var(--housing-aether);
+}
+
+.housing-allmarks-wave-house {
+  position: absolute;
+  bottom: 0;
+  transform-origin: bottom center;
+  color: var(--housing-honey);
+  line-height: 0;
+}
+
+.housing-allmarks-wave-ball {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: calc(12px * var(--housing-scale));
+  height: calc(12px * var(--housing-scale));
+  border-radius: 50%;
+  background: var(--housing-honey);
+  transform-origin: bottom center;
+  box-shadow: 0 0 calc(8px * var(--housing-scale)) var(--housing-honey-glow);
+}
+
+.housing-allmarks-import-status {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
+.housing-allmarks-import-tally {
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.housing-allmarks-import-summary {
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+  text-align: center;
+}
+
+.housing-allmarks-import-actions {
+  display: flex;
+  gap: calc(8px * var(--housing-scale));
+  margin-top: calc(4px * var(--housing-scale));
+}
+
+.housing-allmarks-import-region-choices {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+  width: 100%;
+}
+
+/* prefers-reduced-motion 対応 */
+@media (prefers-reduced-motion: reduce) {
+  .housing-confirm-button,
+  .housing-confirm-button[data-animating="true"],
+  .housing-confirm-button[data-animating="true"] svg path,
+  .housing-confirm-button[data-animating="true"]::after,
+  .housing-field,
+  .housing-typing-cursor,
+  .housing-spinner,
+  .housing-conditional-field,
+  .housing-allmarks-map-road {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ===== Register Form 基礎クラス (Phase 2A) ===== */
+.housing-register-form {
+  display: flex;
+  flex-direction: column;
+  gap: calc(14px * var(--housing-scale));
+  color: var(--housing-text);
+}
+.housing-label {
+  display: block;
+  font-size: var(--housing-text-xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--housing-text-dim);
+  margin-bottom: calc(6px * var(--housing-scale));
+}
+.housing-input,
+.housing-textarea {
+  width: 100%;
+  padding: calc(9px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  /* select の▼矢印は background-image + background-position で描くため、状態変化で使う背景は
+     必ず background-color 限定にする。background ショートハンドや transition:background だと
+     矢印の背景位置がリセット/アニメして「▼が左からしゅんっと出る」不具合になる (2026-07-12 根治)。 */
+  background-color: rgba(0, 0, 0, 0.42);
+  border: 1px solid var(--housing-panel-border);
+  color: var(--housing-text);
+  font-size: var(--housing-text-base);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+}
+.housing-input:focus,
+.housing-textarea:focus {
+  border-color: var(--housing-honey);
+  box-shadow: 0 0 0 calc(1px * var(--housing-scale)) var(--housing-honey-inset) inset;
+  background-color: rgba(0, 0, 0, 0.55);
+}
+.housing-input:disabled,
+.housing-textarea:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+/* size は (area×plot) から自動導出のため常に disabled だが、ハニーゴールドの「確定」感
+   (auto-filled 面 + 🟡 バッジ) を消してはいけない。既定の disabled 減光 (opacity 0.4 / 灰化 /
+   -webkit-text-fill-color の潰れ) を打ち消し、通常フィールドと同じ文字色・矢印を保つ。 */
+#housing-register-size:disabled {
+  opacity: 1;
+  cursor: default;
+  color: var(--housing-text);
+  -webkit-text-fill-color: var(--housing-text);
+}
+.housing-textarea {
+  resize: vertical;
+  min-height: calc(80px * var(--housing-scale));
+}
+/* 「ひとこと」欄: 普段は入力欄1行分の高さに収め、フォーカスすると数行分に広がり、
+   さらに入力量が増えれば JS (HousingerProfileSection.tsx) が実高さに追従させる。
+   改行も入力できるよう resize は無効化 (手動リサイズの取っ手は出さない)。 */
+.housing-bio-textarea {
+  resize: none;
+  overflow: hidden;
+  min-height: calc(40px * var(--housing-scale));
+  line-height: 1.5;
+}
+.housing-bio-textarea:focus {
+  min-height: calc(92px * var(--housing-scale));
+}
+/* select は標準矢印を消してハニーゴールドの▼を描く */
+select.housing-input {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--housing-honey) 50%),
+                    linear-gradient(135deg, var(--housing-honey) 50%, transparent 50%);
+  background-position: calc(100% - calc(14px * var(--housing-scale))) 50%, calc(100% - calc(9px * var(--housing-scale))) 50%;
+  background-size: calc(5px * var(--housing-scale)) calc(5px * var(--housing-scale)), calc(5px * var(--housing-scale)) calc(5px * var(--housing-scale));
+  background-repeat: no-repeat;
+  padding-right: calc(28px * var(--housing-scale));
+}
+select.housing-input option {
+  background: rgba(0, 0, 0, 0.92);
+  color: var(--housing-text);
+}
+.housing-address-note {
+  margin: calc(6px * var(--housing-scale)) 0 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-dim);
+}
+.housing-address-note[data-overflow="true"] {
+  color: var(--housing-warning);
+}
+.housing-field-error {
+  margin: calc(4px * var(--housing-scale)) 0 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-warning);
+}
+
+/* ============================================================
+ * 物件登録: 画像アップロードフィールド (2026-05-26 新設)
+ * ============================================================ */
+.housing-register-image-field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+}
+.housing-register-image-label {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+  font-weight: 500;
+}
+.housing-register-image-dropzone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(6px * var(--housing-scale));
+  min-height: calc(100px * var(--housing-scale));
+  padding: calc(18px * var(--housing-scale));
+  border: calc(1.5px * var(--housing-scale)) dashed var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  background: var(--housing-chip-bg);
+  color: var(--housing-text-muted);
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease;
+  text-align: center;
+}
+.housing-register-image-dropzone:hover,
+.housing-register-image-dropzone:focus-visible {
+  border-color: var(--housing-honey-border);
+  background: var(--housing-chip-bg-hover);
+  outline: none;
+}
+.housing-register-image-dropzone.is-drag-over {
+  border-color: var(--housing-honey-glow);
+  background: var(--housing-chip-bg-hover);
+}
+.housing-register-image-input {
+  position: absolute;
+  width: calc(1px * var(--housing-scale));
+  height: calc(1px * var(--housing-scale));
+  opacity: 0;
+  pointer-events: none;
+}
+.housing-register-image-cta {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+  font-weight: 500;
+}
+.housing-register-image-hint {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-muted);
+}
+.housing-register-image-status {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+}
+/* 2026-05-26 YouTube プレビュー: SNS URL 入力欄が YouTube URL を受け取ったときのサムネ表示 */
+.housing-register-youtube-preview {
+  display: flex;
+  align-items: center;
+  gap: calc(12px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  background: var(--housing-chip-bg);
+}
+.housing-register-youtube-thumb {
+  width: calc(128px * var(--housing-scale));
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: calc(6px * var(--housing-scale));
+  background: rgba(0, 0, 0, 0.2);
+}
+.housing-register-youtube-label {
+  flex: 1;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-muted);
+}
+

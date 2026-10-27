@@ -1,0 +1,480 @@
+/* ============================================================
+ * 登録ページ中央カラム: 確認セクション (Task14)
+ * 入力要約 + 不足アクション + 主アクションボタン (ハニー)。
+ * エラー/不足は色付き alert 箱にせず、ヘアライン + グレー文字の静かな表示にする
+ * (housing-design.md「AI 感の払拭」)。主アクションのみ .housing-btn-primary (ハニー)。
+ * ============================================================ */
+/* 住所 = 確認セクションの主役 (2026-07-15 UI 調整・B案)。住所を 1 回だけ大きく強調し、
+   すぐ下に青の確認 CTA を置いて「確実に確認させてから押させる」。色付き alert 箱にはせず、
+   ヘアライン区切り + 住所の文字サイズ + ボタンの鮮やかさで階層を作る (housing-design.md「AI 感の払拭」)。 */
+.housing-register-confirm-address {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+  padding-bottom: calc(14px * var(--housing-scale));
+  border-bottom: 1px solid var(--housing-divider);
+}
+.housing-register-confirm-address-line {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--housing-scale));
+}
+.housing-register-confirm-address-label {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+/* 住所本体: 要約行 (sm) より一段大きく太く = 住所だけが際立つ。 */
+.housing-register-confirm-address-value {
+  font-size: var(--housing-text-lg);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--housing-text);
+  word-break: break-word;
+}
+.housing-register-confirm-gate-lead {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+/* 確認 CTA (B案): 鮮やかな青の塗りボタン + 濃紺文字。全幅で押しやすく、めちゃ目立つ。
+   ハニー (主アクション「公開する」) と色で役割が分かれる。 */
+.housing-register-confirm-gate-btn {
+  align-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(6px * var(--housing-scale));
+  padding: calc(12px * var(--housing-scale)) calc(18px * var(--housing-scale));
+  border-radius: calc(10px * var(--housing-scale));
+  border: 1px solid var(--housing-aether-cta-bg);
+  background: var(--housing-aether-cta-bg);
+  color: var(--housing-aether-cta-text);
+  font: inherit;
+  font-size: var(--housing-text-base);
+  font-weight: 700;
+  cursor: pointer;
+  appearance: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.housing-register-confirm-gate-btn:hover:not(:disabled) {
+  background: var(--housing-aether-cta-bg-hover);
+  border-color: var(--housing-aether-cta-bg-hover);
+}
+.housing-register-confirm-gate-btn:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-aether);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+/* 確認済み: 青 → 緑 (--housing-field-bg-confirmed) に切替、パルス停止。 */
+.housing-register-confirm-gate-btn[data-confirmed="true"] {
+  background: var(--housing-field-bg-confirmed);
+  border-color: var(--housing-field-border-confirmed);
+  color: var(--housing-text);
+  cursor: default;
+  box-shadow: none;
+}
+/* 住所未入力 (2026-07-15): 押せない沈んだ灰色。パルスもさせない。「先に住所を入力してください」で
+   住所欄へ誘導する。押せないので震え等のフィードバックは不要 (ユーザー判断)。 */
+.housing-register-confirm-gate-btn[data-address-missing="true"] {
+  background: var(--housing-chip-sunken-bg);
+  border-color: var(--housing-panel-border);
+  color: var(--housing-text-mute);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+/* 未確認かつ住所入力済みの間だけ青の強調パルスで「押してください」を誘導
+   (ring spread + soft glow・トークン経由)。住所未入力ではパルスしない。 */
+.housing-register-confirm-gate-btn[data-confirmed="false"]:not([data-address-missing="true"]) {
+  animation: housing-confirm-cta-pulse 1.6s ease-in-out infinite;
+}
+@keyframes housing-confirm-cta-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--housing-aether-glow-strong);
+  }
+  50% {
+    box-shadow: 0 0 0 calc(6px * var(--housing-scale)) var(--housing-aether-glow-soft), 0 0 calc(18px * var(--housing-scale)) calc(2px * var(--housing-scale)) var(--housing-aether-glow-soft);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* パルスルールと同じ詳細度 (0-3-0) にして確実に打ち消す。 */
+  .housing-register-confirm-gate-btn[data-confirmed="false"]:not([data-address-missing="true"]) { animation: none; }
+}
+
+.housing-register-confirm-summary {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+}
+.housing-register-confirm-summary-row {
+  display: flex;
+  gap: calc(12px * var(--housing-scale));
+  align-items: baseline;
+}
+.housing-register-confirm-summary-row dt {
+  flex: 0 0 auto;
+  min-width: calc(80px * var(--housing-scale));
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-confirm-summary-row dd {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+  word-break: break-word;
+}
+.housing-register-confirm-summary-empty {
+  color: var(--housing-text-mute);
+}
+/* 不足アクション: ヘアライン区切り + グレー、番号なしの静かなリスト。 */
+.housing-register-confirm-missing {
+  padding-top: calc(10px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+}
+.housing-register-confirm-missing-lead {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-confirm-missing-list {
+  margin: 0;
+  padding-left: calc(18px * var(--housing-scale));
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--housing-scale));
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-register-confirm-error {
+  margin: 0;
+  padding-top: calc(10px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-register-confirm-submit {
+  width: 100%;
+  margin-top: calc(4px * var(--housing-scale));
+  padding: calc(11px * var(--housing-scale)) calc(16px * var(--housing-scale));
+  font-size: var(--housing-text-base);
+  /* 土台 .housing-action-btn は justify-content 未指定 (= flex-start) で、全幅ボタンだと
+     ラベルが左に張り付く。主 CTA は中央寄せにする (2026-07-15 ユーザー指摘)。 */
+  justify-content: center;
+}
+
+/* ============================================================
+ * 登録ページ: オートセーブ復元通知 (Task14)
+ * 「入力途中を復元しました」+ SNS 再取得注記 + 破棄ボタン。色付き箱にせず、
+ * ヘアライン枠 + グレー文字の静かな帯にする。
+ * ============================================================ */
+.housing-register-autosave-notice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(12px * var(--housing-scale));
+  padding: calc(10px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border: 1px solid var(--housing-divider);
+  border-radius: calc(8px * var(--housing-scale));
+  background: var(--housing-chip-sunken-bg);
+}
+.housing-register-autosave-notice-body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--housing-scale));
+  min-width: 0;
+}
+.housing-register-autosave-notice-text {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-register-autosave-notice-hint {
+  margin: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-register-autosave-discard {
+  flex: 0 0 auto;
+  padding: calc(6px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(8px * var(--housing-scale));
+  background: transparent;
+  color: var(--housing-text-dim);
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.housing-register-autosave-discard:hover {
+  background: var(--housing-chip-bg-hover);
+  border-color: var(--housing-panel-border-strong);
+  color: var(--housing-text);
+}
+.housing-register-autosave-discard:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-aether);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+
+/* 個人タグ 1 つで絞り込み中の「◯◯のハウジンガーページを見る →」リンク (結果一覧の上)。
+   FB第6弾#3: このタグの持ち主=ハウジンガー本人への導線というブランド性の強い文脈のため、
+   青(選択・進行・リンク)から honey 系アクセントへ変更。装飾ピル/gradient/glow はハウジング
+   AI感払拭ルールで禁止のため使わず、控えめなボタン風 (padding+角丸+hoverで明度変化) のみで組む
+   (housinger-page-tour-btn のような honey gradient CTA とは別トーン)。 */
+.housing-personal-tag-filter-link {
+  display: inline-flex; align-items: center;
+  gap: calc(4px * var(--housing-scale));
+  margin-bottom: calc(4px * var(--housing-scale));
+  padding: calc(6px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(6px * var(--housing-scale));
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-honey);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-personal-tag-filter-link:hover {
+  background: var(--housing-honey-soft);
+  color: var(--housing-honey-glow);
+}
+.housing-personal-tag-filter-link:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+
+/* 中央グリッド。縦の並び (見出し→タブ→一括バー→グリッド) は wrap の gap で一定リズムに揃える
+   (要素ごとの padding-bottom で間隔を作ると一括バー→カードが 0px になり密着するため)。 */
+.housing-listing-grid-wrap {
+  display: flex; flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+  min-height: 0; height: 100%;
+}
+.housing-listing-grid-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: calc(12px * var(--housing-scale));
+  padding: 0 calc(4px * var(--housing-scale)) 0 0;
+  flex: 0 0 auto;
+}
+/* トグル(あれば) + 見出しの左側グループ。並び替え等の右側グループと space-between で分かれる。 */
+.housing-listing-grid-toolbar-start {
+  display: flex; align-items: center;
+  gap: calc(12px * var(--housing-scale));
+  min-width: 0;
+}
+/* 「ハウジング一覧 N件」見出し */
+.housing-listing-grid-heading {
+  display: inline-flex; align-items: baseline; gap: calc(8px * var(--housing-scale));
+  margin: 0;
+  font-size: var(--housing-text-md); font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-listing-grid-count {
+  font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+/* マイページのみ: OGP代表作選択の説明(箱・pill化せず静かな注記に留める。feedback_housing_no_ai_pills)。 */
+.housing-listing-grid-og-hint {
+  font-size: var(--housing-text-sm); font-weight: 400;
+  color: var(--housing-text-mute);
+}
+
+/* 並び替え (参考UI「並び替え: 新着順 ▼」) */
+.housing-sort {
+  position: relative;
+  display: inline-flex; align-items: center; gap: calc(8px * var(--housing-scale));
+  flex: 0 0 auto;
+}
+.housing-sort-label { font-size: var(--housing-text-sm); color: var(--housing-text-mute); }
+.housing-sort-trigger {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: calc(6px * var(--housing-scale));
+  height: calc(30px * var(--housing-scale)); padding: 0 calc(8px * var(--housing-scale)) 0 calc(12px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.housing-sort-trigger:hover { border-color: var(--housing-panel-border-strong); }
+.housing-sort[data-open="true"] .housing-sort-trigger {
+  border-color: var(--housing-honey-border); background: var(--housing-honey-soft);
+}
+.housing-sort-chevron { color: var(--housing-text-mute); transition: transform 0.15s ease; }
+.housing-sort[data-open="true"] .housing-sort-chevron { transform: rotate(180deg); }
+.housing-sort-menu {
+  position: absolute; top: calc(100% + calc(4px * var(--housing-scale))); right: 0; z-index: 20;
+  list-style: none; margin: 0; padding: calc(4px * var(--housing-scale));
+  min-width: calc(140px * var(--housing-scale));
+  display: flex; flex-direction: column; gap: calc(2px * var(--housing-scale));
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+  box-shadow: 0 calc(12px * var(--housing-scale)) calc(32px * var(--housing-scale)) rgba(0, 0, 0, 0.45);
+}
+.housing-sort-option {
+  appearance: none; cursor: pointer; width: 100%;
+  display: flex; align-items: center; gap: calc(8px * var(--housing-scale));
+  padding: calc(7px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); text-align: left;
+  color: var(--housing-text-dim);
+  background: transparent; border: 0; border-radius: calc(7px * var(--housing-scale));
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.housing-sort-option:hover { background: var(--housing-chip-bg-hover); color: var(--housing-text); }
+.housing-sort-option[data-selected="true"] { color: var(--housing-candle); }
+.housing-sort-option-check {
+  flex: 0 0 auto; width: calc(14px * var(--housing-scale)); display: inline-flex; color: var(--housing-honey);
+}
+
+/* ツールバー右側: シャッフルボタン + 並び替えセレクトのグループ (space-between の子を2つに保つ)。 */
+.housing-listing-grid-toolbar-actions {
+  display: inline-flex; align-items: center; gap: calc(8px * var(--housing-scale));
+  flex: 0 0 auto;
+}
+
+/* 実機FB (2026-07-31): マイページで見出し (タイトル+件数+OGP代表作ヒント文) が「並び替え」と
+   横並びのまま幅を奪い合い、見出し側に min-width の下限が無い (flexアイテムの既定
+   min-width:auto は CJK テキストだと1文字まで縮む) ため、日本語が1文字ずつ縦積みに潰れて
+   読めなくなっていた。狭幅では見出しを常に単独の行いっぱいに確保し (flex-basis:100%)、
+   その中で「タイトル+件数」と「ヒント文」を別行に分けて自然に折り返す。 並び替えは
+   見出しの次の行へ回り、margin-left:auto で従来通り右寄せを維持する。 */
+@media (max-width: 767px) {
+  .housing-listing-grid-toolbar {
+    flex-wrap: wrap;
+  }
+  .housing-listing-grid-heading {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+  .housing-listing-grid-toolbar-actions {
+    margin-left: auto;
+  }
+}
+/* シャッフルボタン (ランダム表示中のみ表示・.housing-sort-trigger と同系の控えめな意匠)。 */
+.housing-shuffle-btn {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: calc(30px * var(--housing-scale)); height: calc(30px * var(--housing-scale));
+  color: var(--housing-text-dim);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.housing-shuffle-btn:hover,
+.housing-shuffle-btn:focus-visible {
+  color: var(--housing-text);
+  border-color: var(--housing-honey-border);
+  background: var(--housing-honey-soft);
+}
+.housing-shuffle-btn:active { transform: scale(0.95); }
+
+/* 中央の表示切替「一覧 | 地図」 (spec 3.1)。.housing-sort-trigger と同系の控えめなセグメント。 */
+/* f: 中央ツールバー = 一覧/マップ トグル + (絞り込み中のみ) フィルター解除ボタン。 */
+.housing-browse-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(12px * var(--housing-scale));
+  flex: 0 0 auto;
+  padding: 0 0 calc(6px * var(--housing-scale));
+}
+.housing-browse-clear-filter {
+  appearance: none;
+  cursor: pointer;
+  height: calc(24px * var(--housing-scale));
+  padding: 0 calc(12px * var(--housing-scale));
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-mute);
+  background: transparent;
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(7px * var(--housing-scale));
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.housing-browse-clear-filter:hover,
+.housing-browse-clear-filter:focus-visible {
+  color: var(--housing-text);
+  border-color: var(--housing-aether-border);
+}
+.housing-view-toggle {
+  display: inline-flex; align-items: center; gap: calc(2px * var(--housing-scale));
+  align-self: flex-start;
+  flex: 0 0 auto;
+  padding: calc(3px * var(--housing-scale));
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+}
+.housing-view-toggle-btn {
+  appearance: none; cursor: pointer;
+  height: calc(24px * var(--housing-scale)); padding: 0 calc(14px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-dim);
+  background: transparent;
+  border: 0; border-radius: calc(7px * var(--housing-scale));
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-view-toggle-btn:hover { color: var(--housing-text); }
+.housing-view-toggle-btn[data-selected="true"] {
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+}
+
+/* 地図モードのコンテナ。中央カラムの残り全部を占め、左に案内板 (MapRail)・右に地図の 2 カラム。
+ * 上下の余白は持たない (表示切替の行のすぐ下から下端まで地図)。 */
+.housing-browse-map-view {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  gap: calc(12px * var(--housing-scale));
+}
+.housing-browse-map-view > .housing-empty-result { flex: 1 1 auto; }
+/* 地図カラム。RoomListPanel (position:absolute; inset:0) のアンカーも兼ねる
+   (無いとパネルが案内板や表示切替まで覆ってしまう)。 */
+.housing-browse-map-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+/* 現在地表示 (ワールド / エリア 区 本街・拡張街)。右上のコンパスの左に置く。 */
+.housing-browse-map-here {
+  position: absolute;
+  top: calc(14px * var(--housing-scale));
+  right: calc(58px * var(--housing-scale));
+  z-index: 2;
+  pointer-events: none;
+  max-width: calc(100% - calc(80px * var(--housing-scale)));
+  padding: calc(3px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  color: var(--housing-text-dim);
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(8px * var(--housing-scale));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 表示切替 + DC メニューの基準位置。メニューを開いている間だけ地図より手前に出す。 */
+.housing-view-toggle-anchor {
+  position: relative;
+  align-self: flex-start;
+  flex: 0 0 auto;
+}
+.housing-view-toggle-anchor[data-menu-open="true"] { z-index: 30; }
+.housing-view-toggle-btn[data-view="map"] { display: inline-flex; align-items: center; white-space: nowrap; }
+.housing-view-toggle-caret { margin-left: calc(4px * var(--housing-scale)); opacity: 0.8; }
+.housing-view-toggle-dc { margin-left: calc(6px * var(--housing-scale)); color: var(--housing-candle); }
+.housing-view-toggle-btn[data-selected="true"] .housing-view-toggle-dc { color: var(--housing-text); }
+

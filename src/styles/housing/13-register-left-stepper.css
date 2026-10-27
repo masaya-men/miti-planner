@@ -1,0 +1,253 @@
+/* ============================================================
+ * 登録ページ左カラム: ライブステッパーナビ (Task12 / Task2 強化)
+ * 質感A案「青 = 選択・進行・ステップ番号」。done は青チェック、active は青枠+背景、
+ * idle は控えめなグレー。装飾999pxピルにせず角丸8pxの静かな行にする。
+ * Task2: 番号を縦の接続線でつなぎスクロール進行度で塗る (ツアーパネルのステップ接続線と
+ * 同じトークン `--housing-aether` / `--housing-divider` / イージング `--housing-tour-step-spring`
+ * を流用)。説明文は全ステップ常時表示 (進捗連動オートスクロール + 端フェード)。
+ * ============================================================ */
+.housing-register-stepper {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* ビューポート: 器の高さで clip。中身が超えるときだけ上下端をフェード (スクロールバー無し)。 */
+.housing-register-stepper-viewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+.housing-register-stepper-viewport[data-overflow='true'] {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 calc(20px * var(--housing-scale)), #000 calc(100% - calc(20px * var(--housing-scale))), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 calc(20px * var(--housing-scale)), #000 calc(100% - calc(20px * var(--housing-scale))), transparent 100%);
+}
+/* body: 進行連動で上へ送る。translateY は inline style で与える。
+   スクロール追従なのでオーバーシュート系 (spring) は使わず ease-out で軽く追従
+   (実画面で速度感は要微調整)。 */
+.housing-register-stepper-body {
+  position: relative;
+  transition: transform 0.2s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-register-stepper-body { transition: none; }
+}
+/* SVG 進捗レイヤー: リストの丸に重ねる (絶対配置)。座標/dash は RegisterStepperNav.tsx が
+   ResizeObserver 測定値から算出する (バッジ中心 x = item padding-left(10) + バッジ半径(11) = 21px)。 */
+.housing-register-stepper-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+/* 円周リング / 接続線: 塗り済み(前景) */
+.housing-register-stepper-ring,
+.housing-register-stepper-connector {
+  fill: none;
+  stroke: var(--housing-aether);
+  stroke-width: var(--housing-register-stepper-ring-w);
+  /* round だと塗り量 0 の線/円にも丸い点が描かれ、バネの行き過ぎで次の線がちょろっと出かけた (2026-10-22)。
+     butt + 行き過ぎの無い減速カーブで落ち着いた動きに。 */
+  stroke-linecap: butt;
+  transition: stroke-dashoffset 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* 円周は下端(6時)起点・反時計回り: rotate で開始点を下へ、scale で向きを反転。
+   best-guess の向き。実画面 (CSS 1489 / DPR 2.58) で見え方を確認し、必要なら調整する。 */
+.housing-register-stepper-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(90deg) scaleX(-1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-register-stepper-ring,
+  .housing-register-stepper-connector {
+    transition: none;
+  }
+}
+/* 円周 / 接続線の下地(未塗りトラック): 塗り済みリングの手前(DOM順で後ろ)に敷く「これから
+   塗る道筋」。transform 不要(下地円は全周・下地線は全長なので向き無関係)。 */
+.housing-register-stepper-ring-track,
+.housing-register-stepper-connector-track {
+  fill: none;
+  stroke: var(--housing-divider);
+  stroke-width: var(--housing-register-stepper-ring-w);
+}
+.housing-register-stepper-list {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--housing-scale));
+}
+.housing-register-stepper-item {
+  width: 100%;
+  display: flex;
+  /* flex-start (center から変更・Task2): バッジを常に item 上端から一定距離に固定し、
+     説明文の高さやリサイズで自身や後続ステップの高さが変わっても、接続線の
+     計算前提 (バッジ中心の item 内オフセット固定) が崩れないようにする。 */
+  align-items: flex-start;
+  gap: calc(10px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--housing-text-dim);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.housing-register-stepper-item:hover {
+  background: var(--housing-chip-bg-hover);
+}
+.housing-register-stepper-item.is-active {
+  background: var(--housing-aether-medium);
+  border-color: var(--housing-aether-border);
+  color: var(--housing-text);
+}
+.housing-register-stepper-item.is-done .housing-register-stepper-label {
+  color: var(--housing-text-dim);
+}
+.housing-register-stepper-item:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-aether);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+.housing-register-stepper-num {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(22px * var(--housing-scale));
+  height: calc(22px * var(--housing-scale));
+  border-radius: calc(999px * var(--housing-scale));
+  font-size: var(--housing-text-sm);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--housing-aether);
+  background: var(--housing-aether-medium);
+  border: 1px solid var(--housing-aether-border);
+}
+.housing-register-stepper-num-digit {
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+.housing-register-stepper-check {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+.housing-register-stepper-item.is-done .housing-register-stepper-num-digit {
+  opacity: 0;
+  transform: scale(0.6);
+}
+.housing-register-stepper-item.is-done .housing-register-stepper-check {
+  opacity: 1;
+  transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-register-stepper-num-digit,
+  .housing-register-stepper-check {
+    transition: none;
+  }
+}
+.housing-register-stepper-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.housing-register-stepper-label {
+  padding-top: calc(2px * var(--housing-scale));
+  font-size: var(--housing-text-md);
+  font-weight: 500;
+}
+/* 説明文 (Task3): 開閉トランジションをやめ常時表示に統一 (静的ステッパー化。
+   スクロールは viewport 側の translateY オートスクロールに一本化する)。 */
+.housing-register-stepper-desc-wrap {
+  display: block;
+}
+.housing-register-stepper-desc-inner {
+  min-height: 0;
+}
+.housing-register-stepper-desc {
+  display: block;
+  margin-top: calc(4px * var(--housing-scale));
+  font-size: var(--housing-text-xs);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
+
+/* ============================================================
+ * 登録ページ左カラム: 登録ガイド (Task12)
+ * FavoritesOnboarding (.housing-fav-onboarding*) と同じ静かなトーンの register 名前空間版。
+ * ============================================================ */
+.housing-register-guide {
+  display: flex;
+  flex-direction: column;
+  gap: calc(14px * var(--housing-scale));
+  min-height: 0;
+  overflow-y: auto;
+}
+.housing-register-guide-title {
+  margin: 0;
+  font-size: var(--housing-text-lg);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-guide-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+}
+.housing-register-guide-step {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(10px * var(--housing-scale));
+}
+.housing-register-guide-num {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(24px * var(--housing-scale));
+  height: calc(24px * var(--housing-scale));
+  border-radius: calc(999px * var(--housing-scale));
+  font-size: var(--housing-text-sm);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--housing-aether);
+  background: var(--housing-aether-medium);
+  border: 1px solid var(--housing-aether-border);
+}
+.housing-register-guide-body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2px * var(--housing-scale));
+  min-width: 0;
+}
+.housing-register-guide-step-title {
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-guide-step-desc {
+  font-size: var(--housing-text-sm);
+  line-height: 1.5;
+  color: var(--housing-text-dim);
+}
+/* .housing-register-guide-remaining は #6 改で左カラム下端固定 (.housing-register-left-remaining) に
+   置き換えたため撤去。残数表示のスタイルはそちらへ移設済み。 */
+
