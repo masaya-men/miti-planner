@@ -28,6 +28,9 @@ describe('subjectClasses', () => {
   it('右端の複合セレクタの housing class 全部', () => {
     expect(subjectClasses('.housing-a .housing-b.housing-c')).toEqual(['housing-b', 'housing-c']);
   });
+  it('housinger- で始まる class も対象', () => {
+    expect(subjectClasses('.housing-detail-panel .housinger-page-avatar')).toEqual(['housinger-page-avatar']);
+  });
   it(':not の中は数えない', () => {
     expect(subjectClasses('.housing-a:not(.housing-b)')).toEqual(['housing-a']);
   });

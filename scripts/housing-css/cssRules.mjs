@@ -96,7 +96,7 @@ export function specificity(selector) {
   return total;
 }
 
-const housingClassesOf = (text) => (stripPseudoFns(text).rest.match(/\.housing-[\w-]+/g) || []).map((s) => s.slice(1));
+const housingClassesOf = (text) => (stripPseudoFns(text).rest.match(/\.housing(?:er)?-[\w-]+/g) || []).map((s) => s.slice(1));
 
 /** 規則が見た目を決める相手の housing class(右端の複合セレクタ。 無ければ全体で最後の 1 つ) */
 export function subjectClasses(selector) {
