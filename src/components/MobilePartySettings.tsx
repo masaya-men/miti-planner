@@ -120,7 +120,8 @@ const MobilePartySettings: React.FC = () => {
     const slotRefs = useRef<Map<string, HTMLDivElement>>(new Map());
     const { vibrate } = useHaptic();
 
-    const handleDrop = useCallback((job: Job, targetId: string) => {
+    // handleJobChange が最新の軽減配置・ジョブ一覧を読むため、毎回作り直す(useCallback にしない)
+    const handleDrop = (job: Job, targetId: string) => {
         const member = partyMembers.find(m => m.id === targetId);
         if (!member) return;
         // スワップ: ドロップ先に既にジョブがある場合、同じジョブの別スロットと入れ替え
@@ -131,8 +132,7 @@ const MobilePartySettings: React.FC = () => {
             setMemberJob(existingMember.id, null as unknown as string);
         }
         handleJobChange(targetId, job.id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleJobChange / setMemberJob は毎回作り直される参照。partyMembers が変わった時だけ作り直す。要確認(handleJobChange 内の timelineMitigations / JOBS が古いまま残りうる)
-    }, [partyMembers]);
+    };
 
     const drag = useDragAndDrop<Job>({ onDrop: handleDrop });
 

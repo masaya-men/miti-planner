@@ -244,8 +244,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             // Unsafe changes
             setMigrationBatch(pendingMigrations);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- JOBS は毎回の描画で参照される一覧。列挙した入力が変わった時だけ作り直す(JOBS が途中で変わると古い一覧を参照する可能性あり。要確認)
-    }, [partyMembers, draftMembers, timelineMitigations, migrationBatch, onClose, updatePartyBulk]);
+    }, [JOBS, partyMembers, draftMembers, timelineMitigations, migrationBatch, onClose, updatePartyBulk]);
 
     // ①：画面が完全に閉じた時だけ、状態をリセットする（点滅バグの防止）
     React.useEffect(() => {

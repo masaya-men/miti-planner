@@ -79,10 +79,12 @@ vi.mock('../../../../lib/housingAuthHeaders', () => ({
 
 import { useHousingDetail } from '../useHousingDetail';
 import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
-import { fetchPublicListing } from '../../../../lib/housing/publicHousingWindow';
+import { fetchPublicListing, fetchPublicListingPeers } from '../../../../lib/housing/publicHousingWindow';
+import { auth } from '../../../../lib/firebase';
 import type { HousingListing } from '../../../../types/housing';
 
 const mockFetchPublicListing = vi.mocked(fetchPublicListing);
+const mockFetchPeers = vi.mocked(fetchPublicListingPeers);
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <MemoryRouter>{children}</MemoryRouter>
@@ -194,6 +196,23 @@ describe('useHousingDetail', () => {
     });
     expect(result.current.notFound).toBe(false);
     expect(result.current.reportNotice).toBeUndefined();
+  });
+
+  it('表示中にログイン状態が変わったら、同住所の他登録から「自分の登録」を除外し直す', async () => {
+    mockGetDoc.mockResolvedValueOnce(buildListingSnap('lid-peer'));
+    const peer = (id: string, ownerUid: string) => ({ id, ownerUid }) as unknown as HousingListing;
+    mockFetchPeers.mockResolvedValue([peer('p-me', 'me'), peer('p-other', 'other')]);
+    (auth as { currentUser: unknown }).currentUser = null;
+
+    const { result, rerender } = renderHook(() => useHousingDetail('lid-peer'), { wrapper });
+    await waitFor(() => expect(result.current.peers).toHaveLength(2));
+
+    (auth as { currentUser: unknown }).currentUser = { uid: 'me' };
+    rerender();
+    await waitFor(() => expect(result.current.peers.map((p) => p.id)).toEqual(['p-other']));
+
+    (auth as { currentUser: unknown }).currentUser = null;
+    mockFetchPeers.mockResolvedValue([]);
   });
 
   it('onConfirmDelete 成功: deleteListing(id) が呼ばれ、 store.remove(id) が呼ばれ、 { ok:true } を返す', async () => {

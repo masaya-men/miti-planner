@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { useStableCallback } from '../hooks/useStableCallback';
 import { ModalShell } from './ui/ModalShell';
 import { ModalHeader, ModalFooter, ModalButton, INPUT_CLASS } from './ui/ModalParts';
 import { CloudDownload, AlertCircle, Link, Loader2, CheckCircle2, LogIn } from 'lucide-react';
@@ -212,18 +213,19 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
             modalRef.current.style.transition = 'none';
         }
     }, []);
+    // handleClose は毎回作り直されるので、参照は固定したまま最新の中身(onClose)を呼べる形で渡す
+    const closeLatest = useStableCallback(handleClose);
     const handleTouchEnd = useCallback(() => {
         if (!isDragging.current || !modalRef.current) return;
         isDragging.current = false;
         const dy = parseInt(modalRef.current.style.transform.replace(/[^-?\d]/g, '') || '0');
         if (dy > 100) {
-            handleClose();
+            closeLatest();
         } else {
             modalRef.current.style.transform = '';
             modalRef.current.style.transition = 'all 0.3s cubic-bezier(0.2,0,0,1)';
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- ドラッグ判定のコールバックは初回のまま使う。要確認(handleClose は毎回作り直される関数で、onClose が後から変わると古い onClose を呼ぶ)
-    }, []);
+    }, [closeLatest]);
 
     if (!isOpen) {
         // FFLogsモーダルが閉じていてもLoginModalは表示し続ける

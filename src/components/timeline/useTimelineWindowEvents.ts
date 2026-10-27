@@ -109,8 +109,7 @@ export function useTimelineTutorialEvents({
             window.removeEventListener('mobile:label-jump', handleLabelJump);
             window.removeEventListener('mobile:mechanic-search', handleMechanicSearch);
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- window イベントの登録はマウント時の 1 回だけ。要確認(isMobileView はマウント時の値のまま固定され、画面幅が後から変わると古い判定が残る)
-    }, []);
+    }, [isMobileView, setPartySettingsOpenLocal, setMobilePartyOpen, setMitigationSelectorOpen, setIsModalOpen, setPhaseDropdownOpen, setGimmickDropdownOpen, setMechanicSearchOpen]);
 }
 
 /** 記録パネルからのフェーズジャンプ */
