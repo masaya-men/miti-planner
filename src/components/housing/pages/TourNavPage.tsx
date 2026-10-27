@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
@@ -21,19 +20,14 @@ import { useTourExit } from '../tour/useTourExit';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNavMap } from '../tour/TourNavMap';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
-import { TourEmptyState } from '../tour/TourEmptyState';
 import { TourInvitePanel } from '../tour/TourInvitePanel';
-import { TourTrayDetailPanel } from '../tour/TourTrayDetailPanel';
-import { TourVisitedList } from '../tour/TourVisitedList';
-import { TourTrayBoard } from '../browse/TourTrayBoard';
-import { TourTrayList } from '../browse/TourTrayList';
-import { EphemeralAddPanel } from '../browse/EphemeralAddPanel';
-import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
+import { TourPlanningView } from '../tour/TourPlanningView';
+import { TourReplanView } from '../tour/TourReplanView';
+import { TourCompleteOverlay } from '../tour/TourCompleteOverlay';
 import { HousingLoginPrompt } from '../HousingLoginPrompt';
 import { TourMobileBar } from '../tour/TourMobileBar';
 import { TourAddressExposureDialog } from '../tour/TourAddressExposureDialog';
 import { HousingReportModal } from '../report/HousingReportModal';
-import type { MockListing } from '../../../data/housing/mockListings';
 
 /**
  * ツアー中(Nav)ページ (Task8): オーケストレーター。
@@ -43,6 +37,7 @@ import type { MockListing } from '../../../data/housing/mockListings';
  * 派生 orchestration は Task 2.4 で `useTourRenderModel` へ抽出し、参加者ページ(JoinTourPage)と共有している。
  * 完了判定はページローカルの `completed` state で表現し、
  * store の `next()` が持つ `currentIndex` の `length-1` クランプ (既存仕様・非破壊) には依存しない。
+ * 計画フェーズ/並び替え/完了の表示は tour/ の部品 (TourPlanningView/TourReplanView/TourCompleteOverlay)、
  * 計画フェーズ/並び替え/招待/終わり方の処理は tour/ のフック (useTourPlanning/useTourReplan/
  * useHostInvite/useTourExit) に分けてある。effect の登録順 (計画の選択戻し → 招待の live 同期) を保つため、
  * フックはこの順で呼ぶ。
@@ -86,9 +81,8 @@ export const TourNavPage: React.FC = () => {
 
   const isLast = currentIndex === listingIds.length - 1;
 
-  const {
-    replanning, replanDraft, setReplanDraft, replanSelectedId, setReplanSelectedId, startReplan, resumeFromReplan,
-  } = useTourReplan(listingIds, currentIndex, pool);
+  const replan = useTourReplan(listingIds, currentIndex, pool);
+  const { replanning, startReplan } = replan;
 
   // 中央マップの跨ぎ案内カード: 「次へ」の1回目(ack)で該当ステップだけ確認済みにして消す(次の跨ぎでまた出す)。
   // カード自体にはボタンを持たず、ack への到達手段は下記 onPrimary の「次へ」二段階ロジックに一本化している。
@@ -135,12 +129,7 @@ export const TourNavPage: React.FC = () => {
 
   const onGoFavorites = useCallback(() => navigate('/housing/favorites'), [navigate]);
 
-  const {
-    addOpen, setAddOpen, onAddToTray,
-    trayIds, setTrayIds, trayRegionForAdd,
-    selectedPlanId, setSelectedPlanId, selectedPlanListing,
-    planMannerOpen, setPlanMannerOpen, commitPlanStart,
-  } = useTourPlanning(pool);
+  const plan = useTourPlanning(pool);
 
   const {
     tourToken, tourName, setTourName, creatingInvite, pendingInvite, setPendingInvite,
@@ -173,95 +162,9 @@ export const TourNavPage: React.FC = () => {
     if (listing) setReportId(listing.id);
   }, [progress.currentStep]);
 
-  // 実行中でない = 計画フェーズ (listingIds は空)。
-  // トレイが空 → 空状態 / トレイに行き先あり → 計画画面 (PC=詳細+蛇行グリッド / スマホ=縦一覧)。
-  // 「住所から追加」モーダル (EphemeralAddPanel) は、trayIds 0↔1 や PC↔スマホ切替でレイアウトが
-  // 入れ替わってもアンマウントされないよう、下のフラグメント直下に1つだけ置く。
+  // 実行中でない = 計画フェーズ (listingIds は空)。表示は TourPlanningView。
   if (listingIds.length === 0) {
-    const planning = trayIds.length > 0;
-    return (
-      <>
-        {!planning && (
-          <div className="housing-tour-page">
-            <section
-              className="housing-tour-page-panel housing-tour-page-panel-solo"
-              data-region="center"
-            >
-              <TourEmptyState
-                onGoFavorites={onGoFavorites}
-                onGoBrowse={() => navigate('/housing')}
-                onOpenAdd={() => setAddOpen(true)}
-                addOpen={addOpen}
-              />
-            </section>
-          </div>
-        )}
-
-        {planning && isMobile && (
-          <div className="housing-tour-plan-mobile">
-            <button
-              type="button"
-              className="housing-ephemeral-toggle"
-              aria-expanded={addOpen}
-              onClick={() => setAddOpen((o) => !o)}
-            >
-              <Plus size={14} aria-hidden="true" />
-              {t('housing.ephemeral.add_button')}
-            </button>
-            <TourTrayList listingIds={trayIds} onChange={setTrayIds} />
-            <button
-              type="button"
-              className="housing-tour-tray-start"
-              disabled={trayIds.length === 0}
-              onClick={() => setPlanMannerOpen(true)}
-            >
-              {t('housing.tray.start')}
-            </button>
-            <MannerNoticeDialog
-              open={planMannerOpen}
-              onCancel={() => setPlanMannerOpen(false)}
-              onStart={commitPlanStart}
-            />
-          </div>
-        )}
-
-        {planning && !isMobile && (
-          <div className="housing-tour-plan">
-            <section className="housing-tour-page-panel" data-region="left">
-              <div className="housing-tour-page-col">
-                <TourTrayDetailPanel
-                  listing={selectedPlanListing}
-                  onStartClick={() => setPlanMannerOpen(true)}
-                  startDisabled={trayIds.length === 0}
-                />
-              </div>
-            </section>
-            <section className="housing-tour-page-panel" data-region="right">
-              <div className="housing-tour-page-col">
-                <TourTrayBoard
-                  listingIds={trayIds}
-                  onChange={setTrayIds}
-                  selectedId={selectedPlanId}
-                  onSelect={setSelectedPlanId}
-                />
-              </div>
-            </section>
-            <MannerNoticeDialog
-              open={planMannerOpen}
-              onCancel={() => setPlanMannerOpen(false)}
-              onStart={commitPlanStart}
-            />
-          </div>
-        )}
-
-        <EphemeralAddPanel
-          open={addOpen}
-          onClose={() => setAddOpen(false)}
-          onAdd={onAddToTray}
-          trayRegion={trayRegionForAdd}
-        />
-      </>
-    );
+    return <TourPlanningView isMobile={isMobile} plan={plan} onGoFavorites={onGoFavorites} />;
   }
 
   // 完了時: 全画面に切り替えず、下の3パネルは inert(操作不可)のまま残し、上に完了オーバーレイを重ねる。
@@ -269,63 +172,8 @@ export const TourNavPage: React.FC = () => {
   const frozen = completed || undefined;
 
   if (replanning) {
-    const currentId = listingIds[currentIndex];
-    const visited = listingIds
-      .slice(0, currentIndex)
-      .map((id) => pool.find((l) => l.id === id))
-      .filter((l): l is MockListing => Boolean(l));
-    const replanSelected = replanSelectedId ? (pool.find((l) => l.id === replanSelectedId) ?? null) : null;
-    const visitedSection = visited.length > 0 && (
-      <>
-        <h3 className="housing-tour-replan-subtitle">{t('housing.tour.replan.visited')}</h3>
-        <TourVisitedList listings={visited} />
-      </>
-    );
-    const upcomingTitle = <h3 className="housing-tour-replan-subtitle">{t('housing.tour.replan.upcoming')}</h3>;
-    if (isMobile) {
-      return (
-        <div className="housing-tour-plan-mobile">
-          <p className="housing-tour-plan-detail-note">{t('housing.tour.replan.hint')}</p>
-          {visitedSection}
-          {upcomingTitle}
-          <TourTrayList listingIds={replanDraft} onChange={setReplanDraft} removable={false} currentId={currentId} />
-          <p className="housing-tour-plan-detail-note">{t('housing.tour.replan.resume_note')}</p>
-          <button type="button" className="housing-tour-tray-start" onClick={resumeFromReplan}>
-            {t('housing.tour.replan.resume')}
-          </button>
-        </div>
-      );
-    }
     return (
-      <div className="housing-tour-plan">
-        <section className="housing-tour-page-panel" data-region="left">
-          <div className="housing-tour-page-col">
-            <TourTrayDetailPanel
-              listing={replanSelected}
-              onStartClick={resumeFromReplan}
-              startDisabled={replanDraft.length === 0}
-              startLabel={t('housing.tour.replan.resume')}
-              note={t('housing.tour.replan.resume_note')}
-            />
-          </div>
-        </section>
-        <section className="housing-tour-page-panel" data-region="right">
-          <div className="housing-tour-page-col">
-            <TourTrayBoard
-              listingIds={replanDraft}
-              onChange={setReplanDraft}
-              selectedId={replanSelectedId}
-              onSelect={setReplanSelectedId}
-              hint={t('housing.tour.replan.hint')}
-              removable={false}
-              currentId={currentId}
-            >
-              {visitedSection}
-              {upcomingTitle}
-            </TourTrayBoard>
-          </div>
-        </section>
-      </div>
+      <TourReplanView isMobile={isMobile} listingIds={listingIds} currentIndex={currentIndex} pool={pool} replan={replan} />
     );
   }
 
@@ -426,34 +274,7 @@ export const TourNavPage: React.FC = () => {
         />
       )}
 
-      {completed && (
-        <div
-          className="housing-tour-complete-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="housing-tour-complete-title"
-          data-testid="tour-complete-overlay"
-        >
-          <div className="housing-tour-complete-card">
-            <h1 id="housing-tour-complete-title" className="housing-tour-complete-title">
-              {t('housing.tour.nav.complete.title')}
-            </h1>
-            <p className="housing-tour-complete-lead">{t('housing.tour.nav.complete.lead')}</p>
-            <div className="housing-tour-complete-actions">
-              <button
-                type="button"
-                className="housing-tour-complete-btn housing-tour-complete-btn--primary"
-                onClick={backToBrowse}
-              >
-                {t('housing.tour.nav.complete.back_browse')}
-              </button>
-              <button type="button" className="housing-tour-complete-btn" onClick={backToFavorites}>
-                {t('housing.tour.nav.complete.back_favorites')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {completed && <TourCompleteOverlay onBackBrowse={backToBrowse} onBackFavorites={backToFavorites} />}
 
       <HousingReportModal open={!!reportId} listingId={reportId ?? ''} onClose={() => setReportId(null)} />
       <TourAddressExposureDialog

@@ -73,9 +73,9 @@ export default [
   { id: 'housing/favorites-empty', route: '/housing/favorites', storage, ready: '[data-testid="housing-favorites-empty"]', axes: ax(), covers: ['FavoritesPage'] },
   { id: 'housing/favorites-filled', route: '/housing/favorites', storage: mkStorage(['vr-l01', 'vr-l02', 'vr-l03', 'vr-l04']),
     ready: '[data-testid="housing-favorites-grid"]', axes: ax(), covers: ['FavoritesPage'] },
-  { id: 'housing/tour-empty', route: '/housing/tour', storage, ready: 'main.housing-workspace', axes: ax(), covers: ['TourNavPage'] },
+  { id: 'housing/tour-empty', route: '/housing/tour', storage, ready: 'main.housing-workspace', axes: ax(), covers: ['TourNavPage', 'TourPlanningView'] },
   { id: 'housing/detail', route: '/housing/listing/vr-l01', storage, ready: '.housing-detail-fullpage-main .housing-share', axes: ax(), covers: ['HousingDetailPage'] },
-  { id: 'housing/tour-tray', route: '/housing', storage, ready: '.housing-tour-tray-start:not([disabled])', axes: ax(), open: openTourWithTray, covers: ['TourNavPage', 'TourTrayList', 'TourTrayBoard', 'TourTrayDetailPanel'] },
+  { id: 'housing/tour-tray', route: '/housing', storage, ready: '.housing-tour-tray-start:not([disabled])', axes: ax(), open: openTourWithTray, covers: ['TourNavPage', 'TourPlanningView', 'TourTrayList', 'TourTrayBoard', 'TourTrayDetailPanel'] },
   // 未ログインのログイン案内(HousingLoginPrompt)。tour は PC のツアー計画の右パネルに出る
   { id: 'housing/login-prompt-mypage', route: '/housing/mypage', storage, ready: '.housing-login-prompt[data-context="mypage"]', axes: ax(), covers: ['HousingLoginPrompt', 'HousingerPage'] },
   { id: 'housing/login-prompt-register', route: '/housing/register', storage, ready: '[data-testid="housing-register-login-prompt"]', axes: ax(), covers: ['HousingLoginPrompt', 'RegisterPage'] },
@@ -89,7 +89,7 @@ export default [
         await page.click('.housing-tour-progress-action--next:visible, .housing-tour-mobilebar-btn--next:visible', { timeout: 5000 }).catch(() => {});
         await page.waitForTimeout(300);
       }
-    }, covers: ['TourNavPage'] },
+    }, covers: ['TourNavPage', 'TourCompleteOverlay'] },
   // 地域が違う家を足そうとした時のエラー吹き出し(2.5 秒で消えるので、その時間だけ延ばしてから押す)
   { id: 'housing/tour-add-error', route: '/housing', storage, ready: '[data-testid="housing-tour-error-bubble"]', axes: ax(['1489']),
     open: async (page) => {

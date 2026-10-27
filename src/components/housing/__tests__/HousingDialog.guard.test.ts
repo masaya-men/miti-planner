@@ -13,7 +13,7 @@ const SHELLS = ['HousingPanelModal.tsx', 'HousingDialogShell.tsx'];
 /** 窓ではない(閉じない終了画面・窓の有無を見るだけ)。窓になったら殻を使い、ここから消す。 */
 const NOT_WINDOW: Record<string, string> = {
   'pages/JoinTourPage.tsx': 'ツアー終了の画面(閉じずにボタンで移動する)',
-  'pages/TourNavPage.tsx': 'ツアー終了の画面(閉じずにボタンで移動する)',
+  'tour/TourCompleteOverlay.tsx': 'ツアー終了の画面(閉じずにボタンで移動する)',
   'shell/HousingPullToRefresh.tsx': '窓が開いているかを調べるだけ',
 };
 
