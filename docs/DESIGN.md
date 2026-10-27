@@ -104,7 +104,7 @@
 
 - 背景: `bg-app-surface` または `bg-app-surface2`
 - ボーダー: `border border-app-border` または `ring-1 ring-app-border`
-- 角丸: `rounded-xl`（モーダル）, `rounded-lg`（カード）, `rounded-md`（小要素）
+- 角丸: `rounded-2xl`（モーダル=`ModalShell` の既定の枠）, `rounded-lg`（カード）, `rounded-md`（小要素）
 
 ### モーダル / ポップオーバー
 
@@ -121,6 +121,9 @@ bg-app-surface2 border border-app-border rounded-lg p-2.5
 text-app-2xl text-app-text placeholder-app-text-muted
 focus:border-app-text focus:bg-app-surface focus:outline-none
 ```
+
+- 新しく作る入力欄は `ModalParts.tsx` の入力欄部品を使う。
+- スマホの入力欄の文字は **16px 固定**(`text-[16px] md:text-app-*`)。iPhone は 16px 未満の入力欄にフォーカスすると画面を拡大するため。文字サイズ設定で縮む app トークンではなく、あえて px 直書きにしている。
 
 ---
 
