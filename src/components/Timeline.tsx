@@ -42,7 +42,6 @@ import { AASettingsPopover } from './AASettingsPopover';
 import {
     Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sword, ChevronDown, ChevronLeft, Rows3, Settings, Crosshair, PictureInPicture2, Clock
 } from 'lucide-react';
-const PipView = React.lazy(() => import('./PipView'));
 import VideoRecorderModal from './VideoRecorderModal';
 import { useJobs, useMitigations, getMitigationPriority } from '../hooks/useSkillsData';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
@@ -77,6 +76,8 @@ import { SheetColumnHeader } from './timeline/sheet/SheetColumnHeader';
 import { buildSheetColumnMap, buildHiddenSheetColumnMap, sheetColumnAt, sheetColumnFromX, sheetColumnIndex, SHEET_ICON_PX, type SheetColumn } from './timeline/sheet/sheetColumns';
 import { sheetIconLeft } from './timeline/sheet/sheetGeometry';
 import { useTimelineDamage } from './timeline/useTimelineDamage';
+import { useTimelinePip } from './timeline/useTimelinePip';
+import { TimelinePipLayer } from './timeline/TimelinePipLayer';
 import { placementsWithColumn } from './timeline/sheet/sheetCooldown';
 import { SheetCooldownLines } from './timeline/sheet/SheetCooldownLines';
 import { useSheetHiddenSkillsStore } from '../store/useSheetHiddenSkillsStore';
@@ -246,15 +247,11 @@ const Timeline: React.FC = () => {
     const setClipboardEvent = useMitigationStore(s => s.setClipboardEvent);
 
     // PiP カンペビュー
-    const [pipWindow, setPipWindow] = useState<Window | null>(null);
-    const [pipContainer, setPipContainer] = useState<HTMLDivElement | null>(null);
-    const [, setPipMode] = useState<'cue' | 'recorder' | null>(null);
-    const [pipMenuOpen, setPipMenuOpen] = useState(false);
     const [videoModalOpen, setVideoModalOpen] = useState(false);
-    const [pipMenuPos, setPipMenuPos] = useState<{ top: number; left: number } | null>(null);
-    const pipMenuRef = useRef<HTMLDivElement>(null);
-    const pipMenuPanelRef = useRef<HTMLDivElement>(null);
-    const pipSupported = typeof window !== 'undefined' && 'documentPictureInPicture' in window;
+    const {
+        pipWindow, pipContainer, pipMenuOpen, setPipMenuOpen, pipMenuPos, pipMenuRef, pipSupported,
+        handleOpenPip, handleClosePip, openPipMenu, scheduleClosePipMenu, cancelClosePipMenu,
+    } = useTimelinePip();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
@@ -656,85 +653,6 @@ const Timeline: React.FC = () => {
         });
     }, [isMemoMode, sheetWidth]);
 
-
-    const handleOpenPip = useCallback(async (mode: 'cue' | 'recorder') => {
-        if (!pipSupported) return;
-        try {
-            const dpip = (window as any).documentPictureInPicture;
-            // 初回サイズ: カンペは横を Chrome の最小値にブラウザ補正させる（width: 1）+ 高さ 200px。
-            // レコーダーはフォームが収まるよう少し大きめ。
-            const size = mode === 'recorder' ? { width: 360, height: 480 } : { width: 1, height: 200 };
-            const win: Window = await dpip.requestWindow(size);
-
-            // スタイルをPiPウィンドウにコピー
-            const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
-            styles.forEach(s => win.document.head.appendChild(s.cloneNode(true)));
-
-            // ダークテーマclass をコピー + 透過背景
-            win.document.documentElement.classList.add(...document.documentElement.classList);
-            win.document.documentElement.style.background = 'transparent';
-            win.document.documentElement.style.height = '100%';
-            win.document.body.style.margin = '0';
-            win.document.body.style.height = '100%';
-            win.document.body.style.overflow = 'hidden';
-            win.document.body.style.background = 'transparent';
-
-            // Reactマウントポイント
-            const container = win.document.createElement('div');
-            container.id = 'pip-root';
-            container.style.width = '100%';
-            container.style.height = '100%';
-            container.style.position = 'relative';
-            win.document.body.appendChild(container);
-
-            setPipMode(mode);
-            setPipWindow(win);
-            setPipContainer(container);
-
-            // ウィンドウ閉じられた時のクリーンアップ
-            win.addEventListener('pagehide', () => {
-                setPipWindow(null);
-                setPipContainer(null);
-                setPipMode(null);
-            });
-        } catch (e) {
-            console.warn('PiP open failed:', e);
-        }
-    }, [pipSupported]);
-
-    const handleClosePip = useCallback(() => {
-        pipWindow?.close();
-        setPipWindow(null);
-        setPipContainer(null);
-        setPipMode(null);
-    }, [pipWindow]);
-
-    // PiP メニューの開閉（トリガーボタンの位置から固定配置を算出）。
-    // メニューはツールバー(overflow-hidden)の外＝document.body に portal するため、ここで座標を確定する。
-    // PiP メニューはホバーで開く。トリガー(ボタン)↔パネル間の移動でホバーが切れても
-    // 閉じないよう、閉じる処理は遅延させ、パネルに入ったらキャンセルする。
-    const pipMenuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    const openPipMenu = useCallback(() => {
-        if (pipMenuCloseTimer.current) { clearTimeout(pipMenuCloseTimer.current); pipMenuCloseTimer.current = null; }
-        if (pipWindow) return; // PiP 表示中はメニューを出さない
-        const el = pipMenuRef.current;
-        if (el) {
-            const r = el.getBoundingClientRect();
-            // 他メニューと同様、トリガーの左端そろえで右へ展開（真下）
-            setPipMenuPos({ top: r.bottom, left: r.left });
-        }
-        setPipMenuOpen(true);
-    }, [pipWindow]);
-
-    const scheduleClosePipMenu = useCallback(() => {
-        if (pipMenuCloseTimer.current) clearTimeout(pipMenuCloseTimer.current);
-        pipMenuCloseTimer.current = setTimeout(() => setPipMenuOpen(false), 180);
-    }, []);
-
-    const cancelClosePipMenu = useCallback(() => {
-        if (pipMenuCloseTimer.current) { clearTimeout(pipMenuCloseTimer.current); pipMenuCloseTimer.current = null; }
-    }, []);
 
     // パーティ設定: PC用のローカルstate + モバイル用のContext
     const [partySettingsOpenLocal, setPartySettingsOpenLocal] = useState(false);
@@ -4201,38 +4119,19 @@ const Timeline: React.FC = () => {
                 document.body
             )}
 
-            {/* PiP 選択メニュー — ツールバーの overflow-hidden を避けて body へ固定配置 */}
-            {pipMenuOpen && !pipWindow && pipMenuPos && createPortal(
-                <div
-                    ref={pipMenuPanelRef}
-                    onMouseEnter={cancelClosePipMenu}
-                    onMouseLeave={scheduleClosePipMenu}
-                    style={{ position: 'fixed', top: pipMenuPos.top, left: pipMenuPos.left, zIndex: 9999 }}
-                    className="w-max overflow-hidden rounded-xl glass-tier3 border border-glass-border/40 shadow-lg"
-                >
-                    <button
-                        onClick={() => { setPipMenuOpen(false); handleOpenPip('cue'); }}
-                        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-app-md text-app-text whitespace-nowrap hover:bg-glass-hover transition-colors cursor-pointer"
-                    >
-                        {t('timeline.recorder.menu_cue')}
-                    </button>
-                    <button
-                        onClick={() => { setPipMenuOpen(false); setVideoModalOpen(true); }}
-                        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-app-md text-app-text whitespace-nowrap hover:bg-glass-hover transition-colors cursor-pointer"
-                    >
-                        {t('timeline.recorder.menu_record')}
-                    </button>
-                </div>,
-                document.body
-            )}
-
-            {/* PiP — 別窓にReactPortalでレンダリング（cue のみ） */}
-            {pipContainer && createPortal(
-                <React.Suspense fallback={null}>
-                    <PipView mode="pip" onClose={handleClosePip} />
-                </React.Suspense>,
-                pipContainer
-            )}
+            <TimelinePipLayer
+                t={t}
+                pipWindow={pipWindow}
+                pipContainer={pipContainer}
+                pipMenuOpen={pipMenuOpen}
+                pipMenuPos={pipMenuPos}
+                setPipMenuOpen={setPipMenuOpen}
+                cancelClosePipMenu={cancelClosePipMenu}
+                scheduleClosePipMenu={scheduleClosePipMenu}
+                handleOpenPip={handleOpenPip}
+                handleClosePip={handleClosePip}
+                onOpenVideoModal={() => setVideoModalOpen(true)}
+            />
 
             {/* 動画埋め込み式タイムライン作成モーダル */}
             <VideoRecorderModal isOpen={videoModalOpen} onClose={() => setVideoModalOpen(false)} />
