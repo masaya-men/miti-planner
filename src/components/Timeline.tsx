@@ -76,6 +76,7 @@ import { SheetColumnHeader } from './timeline/sheet/SheetColumnHeader';
 import { buildSheetColumnMap, buildHiddenSheetColumnMap, sheetColumnAt, sheetColumnFromX, sheetColumnIndex, SHEET_ICON_PX, type SheetColumn } from './timeline/sheet/sheetColumns';
 import { sheetIconLeft } from './timeline/sheet/sheetGeometry';
 import { useTimelineDamage } from './timeline/useTimelineDamage';
+import { useTimelinePreviewHighlight } from './timeline/useTimelinePreviewHighlight';
 import { useTimelinePip } from './timeline/useTimelinePip';
 import { TimelinePipLayer } from './timeline/TimelinePipLayer';
 import { placementsWithColumn } from './timeline/sheet/sheetCooldown';
@@ -272,9 +273,14 @@ const Timeline: React.FC = () => {
     const isMilspecTable = themeStyle === 'military' && !isMobileTimeline;
     // 1 段の高さ(PC=攻撃 1 つ分 / スマホ=カード 1 枚)。縦位置は rowLayout(下で計算)から得る
     const rowUnitPx = isMobileTimeline ? ROW_UNIT_PX.mobile : ROW_UNIT_PX.pc;
-    const previewEndTimeRef = useRef<number | null>(null);
-    const previewRafRef = useRef<number | null>(null);
-    const overlayRef = useRef<HTMLDivElement>(null);
+    // プレビュー強調フックが参照する ref(scrollContainerRef / rowLayoutRef は宣言位置のみここへ前出し)
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    // 行の配置係の最新値。コールバック(スクロール同期・ジャンプ・範囲選択)は描画後にこれを読む。
+    // 書き込みは rowLayout の useMemo の直後(描画中)で 1 回だけ。
+    const rowLayoutRef = useRef<RowLayout>(EMPTY_ROW_LAYOUT);
+    const { overlayRef, throttledUpdatePreview } = useTimelinePreviewHighlight({
+        scrollContainerRef, rowLayoutRef, timelineSelectMode, labelSelectMode, showPreStart,
+    });
     // メモ入力状態 (新規 = editingId 無し / 編集 = editingId + initialText)
     const [memoInput, setMemoInput] = useState<{
         topPx: number;
@@ -307,82 +313,6 @@ const Timeline: React.FC = () => {
         const availableWidth = (sheetWidth > 0 ? sheetWidth : 350) - MOBILE_MITI_ICONS_ROW_PADDING_PX * 2;
         return Math.max(1, Math.floor(availableWidth / MOBILE_MITI_ICON_PITCH_PX));
     }, [sheetWidth]);
-
-    /** DOM直接操作でプレビューハイライトを更新（React再レンダリングなし） */
-    const updatePreviewHighlight = useCallback((time: number | null) => {
-        const container = scrollContainerRef.current;
-        if (!container) return;
-
-        // 前回のハイライトをクリア
-        const highlighted = container.querySelectorAll('.preview-highlight');
-        for (let i = 0; i < highlighted.length; i++) {
-            highlighted[i].classList.remove('preview-highlight');
-        }
-
-        if (time === null || (!timelineSelectMode && !labelSelectMode)) {
-            if (overlayRef.current) overlayRef.current.style.display = 'none';
-            container.classList.remove('phase-select-preview', 'label-select-preview');
-            return;
-        }
-
-        // コンテナにモード識別クラスを付与（CSS側でフェーズ/ラベル列を区別）
-        container.classList.remove('phase-select-preview', 'label-select-preview');
-        container.classList.add(timelineSelectMode ? 'phase-select-preview' : 'label-select-preview');
-
-        const mode = timelineSelectMode || labelSelectMode!;
-        const min = Math.min(mode.startTime, time);
-        const max = Math.max(mode.startTime, time);
-
-        // 範囲内の行にpreview-highlightクラスを付与
-        const rows = container.querySelectorAll('[data-time-row]');
-        for (let i = 0; i < rows.length; i++) {
-            const t = Number(rows[i].getAttribute('data-time-row'));
-            if (t >= min && t <= max) {
-                rows[i].classList.add('preview-highlight');
-            }
-        }
-
-        // オーバーレイ位置を直接更新(縦位置は rowLayout から)
-        if (overlayRef.current) {
-            const layout = rowLayoutRef.current;
-            const offsetTime = showPreStart ? -10 : 0;
-            const startTime = Math.max(Math.min(mode.startTime, time), offsetTime);
-            const endTime = Math.max(Math.max(mode.startTime, time) + 1, offsetTime);
-            const startY = layout.topOf(startTime);
-            const endY = layout.topOf(endTime);
-            const height = Math.max(0, endY - startY);
-            overlayRef.current.style.top = `${startY}px`;
-            overlayRef.current.style.height = `${height}px`;
-            overlayRef.current.style.display = height > 0 ? '' : 'none';
-        }
-    }, [timelineSelectMode, labelSelectMode, showPreStart]);
-
-    const throttledUpdatePreview = useCallback((time: number | null) => {
-        previewEndTimeRef.current = time;
-        if (time === null) {
-            if (previewRafRef.current !== null) {
-                cancelAnimationFrame(previewRafRef.current);
-                previewRafRef.current = null;
-            }
-            updatePreviewHighlight(null);
-            return;
-        }
-        if (previewRafRef.current === null) {
-            previewRafRef.current = requestAnimationFrame(() => {
-                updatePreviewHighlight(previewEndTimeRef.current);
-                previewRafRef.current = null;
-            });
-        }
-    }, [updatePreviewHighlight]);
-
-    // rAFクリーンアップ（アンマウント時）
-    useEffect(() => {
-        return () => {
-            if (previewRafRef.current !== null) {
-                cancelAnimationFrame(previewRafRef.current);
-            }
-        };
-    }, []);
 
     const [phasePopover, setPhasePopover] = useState<{ phase: Phase; position: { x: number; y: number }; clickTime: number } | null>(null);
 
@@ -801,7 +731,6 @@ const Timeline: React.FC = () => {
     const [aaSettingsOpen, setAaSettingsOpen] = useState(false);
 
     const aaSettingsButtonRef = useRef<HTMLButtonElement>(null);
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
     useSmoothWheelScroll(scrollContainerRef, { horizontalScrollOnShift: true, stiffness: 80, wheelMultiplier: 1.5 });
     const headerRef = useRef<HTMLDivElement>(null);
     const controlBarRef = useRef<HTMLDivElement>(null);
@@ -813,9 +742,6 @@ const Timeline: React.FC = () => {
     // 積み重なりメインスレッドを塞いでいた)。中身はtimeToYMapと同じタイミング(レイアウト
     // 再計算時)でのみ作り直し、スクロール中は読むだけ。
     const sortedTimeYRef = useRef<[number, number][]>([]);
-    // 行の配置係の最新値。コールバック(スクロール同期・ジャンプ・範囲選択)は描画後にこれを読む。
-    // 書き込みは rowLayout の useMemo の直後(描画中)で 1 回だけ。
-    const rowLayoutRef = useRef<RowLayout>(EMPTY_ROW_LAYOUT);
     // handleScrollSync がヘッダー/コントロールバー内の対象要素を毎スクロールイベントで
     // querySelector していたのをキャッシュする(2026-08-14、実測プロファイルでスクロール毎の
     // 負荷の一因と判明)。要素が差し替わった場合のみ(isConnected/contains チェックで検知して)
