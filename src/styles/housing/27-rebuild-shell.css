@@ -1,0 +1,142 @@
+/* ============================================================
+ * 再構築シェル (Rebuild) — ヘッダー / タブ / 本体行
+ * 質感は .housing-workspace 継承 (tokens / scenery / font)。
+ * ここでは上部6タブ構成のヘッダーと本体行だけを定義する。
+ * ============================================================ */
+
+/* 本体行 (Outlet を包む中段) — ページ側で内部スクロールさせるため min-height:0 */
+.housing-shell-body {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ヘッダー: [ブランド(左)] [検索窓(探すページのみ・伸縮)] … [TabBar] [右群(右)]。
+   TabBar と右群は右寄せクラスタ。TabBar は検索窓の有無に関わらず右群の左隣から動かない
+   (ページ間でメニュー位置がズレて迷うのを防ぐ・2026-07-13 再修正=中央固定→右寄せ)。 */
+.housing-app-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: calc(20px * var(--housing-scale));
+  padding: env(safe-area-inset-top, 0px) calc(24px * var(--housing-scale)) 0;
+  background: var(--housing-panel-bg);
+  border-bottom: 1px solid var(--housing-panel-border);
+  box-shadow:
+    inset 0 calc(1.5px * var(--housing-scale)) calc(1px * var(--housing-scale)) rgba(255, 255, 255, 0.30),
+    inset 0 calc(-1px * var(--housing-scale)) 0 rgba(255, 255, 255, 0.06);
+}
+/* 上端の薄い sheen (旧 .housing-top::after と同じ) */
+.housing-app-header::after {
+  content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: calc(1px * var(--housing-scale));
+  background: linear-gradient(to right,
+    transparent, rgba(255, 255, 255, 0.18) 30%, rgba(255, 255, 255, 0.30) 50%,
+    rgba(255, 255, 255, 0.18) 70%, transparent);
+  pointer-events: none;
+}
+
+/* ヘッダー横断検索 (探すページのみ)。ブランドの右で空きスペースを埋めて広がる
+   (撤去前の grid 1fr 相当の幅)。TabBar は常に右寄せ固定なので重ならない。 */
+.housing-app-search {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  position: relative; /* 候補ドロップダウンの位置基準 */
+}
+.housing-app-search-input {
+  width: 100%;
+  height: calc(34px * var(--housing-scale));
+  padding: 0 calc(14px * var(--housing-scale));
+  color: var(--housing-text);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  font-family: inherit;
+  font-size: calc(13px * var(--housing-scale));
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.housing-app-search-input::placeholder { color: var(--housing-text-mute); }
+.housing-app-search-input:focus {
+  border-color: var(--housing-honey-border);
+  background: var(--housing-honey-soft);
+}
+.housing-app-search-dropdown {
+  position: absolute;
+  top: calc(100% + calc(4px * var(--housing-scale)));
+  left: 0;
+  right: 0;
+  z-index: var(--housing-z-header-dropdown);
+  display: flex;
+  flex-direction: column;
+  gap: calc(2px * var(--housing-scale));
+  padding: calc(6px * var(--housing-scale));
+  border-radius: var(--housing-input-radius-sm);
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-panel-bg-solid);
+}
+.housing-app-search-dropdown-head {
+  padding: calc(4px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-app-search-housinger {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: calc(6px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  border: none;
+  border-radius: var(--housing-input-radius-sm);
+  background: transparent;
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.housing-app-search-housinger:hover {
+  background: var(--housing-input-bg-hover);
+}
+
+/* タブバー (メニュー): 検索窓の有無に関わらず右群の左隣に右寄せ固定。margin-left:auto で
+   左側の空きを吸収し、ページ間でメニュー位置が動かない (2026-07-13 中央固定→右寄せに再修正)。 */
+.housing-tabbar {
+  margin-left: auto;
+  display: flex; align-items: center; gap: calc(4px * var(--housing-scale));
+  height: 100%;
+}
+.housing-tab {
+  position: relative;
+  display: inline-flex; align-items: center;
+  height: 100%;
+  padding: 0 calc(14px * var(--housing-scale));
+  font-size: calc(13px * var(--housing-scale));
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--housing-text-mute);
+  text-decoration: none;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-tab:hover {
+  color: var(--housing-text);
+  background: var(--housing-chip-bg-hover);
+}
+.housing-tab.is-active { color: var(--housing-candle); }
+.housing-tab.is-active::after {
+  content: ''; position: absolute; left: calc(12px * var(--housing-scale)); right: calc(12px * var(--housing-scale)); bottom: 0; height: calc(2px * var(--housing-scale));
+  background: var(--housing-tab-active);
+  border-radius: calc(2px * var(--housing-scale)) calc(2px * var(--housing-scale)) 0 0;
+  box-shadow: 0 0 calc(8px * var(--housing-scale)) var(--housing-honey-glow);
+  pointer-events: none;
+}
+.housing-tab:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(-2px * var(--housing-scale));
+}
+
+/* ヘッダー右群 (通知 / テーマ / アバター)。TabBar が margin-left:auto で右へ寄るため、
+   右群はその直後に自然に並ぶ (margin-left:auto は不要)。 */
+.housing-app-header-right {
+  display: flex; align-items: center; gap: calc(12px * var(--housing-scale));
+}
+

@@ -1,0 +1,37 @@
+/* ============================================================
+ * 引っ張って更新 (ホーム画面アプリ専用・見本 R2)
+ * HousingPullToRefresh.tsx が transform / opacity / stroke-dasharray を直接書き換える。
+ * ============================================================ */
+.housing-ptr-ind {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: env(safe-area-inset-top, 0px);
+  height: calc(28px * var(--housing-scale));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform, opacity;
+}
+.housing-ptr-ring { width: calc(28px * var(--housing-scale)); height: calc(28px * var(--housing-scale)); }
+.housing-ptr-ring circle {
+  fill: none;
+  stroke: var(--housing-honey);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+.housing-ptr-spinning .housing-ptr-ring { animation: housing-ptr-rot 0.8s linear infinite; }
+@keyframes housing-ptr-rot { to { transform: rotate(360deg); } }
+/* 離したあと 320ms で戻る / 止まる位置へ寄る */
+.housing-shell.housing-ptr-snap { transition: transform 320ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.housing-ptr-ind.housing-ptr-snap { transition: transform 320ms cubic-bezier(0.2, 0.7, 0.2, 1), opacity 320ms; }
+@media (prefers-reduced-motion: reduce) {
+  .housing-ptr-spinning .housing-ptr-ring { animation: none; }
+  .housing-shell.housing-ptr-snap, .housing-ptr-ind.housing-ptr-snap { transition: none; }
+}
+

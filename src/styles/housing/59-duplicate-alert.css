@@ -1,0 +1,30 @@
+/* ============================================================
+ * 重複チェック: 「見つかった」ときは赤で強く出す
+ * 見落とすと二重登録になるため。ただし色地の alert 箱にはせず、
+ * 赤いヘアライン + 赤文字 + ⚠ アイコン で示す (housing-design.md と両立)。
+ * ============================================================ */
+.housing-register-dup-panel[data-state="found"] .housing-register-dup-panel-title {
+  color: var(--housing-danger);
+}
+.housing-register-dup-found-lead {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--housing-scale));
+  margin: 0;
+  padding-bottom: calc(10px * var(--housing-scale));
+  border-bottom: 1px solid var(--housing-danger);
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-danger);
+}
+.housing-register-dup-found-icon {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-md);
+  line-height: 1;
+}
+/* 重複カード自体も赤縁にして、一覧の中で「これが重複だ」と分かるようにする。 */
+.housing-register-dup-panel[data-state="found"] .housing-register-dup-public-card {
+  border-color: var(--housing-danger);
+  background: var(--housing-danger-soft);
+}
+

@@ -1,0 +1,79 @@
+/* ===== §3.8 詳細モーダル「この住所の他の登録」 セクション ===== */
+/* Task 2.4: 右列 (.housing-detail-side) 内の子になった (以前は全幅の grid 直下)。
+   ブロック間の間隔は .housing-detail-side の gap が担うので、 ここは区切り線の見た目だけ。 */
+.housing-detail-peers {
+    padding-top: calc(20px * var(--housing-scale));
+    border-top: 1px solid var(--housing-divider);
+}
+
+.housing-detail-peers-title {
+    font-size: var(--housing-text-md);
+    margin: 0 0 calc(12px * var(--housing-scale));
+    color: var(--housing-text-dim);
+}
+
+/* 各 peer 行の右端カラム: 上に協力依頼 caption、 下に「ちがった」 button */
+.housing-detail-peers-action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: calc(4px * var(--housing-scale));
+}
+
+.housing-detail-peers-note {
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-dim);
+    margin: 0;
+    white-space: nowrap;
+}
+
+.housing-detail-peers-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: calc(10px * var(--housing-scale));
+}
+
+.housing-detail-peers-item {
+    display: grid;
+    grid-template-columns: calc(56px * var(--housing-scale)) 1fr auto;
+    gap: calc(12px * var(--housing-scale));
+    align-items: center;
+    padding: calc(8px * var(--housing-scale));
+    border-radius: calc(10px * var(--housing-scale));
+    background: var(--housing-panel-bg);
+    border: 1px solid var(--housing-panel-border);
+}
+
+.housing-detail-peers-thumb {
+    width: calc(56px * var(--housing-scale));
+    height: calc(56px * var(--housing-scale));
+    object-fit: cover;
+    border-radius: calc(6px * var(--housing-scale));
+    background: var(--housing-card-thumb-bg);
+}
+
+.housing-detail-peers-info {
+    min-width: 0;
+}
+
+.housing-detail-peers-card-title {
+    font-size: var(--housing-text-sm);
+    margin: 0 0 calc(2px * var(--housing-scale));
+    color: var(--housing-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.housing-detail-peers-card-address {
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+

@@ -1,0 +1,47 @@
+/* ===== 編集ページ 登録方法切り替えタブ (HousingEditMediaModeTabs) ===== */
+.housing-edit-media-tabs {
+  display: flex;
+  align-items: center;
+  gap: calc(2px * var(--housing-scale));
+}
+.housing-edit-media-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: calc(32px * var(--housing-scale));
+  padding: 0 calc(14px * var(--housing-scale));
+  border: 0;
+  border-radius: calc(8px * var(--housing-scale)) calc(8px * var(--housing-scale)) 0 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-dim);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-edit-media-tab:hover {
+  color: var(--housing-text);
+  background: var(--housing-chip-bg-hover);
+}
+.housing-edit-media-tab[aria-selected="true"] {
+  color: var(--housing-candle);
+}
+.housing-edit-media-tab[aria-selected="true"]::after {
+  content: '';
+  position: absolute;
+  left: calc(8px * var(--housing-scale));
+  right: calc(8px * var(--housing-scale));
+  bottom: 0;
+  height: calc(2px * var(--housing-scale));
+  background: var(--housing-tab-active);
+  border-radius: calc(2px * var(--housing-scale)) calc(2px * var(--housing-scale)) 0 0;
+  box-shadow: 0 0 calc(8px * var(--housing-scale)) var(--housing-honey-glow);
+  pointer-events: none;
+}
+.housing-edit-media-tab:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(-2px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+}
+

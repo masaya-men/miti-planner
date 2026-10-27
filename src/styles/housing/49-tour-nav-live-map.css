@@ -1,0 +1,400 @@
+/* ============================================================
+ * 中央カラム: ツアー中LIVE地図 (Task5・TourNavMap)
+ * 赤丸隠蔽ホスト (.housing-map-svg-host) / オーバーレイ (.housing-map-overlay) は
+ * MapView.tsx と同じ class を再利用 (svg [stroke="#FF0000"] 隠蔽 CSS を効かせるため)。
+ * 外側のステージ/ラップだけ中央カラム向けに専用化 (workspace 全画面用の 3D tilt は持ち込まない)。
+ * ============================================================ */
+.housing-tour-map {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+  gap: calc(12px * var(--housing-scale));
+}
+.housing-tour-map-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: calc(14px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-panel-inner);
+}
+.housing-tour-map-wrap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 88%;
+  aspect-ratio: 470 / 350;
+  transform: translate(-50%, -50%);
+}
+
+/* 本番ツアー(Nav)地図: ステージいっぱいに充填し、既定表示(経路フィット)を活かす。DEV(.housing-dev-tourpreview)は基底のまま。 */
+.housing-tour-map-wrap.is-nav {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  transform: none;
+  overflow: hidden;
+  touch-action: none; /* パン/ピンチをブラウザのスクロール/ズームに奪われない */
+  cursor: grab;
+}
+.housing-tour-map-wrap.is-nav:active { cursor: grabbing; }
+
+/* 「全体に戻す」ボタン(HUD 内)。トークン経由・装飾ピルにしない(落ち着いたガラス面)。
+ * 親 .housing-hud は静的ピル表示用に pointer-events:none (継承プロパティ) のため、実クリック可能にするには明示的に auto へ戻す必要がある。 */
+/* ピルにしない: 文字のみ。ホバーで色+下線が出てボタンと分かる。 */
+.housing-tour-map-reset {
+  pointer-events: auto;
+  padding: calc(4px * var(--housing-scale)) calc(6px * var(--housing-scale));
+  border: 0;
+  background: transparent;
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-xs);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.housing-tour-map-reset:hover { color: var(--housing-candle); text-decoration: underline; }
+.housing-tour-map-reset:active { transform: scale(0.98); }
+
+/* 北コンパス (マップ右上・静的。FF14 ワード地図は北=上)。 */
+.housing-tour-map-compass {
+  position: absolute;
+  top: calc(10px * var(--housing-scale));
+  right: calc(10px * var(--housing-scale));
+  width: calc(40px * var(--housing-scale));
+  height: calc(40px * var(--housing-scale));
+  pointer-events: none;
+  z-index: 2;
+}
+.housing-tour-map-compass svg { width: 100%; height: 100%; display: block; }
+.housing-tour-map-compass-ring {
+  fill: var(--housing-panel-bg);
+  stroke: var(--housing-panel-border);
+  stroke-width: 1.5;
+}
+.housing-tour-map-compass-needle-n { fill: var(--housing-honey); }
+.housing-tour-map-compass-needle-s { fill: var(--housing-text-mute); }
+.housing-tour-map-compass-n {
+  fill: var(--housing-candle);
+  font-size: calc(8px * var(--housing-scale));
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+/* 見学中タイマーチップ(実機FB): スマホの見学開始は全画面ショーケースを開かなくなったため、
+ * 見学中(phase==='viewing')の経過時間をコンパスの下に小さく表示する。
+ * 表示専用(操作不要)なので pointer-events:none で地図のパン/ズーム/ドラッグを一切邪魔しない。
+ * 実機スクショFB: 地色の箱だと重かったため枠なしにし、数字+text-shadowのみ(北コンパスのNラベルと同じ抑制トーン)。 */
+.housing-tour-map-viewing-timer {
+  position: absolute;
+  top: calc(54px * var(--housing-scale)); /* コンパス(top:10px + height:40px)の下に隙間を空けて並べる */
+  right: calc(10px * var(--housing-scale));
+  z-index: 2;
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--housing-candle);
+  text-shadow: var(--housing-text-shadow);
+}
+
+/* 左上フル住所オーバーレイ(共有ツアー同期・参加者の住所 reveal + ホストの一覧表示)。
+ * 表示専用(クリック不要)なので pointer-events:none で地図のパン/ズーム/ドラッグを一切邪魔しない。
+ * ステージの角丸(14px)に食い込まないよう --housing-panel-radius ベースの inset で内側へ寄せる
+ * (housing-tour-invite と同じ考え方)。装飾ピル/色付き箱にはせず、エーテライトラベルと同じ
+ * 控えめな地色+text-shadow のみで地図の明るい部分でも読める最小限の可読性を確保する。 */
+.housing-tour-map-address {
+  position: absolute;
+  top: calc(var(--housing-panel-radius) + calc(8px * var(--housing-scale)));
+  left: calc(var(--housing-panel-radius) + calc(8px * var(--housing-scale)));
+  z-index: 2;
+  max-width: 60%;
+  padding: calc(3px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  border-radius: calc(7px * var(--housing-scale));
+  pointer-events: none;
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  color: var(--housing-candle);
+  background: var(--housing-map-label-bg);
+  text-shadow: var(--housing-text-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: calc(2px * var(--housing-scale));
+}
+/* 1段目: フル住所 + (拡張街のみ)バッジ。バッジは常に全文表示、住所側だけ省略する。 */
+.housing-tour-map-address-full {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--housing-scale));
+  min-width: 0;
+}
+.housing-tour-map-address-full-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.housing-tour-map-address-badge {
+  flex-shrink: 0;
+  font-weight: 700;
+  padding: calc(1px * var(--housing-scale)) calc(6px * var(--housing-scale));
+  border-radius: calc(5px * var(--housing-scale));
+  background: var(--housing-chip-bg);
+  white-space: nowrap;
+}
+/* 2段目: 最寄りエーテライト。実機FB(2026-08-10): 住所だけだとテレポ後にどこへ向かうべきか
+   分からなかったため追加。1段目より控えめな重み・色にして情報の主従を示す。 */
+.housing-tour-map-address-aetheryte {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 400;
+  color: var(--housing-text-mute);
+}
+
+/* DEV 経路エディタ / 本番ツアー(Nav) 共通: 地図SVG+オーバーレイを一体でパン/ズームするコンテナ。 */
+/* will-change/backface-visibility は付けない: GPUレイヤー昇格すると SVG が base解像度で
+   ラスタライズされ拡大時ににじむ。ベクターのまま各倍率で再描画させ、くっきり保つ。
+   perf は SVGホストの重い drop-shadow 撤去(上)で担保する。 */
+.housing-map-zoom { position: absolute; inset: 0; transform-origin: 0 0; }
+/* 目的地変更時の「全景→ズームイン」演出中だけ transform をトランジション。
+   通常のパン/ズーム(手動)は即時反応させたいので、このクラスは演出中のみ付与する。 */
+.housing-map-zoom.is-intro {
+  transition: transform var(--housing-tour-map-intro-dur) var(--housing-tour-map-intro-ease),
+              opacity var(--housing-tour-map-fade-dur) ease;
+}
+/* 目的地変更時のフェードアウト/イン(dip)。is-intro と併用で opacity もトランジションされる。 */
+.housing-map-zoom.is-hidden { opacity: 0; }
+
+/* 起点エーテライトの名前ラベル(定サイズ HTML・画面座標へ投影配置)。origin マーカーの上に浮かせ、
+   下向きの小三角で起点を指す。ズーム演出中は非表示→着地でふわっと表示。地図ドラッグを邪魔しない。 */
+.housing-tour-map-aetheryte-label {
+  position: absolute;
+  /* エーテライトの右上に吹き出しの左下角を寄せる(近接で結びつける・三角の吹き出しは使わない)。 */
+  transform: translate(calc(8px * var(--housing-scale)), calc(-100% - calc(8px * var(--housing-scale))));
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 62%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: calc(2px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  border-radius: calc(7px * var(--housing-scale));
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  color: var(--housing-candle);
+  background: var(--housing-map-label-bg); /* 黒浮きを避け地図のスレート中間トーンに寄せる。 */
+  border: 1px solid var(--housing-divider); /* 縁もグレー系(白ヘアライン)に統一。グロー影は無し=浮かせない。 */
+  z-index: 4;
+  animation: housing-tour-label-in 0.3s var(--housing-tour-map-intro-ease) both;
+}
+@keyframes housing-tour-label-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* マップ操作ヒント(常時): 下部中央に控えめなグレー文字。装飾箱にはしない(リセットボタンと同じ抑制トーン)。 */
+.housing-tour-map-hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(8px * var(--housing-scale));
+  transform: translateX(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  letter-spacing: 0.02em;
+}
+/* ズーム時に地図がパネル外へはみ出さないよう DEV エディタのみクリップ。 */
+.housing-dev-tourpreview .housing-tour-map-wrap { overflow: hidden; }
+
+/* DC/ワールド跨ぎ案内: ステージ全面をぼかし、中央にカードで移動手段を案内する。
+ * 暗幕にはしない(質感A案の濃紺フラット面 = skeleton と同じ --housing-panel-bg + ぼかし)。
+ * ステージ内の他要素(コンパス z:2/ラベル z:4)より前面。
+ * ぼかしは css-rules.md の --tw-backdrop-blur 変数パターン(直書き blur() 禁止)。 */
+.housing-tour-map-cross {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(16px * var(--housing-scale));
+  background: var(--housing-panel-bg);
+  --tw-backdrop-blur: blur(calc(6px * var(--housing-scale)));
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+}
+.housing-tour-map-cross-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(12px * var(--housing-scale));
+  max-width: calc(320px * var(--housing-scale));
+  padding: calc(16px * var(--housing-scale)) calc(20px * var(--housing-scale));
+  border-radius: var(--housing-panel-radius);
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-divider);
+  box-shadow: var(--housing-panel-shadow);
+  text-align: center;
+  /* 実機FB(2026-08-10): 主催者が「次へ」を押すまで見落とされがちだったため、
+     枠をハニーゴールドでゆっくり明滅させて視線誘導する(housing-tour-target-breatheと同系統)。 */
+  animation: housing-tour-cross-breathe 1.6s ease-in-out infinite;
+}
+@keyframes housing-tour-cross-breathe {
+  0%, 100% { border-color: var(--housing-divider); box-shadow: var(--housing-panel-shadow); }
+  50% { border-color: var(--housing-honey-border); box-shadow: var(--housing-panel-shadow), 0 0 calc(20px * var(--housing-scale)) var(--housing-honey-shadow-soft); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-tour-map-cross-card { animation: none; }
+}
+.housing-tour-map-cross-text {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  line-height: 1.55;
+  color: var(--housing-text);
+  text-shadow: var(--housing-text-shadow);
+}
+/* 移動先の固有名詞(DC/ワールド/区画名)だけ目立たせ、実際にゲーム内で選ぶべき値を一目で分かるようにする。 */
+.housing-tour-map-cross-highlight {
+  font-size: var(--housing-text-lg);
+  font-weight: 700;
+  color: var(--housing-aether);
+}
+/* 参加者(閲覧専用)の待機文言(#A): ボタンではなく静かな注記。地図は主催者操作でだけ出る。 */
+.housing-tour-map-cross-waiting {
+  margin: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  text-shadow: var(--housing-text-shadow);
+}
+
+/* 現在地マーカー (originNodeId のノード座標に青丸) */
+.housing-tour-map-origin {
+  fill: var(--housing-aether);
+  stroke: var(--housing-map-light);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 calc(8px * var(--housing-scale)) var(--housing-aether));
+}
+
+/* ゴージャス経路 (起点エーテライト → 家): 下地グロー + コア光線 + コメット + 起点脈動マーカー。
+ * 色は全て --housing-* token 経由。stroke-width/radius は幾何 (テーマ色ではない) なので数値で可。 */
+.housing-tour-route-glow {
+  stroke: var(--housing-honey);
+  stroke-width: 12;
+  stroke-opacity: 0.28;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 calc(14px * var(--housing-scale)) var(--housing-honey));
+}
+.housing-tour-route-core {
+  stroke: var(--housing-candle);
+  stroke-width: 4.5;
+  stroke-opacity: 0.95;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 18 20;
+  filter: drop-shadow(0 0 calc(6px * var(--housing-scale)) var(--housing-honey));
+}
+.housing-tour-route-comet {
+  fill: var(--housing-map-light);
+  filter: drop-shadow(0 0 calc(12px * var(--housing-scale)) var(--housing-candle));
+}
+.housing-tour-route-jump {
+  stroke: var(--housing-candle);
+  stroke-width: 3.5;
+  stroke-opacity: 0.7;
+  stroke-linecap: round;
+  stroke-dasharray: 1.5 12;
+  filter: drop-shadow(0 0 calc(5px * var(--housing-scale)) var(--housing-honey));
+}
+.housing-tour-map-origin-pulse {
+  fill: none;
+  stroke: var(--housing-aether);
+  stroke-width: 4;
+}
+.housing-tour-map-origin-core {
+  fill: var(--housing-aether);
+  filter: drop-shadow(0 0 calc(10px * var(--housing-scale)) var(--housing-aether));
+}
+
+/* ロード中スケルトン / 地図データ無し・エラー時のプレースホルダ */
+.housing-tour-map-skeleton {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--housing-panel-radius);
+  background: var(--housing-panel-bg);
+}
+.housing-tour-map-none {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--housing-main-padding);
+  text-align: center;
+}
+.housing-tour-map-none-text {
+  color: var(--housing-text-mute);
+}
+
+/* 地図の枠線色 (改善8): 元SVGの stroke="black" を世界観の淡色トークンへ上書き。輪郭自体は消さない。
+ * .housing-tour-map にスコープし、legacy MapView (.housing-workspace 直下だが .housing-tour-map を持たない) は無改変にする。
+ * 全10マップで区画/アパートは <path> と <rect>(回転区画) の両方が使われるため要素タグ非依存の [id^=] で受ける。
+ * エーテライト装飾 (stroke="#00BFFF" / fill="#F0FEFF") はこのセレクタに該当しないため対象外のまま。 */
+.housing-tour-map .housing-map-svg-host [id^="plot_"],
+.housing-tour-map .housing-map-svg-host [id^="apart_"] {
+  stroke: var(--housing-map-stroke);
+}
+/* 道路本体: マップにより描き方が2系統ある (全10マップ検証済)。
+ *  ① mist/mistSub/goblet/gobletSub … <g id="…(Stroke)"> 内の mask 付き path (= path[mask])
+ *  ② empyreum/lavender/shirogane ±sub … id 末尾が "(Stroke)" の単独 path (mask 無し)
+ * 両系統を和で受けて全マップの道を再着色する (旧実装は path[mask] のみで6マップの道が黒く残っていた)。 */
+.housing-tour-map .housing-map-svg-host path[mask],
+.housing-tour-map .housing-map-svg-host path[id$="(Stroke)"] {
+  stroke: var(--housing-map-stroke-road);
+}
+/* さらに第3系統: 一部マップ(実機DOM検査で shirogane に1本)には id も mask も持たない
+ * 無名の黒 path(外周の境界道)があり、上の区画/道ルールに一致せず黒のまま残る。
+ * 区画(id^plot_/apart_)と既存の道(path[mask]/id$(Stroke))を除外した黒 path のみ道トーンへ寄せる。 */
+.housing-tour-map .housing-map-svg-host path[stroke="black"]:not([id^="plot_"]):not([id^="apart_"]):not([mask]):not([id$="(Stroke)"]) {
+  stroke: var(--housing-map-stroke-road);
+}
+
+/* 探す地図 (.housing-bmap-stage) にも同じ淡色化を適用。スコープが .housing-tour-map 限定だったため
+ * 探す側だけ元 SVG の黒枠が素通しになっていた。ルール3系統 (区画/道2系統/無名黒path) は上と対で保守する。 */
+.housing-bmap-stage .housing-map-svg-host [id^="plot_"],
+.housing-bmap-stage .housing-map-svg-host [id^="apart_"] {
+  stroke: var(--housing-map-stroke);
+}
+.housing-bmap-stage .housing-map-svg-host path[mask],
+.housing-bmap-stage .housing-map-svg-host path[id$="(Stroke)"] {
+  stroke: var(--housing-map-stroke-road);
+}
+.housing-bmap-stage .housing-map-svg-host path[stroke="black"]:not([id^="plot_"]):not([id^="apart_"]):not([mask]):not([id$="(Stroke)"]) {
+  stroke: var(--housing-map-stroke-road);
+}
+
+/* 目的地アピール: オーバーレイに目的の家の実輪郭で honey 発光ボックスを描く(TourNavMap の targetOutline)。
+ * 以前は overlay の被せ矩形で確実に光っていたが、実箱パスへの JS クラス付与方式に変えてから
+ * 区画再着色ルール等に負けて光らなくなっていた。オーバーレイ(=経路と同じ確実に描かれる層)へ戻す。
+ * 値は「光っていた頃の被せ矩形」と同じ(fill 0.22 / honey枠 6 / drop-shadow 16px / stroke-opacity 脈動)を実形状で。 */
+.housing-tour-target-glow {
+  fill: var(--housing-honey);
+  fill-opacity: 0.22;
+  stroke: var(--housing-honey);
+  stroke-width: 6;
+  stroke-linejoin: round;
+  paint-order: stroke;
+  filter: drop-shadow(0 0 calc(16px * var(--housing-scale)) var(--housing-honey));
+  animation: housing-tour-target-breathe 1.4s ease-in-out infinite;
+}
+@keyframes housing-tour-target-breathe {
+  0%, 100% { stroke-opacity: 1; }
+  50%      { stroke-opacity: 0.45; }
+}
+

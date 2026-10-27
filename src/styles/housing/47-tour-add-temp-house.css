@@ -1,0 +1,124 @@
+/* ============================================================
+ * 「+ 住所から追加」 一時の家 追加パネル (計画: 住所登録なし一時ツアー Task3)
+ * トレイ (TourTray) とツアー空状態 (TourEmptyState) の両方から使う。
+ * 質感A案: 装飾ピル/honeyグラデ/色付きalert箱は使わず、静かな面 + ヘアライン注記。
+ * ============================================================ */
+.housing-ephemeral-toggle {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(6px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px dashed var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  transition: background 0.15s ease;
+}
+.housing-ephemeral-toggle:hover { background: var(--housing-chip-bg-hover); }
+.housing-ephemeral-toggle:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+.housing-ephemeral-toggle[aria-expanded="true"] { border-style: solid; background: var(--housing-chip-bg-hover); }
+
+/* モーダル body 内のフォームの器 (2026-07-12 モーダル化)。面/枠/余白はモーダル側 (HousingPanelModal)
+   が持つので、ここは縦積みのリズムだけ。ヘッダー (タイトル + 閉じる) もモーダル側。 */
+.housing-ephemeral-panel {
+  display: flex; flex-direction: column; gap: calc(10px * var(--housing-scale));
+}
+.housing-ephemeral-field { display: flex; flex-direction: column; }
+.housing-ephemeral-text { min-height: 0; }
+.housing-ephemeral-chips { display: flex; flex-wrap: wrap; gap: calc(6px * var(--housing-scale)); }
+.housing-ephemeral-chip {
+  display: inline-flex; align-items: center; gap: calc(4px * var(--housing-scale));
+  padding: calc(3px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  font-size: var(--housing-text-sm); color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(8px * var(--housing-scale));
+}
+.housing-ephemeral-chip-label {
+  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
+}
+.housing-ephemeral-manual {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(8px * var(--housing-scale));
+}
+.housing-ephemeral-type-toggle { grid-column: 1 / -1; display: flex; gap: calc(6px * var(--housing-scale)); }
+.housing-ephemeral-type-btn {
+  appearance: none; cursor: pointer; flex: 1 1 0;
+  padding: calc(7px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-mute);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(8px * var(--housing-scale));
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.housing-ephemeral-type-btn:hover { background: var(--housing-chip-bg-hover); }
+.housing-ephemeral-type-btn[aria-pressed="true"] {
+  color: var(--housing-text);
+  background: var(--housing-chip-bg-active);
+  border-color: var(--housing-honey);
+}
+.housing-ephemeral-type-btn:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+.housing-ephemeral-added {
+  margin: 0; font-size: var(--housing-text-sm); color: var(--housing-candle);
+}
+/* 追加ボタンをモーダルスクロール内で最下部固定にする footer バー。
+   .housing-panel-modal-body の padding(16px) 分を負マージンで打ち消して縁まで伸ばし、
+   自身の padding で同じ余白を作り直す(sticky + 親paddingの定番パターン。housing-tagpicker-footer と同型)。 */
+.housing-ephemeral-footer {
+  position: sticky;
+  bottom: 0;
+  margin: calc(4px * var(--housing-scale)) calc(-16px * var(--housing-scale)) calc(-16px * var(--housing-scale));
+  padding: calc(12px * var(--housing-scale)) calc(16px * var(--housing-scale));
+  background: var(--housing-panel-bg-solid);
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-ephemeral-add {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  width: 100%;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(8px * var(--housing-scale));
+  padding: calc(9px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 700;
+  color: var(--housing-honey-text);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  border: 0; border-radius: calc(10px * var(--housing-scale));
+  box-shadow: 0 calc(4px * var(--housing-scale)) calc(14px * var(--housing-scale)) var(--housing-honey-shadow-soft);
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housing-ephemeral-add:hover:not(:disabled) { filter: brightness(1.05); }
+.housing-ephemeral-add:active:not(:disabled) { transform: scale(0.98); }
+.housing-ephemeral-add:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+.housing-ephemeral-note {
+  margin: 0; padding-top: calc(8px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
+}
+/* パネル最上部に置く導入説明。footnote 用の上罫線・極小文字ではなく、
+   読みやすい本文サイズ + 下罫線でフォームと区切る (色付き箱にはしない)。 */
+.housing-ephemeral-note-lead {
+  padding-top: 0; padding-bottom: calc(10px * var(--housing-scale));
+  border-top: none;
+  border-bottom: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm); color: var(--housing-text-dim);
+  line-height: 1.5;
+}
+/* 注記内のインラインリンク (Allmarksまとめてインポートの導線等)。
+   housing-design.md「青 = 選択・進行・リンク」に合わせる。 */
+.housing-ephemeral-note a {
+  color: var(--housing-aether-soft);
+  text-decoration: underline;
+  text-underline-offset: calc(2px * var(--housing-scale));
+}
+.housing-ephemeral-note a:hover {
+  color: var(--housing-aether);
+}
+
+/* ツアー空状態内の入口 (簡易リスト + 開始ボタン込み)。中央寄せの空状態の中で左寄せに戻す。 */
+.housing-tour-empty-ephemeral {
+  width: 100%; max-width: calc(380px * var(--housing-scale));
+  margin-top: calc(12px * var(--housing-scale)); padding-top: calc(12px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  display: flex; flex-direction: column; gap: calc(10px * var(--housing-scale));
+  text-align: left;
+}
+.housing-tour-empty-ephemeral-list { overflow-y: visible; }
+

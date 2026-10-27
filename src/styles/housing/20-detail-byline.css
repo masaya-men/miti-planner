@@ -1,0 +1,143 @@
+/* ===== Task 7: 詳細パネルの登録者行 (HousingerByline) =====
+   非公開/取得不可 (profile===null) のときは行ごと描画されない (JSX 側で null を返す) ので、
+   ここでは「出たときの見た目」だけ定義すればよい。 */
+.housing-detail-byline {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(8px * var(--housing-scale));
+    width: fit-content;
+    color: var(--housing-text-dim);
+    text-decoration: none;
+    font-size: var(--housing-text-sm);
+}
+.housing-detail-byline:hover {
+    color: var(--housing-text);
+}
+/* ハウジンガーのアイコン (詳細行 / ハウジンガーページ大アイコン 共通)。
+   avatarUrl 未設定時は頭文字プレースホルダを丸背景に表示する。 */
+.housinger-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: calc(999px * var(--housing-scale));
+    overflow: hidden;
+    background: var(--housinger-avatar-bg);
+}
+.housinger-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.housinger-avatar-fallback {
+    color: var(--housinger-avatar-text);
+    font-weight: 700;
+}
+.housing-detail-byline-avatar {
+    width: var(--housinger-avatar-size-sm);
+    height: var(--housinger-avatar-size-sm);
+}
+.housing-detail-byline-avatar .housinger-avatar-fallback {
+    font-size: var(--housing-text-xs);
+}
+.housing-tagpicker-chip-avatar {
+    width: var(--housinger-avatar-size-sm);
+    height: var(--housinger-avatar-size-sm);
+}
+.housing-tagpicker-chip-avatar .housinger-avatar-fallback {
+    font-size: var(--housing-text-xs);
+}
+.housing-detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(6px * var(--housing-scale));
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.housing-detail-tags li {
+    display: flex;
+}
+/* a: タグを <button> 化 (クリックで絞り込み)。 chip 見た目は button 側で再現。 */
+.housing-detail-tag-btn {
+    appearance: none;
+    background: var(--housing-detail-tag-bg);
+    border: 1px solid var(--housing-detail-tag-border);
+    color: var(--housing-honey);
+    border-radius: calc(4px * var(--housing-scale));
+    padding: calc(2px * var(--housing-scale)) calc(8px * var(--housing-scale));
+    font-family: inherit;
+    font-size: var(--housing-text-xs);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.housing-detail-tag-btn:hover,
+.housing-detail-tag-btn:focus-visible {
+    background: var(--housing-honey-strong);
+    border-color: var(--housing-honey);
+}
+.housing-detail-description {
+    font-size: var(--housing-text-base);
+    color: var(--housing-text-dim);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+/* シェル外の単体 workspace ページ (例: EntranceAuthoringPage 等 dev 専用ツール) 用ラッパー:
+   トークン (--housing-*) は継承しつつ、workspace 既定の固定ビューポート
+   (height:100vh + overflow:hidden) を解除して通常の縦フロー (body スクロール) にする。
+   Task 2.3: 詳細ページ (HousingDetailPage) はシェル子ルート化に伴いこのクラスを使わなくなった
+   (シェル内スクロールに一本化。 .housing-detail-panel 参照)。 body 側の解禁が要る場合は
+   利用側コンポーネントが StrategyBoardPastePage /stgy と同パターンの useEffect で行う。 */
+.housing-workspace.housing-workspace-flow {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+}
+
+/* Task 2.3/2.4: シェル子ルート化した詳細大パネル。 .housing-shell-body (overflow:hidden) の
+   中で自前スクロールする外側コンテナ (= 探す/ツアーの `.housing-browse` 等と同格、 shell 端からの
+   インセット役)。 見た目の面 (背景/枠/角丸/影) は中の .housing-detail-shell が持つ二層構造。 */
+.housing-detail-panel {
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    color: var(--housing-text);
+    padding: var(--housing-main-padding);
+    box-sizing: border-box;
+}
+/* 大パネル1枚の面 (質感A案): 探す(.housing-browse-panel)/ツアー(.housing-tour-page-panel)と
+   同じ濃紺フラット面パターンをトークン経由で流用。 中身がパネル丈より短い時も min-height:100%
+   で「1枚パネル」に見えるようにし、 長い時は自然に伸びて .housing-detail-panel 側がスクロールする。 */
+.housing-detail-shell {
+    position: relative;
+    min-height: 100%;
+    background: var(--housing-panel-bg);
+    border: 1px solid var(--housing-panel-border);
+    border-radius: var(--housing-panel-radius);
+    box-shadow: var(--housing-panel-shadow);
+    overflow: hidden;
+}
+
+.housing-detail-fullpage-header {
+    padding: calc(12px * var(--housing-scale)) calc(20px * var(--housing-scale));
+    border-bottom: 1px solid var(--housing-panel-border);
+}
+.housing-detail-back {
+    color: var(--housing-honey);
+    text-decoration: none;
+    font-size: var(--housing-text-base);
+}
+.housing-detail-back:hover {
+    text-decoration: underline;
+}
+.housing-detail-fullpage-main {
+    padding: calc(24px * var(--housing-scale));
+    max-width: var(--housing-detail-fullpage-max-w);
+    width: 100%;
+    margin: 0 auto;
+}
+

@@ -1,0 +1,62 @@
+/* ===== 探すページ (3カラム) ===== */
+.housing-browse {
+  display: grid;
+  grid-template-columns: var(--housing-left-w) 1fr var(--housing-right-w);
+  gap: var(--housing-main-gap);
+  padding: var(--housing-main-padding);
+  min-height: 0;
+  height: 100%;
+}
+/* フラットパネル (液体ガラスの外側湾曲/屈折は不採用=ユーザー確定 2026-07-01)。
+   落ち着いた濃紺の面 + 1px 枠 + 控えめな影のみ。開閉しない固定パネル。 */
+.housing-browse-panel {
+  position: relative;
+  display: flex; flex-direction: column;
+  min-height: 0; height: 100%;
+  background: var(--housing-panel-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: var(--housing-panel-radius);
+  box-shadow: var(--housing-panel-shadow);
+  overflow: hidden;
+}
+.housing-browse-col {
+  display: flex; flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  /* 内側余白 = 文字がガラス枠にぶつかって見切れるのを防ぐ。 */
+  padding: calc(14px * var(--housing-scale)) calc(16px * var(--housing-scale));
+}
+/* 中央カラムだけ下側の内側余白を0に(2026-08-14ユーザー指定=フェード演出をパネル下端まで
+   使い切りたいので、いったん詰めてみる)。左右カラム(FilterPanel/TourTray)は元のまま。 */
+.housing-browse-col-center { overflow: hidden; padding-bottom: 0; }
+/* 探すページだけ: 「一覧|マップ|タグ」+「件数・並び替え」を1段に集約した分、ツールバーと
+   カードの境目が曖昧にならないよう常時区切り線を出す(2026-08-14ユーザー指定)。
+   他ページ(ハウジンガー等)のListingGrid再利用箇所には影響させない。
+   padding-bottom = 文字と線の間の余白、wrap側のgapが線とカードの間の余白を担う。 */
+.housing-browse-col-center .housing-listing-grid-toolbar {
+  padding: 0 0 calc(8px * var(--housing-scale)) 0;
+  border-bottom: 1px solid var(--housing-divider);
+}
+/* 探すページ中央だけ: 見出し→カードの二重余白(toolbar padding + wrap gap)を詰めて 8 枚を見切れなく収める
+   という元の狙いは維持しつつ、区切り線とカードの間にも最低限の余白を持たせる。 */
+.housing-browse-col-center .housing-listing-grid-wrap { gap: calc(10px * var(--housing-scale)); }
+/* パネルの高さが行の高さの整数倍にならない画面(実機1489x679等)では、最後の行がタイトル/ボタン
+   無しで画像だけ中途半端に見切れる(2026-08-14ユーザー実機指摘=カード表示エリアの下端がおかしい)。
+   カードを大きくして埋めるのではなく、下端をソフトフェードにして「まだ続きがある」と読める
+   見え方にする(スクロール位置に関わらず常時、下端40pxをグラデーションで透過)。
+   マスクは実際にスクロールする .housing-listing-grid 本体ではなく、その親(スクロールしない
+   .housing-listing-grid-wrap)に掛ける。wrap は toolbar(flex:0 0 auto)+ grid(flex:1 1 auto)の
+   縦積みで、grid が残り全部を埋めるため wrap の下端 = grid の下端(見た目は変わらない)。
+   スクロールする要素自身に mask-image を掛けると、スクロール中にマスクの再合成が毎フレーム
+   走り体感が重くなる(iOS Safari実機で顕著)ため、この分離で回避する
+   (2026-08-14ユーザー実機報告「スマホでスクロールが重い」の根本原因・修正)。 */
+.housing-browse-col-center .housing-listing-grid-wrap {
+  mask-image: linear-gradient(to bottom, black calc(100% - calc(40px * var(--housing-scale))), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - calc(40px * var(--housing-scale))), transparent 100%);
+}
+/* 左フィルタは FilterPanel の head/body が縦余白を持つので、横はカラム余白に一本化 (二重余白回避)。 */
+.housing-browse-col-left .housing-panel-head { padding-left: 0; padding-right: 0; }
+.housing-browse-col-left .housing-panel-body { padding-left: 0; padding-right: 0; }
+

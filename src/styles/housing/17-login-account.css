@@ -1,0 +1,354 @@
+/* ===========================================
+ * Login / Account / TopBar ボタン用 token
+ * =========================================== */
+.housing-workspace,
+.housing-panel-modal-backdrop {
+    --housing-login-modal-width: calc(480px * var(--housing-scale));
+    --housing-login-pill-bg: var(--housing-honey);
+    --housing-login-pill-bg-hover: var(--housing-honey-glow);
+    --housing-login-pill-text: rgba(20, 12, 4, 0.92);
+    --housing-login-pill-shadow: 0 calc(4px * var(--housing-scale)) calc(12px * var(--housing-scale)) rgba(255, 178, 90, 0.35);
+    --housing-avatar-ring: rgba(255, 226, 179, 0.55);
+    --housing-avatar-ring-hover: rgba(255, 226, 179, 0.85);
+    --housing-account-button-bg: rgba(255, 226, 179, 0.08);
+    --housing-account-button-bg-hover: rgba(255, 226, 179, 0.16);
+    --housing-account-button-border: rgba(255, 226, 179, 0.22);
+    --housing-account-danger-text: rgba(255, 130, 130, 0.85);
+    --housing-account-danger-bg-hover: rgba(255, 130, 130, 0.12);
+    --housing-account-divider: rgba(255, 226, 179, 0.18);
+    --housing-avatar-bg: rgba(0, 0, 0, 0.2);
+    --housing-account-danger-border: rgba(255, 130, 130, 0.25);
+    --housing-account-delete-link-text: rgba(255, 226, 179, 0.5);
+}
+
+/* ===========================================
+ * TopBar 右端 ログイン / アバターボタン
+ * =========================================== */
+.housing-top-login-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(6px * var(--housing-scale));
+    padding: calc(6px * var(--housing-scale)) calc(14px * var(--housing-scale));
+    border-radius: calc(999px * var(--housing-scale));
+    background: var(--housing-login-pill-bg);
+    color: var(--housing-login-pill-text);
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 180ms ease, transform 120ms ease;
+    box-shadow: var(--housing-login-pill-shadow);
+}
+.housing-top-login-btn:hover {
+    background: var(--housing-login-pill-bg-hover);
+    transform: translateY(calc(-1px * var(--housing-scale)));
+}
+.housing-top-login-btn:active {
+    transform: scale(0.96);
+}
+
+.housing-top-avatar-btn {
+    width: calc(32px * var(--housing-scale));
+    height: calc(32px * var(--housing-scale));
+    border-radius: calc(999px * var(--housing-scale));
+    overflow: hidden;
+    border: calc(1.5px * var(--housing-scale)) solid var(--housing-avatar-ring);
+    background: var(--housing-avatar-bg);
+    cursor: pointer;
+    padding: 0;
+    transition: border-color 180ms ease, transform 120ms ease;
+}
+.housing-top-avatar-btn:hover {
+    border-color: var(--housing-avatar-ring-hover);
+}
+.housing-top-avatar-btn:active {
+    transform: scale(0.94);
+}
+.housing-top-avatar-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.housing-top-avatar-btn .housing-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: var(--housing-text-base);
+}
+
+/* ===========================================
+ * Login Modal
+ * =========================================== */
+.housing-login-notice {
+    color: var(--housing-text-mute);
+    font-size: var(--housing-text-sm);
+    line-height: 1.7;
+    margin-bottom: calc(24px * var(--housing-scale));
+}
+.housing-login-notice-intro {
+    margin-bottom: calc(12px * var(--housing-scale));
+}
+.housing-login-notice-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: calc(12px * var(--housing-scale));
+}
+.housing-login-notice-list li {
+    padding-left: calc(16px * var(--housing-scale));
+    position: relative;
+}
+.housing-login-notice-list li::before {
+    content: '・';
+    position: absolute;
+    left: 0;
+    color: var(--housing-honey);
+}
+.housing-login-discord-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(10px * var(--housing-scale));
+    width: 100%;
+    padding: calc(12px * var(--housing-scale)) calc(16px * var(--housing-scale));
+    border-radius: calc(12px * var(--housing-scale));
+    background: var(--housing-login-pill-bg);
+    color: var(--housing-login-pill-text);
+    font-size: var(--housing-text-base);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 180ms ease, transform 120ms ease;
+    box-shadow: var(--housing-login-pill-shadow);
+}
+.housing-login-discord-btn:hover {
+    background: var(--housing-login-pill-bg-hover);
+}
+.housing-login-discord-btn:active {
+    transform: scale(0.98);
+}
+
+/* ===========================================
+ * Account Modal
+ * =========================================== */
+.housing-account-profile {
+    display: flex;
+    align-items: center;
+    gap: calc(16px * var(--housing-scale));
+    padding: calc(16px * var(--housing-scale));
+    border-radius: calc(12px * var(--housing-scale));
+    background: var(--housing-account-button-bg);
+    border: 1px solid var(--housing-account-button-border);
+    margin-bottom: calc(20px * var(--housing-scale));
+}
+.housing-account-avatar {
+    width: calc(56px * var(--housing-scale));
+    height: calc(56px * var(--housing-scale));
+    border-radius: calc(999px * var(--housing-scale));
+    overflow: hidden;
+    border: calc(2px * var(--housing-scale)) solid var(--housing-avatar-ring);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.housing-account-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.housing-account-info {
+    flex: 1;
+    min-width: 0;
+}
+.housing-account-name-row {
+    display: flex;
+    align-items: center;
+    gap: calc(6px * var(--housing-scale));
+}
+.housing-account-name-edit-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: calc(4px * var(--housing-scale));
+    color: var(--housing-text-mute);
+}
+.housing-account-name-edit-btn:hover {
+    color: var(--housing-honey);
+}
+.housing-account-name-note {
+    margin: calc(4px * var(--housing-scale)) 0 0;
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+}
+.housing-account-divider {
+    height: calc(1px * var(--housing-scale));
+    background: var(--housing-account-divider);
+    margin: calc(20px * var(--housing-scale)) 0;
+}
+.housing-account-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(8px * var(--housing-scale));
+    width: 100%;
+    padding: calc(10px * var(--housing-scale)) calc(14px * var(--housing-scale));
+    border-radius: calc(10px * var(--housing-scale));
+    background: var(--housing-account-button-bg);
+    color: var(--housing-text);
+    font-size: var(--housing-text-sm);
+    font-weight: 500;
+    border: 1px solid var(--housing-account-button-border);
+    cursor: pointer;
+    transition: background 180ms ease;
+    margin-bottom: calc(8px * var(--housing-scale));
+}
+.housing-account-button:hover {
+    background: var(--housing-account-button-bg-hover);
+}
+.housing-account-button-danger {
+    color: var(--housing-account-danger-text);
+    border-color: var(--housing-account-danger-border);
+}
+.housing-account-button-danger:hover {
+    background: var(--housing-account-danger-bg-hover);
+}
+.housing-account-delete-link {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: transparent;
+    border: none;
+    color: var(--housing-account-delete-link-text);
+    font-size: var(--housing-text-xs);
+    padding: calc(8px * var(--housing-scale));
+    margin-top: calc(12px * var(--housing-scale));
+    cursor: pointer;
+    transition: color 180ms ease;
+}
+.housing-account-delete-link:hover {
+    color: var(--housing-account-danger-text);
+}
+
+/* ===== ハウジンガー公開セクション (Task 6) ===== */
+.housing-account-housinger {
+    display: flex;
+    flex-direction: column;
+    gap: calc(10px * var(--housing-scale));
+    padding-top: calc(16px * var(--housing-scale));
+    margin-top: calc(4px * var(--housing-scale));
+    margin-bottom: calc(8px * var(--housing-scale));
+    border-top: 1px solid var(--housing-account-divider);
+}
+/* 2026-07-31: タイトル + 共有ボタン(マイページのみ)を横並びにする行。 */
+.housing-account-housinger-titlerow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(8px * var(--housing-scale));
+}
+.housing-account-housinger-title {
+    margin: 0;
+    font-size: var(--housing-text-base);
+    font-weight: 600;
+    color: var(--housing-text);
+}
+.housing-account-housinger-desc {
+    margin: 0;
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+    line-height: 1.5;
+}
+.housing-account-housinger-status {
+    margin: 0;
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    color: var(--housing-honey);
+}
+.housing-account-housinger-published {
+    display: flex;
+    flex-direction: column;
+    gap: calc(12px * var(--housing-scale));
+}
+.housing-account-housinger .housing-account-button {
+    margin-bottom: 0;
+}
+
+/* アイコン変更モーダル (HousingAvatarCropModal.tsx)。react-easy-crop の Cropper 本体は
+   ライブラリ側の絶対配置 canvas なのでそのまま、周辺の枠だけ housing トンマナに揃える。 */
+.housing-avatar-crop {
+    display: flex;
+    flex-direction: column;
+    gap: calc(16px * var(--housing-scale));
+}
+.housing-avatar-crop-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: calc(6px * var(--housing-scale));
+    padding: calc(40px * var(--housing-scale)) calc(16px * var(--housing-scale));
+    border-radius: calc(14px * var(--housing-scale));
+    border: 1px dashed var(--housing-panel-border);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+.housing-avatar-crop-dropzone:hover {
+    border-color: var(--housing-honey-border);
+    background: var(--housing-chip-bg-hover);
+}
+.housing-avatar-crop-dropzone-label {
+    font-size: var(--housing-text-base);
+    color: var(--housing-text);
+}
+.housing-avatar-crop-dropzone-hint {
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+}
+.housing-avatar-crop-input {
+    display: none;
+}
+/* クロップ表示エリア: cropShape="round" (Cropper 側の丸ガイド) が実際に表示されるアイコン形状と
+   一致することを保証する。枠自体は正方形+角丸でクロップの土台であることを示す。 */
+.housing-avatar-crop-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: calc(12px * var(--housing-scale));
+    overflow: hidden;
+    background: #000;
+}
+.housing-avatar-crop-zoom {
+    width: 100%;
+    accent-color: var(--housing-honey);
+}
+/* 確定ボタン = 主アクション。.housinger-page-tour-btn と同じ honey CTA パターン。 */
+.housing-avatar-crop-confirm {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(8px * var(--housing-scale));
+    width: 100%;
+    padding: calc(11px * var(--housing-scale)) calc(16px * var(--housing-scale));
+    font-family: inherit;
+    font-size: var(--housing-text-md);
+    font-weight: 700;
+    color: var(--housing-honey-text);
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+    border: 0;
+    border-radius: calc(10px * var(--housing-scale));
+    box-shadow: 0 calc(4px * var(--housing-scale)) calc(14px * var(--housing-scale)) var(--housing-honey-shadow-soft);
+    transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housing-avatar-crop-confirm:hover {
+    filter: brightness(1.05);
+}
+.housing-avatar-crop-confirm:active {
+    transform: scale(0.98);
+}
+

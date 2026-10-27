@@ -1,0 +1,52 @@
+/* ============================================================
+ * 入口オーサリングページ (開発専用ツール): 全区画の入口マーカーを
+ * ドラッグ補正し JSON 書き出しするための最小UI。本番非露出。
+ * ============================================================ */
+/* 開発専用オーサリング: ツアーパネル chrome (overflow:hidden/固定aspect/overlay pointer-events:none) は
+ * 流用しない。地図全体を見せる専用ステージ + 操作可能オーバーレイにする。 */
+.housing-entrance-authoring { position: relative; width: 100%; min-height: 100dvh; padding: calc(16px * var(--housing-scale)); }
+/* 地図ステージ: aspect-ratio(=viewBox)と max-width(高さを 82vh に収める)は inline style で付与。 */
+.housing-entrance-stage {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(14px * var(--housing-scale));
+}
+.housing-entrance-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: auto; overflow: visible; }
+.housing-entrance-marker {
+  fill: var(--housing-entrance-marker);
+  r: calc(var(--housing-entrance-marker-size) / 2); /* CSS r で presentation 属性(フォールバック用 r={7})を上書き */
+  pointer-events: auto;
+  cursor: grab;
+}
+.housing-entrance-marker--corrected { fill: var(--housing-entrance-marker-corrected); }
+.housing-entrance-marker-label { fill: var(--housing-map-light); font-size: calc(10px * var(--housing-scale)); pointer-events: none; }
+
+/* ===== DEV専用: 全住所ツアープレビュー操作バー (本番非露出) ===== */
+.housing-dev-tourpreview { display: flex; flex-direction: column; height: 100vh; }
+.housing-dev-tourpreview .housing-tour-page { flex: 1; min-height: 0; }
+.housing-dev-tourpreview-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: calc(12px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) var(--housing-main-padding);
+  background: var(--housing-panel-bg-solid);
+  color: var(--housing-text);
+  border-bottom: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+}
+.housing-dev-tourpreview-count { color: var(--housing-text-mute); }
+/* DEV 経路エディタの操作ヒント。以前は撤去した .housing-tour-map-legend を流用していたため専用化。 */
+.housing-route-editor-hint { margin: 0; color: var(--housing-text-mute); }
+.housing-dev-tourpreview-label { font-weight: 600; }
+.housing-dev-tourpreview-badge {
+  padding: calc(2px * var(--housing-scale)) calc(8px * var(--housing-scale)); border-radius: calc(6px * var(--housing-scale)); border: 1px solid var(--housing-divider);
+}
+.housing-dev-tourpreview-badge--entrance { color: var(--housing-honey); }
+.housing-dev-tourpreview-badge--geo { color: var(--housing-text-mute); }
+.housing-dev-tourpreview-btn {
+  padding: calc(4px * var(--housing-scale)) calc(10px * var(--housing-scale)); border: 1px solid var(--housing-divider); border-radius: calc(6px * var(--housing-scale));
+  background: transparent; color: var(--housing-text); cursor: pointer;
+}
+.housing-dev-tourpreview-jump { margin-left: auto; max-width: calc(240px * var(--housing-scale)); }
+

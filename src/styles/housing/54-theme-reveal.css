@@ -1,0 +1,119 @@
+/* ===== テーマ切替: 縦の「日没(上→下) / 日の出(下→上)」リビール (housing トグルのみ・View Transitions) =====
+   参考: Akash Hamirwasia の全画面テーマトグル。AppHeader.switchTheme が startViewTransition 中に
+   html[data-theme-anim] を立て、新テーマを縦にクリップして旧テーマの上に被せる。
+   非対応ブラウザ / reduce-motion では JS 側が即時切替に落ちる (これらの規則は発火しない)。
+   duration token は :root 必須 (::view-transition-* 疑似要素は :root に付き、.housing-workspace
+   の token を継承できない。外すと duration 欠落=0秒=一気に切替になる)。 */
+:root { --housing-theme-wipe-ms: 800ms; }
+/* 演出中は背景シーナリー動画の 700ms opacity を止め、新テーマの映像を「新」スナップショットへ即写す。 */
+html[data-theme-anim] [data-scenery] { transition: none !important; }
+/* 旧テーマは下にそのまま残し、新テーマを縦にクリップして被せる (既定のクロスフェードを無効化)。 */
+html[data-theme-anim]::view-transition-old(root) { animation: none; }
+html[data-theme-anim="dark"]::view-transition-new(root) {
+  animation: housing-theme-wipe-down var(--housing-theme-wipe-ms) cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+html[data-theme-anim="light"]::view-transition-new(root) {
+  animation: housing-theme-wipe-up var(--housing-theme-wipe-ms) cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+/* 日没(→dark): 夜が上から下へまっすぐ降りてくる。 */
+@keyframes housing-theme-wipe-down {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+/* 日の出(→light): 朝が下から上へ昇る (反対)。 */
+@keyframes housing-theme-wipe-up {
+  from { clip-path: inset(100% 0 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme-anim]::view-transition-new(root),
+  html[data-theme-anim]::view-transition-old(root) { animation: none; }
+}
+
+/* 右カラム: お気に入りプレビュー (参考UI準拠) */
+.housing-fav-strip {
+  flex: 0 0 auto;
+  display: flex; flex-direction: column; gap: calc(10px * var(--housing-scale));
+  padding-top: calc(12px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-fav-strip-head {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.housing-fav-strip-title {
+  display: inline-flex; align-items: center; gap: calc(6px * var(--housing-scale));
+  font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-text);
+}
+.housing-fav-strip-title svg { color: var(--housing-honey); }
+.housing-fav-strip-count {
+  font-size: var(--housing-text-xs); color: var(--housing-candle);
+  background: var(--housing-honey-medium); border-radius: calc(999px * var(--housing-scale));
+  min-width: calc(20px * var(--housing-scale)); text-align: center; padding: calc(1px * var(--housing-scale)) calc(7px * var(--housing-scale));
+}
+.housing-fav-strip-title { font-size: var(--housing-text-md); }
+.housing-fav-strip-count { font-size: var(--housing-text-xs); }
+.housing-fav-strip-more {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  display: inline-flex; align-items: center; gap: calc(2px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); color: var(--housing-text-mute);
+  padding: calc(2px * var(--housing-scale)) calc(4px * var(--housing-scale)); border-radius: calc(6px * var(--housing-scale));
+  transition: color 0.15s ease;
+}
+.housing-fav-strip-more:hover { color: var(--housing-candle); }
+.housing-fav-strip-list {
+  list-style: none; margin: 0; padding: 0;
+  /* 横一列。3件超は横スクロール + 4件目の見切れ(peek)でスクロール可能を示唆 (ホイールでも横送り)。 */
+  display: flex; flex-wrap: nowrap;
+  gap: calc(6px * var(--housing-scale));
+  overflow-x: auto; overflow-y: hidden;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none; /* Firefox: バーは隠し、見切れで示唆 */
+}
+.housing-fav-strip-list::-webkit-scrollbar { display: none; } /* WebKit: 同上 */
+.housing-fav-strip-item {
+  flex: 0 0 30%; /* 3件が収まり4件目が見切れる幅。 */
+  min-width: 0;
+}
+.housing-fav-strip-thumb {
+  appearance: none; border: 1px solid var(--housing-panel-border); cursor: pointer;
+  display: block; width: 100%; aspect-ratio: 1 / 1; position: relative;
+  padding: 0; border-radius: calc(8px * var(--housing-scale)); overflow: hidden;
+  background: var(--housing-card-thumb-bg);
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+.housing-fav-strip-thumb:hover { border-color: var(--housing-honey-border); }
+.housing-fav-strip-thumb:active { transform: scale(0.96); }
+.housing-fav-strip-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* 最小広告予約枠 */
+.housing-ad-slot {
+  flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  min-height: calc(64px * var(--housing-scale));
+  border: 1px dashed var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  background: var(--housing-ad-slot-bg);
+}
+.housing-ad-slot-label {
+  font-size: var(--housing-ad-label-size); letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--housing-text-mute); opacity: 0.7;
+}
+
+/* 未実装タブの「準備中」ページ */
+.housing-coming-soon-page {
+  display: flex; align-items: center; justify-content: center;
+  height: 100%; padding: calc(40px * var(--housing-scale));
+}
+.housing-coming-soon-inner { max-width: calc(420px * var(--housing-scale)); text-align: center; }
+.housing-coming-soon-eyebrow {
+  font-size: calc(12px * var(--housing-scale)); letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--housing-honey); margin-bottom: calc(12px * var(--housing-scale));
+}
+.housing-coming-soon-title {
+  font-size: calc(24px * var(--housing-scale)); font-weight: 700; color: var(--housing-text); margin: 0 0 calc(10px * var(--housing-scale));
+}
+.housing-coming-soon-lead {
+  font-size: calc(13px * var(--housing-scale)); line-height: 1.7; color: var(--housing-text-mute); margin: 0;
+}
+

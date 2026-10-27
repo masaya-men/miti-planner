@@ -1,0 +1,65 @@
+/* ============================================================
+ * 登録ページ左カラム: 登録ガイド (Task12)
+ * FavoritesOnboarding (.housing-fav-onboarding*) と同じ静かなトーンの register 名前空間版。
+ * ============================================================ */
+.housing-register-guide {
+  display: flex;
+  flex-direction: column;
+  gap: calc(14px * var(--housing-scale));
+  min-height: 0;
+  overflow-y: auto;
+}
+.housing-register-guide-title {
+  margin: 0;
+  font-size: var(--housing-text-lg);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-guide-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+}
+.housing-register-guide-step {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(10px * var(--housing-scale));
+}
+.housing-register-guide-num {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(24px * var(--housing-scale));
+  height: calc(24px * var(--housing-scale));
+  border-radius: calc(999px * var(--housing-scale));
+  font-size: var(--housing-text-sm);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--housing-aether);
+  background: var(--housing-aether-medium);
+  border: 1px solid var(--housing-aether-border);
+}
+.housing-register-guide-body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2px * var(--housing-scale));
+  min-width: 0;
+}
+.housing-register-guide-step-title {
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-guide-step-desc {
+  font-size: var(--housing-text-sm);
+  line-height: 1.5;
+  color: var(--housing-text-dim);
+}
+/* .housing-register-guide-remaining は #6 改で左カラム下端固定 (.housing-register-left-remaining) に
+   置き換えたため撤去。残数表示のスタイルはそちらへ移設済み。 */
+

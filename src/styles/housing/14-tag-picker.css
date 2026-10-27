@@ -1,0 +1,111 @@
+/* ===== Tag picker (Phase 2A 改 — タブ + 検索 + 高さ固定) ===== */
+.housing-tag-picker {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+}
+.housing-tag-picker-selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(6px * var(--housing-scale));
+  min-height: calc(28px * var(--housing-scale));
+}
+.housing-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(4px * var(--housing-scale));
+  padding: calc(3px * var(--housing-scale)) calc(10px * var(--housing-scale)) calc(3px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border-radius: calc(999px * var(--housing-scale));
+  background: var(--housing-honey-medium);
+  border: 1px solid var(--housing-honey-border);
+  color: var(--housing-text);
+  font-size: var(--housing-text-xs);
+  text-shadow: var(--housing-text-shadow);
+}
+.housing-tag-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(16px * var(--housing-scale));
+  height: calc(16px * var(--housing-scale));
+  border: 0;
+  background: transparent;
+  color: var(--housing-text);
+  cursor: pointer;
+  border-radius: 50%;
+  line-height: 1;
+}
+.housing-tag-chip-remove:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+.housing-tag-picker-counter {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-dim);
+  margin-left: auto;
+  align-self: center;
+}
+.housing-tag-picker-search {
+  width: 100%;
+}
+.housing-tag-picker-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(4px * var(--housing-scale));
+  border-bottom: 1px solid var(--housing-panel-border);
+  padding-bottom: calc(6px * var(--housing-scale));
+}
+.housing-tag-picker-tab {
+  padding: calc(5px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(6px * var(--housing-scale));
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-xs);
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease, border-color 150ms ease;
+}
+.housing-tag-picker-tab:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+.housing-tag-picker-tab[aria-selected="true"] {
+  background: var(--housing-honey-soft);
+  border-color: var(--housing-honey-border);
+  color: var(--housing-text);
+}
+.housing-tag-picker-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(6px * var(--housing-scale));
+  max-height: calc(200px * var(--housing-scale));
+  overflow-y: auto;
+  padding: calc(4px * var(--housing-scale)) calc(2px * var(--housing-scale));
+}
+.housing-tag-picker-option {
+  padding: calc(4px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(999px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text);
+  font-size: var(--housing-text-xs);
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.housing-tag-picker-option:hover:not(:disabled) {
+  background: var(--housing-chip-bg-hover);
+  border-color: var(--housing-honey-border);
+}
+.housing-tag-picker-option[aria-pressed="true"] {
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+}
+.housing-tag-picker-option:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.housing-tag-picker-empty {
+  padding: calc(12px * var(--housing-scale));
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-dim);
+  text-align: center;
+}

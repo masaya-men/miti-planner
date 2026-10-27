@@ -1,0 +1,304 @@
+/* ============================================================
+ * Register modal — field badge + check button animation
+ * ============================================================ */
+
+.housing-field-badge {
+  position: absolute;
+  top: var(--housing-field-spacing-xs);
+  right: calc(var(--housing-field-spacing-xs) + calc(32px * var(--housing-scale)));
+  width: calc(24px * var(--housing-scale));
+  height: calc(24px * var(--housing-scale));
+  border-radius: 50%;
+  background: var(--housing-honey);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(14px * var(--housing-scale));
+  pointer-events: none;
+}
+
+.housing-confirm-button {
+  position: absolute;
+  top: var(--housing-field-spacing-xs);
+  right: var(--housing-field-spacing-xs);
+  width: calc(32px * var(--housing-scale));
+  height: calc(32px * var(--housing-scale));
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--housing-honey-border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms ease-in, transform 120ms ease-in, box-shadow 120ms ease-in;
+}
+
+.housing-confirm-button:hover {
+  background: var(--housing-honey-strong);
+  box-shadow: var(--housing-badge-glow);
+}
+
+.housing-confirm-button:active {
+  transform: scale(0.92);
+}
+
+.housing-confirm-button svg path {
+  stroke: var(--housing-honey);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+/* チェック描画アニメ (bounce + path draw + ripple + glow) */
+@keyframes housing-check-bounce {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.3); }
+  60%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+@keyframes housing-check-draw {
+  from { stroke-dashoffset: 24; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes housing-check-ripple {
+  0%   { transform: scale(0.6); opacity: 0.55; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes housing-check-glow {
+  0%   { box-shadow: 0 0 0 rgba(255, 201, 135, 0); }
+  40%  { box-shadow: 0 0 calc(24px * var(--housing-scale)) rgba(255, 201, 135, 0.85); }
+  100% { box-shadow: 0 0 0 rgba(255, 201, 135, 0); }
+}
+
+.housing-confirm-button[data-animating="true"] {
+  animation: housing-check-bounce 400ms cubic-bezier(0.34, 1.56, 0.64, 1), housing-check-glow 300ms ease-in-out;
+}
+
+.housing-confirm-button[data-animating="true"] svg path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: housing-check-draw 200ms ease-out 60ms forwards;
+}
+
+.housing-confirm-button[data-animating="true"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  animation: housing-check-ripple 600ms ease-out;
+  pointer-events: none;
+}
+
+/* フィールド state class (背景遷移) */
+.housing-field {
+  position: relative;
+  background: transparent;
+  border: 1px solid var(--housing-panel-border);
+  transition: background 300ms ease-out, border-color 300ms ease-out;
+}
+
+.housing-field[data-state="auto-filled"] {
+  background: var(--housing-field-bg-auto);
+  border-color: var(--housing-field-border-auto);
+}
+
+.housing-field[data-state="confirmed"] {
+  background: var(--housing-field-bg-confirmed);
+  border-color: var(--housing-field-border-confirmed);
+}
+
+.housing-field[data-state="error"] {
+  background: var(--housing-field-bg-error);
+  border-color: var(--housing-field-border-error);
+}
+
+/* タイピングアニメのカーソル */
+@keyframes housing-typing-cursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.housing-typing-cursor {
+  display: inline-block;
+  width: calc(1px * var(--housing-scale));
+  background: var(--housing-honey);
+  animation: housing-typing-cursor 530ms steps(2) infinite;
+}
+
+/* ローディングスピナー (リキッドグラス調円形) */
+@keyframes housing-spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+
+.housing-spinner {
+  display: inline-block;
+  width: calc(18px * var(--housing-scale));
+  height: calc(18px * var(--housing-scale));
+  border-radius: 50%;
+  border: calc(2px * var(--housing-scale)) solid var(--housing-honey-strong);
+  border-top-color: var(--housing-honey);
+  animation: housing-spinner-rotate 1.2s linear infinite;
+}
+
+.housing-fetch-indicator {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--housing-scale));
+  margin-top: calc(6px * var(--housing-scale));
+}
+
+/* 動的フィールド (タイプ別の追加フィールド) のスライドイン/アウト */
+@keyframes housing-field-slide-in {
+  from { opacity: 0; transform: translateY(calc(8px * var(--housing-scale))); max-height: 0; }
+  to   { opacity: 1; transform: translateY(0); max-height: calc(400px * var(--housing-scale)); }
+}
+
+@keyframes housing-field-slide-out {
+  from { opacity: 1; transform: translateY(0); max-height: calc(400px * var(--housing-scale)); }
+  to   { opacity: 0; transform: translateY(calc(-8px * var(--housing-scale))); max-height: 0; }
+}
+
+.housing-conditional-field {
+  overflow: hidden;
+  animation: housing-field-slide-in 300ms cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+}
+
+.housing-conditional-field[data-exiting="true"] {
+  animation: housing-field-slide-out 200ms ease-in forwards;
+}
+
+/* Allmarksまとめてインポート (2026-08-19)。演出は AllmarksWaveLoader コンポーネント側
+   (波打つバー+跳ねるボール、ユーザー提供デザインを移植)。 バーの色変化は元コードの
+   RGB直接補間ではなく、aetherトーンの重ね(不透明度アニメ)で表現し token 経由を徹底。 */
+.housing-allmarks-import-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(14px * var(--housing-scale));
+  padding: calc(28px * var(--housing-scale)) calc(16px * var(--housing-scale)) calc(20px * var(--housing-scale));
+  text-align: center;
+}
+
+.housing-allmarks-wave-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: calc(12px * var(--housing-scale)) 0;
+}
+
+/* スマホ幅ではトラック (固定 ~394px) が収まらず右端の家が見切れていたため、
+   AllmarksWaveLoader.tsx が利用可能幅を採寸して transform: scale で縮小する。
+   この wrapper が縮小後の実寸を占め、外側の中央寄せ・縦レイアウトを崩さない。 */
+.housing-allmarks-wave-loader-fit {
+  position: relative;
+}
+
+.housing-allmarks-wave-loader-track {
+  position: relative;
+  height: calc(150px * var(--housing-scale));
+  display: flex;
+  align-items: flex-end;
+}
+
+.housing-allmarks-wave-bar-wrap {
+  position: relative;
+  height: calc(64px * var(--housing-scale));
+  margin-right: calc(8px * var(--housing-scale));
+  display: flex;
+  align-items: flex-end;
+}
+
+.housing-allmarks-wave-bar-wrap:last-of-type {
+  margin-right: 0;
+}
+
+.housing-allmarks-wave-bar-base {
+  width: 100%;
+  height: calc(16px * var(--housing-scale));
+  border-radius: calc(999px * var(--housing-scale));
+  background: var(--housing-divider);
+}
+
+.housing-allmarks-wave-bar-glow {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  border-radius: calc(999px * var(--housing-scale));
+  background: var(--housing-aether);
+}
+
+.housing-allmarks-wave-house {
+  position: absolute;
+  bottom: 0;
+  transform-origin: bottom center;
+  color: var(--housing-honey);
+  line-height: 0;
+}
+
+.housing-allmarks-wave-ball {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: calc(12px * var(--housing-scale));
+  height: calc(12px * var(--housing-scale));
+  border-radius: 50%;
+  background: var(--housing-honey);
+  transform-origin: bottom center;
+  box-shadow: 0 0 calc(8px * var(--housing-scale)) var(--housing-honey-glow);
+}
+
+.housing-allmarks-import-status {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
+.housing-allmarks-import-tally {
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.housing-allmarks-import-summary {
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+  text-align: center;
+}
+
+.housing-allmarks-import-actions {
+  display: flex;
+  gap: calc(8px * var(--housing-scale));
+  margin-top: calc(4px * var(--housing-scale));
+}
+
+.housing-allmarks-import-region-choices {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+  width: 100%;
+}
+
+/* prefers-reduced-motion 対応 */
+@media (prefers-reduced-motion: reduce) {
+  .housing-confirm-button,
+  .housing-confirm-button[data-animating="true"],
+  .housing-confirm-button[data-animating="true"] svg path,
+  .housing-confirm-button[data-animating="true"]::after,
+  .housing-field,
+  .housing-typing-cursor,
+  .housing-spinner,
+  .housing-conditional-field,
+  .housing-allmarks-map-road {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+

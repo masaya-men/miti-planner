@@ -1,0 +1,101 @@
+/* ===== Type selector / Parent house size (radio chip group) ===== */
+.housing-type-selector,
+.housing-parent-size-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(6px * var(--housing-scale));
+}
+.housing-type-chip {
+  /* flex-basis:0 で文言の長短に関わらず等幅にする (auto だと長い文言のチップだけ広くなる)。 */
+  flex: 1 1 0;
+  min-width: calc(72px * var(--housing-scale));
+  padding: calc(9px * var(--housing-scale)) calc(14px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: rgba(0, 0, 0, 0.42);
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm);
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+.housing-type-chip:hover {
+  background: var(--housing-chip-bg-hover);
+  border-color: var(--housing-honey-border);
+}
+.housing-type-chip[data-selected="true"],
+.housing-type-chip[aria-checked="true"] {
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+  color: var(--housing-text);
+  box-shadow: 0 0 0 calc(1px * var(--housing-scale)) var(--housing-honey-inset) inset;
+}
+.housing-type-chip:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+
+/* ===== Room number / SNS URL / fetch indicator ===== */
+.housing-room-number-field,
+.housing-register-sns-url-field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--housing-scale));
+}
+.housing-register-sns-url-help {
+  margin: calc(6px * var(--housing-scale)) 0 0;
+  font-size: var(--housing-text-xs);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
+/* 自動入力の免責文 (help 本文の直下に詰めて配置・同じ控えめトーン)。 */
+.housing-register-sns-url-help-disclaimer {
+  margin-top: calc(2px * var(--housing-scale));
+}
+.housing-error-text {
+  margin: calc(4px * var(--housing-scale)) 0 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-warning);
+}
+.housing-error-block {
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+  margin-top: calc(6px * var(--housing-scale));
+}
+.housing-error-block button,
+.housing-fetch-indicator button {
+  align-self: flex-start;
+  padding: calc(5px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border-radius: calc(6px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text);
+  font-size: var(--housing-text-xs);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.housing-error-block button:hover,
+.housing-fetch-indicator button:hover {
+  background: var(--housing-chip-bg-hover);
+}
+
+/* ===== housing-field レイアウトの整え (label を input 上、 padding 追加) ===== */
+.housing-field {
+  display: flex;
+  flex-direction: column;
+  padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  gap: calc(4px * var(--housing-scale));
+}
+.housing-field .housing-field-badge,
+.housing-field .housing-confirm-button {
+  position: absolute;
+  top: calc(8px * var(--housing-scale));
+  right: calc(8px * var(--housing-scale));
+}
+.housing-field .housing-confirm-button {
+  right: calc(36px * var(--housing-scale));
+}
+
