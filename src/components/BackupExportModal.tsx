@@ -9,7 +9,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { createBackupJson, downloadBackupFile, shareBackupFile } from '../utils/backupService';
 import { isIOS } from '../utils/isIOS';
 import type { SavedPlan } from '../types';
-import { showToast } from './Toast';
+import { showToast } from './toastBus';
 
 /** これを超える JSON はプレビュー textarea に全文描画しない（スマホ固まり防止）。 */
 const LARGE_BACKUP_CHARS = 100_000;

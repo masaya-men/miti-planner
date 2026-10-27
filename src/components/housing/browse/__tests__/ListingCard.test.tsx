@@ -20,7 +20,8 @@ vi.mock('thumbhash', async (orig) => ({
   thumbHashToDataURL: () => 'data:image/png;base64,BLURMOCK',
 }));
 
-import { ListingCard, staggerDelayMs } from '../ListingCard';
+import { ListingCard } from '../ListingCard';
+import { staggerDelayMs } from '../listingCardUtils';
 
 const mockListing = MOCK_LISTINGS[0];
 

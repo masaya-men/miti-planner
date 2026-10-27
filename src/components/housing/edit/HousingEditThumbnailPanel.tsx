@@ -7,7 +7,7 @@ import {
   deleteListingThumbnail,
   reorderListingThumbnails,
 } from '../../../lib/housingApiClient';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import { SAVED_IMAGES_LIMIT } from '../register/HousingRegisterImageField';
 
 export interface HousingEditThumbnailPanelProps {

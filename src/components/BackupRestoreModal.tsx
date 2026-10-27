@@ -7,7 +7,7 @@ import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { parseBackupJson, mergePlans } from '../utils/backupService';
-import { showToast } from './Toast';
+import { showToast } from './toastBus';
 
 interface Props {
   isOpen: boolean;

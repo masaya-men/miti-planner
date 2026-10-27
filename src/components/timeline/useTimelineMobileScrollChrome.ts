@@ -63,7 +63,7 @@ export function useTimelineMobileScrollChrome({
             const phase = sorted[i];
             const prefix = t('timeline.phase_prefix', { index: i + 1 });
             const customName = getPhaseName(phase.name, contentLanguage);
-            return customName && customName !== prefix ? `${prefix}　${customName}` : prefix;
+            return customName && customName !== prefix ? `${prefix}\u3000${customName}` : prefix;
         };
 
         if (sorted.length === 0 || scrollTop < yOfTime(sorted[0].startTime)) {

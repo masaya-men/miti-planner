@@ -86,7 +86,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
     const buildName = (): LocalizedString => {
         const name = { ...preservedName };
         const lang = contentLanguage as keyof LocalizedString;
-        (name as any)[lang] = nameInput.trim();
+        name[lang] = nameInput.trim();
         // Ensure ja and en always exist
         if (!name.ja) name.ja = '';
         if (!name.en) name.en = '';

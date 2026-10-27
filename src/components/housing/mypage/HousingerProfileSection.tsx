@@ -6,7 +6,7 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { upsertHousingerProfile } from '../../../lib/housing/housingerProfileService';
 import { HOUSINGER_BIO_MAX_LENGTH, validateHousingerSnsUrl } from '../../../lib/housing/housingerProfile';
 import { ConfirmDialog } from '../../ConfirmDialog';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import type { HousingerProfile } from '../../../types/housing';
 
 /**

@@ -5,6 +5,9 @@
  * 外部fetch無し=ハウジンガーカードのアバター取得のような失敗点が無い)。
  */
 import { ImageResponse } from '@vercel/og';
+
+/** ImageResponse が受ける要素型(satori 用の素のオブジェクトを渡すためのキャスト先) */
+type ImageResponseElement = ConstructorParameters<typeof ImageResponse>[0];
 import { loadMPlus1Fonts } from './_fonts.js';
 import { verifyTourInviteOgCardSig } from '../../src/lib/ogpTourInviteCard.js';
 import { SHARED_TOUR_NAME_MAX_LENGTH } from '../../src/types/sharedTour.js';
@@ -111,13 +114,13 @@ export async function handleTourInviteCardRequest(searchParams: URLSearchParams)
     const uniqueChars = [...new Set('LoPo Housing Tour' + name)].join('');
     const fonts = await loadMPlus1Fonts(uniqueChars);
     const element = buildTourInviteCard(name);
-    return new ImageResponse(element as any, { width: CARD_WIDTH, height: CARD_HEIGHT, fonts, headers: CACHE_HEADERS });
+    return new ImageResponse(element as unknown as ImageResponseElement, { width: CARD_WIDTH, height: CARD_HEIGHT, fonts, headers: CACHE_HEADERS });
   } catch (err) {
     console.error('Tour invite OG card error:', err);
     try {
       const fonts = await loadMPlus1Fonts('LoPo Housing Tour').catch(() => []);
       const element = buildTourInviteFallbackCard();
-      return new ImageResponse(element as any, { width: CARD_WIDTH, height: CARD_HEIGHT, fonts, headers: CACHE_HEADERS });
+      return new ImageResponse(element as unknown as ImageResponseElement, { width: CARD_WIDTH, height: CARD_HEIGHT, fonts, headers: CACHE_HEADERS });
     } catch (fallbackErr) {
       console.error('Tour invite OG card fallback error:', fallbackErr);
       return new Response('OG image generation failed', { status: 500 });

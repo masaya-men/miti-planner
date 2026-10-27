@@ -12,9 +12,10 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { getAuth } from 'firebase-admin/auth';
 import * as crypto from 'crypto';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 /** CORS: 許可オリジンのホワイトリスト */
-function setCors(req: any, res: any) {
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers?.origin || '';
   const allowedOrigins = [
     'https://lopoly.app',
@@ -28,7 +29,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -43,7 +44,7 @@ export default async function handler(req: any, res: any) {
       initAdmin();
       const adminUid = await verifyAdmin(req);
       return res.status(200).json({ isAdmin: adminUid !== null });
-    } catch (err: any) {
+    } catch (err) {
       console.error('admin verify error:', err);
       return res.status(500).json({ error: 'Internal server error' });
     }
@@ -101,7 +102,7 @@ export default async function handler(req: any, res: any) {
     });
 
     return res.status(200).json({ success: true, uid, role });
-  } catch (err: any) {
+  } catch (err) {
     console.error('set-role error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }

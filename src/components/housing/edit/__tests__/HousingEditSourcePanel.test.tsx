@@ -5,7 +5,7 @@ import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../../../locales/ja.json';
 import { ToastContainer } from '../../../Toast';
-import * as ToastModule from '../../../Toast';
+import * as ToastModule from '../../../toastBus';
 
 const mockDelete = vi.fn();
 const mockReorder = vi.fn();

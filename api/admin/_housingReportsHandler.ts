@@ -21,11 +21,12 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { REPORT_AUTO_HIDE_THRESHOLD } from '../../src/constants/housing.js';
 import { bumpPublicVersionDirect, bumpPublicVersionTx } from '../housing/_publicVersion.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const COLLECTION = 'housing_listings';
 const LIST_LIMIT = 50;
 
-function setCors(req: any, res: any) {
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers?.origin || '';
   const allowedOrigins = [
     'https://lopoly.app',
@@ -39,7 +40,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -209,9 +210,9 @@ export default async function handler(req: any, res: any) {
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[admin/housing-reports]', err);
-    const msg = err?.message;
+    const msg = (err as { message?: string } | undefined)?.message;
     if (msg === 'not_found' || msg === 'report_not_found') {
       return res.status(404).json({ error: msg });
     }

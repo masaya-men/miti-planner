@@ -32,7 +32,7 @@ export const TimeInput: React.FC<TimeInputProps> = ({
   }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = toHalfWidth(e.target.value).replace(/[^0-9:.\-]/g, '');
+    const raw = toHalfWidth(e.target.value).replace(/[^0-9:.-]/g, '');
     setText(raw);
     if (raw.trim() === '') { onChange(null); return; }
     const n = parseTimeString(raw);

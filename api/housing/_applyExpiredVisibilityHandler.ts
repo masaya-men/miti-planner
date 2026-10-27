@@ -10,8 +10,9 @@
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { normalizeAfterExpiryVisibility } from '../../src/utils/housingValidation.js';
 import { bumpPublicVersionBatch } from './_publicVersion.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
-export default async function handler(req: any, res: any): Promise<void> {
+export default async function handler(req: HousingReq, res: HousingRes): Promise<void> {
   // CRON_SECRET 認証 (_gcSharedToursHandler と同型・fail-closed)。
   const auth = req.headers?.authorization || '';
   const expected = process.env.CRON_SECRET ? `Bearer ${process.env.CRON_SECRET}` : '';
@@ -61,7 +62,7 @@ export default async function handler(req: any, res: any): Promise<void> {
     }
 
     res.status(200).json({ updated });
-  } catch (error: any) {
+  } catch (error) {
     console.error('[housing/apply-expired-visibility] error:', error);
     res.status(500).json({ error: 'Internal error' });
   }

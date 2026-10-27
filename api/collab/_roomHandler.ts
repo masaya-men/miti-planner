@@ -12,6 +12,7 @@ import { nanoid } from 'nanoid';
 import { parseRoomManageRequest, resolveRoomOwner, type RoomOwnerDoc } from './_roomManageLogic.js';
 import { clampMaxParticipants, isCollabDisabled } from './_roomLogic.js';
 import { destroyRoomBinary, liveUpdateRoomMax } from './_roomDestroy.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 /** plans/{planId} のうちこのハンドラが必要とするフィールドだけの型。 */
 interface PlanOwnerDoc {
@@ -20,7 +21,7 @@ interface PlanOwnerDoc {
   activeCollabRoomToken?: string;
 }
 
-function setCors(req: any, res: any) {
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers?.origin || '';
   const allowed = [
     'https://lopoly.app',
@@ -39,7 +40,7 @@ function newRoomToken(): string {
   return nanoid(24);
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
@@ -167,10 +168,10 @@ export default async function handler(req: any, res: any) {
       await liveUpdateRoomMax(collabBase, collabSecret, publicResult.roomToken as string, publicResult.maxParticipants as number);
     }
     return res.status(200).json(publicResult);
-  } catch (error: any) {
-    if (error?.message === 'not_found') return res.status(404).json({ error: 'not_found' });
-    if (error?.message === 'forbidden') return res.status(403).json({ error: 'forbidden' });
-    if (error?.message === 'no_room') return res.status(409).json({ error: 'no_room' });
+  } catch (error) {
+    if ((error as { message?: string } | undefined)?.message === 'not_found') return res.status(404).json({ error: 'not_found' });
+    if ((error as { message?: string } | undefined)?.message === 'forbidden') return res.status(403).json({ error: 'forbidden' });
+    if ((error as { message?: string } | undefined)?.message === 'no_room') return res.status(409).json({ error: 'no_room' });
     console.error('[collab/room] error:', error);
     return res.status(500).json({ error: 'internal' });
   }

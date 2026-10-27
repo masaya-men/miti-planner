@@ -37,6 +37,7 @@ export const LiquidGlassPanel: React.FC<LiquidGlassPanelProps> = ({
   radius,
   scale,
   chrome = true,
+   
   chroma: _chroma,
   className = '',
   style = {},

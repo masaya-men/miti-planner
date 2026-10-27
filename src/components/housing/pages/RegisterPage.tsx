@@ -27,8 +27,6 @@ import { RegisterLeftColumn } from '../register/page/RegisterLeftColumn';
 import { RegisterAutosaveNotice } from '../register/page/RegisterAutosaveNotice';
 import { RegisterRightColumn } from '../register/page/RegisterRightColumn';
 
-export { buildDraftImageFields } from '../register/page/registerPageModel';
-
 interface RegisterPageProps {
   /** 'create' (既定) で新規登録、 'edit' で既存物件の編集プリフィル (Task3.1)。 */
   mode?: 'create' | 'edit';

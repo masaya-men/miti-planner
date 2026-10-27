@@ -1,13 +1,21 @@
-import type { SavedPlan } from '../types';
+import type { PlanData, SavedPlan } from '../types';
 import type { ShareImportItem } from './shareImportTypes';
 import { stripSharedPersonalData } from './sharePrivacy';
 
+/** 共有 API 応答 (単一 / バンドル) を緩く受ける入力型。旧フォーマット互換で各フィールドは欠落しうる。 */
+type SharedDataLike = {
+  plans?: { id?: string; contentId?: string | null; title?: string; planData: PlanData }[];
+  contentId?: string | null;
+  title?: string;
+  planData?: PlanData;
+};
+
 export function parseSharedDataToImportItems(
-  sharedData: any,
+  sharedData: SharedDataLike,
   shareId: string,
 ): ShareImportItem[] {
   if (Array.isArray(sharedData.plans)) {
-    return sharedData.plans.map((p: any, index: number) => ({
+    return sharedData.plans.map((p, index: number) => ({
       sourceShareId: shareId,
       // バンドル共有は plan ごとに contentId を持つ。
       // 旧フォーマット (top-level contentId しかない) や欠落時のフォールバックも用意。
@@ -20,9 +28,9 @@ export function parseSharedDataToImportItems(
   return [
     {
       sourceShareId: shareId,
-      contentId: sharedData.contentId,
+      contentId: sharedData.contentId as string | null,
       title: sharedData.title || 'Shared Plan',
-      planData: sharedData.planData,
+      planData: sharedData.planData as PlanData,
     },
   ];
 }

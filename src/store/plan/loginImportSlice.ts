@@ -14,7 +14,7 @@ export const createLoginImportSlice = ({ set, get }: PlanSliceContext): Pick<
      * ログイン時: localStorageプランをFirestoreにマイグレーション＋マージ
      * ローカルが新しいプランはFirestoreに書き戻す（端末間同期の要）
      */
-    migrateOnLogin: async (uid, _displayName) => {
+    migrateOnLogin: async (uid) => {
         // 未同期の削除意図を捕捉。migrate に渡して復活を防ぎ、クリアせず保持する
         // (= リロードを跨いだ削除が migrate で復活する旧バグの根治)。
         // 残した削除は後続の sync / 離脱時 forceSync が墓標として書き込む。

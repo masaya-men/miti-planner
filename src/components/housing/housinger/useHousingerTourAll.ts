@@ -11,7 +11,7 @@ import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsSt
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import type { MockListing } from '../../../data/housing/mockListings';
 
 export function useHousingerTourAll(listings: MockListing[], viewerUid: string | null) {

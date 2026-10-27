@@ -9,7 +9,7 @@ const getSubBase = (level: number = 100) => {
     return mods[level]?.sub ?? 420;
 };
 
-const fillDefaultStats = (partial: any, level: number = 100): PlayerStats => ({
+const fillDefaultStats = (partial: Omit<PlayerStats, 'crt' | 'ten' | 'ss'>, level: number = 100): PlayerStats => ({
     ...partial,
     crt: getSubBase(level),
     ten: getSubBase(level),
@@ -57,7 +57,7 @@ export function computeDefaultStatsMembers(
     const patchData = patch ? getPatchStatsFromStore()[patch] : null;
     const template = patchData || getDefaultStatsByLevelFromStore()[level] || getDefaultStatsByLevelFromStore()[100];
     const subBase = getLevelModifiersFromStore()[level]?.sub || 420;
-    const fillStats = (partial: any): PlayerStats => ({ ...partial, crt: subBase, ten: subBase, ss: subBase });
+    const fillStats = (partial: Omit<PlayerStats, 'crt' | 'ten' | 'ss'>): PlayerStats => ({ ...partial, crt: subBase, ten: subBase, ss: subBase });
     const newDefaults = { tank: fillStats(template.tank), other: fillStats(template.other) };
     return members.map((m) => {
         const stats = m.role === 'tank' ? newDefaults.tank : newDefaults.other;

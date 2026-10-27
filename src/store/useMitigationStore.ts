@@ -137,10 +137,11 @@ export const useMitigationStore = create<MitigationState>()(
                 // これが無いと起動のたびに null に戻り、誤った札の貼り直しを招く。
                 _loadedPlanId: state._loadedPlanId,
             }),
-            migrate: (persistedState: any, _version: number) => {
+            migrate: (persistedState: unknown) => {
                 return persistedState;
             },
-            merge: (persisted: any, current: MitigationState) => {
+            merge: (persistedRaw: unknown, current: MitigationState) => {
+                const persisted = persistedRaw as Partial<MitigationState> | undefined;
                 if (!persisted) return current;
                 return {
                     ...current,
@@ -148,7 +149,7 @@ export const useMitigationStore = create<MitigationState>()(
                     // 進捗: 旧形式(dailyBest)で永続化された端末を新形式(points)へ正規化（undefined.map クラッシュ防止）
                     progress: normalizeProgress(persisted.progress),
                     // Re-calculate computed values just in case
-                    partyMembers: (persisted.partyMembers || current.partyMembers).map((m: any) => ({
+                    partyMembers: (persisted.partyMembers || current.partyMembers).map((m) => ({
                         ...m,
                         computedValues: calculateMemberValues(m, persisted.currentLevel || current.currentLevel)
                     }))

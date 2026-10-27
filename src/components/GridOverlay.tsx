@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
+import { gridConfig, pulseConfig, pulseVisualConfig, PULSE_COLOR_PRESETS } from './gridOverlayConfig';
 
 // グリッドセルのサイズ（px）
 const CELL_SIZE = 50;
@@ -10,51 +11,12 @@ const GLOW_RADIUS = 280;
 const OFFSET_X = -10;
 const OFFSET_Y = 10;
 
-// --- localStorage永続化ヘルパー ---
-const STORAGE_KEY = 'lopo-pulse-settings';
-
-function loadSavedSettings(): Record<string, any> {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : {};
-    } catch { return {}; }
-}
-
-export function savePulseSettings(): void {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            grid: { lineWidth: gridConfig.lineWidth },
-            pulse: { enabled: pulseConfig.enabled, distance: pulseConfig.distance, speed: pulseConfig.speed },
-            visual: { width: pulseVisualConfig.width, opacity: pulseVisualConfig.opacity, colorId: pulseVisualConfig.colorId, customColor: pulseVisualConfig.customColor, glow: pulseVisualConfig.glow },
-        }));
-    } catch { /* サイレント */ }
-}
-
-const _saved = loadSavedSettings();
-
-// --- 格子設定（外部から変更可能） ---
-export const gridConfig = {
-    lineWidth: _saved.grid?.lineWidth ?? 1,  // 0-7、デフォルト1（0.25px）。0=非表示
-};
-
 // 段階→実際の線幅（px）: 0.25px刻み
 const LINE_WIDTH_MAP: number[] = [0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75];
 
 function getGridLineWidth(): number {
     return LINE_WIDTH_MAP[gridConfig.lineWidth] ?? LINE_WIDTH_MAP[4];
 }
-
-/** gridConfig変更時にCanvas再描画を要求する */
-export function notifyGridConfigChange(): void {
-    window.dispatchEvent(new CustomEvent('grid-config-change'));
-}
-
-// --- 光パルス設定（外部から変更可能、1-5の5段階） ---
-export const pulseConfig = {
-    enabled: _saved.pulse?.enabled ?? true,
-    distance: _saved.pulse?.distance ?? 3,  // 1-5、デフォルト3
-    speed: _saved.pulse?.speed ?? 3,     // 1-5、デフォルト3
-};
 
 // 距離: 段階→[min, max]セル数
 const DISTANCE_MAP: [number, number][] = [
@@ -80,23 +42,6 @@ function getPulseLength(): [number, number] {
 function getPulseSegmentDuration(): number {
     return SPEED_MAP[pulseConfig.speed - 1] ?? SPEED_MAP[2];
 }
-
-// パルス表示設定
-export const pulseVisualConfig = {
-    width: _saved.visual?.width ?? 3,      // 1-10、デフォルト3（0.15px）
-    opacity: _saved.visual?.opacity ?? 3,    // 1-10、デフォルト3（0.2）
-    colorId: (_saved.visual?.colorId ?? 'auto') as string,  // 'auto' | 'amber' | 'lavender' | 'custom'
-    customColor: _saved.visual?.customColor ?? '255, 255, 255',  // カスタム色のRGB文字列（ダーク/ライト共通）
-    glow: _saved.visual?.glow ?? 0,       // 0-5、デフォルト0（なし）
-};
-
-// カラープリセット: id → { dark, light } のRGB文字列
-// 将来カラーホイールで自由色を追加する場合は 'custom' id + rgb値を直接設定
-export const PULSE_COLOR_PRESETS: Record<string, { dark: string; light: string }> = {
-    auto:     { dark: '255, 255, 255', light: '0, 0, 0' },
-    amber:    { dark: '255, 180, 80',  light: '180, 110, 20' },
-    lavender: { dark: '175, 140, 255', light: '110, 70, 200' },
-};
 
 // グローレベル定義（0-5の6段階スライダー、微少な段階差）
 const GLOW_LEVELS = [

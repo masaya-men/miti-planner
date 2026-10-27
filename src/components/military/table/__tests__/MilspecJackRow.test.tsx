@@ -4,7 +4,7 @@ import { render, fireEvent, act, waitFor } from '@testing-library/react';
 import type { PartyMember, PlayerStats } from '../../../../types';
 import { JobPickerRow } from '../../../JobPickerRow';
 import { useMitigationStore } from '../../../../store/useMitigationStore';
-import { lightPartyGap } from '../MilspecJackBoard';
+import { lightPartyGap } from '../milspecJackBoardModel';
 import * as engine from '../../fx/engine';
 
 const S: PlayerStats = { hp: 0, mainStat: 0, det: 0, crt: 0, ten: 0, ss: 0, wd: 0 };

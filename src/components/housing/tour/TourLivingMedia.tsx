@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { representativeImage } from '../../../lib/housing/representativeImage';
-import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
+import { useHousingCardPlayback } from '../../../lib/housing/housingPlaybackState';
 import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';

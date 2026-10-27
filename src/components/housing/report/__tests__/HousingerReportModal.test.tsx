@@ -4,11 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { HousingerReportModal } from '../HousingerReportModal';
 
 const mockReport = vi.fn(
-  async (
-    _housingerUid: string,
-    _reason: string,
-    _comment?: string,
-  ): Promise<{ ok: boolean; error?: string }> => ({ ok: true }),
+  async (): Promise<{ ok: boolean; error?: string }> => ({ ok: true }),
 );
 vi.mock('../useHousingerReport', () => ({
   useHousingerReport: () => ({
@@ -18,7 +14,7 @@ vi.mock('../useHousingerReport', () => ({
 }));
 
 const mockShowToast = vi.fn();
-vi.mock('../../../Toast', () => ({
+vi.mock('../../../toastBus', () => ({
   showToast: (...args: unknown[]) => mockShowToast(...args),
 }));
 

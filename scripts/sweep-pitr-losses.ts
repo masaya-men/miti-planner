@@ -39,20 +39,20 @@ const credential = cert({ projectId, clientEmail: env.FIREBASE_CLIENT_EMAIL, pri
 initializeApp({ credential });
 const db = getFirestore();
 
-const arrLen = (a: any) => (Array.isArray(a) ? a.length : 0);
-const iso = (t: any) => t?.toDate?.()?.toISOString?.() || '?';
+const arrLen = (a: unknown) => (Array.isArray(a) ? a.length : 0);
+const iso = (t: { toDate?: () => { toISOString?: () => string } } | null | undefined) => t?.toDate?.()?.toISOString?.() || '?';
 
 function floorMinute(ms: number): Date { const x = new Date(ms); x.setUTCSeconds(0, 0); return x; }
 
 async function getBoundary(): Promise<Date> {
-  const t = await (credential as any).getAccessToken();
+  const t = await (credential as unknown as { getAccessToken(): Promise<{ access_token: string }> }).getAccessToken();
   const res = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)`, { headers: { Authorization: `Bearer ${t.access_token}` } });
-  const b: any = await res.json();
+  const b: FirebaseFirestore.DocumentData = await res.json();
   return new Date(b.earliestVersionTime);
 }
 
-async function readAt(ref: FirebaseFirestore.DocumentReference, dt: Date): Promise<any> {
-  return db.runTransaction(async (tx) => { const s = await tx.get(ref); return s.exists ? s.data() : null; }, { readOnly: true, readTime: Timestamp.fromDate(dt) } as any);
+async function readAt(ref: FirebaseFirestore.DocumentReference, dt: Date): Promise<FirebaseFirestore.DocumentData | null | undefined> {
+  return db.runTransaction(async (tx) => { const s = await tx.get(ref); return s.exists ? s.data() : null; }, { readOnly: true, readTime: Timestamp.fromDate(dt) } as unknown as FirebaseFirestore.ReadOnlyTransactionOptions);
 }
 
 async function main() {
@@ -70,14 +70,14 @@ async function main() {
   });
   console.log(`境界後に書かれた「現在空」候補: ${cands.length} 件 → PITR で健全版を探索\n`);
 
-  const recoverable: any[] = [];
+  const recoverable: FirebaseFirestore.DocumentData[] = [];
   for (const doc of cands) {
     const ref = doc.ref;
     const cur = doc.data();
     const ua = cur.updatedAt?.toDate?.()?.getTime?.() || Date.now();
     // updatedAt から境界まで分グリッドで遡る(直近密)
     const offsets = [1, 2, 3, 4, 6, 8, 11, 15, 20, 26, 33, 42, 55, 75, 100, 140, 200, 300, 500, 800, 1200];
-    let best: { mit: number; readDt: Date; ver: any; uaSrc: string } | null = null;
+    let best: { mit: number; readDt: Date; ver: FirebaseFirestore.DocumentData; uaSrc: string } | null = null;
     for (const m of offsets) {
       const dtMs = ua - m * 60_000;
       if (dtMs < boundaryMs) break;

@@ -9,6 +9,7 @@
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { normalizeDisplayNameForSearch } from '../../src/data/personalTags.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
 const COLLECTION = 'housing_profiles';
 const MAX_QUERY_LENGTH = 40;
@@ -23,7 +24,7 @@ function buildPrefixRangeEnd(prefix: string): string {
   return prefix + String.fromCharCode(0xf8ff);
 }
 
-function setCors(req: any, res: any) {
+function setCors(req: HousingReq, res: HousingRes) {
   const origin = req.headers?.origin || '';
   const allowed = [
     'https://lopoly.app',
@@ -37,7 +38,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: HousingReq, res: HousingRes) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
@@ -66,7 +67,7 @@ export default async function handler(req: any, res: any) {
 
     const housingers = snap.docs.map((d) => ({ uid: d.id, ...d.data() }));
     return res.status(200).json({ housingers });
-  } catch (error: any) {
+  } catch (error) {
     console.error('[housing/search-housingers] error:', error);
     return res.status(500).json({ error: 'Internal error' });
   }

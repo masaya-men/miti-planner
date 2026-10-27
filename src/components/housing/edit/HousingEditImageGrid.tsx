@@ -17,7 +17,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import { HousingImage } from '../media/HousingImage';
 
 export interface HousingEditImageGridProps {

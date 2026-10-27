@@ -8,7 +8,7 @@ import { Sidebar } from './Sidebar';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
-import { useTransitionOverlay } from './ui/TransitionOverlay';
+import { useTransitionOverlay } from './ui/transitionOverlayContext';
 import { AppFooter } from './AppFooter';
 import { WelcomeSetup } from './WelcomeSetup';
 import { motion } from 'framer-motion';

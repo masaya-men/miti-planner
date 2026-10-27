@@ -41,7 +41,7 @@ describe('extractBodyText', () => {
         expect(extractBodyText('')).toBe('');
         // @ts-expect-error 実行時ガードの確認 (呼び出し側の型崩れ対策)
         expect(extractBodyText(null)).toBe('');
-        // @ts-expect-error
+        // @ts-expect-error 実行時ガードの確認 (undefined 入力)
         expect(extractBodyText(undefined)).toBe('');
     });
 

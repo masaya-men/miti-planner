@@ -11,7 +11,7 @@ import { usePlanMultiSelect } from '../hooks/usePlanMultiSelect';
 import { NewPlanModal } from './NewPlanModal';
 import { ShareModal } from './ShareModal';
 import { LoginModal } from './LoginModal';
-import { useTransitionOverlay } from './ui/TransitionOverlay';
+import { useTransitionOverlay } from './ui/transitionOverlayContext';
 import { X } from 'lucide-react';
 import clsx from 'clsx';
 import { BackupExportModal } from './BackupExportModal';

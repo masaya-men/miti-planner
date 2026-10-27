@@ -69,7 +69,7 @@ export const createEventSlice = ({ set, get, pushHistory }: SliceContext): Pick<
         if (finalLabels) {
             update.labels = finalLabels;
         }
-        set(update as any);
+        set(update);
         if (events.length > 0) {
             completeTutorialEvent('content:selected');
         }

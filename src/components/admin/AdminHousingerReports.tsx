@@ -11,7 +11,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import type { HousingerReportReason } from '../../lib/housing/housingerProfile';
 import { AdminPage } from './AdminPage';
 

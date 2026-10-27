@@ -8,7 +8,7 @@ import jaTranslations from '../../../../locales/ja.json';
 
 // showToast をスパイして、 リージョン跨ぎブロック時に呼ばれることを検証する (計画 Task3 Step5)。
 const showToastMock = vi.fn();
-vi.mock('../../../Toast', () => ({
+vi.mock('../../../toastBus', () => ({
   showToast: (...args: unknown[]) => showToastMock(...args),
 }));
 

@@ -16,6 +16,7 @@
  * (search-housingers 等の匿名公開窓口と同じ判断)、DoW対策は rate limit のみで担う。
  */
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
 const ALLMARKS_ORIGIN = 'https://allmarks.app';
 const SHARE_ID_RE = /^[A-Za-z0-9]{6}$/;
@@ -38,7 +39,7 @@ interface AllmarksShareResponse {
   };
 }
 
-export default async function handler(req: any, res: any): Promise<void> {
+export default async function handler(req: HousingReq, res: HousingRes): Promise<void> {
   if (req.method !== 'GET') {
     res.status(405).json({ error: 'Method not allowed' });
     return;

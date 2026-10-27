@@ -134,6 +134,7 @@ export const STEP_LABEL_KEYS: Record<StepId, string> = {
  * Plan B (2026-07-21) で edit も写真セクションを表示するようになったため、
  * create/edit ともに全ステップを返す (mode は将来の分岐余地として引数に残す)。
  */
+ 
 export function visibleStepIds(_mode: 'create' | 'edit'): StepId[] {
   return [...STEP_IDS];
 }

@@ -80,7 +80,7 @@ export function useLoginMigration(isRemoteLoadingRef: React.MutableRefObject<boo
     React.useEffect(() => {
         if (!authUser) {
             setHasMigrated(false);
-            usePlanStore.getState()._migrationDone && usePlanStore.setState({ _migrationDone: false });
+            if (usePlanStore.getState()._migrationDone) usePlanStore.setState({ _migrationDone: false });
         }
     }, [authUser, hasMigrated]);
     React.useEffect(() => {

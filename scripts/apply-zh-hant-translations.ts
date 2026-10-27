@@ -50,7 +50,7 @@ function parseCsvLine(line: string): string[] {
 }
 
 export function applyTranslationsFromCsv(csvText: string, existingItems: NamedItem[]): ApplyResult {
-  const text = csvText.replace(/^﻿/, '').trim();
+  const text = csvText.replace(/^\uFEFF/, '').trim();
   const lines = text.split('\n').filter(l => l.trim().length > 0);
   const header = parseCsvLine(lines[0]).map(h => h.trim());
   const idIdx = header.indexOf('ID');

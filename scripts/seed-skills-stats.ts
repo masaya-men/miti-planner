@@ -96,16 +96,16 @@ const mockPatchStats = { ...DT_PATCH_STATS, ...EW_PATCH_STATS, ...SHB_PATCH_STAT
 // 既存データ読み込み
 const existingSkillsSnap = await db.doc('master/skills').get();
 const existingSkills = existingSkillsSnap.exists ? existingSkillsSnap.data() : null;
-const existingJobs: any[] = existingSkills?.jobs ?? [];
-const existingMits: any[] = existingSkills?.mitigations ?? [];
+const existingJobs: FirebaseFirestore.DocumentData[] = existingSkills?.jobs ?? [];
+const existingMits: FirebaseFirestore.DocumentData[] = existingSkills?.mitigations ?? [];
 const existingOrder: string[] = existingSkills?.displayOrder ?? [];
 
 const existingStatsSnap = await db.doc('master/stats').get();
 const existingStats = existingStatsSnap.exists ? existingStatsSnap.data() : null;
 const existingPatchStats: Record<string, unknown> = existingStats?.patchStats ?? {};
 
-let mergedJobs: any[];
-let mergedMits: any[];
+let mergedJobs: FirebaseFirestore.DocumentData[];
+let mergedMits: FirebaseFirestore.DocumentData[];
 let mergedOrder: string[];
 let mergedLevelMods: unknown;
 let mergedPatch: Record<string, unknown>;

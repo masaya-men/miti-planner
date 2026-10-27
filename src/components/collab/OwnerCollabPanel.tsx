@@ -13,7 +13,7 @@ import { usePlanStore } from '../../store/usePlanStore';
 import { nameForClient } from '../../lib/collab/presence';
 import { PresenceControls } from './PresenceControls';
 import { ConfirmDialog } from '../ConfirmDialog';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import { SYSTEM_MAX_PARTICIPANTS } from '../../../api/collab/_roomLogic';
 
 interface OwnerCollabPanelProps {
@@ -48,7 +48,7 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
     if (typeof planMax === 'number' && useCollabSessionStore.getState().maxParticipants !== planMax) {
       useCollabSessionStore.setState({ maxParticipants: planMax });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [planMax]);
   const url = effectiveToken ? `${window.location.origin}/collab/${effectiveToken}` : '';
   const roster = useCollabPresenceStore(s => s.roster);

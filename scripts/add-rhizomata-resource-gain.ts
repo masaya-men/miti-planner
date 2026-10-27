@@ -53,7 +53,7 @@ const db = getFirestore();
 const snap = await db.doc('master/skills').get();
 if (!snap.exists) { console.error('master/skills が存在しません'); process.exit(1); }
 const data = snap.data()!;
-const mits: any[] = data.mitigations ?? [];
+const mits: FirebaseFirestore.DocumentData[] = data.mitigations ?? [];
 
 const GAIN = { type: 'addersgall', amount: 1 };
 

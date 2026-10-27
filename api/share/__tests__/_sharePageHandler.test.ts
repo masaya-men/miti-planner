@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Firebase Admin のモック（Firestore 取得失敗をシミュレート）
-let mockGetFn: any = vi.fn();
+const mockGetFn: any = vi.fn();
 
 vi.mock('firebase-admin/app', () => ({
   initializeApp: vi.fn(),

@@ -7,8 +7,8 @@ import type { SavedPlan } from '../types';
 // 和欧間スペース: 漢字/かな ↔ 半角英数字の間にスペースを挿入(ConsolidatedHeader と同一)。
 export function addWaEiSpace(text: string): string {
   return text
-    .replace(/([　-鿿豈-﫿])([A-Za-z0-9])/g, '$1 $2')
-    .replace(/([A-Za-z0-9])([　-鿿豈-﫿])/g, '$1 $2');
+    .replace(/([\u3000-鿿豈-﫿])([A-Za-z0-9])/g, '$1 $2')
+    .replace(/([A-Za-z0-9])([\u3000-鿿豈-﫿])/g, '$1 $2');
 }
 
 /** 現在プランのコンテンツ名ラベル(無ければ null)。ja のみ和欧スペースを挿入。 */

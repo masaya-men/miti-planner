@@ -17,7 +17,7 @@ import { isAddressHidden } from '../../../lib/housing/listingPublish';
 import { regionForDC } from '../../../data/housing/dcServerMap';
 import { useRipple } from '../../../lib/housing/useRipple';
 import { useTourAddFeedback } from '../../../lib/housing/useTourAddFeedback';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import { HousingRipple } from '../HousingRipple';
 import { HousingTourAddErrorBubble } from '../HousingTourAddErrorBubble';
 import { HousingDetailKebab } from './HousingDetailKebab';

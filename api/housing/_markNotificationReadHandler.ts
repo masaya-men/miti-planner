@@ -10,8 +10,9 @@ import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
-function setCors(req: any, res: any) {
+function setCors(req: HousingReq, res: HousingRes) {
   const origin = req.headers?.origin || '';
   const allowed = [
     'https://lopoly.app',
@@ -25,7 +26,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: HousingReq, res: HousingRes) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -60,7 +61,7 @@ export default async function handler(req: any, res: any) {
     }
     await colRef.doc(notificationId).update({ read: true, readAt: Date.now() });
     return res.status(200).json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error('[housing/mark-notification-read] error:', error);
     return res.status(500).json({ error: 'Internal error' });
   }

@@ -15,7 +15,7 @@ beforeAll(() => {
   });
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 const wrap = (props: any) =>
   render(
     <I18nextProvider i18n={i18n}>

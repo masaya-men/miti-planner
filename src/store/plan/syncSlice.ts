@@ -142,7 +142,7 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
                 for (const planId of deletedRemotely) {
                     get().deletePlan(planId);
                 }
-                const { showToast } = await import('../../components/Toast');
+                const { showToast } = await import('../../components/toastBus');
                 const i18next = (await import('i18next')).default;
                 showToast(i18next.t('app.plan_deleted_remotely'));
             }
@@ -167,7 +167,7 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
                     };
                     get().addPlan(copyPlan);
                 }
-                const { showToast } = await import('../../components/Toast');
+                const { showToast } = await import('../../components/toastBus');
                 const i18next = (await import('i18next')).default;
                 showToast(i18next.t('app.plan_conflict_detected'));
             }
@@ -299,7 +299,7 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
                         };
                         get().addPlan(copyPlan);
                     }
-                    const { showToast } = await import('../../components/Toast');
+                    const { showToast } = await import('../../components/toastBus');
                     const i18next = (await import('i18next')).default;
                     showToast(i18next.t('app.plan_conflict_detected'));
                 }

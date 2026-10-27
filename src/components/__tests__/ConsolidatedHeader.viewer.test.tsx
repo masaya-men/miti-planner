@@ -78,7 +78,7 @@ vi.mock('../LoginModal', () => ({ LoginModal: () => null }));
 vi.mock('../ui/Tooltip', () => ({ Tooltip: ({ children }: { children?: React.ReactNode }) => children }));
 vi.mock('../ShareButtons', () => ({ ShareButtons: () => null }));
 vi.mock('../SyncButton', () => ({ SyncButton: () => null }));
-vi.mock('../ui/TransitionOverlay', () => ({ useTransitionOverlay: () => ({ runTransition: vi.fn() }) }));
+vi.mock('../ui/transitionOverlayContext', () => ({ useTransitionOverlay: () => ({ runTransition: vi.fn() }) }));
 vi.mock('../ui/SegmentButton', () => ({
   SegmentButton: ({ options }: { options: { value: string; label: string }[] }) =>
     React.createElement('div', null, options.map((o) => React.createElement('button', { key: o.value }, o.label))),

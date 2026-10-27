@@ -120,7 +120,7 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
     };
     wrap.addEventListener('wheel', onWheel, { passive: false });
     return () => wrap.removeEventListener('wheel', onWheel);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // パン(1本指/ドラッグ) + ピンチ(2本指)。TourNavMap.tsx:227-286 の形を書き写し(import はしない)、

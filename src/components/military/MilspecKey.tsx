@@ -179,13 +179,6 @@ function useKeyPressMotion(o: { btnRef: RefObject<HTMLElement | null>; kfRef: Re
   }, [btnRef]);
 }
 
-/** 標準部品のボタン(clip-path 用): キーの当たり判定。bbox 原点基準 */
-export function hitPolygon(cap: CapSpec): string {
-  const bb = bbox(cap.pts);
-  const f = (v: number) => `${+v.toFixed(2)}px`;
-  return `polygon(${offsetPoly(cap.pts, -0.8).map(([x, y]) => `${f(x - bb.x)} ${f(y - bb.y)}`).join(', ')})`;
-}
-
 /** 押せるキー。位置は親が決める(自身は position:absolute にしない) */
 export function MilspecKey({ cap, label, onClick, pressed, latch, disabled, className, labelOffset, style, onPointerDown, onKeyDown, onBlur, ref: extRef, role, ...rest }: Props) {
   const { ref, bb, cx, cy } = useCapDrawing(cap);

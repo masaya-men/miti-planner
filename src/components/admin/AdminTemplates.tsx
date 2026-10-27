@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import { useTemplateEditor } from '../../hooks/useTemplateEditor';
 import type { TranslationMatchResult } from '../../hooks/useTemplateEditor';
 import { TemplateEditor } from './TemplateEditor';
@@ -97,7 +97,9 @@ export function AdminTemplates() {
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
       setTemplates(
-        (data.templates ?? []).map((item: any) => ({
+        (data.templates ?? []).map(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- 管理 API の JSON 応答に型が無いため
+          (item: any) => ({
           ...item,
           lockedAt: item.lockedAt ?? null,
           updatedAt: item.lastUpdatedAt ?? null,
@@ -290,7 +292,7 @@ export function AdminTemplates() {
     setDataSource('plan_promote');
   };
   const handleCsvImport = (events: TimelineEvent[], phases: TemplateData['phases'], labels?: TemplateData['labels']) => {
-    editor.replaceAll(events, phases, labels as any);
+    editor.replaceAll(events, phases, labels);
     setDataSource('csv_import');
   };
   const handleFflogsMatched = (result: TranslationMatchResult) => {

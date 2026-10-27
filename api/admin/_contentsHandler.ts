@@ -11,9 +11,17 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { sendDiscordNotification } from '../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
+
+/** コンテンツ/シリーズ項目のうち、このハンドラが読み書きする項目だけの型 */
+interface ContentLike {
+  id?: string;
+  name?: Record<string, unknown>;
+  shortName?: Record<string, unknown>;
+}
 
 /** CORS設定 */
-function setCors(req: any, res: any) {
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers?.origin || '';
   const allowedOrigins = [
     'https://lopoly.app',
@@ -28,7 +36,7 @@ function setCors(req: any, res: any) {
 }
 
 /** /master/contentsのバックアップを作成 */
-async function createBackup(db: FirebaseFirestore.Firestore, data: any) {
+async function createBackup(db: FirebaseFirestore.Firestore, data: unknown) {
   const backupRef = db.collection('master_backups').doc(`contents_${Date.now()}`);
   await backupRef.set({
     type: 'contents',
@@ -44,7 +52,9 @@ async function bumpDataVersion(db: FirebaseFirestore.Firestore) {
 }
 
 /** コンテンツアイテムの必須フィールド検証 */
-function validateItem(item: any): string | null {
+function validateItem(
+  item: { id?: unknown; name?: { ja?: string; en?: string }; category?: unknown; level?: unknown } | null | undefined,
+): string | null {
   if (!item) return 'item is required';
   if (!item.id || typeof item.id !== 'string') return 'item.id is required';
   if (!item.name?.ja) return 'item.name.ja is required';
@@ -54,7 +64,7 @@ function validateItem(item: any): string | null {
   return null;
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -93,11 +103,11 @@ export default async function handler(req: any, res: any) {
 
       const snap = await contentsRef.get();
       const current = snap.exists ? snap.data()! : { items: [], series: [] };
-      const items: any[] = current.items || [];
-      const seriesList: any[] = current.series || [];
+      const items: ContentLike[] = current.items || [];
+      const seriesList: ContentLike[] = current.series || [];
 
       // ID重複チェック
-      if (items.some((i: any) => i.id === item.id)) {
+      if (items.some((i) => i.id === item.id)) {
         return res.status(409).json({ error: `Item with id "${item.id}" already exists` });
       }
 
@@ -108,7 +118,7 @@ export default async function handler(req: any, res: any) {
       items.push(item);
 
       // シリーズが指定されていて未存在なら追加
-      if (series && series.id && !seriesList.some((s: any) => s.id === series.id)) {
+      if (series && series.id && !seriesList.some((s) => s.id === series.id)) {
         seriesList.push(series);
       }
 
@@ -147,7 +157,7 @@ export default async function handler(req: any, res: any) {
         const current = snap.data()!;
         await createBackup(db, current);
 
-        const seriesList: any[] = current.series || [];
+        const seriesList: ContentLike[] = current.series || [];
         for (const s of seriesList) {
           if (updates[s.id]) {
             s.name = { ...s.name, ...updates[s.id] };
@@ -173,8 +183,8 @@ export default async function handler(req: any, res: any) {
       if (!snap.exists) return res.status(404).json({ error: 'Contents document not found' });
 
       const current = snap.data()!;
-      const items: any[] = current.items || [];
-      const idx = items.findIndex((i: any) => i.id === item.id);
+      const items: ContentLike[] = current.items || [];
+      const idx = items.findIndex((i) => i.id === item.id);
       if (idx === -1) {
         return res.status(404).json({ error: `Item with id "${item.id}" not found` });
       }
@@ -214,8 +224,8 @@ export default async function handler(req: any, res: any) {
       if (!snap.exists) return res.status(404).json({ error: 'Contents document not found' });
 
       const current = snap.data()!;
-      const items: any[] = current.items || [];
-      const idx = items.findIndex((i: any) => i.id === id);
+      const items: ContentLike[] = current.items || [];
+      const idx = items.findIndex((i) => i.id === id);
       if (idx === -1) {
         return res.status(404).json({ error: `Item with id "${id}" not found` });
       }
@@ -237,7 +247,7 @@ export default async function handler(req: any, res: any) {
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[admin/contents] エラー:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }

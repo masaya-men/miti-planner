@@ -12,7 +12,7 @@ import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { resolveTourOrder } from '../../../lib/housing/resolveTourOrder';
 import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import type { MockListing } from '../../../data/housing/mockListings';
 
 /**

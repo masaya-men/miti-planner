@@ -11,11 +11,12 @@
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { rejectIfPublicApiDisabled } from '../../src/lib/publicApiGuard.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 /** contentId の許容形式 (英数字・アンダースコア・ハイフンのみ、1〜40文字)。 */
 export const CONTENT_ID_RE = /^[a-zA-Z0-9_-]{1,40}$/;
 
-function setCors(req: any, res: any) {
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers?.origin || '';
   const allowedOrigins = [
     'https://lopoly.app',
@@ -29,7 +30,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
@@ -48,7 +49,7 @@ export default async function handler(req: any, res: any) {
 
     res.setHeader('Cache-Control', 'public, s-maxage=86400, max-age=3600');
     return res.status(200).json(snap.data());
-  } catch (err: any) {
+  } catch (err) {
     console.error('[template/public-template] error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }

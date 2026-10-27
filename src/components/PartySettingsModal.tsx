@@ -313,7 +313,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     }, []);
 
     const handleRemoveJob = React.useCallback((memberId: string) => {
-        setDraftMembers(prev => prev.map(m => m.id === memberId ? { ...m, jobId: null as any } : m));
+        setDraftMembers(prev => prev.map(m => m.id === memberId ? { ...m, jobId: null } : m));
         setFocusedSlot(null);
         // ── Tutorial: ジョブ削除イベント ──
         useTutorialStore.getState().completeEvent('party:job-removed');
@@ -434,8 +434,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             if (swapData) {
                 setDraftMembers(prev => {
                     const next = [...prev];
-                    next[swapData!.mtIdx] = { ...next[swapData!.mtIdx], jobId: swapData!.newMtJob as any };
-                    next[swapData!.stIdx] = { ...next[swapData!.stIdx], jobId: swapData!.newStJob as any };
+                    next[swapData!.mtIdx] = { ...next[swapData!.mtIdx], jobId: swapData!.newMtJob };
+                    next[swapData!.stIdx] = { ...next[swapData!.stIdx], jobId: swapData!.newStJob };
                     return next;
                 });
             } else {

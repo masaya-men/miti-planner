@@ -7,7 +7,8 @@ vi.mock('../../../progress/ProgressRecordPanel', () => ({ ProgressRecordPanel: (
 vi.mock('../../../progress/ProgressCelebration', () => ({ ProgressCelebration: () => <i data-testid="celebration" /> }));
 
 import i18n from '../../../../i18n';
-import { MilspecCrt, toCrtVertices } from '../MilspecCrt';
+import { MilspecCrt } from '../MilspecCrt';
+import { toCrtVertices } from '../milspecCrtGeometry';
 import { powerOn, powerOff, initPower, disposePower, BOOT_TIMING } from '../../power/power';
 import { useMitigationStore } from '../../../../store/useMitigationStore';
 import { usePlanStore } from '../../../../store/usePlanStore';

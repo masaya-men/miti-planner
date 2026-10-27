@@ -10,6 +10,7 @@ import { buildTourInviteOgCardParams } from '../../src/lib/ogpTourInviteCard.js'
 import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
 import { SHARED_TOUR_NAME_MAX_LENGTH } from '../../src/types/sharedTour.js';
 import { escapeHtml, metaContent, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const DEFAULT_OG_TITLE = 'LoPo Housing Tour';
 const DEFAULT_OG_DESCRIPTION = 'FF14のハウジングを巡るツアーに招待されました。リンクを開くと幹事と同じ景色を一緒に見られます。';
@@ -21,7 +22,7 @@ export function buildTourInviteSeoSnapshotHtml(tourName: string): string {
   return `<h1>${escapeHtml(name)}</h1><p>${escapeHtml(DEFAULT_OG_DESCRIPTION)}</p>`;
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   const rawToken = (req.query?.token as string) || '';
 
   let ogTitle = DEFAULT_OG_TITLE;

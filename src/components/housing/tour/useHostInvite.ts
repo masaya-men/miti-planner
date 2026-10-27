@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { createSharedTour } from '../../../lib/housingApiClient';
 import { buildTourSnapshots, snapshotContainsHiddenAddress } from '../../../lib/sharedTour/snapshot';
 import { pushHostState } from '../../../lib/sharedTour/hostSync';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import type { MockListing } from '../../../data/housing/mockListings';
 import type { TourSnapshot } from '../../../types/sharedTour';
 

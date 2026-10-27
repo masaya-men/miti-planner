@@ -1,24 +1,7 @@
 import { hpx } from '../../lib/housing/housingScale';
 import { useTranslation } from 'react-i18next';
 import { HousingDialogShell } from './HousingDialogShell';
-
-const STORAGE_KEY = 'housing-onboarding-seen';
-
-export function hasSeenHousingOnboarding(): boolean {
-  try {
-    return localStorage.getItem(STORAGE_KEY) === '1';
-  } catch {
-    return false;
-  }
-}
-
-export function markHousingOnboardingSeen(): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, '1');
-  } catch {
-    // ignore
-  }
-}
+import { markHousingOnboardingSeen } from './housingOnboardingState';
 
 interface Props {
   open: boolean;

@@ -16,6 +16,7 @@ import { regionForDC } from '../../src/data/housing/dcServerMap.js';
 import { escapeHtml, metaContent, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
 import { listingRepresentativeImages } from './_listingImages.js';
 import { computeListingOgCardHash } from '../../src/lib/housing/listingOgCardWarm.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const COLLECTION = 'housing_listings';
 const DEFAULT_OG_TITLE = 'LoPo | FF14 軽減プランナー';
@@ -43,7 +44,7 @@ export function buildListingSeoSnapshotHtml(input: {
   return `<h1>${escapeHtml(input.title)}</h1>${addressHtml}${descHtml}`;
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   const listingId = (req.query?.id as string) || '';
 
   let ogTitle = DEFAULT_OG_TITLE;
@@ -80,7 +81,7 @@ export default async function handler(req: any, res: any) {
         ) {
           addressText = formatFullHousingAddress(
             {
-              area: projected.area as any,
+              area: projected.area as Parameters<typeof formatFullHousingAddress>[0]['area'],
               ward: projected.ward,
               buildingType: projected.buildingType as 'house' | 'apartment' | undefined,
               plot: projected.plot as number | undefined,

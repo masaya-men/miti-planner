@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { useThemeStore } from '../../store/useThemeStore';
-import { useTransitionOverlay } from '../ui/TransitionOverlay';
+import { useTransitionOverlay } from '../ui/transitionOverlayContext';
 
 interface Props {
   /** モバイルヘッダー等・小さめ表示 */

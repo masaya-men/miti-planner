@@ -24,8 +24,9 @@ import housingReportsHandler from './_housingReportsHandler.js';
 import housingerReportsHandler from './_housingerReportsHandler.js';
 import housingNewBadgeHandler from './_housingNewBadgeHandler.js';
 import { setPrivateNoStore } from '../../src/lib/privateNoStore.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setPrivateNoStore(res);
   const resource = req.query?.resource;
 

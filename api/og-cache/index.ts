@@ -21,6 +21,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import sharp from 'sharp';
 import { isValidOgImageMeta, buildInternalOgUrl } from './_ogCacheLogic.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 // GHSA-wq5f-xc86-pv6w 対策: LoPo は SVG を変換しないので sharp の SVG 読込を無効化する
 sharp.block({ operation: ['VipsForeignLoadSvg'] });
@@ -63,7 +64,8 @@ async function toJpegOgCard(pngBuffer: Buffer): Promise<{ buffer: Buffer; conten
 function initAdmin() {
     if (!getApps().length) {
         let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
-        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch {} }
+        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch { // 意図的に無視: JSON でなければそのまま使う
+        } }
         pk = pk.replace(/\\n/g, '\n');
         initializeApp({
             credential: cert({
@@ -80,7 +82,7 @@ function initAdmin() {
  * allowlist 外は lopoly.app にフォールバック（Host ヘッダ偽装対策）。
  * 開発時（localhost / preview）はそのまま使う。
  */
-function resolveOgOrigin(req: any): string {
+function resolveOgOrigin(req: ApiRequest): string {
     const allowed = ['lopoly.app', 'lopo-miti.vercel.app', 'localhost:5173', 'localhost:4173'];
     const previewPattern = /^lopo-miti(-[a-z0-9]+)?\.vercel\.app$/;
     const raw = req.headers?.host || 'lopoly.app';
@@ -91,7 +93,7 @@ function resolveOgOrigin(req: any): string {
     return `${protocol}://${host}`;
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
     if (req.method !== 'GET' && req.method !== 'HEAD') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -128,7 +130,7 @@ export default async function handler(req: any, res: any) {
         if (!metaSnap.exists) {
             return res.status(404).json({ error: 'not found' });
         }
-        const meta = metaSnap.data() as any;
+        const meta = metaSnap.data() as FirebaseFirestore.DocumentData;
         if (!isValidOgImageMeta(meta)) {
             return res.status(500).json({ error: 'invalid meta' });
         }
@@ -169,7 +171,7 @@ export default async function handler(req: any, res: any) {
         res.setHeader('X-OG-Cache', 'MISS');
         return res.status(200).send(imageBuffer);
 
-    } catch (err: any) {
+    } catch (err) {
         console.error('OG cache error:', err);
         return res.status(500).json({ error: 'Internal server error' });
     }

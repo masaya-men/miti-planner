@@ -22,6 +22,6 @@ export function initAdminSandbox(): void {
     isNewUser: false,
   });
 
-  // eslint-disable-next-line no-console
+   
   console.info('[admin-sandbox] 偽管理者を注入しました。/admin が利用可能です。');
 }

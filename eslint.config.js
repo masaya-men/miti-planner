@@ -31,6 +31,13 @@ export default defineConfig([
       'react-hooks/use-memo': 'off',
       'react-hooks/globals': 'off',
       'react-hooks/incompatible-library': 'off',
+      // `_` 始まり=わざと使わない印。分割代入でキーを除くための受け皿(…rest の兄弟)も未使用扱いしない。
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      }],
     },
   },
   {

@@ -56,13 +56,14 @@ import applyExpiredVisibilityHandler from './_applyExpiredVisibilityHandler.js';
 import { publicWindowHandler } from './_publicWindow.js';
 import { setPrivateNoStore } from '../../src/lib/privateNoStore.js';
 import fetchAllmarksShareHandler from './_fetchAllmarksShareHandler.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
 // 公開読みキャッシュ窓口の action (App Check 不要・匿名可・Cloudflare キャッシュ対象)。
 // クライアントは /api/housing/public?action=... を叩き、vercel.json の rewrite で
 // /api/housing へ寄せる。独立関数を増やさない (Vercel Hobby 12 関数上限回避)。
 const PUBLIC_WINDOW_ACTIONS = new Set(['version', 'gallery', 'housinger', 'listing']);
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: HousingReq, res: HousingRes) {
   const action = req.query?.action;
 
   // App Check 検証より前に公開窓口へ委譲 (窓口は匿名で触れる公開データのみ返す)。

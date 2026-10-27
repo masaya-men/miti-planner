@@ -29,7 +29,6 @@ export function AdminWizard({
     currentStep,
     currentIndex,
     totalSteps,
-    data: _data,
     next,
     back,
     submit,

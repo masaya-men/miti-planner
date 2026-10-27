@@ -65,12 +65,14 @@ async function verifySingle(oldUid: string): Promise<{ pass: boolean; errors: st
 
     // 1. oldUid auth は消えている
     let oldAuthExists = false;
-    try { await auth.getUser(oldUid); oldAuthExists = true; } catch {}
+    try { await auth.getUser(oldUid); oldAuthExists = true; } catch { // 意図的に無視: 存在しないユーザーは未存在として扱う
+ }
     if (oldAuthExists) errors.push(`oldUid Auth が残存: ${oldUid}`);
 
     // 2. newUid auth は存在
     let newAuthExists = false;
-    try { await auth.getUser(newUid); newAuthExists = true; } catch {}
+    try { await auth.getUser(newUid); newAuthExists = true; } catch { // 意図的に無視: 存在しないユーザーは未存在として扱う
+ }
     if (!newAuthExists) errors.push(`newUid Auth が不在: ${newUid}`);
 
     // 3. backup vs newUid 件数比較
@@ -86,7 +88,7 @@ async function verifySingle(oldUid: string): Promise<{ pass: boolean; errors: st
             housingTours: backup.firestore.housingTours.length,
             featureSessions: backup.firestore.featureSessions.length,
             crossRefCopiedBy: backup.firestore.crossRefCopiedBy.length,
-            crossRefReports: backup.firestore.crossRefReports.reduce((sum: number, lr: any) => sum + lr.reports.length, 0),
+            crossRefReports: backup.firestore.crossRefReports.reduce((sum: number, lr: { reports: unknown[] }) => sum + lr.reports.length, 0),
         };
 
         // featureSessions の新 uid 側

@@ -120,7 +120,7 @@ describe('headerGeometry(ヘッダーと通気口の座標表)', () => {
     const specs = l.panels.filter((p) => !('kind' in p.spec)).map((p) => p.spec as PanelSpec);
     const ds = [...specs.flatMap((s) => [...(s.scribes ?? []), ...(s.seams ?? [])]), ...l.traces.map((t) => t.d), ventLayout(1465).leak];
     expect(ds.length).toBeGreaterThan(6);
-    ds.forEach((d) => expect(d).toMatch(/^[MLHV0-9 .\-]+$/));
+    ds.forEach((d) => expect(d).toMatch(/^[MLHV0-9 .-]+$/));
   });
   it('通気口', () => {
     const v = ventLayout(1189);

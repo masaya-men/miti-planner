@@ -12,9 +12,10 @@ import { writeAuditLog } from '../../src/lib/auditLog.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { sendDiscordNotification } from '../../src/lib/discordWebhook.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 /** CORS設定 */
-function setCors(req: any, res: any) {
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers?.origin || '';
   const allowedOrigins = [
     'https://lopoly.app',
@@ -29,7 +30,7 @@ function setCors(req: any, res: any) {
 }
 
 /** LocalizedText のバリデーション (ja/en 必須、 ko/zh は string なら OK) */
-function isValidLocalizedText(obj: any): boolean {
+function isValidLocalizedText(obj: { ja?: unknown; en?: unknown; ko?: unknown; zh?: unknown } | null | undefined): boolean {
   if (!obj || typeof obj !== 'object') return false;
   if (typeof obj.ja !== 'string' || obj.ja.length === 0) return false;
   if (typeof obj.en !== 'string' || obj.en.length === 0) return false;
@@ -39,15 +40,15 @@ function isValidLocalizedText(obj: any): boolean {
 }
 
 /** undefined フィールドを除外して保存 (Firestore は undefined を許容しないため) */
-function pruneOptional(obj: any) {
-  const out: any = {};
+function pruneOptional(obj: Record<string, unknown>) {
+  const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(obj)) {
     if (v !== undefined && v !== '') out[k] = v;
   }
   return out;
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -99,7 +100,7 @@ export default async function handler(req: any, res: any) {
       if (title !== undefined && !isValidLocalizedText(title)) return res.status(400).json({ error: 'invalid_title' });
       if (body !== undefined && !isValidLocalizedText(body)) return res.status(400).json({ error: 'invalid_body' });
 
-      const update: any = { updatedAt: Date.now() };
+      const update: Record<string, unknown> = { updatedAt: Date.now() };
       if (title !== undefined) update.title = pruneOptional(title);
       if (body !== undefined) update.body = pruneOptional(body);
       if (typeof published === 'boolean') update.published = published;
@@ -129,7 +130,7 @@ export default async function handler(req: any, res: any) {
     }
 
     return res.status(405).json({ error: 'method_not_allowed' });
-  } catch (e: any) {
+  } catch (e) {
     console.error('[system_notifications]', e);
     return res.status(500).json({ error: 'internal_error' });
   }

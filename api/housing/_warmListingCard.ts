@@ -9,8 +9,16 @@ import { listingRepresentativeImages } from '../share/_listingImages.js';
 import { warmListingOgCard } from '../../src/lib/housing/listingOgCardWarm.js';
 import { resolveSiteOrigin } from '../../src/lib/housing/resolveSiteOrigin.js';
 
+/** Firestore のうちこのファイルが触る範囲だけの構造型(テストの偽物も受けられる)。 */
+interface WarmDb {
+  collection(name: string): { doc(id: string): { set(data: unknown): Promise<unknown> } };
+}
+interface WarmListingRef {
+  get(): Promise<{ data(): Record<string, unknown> | undefined }>;
+}
+
 export async function warmListingCard(
-  adminDb: any,
+  adminDb: WarmDb,
   rawHost: string | undefined,
   listing: Record<string, unknown> | undefined | null,
 ): Promise<void> {
@@ -37,9 +45,9 @@ export async function warmListingCard(
 /** listingRef から doc を読み直してから warm する版。read 失敗も含め全体を握りつぶす
  * (ミューテーション commit 済みの後で 500 を返さないため)。register 以外の全ハンドラはこちらを使う。 */
 export async function warmListingCardByRef(
-  adminDb: any,
+  adminDb: WarmDb,
   rawHost: string | undefined,
-  listingRef: any,
+  listingRef: WarmListingRef,
 ): Promise<void> {
   try {
     const data = (await listingRef.get()).data();

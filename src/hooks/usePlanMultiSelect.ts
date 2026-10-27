@@ -3,14 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
-import { showToast } from '../components/Toast';
+import { showToast } from '../components/toastBus';
 import { decompressPlanData } from '../utils/compression';
 import type { MultiSelectState } from '../types/sidebarTypes';
 
 /** 共有モードで同時に選べる最大件数 */
 export const MULTI_SHARE_LIMIT = 10;
 
-type BundlePlan = { contentId: string | null; title: string; planData: any };
+type BundlePlan = { contentId: string | null; title: string; planData: unknown };
 
 /**
  * 複数選択(まとめて共有・選択削除)の state と処理。

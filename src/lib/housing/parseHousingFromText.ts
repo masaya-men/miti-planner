@@ -26,7 +26,7 @@ const PRIVATE_ROOM_KEYWORDS = /FC個室|個室|Private\s*Room|FC\s*Chamber|FC部
 // トークン分割用セパレータ
 //   - 区切り記号類 + 「鯖/サバ/さば/サーバー/Server」 等のラベル文字列
 //   - 縦棒・カギ括弧・全角句読点・スペース類を含む
-const SEPARATORS = /[\|┆\-/\s\n、。（）「」『』"',，]|鯖|サバ|さば|サーバー|サーバ|Server|server|Serv|Srv/g;
+const SEPARATORS = /[|┆\-/\s\n、。（）「」『』"',，]|鯖|サバ|さば|サーバー|サーバ|Server|server|Serv|Srv/g;
 
 // 区-番地パターン (3 系統)。
 //   1. "6-6" "23-6" 等 (N-M / 各種ダッシュ)
@@ -136,6 +136,7 @@ export function parseHousingFromText(text: string): HousingExtractResult {
     //     (日本語の 2 文字 alias 「マナ」 等も含む。 exact 一致側で既に拾えている)
     const lowerCleaned = cleaned.toLowerCase();
     const tooShortForSubstring = (alias: string): boolean =>
+        // eslint-disable-next-line no-control-regex -- ASCII 範囲 (0x00-0x7f) 判定のため制御文字を範囲指定に含める
         alias.length < 3 || (alias.length < 4 && /^[\x00-\x7f]+$/.test(alias));
 
     for (const [dcId, dcData] of Object.entries(serverMasterData)) {
@@ -155,6 +156,7 @@ export function parseHousingFromText(text: string): HousingExtractResult {
             // エリアは短縮 alias (`Gob` / `Mis` / `Emp`) を持つが、 部分一致で使うと
             // "goblet of wine" のような英文に当たるのでここでは除外する (exact 一致では採用)。
             if (alias.length < 2) continue;
+            // eslint-disable-next-line no-control-regex -- ASCII 範囲 (0x00-0x7f) 判定のため制御文字を範囲指定に含める
             if (alias.length < 4 && /^[\x00-\x7f]+$/.test(alias)) continue;
             if (lowerCleaned.includes(alias.toLowerCase())) pushArea(areaId);
         }

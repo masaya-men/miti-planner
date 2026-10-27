@@ -9,6 +9,7 @@ import { serverMasterData, housingAreaMasterData } from '../../data/masterData';
  * パーサ側で文脈ゲートや質フィルタを重ねるのは対症療法なので、 データ側で禁止する。
  */
 const isShortAscii = (alias: string): boolean =>
+    // eslint-disable-next-line no-control-regex -- ASCII 範囲 (0x00-0x7f) 判定のため制御文字を範囲指定に含める
     alias.length < 4 && /^[\x00-\x7f]+$/.test(alias);
 
 describe('masterData: DC / サーバーの alias に短い ASCII 略称を入れない', () => {

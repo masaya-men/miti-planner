@@ -6,7 +6,7 @@ import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsSt
 import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { canAddToTour, tourAnchorRegion, tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { resolveTourOrder } from '../../../lib/housing/resolveTourOrder';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import type { MockListing } from '../../../data/housing/mockListings';
 
 /**

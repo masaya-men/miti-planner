@@ -16,8 +16,8 @@ function fakePCFactory() {
     closed = false;
     constructor() { created.push(this); }
     async createOfferSDP() { return 'offer-sdp'; }
-    async acceptOfferCreateAnswerSDP(_sdp: string) { return 'answer-sdp'; }
-    async acceptAnswer(_sdp: string) {}
+    async acceptOfferCreateAnswerSDP() { return 'answer-sdp'; }
+    async acceptAnswer() {}
     send(p: CursorPacket) { this.sent.push(p); }
     close() { this.closed = true; }
   }

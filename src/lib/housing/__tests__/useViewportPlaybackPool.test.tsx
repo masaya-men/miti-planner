@@ -10,8 +10,8 @@ class MockIntersectionObserver {
     this.callback = cb;
     MockIntersectionObserver.observers.push(this);
   }
-  observe(_el: Element): void {}
-  unobserve(_el: Element): void {}
+  observe(): void {}
+  unobserve(): void {}
   disconnect(): void {}
   trigger(entries: Array<{ target: Element; intersectionRatio: number }>): void {
     this.callback(

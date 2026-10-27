@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useReducedMotion } from '../../lib/housing/useReducedMotion';
-import { useVideoLoadRecovery } from '../housing/workspace/SceneryVideo';
+import { useVideoLoadRecovery } from '../housing/workspace/useVideoLoadRecovery';
 import wallWebm from '../../assets/milspec/wall.webm';
 import wallMp4 from '../../assets/milspec/wall.mp4';
 import wallPoster from '../../assets/milspec/wall-poster.webp';

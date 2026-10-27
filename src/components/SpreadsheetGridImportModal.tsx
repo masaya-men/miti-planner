@@ -26,8 +26,6 @@ interface Props {
   defaultSelection: ContentSelectionDefault;
 }
 
-export { setColumnValues, autoAssignSingleSlots, sortResultPartyBySlots } from './gridImport/gridImportModel';
-
 export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, onImport, defaultSelection }) => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language === 'en' ? 'en' : 'ja';

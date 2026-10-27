@@ -9,8 +9,9 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { sendDiscordNotification } from '../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
-function setCors(req: any, res: any) {
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers?.origin || '';
   const allowedOrigins = ['https://lopoly.app', 'https://lopo-miti.vercel.app', 'http://localhost:5173', 'http://localhost:4173'];
   const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
@@ -19,7 +20,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -117,7 +118,7 @@ export default async function handler(req: any, res: any) {
     });
 
     return res.status(201).json({ success: true, action: 'approved', contentId });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[promote] エラー:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }

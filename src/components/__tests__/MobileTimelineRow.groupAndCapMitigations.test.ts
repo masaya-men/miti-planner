@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { groupAndCapMitigations } from '../MobileTimelineRow';
+import { groupAndCapMitigations } from '../mobileTimelineRowModel';
 import type { AppliedMitigation } from '../../types';
 
 const applied = (over: Partial<AppliedMitigation> = {}): AppliedMitigation => ({

@@ -28,14 +28,14 @@ const ROOT = resolve(import.meta.dirname, '..');
 const env = loadEnv(resolve(ROOT, '.env.local'));
 initializeApp({ credential: cert({ projectId: env.FIREBASE_PROJECT_ID, clientEmail: env.FIREBASE_CLIENT_EMAIL, privateKey: (env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n') }) });
 const db = getFirestore();
-const arrLen = (a: any) => (Array.isArray(a) ? a.length : 0);
+const arrLen = (a: unknown) => (Array.isArray(a) ? a.length : 0);
 
 const ownerPrefix = process.argv[2] || '';
 const titleSub = process.argv[3] || '';
 
 async function main() {
   const snap = await db.collection('plans').get();
-  const rows: any[] = [];
+  const rows: FirebaseFirestore.DocumentData[] = [];
   for (const doc of snap.docs) {
     const data = doc.data();
     const owner = String(data.ownerId || '');

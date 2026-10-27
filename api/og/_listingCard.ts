@@ -15,6 +15,9 @@
  */
 
 import { ImageResponse } from '@vercel/og';
+
+/** ImageResponse が受ける要素型(satori 用の素のオブジェクトを渡すためのキャスト先) */
+type ImageResponseElement = ConstructorParameters<typeof ImageResponse>[0];
 import { loadMPlus1Fonts } from './_fonts.js';
 import { fetchAsDataUri } from './_fetchOgImage.js';
 import { verifyListingOgCardSig } from '../../src/lib/ogpListingCard.js';
@@ -122,19 +125,19 @@ export async function handleListingCardRequest(searchParams: URLSearchParams): P
     const photoDataUri = imgUrl ? await fetchAsDataUri(imgUrl) : null;
     if (photoDataUri) {
       // 写真カードは文字ノードゼロ = フォント不要。
-      return new ImageResponse(buildListingPhotoCard(photoDataUri) as any, {
+      return new ImageResponse(buildListingPhotoCard(photoDataUri) as unknown as ImageResponseElement, {
         width: CARD_WIDTH, height: CARD_HEIGHT, headers: CACHE_HEADERS,
       });
     }
     const fonts = await loadMPlus1Fonts('LoPo Housing').catch(() => []);
-    return new ImageResponse(buildListingBrandFallbackCard() as any, {
+    return new ImageResponse(buildListingBrandFallbackCard() as unknown as ImageResponseElement, {
       width: CARD_WIDTH, height: CARD_HEIGHT, fonts, headers: CACHE_HEADERS,
     });
   } catch (err) {
     console.error('Listing OG card error:', err);
     try {
       const fonts = await loadMPlus1Fonts('LoPo Housing').catch(() => []);
-      return new ImageResponse(buildListingBrandFallbackCard() as any, {
+      return new ImageResponse(buildListingBrandFallbackCard() as unknown as ImageResponseElement, {
         width: CARD_WIDTH, height: CARD_HEIGHT, fonts, headers: CACHE_HEADERS,
       });
     } catch (fallbackErr) {

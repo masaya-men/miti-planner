@@ -143,6 +143,12 @@ export const calculateHpValue = (hp: number, percent: number): number => {
 export const CRIT_MULTIPLIER = 1.60;
 
 
+/** SKILL_DATA の 1 件ぶんの形 (全エントリの共通項目をまとめた緩い型) */
+export type SkillDataEntry = {
+    type?: string; percent?: number; potency?: number; multiplier?: number; isCrit?: boolean;
+    jobs?: string[]; icon?: string; nameEn?: string; minLevel?: number; maxLevel?: number;
+};
+
 export const SKILL_DATA = {
     // --- Paladin ---
     "ディヴァインヴェール": { "percent": 10, "type": "hp", "jobs": ["pld"], "icon": "Divine_Veil.png", "nameEn": "Divine Veil", "minLevel": 56 },
@@ -196,7 +202,7 @@ export const calculateMemberValues = (member: PartyMember, currentLevel: number 
     const levelMods = getLevelModifiersFromStore();
     const modifiers = levelMods[currentLevel] || levelMods[100];
 
-    Object.entries(SKILL_DATA).forEach(([name, data]: [string, any]) => {
+    Object.entries(SKILL_DATA).forEach(([name, data]: [string, SkillDataEntry]) => {
         if (data.type === 'hp') {
             if (data.percent) results[name] = calculateHpValue(member.stats.hp, data.percent);
         } else if (data.type === 'potency') {
@@ -225,6 +231,7 @@ export const calculateLinkedShieldValue = (
     allMitigations: readonly { mitigationId: string; time: number; ownerId: string; duration: number; id: string; targetId?: string; isShield?: boolean }[],
     partyMembers: readonly { id: string; stats: StatInput; role: string; computedValues: Record<string, number> }[],
     mitigationDefs: readonly { id: string; name: { ja?: string } | string; healingIncrease?: number; healingIncreaseDuration?: number; healingIncreaseSelfOnly?: boolean; scope?: string; duration: number; isShield?: boolean }[],
+     
     _currentLevel: number = 100,
 ): number => {
     const linkedDef = mitigationDefs.find(d => d.id === linkedMit.mitigationId);
@@ -235,7 +242,7 @@ export const calculateLinkedShieldValue = (
 
     // リンク先スキルの日本語名でcomputedValuesから基本バリア値を取得
     const jaName = typeof linkedDef.name === 'string' ? linkedDef.name : (linkedDef.name.ja || '');
-    let baseValue = owner.computedValues[jaName] || 0;
+    const baseValue = owner.computedValues[jaName] || 0;
     if (baseValue === 0) return 0;
 
     // リンク先スキルの詠唱時に有効だったバフを収集

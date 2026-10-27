@@ -21,6 +21,9 @@
  */
 
 import { ImageResponse } from '@vercel/og';
+
+/** ImageResponse が受ける要素型(satori 用の素のオブジェクトを渡すためのキャスト先) */
+type ImageResponseElement = ConstructorParameters<typeof ImageResponse>[0];
 import { loadMPlus1Fonts, loadInterFonts } from './_fonts.js';
 import { verifyHousingerOgCardSig } from '../../src/lib/ogpHousingerCard.js';
 import type { HousingerCardPattern } from '../../src/lib/ogpHousingerCard.js';
@@ -490,7 +493,7 @@ export async function handleHousingerCardRequest(searchParams: URLSearchParams):
     const fonts = [...mplus1Fonts, ...interFonts];
 
     const element = buildHousingerCard({ pattern, name, bio, avatarSrc, imageSrcs: resolvedImageSrcs });
-    return new ImageResponse(element as any, {
+    return new ImageResponse(element as unknown as ImageResponseElement, {
       width: CARD_WIDTH,
       height: CARD_HEIGHT,
       fonts,
@@ -501,7 +504,7 @@ export async function handleHousingerCardRequest(searchParams: URLSearchParams):
     try {
       const fonts = await loadMPlus1Fonts([...new Set('LoPo Housing' + name)].join('')).catch(() => []);
       const element = buildHousingerFallbackCard(name);
-      return new ImageResponse(element as any, {
+      return new ImageResponse(element as unknown as ImageResponseElement, {
         width: CARD_WIDTH,
         height: CARD_HEIGHT,
         fonts,

@@ -50,7 +50,8 @@ export function setProgressPointNoteById(
     const trimmed = note.trim();
     return (list ?? []).map((p) => {
         if (p.id !== id) return p;
-        if (!trimmed) { const { note: _omit, ...rest } = p; return rest; }
+        if (!trimmed) {  
+        const { note: _omit, ...rest } = p; return rest; }
         return { ...p, note: trimmed };
     });
 }

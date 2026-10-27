@@ -43,9 +43,9 @@ const db = getFirestore();
 /** REST databases.get で (default) DB の PITR 設定を表示。 */
 async function showDbConfig() {
   try {
-    const t = await (credential as any).getAccessToken();
+    const t = await (credential as unknown as { getAccessToken(): Promise<{ access_token: string }> }).getAccessToken();
     const res = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)`, { headers: { Authorization: `Bearer ${t.access_token}` } });
-    const b: any = await res.json();
+    const b: FirebaseFirestore.DocumentData = await res.json();
     console.log('=== (default) DB の PITR 設定 (REST databases.get) ===');
     console.log(`  pointInTimeRecoveryEnablement = ${b.pointInTimeRecoveryEnablement || '(未取得)'}`);
     console.log(`  versionRetentionPeriod        = ${b.versionRetentionPeriod || '(なし)'}`);
@@ -53,14 +53,14 @@ async function showDbConfig() {
     console.log(`  createTime                    = ${b.createTime || '?'}`);
     if (!b.pointInTimeRecoveryEnablement) console.log(`  raw=${JSON.stringify(b).slice(0, 200)}`);
     console.log('');
-  } catch (e: any) { console.log('  DB設定取得失敗:', e?.message); }
+  } catch (e) { console.log('  DB設定取得失敗:', (e as { message?: string })?.message); }
 }
 
 const docId = process.argv[2];
 if (!docId) { console.error('使い方: npx tsx scripts/probe-pitr-timeline.ts <liveDocId> [ISO時刻...]'); process.exit(1); }
 const explicitTimes = process.argv.slice(3);
 
-const arrLen = (a: any) => (Array.isArray(a) ? a.length : -1);
+const arrLen = (a: unknown) => (Array.isArray(a) ? a.length : -1);
 
 /** 分単位に切り捨て(秒=0,ms=0)。PITR の分単位制約を満たす。 */
 function floorMinute(d: Date): Date {
@@ -76,7 +76,7 @@ function buildGrid(): Date[] {
   return offsets.map((m) => floorMinute(new Date(now - m * 60_000)));
 }
 
-function summarize(d: any): string {
+function summarize(d: FirebaseFirestore.DocumentData | null | undefined): string {
   if (!d) return '(doc なし)';
   const pd = d.data || {};
   const mit = arrLen(pd.timelineMitigations);
@@ -88,11 +88,11 @@ function summarize(d: any): string {
 }
 
 /** 正しい PITR 読み取り = read-only トランザクション + readTime。 */
-async function readAt(ref: FirebaseFirestore.DocumentReference, dt: Date): Promise<any> {
+async function readAt(ref: FirebaseFirestore.DocumentReference, dt: Date): Promise<FirebaseFirestore.DocumentData | null | undefined> {
   return db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     return snap.exists ? snap.data() : null;
-  }, { readOnly: true, readTime: Timestamp.fromDate(dt) } as any);
+  }, { readOnly: true, readTime: Timestamp.fromDate(dt) } as unknown as FirebaseFirestore.ReadOnlyTransactionOptions);
 }
 
 async function main() {
@@ -116,8 +116,8 @@ async function main() {
     try {
       const data = await readAt(ref, dt);
       console.log(`  @${iso}\t${data ? summarize(data) : '(doc なし)'}`);
-    } catch (err: any) {
-      console.log(`  @${iso}\t❌ 読取不可: ${String(err?.message || err).slice(0, 110)}`);
+    } catch (err) {
+      console.log(`  @${iso}\t❌ 読取不可: ${String((err as { message?: string })?.message || err).slice(0, 110)}`);
     }
   }
 }

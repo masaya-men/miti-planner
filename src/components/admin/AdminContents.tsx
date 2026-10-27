@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import { AdminContentForm, type ContentData, type NewSeriesPayload } from './AdminContentForm';
 import { AdminPage } from './AdminPage';
 
@@ -32,7 +32,9 @@ export function AdminContents() {
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
       // Firestore形式(name: {ja,en,...}) → フラット形式(nameJa,nameEn,...)にマッピング
-      const mapped = (data.items ?? []).map((item: any) => ({
+      const mapped = (data.items ?? []).map(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- 管理 API の JSON 応答 (旧フラット形式と Firestore 形式が混在) に型が無いため
+        (item: any) => ({
         ...item,
         nameJa: item.nameJa ?? item.name?.ja ?? '',
         nameEn: item.nameEn ?? item.name?.en ?? '',

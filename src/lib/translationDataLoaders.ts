@@ -527,8 +527,8 @@ export async function saveOtherTranslations(
       dataVersion: number;
     };
 
-    let updatedCategoryLabels = { ...config.categoryLabels };
-    let updatedLevelLabels = { ...config.levelLabels };
+    const updatedCategoryLabels = { ...config.categoryLabels };
+    const updatedLevelLabels = { ...config.levelLabels };
 
     // カテゴリラベルを更新
     for (const row of changedCategories) {

@@ -11,13 +11,15 @@ import { getAuth } from 'firebase-admin/auth';
 import * as crypto from 'crypto';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { hashUid } from '../_lib/hashUid.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const DISCORD_API = 'https://discord.com/api/v10';
 
 function initAdmin() {
     if (!getApps().length) {
         let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
-        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch {} }
+        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch { // 意図的に無視: JSON でなければそのまま使う
+        } }
         pk = pk.replace(/\\n/g, '\n');
         initializeApp({
             credential: cert({
@@ -46,7 +48,7 @@ function parseCookies(cookieHeader: string): Record<string, string> {
  * (実機指摘・2026-08-12)。成功時(ステップ6)と同じ returnUrl 読み出し/検証ロジックを踏襲するが、
  * lopo_auth_pending は書かない(ログインは成立していないため)。
  */
-function sendAuthFailureRedirect(res: any): void {
+function sendAuthFailureRedirect(res: ApiResponse): void {
     res.setHeader('Content-Type', 'text/html');
     res.status(200).send(`
         <!DOCTYPE html>
@@ -67,7 +69,7 @@ function sendAuthFailureRedirect(res: any): void {
     `);
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
     // CORS（同一オリジンからのPOSTリクエストに対応）
     const origin = req.headers?.origin || '';
     const allowedOrigins = [
@@ -217,7 +219,7 @@ export default async function handler(req: any, res: any) {
             </body>
             </html>
         `);
-    } catch (err: any) {
+    } catch (err) {
         console.error('Discord auth error:', err);
         // GET(Discordからのトップレベル遷移)は生JSONを見せず元画面へ戻す。POSTはフロントの
         // fetch呼び出しが待っているため、従来どおりJSONで返す(フロント側のエラーハンドリングを維持)。

@@ -6,7 +6,7 @@ import { usePlanStore } from '../../store/usePlanStore';
 import { useCursorSendStore } from '../../store/useCursorSendStore';
 import type { PlanMemo } from '../../types';
 import { MEMO_LIMITS } from '../../types/firebase';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import { yToTimeSec, timeSecToY, clampXRatio } from '../Memo/coords';
 import { memoCreateXRatio } from './sheet/memberX';
 

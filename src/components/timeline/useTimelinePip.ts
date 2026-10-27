@@ -16,7 +16,7 @@ export function useTimelinePip() {
     const handleOpenPip = useCallback(async (mode: 'cue' | 'recorder') => {
         if (!pipSupported) return;
         try {
-            const dpip = (window as any).documentPictureInPicture;
+            const dpip = (window as unknown as { documentPictureInPicture: { requestWindow: (size: { width: number; height: number }) => Promise<Window> } }).documentPictureInPicture;
             // 初回サイズ: カンペは横を Chrome の最小値にブラウザ補正させる（width: 1）+ 高さ 200px。
             // レコーダーはフォームが収まるよう少し大きめ。
             const size = mode === 'recorder' ? { width: 360, height: 480 } : { width: 1, height: 200 };

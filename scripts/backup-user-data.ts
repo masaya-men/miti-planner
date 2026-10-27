@@ -52,14 +52,14 @@ if (!targetUid) {
 initializeApp({ credential: cert({ projectId, clientEmail, privateKey }) });
 const db = getFirestore();
 
-function serialize(value: any): any {
+function serialize(value: FirebaseFirestore.DocumentData | null | undefined): unknown {
   if (value === null || value === undefined) return value;
   if (value?.toDate && typeof value.toDate === 'function') {
     return { __timestamp__: value.toDate().toISOString() };
   }
   if (Array.isArray(value)) return value.map(serialize);
   if (typeof value === 'object') {
-    const out: Record<string, any> = {};
+    const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(value)) out[k] = serialize(v);
     return out;
   }
@@ -69,7 +69,7 @@ function serialize(value: any): any {
 async function main() {
   console.log(`uid=${targetUid} のデータをバックアップ中...`);
 
-  const result: Record<string, any> = {
+  const result: FirebaseFirestore.DocumentData = {
     uid: targetUid,
     backupAt: new Date().toISOString(),
     users: null,

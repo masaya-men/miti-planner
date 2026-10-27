@@ -19,6 +19,7 @@
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { projectPublicListing, projectHiddenListing } from '../../src/lib/housing/publicListingProjection.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
 const COLLECTION = 'housing_listings';
 const PUBLIC_VISIBILITY = ['public', 'unlisted'];
@@ -34,7 +35,7 @@ const SELECT_FIELDS = [
   'buildingType', 'roomKind', 'lastConfirmedAt',
 ];
 
-export function isPubliclyViewable(d: any, now: number): boolean {
+export function isPubliclyViewable(d: FirebaseFirestore.DocumentData, now: number): boolean {
   if (d.deletedAt != null) return false;
   if (d.isHidden === true) return false;
   if (!PUBLIC_VISIBILITY.includes(d.visibility ?? 'public')) return false;
@@ -42,7 +43,7 @@ export function isPubliclyViewable(d: any, now: number): boolean {
   return true;
 }
 
-export async function publicWindowHandler(req: any, res: any) {
+export async function publicWindowHandler(req: HousingReq, res: HousingRes) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -149,7 +150,7 @@ export async function publicWindowHandler(req: any, res: any) {
     }
 
     return res.status(400).json({ error: 'invalid action. use version|gallery|housinger|listing' });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[housing/public] error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }

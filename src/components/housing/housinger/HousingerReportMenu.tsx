@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HousingerReportModal } from '../report/HousingerReportModal';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 
 interface Props {
   viewerUid: string | null;

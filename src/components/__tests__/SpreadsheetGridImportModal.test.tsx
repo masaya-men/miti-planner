@@ -1,12 +1,12 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { SpreadsheetGridImportModal } from '../SpreadsheetGridImportModal';
 import {
-  SpreadsheetGridImportModal,
   autoAssignSingleSlots,
   setColumnValues,
   sortResultPartyBySlots,
-} from '../SpreadsheetGridImportModal';
+} from '../gridImport/gridImportModel';
 import type { GridTable } from '../../lib/sheetImport/gridTypes';
 import type { SheetImportResult } from '../../lib/sheetImport/buildPlanFromSheets';
 import type { TemplateData } from '../../types/template';

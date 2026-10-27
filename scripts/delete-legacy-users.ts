@@ -116,8 +116,8 @@ async function assertNoAdminClaims(uids: string[]): Promise<void> {
       if (claims.role === 'admin') {
         throw new Error(`Refusing to delete admin user: ${uid}. admin claim をクリアしてから再実行してください。`);
       }
-    } catch (err: any) {
-      if (err?.code === 'auth/user-not-found') {
+    } catch (err) {
+      if ((err as { code?: string })?.code === 'auth/user-not-found') {
         continue; // 既に消えてる → OK
       }
       throw err;
@@ -237,8 +237,8 @@ async function countStorageAndAuth(uid: string): Promise<StorageAuthCounts> {
     authExists = true;
     authProvider = user.providerData[0]?.providerId ?? (uid.startsWith('twitter:') ? 'twitter' : uid.startsWith('google:') ? 'google' : 'custom');
     isAdmin = user.customClaims?.role === 'admin';
-  } catch (err: any) {
-    if (err?.code !== 'auth/user-not-found') throw err;
+  } catch (err) {
+    if ((err as { code?: string })?.code !== 'auth/user-not-found') throw err;
   }
   return { storageFiles: files.length, authExists, authProvider, isAdmin };
 }
@@ -333,8 +333,8 @@ async function deleteAuthForUid(uid: string): Promise<boolean> {
   try {
     await auth.deleteUser(uid);
     return true;
-  } catch (err: any) {
-    if (err?.code === 'auth/user-not-found') return false;
+  } catch (err) {
+    if ((err as { code?: string })?.code === 'auth/user-not-found') return false;
     throw err;
   }
 }
@@ -431,8 +431,8 @@ async function main() {
         console.error(`❌ ABORT: ${uid} は admin claim を持っています。 削除中止。`);
         process.exit(1);
       }
-    } catch (err: any) {
-      if (err?.code !== 'auth/user-not-found') throw err;
+    } catch (err) {
+      if ((err as { code?: string })?.code !== 'auth/user-not-found') throw err;
     }
 
     try {

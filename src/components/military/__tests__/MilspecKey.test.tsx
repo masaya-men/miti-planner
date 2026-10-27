@@ -4,7 +4,8 @@ import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createRef } from 'react';
 import { fireEvent } from '@testing-library/react';
-import { MilspecKey, MilspecKeyCap, hitPolygon } from '../MilspecKey';
+import { MilspecKey, MilspecKeyCap } from '../MilspecKey';
+import { hitPolygon } from '../milspecKeyGeometry';
 import type { CapSpec } from '../armor/types';
 
 const cap: CapSpec = { pts: [[10, 10], [60, 10], [60, 30], [10, 30]], lip: true };

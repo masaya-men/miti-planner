@@ -5,8 +5,9 @@ import { initAdmin } from '../../src/lib/adminAuth.js';
 import { authorizeCollab } from './_handlerShared.js';
 import { getAuth } from 'firebase-admin/auth';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
   if (!(await applyRateLimit(req, res, 30, 60_000, { scope: 'collab-verify', globalMax: 1500 }))) return;
   if (!authorizeCollab(req.headers['x-collab-secret'])) {

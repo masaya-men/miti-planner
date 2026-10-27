@@ -1,6 +1,7 @@
 import type { Phase, LocalizedString, TimelineEvent } from '../types';
 
 /** 旧形式（endTimeベース）かどうかを判定 */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- 旧形式データ (形が不定の保存データ) を受ける移行関数のため
 export function isLegacyPhaseFormat(phases: any[]): boolean {
     if (phases.length === 0) return false;
     const first = phases[0];
@@ -8,6 +9,7 @@ export function isLegacyPhaseFormat(phases: any[]): boolean {
 }
 
 /** Phase.name を string | LocalizedString から LocalizedString に正規化 */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- 旧形式データ (string / オブジェクト混在) を受ける移行関数のため
 function normalizePhaseName(name: any): LocalizedString {
     if (typeof name === 'string') {
         // [object Object] 混入をクリーニング
@@ -53,6 +55,7 @@ export function ensurePhaseEndTimes(
  * 新形式のデータはそのまま返す。純粋関数。
  * endTimeが未設定の場合は自動補完する。maxTime を渡すと最終フェーズのフォールバックに使われる。
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- 旧形式データ (形が不定の保存データ) を受ける移行関数のため
 export function migratePhases(phases: any[], maxTime?: number): Phase[] {
     if (phases.length === 0) return [];
 
@@ -67,8 +70,8 @@ export function migratePhases(phases: any[], maxTime?: number): Phase[] {
         }));
     } else {
         // 旧形式: endTime順にソート済みと仮定
-        const sorted = [...phases].sort((a: any, b: any) => a.endTime - b.endTime);
-        result = sorted.map((p: any, i: number) => ({
+        const sorted = [...phases].sort((a, b) => a.endTime - b.endTime);
+        result = sorted.map((p, i: number) => ({
             id: p.id,
             name: normalizePhaseName(p.name),
             startTime: i === 0 ? 0 : sorted[i - 1].endTime,

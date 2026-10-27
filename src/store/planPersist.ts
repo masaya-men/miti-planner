@@ -44,7 +44,7 @@ export function partializePlanState(state: PartializeInput): PersistedPlanState 
  * - 永続データのデータフィールドで上書き
  * - dirty/deleted は配列→Set に変換 (旧データでフィールドが無ければ空 Set)
  */
-export function mergePersistedPlanState<T extends Record<string, any>>(
+export function mergePersistedPlanState<T extends object>(
     persisted: unknown,
     current: T,
 ): T {

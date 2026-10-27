@@ -14,6 +14,7 @@ import type { useTimelineRowLayout, useTimelineMemberXMap } from './useTimelineL
 import type { useTimelineDamage } from './useTimelineDamage';
 import type { useTimelineSheetColumns } from './useTimelineSheetView';
 import type { useTimelineMitigationEditing } from './useTimelineEditing';
+/** 描画用の 1 アイコン。実データの AppliedMitigation か、ホロスコープ等の子として差し込む仮想アイコン */type DisplayItem = AppliedMitigation & { isVirtual: boolean; parentId: string | null; iconOverride?: string; grayscale?: boolean };
 
 type DamageResult = ReturnType<typeof useTimelineDamage>;
 type MitigationStore = ReturnType<typeof useMitigationStore.getState>;
@@ -75,17 +76,17 @@ export const TimelineMitigationLayer: React.FC<TimelineMitigationLayerProps> = (
 
             Object.entries(mitigationsByOwner).forEach(([, ownerMitigations]) => {
                 const getRecast = (mitigationId: string): number => {
-                    const def = MITIGATIONS.find((m: any) => m.id === mitigationId);
+                    const def = MITIGATIONS.find((m) => m.id === mitigationId);
                     return def ? (def.recast || def.recast || 999) : 999;
                 };
 
-                const displayItems: any[] = [];
+                const displayItems: DisplayItem[] = [];
                 ownerMitigations.forEach(m => {
-                    const def = MITIGATIONS.find((d: any) => d.id === m.mitigationId);
+                    const def = MITIGATIONS.find((d) => d.id === m.mitigationId);
                     displayItems.push({ ...m, isVirtual: false, parentId: null });
 
                     if (def?.id === 'horoscope') {
-                        const heliosEvents = ownerMitigations.filter((am: any) =>
+                        const heliosEvents = ownerMitigations.filter((am) =>
                             (am.mitigationId === 'aspected_helios' || am.mitigationId === 'helios_conjunction') &&
                             am.ownerId === m.ownerId &&
                             am.time >= m.time &&
@@ -179,7 +180,7 @@ export const TimelineMitigationLayer: React.FC<TimelineMitigationLayerProps> = (
 
                 // ── Phase 1: 全アイコンの配置位置 (candidateLeft) を確定 ──
                 // 既存のレーン詰めロジックを Phase 1 として分離。 時間重複を avoid して左から詰める
-                const assignedPositions: { m: any, left: number }[] = [];
+                const assignedPositions: { m: DisplayItem, left: number }[] = [];
 
                 if (!ownerSheetCols) displayItems.forEach(mitigation => {
                     // duration:0 のマーカー(挑発等)も最低1行分の footprint を持つ扱いにし、
@@ -265,14 +266,14 @@ export const TimelineMitigationLayer: React.FC<TimelineMitigationLayerProps> = (
                     // 「効果がかかる最後の秒」の行の下端の 1px 上まで。
                     const top = rowLayout.topOf(mitigation.time);
                     const barTop = barStartY(rowLayout, mitigation.time);
-                    const def = MITIGATIONS.find((m: any) => m.id === mitigation.mitigationId);
+                    const def = MITIGATIONS.find((m) => m.id === mitigation.mitigationId);
                     let height = Math.max(0, Math.round(barEndY(rowLayout, effectiveEndTime) - barTop));
 
                     if (!mitigation.isVirtual) {
                         if (def?.id === 'horoscope') {
-                            const heliosInHoro = displayItems.filter((am: any) =>
+                            const heliosInHoro = displayItems.filter((am) =>
                                 am.isVirtual && am.parentId === mitigation.id
-                            ).sort((a: any, b: any) => a.time - b.time);
+                            ).sort((a, b) => a.time - b.time);
                             if (heliosInHoro.length > 0) {
                                 height = Math.max(0, Math.round(childIconCutY(rowLayout, heliosInHoro[0].time) - barTop));
                             }
@@ -282,7 +283,7 @@ export const TimelineMitigationLayer: React.FC<TimelineMitigationLayerProps> = (
                         }
                         if (def && isLivingDeadStyle(def)) {
                             // WD 仮想アイコンの実際の開始(tT、重なり回避時は tT+1)で親バーを切る(ホロスコープと同じく仮想の time を参照)。
-                            const wd = displayItems.find((am: any) => am.isVirtual && am.parentId === mitigation.id);
+                            const wd = displayItems.find((am) => am.isVirtual && am.parentId === mitigation.id);
                             if (wd) {
                                 height = Math.max(0, Math.round(childIconCutY(rowLayout, wd.time) - barTop));
                             }

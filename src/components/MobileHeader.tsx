@@ -55,7 +55,7 @@ export const MobileHeader: React.FC<{
                         </span>
                     </button>
 
-                    {/* 2段目: コンテンツ名　プラン名(viewer は コンテンツ名　オーナー名) */}
+                    {/* 2段目: コンテンツ名\u3000プラン名(viewer は コンテンツ名\u3000オーナー名) */}
                     {subtitle && (
                         <p
                             className="text-app-text-muted font-bold leading-tight truncate"

@@ -15,8 +15,9 @@ import promoteHandler from './_promoteHandler.js';
 import publicNotificationsHandler from './_publicNotificationsHandler.js';
 import publicTemplateHandler from './_publicTemplateHandler.js';
 import { setPrivateNoStore } from '../../src/lib/privateNoStore.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   const action = req.query?.action;
 
   switch (action) {

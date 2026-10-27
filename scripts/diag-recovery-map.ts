@@ -35,8 +35,8 @@ const ROOT = resolve(import.meta.dirname, '..');
 const env = loadEnv(resolve(ROOT, '.env.local'));
 initializeApp({ credential: cert({ projectId: env.FIREBASE_PROJECT_ID, clientEmail: env.FIREBASE_CLIENT_EMAIL, privateKey: (env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n') }) });
 const db = getFirestore();
-const arrLen = (a: any) => (Array.isArray(a) ? a.length : 0);
-const iso = (t: any) => t?.toDate?.()?.toISOString?.() || '?';
+const arrLen = (a: unknown) => (Array.isArray(a) ? a.length : 0);
+const iso = (t: { toDate?: () => { toISOString?: () => string } } | null | undefined) => t?.toDate?.()?.toISOString?.() || '?';
 
 interface Row {
   id: string; owner: string; title: string; mit: number; ev: number; pm: number;

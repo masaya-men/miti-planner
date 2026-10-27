@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
-import { pulseConfig, gridConfig, pulseVisualConfig, PULSE_COLOR_PRESETS, savePulseSettings, notifyGridConfigChange } from './GridOverlay';
+import { pulseConfig, gridConfig, pulseVisualConfig, PULSE_COLOR_PRESETS, savePulseSettings, notifyGridConfigChange } from './gridOverlayConfig';
 
 // --- 色変換ユーティリティ ---
 function hslToRgb(h: number, s: number, l: number): [number, number, number] {

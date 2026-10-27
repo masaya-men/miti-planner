@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import { AdminPage } from './AdminPage';
 
 // バックアップエントリーの型

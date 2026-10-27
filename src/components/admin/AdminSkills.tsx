@@ -9,7 +9,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import { SkillFormModal } from './SkillFormModal';
 import { AdminPage } from './AdminPage';
 import type { Job, Mitigation } from '../../types';
@@ -92,7 +92,7 @@ export function AdminSkills() {
         if (!data) return;
 
         let newMitigations: Mitigation[];
-        let newDisplayOrder = [...data.displayOrder];
+        const newDisplayOrder = [...data.displayOrder];
 
         if (isNew) {
             newMitigations = [...data.mitigations, skill];

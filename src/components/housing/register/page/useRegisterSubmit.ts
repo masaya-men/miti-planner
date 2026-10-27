@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
 import { useHousingUpdate } from '../../edit/useHousingUpdate';
-import { showToast } from '../../../Toast';
+import { showToast } from '../../../toastBus';
 import { checkDuplicate, registerListing, uploadListingThumbnail, QuotaExhaustedError, type DuplicateEntry } from '../../../../lib/housingApiClient';
 import type { RegistrationDraft } from '../../../../utils/housingValidation';
 import { normalizeAddressForBuildingType } from '../../../../lib/housing/normalizeAddressForBuildingType';

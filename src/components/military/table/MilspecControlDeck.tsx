@@ -16,6 +16,7 @@ import {
 import './milspecDeck.css';
 // 副作用 import: i18next の初期化(単体テストの安全網。実アプリでは起動時に初期化済み)
 import '../../../i18n';
+import { leakTrace } from './milspecControlDeckTraces';
 
 // 表の操作列(見本 v11 js:942-962)。Timeline の controlBar 内側のうち「表を展開 〜 軽減の削除メニュー」を
 // 軍事テーマの装甲・横スライド・横ロッカー・キーに置き換える。状態は持たず、値と関数は Timeline から受け取る
@@ -59,9 +60,6 @@ const capPos = (cap: CapSpec): React.CSSProperties => {
   const b = bbox(cap.pts);
   return { left: b.x, top: b.y };
 };
-
-/** 漏れ光の経路(見本 js:962: 区画の幅いっぱい = 操作列 + ジョブ欄の右端まで) */
-export const leakTrace = (w: number) => [{ name: 'lk:tb', d: `M 0 -2 H ${w}`, pc: 'leak' }];
 
 export function MilspecControlDeck(p: MilspecControlDeckProps) {
   const { t } = useTranslation();

@@ -62,8 +62,8 @@ async function main() {
         const parsed = JSON.parse(readFileSync(TARGET_JSON_PATH, 'utf-8'));
         targetUids = parsed.discord ?? [];
         check('TARGET_UIDS JSON readable', true, `${targetUids.length} uids`);
-    } catch (err: any) {
-        check('TARGET_UIDS JSON readable', false, err?.message || 'parse error');
+    } catch (err) {
+        check('TARGET_UIDS JSON readable', false, (err as { message?: string })?.message || 'parse error');
     }
     check('TARGET_UIDS count == 10', targetUids.length === 10, `actual: ${targetUids.length}`);
     check('All TARGET_UIDS have discord: prefix', targetUids.every((u) => u.startsWith('discord:')));
@@ -97,7 +97,8 @@ async function main() {
         const auth = getAuth();
         let existsCount = 0;
         for (const u of targetUids) {
-            try { await auth.getUser(u); existsCount++; } catch {}
+            try { await auth.getUser(u); existsCount++; } catch { // 意図的に無視: 存在しないユーザーは数えない
+ }
         }
         check('All TARGET_UIDS exist in Firebase Auth', existsCount === targetUids.length, `${existsCount}/${targetUids.length}`);
     }
@@ -109,8 +110,8 @@ async function main() {
         // 400/401/403 = endpoint live + App Check 拒否 (期待挙動)。 200/500/404 は異常。
         const liveStatuses = [400, 401, 403];
         check(`${prodUrl}/api/auth POST responds`, liveStatuses.includes(res.status), `status ${res.status}`);
-    } catch (err: any) {
-        check(`${prodUrl}/api/auth POST responds`, false, err?.message || 'network error');
+    } catch (err) {
+        check(`${prodUrl}/api/auth POST responds`, false, (err as { message?: string })?.message || 'network error');
     }
 
     // 6. hashUid 関数の動作テスト (固定 ID で確実な hash が出るか)
@@ -118,8 +119,8 @@ async function main() {
         try {
             const testHash = hashUid('TEST_ID_FOR_PREFLIGHT', secret);
             check('hashUid function works', testHash.startsWith('hashed:') && testHash.length === 71); // 'hashed:' + 64
-        } catch (err: any) {
-            check('hashUid function works', false, err?.message);
+        } catch (err) {
+            check('hashUid function works', false, (err as { message?: string })?.message);
         }
     }
 

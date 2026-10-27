@@ -44,9 +44,9 @@ export const createHistorySlice = ({ set, get }: SliceContext): Pick<MitigationS
             : undefined;
 
         const migratedPhases = migratePhases(snapshot.phases ?? [], maxEventTime);
-        const labels: Label[] = isLegacyLabelFormat(snapshot as any)
+        const labels: Label[] = isLegacyLabelFormat(snapshot)
             ? migrateLabels(snapshot.timelineEvents, migratedPhases)
-            : ensureLabelEndTimes((snapshot as any).labels ?? [], maxEventTime);
+            : ensureLabelEndTimes((snapshot as { labels?: Label[] }).labels ?? [], maxEventTime);
 
         // 過去バグ（最終フェーズ/ラベルの endTime が startTime+1 で保存されている）を修復
         const lastRepairedPhases = maxEventTime !== undefined
@@ -63,7 +63,7 @@ export const createHistorySlice = ({ set, get }: SliceContext): Pick<MitigationS
         // 学者の aetherflow 自動挿入マイグレーション
         // 旧プラン (pattern 時代) は dissipation のみ配置されていて aetherflow が無い。
         // aetherflow が 1 つでもあるプラン（新形式・編集後保存）はユーザー編集尊重で触らない。
-        let migratedMitigations = [...snapshot.timelineMitigations];
+        const migratedMitigations = [...snapshot.timelineMitigations];
         for (const member of membersWithComputed) {
             if (member.jobId === 'sch' && !hasAnyAetherflow(member.id, migratedMitigations)) {
                 const inserts = buildScholarAutoInserts(member.id, migratedMitigations, snapshot.timelineEvents);

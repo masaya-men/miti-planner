@@ -42,6 +42,7 @@ import { bumpPublicVersionTx } from './_publicVersion.js';
 import { warmListingCardByRef } from './_warmListingCard.js';
 import { convertToPngIfNeeded, LISTING_THUMBNAIL_PNG_MAX_DIMENSION, resizeToWebp, CONVERTIBLE_MIME } from './_imageFormatConvert.js';
 import { computeCoverThumbHash } from './_coverThumbHash.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
 const MAX_BYTES = 1 * 1024 * 1024; // 1MB
 const MAX_IMAGES_PER_LISTING = 4;
@@ -52,7 +53,7 @@ const ALLOWED_MIME: Record<string, string> = {
   'image/png': 'png',
 };
 
-function setCors(req: any, res: any) {
+function setCors(req: HousingReq, res: HousingRes) {
   const origin = req.headers?.origin || '';
   const allowed = [
     'https://lopoly.app',
@@ -66,7 +67,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: HousingReq, res: HousingRes) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -262,7 +263,7 @@ export default async function handler(req: any, res: any) {
     await warmListingCardByRef(adminDb, req.headers?.host, listingRef);
 
     return res.status(200).json({ success: true, thumbnailPath: publicUrl, thumbnailPaths: newPaths });
-  } catch (error: any) {
+  } catch (error) {
     console.error('[housing/upload-thumbnail] error:', error);
     return res.status(500).json({ error: error?.message || 'Internal error' });
   }

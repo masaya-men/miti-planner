@@ -1,8 +1,9 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { SystemNotificationBar, normalizeLang } from '../SystemNotificationBar';
-import { normalizeLang as normalizeLangModal } from '../SystemNotificationModal';
+import { SystemNotificationBar } from '../SystemNotificationBar';
+import { normalizeLang } from '../systemNotificationLang';
+import { normalizeLang as normalizeLangModal } from '../systemNotificationLang';
 import * as hookModule from '../../store/useSystemNotifications';
 
 vi.mock('react-i18next', () => ({

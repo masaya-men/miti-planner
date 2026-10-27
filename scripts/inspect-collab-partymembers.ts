@@ -43,7 +43,7 @@ const db = getFirestore();
 
 const titleSub = (process.argv[2] || 'tesuto').toLowerCase();
 
-function summarizeArray(label: string, arr: any): void {
+function summarizeArray(label: string, arr: unknown): void {
   if (!Array.isArray(arr)) { console.log(`    ${label}: (not array) ${JSON.stringify(arr)}`); return; }
   const ids = arr.map((x) => (x && typeof x === 'object' ? x.id : x));
   const idCounts = new Map<string, number>();
@@ -56,7 +56,7 @@ function summarizeArray(label: string, arr: any): void {
 async function main() {
   console.log(`=== plans (title に "${titleSub}" を含む) ===`);
   const plansSnap = await db.collection('plans').get();
-  const matched: { id: string; data: any }[] = [];
+  const matched: { id: string; data: FirebaseFirestore.DocumentData }[] = [];
   for (const doc of plansSnap.docs) {
     const data = doc.data();
     const title = String(data.title || '');
@@ -73,7 +73,7 @@ async function main() {
     // partyMembers の中身を id+jobId+role で並べる(重複の正体を見る)
     if (Array.isArray(d.partyMembers)) {
       console.log('    partyMembers 詳細(id / jobId / role):');
-      d.partyMembers.forEach((m: any, i: number) =>
+      d.partyMembers.forEach((m: FirebaseFirestore.DocumentData, i: number) =>
         console.log(`      [${i}] id=${m?.id}  jobId=${m?.jobId}  role=${m?.role}`));
     }
     console.log('');

@@ -28,9 +28,8 @@ const baseEvent: TimelineEvent = {
 
 function submitForm() {
     const form = document.getElementById('event-modal-form') as HTMLFormElement;
-    form.requestSubmit
-        ? form.requestSubmit()
-        : form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    if (form.requestSubmit) form.requestSubmit();
+    else form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 }
 
 describe('EventForm altName(2択攻撃)', () => {

@@ -7,10 +7,11 @@
  */
 import { getDb } from './_handlerShared.js';
 import { shouldGcRoom, type GcRoomDoc } from './_collabGcLogic.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const RETENTION_DAYS = 7;
 
-export default async function handler(req: any, res: any): Promise<void> {
+export default async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
   const auth = req.headers?.authorization || '';
   const expected = process.env.CRON_SECRET ? `Bearer ${process.env.CRON_SECRET}` : '';
   if (!expected || auth !== expected) {

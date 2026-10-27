@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
-import { placeTooltipPopup, TOOLTIP_BOX_CLASS } from '../ui/Tooltip';
+import { TOOLTIP_BOX_CLASS } from '../ui/Tooltip';
+import { placeTooltipPopup } from '../ui/tooltipPlacement';
 
 // ボード(.milspec-app)の中の title 属性はブラウザの灰色の箱になる。標準テーマはアプリのツールチップ(ui/Tooltip)なので、
 // MIL-SPEC でも同じ箱で出す(masaya 2026-10-22)。部品ごとに書き換えると取りこぼすので、ボードの根元で 1 つだけ委譲して拾う。

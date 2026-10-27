@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { ref, uploadBytes } from 'firebase/storage';
 import { storage } from '../../lib/firebase';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import type { Job, Mitigation } from '../../types';
 
 interface SkillFormModalProps {
@@ -107,7 +107,7 @@ export function SkillFormModal({ isOpen, onClose, onSave, skill, jobId, jobs, al
         if (form.recast <= 0) { showToast('リキャストを入力してください', 'error'); return; }
 
         // 新規の場合はIDを自動生成
-        let finalSkill = { ...form };
+        const finalSkill = { ...form };
         if (isNew) {
             finalSkill.id = `${form.jobId}_${slugify(form.name.en)}_${Date.now().toString(36)}`;
         }

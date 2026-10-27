@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, fireEvent, waitFor, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { MilspecHeaderV11, DRW_PULSE } from '../MilspecHeaderV11';
+import { MilspecHeaderV11 } from '../MilspecHeaderV11';
+import { DRW_PULSE } from '../milspecHeaderV11Constants';
 import * as engine from '../../fx/engine';
 
 vi.mock('../../fx/engine', async (orig) => {
@@ -116,7 +117,7 @@ describe('H3 / H4 の既存機能', () => {
 
 describe('下の板・基板の配線', () => {
   const stubZone = (w: number) => {
-    vi.stubGlobal('ResizeObserver', class { constructor(_cb: unknown) {} observe() {} unobserve() {} disconnect() {} });
+    vi.stubGlobal('ResizeObserver', class { constructor() {} observe() {} unobserve() {} disconnect() {} });
     return vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: w, height: 102, x: 0, y: 0, top: 0, left: 0, right: w, bottom: 102, toJSON: () => ({}) });
   };
   const inZone = () => <MemoryRouter><div data-ms-zone="header"><MilspecHeaderV11 {...props} /></div></MemoryRouter>;
@@ -179,7 +180,7 @@ describe('下の板・基板の配線', () => {
 describe('幅(MW)への追従', () => {
   it('区画が 1465 幅だと、SORT の刻印が右へ寄る(キーの左端 MW-190 = 1275)', () => {
     vi.stubGlobal('ResizeObserver', class {
-      constructor(_cb: unknown) {}
+      constructor() {}
       observe() {} unobserve() {} disconnect() {}
     });
     const spy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 1465, height: 102, x: 0, y: 0, top: 0, left: 0, right: 1465, bottom: 102, toJSON: () => ({}) });

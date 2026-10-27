@@ -6,12 +6,13 @@ import { initAdmin, verifyAdmin, getAdminFirestore } from '../../src/lib/adminAu
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { calculateScore7d, dayKeyDaysBefore, todayKey } from '../popular/popularFilters.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const COLLECTION = 'shared_plans';
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 30;
 
-function setCors(req: any, res: any) {
+function setCors(req: ApiRequest, res: ApiResponse) {
     const origin = req.headers?.origin || '';
     const allowedOrigins = [
         'https://lopoly.app',
@@ -25,7 +26,7 @@ function setCors(req: any, res: any) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
     setCors(req, res);
     if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -78,7 +79,7 @@ export default async function handler(req: any, res: any) {
         const top = scored.slice(0, limit);
 
         const plans = top.map(({ doc, data, score7d }) => {
-            const partyMembers = data.planData?.partyMembers?.map((m: any) => ({
+            const partyMembers = data.planData?.partyMembers?.map((m) => ({
                 id: m.id,
                 jobId: m.jobId,
                 role: m.role,
@@ -106,7 +107,7 @@ export default async function handler(req: any, res: any) {
 
         return res.status(200).json({ contentId, plans, todayKey: todayKey() });
 
-    } catch (err: any) {
+    } catch (err) {
         console.error('Popular admin handler error:', err);
         return res.status(500).json({ error: 'Internal server error' });
     }

@@ -6,7 +6,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
-import { useTransitionOverlay } from './ui/TransitionOverlay';
+import { useTransitionOverlay } from './ui/transitionOverlayContext';
 import { ArrowLeft, Sun, Moon } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useCanonicalUrl } from '../hooks/useCanonicalUrl';

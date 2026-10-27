@@ -45,7 +45,7 @@ if (!liveDocId) {
   process.exit(1);
 }
 
-function summarize(label: string, data: any) {
+function summarize(label: string, data: FirebaseFirestore.DocumentData | null | undefined) {
   if (!data) { console.log(`  ${label}: (doc なし)`); return; }
   const d = data.data || {};
   const pm = Array.isArray(d.partyMembers) ? d.partyMembers.length : '(none)';
@@ -73,10 +73,10 @@ async function main() {
   for (const t of times) {
     try {
       const readTime = Timestamp.fromDate(new Date(t));
-      const [snap] = await db.getAll(ref, { readTime } as any);
+      const [snap] = await db.getAll(ref, { readTime } as unknown as FirebaseFirestore.ReadOptions);
       summarize(`@${t}`, snap.exists ? snap.data() : null);
-    } catch (err: any) {
-      console.log(`  @${t}: PITR 読み取り不可 (${err?.message?.slice(0, 80)})`);
+    } catch (err) {
+      console.log(`  @${t}: PITR 読み取り不可 (${(err as { message?: string })?.message?.slice(0, 80)})`);
     }
   }
 }

@@ -9,7 +9,7 @@ import { ensurePhaseEndTimes } from '../../utils/phaseMigration';
 import { ensureLabelEndTimes } from '../../utils/labelMigration';
 import { createTutorialEvents, TUTORIAL_PLAN_TITLE } from '../../data/tutorialTemplate';
 import i18n from '../../i18n';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import { decompressPlanData } from '../../utils/compression';
 import { commitNewPlan } from '../../lib/commitNewPlan';
 import { useCollabSessionStore } from '../../store/useCollabSessionStore';
@@ -17,7 +17,7 @@ import { setLastOpened } from '../../utils/lastOpenedStore';
 import type { TFunction } from 'i18next';
 import type { useSidebarNav } from './useSidebarNav';
 import type { useSidebarPlanSync } from './useSidebarPlanSync';
-import type { useTransitionOverlay } from '../ui/TransitionOverlay';
+import type { useTransitionOverlay } from '../ui/transitionOverlayContext';
 
 type Nav = ReturnType<typeof useSidebarNav>;
 type Sync = ReturnType<typeof useSidebarPlanSync>;

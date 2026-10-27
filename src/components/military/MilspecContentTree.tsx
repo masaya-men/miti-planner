@@ -18,35 +18,16 @@ import type { ContentDefinition, SavedPlan } from '../../types';
 import { PLAN_LIMITS } from '../../types/firebase';
 import { loadPlanDataIntoStore } from '../../lib/planLoad';
 import { setLastOpened } from '../../utils/lastOpenedStore';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import { NewPlanModal } from '../NewPlanModal';
 import { useReducedMotion } from '../../lib/housing/useReducedMotion';
 import { MilspecLed } from './MilspecDecor';
 import { MsIcon } from './milspecIcons';
 import { energy } from './fx/engine';
 import '../../i18n';
+import type { MilspecTreeTab } from './milspecContentTreeModel';
 
-export type MilspecTreeTab = 'savage' | 'ultimate' | 'other' | 'archive';
 type Tab = MilspecTreeTab;
-
-/** タブ一覧(ラベルは i18n)。MilspecSidebar 側のタブバーと共有。 */
-export function useMilspecTreeTabs(): { id: Tab; label: string }[] {
-  const { t } = useTranslation();
-  return [
-    { id: 'savage', label: t('sidebar.tab_savage') },
-    { id: 'ultimate', label: t('sidebar.tab_ultimate') },
-    { id: 'other', label: t('sidebar.tab_other') },
-    { id: 'archive', label: t('sidebar.tab_archive') },
-  ];
-}
-
-/** プランのコンテンツ種別からタブを決める(標準 Sidebar と同じ)。 */
-export function tabForPlanCategory(cat: string | null | undefined): Tab {
-  if (cat === 'ultimate') return 'ultimate';
-  if (cat === 'savage') return 'savage';
-  if (cat) return 'other';
-  return 'savage';
-}
 
 /** ツリーの選択モード(まとめて共有 / 選択削除)。無いときは通常のツリー。 */
 export interface MilspecTreeSelect {

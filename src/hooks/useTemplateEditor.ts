@@ -429,7 +429,7 @@ export function useTemplateEditor() {
   const setLabelAtTime = useCallback(
     (timeSec: number, labelName: LocalizedString | null) => {
       setState((prev) => {
-        let newLabels = structuredClone(prev.currentLabels);
+        const newLabels = structuredClone(prev.currentLabels);
         const isEmpty = !labelName || (!labelName.ja && !labelName.en && !labelName.zh && !labelName['zh-Hant'] && !labelName.ko);
 
         const existingIdx = newLabels.findIndex((l) => l.startTimeSec === timeSec);

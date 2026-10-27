@@ -34,7 +34,7 @@ const baseSummary: RegisterConfirmSummary = {
   imageCount: 1,
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 function wrap(overrides: Partial<any> = {}) {
   const props = {
     summary: baseSummary,

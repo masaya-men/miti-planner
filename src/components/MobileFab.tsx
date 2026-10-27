@@ -11,7 +11,7 @@ import {
 import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ContentLanguage, MobileEffectBarMode } from '../store/useThemeStore';
-import { useTransitionOverlay } from './ui/TransitionOverlay';
+import { useTransitionOverlay } from './ui/transitionOverlayContext';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
 import { SPRING, STAGGER } from '../tokens/motionTokens';
 import { useMitigationStore } from '../store/useMitigationStore';

@@ -24,7 +24,7 @@ export const StatusBar: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
 
   useEffect(() => {
-    // eslint-disable-next-line no-console
+     
     console.info('[housing] build', BUILD_VERSION);
   }, []);
 

@@ -31,14 +31,14 @@ const env = loadEnv(resolve(ROOT, '.env.local'));
 initializeApp({ credential: cert({ projectId: env.FIREBASE_PROJECT_ID, clientEmail: env.FIREBASE_CLIENT_EMAIL, privateKey: (env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n') }) });
 const db = getFirestore();
 
-const arrLen = (a: any) => (Array.isArray(a) ? a.length : 0);
+const arrLen = (a: unknown) => (Array.isArray(a) ? a.length : 0);
 
 async function main() {
   const snap = await db.collection('plans').get();
   console.log(`総プラン数: ${snap.size}\n`);
 
   let empty = 0, emptyCollab = 0, hasCollabToken = 0;
-  const suspect: any[] = [];
+  const suspect: FirebaseFirestore.DocumentData[] = [];
   const emptyByDay = new Map<string, number>();
   const nonEmptyVersions: number[] = [];
 

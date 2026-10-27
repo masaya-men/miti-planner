@@ -2,11 +2,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {
-  HousingOnboardingDialog,
-  hasSeenHousingOnboarding,
-  markHousingOnboardingSeen,
-} from '../../components/housing/HousingOnboardingDialog';
+import { HousingOnboardingDialog } from '../../components/housing/HousingOnboardingDialog';
+import { hasSeenHousingOnboarding, markHousingOnboardingSeen } from '../../components/housing/housingOnboardingState';
 
 beforeEach(() => {
   localStorage.clear();

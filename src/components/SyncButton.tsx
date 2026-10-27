@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
-import { showToast } from './Toast';
+import { showToast } from './toastBus';
 
 /**
  * クラウド同期インジケータ (セッション 22 で「ボタン」 から「インジケータ」 に格下げ)

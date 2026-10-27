@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HOUSINGER_REPORT_REASONS, type HousingerReportReason } from '../../../lib/housing/housingerProfile';
 import { useHousingerReport } from './useHousingerReport';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import { HousingPanelModal } from '../HousingPanelModal';
 
 export interface HousingerReportModalProps {

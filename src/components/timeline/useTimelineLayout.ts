@@ -79,7 +79,7 @@ export function useTimelineColumnCollapse() {
     const handleTogglePhaseCollapse = () => {
         setPhaseColumnCollapsed(prev => {
             const next = !prev;
-            try { localStorage.setItem('lopo-phase-col-collapsed', String(next)); } catch {}
+            try { localStorage.setItem('lopo-phase-col-collapsed', String(next)); } catch { /* 意図的に無視: localStorage 不可でも表示は継続 */ }
             return next;
         });
     };
@@ -87,7 +87,7 @@ export function useTimelineColumnCollapse() {
     const handleToggleLabelCollapse = () => {
         setLabelColumnCollapsed(prev => {
             const next = !prev;
-            try { localStorage.setItem('lopo-label-col-collapsed', String(next)); } catch {}
+            try { localStorage.setItem('lopo-label-col-collapsed', String(next)); } catch { /* 意図的に無視: localStorage 不可でも表示は継続 */ }
             return next;
         });
     };
@@ -95,7 +95,7 @@ export function useTimelineColumnCollapse() {
     const handleToggleRecastRowVisible = () => {
         setRecastRowVisible(prev => {
             const next = !prev;
-            try { localStorage.setItem('lopo-recast-row-visible', String(next)); } catch {}
+            try { localStorage.setItem('lopo-recast-row-visible', String(next)); } catch { /* 意図的に無視: localStorage 不可でも表示は継続 */ }
             return next;
         });
     };

@@ -50,7 +50,7 @@ if (!targetId || !sourceId) {
   process.exit(1);
 }
 
-function sum(label: string, data: any) {
+function sum(label: string, data: FirebaseFirestore.DocumentData | null | undefined) {
   const d = (data && data.data) || {};
   const pm = Array.isArray(d.partyMembers) ? d.partyMembers.length : '?';
   const mit = Array.isArray(d.timelineMitigations) ? d.timelineMitigations.length : '?';

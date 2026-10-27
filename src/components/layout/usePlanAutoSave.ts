@@ -4,7 +4,7 @@ import { useMitigationStore } from '../../store/useMitigationStore';
 import { usePlanStore } from '../../store/usePlanStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { persistWorkingStore } from '../../lib/persistWorkingStore';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 
 // 自動保存（2層構造）
 // localStorage: 変更検知→500msデバウンス→即時保存（コストゼロ）

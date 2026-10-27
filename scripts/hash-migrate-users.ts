@@ -17,6 +17,9 @@ import { resolve, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { Query, DocumentReference } from 'firebase-admin/firestore';
 
+/** バックアップ JSON 内の「ドキュメント id + データ」1 件分(復元時の型付け用)。 */
+type BackupDoc = { id: string; sharedPlanId: string; data: FirebaseFirestore.DocumentData };
+
 export interface ParsedFlags {
     mode: 'dry-run' | 'backup' | 'execute' | 'rollback';
     backup: boolean;
@@ -351,8 +354,8 @@ if (isMain) {
             const u = await auth.getUser(uid);
             c.authExists = true;
             c.isAdmin = u.customClaims?.role === 'admin';
-        } catch (err: any) {
-            if (err?.code !== 'auth/user-not-found') throw err;
+        } catch (err) {
+            if ((err as { code?: string })?.code !== 'auth/user-not-found') throw err;
         }
         return c;
     }
@@ -377,7 +380,7 @@ if (isMain) {
         }
         console.log(`Backup verified: ${filtered.length}/${filtered.length} files ✓\n`);
 
-        let totals = {
+        const totals = {
             firestore: 0, storage: 0, authCreate: 0, authDelete: 0, adminReapply: 0,
             crossRef: 0,
         };
@@ -523,12 +526,12 @@ if (isMain) {
 
     // ===== 「窓」 sweeper =====
 
-    async function handlePreExistingNewUid(newUid: string): Promise<{ existed: boolean; preservedData: any | null }> {
+    async function handlePreExistingNewUid(newUid: string): Promise<{ existed: boolean; preservedData: FirebaseFirestore.DocumentData | null }> {
         try {
             const user = await auth.getUser(newUid);
             // 既に新 uid が存在 = デプロイ後 migration 前に誰かが先回りログインした
             console.log(`  ⚠️ Pre-existing newUid found: ${newUid}`);
-            const preservedData: any = { authMeta: user.metadata, customClaims: user.customClaims };
+            const preservedData: FirebaseFirestore.DocumentData = { authMeta: user.metadata, customClaims: user.customClaims };
             // 新 uid 側に何かデータがある場合は保全 (通常はゼロ件のはず)
             const userDoc = await db.collection('users').doc(newUid).get();
             if (userDoc.exists) preservedData.userDoc = userDoc.data();
@@ -539,8 +542,8 @@ if (isMain) {
             await auth.deleteUser(newUid);
             await db.collection('users').doc(newUid).delete().catch(() => {});
             return { existed: true, preservedData };
-        } catch (err: any) {
-            if (err?.code === 'auth/user-not-found') {
+        } catch (err) {
+            if ((err as { code?: string })?.code === 'auth/user-not-found') {
                 return { existed: false, preservedData: null };
             }
             throw err;
@@ -560,7 +563,7 @@ if (isMain) {
             storageCopied: number;
             storageDeleted: number;
             crossRefUpdated: number;
-            windowSweepData: any | null;
+            windowSweepData: FirebaseFirestore.DocumentData | null;
         };
     }
 
@@ -579,8 +582,8 @@ if (isMain) {
             // 理由: 既に migration 済の uid を再 execute した場合、 newUid Auth は「正規の migrate 結果」
             // であり、 「窓で先回りログインした空アカウント」 ではない。 順序を間違えて window sweep を
             // 先にすると、 正規の newUid アカウントを誤って削除してしまう (2026-05-20 セッション 41 で発生)。
-            const oldUser = await auth.getUser(oldUid).catch((err: any) => {
-                if (err?.code === 'auth/user-not-found') return null;
+            const oldUser = await auth.getUser(oldUid).catch((err) => {
+                if ((err as { code?: string })?.code === 'auth/user-not-found') return null;
                 throw err;
             });
             if (!oldUser) {
@@ -758,8 +761,8 @@ if (isMain) {
             await auth.deleteUser(oldUid);
 
             result.success = true;
-        } catch (err: any) {
-            result.error = err?.message || String(err);
+        } catch (err) {
+            result.error = (err as { message?: string })?.message || String(err);
             result.success = false;
             console.error(`  ❌ FAILED: ${result.error}`);
             console.error(`  Initiating per-user auto-rollback...`);
@@ -804,8 +807,8 @@ if (isMain) {
             }
             await deleteStorage(newUid);
             console.error(`  ✅ Auto-rollback complete for ${oldUid}`);
-        } catch (rollbackErr: any) {
-            console.error(`  ❌ AUTO-ROLLBACK FAILED: ${rollbackErr?.message || rollbackErr}`);
+        } catch (rollbackErr) {
+            console.error(`  ❌ AUTO-ROLLBACK FAILED: ${(rollbackErr as { message?: string })?.message || rollbackErr}`);
             console.error(`  Manual intervention required. Run: npx tsx scripts/hash-migrate-users.ts --rollback --confirm --uid=${oldUid}`);
         }
     }
@@ -921,33 +924,33 @@ if (isMain) {
             await db.collection('housing_user_meta').doc(oldUid).set(backup.firestore.housingUserMeta as Record<string, unknown>);
         }
         for (const item of backup.firestore.housingFavoritesItems) {
-            await db.collection('housing_favorites').doc(oldUid).collection('items').doc((item as any).id).set((item as any).data);
+            await db.collection('housing_favorites').doc(oldUid).collection('items').doc((item as BackupDoc).id).set((item as BackupDoc).data);
         }
         for (const sess of backup.firestore.featureSessions) {
-            await db.collection('users').doc(oldUid).collection('featureSessions').doc((sess as any).id).set((sess as any).data);
+            await db.collection('users').doc(oldUid).collection('featureSessions').doc((sess as BackupDoc).id).set((sess as BackupDoc).data);
         }
         for (const p of backup.firestore.plans) {
-            await db.collection('plans').doc((p as any).id).set((p as any).data);
+            await db.collection('plans').doc((p as BackupDoc).id).set((p as BackupDoc).data);
         }
         for (const m of backup.firestore.sharedPlanMeta) {
-            await db.collection('sharedPlanMeta').doc((m as any).id).set((m as any).data);
+            await db.collection('sharedPlanMeta').doc((m as BackupDoc).id).set((m as BackupDoc).data);
         }
         for (const sp of backup.firestore.sharedPlans) {
-            await db.collection('shared_plans').doc((sp as any).id).set((sp as any).data);
+            await db.collection('shared_plans').doc((sp as BackupDoc).id).set((sp as BackupDoc).data);
         }
         for (const cb of backup.firestore.sharedPlansCopiedBy) {
-            await db.collection('shared_plans').doc((cb as any).sharedPlanId).collection('copiedBy').doc((cb as any).id).set((cb as any).data);
+            await db.collection('shared_plans').doc((cb as BackupDoc).sharedPlanId).collection('copiedBy').doc((cb as BackupDoc).id).set((cb as BackupDoc).data);
         }
         for (const l of backup.firestore.housingListings) {
-            await db.collection('housing_listings').doc((l as any).id).set((l as any).data);
+            await db.collection('housing_listings').doc((l as BackupDoc).id).set((l as BackupDoc).data);
         }
         for (const lr of backup.firestore.housingListingsReports) {
             for (const r of lr.reports) {
-                await db.collection('housing_listings').doc(lr.listingId).collection('reports').doc((r as any).id).set((r as any).data);
+                await db.collection('housing_listings').doc(lr.listingId).collection('reports').doc((r as BackupDoc).id).set((r as BackupDoc).data);
             }
         }
         for (const t of backup.firestore.housingTours) {
-            await db.collection('housing_tours').doc((t as any).id).set((t as any).data);
+            await db.collection('housing_tours').doc((t as BackupDoc).id).set((t as BackupDoc).data);
         }
         // cross-refs
         for (const cr of backup.firestore.crossRefCopiedBy) {
@@ -955,7 +958,7 @@ if (isMain) {
         }
         for (const cr of backup.firestore.crossRefReports) {
             for (const r of cr.reports) {
-                await db.collection('housing_listings').doc(cr.listingId).collection('reports').doc((r as any).id).set((r as any).data);
+                await db.collection('housing_listings').doc(cr.listingId).collection('reports').doc((r as BackupDoc).id).set((r as BackupDoc).data);
             }
         }
 

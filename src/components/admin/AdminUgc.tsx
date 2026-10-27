@@ -56,8 +56,8 @@ export function AdminUgc() {
         return;
       }
       setPlan(await res.json());
-    } catch (err: any) {
-      setError(err.message || 'Network error');
+    } catch (err) {
+      setError((err as Error).message || 'Network error');
     } finally {
       setLoading(false);
     }
@@ -78,8 +78,8 @@ export function AdminUgc() {
       }
       setPlan({ ...plan, hasLogo: false, logoBase64: null });
       setDeleteSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'Network error');
+    } catch (err) {
+      setError((err as Error).message || 'Network error');
     } finally {
       setDeleting(false);
     }

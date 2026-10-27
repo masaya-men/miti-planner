@@ -15,7 +15,7 @@ import { useMasterData } from '../../../hooks/useMasterData';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
 import { canAddToTour, tourAnchorRegion, tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import type { MockListing } from '../../../data/housing/mockListings';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import { FilterPanel } from '../workspace/FilterPanel';
 import { EmptyResult } from '../workspace/EmptyResult';
 import { PersonalTagFilterLink } from '../workspace/PersonalTagFilterLink';

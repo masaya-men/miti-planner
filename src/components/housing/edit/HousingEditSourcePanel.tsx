@@ -7,7 +7,7 @@ import { deleteListingSourceImage, reorderListingSourceImages } from '../../../l
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import { EMPTY_SNS_CAPTURE, mergeTweetPhotoAspectRatios, type SnsCapture } from '../register/snsCapture';
 import { isDuplicatePostUrl, shouldRejectIncomingVideo } from '../../../lib/housing/multiSourceGuards';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import { HousingImage } from '../media/HousingImage';
 
 export interface EditVideoPreview {

@@ -51,7 +51,7 @@ async function generateDownloadUrl(filePath: string): Promise<string | null> {
     const [exists] = await file.exists();
     if (!exists) return null;
     const [metadata] = await file.getMetadata();
-    let token = (metadata.metadata as any)?.firebaseStorageDownloadTokens;
+    let token = (metadata.metadata as FirebaseFirestore.DocumentData | undefined)?.firebaseStorageDownloadTokens;
     if (!token) {
         // copy で token が引き継がれなかった場合、 新規生成
         token = randomUUID();

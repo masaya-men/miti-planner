@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { MilspecLed, MilspecStencil, MilspecMark, MilspecScrew, MilspecRivet, MilspecMaintPlate, MilspecBarcode, MilspecDecal, MilspecHazard, barcodeRects } from '../MilspecDecor';
+import { MilspecLed, MilspecStencil, MilspecMark, MilspecScrew, MilspecRivet, MilspecMaintPlate, MilspecBarcode, MilspecDecal, MilspecHazard } from '../MilspecDecor';
+import { barcodeRects } from '../milspecDecorGeometry';
 import { MsIcon } from '../milspecIcons';
 
 describe('MilspecDecor', () => {

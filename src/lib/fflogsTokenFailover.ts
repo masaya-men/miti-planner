@@ -25,7 +25,7 @@ type FetchLike = (
 ) => Promise<{
     ok: boolean;
     status: number;
-    json: () => Promise<any>;
+    json: () => Promise<unknown>;
     text: () => Promise<string>;
 }>;
 
@@ -62,7 +62,7 @@ export async function fetchTokenWithFailover(
                 continue;
             }
 
-            const data = await r.json();
+            const data = await r.json() as { access_token: string; expires_in: number };
             return {
                 token: { access_token: data.access_token, expires_in: data.expires_in },
                 usedIndex: idx,

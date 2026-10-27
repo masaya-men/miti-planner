@@ -4,7 +4,7 @@ import { useThemeStore } from '../store/useThemeStore';
 import type { ContentLanguage } from '../store/useThemeStore';
 import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
-import { useTransitionOverlay } from './ui/TransitionOverlay';
+import { useTransitionOverlay } from './ui/transitionOverlayContext';
 import { Tooltip } from './ui/Tooltip';
 
 const LANGUAGES: { code: ContentLanguage; label: string }[] = [

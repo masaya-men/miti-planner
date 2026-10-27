@@ -18,8 +18,6 @@
     "components/PartyStatusPopover.tsx": [12,0,0],
     "components/PipView.tsx": [0,9,4],
     "components/Sidebar.tsx": [0,0,1],
-    "components/sidebar/ContentTreeItem.tsx": [0,0,1],
-    "components/sidebar/FreePlanSection.tsx": [0,0,1],
     "components/StrategyBoardPastePage.tsx": [0,2,0],
     "components/SystemNotificationBar.tsx": [0,1,0],
     "components/TimelineRow.tsx": [4,0,0],
@@ -33,7 +31,14 @@
     "components/progress/PhaseRoad.tsx": [0,1,0],
     "components/progress/ProgressCelebration.tsx": [0,1,0],
     "components/progress/ProgressRecordPanel.tsx": [0,1,0],
-    "components/timeline/MitigationItem.tsx": [18,0,0],
+    "components/sidebar/ContentTreeItem.tsx": [0,0,1],
+    "components/sidebar/FreePlanSection.tsx": [0,0,1],
+    "components/sidebar/useSidebarSelectionBar.ts": [0,1,0],
+    "components/timeline/MitigationItem.tsx": [2,0,0],
+    "components/timeline/mitigationItemColors.ts": [16,0,0],
     "components/tutorial/TutorialPill.tsx": [0,1,0],
-    "components/ui/TransitionOverlay.tsx": [0,19,0]
+    "components/ui/TransitionOverlay.tsx": [0,19,0],
+    "lib/collab/presence.ts": [0,10,0],
+    "lib/ogpHousingerCard.ts": [0,1,0],
+    "utils/pipViewLogic.ts": [0,4,0]
 }

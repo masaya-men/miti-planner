@@ -28,7 +28,7 @@ import { displayDcName, displayWorldName } from '../../../lib/housing/housingTer
 import { pickRegionLocale } from '../../../data/housing/regionMap';
 import { isAddressHidden } from '../../../lib/housing/listingPublish';
 import { useHousingReport } from '../report/useHousingReport';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import { LOPO_DISCORD_URL } from '../../../lib/systemNotifLinks';
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 

@@ -20,7 +20,7 @@ interface TemplateEditorProps {
   labels: TemplateLabel[];
   editState: EditState;
   showUntranslatedOnly: boolean;
-  onUpdateCell: (eventId: string, field: string, value: any) => void;
+  onUpdateCell: (eventId: string, field: string, value: unknown) => void;
   onDeleteEvent: (eventId: string) => void;
   onSetLabelAtTime: (timeSec: number, labelName: LocalizedString | null) => void;
   onUpdatePhaseName: (phaseId: number, name: LocalizedString) => void;

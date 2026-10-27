@@ -31,7 +31,7 @@ class CollabRoomError extends Error {
 
 type Action = 'create' | 'set-max' | 'revoke' | 'reissue' | 'check-owner';
 
-async function post(body: Record<string, unknown>): Promise<any> {
+async function post<T>(body: Record<string, unknown>): Promise<T> {
   const res = await apiFetch('/api/collab/room', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -39,7 +39,7 @@ async function post(body: Record<string, unknown>): Promise<any> {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new CollabRoomError((data?.error as string) ?? 'unknown', res.status);
-  return data;
+  return data as T;
 }
 
 /** リンク発行(冪等: 既存があれば同 roomToken を再利用)。maxParticipants 省略時はサーバ既定(8)。label は任意の部屋名。 */

@@ -6,6 +6,7 @@ import { initAdmin } from './adminAuth.js';
  * App Checkトークンを検証するミドルウェア関数
  * @returns true=検証OK、false=検証失敗（既に403を返却済み）
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Vercel の req/res は api/ 側のモックと型が揃わないため src/lib では緩く受ける
 export async function verifyAppCheck(req: any, res: any): Promise<boolean> {
   const enforced = process.env.ENFORCE_APP_CHECK === 'true';
 

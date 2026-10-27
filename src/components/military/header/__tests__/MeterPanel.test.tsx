@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, act, fireEvent } from '@testing-library/react';
-import { MeterPanel, syncLampState, dtgOf } from '../MeterPanel';
+import { MeterPanel } from '../MeterPanel';
+import { syncLampState, dtgOf } from '../meterPanelModel';
 import { usePlanStore } from '../../../../store/usePlanStore';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import i18n from '../../../../i18n';

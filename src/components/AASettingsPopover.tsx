@@ -69,7 +69,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
 
     if (!isOpen) return null;
 
-    const handleChange = (field: keyof AASettings, value: any) => {
+    const handleChange = <K extends keyof AASettings>(field: K, value: AASettings[K]) => {
         onSettingsChange({
             ...settings,
             [field]: value

@@ -12,7 +12,7 @@ vi.mock('../../lib/housingListingsService', () => ({
   getGalleryListings: () => Promise.resolve([]),
 }));
 
-import { useHousingPlayback } from '../../lib/housing/HousingPlaybackContext';
+import { useHousingPlayback } from '../../lib/housing/housingPlaybackState';
 import { HousingShell } from '../../components/housing/shell/HousingShell';
 
 beforeAll(() => {

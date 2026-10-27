@@ -77,8 +77,8 @@ function PopularSearchView() {
         copyCount: data.copyCount || 0,
         imageHash: data.imageHash || null,
       });
-    } catch (err: any) {
-      setError(err.message || 'Network error');
+    } catch (err) {
+      setError((err as Error).message || 'Network error');
     } finally {
       setLoading(false);
     }
@@ -107,8 +107,8 @@ function PopularSearchView() {
         hidden: typeof result.hidden === 'boolean' ? result.hidden : plan.hidden,
       });
       setToast(t(successMsgKey));
-    } catch (err: any) {
-      setError(err.message || 'Network error');
+    } catch (err) {
+      setError((err as Error).message || 'Network error');
     } finally {
       setPatching(false);
     }

@@ -46,7 +46,7 @@ if (!ownerId) {
   process.exit(1);
 }
 
-function len(arr: any): string {
+function len(arr: unknown): string {
   return Array.isArray(arr) ? String(arr.length) : `(not array: ${JSON.stringify(arr)})`;
 }
 

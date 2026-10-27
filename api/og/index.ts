@@ -11,6 +11,9 @@
  */
 
 import { ImageResponse } from '@vercel/og';
+
+/** ImageResponse が受ける要素型(satori 用の素のオブジェクトを渡すためのキャスト先) */
+type ImageResponseElement = ConstructorParameters<typeof ImageResponse>[0];
 import { getCategoryTag, getContentName, trySeriesSummary, type OgpLang } from '../../src/lib/ogpHelpers.js';
 import { FAVICON_BASE64 } from './_faviconBase64.js';
 import { applyRateLimitWeb } from '../../src/lib/rateLimit.js';
@@ -75,7 +78,7 @@ export default async function handler(req: Request) {
 
                     if (data.type === 'bundle' && Array.isArray(data.plans)) {
                         isBundle = true;
-                        bundlePlans = data.plans.map((p: any) => ({
+                        bundlePlans = data.plans.map((p) => ({
                             contentId: p.contentId || null,
                             title: p.title || '',
                         }));
@@ -115,7 +118,7 @@ export default async function handler(req: Request) {
                 ? buildBundleLayout(bundlePlans, faviconBase64, teamLogoSrc, lang)
                 : buildSingleLayout(contentName, '', categoryTag, faviconBase64, teamLogoSrc);
 
-        return new ImageResponse(element as any, {
+        return new ImageResponse(element as unknown as ImageResponseElement, {
             width: 1200,
             height: 630,
             fonts,
@@ -125,9 +128,9 @@ export default async function handler(req: Request) {
             },
         });
 
-    } catch (err: any) {
+    } catch (err) {
         console.error('OG image error:', err);
-        console.error('OG image error detail:', err.message);
+        console.error('OG image error detail:', (err as Error).message);
         return new Response('OG image generation failed', { status: 500 });
     }
 }
@@ -189,7 +192,7 @@ function buildLeftPanel(faviconBase64: string) {
 // 右エリアの背景（ユーザー画像 or 黒）
 // ========================================
 
-function buildRightArea(faviconBase64: string, teamLogoSrc: string | null, textChildren: any[]) {
+function buildRightArea(faviconBase64: string, teamLogoSrc: string | null, textChildren: object[]) {
     // ロゴなし → 現行の黒背景
     if (!teamLogoSrc) {
         return {
@@ -242,7 +245,7 @@ function buildSingleLayout(
     const subtitle = contentName && planTitle ? planTitle : '';
     const hasLogo = !!teamLogoSrc;
 
-    const textChildren: any[] = [];
+    const textChildren: object[] = [];
 
     // カテゴリタグ
     if (categoryTag) {
@@ -306,7 +309,7 @@ function buildSeriesLayout(
     faviconBase64: string, teamLogoSrc: string | null,
 ) {
     const hasLogo = !!teamLogoSrc;
-    const textChildren: any[] = [];
+    const textChildren: object[] = [];
 
     if (series.categoryTag) {
         textChildren.push({
@@ -340,7 +343,7 @@ function buildMixedLayout(
     faviconBase64: string, teamLogoSrc: string | null, lang: OgpLang,
 ) {
     const hasLogo = !!teamLogoSrc;
-    const textChildren: any[] = [];
+    const textChildren: object[] = [];
 
     textChildren.push({
         type: 'div', props: {
@@ -351,7 +354,7 @@ function buildMixedLayout(
 
     // コンテンツリスト
     const itemsToShow = plans.slice(0, 5);
-    const listChildren: any[] = [];
+    const listChildren: object[] = [];
 
     itemsToShow.forEach((plan, i) => {
         if (i > 0) {

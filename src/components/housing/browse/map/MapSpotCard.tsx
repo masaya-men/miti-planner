@@ -139,7 +139,7 @@ export const MapSpotCard: React.FC<MapSpotCardProps> = ({
     });
     ro.observe(el);
     return () => ro.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // クランプは拡大時 (画面固定サイズ) だけ必要 (小さいときは枠内に収まる)。
@@ -156,7 +156,7 @@ export const MapSpotCard: React.FC<MapSpotCardProps> = ({
     });
     // 画面 px → card-plane px。plane が ×mapScale するので ÷mapScale で相殺し、画面上は screen.dx/dy になる。
     return { dx: screen.dx / mapScale, dy: screen.dy / mapScale };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [expanded, cardSize, markerPos.x, markerPos.y, wrapSize.w, wrapSize.h, mapScale]);
 
   // Esc で閉じる。拡大中だけ listener を張る (全カードが常時 listener を持たないように)。

@@ -4,7 +4,7 @@ import { usePlanMultiSelect } from '../../hooks/usePlanMultiSelect';
 import { usePlanStore } from '../../store/usePlanStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Share2, Trash2, Pencil, Copy } from 'lucide-react';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import { ContextMenu } from '../ui/ContextMenu';
 import { decompressPlanData } from '../../utils/compression';
 import type { SavedPlan } from '../../types';

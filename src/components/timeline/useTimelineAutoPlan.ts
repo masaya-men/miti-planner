@@ -4,7 +4,7 @@ import type { TFunction } from 'i18next';
 import type { SavedPlan } from '../../types';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { generateAutoPlan } from '../../utils/autoPlanner';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import type { SheetImportResult } from '../../lib/sheetImport/buildPlanFromSheets';
 import { importWithLimitCheck } from '../../lib/sheetImport/importWithLimitCheck';
 import type { ContentSelectionDefault } from '../../lib/contentSelection';

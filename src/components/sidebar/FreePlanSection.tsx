@@ -6,7 +6,7 @@ import { usePlanStore } from '../../store/usePlanStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { CheckSquare, Square, Trash2, Pencil, Copy } from 'lucide-react';
 import clsx from 'clsx';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 
 // ─────────────────────────────────────────────
 // Sub-component: FreePlanSection

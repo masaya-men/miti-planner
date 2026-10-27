@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { showToast } from '../../../Toast';
+import { showToast } from '../../../toastBus';
 import type { HousingExtractResult } from '../../../../lib/housing/parseHousingFromText';
 import { extractHousingAddressFromPage } from '../../../../lib/housing/extractHousingAddressFromPage';
 import type { TweetData } from '../../../../lib/housing/useTweetFetch';
@@ -192,6 +192,7 @@ export function useRegisterSnsFetch(f: RegisterFields, applyExtractedResult: (re
   const handleAddUrlSlot = useCallback(() => {
     setUrlSlotCount((prev) => Math.min(5, prev + 1));
   }, []);
+   
   const handleRemoveUrlSlot = useCallback((_index: number) => {
     // 欄を1つ減らす。既に取得済みの画像/住所/動画は取り消さない (個別画像削除は既存グリッドUIで行う、
     // ブレスト2026-07-21で「個別削除で十分」と確定済み)。

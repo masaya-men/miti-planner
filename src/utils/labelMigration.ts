@@ -4,7 +4,7 @@ import type { Label, Phase, TimelineEvent } from '../types';
  * PlanDataがラベル未移行の旧形式かどうかを判定。
  * labels[]プロパティが存在しない（undefined）場合は旧形式と判断する。
  */
-export function isLegacyLabelFormat(data: { labels?: any[]; timelineEvents: any[] }): boolean {
+export function isLegacyLabelFormat(data: { labels?: unknown[]; timelineEvents: unknown[] }): boolean {
     return data.labels === undefined;
 }
 

@@ -8,7 +8,7 @@ import { useWizard } from './useWizard';
 import type { WizardStep } from './useWizard';
 import { AdminWizard } from './AdminWizard';
 import { apiFetch } from '../../../lib/apiClient';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 
 // ---- 型定義 ----------------------------------------------------------------
 

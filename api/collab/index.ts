@@ -21,8 +21,9 @@ import roomHandler from './_roomHandler.js';
 import verifyHandler from './_verifyHandler.js';
 import gcHandler from './_collabGcHandler.js';
 import { setPrivateNoStore } from '../../src/lib/privateNoStore.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setPrivateNoStore(res);
   const action = req.query?.action;
 

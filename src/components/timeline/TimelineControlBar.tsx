@@ -51,7 +51,7 @@ interface TimelineControlBarProps {
     clearMenuButtonRef: React.RefObject<HTMLButtonElement | null>;
     partyMembers: PartyMember[];
     timelineMitigations: AppliedMitigation[];
-    setConfirmDialog: (dialog: any) => void;
+    setConfirmDialog: (dialog: { title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning'; confirmLabel?: string; cancelLabel?: string } | null) => void;
     visiblePartyMembers: PartyMember[];
     partySortOrder: 'role' | 'light_party';
     memberLayout: ReturnType<typeof useTimelineMemberXMap>['memberLayout'];

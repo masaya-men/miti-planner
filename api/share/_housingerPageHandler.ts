@@ -27,6 +27,7 @@ import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
 import { isEligibleForOgRepresentative } from '../../src/lib/housing/listingPublish.js';
 import { listingRepresentativeImages } from './_listingImages.js';
 import { escapeHtml, metaContent, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const PROFILE_COLLECTION = 'housing_profiles';
 const LISTING_COLLECTION = 'housing_listings';
@@ -115,7 +116,7 @@ export function buildHousingerSeoSnapshotHtml(input: {
  * 解決できなければ空文字 (呼び出し側は既存の「uidパラメータが無い」ケースと同じ404に倒す)。
  */
 export async function resolveHousingerUid(
-  db: { collection: (name: string) => any },
+  db: Pick<FirebaseFirestore.Firestore, 'collection'>,
   rawUid: string,
   rawSlug: string,
 ): Promise<string> {
@@ -135,7 +136,7 @@ export async function resolveHousingerUid(
   return snap.empty ? '' : stripHashedPrefix(snap.docs[0].id);
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   const rawUid = (req.query?.uid as string) || '';
   // 短縮URL (/h/:slug) 経由のときは slug で来る (vercel.json rewrite)。名前部分は飾りなので無視し、
   // 末尾の識別コードだけを使って uid を解決する (下記)。

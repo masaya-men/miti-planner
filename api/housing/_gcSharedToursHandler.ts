@@ -8,8 +8,9 @@
  */
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { shouldGcSharedTour } from '../../src/lib/sharedTour/lifecycle.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
-export default async function handler(req: any, res: any): Promise<void> {
+export default async function handler(req: HousingReq, res: HousingRes): Promise<void> {
   // CRON_SECRET 認証（_collabGcHandler と同型・fail-closed）。
   const auth = req.headers?.authorization || '';
   const expected = process.env.CRON_SECRET ? `Bearer ${process.env.CRON_SECRET}` : '';
@@ -25,11 +26,11 @@ export default async function handler(req: any, res: any): Promise<void> {
     // createdAt 昇順で上限件数だけ走査する（10 秒/バッチ上限を守る）。
     const snap = await adminDb.collection('shared_tours').orderBy('createdAt').limit(300).get();
 
-    const targets: any[] = [];
+    const targets: FirebaseFirestore.DocumentReference[] = [];
     for (const doc of snap.docs) {
       const liveRef = doc.ref.collection('live').doc('current');
       const liveSnap = await liveRef.get();
-      const live = liveSnap.exists ? (liveSnap.data() as any) : null;
+      const live = liveSnap.exists ? (liveSnap.data() as Parameters<typeof shouldGcSharedTour>[1]) : null;
       if (shouldGcSharedTour({ createdAt: doc.data().createdAt }, live, now)) {
         targets.push(doc.ref);
       }
@@ -69,7 +70,7 @@ export default async function handler(req: any, res: any): Promise<void> {
     if (ops > 0) await batch.commit();
 
     res.status(200).json({ deleted, presenceDeleted });
-  } catch (error: any) {
+  } catch (error) {
     console.error('[housing/gc-shared-tours] error:', error);
     res.status(500).json({ error: 'Internal error' });
   }

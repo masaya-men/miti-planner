@@ -45,7 +45,7 @@ vi.mock('../../lib/housing/housingerProfileService', () => ({
 
 // showToast はモックして呼び出しを検証する (ConfirmDialog は実物を使い統合的に検証する)
 const mockShowToast = vi.fn();
-vi.mock('../../components/Toast', () => ({
+vi.mock('../../components/toastBus', () => ({
   showToast: (...args: unknown[]) => mockShowToast(...args),
 }));
 

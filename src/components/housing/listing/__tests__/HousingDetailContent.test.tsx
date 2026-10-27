@@ -53,7 +53,7 @@ const listing = {
   isHidden: false,
   reportCount: 0,
   deletedAt: null,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
 } as any;
 
 const renderContent = (props: Partial<React.ComponentProps<typeof HousingDetailContent>> = {}) =>

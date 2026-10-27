@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 
 declare global {
     interface Window {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- YouTube IFrame API は型定義パッケージ未導入の外部スクリプトのため
         YT?: any;
         onYouTubeIframeAPIReady?: () => void;
     }
@@ -37,6 +38,7 @@ export function useYouTubePlayer(
     hostRef: React.RefObject<HTMLDivElement | null>,
     videoId: string | null,
 ): YouTubePlayerApi {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- YouTube Player は型定義パッケージ未導入の外部 API のため
     const playerRef = useRef<any>(null);
     const [ready, setReady] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -44,6 +46,7 @@ export function useYouTubePlayer(
     useEffect(() => {
         if (!videoId || !hostRef.current) return;
         let cancelled = false;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- YouTube Player は型定義パッケージ未導入の外部 API のため
         let player: any = null;
         loadYouTubeApi().then(() => {
             if (cancelled || !hostRef.current || !window.YT) return;
@@ -58,6 +61,7 @@ export function useYouTubePlayer(
                 playerVars: { controls: 1, rel: 0, modestbranding: 1, playsinline: 1 },
                 events: {
                     onReady: () => { if (!cancelled) { playerRef.current = player; setReady(true); } },
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- YouTube イベントは型定義パッケージ未導入の外部 API のため
                     onStateChange: (e: any) => {
                         if (cancelled || !window.YT) return;
                         setIsPlaying(e.data === window.YT.PlayerState.PLAYING);

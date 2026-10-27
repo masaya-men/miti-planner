@@ -41,7 +41,7 @@ function toFirestoreCreate(
   plan: SavedPlan,
   uid: string,
   displayName: string,
-): any {
+): Record<string, unknown> {
   // undefinedを全て除去してからFirestoreに送信（Firestoreはundefinedを拒否する）
   const cleaned = JSON.parse(JSON.stringify({
     ownerId: uid,
@@ -89,7 +89,7 @@ export function fromFirestore(docId: string, data: FirestorePlan): SavedPlan {
     ownerDisplayName: data.ownerDisplayName,
     title: data.title,
     contentId: data.contentId || null,
-    category: (data as any).category ?? undefined,
+    category: (data as FirestorePlan & { category?: SavedPlan['category'] }).category ?? undefined,
     isPublic: data.isPublic,
     copyCount: data.copyCount,
     useCount: data.useCount,
@@ -259,7 +259,7 @@ async function createPlan(
   await setDoc(planRef, planData);
 
   const countRef = doc(db, COLLECTIONS.USER_PLAN_COUNTS, uid);
-  const countUpdate: Record<string, any> = {
+  const countUpdate: Record<string, unknown> = {
     total: increment(1),
     updatedAt: serverTimestamp(),
   };
@@ -282,48 +282,43 @@ async function updatePlan(
 ): Promise<'updated' | 'skipped_newer_remote' | 'skipped_same_content' | 'deleted_remotely'> {
   const planRef = doc(db, COLLECTIONS.PLANS, plan.id);
   // サーバーから直接読み取り（キャッシュの古いデータで削除済みドキュメントを誤検出しないため）
+  let snap;
   try {
-    let snap;
-    try {
-      snap = await getDocFromServer(planRef);
-    } catch {
-      // オフライン時はキャッシュにフォールバック
-      snap = await getDoc(planRef);
-    }
-    if (!snap.exists()) {
-      throw new Error('NOT_EXISTS');
-    }
-    const current = snap.data() as FirestorePlan;
-    // ownerIdが自分のものか確認
-    if (current.ownerId !== uid) {
-      throw new Error('NOT_OWNER');
-    }
-    // 墓標 (他端末で削除済み) を上書きしない。復活させず「削除された」と呼び出し側に伝える。
-    if (current.deleted === true) {
-      return 'deleted_remotely';
-    }
-    // タイムスタンプ比較: リモートがローカルより新しければスキップ
-    const remoteUpdatedAt = current.updatedAt instanceof Timestamp
-      ? current.updatedAt.toMillis()
-      : 0;
-    if (remoteUpdatedAt > plan.updatedAt) {
-      // 共有中身が同一なら偽競合。共同編集(collab)の DO は保存の度に
-      // updatedAt=serverTimestamp を書き、クライアントの Date.now を必ず追い越すため、
-      // 中身が同じでも「リモートが新しい」が常態になる。ここで内容一致を確認し、
-      // 一致なら競合コピーを作らせず (呼び出し側は skipped_same_content を素通し)、
-      // 後勝ち上書き合戦も避けるためスキップする。中身が異なるときだけ本物の乖離として
-      // skipped_newer_remote を返し、退避コピー (唯一のセーフティネット) を残す。
-      if (isSharedPlanContentEqual(current.data, plan.data)) {
-        return 'skipped_same_content';
-      }
-      return 'skipped_newer_remote';
-    }
-    await setDoc(planRef, toFirestoreUpdate(plan, current.version), { merge: true });
-    return 'updated';
-  } catch (err) {
-    // getDocのpermission errorや存在しないエラー → createにフォールバック
-    throw err;
+    snap = await getDocFromServer(planRef);
+  } catch {
+    // オフライン時はキャッシュにフォールバック
+    snap = await getDoc(planRef);
   }
+  if (!snap.exists()) {
+    throw new Error('NOT_EXISTS');
+  }
+  const current = snap.data() as FirestorePlan;
+  // ownerIdが自分のものか確認
+  if (current.ownerId !== uid) {
+    throw new Error('NOT_OWNER');
+  }
+  // 墓標 (他端末で削除済み) を上書きしない。復活させず「削除された」と呼び出し側に伝える。
+  if (current.deleted === true) {
+    return 'deleted_remotely';
+  }
+  // タイムスタンプ比較: リモートがローカルより新しければスキップ
+  const remoteUpdatedAt = current.updatedAt instanceof Timestamp
+    ? current.updatedAt.toMillis()
+    : 0;
+  if (remoteUpdatedAt > plan.updatedAt) {
+    // 共有中身が同一なら偽競合。共同編集(collab)の DO は保存の度に
+    // updatedAt=serverTimestamp を書き、クライアントの Date.now を必ず追い越すため、
+    // 中身が同じでも「リモートが新しい」が常態になる。ここで内容一致を確認し、
+    // 一致なら競合コピーを作らせず (呼び出し側は skipped_same_content を素通し)、
+    // 後勝ち上書き合戦も避けるためスキップする。中身が異なるときだけ本物の乖離として
+    // skipped_newer_remote を返し、退避コピー (唯一のセーフティネット) を残す。
+    if (isSharedPlanContentEqual(current.data, plan.data)) {
+      return 'skipped_same_content';
+    }
+    return 'skipped_newer_remote';
+  }
+  await setDoc(planRef, toFirestoreUpdate(plan, current.version), { merge: true });
+  return 'updated';
 }
 
 /**
@@ -353,7 +348,7 @@ async function deletePlan(
 
   // カウンター減算
   const countRef = doc(db, COLLECTIONS.USER_PLAN_COUNTS, uid);
-  const countUpdate: Record<string, any> = {
+  const countUpdate: Record<string, unknown> = {
     total: increment(-1),
     updatedAt: serverTimestamp(),
   };

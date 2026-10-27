@@ -41,7 +41,7 @@ import { useHousingDelete } from '../delete/useHousingDelete';
 import { useResolveReport } from '../report/useResolveReport';
 import { useNotifications } from '../notifications/useNotifications';
 import { MAX_SELF_RESTORE } from '../../../constants/housing';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import { purgeIfTweetGone } from '../../../lib/housingApiClient';
 
 export interface UseHousingDetailResult {
@@ -224,7 +224,7 @@ export function useHousingDetail(
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [listing]);
 
   // 物件変更後の共通後処理: 詳細を再 fetch (即反映) + 一覧ストア同期 + 関連通知の削除 + バナーを閉じる。
@@ -243,7 +243,7 @@ export function useHousingDetail(
 
   const onDispute = () => {
     const url =
-      (import.meta as any).env?.VITE_DISCORD_INVITE_URL ?? 'https://discord.gg/';
+      import.meta.env?.VITE_DISCORD_INVITE_URL ?? 'https://discord.gg/';
     window.open(url, '_blank', 'noopener,noreferrer');
     // 異議は管理者対応に委ねる (非表示は解除しない)。 通知だけ消してバナーを閉じる。
     if (listing) void deleteForListing(listing.id);

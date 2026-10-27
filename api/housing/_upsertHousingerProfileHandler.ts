@@ -21,8 +21,9 @@ import {
   validateHousingerSnsUrl,
 } from '../../src/lib/housing/housingerProfile.js';
 import { normalizeDisplayNameForSearch } from '../../src/data/personalTags.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
-export function validateUpsertBody(body: any):
+export function validateUpsertBody(body: unknown):
   | {
       ok: true;
       isPublished?: boolean;
@@ -40,7 +41,13 @@ export function validateUpsertBody(body: any):
         | 'invalid_og_representative_ids'
         | 'invalid_og_background_id';
     } {
-  const { isPublished, bio, snsUrl, ogRepresentativeListingIds, ogBackgroundListingId } = body || {};
+  const { isPublished, bio, snsUrl, ogRepresentativeListingIds, ogBackgroundListingId } = (body || {}) as {
+    isPublished?: boolean;
+    bio?: string | null;
+    snsUrl?: string | null;
+    ogRepresentativeListingIds?: string[] | null;
+    ogBackgroundListingId?: string | null;
+  };
   if (isPublished !== undefined && typeof isPublished !== 'boolean') {
     return { ok: false, error: 'invalid_body' };
   }
@@ -71,7 +78,7 @@ export function validateUpsertBody(body: any):
   return { ok: true, isPublished, bio, snsUrl, ogRepresentativeListingIds, ogBackgroundListingId };
 }
 
-function setCors(req: any, res: any) {
+function setCors(req: HousingReq, res: HousingRes) {
   const origin = req.headers?.origin || '';
   const allowed = [
     'https://lopoly.app',
@@ -85,7 +92,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: HousingReq, res: HousingRes) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -111,7 +118,7 @@ export default async function handler(req: any, res: any) {
     const userRef = adminDb.collection('users').doc(uid);
     const profileRef = adminDb.collection('housing_profiles').doc(uid);
 
-    let resultProfile: any = null;
+    let resultProfile: FirebaseFirestore.DocumentData | null = null;
     await adminDb.runTransaction(async (tx) => {
       const [userSnap, profileSnap] = await Promise.all([
         tx.get(userRef), tx.get(profileRef),
@@ -149,7 +156,7 @@ export default async function handler(req: any, res: any) {
     });
 
     return res.status(200).json({ success: true, profile: resultProfile });
-  } catch (error: any) {
+  } catch (error) {
     if (error?.message === 'user_not_found') return res.status(404).json({ error: 'user_not_found' });
     if (error?.message === 'name_required') return res.status(400).json({ error: 'name_required' });
     console.error('[housing/upsert-housinger-profile] error:', error);

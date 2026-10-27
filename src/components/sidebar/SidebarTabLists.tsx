@@ -4,7 +4,7 @@ import { CATEGORY_LABELS, getProjectLabel, getContentById, getSavageForCurrentEx
 import type { ContentDefinition } from '../../types';
 import type { MultiSelectState } from '../../types/sidebarTypes';
 import type { ContentLanguage } from '../../store/useThemeStore';
-import { useTransitionOverlay } from '../ui/TransitionOverlay';
+import { useTransitionOverlay } from '../ui/transitionOverlayContext';
 import type { SidebarTab } from './useSidebarNav';
 import type { SavedPlan } from '../../types';
 import type { useSidebarNav } from './useSidebarNav';

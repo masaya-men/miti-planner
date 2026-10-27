@@ -9,7 +9,7 @@ import {
   useHousingVisibilityUpdate,
   type HousingVisibilityValue,
 } from '../mypage/useHousingVisibilityUpdate';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import type { MockListing } from '../../../data/housing/mockListings';
 
 export function useMyListingVisibilityChange(

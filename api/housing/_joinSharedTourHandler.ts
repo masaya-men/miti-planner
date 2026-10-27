@@ -20,8 +20,9 @@ import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { SHARED_TOUR_MAX_PARTICIPANTS } from '../../src/types/sharedTour.js';
 import { shouldEnforceCap, SHARED_TOUR_PRESENCE_STALE_MS } from './_joinSharedTourLogic.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
-function setCors(req: any, res: any) {
+function setCors(req: HousingReq, res: HousingRes) {
   const origin = req.headers?.origin || '';
   const allowed = [
     'https://lopoly.app',
@@ -35,7 +36,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: HousingReq, res: HousingRes) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -74,7 +75,7 @@ export default async function handler(req: any, res: any) {
 
     await sessionRef.set({ lastSeenAt: now });
     return res.status(200).json({ ok: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error('[housing/join-shared-tour] error:', error);
     return res.status(500).json({ error: 'Internal error' });
   }

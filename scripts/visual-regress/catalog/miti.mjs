@@ -56,7 +56,7 @@ export const storeCall = (/** @type {string} */ name, /** @type {(m: any) => any
   await page.waitForSelector(ROW);
   await page.evaluate(async ([n, src]) => {
     const m = await import(/* @vite-ignore */ `/src/store/${n}.ts`);
-    // eslint-disable-next-line no-eval
+     
     await (0, eval)(`(${src})`)(m);
   }, [name, fn.toString()]);
 };

@@ -39,8 +39,8 @@ const db = getFirestore();
 
 const snap = await db.doc('master/contents').get();
 const data = snap.data();
-const items: any[] = data?.items ?? [];
-const series: any[] = data?.series ?? [];
+const items: FirebaseFirestore.DocumentData[] = data?.items ?? [];
+const series: FirebaseFirestore.DocumentData[] = data?.series ?? [];
 
 console.log(`📊 items: ${items.length}, series: ${series.length}`);
 console.log('');

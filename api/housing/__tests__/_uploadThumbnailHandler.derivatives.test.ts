@@ -126,7 +126,7 @@ function makeReqRes(body: unknown) {
   return { req, res };
 }
 
-const fetchMock = vi.fn(async (_url?: unknown, _init?: unknown) => ({ ok: true }) as Response);
+const fetchMock = vi.fn<(url?: unknown, init?: unknown) => Promise<Response>>(async () => ({ ok: true }) as Response);
 
 beforeEach(() => {
   vi.clearAllMocks();

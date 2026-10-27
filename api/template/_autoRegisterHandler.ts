@@ -10,6 +10,7 @@ import { sendDiscordNotification } from '../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { CONTENT_ID_RE } from './_publicTemplateHandler.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 // 品質チェックの閾値
 const MIN_EVENT_COUNT: Record<string, number> = {
@@ -24,14 +25,14 @@ const DISCOVERY_PERIOD_MS = 14 * 24 * 60 * 60 * 1000;
 interface AutoRegisterBody {
   contentId: string;
   category: string;
-  timelineEvents: any[];
-  phases: any[];
+  timelineEvents: unknown[];
+  phases: unknown[];
   kill: boolean;
   deathCount: number;
   sourceReport: string;
 }
 
-function setCors(req: any, res: any) {
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers?.origin || '';
   const allowedOrigins = [
     'https://lopoly.app',
@@ -45,7 +46,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -74,7 +75,7 @@ export default async function handler(req: any, res: any) {
 
     // timelineEventsの各要素を検証（最低限の型チェック）
     // name は LocalizedString（{ ja, en }）またはレガシーの string
-    const isValidEvent = (e: any) =>
+    const isValidEvent = (e) =>
       e && typeof e === 'object' && typeof e.time === 'number'
       && (typeof e.name === 'string' || (e.name && typeof e.name === 'object'));
     if (!body.timelineEvents.every(isValidEvent)) {
@@ -90,7 +91,7 @@ export default async function handler(req: any, res: any) {
     // contentId が master/contents に実在するか検証 (存在しない ID のテンプレート乱造を防ぐ)
     const contentsSnap = await db.doc('master/contents').get();
     const contentItems = contentsSnap.exists ? contentsSnap.data()?.items : null;
-    if (!Array.isArray(contentItems) || !contentItems.some((c: any) => c?.id === body.contentId)) {
+    if (!Array.isArray(contentItems) || !contentItems.some((c) => c?.id === body.contentId)) {
       return res.status(400).json({ error: 'unknown contentId' });
     }
 
@@ -186,7 +187,7 @@ export default async function handler(req: any, res: any) {
       isNew: !existing.exists,
       contentId: body.contentId,
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[auto-register] エラー:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }

@@ -11,9 +11,17 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { sendDiscordNotification } from '../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
+
+/** スキル差分比較で使う項目だけの型 */
+interface MitigationLike {
+  value?: unknown;
+  duration?: unknown;
+  recast?: unknown;
+}
 
 /** CORS設定 */
-function setCors(req: any, res: any) {
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers?.origin || '';
   const allowedOrigins = [
     'https://lopoly.app',
@@ -28,7 +36,7 @@ function setCors(req: any, res: any) {
 }
 
 /** テンプレートのバックアップを作成 */
-async function createBackup(db: FirebaseFirestore.Firestore, contentId: string, data: any) {
+async function createBackup(db: FirebaseFirestore.Firestore, contentId: string, data: unknown) {
   const backupRef = db.collection('template_backups').doc(`template_${contentId}_${Date.now()}`);
   await backupRef.set({
     type: 'template',
@@ -44,7 +52,7 @@ async function bumpDataVersion(db: FirebaseFirestore.Firestore) {
   await configRef.set({ dataVersion: FieldValue.increment(1) }, { merge: true });
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -105,10 +113,10 @@ export default async function handler(req: any, res: any) {
           .orderBy('createdAt', 'desc')
           .limit(50)
           .get();
-        const backups = [
+        const backups = ([
           ...masterSnap.docs.map(d => ({ id: d.id, ...d.data(), collection: 'master' })),
           ...templateSnap.docs.map(d => ({ id: d.id, ...d.data(), collection: 'template' })),
-        ].sort((a: any, b: any) => (b.createdAt?._seconds || 0) - (a.createdAt?._seconds || 0));
+        ] as Array<{ createdAt?: { _seconds?: number } }>).sort((a, b) => (b.createdAt?._seconds || 0) - (a.createdAt?._seconds || 0));
         return res.status(200).json({ backups });
       }
 
@@ -130,7 +138,7 @@ export default async function handler(req: any, res: any) {
         if (!planDoc.exists) {
           return res.status(404).json({ error: `Plan "${planId}" not found` });
         }
-        const planData = planDoc.data() as any;
+        const planData = planDoc.data() as FirebaseFirestore.DocumentData;
 
         if (planData.type === 'bundle') {
           return res.status(400).json({ error: 'Bundle shares cannot be converted to templates' });
@@ -231,7 +239,7 @@ export default async function handler(req: any, res: any) {
         if (!backupDoc.exists) {
           return res.status(404).json({ error: 'Backup not found' });
         }
-        const backup = backupDoc.data() as any;
+        const backup = backupDoc.data() as FirebaseFirestore.DocumentData;
 
         // 復元先を決定し、現在のデータをバックアップしてから復元
         if (backup.type === 'template' && backup.contentId) {
@@ -255,7 +263,7 @@ export default async function handler(req: any, res: any) {
 
         await bumpDataVersion(db);
         await writeAuditLog({
-          action: 'restore' as any,
+          action: 'restore' as Parameters<typeof writeAuditLog>[0]['action'],
           target: `backup.${backupId}`,
           adminUid,
           changes: { before: undefined, after: { restored_from: backupId } },
@@ -269,13 +277,13 @@ export default async function handler(req: any, res: any) {
         const configRef = db.doc('master/config');
         const updates = req.body;
         const allowed = ['promotionThreshold', 'promotionMultiplier', 'featureFlags', 'newListingWindowDays'];
-        const filtered: Record<string, any> = {};
+        const filtered: Record<string, unknown> = {};
         for (const key of allowed) {
           if (updates[key] !== undefined) filtered[key] = updates[key];
         }
         // newListingWindowDays: 1〜90の整数のみ許可 (2026-08-16、ハウジング探すページのNEW表示日数)。
         if (filtered.newListingWindowDays !== undefined) {
-          const days = filtered.newListingWindowDays;
+          const days = filtered.newListingWindowDays as number;
           if (!Number.isInteger(days) || days < 1 || days > 90) {
             return res.status(400).json({ error: 'newListingWindowDays must be an integer between 1 and 90' });
           }
@@ -312,17 +320,17 @@ export default async function handler(req: any, res: any) {
         const prevMits = prevData.mitigations || [];
 
         // 新規ジョブ
-        const prevJobIds = new Set(prevJobs.map((j: any) => j.id));
-        const newJobs = jobs.filter((j: any) => !prevJobIds.has(j.id));
+        const prevJobIds = new Set(prevJobs.map((j) => j.id));
+        const newJobs = jobs.filter((j) => !prevJobIds.has(j.id));
 
         // 新規スキル
-        const prevMitIds = new Set(prevMits.map((m: any) => m.id));
-        const newMits = mitigations.filter((m: any) => !prevMitIds.has(m.id));
+        const prevMitIds = new Set(prevMits.map((m) => m.id));
+        const newMits = mitigations.filter((m) => !prevMitIds.has(m.id));
 
         // 値が変わったスキル
-        const prevMitMap = new Map<string, any>(prevMits.map((m: any) => [m.id, m]));
-        const changedMits = mitigations.filter((m: any) => {
-          const prev = prevMitMap.get(m.id) as any;
+        const prevMitMap = new Map<string, MitigationLike>(prevMits.map((m) => [m.id, m]));
+        const changedMits = mitigations.filter((m) => {
+          const prev = prevMitMap.get(m.id);
           if (!prev) return false;
           return m.value !== prev.value || m.duration !== prev.duration || m.recast !== prev.recast;
         });
@@ -345,7 +353,7 @@ export default async function handler(req: any, res: any) {
           lines.push(`🆕 スキル追加: **${m.name?.ja || m.id}**`);
         }
         for (const m of changedMits) {
-          const prev = prevMitMap.get(m.id) as any;
+          const prev = prevMitMap.get(m.id);
           const diffs: string[] = [];
           if (m.value !== prev.value) diffs.push(`軽減率 ${prev.value}%→${m.value}%`);
           if (m.duration !== prev.duration) diffs.push(`効果時間 ${prev.duration}s→${m.duration}s`);
@@ -375,10 +383,11 @@ export default async function handler(req: any, res: any) {
             createdAt: FieldValue.serverTimestamp(),
           });
         }
+         
         const { type: _, ...serversData } = req.body;
         // 許可するフィールドのみ保存（任意フィールド混入防止）
         const allowedFields = ['dataCenters', 'dataVersion'];
-        const filtered: Record<string, any> = {};
+        const filtered: Record<string, unknown> = {};
         for (const key of allowedFields) {
           if (key in serversData) filtered[key] = serversData[key];
         }
@@ -412,7 +421,7 @@ export default async function handler(req: any, res: any) {
         }
 
         // 新規パッチの検出
-        const prevPatches = current.exists ? Object.keys((current.data() as any)?.patchStats || {}) : [];
+        const prevPatches = current.exists ? Object.keys((current.data() as FirebaseFirestore.DocumentData)?.patchStats || {}) : [];
         const newPatches = Object.keys(patchStats).filter((p: string) => !prevPatches.includes(p));
 
         await statsRef.set({ levelModifiers, patchStats, defaultStatsByLevel });
@@ -448,7 +457,7 @@ export default async function handler(req: any, res: any) {
       // バックアップ作成
       await createBackup(db, contentId, existing.data());
 
-      const mergeData: Record<string, any> = {
+      const mergeData: Record<string, unknown> = {
         ...updates,
         lastUpdatedAt: FieldValue.serverTimestamp(),
         lastUpdatedBy: adminUid,
@@ -505,7 +514,7 @@ export default async function handler(req: any, res: any) {
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[admin/templates] エラー:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const { mockApplyRateLimit, mockAuthorizeCollab, mockGetDb } = vi.hoisted(() => ({
-  mockApplyRateLimit: vi.fn(async (..._args: any[]) => true),
-  mockAuthorizeCollab: vi.fn((..._args: any[]) => true),
+  mockApplyRateLimit: vi.fn<(...a: any[]) => Promise<boolean>>(async () => true),
+  mockAuthorizeCollab: vi.fn<(...a: any[]) => boolean>(() => true),
   mockGetDb: vi.fn(),
 }));
 

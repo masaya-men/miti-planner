@@ -44,7 +44,7 @@ vi.mock('../../lib/housingListingsService', () => ({
 
 // showToast をスパイして、 リージョン跨ぎ開始ブロック時に呼ばれることを検証する (計画 Task4 Step6)。
 const showToastMock = vi.fn();
-vi.mock('../../components/Toast', () => ({
+vi.mock('../../components/toastBus', () => ({
   showToast: (...args: unknown[]) => showToastMock(...args),
 }));
 
@@ -584,7 +584,7 @@ describe('HousingerPage', () => {
     expect(selectButtons).toHaveLength(2);
     fireEvent.click(selectButtons[1]); // l-2 (private) を選ぼうとする
 
-    // showToast はモック (vi.mock('../../components/Toast', ...)) のため実 DOM には描画されない。
+    // showToast はモック (vi.mock('../../components/toastBus', ...)) のため実 DOM には描画されない。
     // 他の既存テスト (別リージョン混在時のトースト検証) と同じく showToastMock の呼び出しで検証する。
     expect(showToastMock).toHaveBeenCalledWith('公開物件のみ選択できます', 'error');
     expect(selectButtons[1].className).not.toContain('is-selected');

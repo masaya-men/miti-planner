@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // --- 依存の mock (module 境界で差し替える。firebase-admin の内部は触らない) ---
-const sendNotifyMock = vi.fn((_content: string) => Promise.resolve());
+const sendNotifyMock = vi.fn<(content: string) => Promise<void>>(() => Promise.resolve());
 vi.mock('../../../src/lib/discordWebhook.js', () => ({
   sendHousingNewListingNotification: (c: string) => sendNotifyMock(c),
   sendDiscordNotification: vi.fn(() => Promise.resolve()),
@@ -29,8 +29,8 @@ let profileSnap: any = { exists: false, data: () => null };
 let dupDocs: any[] = [];
 
 // OGカード事前生成 (Task 4): og_image_meta/{hash}.set() の spy と warm-up fetch の spy。
-const ogImageMetaSetMock = vi.fn(async (_hash?: string, _meta?: unknown) => {});
-const fetchMock = vi.fn(async (_url?: unknown, _init?: unknown) => ({ ok: true }) as Response);
+const ogImageMetaSetMock = vi.fn<(hash?: string, meta?: unknown) => Promise<void>>(async () => {});
+const fetchMock = vi.fn<(url?: unknown, init?: unknown) => Promise<Response>>(async () => ({ ok: true }) as Response);
 
 function makeChain(name: string): any {
   const chain: any = {

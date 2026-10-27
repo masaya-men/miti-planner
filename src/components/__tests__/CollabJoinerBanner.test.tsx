@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { bannerKind } from "../CollabJoinerBanner";
+import { bannerKind } from "../collabJoinerBannerModel";
 
 describe("bannerKind（バナー状態判定）", () => {
   it("編集可は edit", () => {

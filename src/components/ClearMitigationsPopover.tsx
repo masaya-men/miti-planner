@@ -9,15 +9,16 @@ import { usePlanStore } from '../store/usePlanStore';
 import { useJobs } from '../hooks/useSkillsData';
 import { Tooltip } from './ui/Tooltip';
 import { getPhaseName } from '../types';
+import type { PartyMember, AppliedMitigation } from '../types';
 
 interface ClearMitigationsPopoverProps {
     isOpen: boolean;
     onClose: () => void;
     triggerRef: React.RefObject<HTMLElement | null>;
-    partyMembers: any[];
-    timelineMitigations: any[];
+    partyMembers: PartyMember[];
+    timelineMitigations: AppliedMitigation[];
     contentLanguage: string;
-    setConfirmDialog: (dialog: any) => void;
+    setConfirmDialog: (dialog: { title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning'; confirmLabel?: string; cancelLabel?: string } | null) => void;
 }
 
 export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = ({

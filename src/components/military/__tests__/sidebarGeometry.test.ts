@@ -20,7 +20,7 @@ describe('sidebarGeometry(サイドバーの座標表)', () => {
   it('パス命令が絶対座標だけ', () => {
     const ds = [...SB_PANELS.flatMap((p) => [...((p.spec as PanelSpec).scribes ?? []), ...((p.spec as PanelSpec).seams ?? [])]), ...SB_TRACES.map((t) => t.d)];
     expect(ds.length).toBeGreaterThan(8);
-    ds.forEach((d) => expect(d).toMatch(/^[MLHV0-9 .\-]+$/));
+    ds.forEach((d) => expect(d).toMatch(/^[MLHV0-9 .-]+$/));
   });
   it('高さ 1080 で S3 が 401px 下がり S1 は動かない', () => {
     expect(stretchPlaced(s3, SB_FRAME, 274, 1080).y).toBe(1013);

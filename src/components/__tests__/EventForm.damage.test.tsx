@@ -56,7 +56,8 @@ describe('EventForm デバフ軽減不可フラグ', () => {
     fireEvent.click(cb);
     expect(cb.checked).toBe(true);
     const form = document.getElementById('event-modal-form') as HTMLFormElement;
-    form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    if (form.requestSubmit) form.requestSubmit();
+    else form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(saved?.ignoresDebuffMitigation).toBe(true);
   });
 });

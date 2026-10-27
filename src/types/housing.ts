@@ -34,8 +34,7 @@ export type HousingSize = typeof HOUSING_SIZES[number];
 const BUILDING_TYPES = ['house', 'apartment'] as const;
 export type BuildingType = typeof BUILDING_TYPES[number];
 
-const ROOM_KINDS = ['private_chamber', 'apartment_room'] as const;
-export type RoomKind = typeof ROOM_KINDS[number];
+export type RoomKind = 'private_chamber' | 'apartment_room';
 
 const IMAGE_MODES = ['sns', 'thumbnail', 'none'] as const;
 export type ImageMode = typeof IMAGE_MODES[number];

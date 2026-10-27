@@ -16,7 +16,7 @@ interface ArchivePlanRowProps {
     plan: import('../../types').SavedPlan;
     currentPlanId: string | null;
     runTransition: (fn: () => void | Promise<void>, variant?: 'theme' | 'language' | 'plan' | 'default') => void;
-    t: (key: string, opts?: any) => string;
+    t: (key: string, opts?: Record<string, unknown>) => string;
 }
 
 export const ArchivePlanRow: React.FC<ArchivePlanRowProps> = ({ plan, currentPlanId, runTransition, t }) => {

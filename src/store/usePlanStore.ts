@@ -44,7 +44,7 @@ export const usePlanStore = create<PlanState>()(
             // _isSyncing 等の一時状態は保存しない。
             partialize: (state) => partializePlanState(state),
             merge: (persisted, current) => mergePersistedPlanState(persisted, current),
-            migrate: (persisted: any, version: number) => {
+            migrate: (persisted: unknown, version: number) => {
                 if (version < 2) {
                     // v1→v2: levelフィールドをバックフィル
                     // 古いプランはp.levelがなく、data.currentLevelがレベルタブ操作で汚染されるバグがあった

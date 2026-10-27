@@ -17,8 +17,9 @@ import {
   resolveHostQuota,
   SHARED_TOUR_MAX_LIVE_PER_HOST,
 } from './_sharedTourCreateLogic.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
-function setCors(req: any, res: any) {
+function setCors(req: HousingReq, res: HousingRes) {
   const origin = req.headers?.origin || '';
   const allowed = [
     'https://lopoly.app',
@@ -32,7 +33,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: HousingReq, res: HousingRes) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -96,7 +97,7 @@ export default async function handler(req: any, res: any) {
     await batch.commit();
 
     return res.status(200).json({ tourToken });
-  } catch (error: any) {
+  } catch (error) {
     console.error('[housing/create-shared-tour] error:', error);
     return res.status(500).json({ error: 'Internal error' });
   }

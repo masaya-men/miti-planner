@@ -33,7 +33,7 @@ function formatDisplay(value: number, decimalPlaces: number, sep: boolean): stri
 /** 入力中テキストを許容文字へ正規化（全角→半角・カンマ除去・小数/負号の最小限許可）。 */
 function sanitize(raw: string, decimalPlaces: number, allowNegative: boolean): string {
   let s = toHalfWidth(raw).replace(/,/g, '');
-  s = s.replace(decimalPlaces > 0 ? /[^0-9.\-]/g : /[^0-9\-]/g, '');
+  s = s.replace(decimalPlaces > 0 ? /[^0-9.-]/g : /[^0-9-]/g, '');
   // マイナスは先頭のみ
   const neg = allowNegative && s.startsWith('-');
   s = (neg ? '-' : '') + s.replace(/-/g, '');

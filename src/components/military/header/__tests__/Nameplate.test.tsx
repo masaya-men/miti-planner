@@ -38,7 +38,7 @@ describe('Nameplate', () => {
     expect(ttl(container).querySelectorAll('i').length).toBe(4);
     expect(sub(container).querySelector('i')).toBeNull();
     await flush(2000);
-    const text = [...ttl(container).querySelectorAll('i')].map((c) => c.textContent).join('').replace(/ /g, ' ');
+    const text = [...ttl(container).querySelectorAll('i')].map((c) => c.textContent).join('').replace(/\u00a0/g, ' ');
     expect(text).toBe('零式 1');
     expect(ttl(container).querySelectorAll('i.s').length).toBe(4);
   });

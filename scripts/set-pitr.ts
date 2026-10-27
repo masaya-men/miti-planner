@@ -33,12 +33,12 @@ const credential = cert({ projectId, clientEmail: env.FIREBASE_CLIENT_EMAIL, pri
 const arg = (process.argv[2] || '').toLowerCase();
 const target = arg === 'off' ? 'POINT_IN_TIME_RECOVERY_DISABLED' : arg === 'on' ? 'POINT_IN_TIME_RECOVERY_ENABLED' : null;
 
-async function token() { const t = await (credential as any).getAccessToken(); return t.access_token; }
+async function token() { const t = await (credential as unknown as { getAccessToken(): Promise<{ access_token: string }> }).getAccessToken(); return t.access_token; }
 const base = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)`;
 
 async function show(t: string, label: string) {
   const res = await fetch(base, { headers: { Authorization: `Bearer ${t}` } });
-  const b: any = await res.json();
+  const b: FirebaseFirestore.DocumentData = await res.json();
   console.log(`  [${label}] PITR=${b.pointInTimeRecoveryEnablement || '?'} / retention=${b.versionRetentionPeriod || '-'} / earliest=${b.earliestVersionTime || '-'}`);
   return b;
 }
@@ -55,7 +55,7 @@ async function main() {
     headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ pointInTimeRecoveryEnablement: target }),
   });
-  const body: any = await res.json();
+  const body: FirebaseFirestore.DocumentData = await res.json();
   if (!res.ok) { console.error(`  ❌ 失敗 ${res.status}: ${JSON.stringify(body).slice(0, 300)}`); process.exit(1); }
   console.log(`  ✅ PATCH 受理 (operation: ${body.name?.split('/').pop() || JSON.stringify(body).slice(0, 120)})`);
 

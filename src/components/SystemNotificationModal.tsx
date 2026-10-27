@@ -5,22 +5,13 @@ import { LOPO_X_URL, LOPO_DISCORD_URL } from '../lib/systemNotifLinks';
 import type { SystemNotification } from '../types/systemNotification';
 import { ModalShell } from './ui/ModalShell';
 import { ModalHeader, ModalFooter, ModalButton } from './ui/ModalParts';
+import { normalizeLang } from './systemNotificationLang';
 
 interface Props {
   isOpen: boolean;
   notif: SystemNotification | null;
   /** モーダル閉じ操作 (× / ESC / backdrop / 「既読にする」 ボタン)。 既読化処理は親側で。 */
   onClose: () => void;
-}
-
-export type SupportedLang = 'ja' | 'en' | 'ko' | 'zh' | 'zh-Hant';
-
-export function normalizeLang(lang: string): SupportedLang {
-  if (lang.startsWith('en')) return 'en';
-  if (lang.startsWith('ko')) return 'ko';
-  if (lang === 'zh-Hant' || lang.toLowerCase().startsWith('zh-hant')) return 'zh-Hant';
-  if (lang.startsWith('zh')) return 'zh';
-  return 'ja';
 }
 
 /** フッターのリンク(X / Discord)。ModalButton の「キャンセル」と同じ見た目の <a> */

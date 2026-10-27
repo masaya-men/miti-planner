@@ -6,8 +6,9 @@
  */
 import discordHandler from './_discordHandler.js';
 import { setPrivateNoStore } from '../../src/lib/privateNoStore.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setPrivateNoStore(res);
   const provider = req.query?.provider;
 

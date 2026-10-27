@@ -10,7 +10,7 @@ import { Settings } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDialog';
 import { DisplayNameEditor } from './DisplayNameEditor';
 import { AvatarCropModal } from './AvatarCropModal';
-import { showToast } from './Toast';
+import { showToast } from './toastBus';
 import { ModalShell } from './ui/ModalShell';
 import { ModalHeader, ModalButton } from './ui/ModalParts';
 import { useAccountActions } from '../hooks/auth/useAccountActions';

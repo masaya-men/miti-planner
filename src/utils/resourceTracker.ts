@@ -437,6 +437,7 @@ export function validateMitigationPlacement(
     m: Mitigation,
     selectedTime: number,
     activeMitigations: AppliedMitigation[],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- i18next の TFunction と、呼び出し側ごとに異なる t の引数形の両方を受けるため
     t: (key: string, options?: any) => string,
     // Optional parameter to ignore a specific instance ID during overlap checks (useful for drag & drop)
     ignoreInstanceId?: string

@@ -14,10 +14,11 @@
 import { initAdmin, getAdminFirestore } from '../../../src/lib/adminAuth.js';
 import { checkTweetStatus } from '../../../src/lib/housing/tweetSyndication.js';
 import { bumpPublicVersionDirect } from '../../housing/_publicVersion.js';
+import type { ApiRequest, ApiResponse } from '../../_apiTypes.js';
 
 const DEFAULT_BATCH = 150;
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   const authHeader = req.headers?.authorization || '';
   const expected = process.env.CRON_SECRET ? `Bearer ${process.env.CRON_SECRET}` : '';
   if (!expected || authHeader !== expected) {
@@ -65,7 +66,7 @@ export default async function handler(req: any, res: any) {
     if (deleted > 0) await bumpPublicVersionDirect(db);
 
     return res.status(200).json({ checked: snap.size, deleted, alive, errored });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[cron/check-sns-tweets] error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }

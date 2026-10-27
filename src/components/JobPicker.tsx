@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip } from './ui/Tooltip';
 import { getPhaseName } from '../types';
+import type { Job } from '../types';
 import { DPS_MELEE, DPS_PHYS_RANGED, DPS_MAGIC_RANGED } from '../data/dpsOrder';
 
 interface JobPickerProps {
@@ -99,7 +100,7 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
     );
 };
 
-const JobButton: React.FC<{ job: any, currentJobId: string | null, onSelect: () => void, contentLanguage: ContentLanguage, theme: 'light' | 'dark' }> = ({ job, currentJobId, onSelect, contentLanguage }) => (
+const JobButton: React.FC<{ job: Job, currentJobId: string | null, onSelect: () => void, contentLanguage: ContentLanguage, theme: 'light' | 'dark' }> = ({ job, currentJobId, onSelect, contentLanguage }) => (
     <button
         onClick={onSelect}
         className={clsx(

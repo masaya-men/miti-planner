@@ -73,8 +73,8 @@ export function AdminHousingNewBadge() {
       }
       const data = await res.json();
       setListing(data);
-    } catch (err: any) {
-      setError(err.message || 'Network error');
+    } catch (err) {
+      setError((err as Error).message || 'Network error');
     } finally {
       setLoading(false);
     }
@@ -102,8 +102,8 @@ export function AdminHousingNewBadge() {
       const result = await res.json();
       setListing({ ...listing, pinnedNewUntil: result.pinnedNewUntil });
       setToast(t('admin.housing_new_badge.pin_success', { days }));
-    } catch (err: any) {
-      setError(err.message || 'Network error');
+    } catch (err) {
+      setError((err as Error).message || 'Network error');
     } finally {
       setPatching(false);
     }
@@ -127,8 +127,8 @@ export function AdminHousingNewBadge() {
       }
       setListing({ ...listing, pinnedNewUntil: null });
       setToast(t('admin.housing_new_badge.unpin_success'));
-    } catch (err: any) {
-      setError(err.message || 'Network error');
+    } catch (err) {
+      setError((err as Error).message || 'Network error');
     } finally {
       setPatching(false);
     }

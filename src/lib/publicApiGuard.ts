@@ -10,6 +10,7 @@ function isPublicReadApiDisabled(): boolean {
 }
 
 /** Node 用: 停止中なら 503 を返して true (ハンドラは即 return する) */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Vercel の res は api/ 側のモックと型が揃わないため src/lib では緩く受ける
 export function rejectIfPublicApiDisabled(res: any): boolean {
   if (!isPublicReadApiDisabled()) return false;
   res.status(503).json({ error: 'temporarily unavailable' });

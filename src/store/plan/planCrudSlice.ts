@@ -51,6 +51,7 @@ export const createPlanCrudSlice = ({ set, get }: PlanSliceContext): Pick<
                 isEmptyPlanData(data.data) &&
                 !isEmptyPlanData(existing.data)
             ) {
+                 
                 const { data: _dropped, ...rest } = data;
                 // data 以外に更新が無ければ完全 no-op (version++/dirty を作らない)
                 if (Object.keys(rest).length === 0) {

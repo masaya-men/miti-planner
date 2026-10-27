@@ -49,7 +49,7 @@ export async function cropAndResize(
             canvas.toBlob(
                 (blob) => {
                     URL.revokeObjectURL(img.src);
-                    blob ? resolve(blob) : reject(new Error('Canvas toBlob failed'));
+                    if (blob) resolve(blob); else reject(new Error('Canvas toBlob failed'));
                 },
                 'image/webp',
                 0.85,

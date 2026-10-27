@@ -37,8 +37,8 @@ const ROOT = resolve(import.meta.dirname, '..');
 const env = loadEnv(resolve(ROOT, '.env.local'));
 const app = initializeApp({ credential: cert({ projectId: env.FIREBASE_PROJECT_ID, clientEmail: env.FIREBASE_CLIENT_EMAIL, privateKey: (env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n') }) });
 
-const arrLen = (a: any) => (Array.isArray(a) ? a.length : 0);
-const iso = (t: any) => t?.toDate?.()?.toISOString?.() || '?';
+const arrLen = (a: unknown) => (Array.isArray(a) ? a.length : 0);
+const iso = (t: { toDate?: () => { toISOString?: () => string } } | null | undefined) => t?.toDate?.()?.toISOString?.() || '?';
 const apply = process.argv.includes('--apply');
 const dbId = (() => { const i = process.argv.indexOf('--db'); return i >= 0 ? process.argv[i + 1] : ''; })();
 const onlyArg = (() => { const i = process.argv.indexOf('--only'); return i >= 0 ? (process.argv[i + 1] || '').split(',').filter(Boolean) : null; })();
@@ -52,13 +52,13 @@ interface Cmp {
   id: string; title: string; owner: string;
   bMit: number; bEv: number; lMit: number; lEv: number;
   bVer: number; lVer: number; liveDeleted: boolean; collab: boolean; lUpdated: string;
-  bData: any;
+  bData: FirebaseFirestore.DocumentData;
 }
 
 async function main() {
   console.log(`バックアップDB "${dbId}" と本番を読み込み中...`);
   const [bkSnap, liveSnap] = await Promise.all([bkDb.collection('plans').get(), liveDb.collection('plans').get()]);
-  const live = new Map<string, any>();
+  const live = new Map<string, FirebaseFirestore.DocumentData>();
   for (const d of liveSnap.docs) live.set(d.id, d.data());
   console.log(`  backup plans=${bkSnap.size} / live plans=${liveSnap.size}\n`);
 
@@ -102,7 +102,7 @@ async function main() {
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const backupDir = resolve(ROOT, 'docs/.private/backups');
   mkdirSync(backupDir, { recursive: true });
-  const preDocs: Record<string, any> = {};
+  const preDocs: Record<string, FirebaseFirestore.DocumentData | null | undefined> = {};
   for (const v of todo) { const c = await liveDb.collection('plans').doc(v.id).get(); preDocs[v.id] = c.exists ? c.data() : null; }
   const backupPath = resolve(backupDir, `pre-restore-backupsweep_${stamp}.json`);
   writeFileSync(backupPath, JSON.stringify(preDocs, null, 2), 'utf-8');

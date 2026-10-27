@@ -6,7 +6,8 @@ import { createPortal } from 'react-dom';
 import type { Mitigation } from '../../../types';
 import { getPhaseName } from '../../../types';
 import { useThemeStore } from '../../../store/useThemeStore';
-import { placeTooltipPopup, TOOLTIP_BOX_CLASS } from '../../ui/Tooltip';
+import { TOOLTIP_BOX_CLASS } from '../../ui/Tooltip';
+import { placeTooltipPopup } from '../../ui/tooltipPlacement';
 
 interface Props {
     def: Mitigation;

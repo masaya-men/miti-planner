@@ -31,7 +31,7 @@ export async function ensureUserDocument(currentUser: User): Promise<void> {
         // ドキュメントは存在するが、古い形式（settings がない等）の場合に補完する
         const data = userDoc.data();
         let needsUpdate = false;
-        const updates: any = {};
+        const updates: Record<string, unknown> = {};
 
         if (!data.settings) {
             updates.settings = {};

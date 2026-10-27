@@ -171,7 +171,7 @@ export class Room extends YServer {
     const url = new URL(request.url);
     if (url.pathname.endsWith("/count")) {
       let count = 0;
-      for (const _ of this.getConnections()) count++;
+      count = [...this.getConnections()].length;
       const stored = await this.ctx.storage.get<number>(MAX_PARTICIPANTS_KEY);
       // #3d: 人数はハイバネを越えて保持される接続リスト(getConnections)が真実(Cloudflare 公式)。
       //   ブラウザが入退室時だけ取得して確実な人数を出すため CORS を許可する(count/max は非機微・

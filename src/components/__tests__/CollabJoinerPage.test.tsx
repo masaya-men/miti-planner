@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { joinerView, computeCanEdit, rehydrateThenClearReadonly, shouldRedirectToOwnerEditor, canOpenOwnerEditor } from "../CollabJoinerPage";
+import { joinerView, computeCanEdit, rehydrateThenClearReadonly, shouldRedirectToOwnerEditor, canOpenOwnerEditor } from "../collabJoinerPageModel";
 
 describe("joinerView(状態 → 表示種別)", () => {
   it("未同期は connecting", () => {

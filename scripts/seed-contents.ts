@@ -57,8 +57,8 @@ console.log('✅ Firebase Admin 初期化完了');
 // 1. Firestore の現在の /master/contents を取得
 const existingSnap = await db.doc('master/contents').get();
 const existingData = existingSnap.exists ? (existingSnap.data() ?? { items: [], series: [] }) : { items: [], series: [] };
-const existingItems: any[] = existingData.items ?? [];
-const existingSeries: any[] = existingData.series ?? [];
+const existingItems: FirebaseFirestore.DocumentData[] = existingData.items ?? [];
+const existingSeries: FirebaseFirestore.DocumentData[] = existingData.series ?? [];
 
 // 2. contents.json (= STATIC) の id セット
 const staticItemIds = new Set(CONTENT_DEFINITIONS.map(c => c.id));

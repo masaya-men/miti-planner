@@ -16,11 +16,12 @@ import { initAdmin, verifyAdmin, getAdminFirestore } from '../../src/lib/adminAu
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { bumpPublicVersionDirect } from '../housing/_publicVersion.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const COLLECTION = 'housing_listings';
 const MAX_DAYS = 90;
 
-function setCors(req: any, res: any) {
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers?.origin || '';
   const allowedOrigins = [
     'https://lopoly.app',
@@ -34,7 +35,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -97,8 +98,8 @@ export default async function handler(req: any, res: any) {
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[admin/housing-new-badge]', err);
-    return res.status(500).json({ error: err?.message || 'Internal error' });
+    return res.status(500).json({ error: (err as { message?: string } | undefined)?.message || 'Internal error' });
   }
 }

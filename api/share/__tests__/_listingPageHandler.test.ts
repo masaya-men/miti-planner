@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Firebase Admin のモック（Firestore 取得失敗をシミュレート）
-let mockGetFn: any = vi.fn();
+const mockGetFn: any = vi.fn();
 // firebase-admin/storage の exists() 既定は [true]（カードはキャッシュ済み → exists===true 経路で
 // lastAccessedAt を touch）。exists===false（未生成）のケースは個別テストで
 // mockFileExists.mockResolvedValueOnce([false]) に差し替える。

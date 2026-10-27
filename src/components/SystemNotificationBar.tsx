@@ -4,19 +4,11 @@ import { Bell } from 'lucide-react';
 import { useSystemNotifications } from '../store/useSystemNotifications';
 import { SystemNotificationModal } from './SystemNotificationModal';
 import { resolveLocalized } from '../lib/localizedText';
+import { normalizeLang } from './systemNotificationLang';
 
 interface Props {
   /** Sidebar が折りたたまれているとき true。 マーキー非表示、 ベルのみに */
   isCollapsed: boolean;
-}
-
-type SupportedLang = 'ja' | 'en' | 'ko' | 'zh' | 'zh-Hant';
-export function normalizeLang(lang: string): SupportedLang {
-  if (lang.startsWith('en')) return 'en';
-  if (lang.startsWith('ko')) return 'ko';
-  if (lang === 'zh-Hant' || lang.toLowerCase().startsWith('zh-hant')) return 'zh-Hant';
-  if (lang.startsWith('zh')) return 'zh';
-  return 'ja';
 }
 
 // マーキー速度: 60 px/sec = 日本語 ~4 文字/sec、 業界標準的なニュースティッカー速度

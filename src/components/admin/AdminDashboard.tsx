@@ -98,8 +98,8 @@ export function AdminDashboard() {
       } else {
         setSyncResult({ ok: false, message: data.error || 'Unknown error' });
       }
-    } catch (err: any) {
-      setSyncResult({ ok: false, message: err.message || 'Network error' });
+    } catch (err) {
+      setSyncResult({ ok: false, message: (err as Error).message || 'Network error' });
     } finally {
       setSyncing(false);
     }

@@ -59,7 +59,7 @@ function buildCandidates(page: HousingPageTexts): string[] {
 
 // 区切り記号 (| ┆ /) の出現数。 2 個以上なら「住所らしさ」 の加点材料にする。
 function separatorCount(text: string): number {
-    const m = text.match(/[|┆\/]/g);
+    const m = text.match(/[|┆/]/g);
     return m ? m.length : 0;
 }
 

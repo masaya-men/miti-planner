@@ -83,7 +83,7 @@ describe('warmListingOgCard', () => {
 
   it('warm-up fetch に 5 秒 timeout の AbortSignal を渡す', async () => {
     const setMeta = vi.fn(async () => {});
-    const fetchImpl = vi.fn(async (_url?: unknown, _init?: unknown) => ({ ok: true }) as Response);
+    const fetchImpl = vi.fn<(url?: unknown, init?: unknown) => Promise<Response>>(async () => ({ ok: true }) as Response);
     await warmListingOgCard({
       origin: 'https://lopoly.app',
       photoUrl: 'https://x.test/a.jpg',

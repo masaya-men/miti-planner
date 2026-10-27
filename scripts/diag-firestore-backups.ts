@@ -31,7 +31,7 @@ const projectId = env.FIREBASE_PROJECT_ID!;
 const credential = cert({ projectId, clientEmail: env.FIREBASE_CLIENT_EMAIL, privateKey: (env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n') });
 
 async function token(): Promise<string> {
-  const t = await (credential as any).getAccessToken();
+  const t = await (credential as unknown as { getAccessToken(): Promise<{ access_token: string }> }).getAccessToken();
   return t.access_token as string;
 }
 

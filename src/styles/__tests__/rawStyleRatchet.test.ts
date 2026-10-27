@@ -6,7 +6,7 @@ import allow from './rawStyleAllowlist.json';
 // トークン外の生の色(Tailwind のパレット色・#直書き)と文字サイズの直書き(text-[Npx])は、
 // 今ある数より増やしたら落ちる(2026-10-27 整頓⑦の再発防止)。新しく書くときは app トークンを使う。
 // 減らしたら rawStyleAllowlist.json の数も下げる(下げないと後で同じ数まで増やせてしまう)。
-// ハウジング・管理画面・MIL-SPEC は独自の見た目ルールなので対象外。
+// ハウジング・管理画面・MIL-SPEC は独自の見た目ルールなので対象外。.ts も数える(色を .ts へ移すと見張りから外れるため)。
 const SRC = resolve(__dirname, '../../');
 const SKIP_DIRS = ['node_modules', '__tests__', 'housing', 'admin', 'military'];
 
@@ -14,7 +14,7 @@ function walk(dir: string): string[] {
     return readdirSync(dir).flatMap((name) => {
         const full = join(dir, name);
         if (statSync(full).isDirectory()) return SKIP_DIRS.includes(name) ? [] : walk(full);
-        return name.endsWith('.tsx') ? [full] : [];
+        return /.tsx?$/.test(name) && !name.endsWith('.d.ts') ? [full] : [];
     });
 }
 

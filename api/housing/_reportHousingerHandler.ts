@@ -20,13 +20,18 @@ import {
   type HousingerReportReason,
 } from '../../src/lib/housing/housingerProfile.js';
 import { countUniqueReporters } from '../../src/lib/housing/reportOutcome.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
 const MAX_COMMENT_LENGTH = 500;
 
-export function validateReportHousingerBody(body: any):
+export function validateReportHousingerBody(body: unknown):
   | { ok: true; housingerUid: string; reason: HousingerReportReason; comment?: string }
   | { ok: false; error: 'invalid_housingerUid' | 'invalid_reason' | 'comment_required' } {
-  const { housingerUid, reason, comment } = body || {};
+  const { housingerUid, reason, comment } = (body || {}) as {
+    housingerUid?: unknown;
+    reason?: unknown;
+    comment?: string;
+  };
   if (!housingerUid || typeof housingerUid !== 'string') {
     return { ok: false, error: 'invalid_housingerUid' };
   }
@@ -42,7 +47,7 @@ export function validateReportHousingerBody(body: any):
   return { ok: true, housingerUid, reason, comment };
 }
 
-function setCors(req: any, res: any) {
+function setCors(req: HousingReq, res: HousingRes) {
   const origin = req.headers?.origin || '';
   const allowed = [
     'https://lopoly.app',
@@ -56,7 +61,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: HousingReq, res: HousingRes) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -126,7 +131,7 @@ export default async function handler(req: any, res: any) {
     });
 
     return res.status(201).json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error('[housing/report-housinger] error:', error);
     if (error?.message === 'not_found') return res.status(404).json({ error: 'not_found' });
     return res.status(500).json({ error: 'Internal error' });

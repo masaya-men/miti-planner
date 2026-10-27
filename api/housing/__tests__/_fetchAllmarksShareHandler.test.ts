@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const { mockApplyRateLimit } = vi.hoisted(() => ({
-  mockApplyRateLimit: vi.fn(async (..._args: any[]) => true),
+  mockApplyRateLimit: vi.fn<(...args: unknown[]) => Promise<boolean>>(async () => true),
 }));
 
 vi.mock('../../../src/lib/rateLimit.js', () => ({

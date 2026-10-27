@@ -66,7 +66,7 @@ if (!skillsSnap.exists) {
   process.exit(1);
 }
 const data = skillsSnap.data()!;
-const mits: any[] = Array.isArray(data.mitigations) ? data.mitigations : [];
+const mits: FirebaseFirestore.DocumentData[] = Array.isArray(data.mitigations) ? data.mitigations : [];
 const displayOrder: string[] = Array.isArray(data.displayOrder) ? [...data.displayOrder] : [];
 
 // 1) 低レベル版(maxLevel を持つ方)の id を _base 化

@@ -10,7 +10,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 export function initAdmin() {
   if (!getApps().length) {
     let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
-    if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch {} }
+    if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch { /* 意図的に無視: JSON でなければそのまま使う */ } }
     pk = pk.replace(/\\n/g, '\n');
     initializeApp({
       credential: cert({
@@ -26,6 +26,7 @@ export function initAdmin() {
 }
 
 /** リクエストからBearerトークンを抽出 */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Vercel の req は api/ 側のモックと型が揃わないため src/lib では緩く受ける
 function extractToken(req: any): string | null {
   const authHeader = req.headers?.authorization || '';
   if (authHeader.startsWith('Bearer ')) {
@@ -38,6 +39,7 @@ function extractToken(req: any): string | null {
  * リクエストの送信者が管理者かどうかを検証
  * @returns 管理者のUID（検証成功時）、null（失敗時）
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Vercel の req は api/ 側のモックと型が揃わないため src/lib では緩く受ける
 export async function verifyAdmin(req: any): Promise<string | null> {
   const token = extractToken(req);
   if (!token) return null;

@@ -54,7 +54,7 @@ const TARGET_IDS = ['accession', 'manifestation'];
 const snap = await db.doc('master/skills').get();
 if (!snap.exists) { console.error('master/skills が存在しません'); process.exit(1); }
 const data = snap.data()!;
-const mits: any[] = data.mitigations ?? [];
+const mits: FirebaseFirestore.DocumentData[] = data.mitigations ?? [];
 
 const willUpdate: string[] = [];
 const updated = mits.map((m) => {

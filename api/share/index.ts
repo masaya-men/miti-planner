@@ -25,6 +25,7 @@ import listingPageHandler from './_listingPageHandler.js';
 import { getContentName, type OgpLang } from '../../src/lib/ogpHelpers.js';
 import { computeImageHash } from '../../src/lib/ogpImageHash.js';
 import { stripSharedPersonalData } from '../../src/lib/sharePrivacy.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const COLLECTION = 'shared_plans';
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
@@ -69,7 +70,8 @@ async function upsertOgImageMeta(
 function initAdmin() {
     if (!getApps().length) {
         let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
-        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch {} }
+        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch { // 意図的に無視: JSON でなければそのまま使う
+        } }
         pk = pk.replace(/\\n/g, '\n');
         initializeApp({
             credential: cert({
@@ -81,7 +83,7 @@ function initAdmin() {
     }
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
     // share-pageへのルーティング（?type=page）
     if (req.query?.type === 'page') {
         return sharePageHandler(req, res);
@@ -175,7 +177,7 @@ export default async function handler(req: any, res: any) {
             // バンドル共有（複数プランまとめて）
             if (Array.isArray(plans) && plans.length > 0) {
                 const shareId = nanoid(8);
-                const planRefs = plans.map((p: any) => ({
+                const planRefs = plans.map((p) => ({
                     contentId: p.contentId || null,
                     title: p.title || '',
                 }));
@@ -187,11 +189,11 @@ export default async function handler(req: any, res: any) {
                     logoHash: logoHashStr,
                     lang: normalizedLang,
                 });
-                const doc: any = {
+                const doc: FirebaseFirestore.DocumentData = {
                     shareId,
                     type: 'bundle',
                     lang: normalizedLang,
-                    plans: plans.map((p: any) => ({
+                    plans: plans.map((p) => ({
                         contentId: p.contentId || null,
                         title: p.title || '',
                         // 共有に個人状態(progress/memos)を載せない（Layer1: 保存時に除去）
@@ -234,7 +236,7 @@ export default async function handler(req: any, res: any) {
                 logoHash: logoHashStr,
                 lang: normalizedLang,
             });
-            const doc: any = {
+            const doc: FirebaseFirestore.DocumentData = {
                 shareId,
                 lang: normalizedLang,
                 title: title || '',
@@ -328,7 +330,7 @@ export default async function handler(req: any, res: any) {
             let hashInputContentName: string;
             let hashInputPlanTitle: string;
             if (existingData.type === 'bundle' && Array.isArray(existingData.plans)) {
-                const planRefs = existingData.plans.map((p: any) => ({
+                const planRefs = existingData.plans.map((p) => ({
                     contentId: p.contentId || null,
                     title: p.title || '',
                 }));
@@ -388,7 +390,7 @@ export default async function handler(req: any, res: any) {
             if (!isPreview && viewerIp) {
                 const ipHash = createHash('sha256').update(viewerIp + id).digest('hex').slice(0, 16);
                 const viewRef = db.collection(COLLECTION).doc(id as string).collection('viewers').doc(ipHash);
-                viewRef.get().then((s: any) => {
+                viewRef.get().then((s) => {
                     if (!s.exists) {
                         const batch = db.batch();
                         batch.set(viewRef, { at: Date.now() });
@@ -400,17 +402,17 @@ export default async function handler(req: any, res: any) {
 
             // 個人状態(progress/memos)を返さない（Layer2: 取得/コピー/プレビューを単一箇所で網羅。
             // 既に進捗/メモ入りで保存済みの古い共有にも効く）。保存データ自体は変更しない。
-            const out: any = { ...snap.data() };
+            const out: FirebaseFirestore.DocumentData = { ...snap.data() };
             if (out.planData) out.planData = stripSharedPersonalData(out.planData);
             if (Array.isArray(out.plans)) {
-                out.plans = out.plans.map((p: any) => ({ ...p, planData: stripSharedPersonalData(p.planData) }));
+                out.plans = out.plans.map((p) => ({ ...p, planData: stripSharedPersonalData(p.planData) }));
             }
             return res.status(200).json(out);
 
         } else {
             return res.status(405).json({ error: 'Method not allowed' });
         }
-    } catch (err: any) {
+    } catch (err) {
         console.error('Share API error:', err);
         return res.status(500).json({ error: 'Internal server error' });
     }

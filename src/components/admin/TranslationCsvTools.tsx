@@ -61,7 +61,7 @@ export function TranslationCsvTools({ rows, category, onImport }: Props) {
         continue;
       }
 
-      const update: any = {};
+      const update: Record<string, string> = {};
       const jaKey = Object.keys(parsed).find(k => k.includes('ja')) || 'ja';
       const enKey = Object.keys(parsed).find(k => k.includes('en')) || 'en';
       const jaVal = parsed[jaKey]?.trim();

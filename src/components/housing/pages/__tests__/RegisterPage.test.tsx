@@ -107,7 +107,7 @@ import { RegisterPage } from '../RegisterPage';
 import * as housingApiClient from '../../../../lib/housingApiClient';
 // 複数URL集約 (Batch2) の重複検出テスト用: showToast 呼び出しを spy する
 // (housingApiClient と同じ「実モジュールを名前空間 import → vi.spyOn」方式)。
-import * as ToastModule from '../../../Toast';
+import * as ToastModule from '../../../toastBus';
 import { AUTOSAVE_KEY } from '../../../../lib/housing/registerAutosave';
 import { saveRegisterPrefill, consumeRegisterPrefill } from '../../../../lib/housing/registerPrefill';
 import { SAVED_IMAGES_LIMIT } from '../../register/HousingRegisterImageField';

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSystemNotifications } from '../../store/useSystemNotifications';
 import { SystemNotificationModal } from '../SystemNotificationModal';
-import { normalizeLang } from '../SystemNotificationBar';
+import { normalizeLang } from '../systemNotificationLang';
 import { resolveLocalized } from '../../lib/localizedText';
 import { MilspecLed, MilspecStencil } from './MilspecDecor';
 import { SB_NOTIF, sbY } from './sidebarGeometry';

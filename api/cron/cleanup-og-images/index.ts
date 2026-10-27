@@ -23,6 +23,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
+import type { ApiRequest, ApiResponse } from '../../_apiTypes.js';
 
 const STORAGE_BUCKET = 'lopo-7793e.firebasestorage.app';
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
@@ -33,7 +34,8 @@ const MAX_PROCESS = 500;
 function initAdmin() {
     if (!getApps().length) {
         let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
-        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch {} }
+        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch { // 意図的に無視: JSON でなければそのまま使う
+        } }
         pk = pk.replace(/\\n/g, '\n');
         initializeApp({
             credential: cert({
@@ -45,7 +47,7 @@ function initAdmin() {
     }
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
     // Vercel Cron 認証（CRON_SECRET を Vercel ダッシュボードで設定済みであることが前提）
     const authHeader = req.headers?.authorization || '';
     const expected = process.env.CRON_SECRET ? `Bearer ${process.env.CRON_SECRET}` : '';
@@ -81,7 +83,7 @@ export default async function handler(req: any, res: any) {
                 }
 
                 const [metadata] = await file.getMetadata();
-                const lastAccessedRaw = (metadata.metadata as any)?.lastAccessedAt;
+                const lastAccessedRaw = (metadata.metadata as { lastAccessedAt?: unknown } | undefined)?.lastAccessedAt;
                 const lastAccessed = typeof lastAccessedRaw === 'string' && /^\d+$/.test(lastAccessedRaw)
                     ? Number(lastAccessedRaw)
                     : new Date(metadata.updated || metadata.timeCreated || 0).getTime();
@@ -109,7 +111,7 @@ export default async function handler(req: any, res: any) {
             deletedHashes,
             cutoff: new Date(cutoff).toISOString(),
         });
-    } catch (err: any) {
+    } catch (err) {
         console.error('Cleanup error:', err);
         return res.status(500).json({ error: 'Internal server error' });
     }

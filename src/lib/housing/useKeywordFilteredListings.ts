@@ -17,6 +17,6 @@ export function useKeywordFilteredListings(
     return listings.filter((l) =>
       matchesKeyword(buildListingSearchText(l, t, lang, locale), keyword),
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [listings, keyword, t, i18n.language]);
 }

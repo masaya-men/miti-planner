@@ -11,7 +11,7 @@ import { useAccountActions } from '../../../hooks/auth/useAccountActions';
 import { DisplayNameEditor } from '../../DisplayNameEditor';
 import { HousingAvatarCropModal } from '../mypage/HousingAvatarCropModal';
 import { HousingerAvatar } from './HousingerAvatar';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 
 interface Props {
   isSelf: boolean;

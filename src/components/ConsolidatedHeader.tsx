@@ -26,7 +26,7 @@ import { LoginModal } from './LoginModal';
 import { Tooltip } from './ui/Tooltip';
 import { ShareButtons } from './ShareButtons';
 import { SyncButton } from './SyncButton';
-import { useTransitionOverlay } from './ui/TransitionOverlay';
+import { useTransitionOverlay } from './ui/transitionOverlayContext';
 import { SegmentButton } from './ui/SegmentButton';
 import { useProgressBarVisibility } from '../store/useProgressBarVisibility';
 import { ProgressTrackingHUD } from './progress/ProgressTrackingHUD';

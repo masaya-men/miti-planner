@@ -36,7 +36,7 @@ async function resizeToJpeg(file: File): Promise<Blob> {
             canvas.toBlob(
                 (blob) => {
                     URL.revokeObjectURL(img.src);
-                    blob ? resolve(blob) : reject(new Error('Canvas toBlob failed'));
+                    if (blob) resolve(blob); else reject(new Error('Canvas toBlob failed'));
                 },
                 'image/jpeg',
                 0.85

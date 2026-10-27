@@ -8,7 +8,7 @@ import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { canDisplayAddress, mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { useAuthStore } from '../../../store/useAuthStore';
-import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
+import { useHousingCardPlayback } from '../../../lib/housing/housingPlaybackState';
 import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingImage } from '../media/HousingImage';

@@ -60,6 +60,7 @@ export function useHousingFieldState(requiredFields: string[] = []) {
 
     const clearField = useCallback((name: string) => {
         setFields((prev) => {
+             
             const { [name]: _removed, ...rest } = prev;
             return rest;
         });

@@ -11,13 +11,15 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getContentName, buildOgImageUrl, type OgpLang } from '../../src/lib/ogpHelpers.js';
 import { escapeHtml, metaContent, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const COLLECTION = 'shared_plans';
 
 function initAdmin() {
     if (!getApps().length) {
         let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
-        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch {} }
+        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch { // 意図的に無視: JSON でなければそのまま使う
+        } }
         pk = pk.replace(/\\n/g, '\n');
         initializeApp({
             credential: cert({
@@ -34,7 +36,7 @@ export function buildSharePageSeoSnapshotHtml(ogTitle: string, ogDescription: st
     return `<h1>${escapeHtml(ogTitle)}</h1><p>${escapeHtml(ogDescription)}</p>`;
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
     const shareId = (req.query.id as string) || '';
 
     let ogTitle = 'LoPo | FF14 軽減プランナー';
@@ -58,7 +60,7 @@ export default async function handler(req: any, res: any) {
 
                 if (data.type === 'bundle' && Array.isArray(data.plans)) {
                     const names = data.plans
-                        .map((p: any) => getContentName(p.contentId, lang) || p.title || '')
+                        .map((p) => getContentName(p.contentId, lang) || p.title || '')
                         .filter(Boolean);
                     if (names.length > 0) {
                         ogTitle = `${names.join(' / ')} - LoPo`;

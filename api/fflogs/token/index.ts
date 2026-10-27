@@ -14,6 +14,7 @@
 import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../../src/lib/rateLimit.js';
 import { fetchTokenWithFailover } from '../../../src/lib/fflogsTokenFailover.js';
+import type { ApiRequest, ApiResponse } from '../../_apiTypes.js';
 
 // 利用可能なAPIキーペアを環境変数から収集
 function getCredentialPairs(): { clientId: string; clientSecret: string }[] {
@@ -42,7 +43,7 @@ function getCredentialPairs(): { clientId: string; clientSecret: string }[] {
 // ラウンドロビン用カウンター（Serverless Functionのインスタンス内で保持）
 let roundRobinIndex = 0;
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
     // CORS
     const origin = req.headers?.origin || '';
     const allowedOrigins = [

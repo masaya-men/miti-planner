@@ -33,7 +33,7 @@ const app = initializeApp({ credential });
 async function main() {
   // ① databases.list
   try {
-    const t = await (credential as any).getAccessToken();
+    const t = await (credential as unknown as { getAccessToken(): Promise<{ access_token: string }> }).getAccessToken();
     const res = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases`, { headers: { Authorization: `Bearer ${t.access_token}` } });
     const body = await res.json();
     console.log('=== ① データベース一覧 ===');
@@ -44,7 +44,7 @@ async function main() {
     } else {
       console.log('  ', res.status, JSON.stringify(body).slice(0, 200));
     }
-  } catch (e: any) { console.log('① 失敗:', e?.message); }
+  } catch (e) { console.log('① 失敗:', (e as { message?: string })?.message); }
 
   // ② recovery-0608 を実読み
   console.log('\n=== ② recovery-0608 読み取りテスト ===');
@@ -52,8 +52,8 @@ async function main() {
     const bkDb = getFirestore(app, 'recovery-0608');
     const cnt = await bkDb.collection('plans').count().get();
     console.log(`  ✅ 読めました! plans 件数 = ${cnt.data().count} → 復元はほぼ完了しています`);
-  } catch (e: any) {
-    console.log(`  まだ読めません: ${String(e?.message || e).slice(0, 160)}`);
+  } catch (e) {
+    console.log(`  まだ読めません: ${String((e as { message?: string })?.message || e).slice(0, 160)}`);
     console.log('  → まだ復元中の可能性が高いです(エラー内容で判断)');
   }
 }

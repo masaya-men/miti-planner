@@ -18,9 +18,10 @@ import {
   SB_PATCH_STATS,
 } from '../../src/data/defaultStats.js';
 import { LEVEL_MODIFIERS } from '../../src/data/levelModifiers.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 /** CORS設定 */
-function setCors(req: any, res: any) {
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers?.origin || '';
   const allowedOrigins = [
     'https://lopoly.app',
@@ -34,7 +35,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -64,16 +65,16 @@ export default async function handler(req: any, res: any) {
     // - displayOrder: mockData.ts の順序を底に、 Firestore のみの id を末尾追加
     const existingSkillsSnap = await db.doc('master/skills').get();
     const existingSkills = existingSkillsSnap.exists ? existingSkillsSnap.data() : null;
-    const existingJobs: any[] = existingSkills?.jobs ?? [];
-    const existingMits: any[] = existingSkills?.mitigations ?? [];
+    const existingJobs: { id: string }[] = existingSkills?.jobs ?? [];
+    const existingMits: { id: string }[] = existingSkills?.mitigations ?? [];
     const existingOrder: string[] = existingSkills?.displayOrder ?? [];
 
     const mockJobIds = new Set(JOBS.map((j) => j.id));
     const mockMitIds = new Set(MITIGATIONS.map((m) => m.id));
     const mockOrderSet = new Set(MITIGATION_DISPLAY_ORDER);
 
-    const firestoreOnlyJobs = existingJobs.filter((j: any) => !mockJobIds.has(j.id));
-    const firestoreOnlyMits = existingMits.filter((m: any) => !mockMitIds.has(m.id));
+    const firestoreOnlyJobs = existingJobs.filter((j) => !mockJobIds.has(j.id));
+    const firestoreOnlyMits = existingMits.filter((m) => !mockMitIds.has(m.id));
     const firestoreOnlyOrder = existingOrder.filter((id: string) => !mockOrderSet.has(id));
 
     const mergedJobs = [...JOBS, ...firestoreOnlyJobs];
@@ -155,8 +156,8 @@ export default async function handler(req: any, res: any) {
       preservedMitigations: firestoreOnlyMits.length,
       preservedPatchStats: Object.keys(firestoreOnlyPatches).length,
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[sync] error:', err);
-    return res.status(500).json({ error: err.message || 'Internal server error' });
+    return res.status(500).json({ error: (err as Error).message || 'Internal server error' });
   }
 }

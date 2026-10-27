@@ -23,8 +23,9 @@ import { sendHousingNewListingNotification } from '../../src/lib/discordWebhook.
 import { warmListingCard } from './_warmListingCard.js';
 import { fetchHousingSnapCreator } from './_housingSnapCreator.js';
 import { isHousingSnapPostUrl, normalizeXStatusUrl } from '../../src/lib/housing/housingSnapCreator.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
-function setCors(req: any, res: any) {
+function setCors(req: HousingReq, res: HousingRes) {
   const origin = req.headers?.origin || '';
   const allowed = [
     'https://lopoly.app',
@@ -38,7 +39,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: HousingReq, res: HousingRes) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -265,7 +266,7 @@ export default async function handler(req: any, res: any) {
     await warmListingCard(adminDb, req.headers?.host, createdListing);
 
     return res.status(200).json({ id: createdId, addressKey });
-  } catch (error: any) {
+  } catch (error) {
     if (error?.message === 'quota_exhausted') {
       return res.status(429).json({ error: 'quota_exhausted' });
     }

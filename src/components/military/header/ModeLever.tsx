@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { MilspecLed } from '../MilspecDecor';
 import { useThemeStore } from '../../../store/useThemeStore';
-import { useTransitionOverlay } from '../../ui/TransitionOverlay';
+import { useTransitionOverlay } from '../../ui/transitionOverlayContext';
 import { useCanPreviewWip } from '../../../hooks/useCanPreviewWip';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import { isPowered, powerOn, powerOff } from '../power/power';

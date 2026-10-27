@@ -57,6 +57,7 @@ export function resolveClientIp(getHeader: (name: string) => string | undefined)
 }
 
 /** Node ハンドラの req.headers から getHeader を作る (値は string | string[] がありうる) */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Vercel の req は api/ 側のモックと型が揃わないため src/lib では緩く受ける
 function nodeHeaderGetter(req: any): (name: string) => string | undefined {
   return (name: string) => {
     const v = req?.headers?.[name];
@@ -126,7 +127,9 @@ async function checkRateLimit(
  * @returns true = リクエスト続行OK, false = 429を返した（ハンドラーは即return）
  */
 export async function applyRateLimit(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Vercel の req/res は api/ 側のモックと型が揃わないため src/lib では緩く受ける
   req: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Vercel の req/res は api/ 側のモックと型が揃わないため src/lib では緩く受ける
   res: any,
   maxRequests = 10,
   windowMs = 60_000,

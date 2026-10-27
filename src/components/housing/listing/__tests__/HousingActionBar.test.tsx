@@ -75,7 +75,7 @@ const baseListing = {
   isHidden: false,
   reportCount: 0,
   deletedAt: null,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
 } as any;
 
 describe('HousingActionBar', () => {
@@ -137,7 +137,7 @@ describe('HousingActionBar', () => {
     const unlisted = {
       ...baseListing,
       visibility: 'unlisted',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
     } as any;
     renderBar({ viewerUid: null, listing: unlisted });
     const btn = screen.getByRole('button', { name: 'housing.card.add_to_tour' });
@@ -202,7 +202,7 @@ describe('HousingActionBar', () => {
       visibility: 'unlisted',
       description: undefined,
       addressKey: 'Mist Ward 5 Plot 12',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
     } as any;
     renderBar({ viewerUid: 'owner1', listing: unlistedNoDescription });
     const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
@@ -218,7 +218,7 @@ describe('HousingActionBar', () => {
       visibility: 'public',
       description: undefined,
       addressKey: 'Mist Ward 5 Plot 12',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
     } as any;
     renderBar({ viewerUid: 'owner1', listing: publicNoDescription });
     const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
@@ -231,7 +231,7 @@ describe('HousingActionBar', () => {
       ...baseListing,
       imageMode: 'sns',
       postUrl: 'https://twitter.com/someone/status/123',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
     } as any;
     renderBar({ viewerUid: 'owner1', listing: snsListing });
     const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
@@ -258,7 +258,7 @@ describe('HousingActionBar', () => {
       ...baseListing,
       sourcePostUrls: ['https://youtu.be/abc123', 'https://youtube.com/watch?v=def456'],
       postUrl: undefined,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
     } as any;
     renderBar({ viewerUid: 'owner1', listing: multiUrlListing });
     const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
@@ -270,7 +270,7 @@ describe('HousingActionBar', () => {
       ...baseListing,
       sourcePostUrls: [],
       postUrl: 'https://twitter.com/user/status/999',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
     } as any;
     renderBar({ viewerUid: 'owner1', listing: fallbackListing });
     const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
@@ -282,7 +282,7 @@ describe('HousingActionBar', () => {
       ...baseListing,
       sourcePostUrls: undefined,
       postUrl: undefined,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
     } as any;
     renderBar({ viewerUid: 'owner1', listing: noUrlListing });
     const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });

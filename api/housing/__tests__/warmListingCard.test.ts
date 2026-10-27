@@ -9,8 +9,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { warmListingCard, warmListingCardByRef } from '../_warmListingCard.js';
 
-const ogMetaSet = vi.fn(async (_col?: string, _meta?: unknown) => {});
-const fetchMock = vi.fn(async (_url?: unknown, _init?: unknown) => ({ ok: true }) as Response);
+const ogMetaSet = vi.fn<(col?: string, meta?: unknown) => Promise<void>>(async () => {});
+const fetchMock = vi.fn<(url?: unknown, init?: unknown) => Promise<Response>>(async () => ({ ok: true }) as Response);
 
 function makeDb() {
   return {

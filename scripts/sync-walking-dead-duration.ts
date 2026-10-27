@@ -64,7 +64,7 @@ if (!snap.exists) {
   process.exit(1);
 }
 const data = snap.data()!;
-const mits: any[] = Array.isArray(data.mitigations) ? data.mitigations : [];
+const mits: FirebaseFirestore.DocumentData[] = Array.isArray(data.mitigations) ? data.mitigations : [];
 
 const changes: string[] = [];
 for (const m of mits) {

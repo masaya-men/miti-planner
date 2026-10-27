@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { REPORT_REASONS, type ReportReason } from '../../../types/housing';
 import { useHousingReport } from './useHousingReport';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import { HousingPanelModal } from '../HousingPanelModal';
 
 export interface HousingReportModalProps {

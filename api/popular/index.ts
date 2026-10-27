@@ -13,6 +13,7 @@ import { isVisible, todayKey, dayKeyDaysBefore, calculateScore7d } from './popul
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { rejectIfPublicApiDisabled } from '../../src/lib/publicApiGuard.js';
 import { setPrivateNoStore } from '../../src/lib/privateNoStore.js';
+import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const COLLECTION = 'shared_plans';
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
@@ -22,7 +23,8 @@ const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[
 function initAdmin() {
     if (!getApps().length) {
         let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
-        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch {} }
+        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch { // 意図的に無視: JSON でなければそのまま使う
+        } }
         pk = pk.replace(/\\n/g, '\n');
         initializeApp({
             credential: cert({
@@ -38,7 +40,7 @@ function initAdmin() {
 async function checkPromotionCandidate(
     db: FirebaseFirestore.Firestore,
     shareId: string,
-    shareData: any,
+    shareData: FirebaseFirestore.DocumentData,
 ): Promise<void> {
     const contentId = shareData.contentId;
     if (!contentId) return;
@@ -93,7 +95,7 @@ async function checkPromotionCandidate(
     }
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
     // CORS
     const origin = req.headers?.origin || '';
     const allowedOrigins = [
@@ -147,9 +149,9 @@ export default async function handler(req: any, res: any) {
                 'planData.partyMembers',
             ];
 
-            const mapDoc = (doc: any) => {
+            const mapDoc = (doc) => {
                 const data = doc.data();
-                const partyMembers = data.planData?.partyMembers?.map((m: any) => ({
+                const partyMembers = data.planData?.partyMembers?.map((m) => ({
                     id: m.id,
                     jobId: m.jobId,
                     role: m.role,
@@ -275,7 +277,7 @@ export default async function handler(req: any, res: any) {
                     batch.set(copiedByRef, { copiedAt: FieldValue.serverTimestamp() });
                     // copyCount 全期間 + 今日のバケット を同時更新、7日より古いキーは間引く
                     const today = todayKey();
-                    const updates: Record<string, any> = {
+                    const updates: Record<string, unknown> = {
                         copyCount: FieldValue.increment(1),
                         [`copyCountByDay.${today}`]: FieldValue.increment(1),
                     };
@@ -300,7 +302,7 @@ export default async function handler(req: any, res: any) {
                     batch.set(anonCopiedByRef, { copiedAt: FieldValue.serverTimestamp() });
                     // copyCount 全期間 + 今日のバケット を同時更新、7日より古いキーは間引く
                     const today = todayKey();
-                    const updates: Record<string, any> = {
+                    const updates: Record<string, unknown> = {
                         copyCount: FieldValue.increment(1),
                         [`copyCountByDay.${today}`]: FieldValue.increment(1),
                     };
@@ -384,7 +386,7 @@ export default async function handler(req: any, res: any) {
 
             // トランザクション: shared_plans のみ一貫更新
             await db.runTransaction(async (tx) => {
-                const updates: Record<string, any> = {};
+                const updates: Record<string, unknown> = {};
 
                 if (hasFeatured || hasHidden) {
                     updates.featured = effectiveFeatured;
@@ -436,7 +438,7 @@ export default async function handler(req: any, res: any) {
         } else {
             return res.status(405).json({ error: 'Method not allowed' });
         }
-    } catch (err: any) {
+    } catch (err) {
         console.error('Popular API error:', err);
         return res.status(500).json({ error: 'Internal server error' });
     }

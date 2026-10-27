@@ -11,7 +11,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { upsertHousingerProfile } from '../../../lib/housing/housingerProfileService';
 import { isEligibleForOgRepresentative } from '../../../lib/housing/listingPublish';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import type { HousingerProfile } from '../../../types/housing';
 import type { MockListing } from '../../../data/housing/mockListings';
 

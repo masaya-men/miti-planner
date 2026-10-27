@@ -16,7 +16,7 @@ import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGall
 import { canAddToTour, tourAnchorRegion, tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import type { MockListing } from '../../../data/housing/mockListings';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 import { FavoritesGrid } from '../favorites/FavoritesGrid';
 import { FavoritesTabs } from '../favorites/FavoritesTabs';
 import { FavoritesBulkBar } from '../favorites/FavoritesBulkBar';

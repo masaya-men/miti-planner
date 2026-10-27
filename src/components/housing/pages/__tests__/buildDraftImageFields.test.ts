@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildDraftImageFields } from '../RegisterPage';
+import { buildDraftImageFields } from '../../register/page/registerPageModel';
 import { EMPTY_SNS_CAPTURE, type SnsCapture } from '../../register/snsCapture';
 import type { CompressedImage } from '../../../../lib/housing/imageCompression';
 

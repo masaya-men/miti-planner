@@ -59,7 +59,7 @@ export interface MarqueeLoopOptions {
 }
 
 /**
- * 無限ループ型マーキー (「あいうえお　　あいうえお　　…」と左へ流れ続けるティッカー) の計算。
+ * 無限ループ型マーキー (「あいうえお\u3000\u3000あいうえお\u3000\u3000…」と左へ流れ続けるティッカー) の計算。
  * 往復型 computeMarqueeMetrics とは別物。
  * - contentWidth: テキスト本体の幅 (ギャップを含まない) → 見切れ判定に使う
  * - loopWidth: 1コピー+ギャップの幅 (= コピー要素の offsetWidth) → 1周の移動距離

@@ -36,7 +36,7 @@ export function buildAllAddressListings(
     for (const h of plots) {
       out.push(makeListing(i++, m.area, m.isSub, 'house', m.isSub ? h.plot + 30 : h.plot, null));
     }
-    for (const _h of aparts) {
+    for (let _k = 0; _k < aparts.length; _k++) {
       out.push(makeListing(i++, m.area, m.isSub, 'apartment', null, m.isSub ? 2 : 1));
     }
   }

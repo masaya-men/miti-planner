@@ -51,8 +51,8 @@ if (!targetId || !readTimeIso) {
   process.exit(1);
 }
 
-const arrLen = (a: any) => (Array.isArray(a) ? a.length : -1);
-function sum(label: string, data: any) {
+const arrLen = (a: unknown) => (Array.isArray(a) ? a.length : -1);
+function sum(label: string, data: FirebaseFirestore.DocumentData | null | undefined) {
   const d = (data && data.data) || {};
   const ua = data?.updatedAt?.toDate?.()?.toISOString?.() || '?';
   console.log(`  ${label}: title="${String(data?.title || '').replace(/\n/g, ' ')}" deleted=${data?.deleted ?? false} v${data?.version} party=${arrLen(d.partyMembers)} mit=${arrLen(d.timelineMitigations)} ev=${arrLen(d.timelineEvents)} updatedAt=${ua}`);
@@ -69,7 +69,7 @@ async function main() {
   const pitr = await db.runTransaction(async (tx) => {
     const s = await tx.get(ref);
     return s.exists ? s.data() : null;
-  }, { readOnly: true, readTime } as any);
+  }, { readOnly: true, readTime } as unknown as FirebaseFirestore.ReadOnlyTransactionOptions);
 
   console.log('=== 復元前 ===');
   sum(`PITR@${readTimeIso}(復元元)`, pitr);

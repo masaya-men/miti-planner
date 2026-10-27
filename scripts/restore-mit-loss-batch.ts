@@ -49,8 +49,8 @@ const env = loadEnv(resolve(ROOT, '.env.local'));
 initializeApp({ credential: cert({ projectId: env.FIREBASE_PROJECT_ID, clientEmail: env.FIREBASE_CLIENT_EMAIL, privateKey: (env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n') }) });
 const db = getFirestore();
 
-const arrLen = (a: any) => (Array.isArray(a) ? a.length : 0);
-const iso = (t: any) => t?.toDate?.()?.toISOString?.() || '?';
+const arrLen = (a: unknown) => (Array.isArray(a) ? a.length : 0);
+const iso = (t: { toDate?: () => { toISOString?: () => string } } | null | undefined) => t?.toDate?.()?.toISOString?.() || '?';
 const apply = process.argv.includes('--apply');
 const includeReview = process.argv.includes('--include-review');
 const onlyArg = (() => { const i = process.argv.indexOf('--only'); return i >= 0 ? (process.argv[i + 1] || '').split(',').filter(Boolean) : null; })();
@@ -66,7 +66,7 @@ function normTitle(t: string): string {
 
 interface Row {
   id: string; owner: string; title: string; mit: number; ev: number; pm: number;
-  version: number; deleted: boolean; collab: boolean; updatedAt: string; data: any;
+  version: number; deleted: boolean; collab: boolean; updatedAt: string; data: FirebaseFirestore.DocumentData;
 }
 
 async function main() {
@@ -137,7 +137,7 @@ async function main() {
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const backupDir = resolve(ROOT, 'docs/.private/backups');
   mkdirSync(backupDir, { recursive: true });
-  const preDocs: Record<string, any> = {};
+  const preDocs: Record<string, FirebaseFirestore.DocumentData | null | undefined> = {};
   for (const { target: t } of target) {
     const cur = await db.collection('plans').doc(t.id).get();
     preDocs[t.id] = cur.exists ? cur.data() : null;

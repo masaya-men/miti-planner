@@ -9,7 +9,7 @@ import jaTranslations from '../../../../locales/ja.json';
 
 // showToast をスパイして、 リージョン跨ぎブロック時に呼ばれることを検証する (BrowsePage.test.tsx と同型)。
 const showToastMock = vi.fn();
-vi.mock('../../../Toast', () => ({
+vi.mock('../../../toastBus', () => ({
   showToast: (...args: unknown[]) => showToastMock(...args),
 }));
 

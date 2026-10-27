@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isJoinerReadonly } from "../Timeline";
+import { isJoinerReadonly } from "../timelineJoinerState";
 
 describe("isJoinerReadonly", () => {
   it("ジョイナー（roomToken あり）かつ編集不可は true", () => {

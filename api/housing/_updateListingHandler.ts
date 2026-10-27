@@ -19,8 +19,9 @@ import { validateRegistrationDraft, normalizePublishUntil, normalizeAfterExpiryV
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
 import { warmListingCardByRef } from './_warmListingCard.js';
+import type { HousingReq, HousingRes } from './_httpTypes.js';
 
-function setCors(req: any, res: any) {
+function setCors(req: HousingReq, res: HousingRes) {
   const origin = req.headers?.origin || '';
   const allowed = [
     'https://lopoly.app',
@@ -34,7 +35,7 @@ function setCors(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: HousingReq, res: HousingRes) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -243,7 +244,7 @@ export default async function handler(req: any, res: any) {
     await warmListingCardByRef(adminDb, req.headers?.host, listingRef);
 
     return res.status(200).json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     if (error?.message === 'not_found') return res.status(404).json({ error: 'not_found' });
     if (error?.message === 'forbidden') return res.status(403).json({ error: 'forbidden' });
     console.error('[housing/update-listing] error:', error);

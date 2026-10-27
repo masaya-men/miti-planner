@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CheckCircle, XCircle, Info } from 'lucide-react';
 import clsx from 'clsx';
+import { registerToastHandler } from './toastBus';
 
 interface ToastItem {
     id: number;
@@ -10,35 +11,19 @@ interface ToastItem {
 }
 
 let toastId = 0;
-let addToastFn: ((message: string, type: 'success' | 'error' | 'info') => void) | null = null;
-const pendingQueue: { message: string; type: 'success' | 'error' | 'info' }[] = [];
-
-/** グローバルにトーストを表示する（Reactマウント前でもキューに溜まる） */
-export function showToast(message: string, type: 'success' | 'error' | 'info' = 'success') {
-    if (addToastFn) {
-        addToastFn(message, type);
-    } else {
-        pendingQueue.push({ message, type });
-    }
-}
 
 export const ToastContainer: React.FC = () => {
     const [toasts, setToasts] = useState<ToastItem[]>([]);
 
     useEffect(() => {
-        addToastFn = (message: string, type: 'success' | 'error' | 'info') => {
+        registerToastHandler((message: string, type: 'success' | 'error' | 'info') => {
             const id = ++toastId;
             setToasts(prev => [...prev, { id, message, type }]);
             setTimeout(() => {
                 setToasts(prev => prev.filter(t => t.id !== id));
             }, 3000);
-        };
-        // マウント前にキューに溜まったトーストを処理
-        while (pendingQueue.length > 0) {
-            const item = pendingQueue.shift()!;
-            addToastFn(item.message, item.type);
-        }
-        return () => { addToastFn = null; };
+        });
+        return () => { registerToastHandler(null); };
     }, []);
 
     if (toasts.length === 0) return null;

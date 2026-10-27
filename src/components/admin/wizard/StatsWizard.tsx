@@ -11,7 +11,7 @@ import { useWizard } from './useWizard';
 import type { WizardStep } from './useWizard';
 import { AdminWizard } from './AdminWizard';
 import { apiFetch } from '../../../lib/apiClient';
-import { showToast } from '../../Toast';
+import { showToast } from '../../toastBus';
 
 // ---- 型定義 ----------------------------------------------------------------
 
@@ -715,6 +715,7 @@ function LevelBranch({ onBack }: { onBack: () => void }) {
 
 // ---- Branch A: 新規パッチ追加（useWizard） -----------------------------------
 
+ 
 function AddBranch({ onBack: _onBack }: { onBack: () => void }) {
   const { t } = useTranslation();
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolveContentId } from "../Timeline";
+import { resolveContentId } from "../timelineJoinerState";
 
 describe("resolveContentId(ジョイナーフォールバック)", () => {
   it("SavedPlan の contentId を優先", () => {

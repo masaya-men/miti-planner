@@ -9,24 +9,14 @@ import { onPower, BOOT_TIMING } from '../power/power';
 // 副作用 import: i18next の初期化(MilspecFooter.tsx と同じ理由)
 import '../../../i18n';
 import './milspecCrt.css';
+import { toCrtVertices } from './milspecCrtGeometry';
 
-/** 軌跡を写す枠(見本の polyline の範囲: x 110〜306・y 30(下)〜4(上)) */
-const X0 = 110, X1 = 306, Y_BOTTOM = 30, Y_TOP = 4;
 const DRAW_MS = 1300;
 /** ディスプレイの点灯演出(線→開く→明るすぎ→落ち着く 720ms)のあと、文字の描き込みを始めるまで(ms) */
 const CRT_DRAW_AFTER = 560;
 
 /** 見本 crtDraw の easeInOutCubic */
 const ease = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
-
-/** 記録点(x,y とも 0〜100)を viewBox 座標へ。1 点だけなら左下の起点から線を引く */
-export function toCrtVertices(points: { x: number; y: number }[]): { x: number; y: number }[] {
-  const v = points.map((p) => ({
-    x: +(X0 + (p.x / 100) * (X1 - X0)).toFixed(2),
-    y: +(Y_BOTTOM - (p.y / 100) * (Y_BOTTOM - Y_TOP)).toFixed(2),
-  }));
-  return v.length === 1 ? [{ x: X0, y: Y_BOTTOM }, v[0]] : v;
-}
 
 /** 見本 crtDraw(js:751-761): 軌跡を左から 1300ms で描き込み、先端の点が走る。戻り値で中断できる */
 function drawTrace(pl: SVGPolylineElement, dot: SVGCircleElement): () => void {

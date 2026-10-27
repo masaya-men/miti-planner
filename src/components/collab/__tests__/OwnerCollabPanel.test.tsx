@@ -8,7 +8,7 @@ import { useCollabPresenceStore } from '../../../store/useCollabPresenceStore';
 import type { RosterEntry } from '../../../lib/collab/presence';
 
 const showToast = vi.hoisted(() => vi.fn());
-vi.mock('../../Toast', () => ({ showToast }));
+vi.mock('../../toastBus', () => ({ showToast }));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

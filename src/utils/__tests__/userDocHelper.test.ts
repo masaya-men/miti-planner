@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const { mockGetDoc, mockSetDoc, mockDoc } = vi.hoisted(() => ({
-    mockGetDoc: vi.fn((..._args: unknown[]): Promise<{ exists: () => boolean; data: () => Record<string, unknown> }> =>
+    mockGetDoc: vi.fn<(...args: unknown[]) => Promise<{ exists: () => boolean; data: () => Record<string, unknown> }>>(() =>
         Promise.resolve({ exists: () => false, data: () => ({}) })),
-    mockSetDoc: vi.fn(async (..._args: unknown[]) => undefined),
-    mockDoc: vi.fn((..._args: unknown[]) => ({ id: 'mock-doc' })),
+    mockSetDoc: vi.fn<(...args: unknown[]) => Promise<undefined>>(async () => undefined),
+    mockDoc: vi.fn<(...args: unknown[]) => { id: string }>(() => ({ id: 'mock-doc' })),
 }));
 
 vi.mock('firebase/firestore', () => ({

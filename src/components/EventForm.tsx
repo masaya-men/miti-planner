@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Trash2, Calculator, Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { TimelineEvent } from '../types';
+import type { TimelineEvent, PartyMember } from '../types';
 import { getPhaseName } from '../types';
 import { useMitigationStore, DEFAULT_TANK_STATS, DEFAULT_HEALER_STATS } from '../store/useMitigationStore';
 import { useMitigations, useJobs } from '../hooks/useSkillsData';
@@ -358,7 +358,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                 // フォールバック: 学者不在 or computedValues 未生成のとき、デフォルトステータスで計算
                 if (baseShield === 0) {
                     const tempComputed = calculateMemberValues(
-                        { id: 'temp', jobId: 'sch', role: 'healer', stats: DEFAULT_HEALER_STATS, computedValues: {} } as any,
+                        { id: 'temp', jobId: 'sch', role: 'healer', stats: DEFAULT_HEALER_STATS, computedValues: {} } as PartyMember,
                         currentLevel
                     );
                     baseShield = tempComputed['鼓舞激励の策'] ?? 0;
@@ -392,7 +392,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                 // フォールバック: 占星不在 or computedValues 未生成のときデフォルトステータス計算
                 if (baseShield === 0) {
                     const tempComputed = calculateMemberValues(
-                        { id: 'temp', jobId: 'ast', role: 'healer', stats: DEFAULT_HEALER_STATS, computedValues: {} } as any,
+                        { id: 'temp', jobId: 'ast', role: 'healer', stats: DEFAULT_HEALER_STATS, computedValues: {} } as PartyMember,
                         currentLevel
                     );
                     baseShield = tempComputed[heliosName] ?? 0;
@@ -467,7 +467,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                     }
 
                     const tempComputed = calculateMemberValues(
-                        { id: 'temp', jobId: def.jobId || null, role, stats, computedValues: {} } as any,
+                        { id: 'temp', jobId: def.jobId || null, role, stats, computedValues: {} } as PartyMember,
                         currentLevel
                     );
                     shieldVal = tempComputed[jaName] || 0;
@@ -672,7 +672,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                             { value: 'unavoidable', label: t('modal.unavoidable'), icon: '/icons/type_dark.png' },
                         ]}
                         value={damageType}
-                        onChange={(v) => setDamageType(v as any)}
+                        onChange={(v) => setDamageType(v as TimelineEvent['damageType'])}
                         size={compact ? 'sm' : 'md'}
                         layout="vertical"
                         className="flex-1"
@@ -689,7 +689,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                             { value: 'ST', label: t('modal.st') },
                         ]}
                         value={target ?? 'AoE'}
-                        onChange={(v) => setTarget(v as any)}
+                        onChange={(v) => setTarget(v as TimelineEvent['target'])}
                         size={compact ? 'sm' : 'md'}
                         className="flex-1"
                     />

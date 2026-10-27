@@ -22,7 +22,7 @@ vi.mock('../../store/useMitigationStore', () => ({
     useMitigationStore: { getState: () => ({ getSnapshot: () => ({ snap: true }) }) },
 }));
 const showToastMock = vi.fn();
-vi.mock('../../components/Toast', () => ({ showToast: (...a: unknown[]) => showToastMock(...a) }));
+vi.mock('../../components/toastBus', () => ({ showToast: (...a: unknown[]) => showToastMock(...a) }));
 const decompressMock = vi.fn();
 vi.mock('../../utils/compression', () => ({ decompressPlanData: (...a: unknown[]) => decompressMock(...a) }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k: string) => k }) }));

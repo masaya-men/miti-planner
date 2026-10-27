@@ -7,7 +7,7 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { LoginModal } from './LoginModal';
 import { uploadTeamLogo, deleteTeamLogo, validateLogoFile } from '../utils/logoUpload';
-import { showToast } from './Toast';
+import { showToast } from './toastBus';
 import { apiFetch } from '../lib/apiClient';
 import { stripSharedPersonalData } from '../lib/sharePrivacy';
 import type { SavedPlan } from '../types';
@@ -23,7 +23,7 @@ interface ShareModalProps {
     contentLabel: string | null;
     currentPlan: SavedPlan | undefined;
     /** バンドル共有用：複数プランのデータ */
-    bundlePlans?: { contentId: string | null; title: string; planData: any }[];
+    bundlePlans?: { contentId: string | null; title: string; planData: unknown }[];
 }
 
 export const ShareModal: React.FC<ShareModalProps> = ({
@@ -96,7 +96,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const generateShareUrl = async () => {
         setLoading(true);
         try {
-            let body: any;
+            let body: Record<string, unknown>;
             if (isBundle) {
                 // 個人状態(progress/memos)を端末から送らない（プライバシー: サーバ側strip より手前で除去）
                 body = { plans: bundlePlans!.map(p => ({ ...p, planData: stripSharedPersonalData(p.planData) })) };
@@ -156,7 +156,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         // await fetch をまたぐので React は途中で render を走らせ、<img> が消える。
         setOgImageUrl(null);
         try {
-            const body: any = { shareId: shareIdRef };
+            const body: Record<string, unknown> = { shareId: shareIdRef };
             const effectiveLogoUrl = logoUrlOverride !== undefined ? logoUrlOverride : teamLogoUrl;
             if (withLogo && effectiveLogoUrl && user) {
                 body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;

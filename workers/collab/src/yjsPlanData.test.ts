@@ -21,6 +21,7 @@ describe("worker yjsPlanData seed/read 往復", () => {
   it("buildSeedDocFull で組んだ Y.Doc を readPlanDataFull で読むと元に一致(contentId/ownerLabel/progressPoints 系は除外)", () => {
     const doc = buildSeedDocFull(seed);
     // contentId/ownerLabel は save 非対象。progressPoints 系は seed に含まれず空/undefined になるため除外して比較。
+     
     const { contentId, ownerLabel, ...rest } = seed;
     const out = readPlanDataFull(doc);
     const { progressPoints, progressCleared, progressActiveDays, progressActiveHours, ...outRest } = out;

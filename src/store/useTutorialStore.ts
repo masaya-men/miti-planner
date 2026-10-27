@@ -306,7 +306,7 @@ export const useTutorialStore = create<TutorialState>()(
       },
 
       // 旧互換: startFromStep(1) → startTutorial('main')
-      startFromStep: (_step: number) => {
+      startFromStep: () => {
         get().startTutorial('main');
       },
 

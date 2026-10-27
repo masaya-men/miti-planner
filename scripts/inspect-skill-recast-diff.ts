@@ -48,7 +48,7 @@ if (!snap.exists) {
   console.error('master/skills が存在しません');
   process.exit(1);
 }
-const fsMits: any[] = snap.data()?.mitigations ?? [];
+const fsMits: FirebaseFirestore.DocumentData[] = snap.data()?.mitigations ?? [];
 const fsById = new Map(fsMits.map(m => [m.id, m]));
 const mockById = new Map(MITIGATIONS.map(m => [m.id, m]));
 
@@ -62,8 +62,8 @@ for (const [id, fsM] of fsById) {
   if (!mock) continue; // Firestore のみ(admin 追加)は seed でも保持されるので対象外
   const diffs: string[] = [];
   for (const f of FIELDS) {
-    const a = (fsM as any)[f];
-    const b = (mock as any)[f];
+    const a = (fsM as FirebaseFirestore.DocumentData)[f];
+    const b = (mock as FirebaseFirestore.DocumentData)[f];
     if (a !== b && !(a === undefined && b === undefined)) {
       diffs.push(`${f}: FS=${JSON.stringify(a)} ≠ mock=${JSON.stringify(b)}`);
     }

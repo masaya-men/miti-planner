@@ -10,10 +10,10 @@ import { usePlanStore } from '../../store/usePlanStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useAuthStore } from '../../store/useAuthStore';
 import { PLAN_LIMITS } from '../../types/firebase';
-import { useTransitionOverlay } from '../ui/TransitionOverlay';
+import { useTransitionOverlay } from '../ui/transitionOverlayContext';
 import { Plus, ChevronRight, CheckSquare, Square, Trash2, Pencil, Copy, Users } from 'lucide-react';
 import clsx from 'clsx';
-import { showToast } from '../Toast';
+import { showToast } from '../toastBus';
 import { loadPlanDataIntoStore } from '../../lib/planLoad';
 import { setLastOpened } from '../../utils/lastOpenedStore';
 

@@ -5,7 +5,7 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ContentLanguage } from '../store/useThemeStore';
 import { getPhaseName } from '../types';
-import { SKILL_DATA, calculateHpValue, calculatePotencyValue, calculateCriticalValue } from '../utils/calculator';
+import { SKILL_DATA, calculateHpValue, calculatePotencyValue, calculateCriticalValue, type SkillDataEntry } from '../utils/calculator';
 import { useLevelModifiers } from '../hooks/useSkillsData';
 import { Shield } from 'lucide-react';
 import { ModalHeader } from './ui/ModalParts';
@@ -110,7 +110,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
     // スキル計算はステータスが変わった時だけ実行（パネル開閉では再計算しない）
     const skillPreviews = useMemo(() => {
         const compute = (skillName: string) => {
-            const skill = SKILL_DATA[skillName as keyof typeof SKILL_DATA] as any;
+            const skill = SKILL_DATA[skillName as keyof typeof SKILL_DATA] as SkillDataEntry | undefined;
             if (!skill) return null;
             if (skill.minLevel && currentLevel < skill.minLevel) return null;
             if (skill.maxLevel && currentLevel > skill.maxLevel) return null;
@@ -126,20 +126,20 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                 let base = calculatePotencyValue(stats, skill.potency || 0, isTankSkill ? 'tank' : 'healer', LEVEL_MODIFIERS[currentLevel]);
                 const multiplier = 'multiplier' in skill ? skill.multiplier : undefined;
                 if (multiplier) base = Math.floor(base * multiplier);
-                if ((skill as any).isCrit) base = calculateCriticalValue(base);
+                if (skill.isCrit) base = calculateCriticalValue(base);
                 value = base;
             }
 
-            const iconUrl = (skill as any).icon ? `/icons/${(skill as any).icon}` : null;
-            const nameEn = (skill as any).nameEn || skillName;
+            const iconUrl = skill.icon ? `/icons/${skill.icon}` : null;
+            const nameEn = skill.nameEn || skillName;
             return { key: skillName, value, iconUrl, nameJa: skillName, nameEn };
         };
 
         return {
-            tank: PREVIEW_SKILLS.tank.map(compute).filter(Boolean),
-            dps: PREVIEW_SKILLS.dps.map(compute).filter(Boolean),
-            healerTop: PREVIEW_SKILLS.healerTop.map(compute).filter(Boolean),
-            healerBottom: PREVIEW_SKILLS.healerBottom.map(compute).filter(Boolean),
+            tank: PREVIEW_SKILLS.tank.map(compute).filter((p) => p !== null),
+            dps: PREVIEW_SKILLS.dps.map(compute).filter((p) => p !== null),
+            healerTop: PREVIEW_SKILLS.healerTop.map(compute).filter((p) => p !== null),
+            healerBottom: PREVIEW_SKILLS.healerBottom.map(compute).filter((p) => p !== null),
         };
     }, [tankRep?.stats.hp, healerRep?.stats.hp, healerRep?.stats.mainStat, healerRep?.stats.det, healerRep?.stats.wd, currentLevel, contentLanguage]);
 
@@ -309,7 +309,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                 <div className="flex-[4]">
                                     <h5 className="text-app-sm font-extrabold text-blue-700 dark:text-blue-300 mb-1">TANK</h5>
                                     <div className="grid grid-cols-4 gap-1.5">
-                                        {skillPreviews.tank.map((s: any) => (
+                                        {skillPreviews.tank.map((s) => (
                                             <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
                                         ))}
                                     </div>
@@ -317,7 +317,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                 <div className="flex-[2]">
                                     <h5 className="text-app-sm font-extrabold text-red-700 dark:text-red-300 mb-1">DPS</h5>
                                     <div className="grid grid-cols-2 gap-1.5">
-                                        {skillPreviews.dps.map((s: any) => (
+                                        {skillPreviews.dps.map((s) => (
                                             <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
                                         ))}
                                     </div>
@@ -328,12 +328,12 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                             <div>
                                 <h5 className="text-app-sm font-extrabold text-green-700 dark:text-green-300 mb-1">HEALER</h5>
                                 <div className="grid grid-cols-6 gap-1.5 mb-1.5">
-                                    {skillPreviews.healerTop.map((s: any) => (
+                                    {skillPreviews.healerTop.map((s) => (
                                         <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
                                     ))}
                                 </div>
                                 <div className="grid grid-cols-6 gap-1.5">
-                                    {skillPreviews.healerBottom.map((s: any) => (
+                                    {skillPreviews.healerBottom.map((s) => (
                                         <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
                                     ))}
                                 </div>

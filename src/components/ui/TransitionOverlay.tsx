@@ -1,6 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-
-type TransitionVariant = 'theme' | 'language' | 'plan' | 'default';
+import { TransitionContext, type TransitionVariant } from './transitionOverlayContext';
 
 const ANIM_LEAD_TIME = 500;
 const SETTLE_DELAY = 400;
@@ -273,18 +272,6 @@ function hideOverlay(overlay: HTMLDivElement): Promise<void> {
 // ─────────────────────────────────────────────
 // React Context
 // ─────────────────────────────────────────────
-
-interface TransitionContextValue {
-    runTransition: (callback: () => void | Promise<void>, variant?: TransitionVariant) => void;
-}
-
-const TransitionContext = React.createContext<TransitionContextValue | null>(null);
-
-export function useTransitionOverlay() {
-    const ctx = React.useContext(TransitionContext);
-    if (!ctx) throw new Error('useTransitionOverlay must be used within TransitionOverlayProvider');
-    return ctx;
-}
 
 export const TransitionOverlayProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const lockRef = useRef(false);
