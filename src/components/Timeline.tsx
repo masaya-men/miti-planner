@@ -1,8 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef, useContext, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { TimelineRow } from './TimelineRow';
-import { MobileTimelineRow } from './MobileTimelineRow';
 import { MobileContextMenu } from './MobileContextMenu';
 import { MobileEffectBarLayer } from './MobileEffectBarLayer';
 
@@ -76,6 +74,7 @@ import { SheetTargetPopover } from './timeline/sheet/SheetTargetPopover';
 import './timeline/sheet/sheet.css';
 import { TimelineControlBar } from './timeline/TimelineControlBar';
 import { TimelineHeader } from './timeline/TimelineHeader';
+import { TimelineRows } from './timeline/TimelineRows';
 
 // 軍事専用部品は標準テーマに配信しないよう遅延読み込み(useSortSlide は軽い hook なので静的のまま)
 const MilspecReticle = React.lazy(() => import('./military/table/MilspecReticle').then(m => ({ default: m.MilspecReticle })));
@@ -650,8 +649,6 @@ const Timeline: React.FC = () => {
                             height: `calc(${rowLayout.totalHeight}px + 50vh)`
                         }}>
                             {(() => {
-                                const renderItems: React.ReactElement[] = [];
-
                                 // 🚀 Performance Optimization: Pre-calculate mitigations map
                                 const mitigationsByTime = new Map<number, AppliedMitigation[]>();
                                 const mitStartsByTime = new Map<number, boolean>();
@@ -664,82 +661,6 @@ const Timeline: React.FC = () => {
                                         if (!mit.autoHidden) {
                                             mitigationsByTime.get(t)!.push(mit);
                                         }
-                                    }
-                                });
-
-                                rowLayout.rows.forEach(({ time, top, height, visible }) => {
-                                    if (!visible) return;
-                                    const rowEvents = eventsByTime.get(time) || [];
-                                    const rowDamages = rowEvents.map(event => damageMap.get(event.id) || null);
-                                    const activeMitigationsForRow = mitigationsByTime.get(time) || [];
-
-                                    if (isMobileTimeline) {
-                                        // Mobile: MobileTimelineRow を使用
-                                        // 攻撃 1 つにつきカード 1 枚(攻撃なしは 1 枚)。行の高さ = 1 段 × 枚数。
-                                        // 同じ秒のカードの間には区切り線を引かない(最後のカードだけ下に線)。
-                                        const cardCount = Math.max(1, rowEvents.length);
-                                        for (let i = 0; i < cardCount; i++) {
-                                            renderItems.push(
-                                                <MobileTimelineRow
-                                                    key={`${time}-${i}`}
-                                                    time={time}
-                                                    top={top + i * rowLayout.unitPx}
-                                                    damages={rowDamages}
-                                                    events={rowEvents}
-                                                    partyMembers={sortedPartyMembers}
-                                                    hiddenPartyMemberIds={hiddenPartyMemberIds}
-                                                    activeMitigations={activeMitigationsForRow}
-                                                    onMobileDamageClick={stableMobileDamageClick}
-                                                    onLongPress={stableMobileLongPress}
-                                                    phaseColumnCollapsed={phaseColumnCollapsed}
-                                                    hasPhases={phases.length > 0}
-                                                    timelineSelectMode={timelineSelectMode}
-                                                    labelSelectMode={labelSelectMode}
-                                                    onTimelineSelect={stableTimelineSelect}
-                                                    onTimelineSelectHover={stableTimelineSelectHover}
-                                                    eventIndex={i}
-                                                    hideBottomDivider={i < cardCount - 1}
-                                                    rowHeight={rowLayout.unitPx}
-                                                    maxMitiIcons={maxMitiIconsPerRow}
-                                                    conflictingIds={mobileConflictingIds}
-                                                    swapMarkers={rowSwapMarkers}
-                                                    phases={phases}
-                                                />
-                                            );
-                                        }
-                                    } else {
-                                        // PC: TimelineRow (body 行)。高さ = 1 段 × max(1, 攻撃数)
-                                        renderItems.push(
-                                            <TimelineRow
-                                                key={time}
-                                                time={time}
-                                                top={top}
-                                                height={height}
-                                                damages={rowDamages}
-                                                events={rowEvents}
-                                                partyMembers={sortedPartyMembers}
-                                                visiblePartyMembers={visiblePartyMembers}
-                                                activeMitigations={activeMitigationsForRow}
-                                                onPhaseAdd={stablePhaseAdd}
-                                                onLabelAdd={stableLabelAdd}
-                                                hasPhases={phases.length > 0}
-                                                onAddEventClick={stableAddClick}
-                                                onEventClick={stableEventClick}
-                                                onCellClick={stableCellClick}
-                                                onMobileDamageClick={stableMobileDamageClick}
-                                                phaseColumnCollapsed={phaseColumnCollapsed}
-                                                labelColumnVisible={labelColumnVisible}
-                                                timelineSelectMode={timelineSelectMode}
-                                                labelSelectMode={labelSelectMode}
-                                                onTimelineSelect={stableTimelineSelect}
-                                                onTimelineSelectHover={stableTimelineSelectHover}
-                                                showRowBorders={showRowBorders}
-                                                sheetCols={sheetCols}
-                                                swapMarkers={rowSwapMarkers}
-                                                phases={phases}
-                                                labels={rowLabels}
-                                            />
-                                        );
                                     }
                                 });
 
@@ -780,7 +701,19 @@ const Timeline: React.FC = () => {
                                             });
                                             return <MobileEffectBarLayer bars={mobileBars} conflictingIds={mobileConflictingIds} />;
                                         })()}
-                                        {renderItems}
+                                        <TimelineRows
+                                            rowLayout={rowLayout} eventsByTime={eventsByTime} damageMap={damageMap} mitigationsByTime={mitigationsByTime}
+                                            isMobileTimeline={isMobileTimeline} sortedPartyMembers={sortedPartyMembers} visiblePartyMembers={visiblePartyMembers}
+                                            hiddenPartyMemberIds={hiddenPartyMemberIds}
+                                            stableMobileDamageClick={stableMobileDamageClick} stableMobileLongPress={stableMobileLongPress}
+                                            stablePhaseAdd={stablePhaseAdd} stableLabelAdd={stableLabelAdd} stableAddClick={stableAddClick}
+                                            stableEventClick={stableEventClick} stableCellClick={stableCellClick}
+                                            stableTimelineSelect={stableTimelineSelect} stableTimelineSelectHover={stableTimelineSelectHover}
+                                            phaseColumnCollapsed={phaseColumnCollapsed} labelColumnVisible={labelColumnVisible}
+                                            timelineSelectMode={timelineSelectMode} labelSelectMode={labelSelectMode}
+                                            showRowBorders={showRowBorders} sheetCols={sheetCols} rowSwapMarkers={rowSwapMarkers} rowLabels={rowLabels}
+                                            phases={phases} maxMitiIconsPerRow={maxMitiIconsPerRow} mobileConflictingIds={mobileConflictingIds}
+                                        />
 
                                         {/* ホバー強調(1 個だけ・pointermove で動かす)。軽減アイコン・帯(後ろの兄弟)より奥 */}
                                         {!isMobileTimeline && <TableHoverHighlight containerRef={sheetContainerRef} geomRef={hoverGeomRef} />}
