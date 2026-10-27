@@ -35,6 +35,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { compressHousingImage, type CompressedImage } from '../../../lib/housing/imageCompression';
 import { HousingImage } from '../media/HousingImage';
+import { HousingDialogShell } from '../HousingDialogShell';
 
 export interface HousingRegisterImageFieldProps {
   value: CompressedImage[];
@@ -154,15 +155,6 @@ export function HousingRegisterImageField({
     value.map((img) => ({ id: makeId(), img })),
   );
   const [previewUrls, setPreviewUrls] = useState<Map<string, string>>(new Map());
-
-  useEffect(() => {
-    if (!overflowNotice) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOverflowNotice(null);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [overflowNotice]);
 
   // 親 value が外部から変わった (例: フォームリセット) ときに items を再構築。
   // ただし「items の img reference と value の img reference が一致」 する間は触らない
@@ -383,14 +375,15 @@ export function HousingRegisterImageField({
       )}
 
       {overflowNotice && (
-        <div
+        <HousingDialogShell
+          onClose={() => setOverflowNotice(null)}
           className="fixed inset-0 z-[70] flex items-center justify-center"
           style={{ background: 'var(--housing-detail-backdrop-bg)', padding: hpx(16) }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setOverflowNotice(null);
-          }}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('housing.register.image.limitModal.title', { max: overflowNotice.max })}
             className="w-full"
             style={{
               maxWidth: hpx(384),
@@ -424,7 +417,7 @@ export function HousingRegisterImageField({
               </button>
             </div>
           </div>
-        </div>
+        </HousingDialogShell>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 import { hpx } from '../../lib/housing/housingScale';
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { HousingDialogShell } from './HousingDialogShell';
 
 const STORAGE_KEY = 'housing-onboarding-seen';
 
@@ -37,22 +37,18 @@ export const HousingOnboardingDialog: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open, onClose]);
-
   if (!open) return null;
 
   return (
-    <div
+    <HousingDialogShell
+      onClose={onClose}
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ background: 'var(--housing-detail-backdrop-bg)', padding: hpx(16) }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('housing.onboarding.title')}
         className="w-full"
         style={{
           maxWidth: hpx(448),
@@ -122,6 +118,6 @@ export const HousingOnboardingDialog: React.FC<Props> = ({
           </button>
         )}
       </div>
-    </div>
+    </HousingDialogShell>
   );
 };

@@ -10,6 +10,7 @@
  */
 import { useTranslation } from 'react-i18next';
 import { Eye } from 'lucide-react';
+import { HousingDialogShell } from '../HousingDialogShell';
 
 export interface TourAddressExposureDialogProps {
   open: boolean;
@@ -28,7 +29,7 @@ export const TourAddressExposureDialog: React.FC<TourAddressExposureDialogProps>
   const { t } = useTranslation();
   if (!open) return null;
   return (
-    <div className="housing-modal-backdrop" onClick={onCancel}>
+    <HousingDialogShell className="housing-modal-backdrop" onClose={onCancel}>
       <div
         role="dialog"
         aria-modal="true"
@@ -58,6 +59,6 @@ export const TourAddressExposureDialog: React.FC<TourAddressExposureDialogProps>
           </button>
         </div>
       </div>
-    </div>
+    </HousingDialogShell>
   );
 };

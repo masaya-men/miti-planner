@@ -78,12 +78,13 @@
 }
 
 @keyframes backdropNudge {
-  0%, 60% { outline-color: rgba(var(--app-accent-rgb), 0.85); }
-  100% { outline-color: rgba(var(--app-accent-rgb), 0); }
+  0%, 60% { outline-color: rgba(var(--backdrop-nudge-rgb, var(--app-accent-rgb)), 0.85); }
+  100% { outline-color: rgba(var(--backdrop-nudge-rgb, var(--app-accent-rgb)), 0); }
 }
-/* 入力途中で外側クリックしても閉じなかったときの知らせ(backdropClose が付ける)。揺らさず、枠を短く縁取るだけ */
+/* 入力途中で外側クリックしても閉じなかったときの知らせ(backdropClose が付ける)。揺らさず、枠を短く縁取るだけ。
+   色は --backdrop-nudge-rgb で差し替えられる(ハウジングはハチミツ色) */
 .backdrop-nudge {
-  outline: 2px solid rgba(var(--app-accent-rgb), 0);
+  outline: 2px solid rgba(var(--backdrop-nudge-rgb, var(--app-accent-rgb)), 0);
   outline-offset: 3px;
   animation: backdropNudge 700ms ease-out;
 }

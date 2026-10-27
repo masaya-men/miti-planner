@@ -1,8 +1,8 @@
 import { hpx } from '../../lib/housing/housingScale';
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DuplicateEntry } from '../../lib/housingApiClient';
 import { getTagById } from '../../data/housingTags';
+import { HousingDialogShell } from './HousingDialogShell';
 
 interface Props {
   duplicates: DuplicateEntry[];
@@ -14,19 +14,16 @@ interface Props {
 export const HousingDuplicateWarningDialog: React.FC<Props> = ({ duplicates, onCorrect, onProceed, onClose }) => {
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
   return (
-    <div
+    <HousingDialogShell
+      onClose={onClose}
       className="fixed inset-0 z-[70] flex items-center justify-center"
       style={{ background: 'var(--housing-detail-backdrop-bg)', padding: hpx(16) }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('housing.duplicate.title')}
         className="w-full"
         style={{
           maxWidth: hpx(448),
@@ -119,6 +116,6 @@ export const HousingDuplicateWarningDialog: React.FC<Props> = ({ duplicates, onC
           </button>
         </div>
       </div>
-    </div>
+    </HousingDialogShell>
   );
 };

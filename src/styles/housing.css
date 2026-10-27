@@ -72,6 +72,8 @@
   --housing-honey-strong: rgba(255, 201, 135, 0.18);
   --housing-honey-border: rgba(255, 201, 135, 0.55);
   --housing-honey-inset: rgba(255, 201, 135, 0.2);
+  /* 入力途中で外側クリックしたときの枠の縁取り(index.css の .backdrop-nudge)をハチミツ色に */
+  --backdrop-nudge-rgb: 255, 201, 135;
   --housing-honey-knob-ring: rgba(255, 201, 135, 0.28);
   --housing-honey-fill-glow: rgba(255, 180, 90, 0.5);
   --housing-honey-shadow-soft: rgba(255, 180, 90, 0.45);
@@ -2622,6 +2624,10 @@ select.housing-input option {
      dvh (実際に見えている高さ) を優先し、非対応ブラウザは vh 行にフォールバック。 */
   max-height: calc(var(--housing-modal-max, 86) * 1vh);
   max-height: calc(var(--housing-modal-max, 86) * 1dvh);
+}
+/* 入力途中の外側クリックで付く縁取り(.backdrop-nudge)を中のガラスの角丸に沿わせる */
+.housing-panel-modal-shell.backdrop-nudge {
+  border-radius: calc(18px * var(--housing-scale));
 }
 .housing-panel-modal-shell > .housing-panel.is-liquid {
   display: flex;

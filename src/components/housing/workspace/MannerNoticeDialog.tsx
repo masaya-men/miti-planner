@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { HousingDialogShell } from '../HousingDialogShell';
 
 /**
  * ツアー開始前の「マナー注意」ダイアログ。
@@ -21,12 +22,12 @@ export const MannerNoticeDialog: React.FC<MannerNoticeDialogProps> = ({
     if (!open) return null;
 
     return (
-        <div
+        <HousingDialogShell
             role="dialog"
             aria-modal="true"
             aria-label={t('housing.workspace.manner.title')}
             className="housing-manner-backdrop"
-            onClick={onCancel}
+            onClose={onCancel}
         >
             <div className="housing-manner-card" onClick={(e) => e.stopPropagation()}>
                 <h2 className="housing-manner-title">
@@ -50,6 +51,6 @@ export const MannerNoticeDialog: React.FC<MannerNoticeDialogProps> = ({
                     </button>
                 </div>
             </div>
-        </div>
+        </HousingDialogShell>
     );
 };

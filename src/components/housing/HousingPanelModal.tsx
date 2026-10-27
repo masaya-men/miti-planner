@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { LiquidGlassPanel } from './workspace/LiquidGlassPanel';
+import { useEscapeClose } from '../../hooks/useEscapeClose';
+import { backdropClose, type BackdropCloseOptions } from '../../utils/backdropClose';
 
 export interface HousingPanelModalProps {
   open: boolean;
@@ -25,6 +27,8 @@ export interface HousingPanelModalProps {
    * (ハウジングツアーのトンマナ用・2026-07-12)。 data-backdrop 属性で CSS を切替。
    */
   backdrop?: 'dark' | 'frost';
+  /** 外側クリックの入力後ガードの調整(既定=入力欄に 1 回でも入力したら閉じずに枠を縁取る)。 */
+  backdropOptions?: BackdropCloseOptions;
   children: React.ReactNode;
 }
 
@@ -45,6 +49,7 @@ export const HousingPanelModal: React.FC<HousingPanelModalProps> = ({
   maxHeightRatio = 0.86,
   modalRole,
   backdrop = 'dark',
+  backdropOptions,
   children,
 }) => {
   const [mounted, setMounted] = useState(false);
@@ -62,20 +67,10 @@ export const HousingPanelModal: React.FC<HousingPanelModalProps> = ({
     };
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [open, onClose]);
+  // 重なっていたら一番上の窓だけ閉じる(アカウント窓の上のアイコン変更など)
+  useEscapeClose(open, onClose);
 
   if (!open || !mounted) return null;
-
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) onClose();
-  };
 
   const content = (
     <div
@@ -85,7 +80,7 @@ export const HousingPanelModal: React.FC<HousingPanelModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-label={title}
-      onClick={handleBackdropClick}
+      {...backdropClose(onClose, backdropOptions)}
     >
       <div
         className="housing-panel-modal-shell"

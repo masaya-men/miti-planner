@@ -300,6 +300,11 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
     setAdded(true);
   };
 
+  // 書きかけ(URL か住所のどれか)がある間は外側クリックで閉じない。追加すると両方空に戻るので、
+  // 続けて追加したあとは外側クリックで閉じられる(入力したら開き直すまで閉じない自動判定は使わない)。
+  const hasDraft =
+    url.trim() !== '' || Object.values(address).some((v) => v !== undefined && v !== '');
+
   const fetching = tweetStatus === 'loading' || ogpStatus === 'loading' || youtubeStatus === 'loading';
   const fetchFailed = urlInvalid || tweetStatus === 'error' || ogpStatus === 'error';
 
@@ -322,6 +327,7 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
       closeLabel={t('common.close')}
       maxWidth={480}
       backdrop="frost"
+      backdropOptions={{ autoGuard: false, dirty: hasDraft }}
     >
       <form className="housing-ephemeral-panel" onSubmit={handleSubmit}>
         {/* 使い捨て挙動の説明は最上部で最初に読ませる (下部だと見落とすため・ユーザー要望 2026-07-13)。 */}

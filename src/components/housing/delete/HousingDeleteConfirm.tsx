@@ -6,6 +6,7 @@
  * - スタイルは housing.css の token 経由 (`--housing-*`) で記述
  */
 import { useTranslation } from 'react-i18next';
+import { HousingDialogShell } from '../HousingDialogShell';
 
 export interface HousingDeleteConfirmProps {
   open: boolean;
@@ -25,7 +26,7 @@ export const HousingDeleteConfirm: React.FC<HousingDeleteConfirmProps> = ({
   const { t } = useTranslation();
   if (!open) return null;
   return (
-    <div className="housing-modal-backdrop" onClick={onCancel}>
+    <HousingDialogShell className="housing-modal-backdrop" onClose={onCancel} locked={loading}>
       <div
         role="dialog"
         aria-modal="true"
@@ -53,6 +54,6 @@ export const HousingDeleteConfirm: React.FC<HousingDeleteConfirmProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </HousingDialogShell>
   );
 };
