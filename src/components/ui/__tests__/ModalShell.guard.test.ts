@@ -65,4 +65,13 @@ describe('窓は共通の殻(ModalShell)を使う', () => {
             .map(([key]) => key);
         expect(noEsc).toEqual([]);
     });
+
+    // 外側クリックは共通の backdropClose で(押し始め・離しの位置の判定と、下の要素へ届かせないのを揃える・2026-10-27)
+    it('殻に載せていない窓も外側クリックは共通の backdropClose を使う', () => {
+        const noBackdrop = Object.entries(LEGACY)
+            .filter(([, kind]) => kind === 'window')
+            .filter(([key]) => !files.find((x) => x.key === key)!.src.includes('backdropClose('))
+            .map(([key]) => key);
+        expect(noBackdrop).toEqual([]);
+    });
 });

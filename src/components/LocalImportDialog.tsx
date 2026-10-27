@@ -340,13 +340,12 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
     };
 
     return (
-        // 外側クリックでは閉じない (誤操作防止)。Esc は「キャンセル」と同じ・アップロード中は閉じない
+        // 外側クリック・Esc は「キャンセル」と同じ(取り込み前の表は手元に残る)。チェックを付け外しした後は閉じずに縁取りで知らせる(自動の入力ガード)。アップロード中は閉じない
         <ModalShell
             isOpen
             onClose={handleClose}
             layer="confirm"
             locked={phase === 'uploading'}
-            closeOnBackdrop={false}
             panelProps={{ 'data-lenis-prevent': true }}
             // max-h: ヘッダー(~90) + 6 行(60×6) + help(88) + footer(64) + 余白 ≒ 620px
             // これより長いリスト (7 件以上) は body 内 overflow-y-auto でスクロール

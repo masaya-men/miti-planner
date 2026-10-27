@@ -26,6 +26,7 @@ import type { DeleteProgressEvent } from '../lib/shareImportTypes';
 import type { SavedPlan } from '../types';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { backdropClose } from '../utils/backdropClose';
 
 /** 1 プランの削除進捗を 0-1 で返す (Phase B-1.5 polish 第 2 弾 #4 Revision)。
  *  ステージ重み: local_delete 33% / server_delete 66% / capacity_freed 100%。 */
@@ -235,7 +236,8 @@ export function LimitResolutionSheet() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onClick={handleCancel}
+                // 外側クリック=キャンセル(削除中は handleCancel 側で閉じない)。チェックの付け外しは消えて困る入力ではないので自動の入力ガードは使わない
+                {...backdropClose(handleCancel, { autoGuard: false })}
             />
             <motion.div
                 key="limit-resolution-sheet"
