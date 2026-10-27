@@ -109,3 +109,26 @@ describe('Layout の自動保存', () => {
         expect(updatePlan).toHaveBeenCalledTimes(1);
     });
 });
+
+describe('Layout の起動時復旧', () => {
+    beforeEach(() => {
+        localStorage.clear();
+        useAuthStore.setState({ user: null, loading: false, isNewUser: false } as never);
+    });
+
+    it('持ち主の札が無ければ、開いているプランを持ち主として記録する(無いと初回保存がスキップされる)', () => {
+        const data = useMitigationStore.getState().getSnapshot();
+        usePlanStore.setState({ plans: [{ ...basePlan, id: 'p1', data }] as never, currentPlanId: 'p1' });
+        useMitigationStore.setState({ _loadedPlanId: null });
+        render(<MemoryRouter><Layout><div /></Layout></MemoryRouter>);
+        expect(useMitigationStore.getState()._loadedPlanId).toBe('p1');
+    });
+
+    it('札が別のプランを指していたら、開いているプランの中身で作業ストアを読み直す', () => {
+        const data = useMitigationStore.getState().getSnapshot();
+        usePlanStore.setState({ plans: [{ ...basePlan, id: 'p1', data }] as never, currentPlanId: 'p1' });
+        useMitigationStore.setState({ _loadedPlanId: 'other' });
+        render(<MemoryRouter><Layout><div /></Layout></MemoryRouter>);
+        expect(useMitigationStore.getState()._loadedPlanId).toBe('p1');
+    });
+});
