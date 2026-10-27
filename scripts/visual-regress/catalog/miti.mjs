@@ -111,7 +111,7 @@ export default [
       const row = page.locator(ROW).first();
       await row.hover();
       await row.locator('[aria-label="この時間にイベントを追加"], [aria-label="Add Event Here"]').first().dispatchEvent('click');
-    }, covers: ['EventModal', 'TimelineRow'] },
+    }, covers: ['EventModal', 'TimelineRow', 'TimelineDialogs'] },
   { id: 'miti/popover-aa', route: '/miti', storage: lanes, ready: textRe('オートアタック設定', 'Auto-Attack Settings'), axes: winAx,
     open: click('button:has-text("AA追加"), button:has-text("Add AA")'), covers: ['AASettingsPopover'] },
   { id: 'miti/popover-clear', route: '/miti', storage: lanes, ready: textRe('全ての軽減を削除', 'Clear all mitigations'), axes: winAx,
