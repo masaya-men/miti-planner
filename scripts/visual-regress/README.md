@@ -6,6 +6,19 @@
 
 ## 使い方
 
+**ふだんの流れ(推奨・業界標準の「保存した基準と比べる」方式)**:
+
+```
+node scripts/visual-regress/run.mjs --save-as=<名前>   # 作業の前に 1 回: 今の見た目を基準として保存(約 21 分・各条件 2 回撮って一致確認)
+node scripts/visual-regress/run.mjs --compare=<名前>   # 作業の後: 作業ツリーを撮って基準と比べる(全体 約 11 分)
+```
+
+- 基準は `.out/baselines/<名前>/` に残るので、比べ直しは `--compare` だけでよい(変更前を毎回撮り直さない)。
+- 意図した変更を取り込んだら、その画面だけ `--save-as=<名前> --only=<キー>` で基準を更新する(他の基準は消えない)。
+- 差が出た条件だけ自動で 1 回撮り直して比べ直す(`result.json` に `retried: true`)。負荷でまれに別の絵になる揺れを吸収するため。本物の変化は撮り直しても差が出る。
+
+その他のオプション:
+
 ```
 node scripts/visual-regress/run.mjs                       # base=HEAD と作業ツリーを全カタログで A/B
 node scripts/visual-regress/run.mjs --only=housing/       # キーに文字を含むものだけ(作業中はこれ)
@@ -56,4 +69,6 @@ node scripts/visual-regress/run.mjs --list                # カタログの条�
 - Firestore 前提のページ(ログイン・管理画面・共有ツアー・ハウジンガーページ等)は撮れない(Firestore と `/api` は遮断し、人工の見本 `fixtures/` を返す)。`_later.mjs` で保留。
 - 動き(アニメーション・遷移)は比べない。終点の静止画だけ。動きは vitest や sticky-scroll の道具が担当。
 - 本番ビルドでなく dev サーバーの絵。本番ビルドとの差は対象外。
-- 全カタログ(365 条件)の一回の実行は約 15 分。作業中は `--only` を使う。
+- 全カタログは 323 条件。`--compare` 約 11 分 / A/B(引数なし)約 20 分 / `--save-as` 約 21 分。作業中は `--only` を使う。
+- 画面幅 1489 は本人の実倍率 2.58 ではなく 2 倍で撮る(倍率はレイアウトに影響しない。半端な倍率は縁の丸めが揺れやすく画像も重い)。
+- dev サーバーは `.out/` を監視しない設定(`vite.config.ts` の `server.watch.ignored`)。外すと Windows で撮影中の PNG に EBUSY が出て dev サーバーが落ちる。

@@ -96,8 +96,16 @@ export default [
         const o = window.setTimeout.bind(window);
         window.setTimeout = ((f, d, ...a) => o(f, d === 2500 ? 600000 : d, ...a));
       });
+      // 吹き出しは押した瞬間のボタン位置で固定配置される。一覧の並びが落ち着く前に押すと、後でカードが動いて吹き出しだけずれる
+      const btn = page.locator(`${cardOf('vr-l13')} .housing-card-add-btn`);
+      for (let prev = '', same = 0, i = 0; same < 2 && i < 30; i++) {
+        const r = JSON.stringify(await btn.boundingBox());
+        same = r === prev ? same + 1 : 0;
+        prev = r;
+        await page.waitForTimeout(150);
+      }
       await page.hover(cardOf('vr-l13'));
-      await page.click(`${cardOf('vr-l13')} .housing-card-add-btn`);
+      await btn.click();
     }, covers: ['HousingTourAddErrorBubble'] },
 
   // ───────── 窓(ログイン不要) ─────────

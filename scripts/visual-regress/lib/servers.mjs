@@ -130,8 +130,13 @@ export async function startDevServer(dir, port) {
   child.stdout.on('data', keep);
   child.stderr.on('data', keep);
   let exited = false;
-  child.on('exit', () => { exited = true; });
-  const stop = () => { if (child.pid) killTree(child.pid); };
+  let stopping = false;
+  child.on('exit', (code, signal) => {
+    exited = true;
+    // 撮影の途中で落ちたら、全件が接続拒否で失敗するだけで理由が見えないので、vite の出力末尾を出す
+    if (!stopping) console.error(`dev サーバー(:${port})が途中で終了しました(code=${code} signal=${signal})\n--- vite の出力(末尾) ---\n${tail.join('\n')}`);
+  });
+  const stop = () => { stopping = true; if (child.pid) killTree(child.pid); };
   const fail = (msg) => { stop(); return new Error(`${msg}\n--- vite の出力(末尾) ---\n${tail.join('\n')}`); };
   const url = `http://localhost:${port}/`;
   const deadline = Date.now() + 90000;

@@ -122,6 +122,8 @@ export default defineConfig({
   // Twitter 動画 proxy (api/tweet-video) 等をローカルでも利用可能にする。
   // この server 設定は dev サーバ専用で、 vite build (本番) には一切含まれない。
   server: {
+    // 見た目の回帰テストの撮影結果は監視しない(書き込み中の PNG を watch すると Windows で EBUSY になり dev サーバーが落ちる)
+    watch: { ignored: ['**/scripts/visual-regress/.out/**', '**/scripts/visual-regress/.cache/**'] },
     proxy: {
       '/api': {
         target: 'https://lopoly.app',

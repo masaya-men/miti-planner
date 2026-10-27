@@ -188,7 +188,7 @@ ${sig} を受けました。後片付けして終了します`); cleanup(); proc
 
     // 同じ --name の再実行: 古い画像と仕分けが新しい画像に紛れないよう片付ける(calibrate は別の置き場なので触らない)
     if (!args.calibrate) {
-      for (const d of ['base', 'head', 'overlay', 'crops']) fs.rmSync(path.join(runDir, d), { recursive: true, force: true });
+      for (const d of ['base', 'head', 'overlay', 'crops', 'save-check']) fs.rmSync(path.join(runDir, d), { recursive: true, force: true });
       const vf = path.join(runDir, 'verdicts.json');
       if (fs.existsSync(vf)) fs.renameSync(vf, path.join(runDir, 'verdicts.prev.json'));
     }
@@ -237,11 +237,48 @@ ${sig} を受けました。後片付けして終了します`); cleanup(); proc
         const rh = await shootCondition(browser, headUrl, c, saveFile ?? headFile, { injectCss });
         if (!rh.ok) { result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error: rh.error }; return; }
         masks = masks ?? rh.masks;
-        if (saveAs) { result[c.key] = { status: 'same', ratio: 0, tol: 0, masks }; return; }
-        const d = await diffPng(fs.readFileSync(baseFile), fs.readFileSync(headFile));
-        const tol = tolFile[c.key] ?? toleranceFrom([], d.total);
+        /** @param {string} a @param {string} b */
+        const judge = async (a, b) => {
+          const d = await diffPng(fs.readFileSync(a), fs.readFileSync(b));
+          return { d, tol: tolFile[c.key] ?? toleranceFrom([], d.total) };
+        };
+        if (saveAs) {
+          // 基準は 2 回撮って一致を確かめる。負荷でまれに別の絵(ボタン下端が 1px 伸びる等)になるため、違えば 3 回目で多数決
+          const extra = path.join(runDir, 'save-check', `${c.key}.png`);
+          const again = async () => { const r = await shootCondition(browser, headUrl, c, extra); return r.ok ? null : r.error; };
+          let err = await again();
+          if (err) { result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error: err }; return; }
+          let j = await judge(/** @type {string} */ (saveFile), extra);
+          if (j.d.ratio > j.tol) {
+            const second = path.join(runDir, 'save-check', `${c.key}.2.png`);
+            fs.renameSync(extra, second);
+            err = await again();
+            if (err) { result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error: err }; return; }
+            if ((j = await judge(/** @type {string} */ (saveFile), extra)).d.ratio > j.tol) {
+              if ((await judge(second, extra)).d.ratio > j.tol) {
+                result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error: '基準を 3 回撮って 3 回とも違う絵でした(撮るたびに変わる画面)' }; return;
+              }
+              fs.copyFileSync(extra, /** @type {string} */ (saveFile));
+            }
+          }
+          result[c.key] = { status: 'same', ratio: 0, tol: 0, masks }; return;
+        }
+        let { d, tol } = await judge(baseFile, headFile);
+        let retried = false;
+        if (d.ratio > tol) {
+          // 差が出たものだけ 1 回撮り直して比べ直す(本物の変化は撮り直しても差が出る)
+          retried = true;
+          if (!compare) {
+            const rb = await shootCondition(browser, baseUrl, c, baseFile);
+            if (!rb.ok) { result[c.key] = { status: 'fail-base', ratio: 1, tol: 0, error: rb.error }; return; }
+          }
+          const rh2 = await shootCondition(browser, headUrl, c, headFile, { injectCss });
+          if (!rh2.ok) { result[c.key] = { status: 'fail-head', ratio: 1, tol: 0, error: rh2.error }; return; }
+          ({ d, tol } = await judge(baseFile, headFile));
+        }
         result[c.key] = {
           status: d.ratio > tol ? 'diff' : 'same', ratio: d.ratio, tol,
+          ...(retried ? { retried: true } : {}),
           ...(d.sizeMismatch ? { sizeMismatch: d.sizeMismatch } : {}),
           ...(masks?.length ? { masks } : {}),
         };

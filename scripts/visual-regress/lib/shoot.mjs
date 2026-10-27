@@ -16,9 +16,12 @@ const FONT_CACHE_DIR = path.join(HERE, '..', '.cache', 'fonts');
 export const FIXED_NOW = '2026-10-01T12:00:00+09:00';
 export const FIXED_SEED = 20261026;
 
-/** 画面条件(本人の実画面 1489×679 / 2.58、多数派 1920×1080 / 2、スマホ 390×844 / 3) */
+/**
+ * 画面条件(本人の画面幅 1489×679、多数派 1920×1080 / 2、スマホ 390×844 / 3)。
+ * 1489 は本人の実倍率 2.58 ではなく 2 で撮る: 倍率はレイアウトに影響せず、半端な倍率は縁の丸めが揺れやすく画像も重い(2026-10-27 masaya 合意)
+ */
 const VIEWPORTS = {
-  '1489': { viewport: { width: 1489, height: 679 }, deviceScaleFactor: 2.58 },
+  '1489': { viewport: { width: 1489, height: 679 }, deviceScaleFactor: 2 },
   '1920': { viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 2 },
   '390': { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true },
 };
