@@ -3,7 +3,6 @@
  * Layout の自動保存(作業ストア → 持ち主のプランへ保存)の動きを固定する。
  * 画面の子部品は空の代役にし、実ストアで「いつ・どのプランへ保存するか」だけを見る。
  */
-import React from 'react';
 import { render, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';

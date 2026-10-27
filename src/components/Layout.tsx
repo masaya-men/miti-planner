@@ -1,5 +1,3 @@
-import { pickCollapseSetter } from './military/headerCollapseAnimator';
-import { pickSidebarSetter } from './military/sidebarToggleAnimator';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -7,11 +5,6 @@ import { useShallow } from 'zustand/react/shallow';
 import { useThemeStore, useEffectiveThemeStyle } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
-import { useAuthStore } from '../store/useAuthStore';
-import { useCollabSessionStore } from '../store/useCollabSessionStore';
-import { reconcileCollabForPlan } from '../lib/collab/collabLifecycle';
-import { shouldRestoreMitigationFromPlan, shouldRelabelLoadedPlanId } from '../lib/bootstrapMitigation';
-import { persistWorkingStore } from '../lib/persistWorkingStore';
 import { Sidebar } from './Sidebar';
 import { LocalDataSafetyAutoPrompt } from './LocalDataSafetyAutoPrompt';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
@@ -26,7 +19,6 @@ import { Loader2, Sun, Moon, Star, Users } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { RenderPendingIndicator } from './RenderPendingIndicator';
 import { SyncButton } from './SyncButton';
-import { showToast } from './Toast';
 import { WelcomeSetup } from './WelcomeSetup';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
@@ -38,13 +30,18 @@ import { MobilePartyWithTabs, MobileAccountMenu } from './MobilePartySettings';
 import { AetherflowChainPromptModal } from './AetherflowChainPromptModal';
 import { AstrologianDrawChainPromptModal } from './AstrologianDrawChainPromptModal';
 import { LocalImportDialog } from './LocalImportDialog';
-import { useLocalImportDialog } from '../store/useLocalImportDialog';
 import { ShareImportSheet } from './ShareImportSheet';
 import { LimitResolutionSheet } from './LimitResolutionSheet';
 import { MilspecTunePanel } from './dev/MilspecTunePanel';
-import { getToken } from 'firebase/app-check';
-import { ensureAppCheck, auth } from '../lib/firebase';
 import { useIOSViewportFix } from '../hooks/useIOSViewportFix';
+import { useSidebarOpenState } from './layout/useSidebarOpenState';
+import { useMobileSheets } from './layout/useMobileSheets';
+import { useLayoutShortcuts } from './layout/useLayoutShortcuts';
+import { useBootstrapRestore } from './layout/useBootstrapRestore';
+import { useCollabLifecycle } from './layout/useCollabLifecycle';
+import { usePlanAutoSave } from './layout/usePlanAutoSave';
+import { useLoginMigration } from './layout/useLoginMigration';
+import { useAuthRedirecting } from './layout/useAuthRedirecting';
 
 const PipView = React.lazy(() => import('./PipView'));
 // 軍事テーマの PC だけが使うので、標準/スマホには配信しない
@@ -59,30 +56,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const { theme, setTheme } = useThemeStore();
     const { runTransition } = useTransitionOverlay();
     const navigate = useNavigate();
-    const plans = usePlanStore(s => s.plans);
     const currentPlanId = usePlanStore(s => s.currentPlanId);
-    // サイドバー開閉: プラン未選択なら強制オープン、それ以外はlocalStorage記憶
-    const [isSidebarOpen, setIsSidebarOpen] = React.useState(() => {
-        if (typeof window === 'undefined') return true;
-        if (window.innerWidth < 768) return false;
-        const stored = localStorage.getItem('lopo_sidebar_open');
-        return stored !== null ? stored === 'true' : true;
-    });
-    // 開閉を記憶
-    const handleToggleSidebar = () => {
-        const next = !isSidebarOpen;
-        setIsSidebarOpen(next);
-        localStorage.setItem('lopo_sidebar_open', String(next));
-    };
-    // 開閉して記憶(キーボード操作用。軍事レイアウト中は動き付きの setter に差し替わる)
-    const setSidebarPersisted = (open: boolean) => {
-        setIsSidebarOpen(open);
-        localStorage.setItem('lopo_sidebar_open', String(open));
-    };
-    // プラン0件なら強制的に開く
-    React.useEffect(() => {
-        if (plans.length === 0 || !currentPlanId) setIsSidebarOpen(true);
-    }, [plans.length, currentPlanId]);
+    const { isSidebarOpen, setIsSidebarOpen, handleToggleSidebar, setSidebarPersisted } = useSidebarOpenState();
     const { myJobHighlight, setMyJobHighlight } = useMitigationStore(
         useShallow(s => ({ myJobHighlight: s.myJobHighlight, setMyJobHighlight: s.setMyJobHighlight }))
     );
@@ -98,482 +73,51 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         return () => window.removeEventListener('resize', onResize);
     }, []);
 
-    // Mobile modal triggers — these are read by Timeline.tsx via the store
-    const [mobilePartyOpen, setMobilePartyOpen] = React.useState(false);
-    const [mobileStatusOpen, setMobileStatusOpen] = React.useState(false);
-    const [mobileToolsOpen, setMobileToolsOpen] = React.useState(false);
-    const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-    const [mobileLoginModalOpen, setMobileLoginModalOpen] = React.useState(false);
-    const [mobileAccountOpen, setMobileAccountOpen] = React.useState(false);
-    const [mobileShareOpen, setMobileShareOpen] = React.useState(false);
-    const [mobileCueSheet, setMobileCueSheet] = React.useState(false);
     const { timelineSortOrder, setTimelineSortOrder } = useMitigationStore(
         useShallow(s => ({ timelineSortOrder: s.timelineSortOrder, setTimelineSortOrder: s.setTimelineSortOrder }))
     );
     const [isHeaderCollapsed, setIsHeaderCollapsed] = React.useState(false);
     const [isHeaderNear, setIsHeaderNear] = React.useState(false);
-    // チュートリアル中ならサイドバーを強制的に開く
+    // チュートリアル中ならサイドバーを強制的に開く(スマホのシートは useMobileSheets が閉じる)
     const isTutorialActive = useTutorialStore((state) => state.isActive);
     React.useEffect(() => {
         if (isTutorialActive) {
             setIsSidebarOpen(true);
             // effect 内から動き付き setter(flushSync)を呼ぶと反映が遅れて動きがずれるため、ここだけ即時展開
             setIsHeaderCollapsed(false);
-            // チュートリアル中はモバイル用シートをすべて閉じる
-            setMobileMenuOpen(false);
-            setMobilePartyOpen(false);
-            setMobileStatusOpen(false);
-            setMobileToolsOpen(false);
-            setMobileAccountOpen(false);
         }
     }, [isTutorialActive]);
+    const {
+        mobilePartyOpen, setMobilePartyOpen,
+        mobileStatusOpen, setMobileStatusOpen,
+        mobileToolsOpen, setMobileToolsOpen,
+        mobileMenuOpen, setMobileMenuOpen,
+        mobileLoginModalOpen, setMobileLoginModalOpen,
+        mobileAccountOpen, setMobileAccountOpen,
+        mobileShareOpen, setMobileShareOpen,
+        mobileCueSheet, setMobileCueSheet,
+        navHandlers,
+    } = useMobileSheets(isTutorialActive);
 
     // iOS Safari のビューポートずれ補正(共通フック。マウント時 1 回 + resize/focusout)
     useIOSViewportFix(isMobile);
 
-    // スマホ用カンペビューイベント
-    React.useEffect(() => {
-        const open = () => setMobileCueSheet(true);
-        window.addEventListener('mobile:open-cue-sheet', open);
-        return () => window.removeEventListener('mobile:open-cue-sheet', open);
-    }, []);
-
-    // キーボードショートカット（PCのみ）
-    // F: フォーカスモード（サイドバー+ヘッダー両方非表示/復元）
-    // S: サイドバー開閉
-    // H: ヘッダー開閉
-    // P/T/L/A: Timeline.tsx側で処理
-    const focusModeRef = React.useRef(false);
-    React.useEffect(() => {
-        const handleShortcut = (e: KeyboardEvent) => {
-            if (isMobile) return;
-            const tag = (e.target as HTMLElement)?.tagName;
-            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-            if (e.ctrlKey || e.metaKey || e.altKey) return;
-
-            const key = e.key.toLowerCase();
-            if (key === 's') {
-                e.preventDefault();
-                pickSidebarSetter(setSidebarPersisted)(!isSidebarOpen);
-            } else if (key === 'h') {
-                e.preventDefault();
-                pickCollapseSetter(setIsHeaderCollapsed)(prev => !prev);
-            } else if (key === 'f') {
-                e.preventDefault();
-                if (!focusModeRef.current) {
-                    // フォーカスモードに入る: サイドバー閉じ＋ヘッダー折りたたみ
-                    pickSidebarSetter(setSidebarPersisted)(false);
-                    pickCollapseSetter(setIsHeaderCollapsed)(true);
-                    focusModeRef.current = true;
-                } else {
-                    // フォーカスモードから抜ける: 常にサイドバー開＋ヘッダー展開
-                    pickSidebarSetter(setSidebarPersisted)(true);
-                    pickCollapseSetter(setIsHeaderCollapsed)(false);
-                    focusModeRef.current = false;
-                }
-            }
-        };
-        const handleExitFocus = () => {
-            if (focusModeRef.current) {
-                pickSidebarSetter(setSidebarPersisted)(true);
-                pickCollapseSetter(setIsHeaderCollapsed)(false);
-                focusModeRef.current = false;
-            }
-        };
-        // チュートリアル等でキー操作の代わりにフォーカスモードへ入る (Fキー押下と同じ効果)。
-        // タブレット/スマホはキーボードが無いため、タップから本イベントで発火させる。
-        // PC/タブレット (非モバイル) のみ実フォーカスモードに入る。
-        const handleEnterFocus = () => {
-            if (isMobile) return;
-            if (!focusModeRef.current) {
-                pickSidebarSetter(setSidebarPersisted)(false);
-                pickCollapseSetter(setIsHeaderCollapsed)(true);
-                focusModeRef.current = true;
-            }
-        };
-        window.addEventListener('keydown', handleShortcut);
-        window.addEventListener('shortcut:exit-focus', handleExitFocus);
-        window.addEventListener('shortcut:enter-focus', handleEnterFocus);
-        return () => {
-            window.removeEventListener('keydown', handleShortcut);
-            window.removeEventListener('shortcut:exit-focus', handleExitFocus);
-            window.removeEventListener('shortcut:enter-focus', handleEnterFocus);
-        };
-    }, [isMobile, isSidebarOpen, isHeaderCollapsed]);
+    useLayoutShortcuts({ isMobile, isSidebarOpen, isHeaderCollapsed, setSidebarPersisted, setIsHeaderCollapsed });
 
     // リモートデータ読み込み中フラグ（PULL/マイグレーション時のdirty marking防止）
     const isRemoteLoadingRef = React.useRef(false);
 
-    // 起動時 desync 復旧 (hydration gate / bootstrapping)。
-    // currentPlanId は非空プランを指すのに作業ストアが空 = キャッシュ全消し等の desync。
-    // 真実 (plan.data) を作業ストアへ復元し、空のまま見える/空上書きの引き金になるのを防ぐ。
-    // localStorage persist は同期復元済みなのでマウント時点で state は揃っている。
-    React.useEffect(() => {
-        const { currentPlanId, plans } = usePlanStore.getState();
-        const plan = plans.find(p => p.id === currentPlanId);
-        if (shouldRestoreMitigationFromPlan({
-            currentPlanId,
-            plan,
-            mitigationSnapshot: useMitigationStore.getState().getSnapshot(),
-            // データ安全(2026-08-07監査): 札(_loadedPlanId)と currentPlanId の食い違いも
-            // ここで検出させる(マルチタブ desync 対策。詳細は bootstrapMitigation.ts 参照)。
-            loadedPlanId: useMitigationStore.getState()._loadedPlanId,
-        }) && plan?.data) {
-            isRemoteLoadingRef.current = true;
-            useMitigationStore.getState().loadSnapshot(plan.data, currentPlanId!);
-            isRemoteLoadingRef.current = false;
-        } else if (currentPlanId) {
-            // 通常起動: 作業ストア(persist 復元済)は currentPlanId を表している → 持ち主を記録。
-            // これが無いと初回保存で _loadedPlanId=null となり保存がスキップされる。
-            // ただし、札が既に別プランを指していて(圧縮等でplan.dataが読めず復元もできない場合)
-            // 盲目的に貼り直すと誤った札が「確定」してしまうため、その場合は貼らない(データ安全監査)。
-            if (shouldRelabelLoadedPlanId({ currentPlanId, loadedPlanId: useMitigationStore.getState()._loadedPlanId })) {
-                useMitigationStore.getState().setLoadedPlanId(currentPlanId);
-            }
-        }
-    }, []);
-
-    // collab ライフサイクル管制: 「見ているプラン = 接続先」を常に一致させる。
-    // collab 中に別プランへ移ったら必ず disconnect (exitCollabMode + unobserve) し、
-    // 切替先プランをローカル再ロードする (collab 中 loadSnapshot は no-op だったので張り直す)。
-    // ⚠ 配置順が重要: この subscribe は下の自動保存 subscribe より先に登録する。
-    //   さもないと自動保存の saveSilently が新プランへ旧(collab)データを書き戻してしまう。
-    //   先に disconnect+再ロードで mitistore を新プランに直してから自動保存が走る。
-    React.useEffect(() => {
-        let prev = usePlanStore.getState().currentPlanId;
-        const unsub = usePlanStore.subscribe((state) => {
-            const newId = state.currentPlanId;
-            if (newId === prev) return;
-            prev = newId;
-            // 管制本体は collabLifecycle に切り出し済 (回帰テスト collabLifecycle.test.ts)。
-            reconcileCollabForPlan(newId);
-        });
-        // auth 確定でオーナー判定が変わる。ログインが解決した瞬間に現在プランを再評価し、
-        // collab-ON の自分のプランならライブ接続を復帰させる (リロード時 auth 未確定対策)。
-        // 既に正しく接続済みなら decideCollabAction は 'none' を返すので冪等 (二重接続しない)。
-        let prevUid = useAuthStore.getState().user?.uid ?? null;
-        const unsubAuth = useAuthStore.subscribe((state) => {
-            const uid = state.user?.uid ?? null;
-            if (uid === prevUid) return;
-            prevUid = uid;
-            if (uid) reconcileCollabForPlan(usePlanStore.getState().currentPlanId);
-        });
-        // ページ離脱時もセッションを切断 (端末メモリ汚染を残さない)。
-        const onUnload = () => useCollabSessionStore.getState().session?.disconnect();
-        window.addEventListener('beforeunload', onUnload);
-        // 初回マウント: 既に collab-ON のプランが開かれていればオーナーは自動接続 (リロード復帰)。
-        // この時点で auth 未確定なら上の unsubAuth が確定後に拾う。
-        reconcileCollabForPlan(usePlanStore.getState().currentPlanId);
-        return () => { unsub(); unsubAuth(); window.removeEventListener('beforeunload', onUnload); };
-    }, []);
-
-    // 自動保存（2層構造）
-    // localStorage: 変更検知→500msデバウンス→即時保存（コストゼロ）
-    // Firestore: イベント駆動（ページ離脱 / タブ非表示 / プラン切替時）+ 5分定期バックアップ
-    React.useEffect(() => {
-        /** localStorage への保存。
-         * 根治: 保存先は「今 UI が見ている表(currentPlanId)」ではなく
-         * 「作業ストアが載せている表の持ち主(_loadedPlanId)」。表を素早く切り替えた
-         * 一瞬に両者がズレても、データは自分の表以外に書き込まれない(切替先を空で潰さない)。 */
-        const saveSilently = () => {
-            const mitiStore = useMitigationStore.getState();
-            persistWorkingStore({
-                loadedPlanId: mitiStore._loadedPlanId,
-                getSnapshot: () => mitiStore.getSnapshot(),
-                updatePlan: (id, patch) => usePlanStore.getState().updatePlan(id, patch),
-            });
-        };
-
-        /** Firestoreへの同期（ログイン中 + dirtyがある場合のみ）
-         * @param force trueならクールダウン無視（タブ切替・ページ離脱時）
-         */
-        const syncToCloud = (force = false) => {
-            // 共同編集中は Firestore への確定保存を抑制(2クライアントの後勝ち上書き合戦を防ぐ)。
-            // localStorage の saveSilently は継続。恒久保存は段取り③で DO が代表実施(設計書 §2-2)。
-            if (useMitigationStore.getState()._collabActive) return;
-            const authState = useAuthStore.getState();
-            const planStore = usePlanStore.getState();
-            if (authState.user && planStore.hasDirtyPlans()) {
-                const profileName = useAuthStore.getState().profileDisplayName || 'User';
-                planStore.syncToFirestore(
-                    authState.user.uid,
-                    profileName,
-                    force,
-                ).catch((err) => {
-                    console.error('[LoPo] Firestore同期エラー:', err);
-                });
-            }
-        };
-
-        /** Firestoreから最新データを取得（ログイン中のみ）
-         *  isRemoteLoadingRefでsubscriptionのdirty markingを抑制
-         *  notifyUser=true のときのみトーストを表示（手動 / タブ復帰時のみ） */
-        const pullFromCloud = (notifyUser = false) => {
-            const authState = useAuthStore.getState();
-            if (authState.user) {
-                isRemoteLoadingRef.current = true;
-                usePlanStore.getState().pullFromFirestore(
-                    authState.user.uid,
-                ).then(() => {
-                    if (notifyUser) showToast(t('app.sync_pull_success'), 'info');
-                }).catch((err) => {
-                    console.error('[LoPo] Firestore PULL エラー:', err);
-                    if (notifyUser) showToast(t('app.sync_pull_error'), 'error');
-                }).finally(() => {
-                    isRemoteLoadingRef.current = false;
-                });
-            }
-        };
-
-        let localDebounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-        // useMitigationStoreの変更を監視 → localStorageへ500msデバウンス保存
-        const unsubMiti = useMitigationStore.subscribe((state, prevState) => {
-            // 同じ参照なら何もしない（不要な保存を防止）
-            if (state.timelineMitigations === prevState.timelineMitigations
-                && state.timelineEvents === prevState.timelineEvents
-                && state.phases === prevState.phases
-                && state.partyMembers === prevState.partyMembers) return;
-            // リモートからの読み込み中は保存・同期をスキップ（dirty循環防止）
-            if (isRemoteLoadingRef.current) return;
-            // プランが選択されていなければスキップ
-            const planIdAtChange = usePlanStore.getState().currentPlanId;
-            if (!planIdAtChange) return;
-
-            // インジケーター: 「保存中...」
-            usePlanStore.getState().setSaveStatus('saving');
-
-            // localStorage: 500msデバウンス（ブラウザ内保存なのでコストゼロ）
-            if (localDebounceTimer) clearTimeout(localDebounceTimer);
-            localDebounceTimer = setTimeout(() => {
-                // 500ms後にplanIdが変わっていたらプラン切替中だったのでスキップ
-                // （旧プランに新データを保存するデータ破損を防止）
-                const currentId = usePlanStore.getState().currentPlanId;
-                if (currentId !== planIdAtChange) return;
-                saveSilently();
-                usePlanStore.getState().setSaveStatus('saved');
-                // クラウド同期も試行（3分クールダウンで自動的に間引かれる）
-                syncToCloud();
-            }, 500);
-        });
-
-        /** ページ離脱時: localStorage即時保存 + Firestore同期（クールダウン無視）
-         *  プラン編集中はブラウザ標準の離脱確認ダイアログを表示 */
-        const onBeforeUnload = (e: BeforeUnloadEvent) => {
-            // プラン編集中なら離脱確認を表示
-            if (usePlanStore.getState().currentPlanId) {
-                e.preventDefault();
-                e.returnValue = '';  // Chrome/Edge互換
-            }
-            if (localDebounceTimer) clearTimeout(localDebounceTimer);
-            saveSilently();
-            syncToCloud(true);
-        };
-
-        /** タブ切替時:
-         * 非表示 → localStorage保存 + Firestore PUSH
-         * 再表示 → Firestore PULL（他端末の変更を取得）
-         */
-        const onVisibilityChange = () => {
-            if (document.hidden) {
-                if (localDebounceTimer) clearTimeout(localDebounceTimer);
-                saveSilently();
-                syncToCloud(true);  // タブ切替 = ユーザーの意図的操作 → クールダウン無視
-                usePlanStore.getState().setSaveStatus('saved');
-            } else {
-                // タブ再表示 → PULL（他端末の変更を取得）/ ユーザーに通知
-                pullFromCloud(true);
-            }
-        };
-
-        window.addEventListener('beforeunload', onBeforeUnload);
-        document.addEventListener('visibilitychange', onVisibilityChange);
-
-        // プラン切替時: 旧プランをlocalStorage保存 + Firestore同期
-        let prevPlanId = usePlanStore.getState().currentPlanId;
-        const unsubPlan = usePlanStore.subscribe((state) => {
-            const newId = state.currentPlanId;
-            const oldId = prevPlanId;
-            prevPlanId = newId; // 再入防止: saveSilently→updatePlan→subscribe再発火時にスキップさせる
-            if (oldId && oldId !== newId) {
-                // collab 中のプラン切替は管制(reconcileCollabForPlan)が disconnect+再ロードを担う。
-                // ここで saveSilently すると mitistore の collab 部屋データを新プランへ誤保存し、
-                // 管制の再ロードが汚染データを読む競合になる。collab 中は保存をスキップ
-                // (collab の恒久保存は DO→Firestore が真実。順序非依存の防御層 = defense-in-depth)。
-                if (useMitigationStore.getState()._collabActive) return;
-                saveSilently();
-                syncToCloud(true);  // プラン切替 = 意図的操作 → クールダウン無視
-            }
-        });
-
-        // 5分ごとの定期同期（PUSH + PULL）
-        const periodicSyncInterval = setInterval(() => {
-            // PULLの前にローカル編集をflush（未保存の編集が上書きされるのを防止）
-            saveSilently();
-            syncToCloud();
-            pullFromCloud();
-        }, 5 * 60 * 1000);
-
-        return () => {
-            unsubMiti();
-            unsubPlan();
-            if (localDebounceTimer) clearTimeout(localDebounceTimer);
-            clearInterval(periodicSyncInterval);
-            window.removeEventListener('beforeunload', onBeforeUnload);
-            document.removeEventListener('visibilitychange', onVisibilityChange);
-        };
-    }, [t]);
-
-    // ログイン時のデータマイグレーション（localStorageのプランをFirestoreにアップロード）
-    const authUser = useAuthStore((s) => s.user);
-    const authLoading = useAuthStore((s) => s.loading);
-    const [hasMigrated, setHasMigrated] = React.useState(false);
-
-    // B-1 Revision 3: ローカル取り込みダイアログ
-    const localImportOpen = useLocalImportDialog(s => s.isOpen);
-    // 注: 以前ここに isImportPreparing / isAuthRedirecting state を持っていたが、
-    // ユーザーフィードバックで「ログイン中 / 利用の準備中」 オーバーレイは不要との
-    // 判断で撤去。 migrate / pullFromFirestore はバックグラウンドで継続実行する
-    // (画面操作とは独立)。
-    const closeLocalImportDialog = useLocalImportDialog(s => s.close);
-    /**
-     * 表示対象: ダイアログで取り込み候補にする plans。
-     *
-     * 設計: `ownerId === 'local'` (= 未アップロード) かつ
-     * `_createdLoggedIn !== true` (= ログイン中に作られたものではない) のみ対象。
-     *
-     * 理由: ログイン中に作られたプランは Firestore SDK のオフラインキュー経由で
-     * 自動同期されるため、 ユーザーに「取り込み確認」 を出す必要が無い。
-     * このフィルタにより、 新規作成 / 複製 / コピー直後にリロードしても
-     * 誤発火しなくなる。 未ログイン中に作られたプランのみ明示同意フローに乗る。
-     */
-    const localImportPlans = usePlanStore(
-        useShallow(s => s.plans.filter(p =>
-            p.ownerId === 'local' && p._createdLoggedIn !== true
-        )),
-    );
-
-    const handleLocalImport = React.useCallback(
-        async (
-            planIds: string[],
-            onProgress: (event: { id: string; status: 'uploading' | 'success' | 'failed'; error?: string }) => void,
-        ): Promise<{ id: string; status: 'success' | 'failed'; error?: string }[]> => {
-            const currentUser = useAuthStore.getState().user;
-            if (!currentUser) return [];
-            const profileName = useAuthStore.getState().profileDisplayName || 'User';
-            // サマリーはダイアログ内のサマリーパネルで完結する (B-1 Rev3 仕上げ)。
-            // 旧 toast (toast_success / toast_partial / toast_all_failed) は撤去済み。
-            return await usePlanStore.getState().executeLocalImport(
-                currentUser.uid,
-                profileName,
-                planIds,
-                onProgress,
-            );
-        },
-        [],
-    );
-
-    const handleLocalImportClose = React.useCallback(
-        () => {
-            closeLocalImportDialog();
-        },
-        [closeLocalImportDialog],
-    );
-
-    // ログアウト時（authUser=null）にフラグをリセット → 再ログイン時にmigrateOnLoginが再実行される
-    React.useEffect(() => {
-        if (!authUser) {
-            setHasMigrated(false);
-            usePlanStore.getState()._migrationDone && usePlanStore.setState({ _migrationDone: false });
-        }
-    }, [authUser, hasMigrated]);
-    React.useEffect(() => {
-        if (authLoading || !authUser || hasMigrated) return;
-        setHasMigrated(true);
-        // 注: 以前ここで setIsImportPreparing(true) して「ログイン中」 オーバーレイを
-        // 表示していたが、 ユーザーフィードバックで撤去。 migrate / pullFromFirestore は
-        // ユーザー操作とは独立にバックグラウンドで完了させる。
-        const planStore = usePlanStore.getState();
-        const profileName = useAuthStore.getState().profileDisplayName || 'User';
-        planStore.migrateOnLogin(
-            authUser.uid,
-            profileName,
-        ).then(() => {
-            // マイグレーション後: Firestoreからマージした最新データをMitigationStoreに反映
-            const { currentPlanId, plans } = usePlanStore.getState();
-            if (currentPlanId) {
-                const plan = plans.find(p => p.id === currentPlanId);
-                if (plan?.data) {
-                    isRemoteLoadingRef.current = true;
-                    // 根治(I-2): 現在プランを再ロード → 持ち主IDも明示
-                    useMitigationStore.getState().loadSnapshot(plan.data, currentPlanId);
-                    isRemoteLoadingRef.current = false;
-                }
-            }
-        }).catch((err) => {
-            console.error('[LoPo] migrateOnLogin失敗、PULLで回復を試行:', err);
-        }).finally(async () => {
-            usePlanStore.setState({ _migrationDone: true });
-            // PULL: 他端末の変更を確実に取得 (失敗しても致命ではないので無視)
-            try {
-                await planStore.pullFromFirestore(authUser.uid);
-            } catch {
-                // pull 失敗 → 次回 pull で回復
-            }
-
-            // B-1 Revision 3: ローカル取り込みダイアログを開く前に App Check + ID トークンを揃える
-            // - OAuth リダイレクト直後は reCAPTCHA Enterprise トークン未取得で createPlan が permission-denied になる
-            // - ダイアログを開く時点でトークン完備にしておけば、ユーザーが「取り込む」押下した瞬間に成功する
-            try {
-                const appCheck = ensureAppCheck();
-                if (appCheck) {
-                    // forceRefresh: true で確実に新規トークン取得 (post-OAuth キャッシュ空対策)
-                    await getToken(appCheck, true);
-                }
-                if (auth.currentUser) {
-                    await auth.currentUser.getIdToken(true);
-                }
-            } catch {
-                // トークン取得失敗でもダイアログは出す (executeLocalImport で再試行可能)
-            }
-
-            // 自動トリガー: ローカルプランがあるときは常に表示する (Phase B-1.5 Task 11)
-            // 旧 `lopo_local_import_dont_show` localStorage フラグは既存ユーザーの値を残したまま読み捨てる
-            //
-            // 注意: フィルタは localImportPlans (= ファイル上部の useShallow) と必ず一致させる。
-            // `_createdLoggedIn === true` のプランはログイン中に作られた = 自動同期される
-            // ため除外し、 誤発火を防ぐ。
-            const localPlanCount = usePlanStore.getState().plans.filter(p =>
-                p.ownerId === 'local' && p._createdLoggedIn !== true
-            ).length;
-            if (localPlanCount > 0) {
-                // 微小ディレイ (40ms) は state コミット安定化のため残す
-                setTimeout(() => {
-                    useLocalImportDialog.getState().open();
-                }, 40);
-            }
-        });
-    }, [authUser, authLoading, hasMigrated]);
+    // ⚠ 呼ぶ順番が重要(データ安全): 起動時復旧 → 共同編集の管制 → 自動保存 → ログイン時の取り込み。
+    //   管制の subscribe を自動保存より先に登録する(理由は useCollabLifecycle.ts)。
+    useBootstrapRestore(isRemoteLoadingRef);
+    useCollabLifecycle();
+    usePlanAutoSave(isRemoteLoadingRef);
+    const localImport = useLoginMigration(isRemoteLoadingRef);
 
     // ベースの背景色（テーマ変数を参照するように変更）
     const bgClass = "bg-app-bg";
 
-    // 初回ログイン判定
-    const isNewUser = useAuthStore((s) => s.isNewUser);
-
-    // リダイレクト認証の戻り検知（Discord/Twitter — ページロード前に即座に判定）
-    // ※ Phase B-1.5 polish 第 2 弾 Rev 3: 一度撤去したが、 OAuth リダイレクト戻り時は
-    //   実際にログイン処理中なので「ログイン中…」 オーバーレイは正しい用途として復活。
-    //   migrate / pull だけのときに出ていた isImportPreparing オーバーレイは撤去のまま。
-    const justLoggedInUser = useAuthStore((s) => s.justLoggedInUser);
-    const [isAuthRedirecting, setIsAuthRedirecting] = React.useState(() =>
-        localStorage.getItem('lopo_auth_redirecting') === 'true'
-    );
-    React.useEffect(() => {
-        if (justLoggedInUser || !localStorage.getItem('lopo_auth_redirecting')) {
-            setIsAuthRedirecting(false);
-        }
-    }, [justLoggedInUser]);
+    const { isNewUser, showAuthRedirecting } = useAuthRedirecting();
 
     // MIL-SPEC 専用シェル分岐: themeStyle==='military' かつ PC のときだけ標準 JSX の代わりに
     // MilspecLayout を返す。全フックはこの上で実行済 (実行時ホスト=自動保存/collab/データ復旧は
@@ -597,9 +141,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onImportLogs={() => window.dispatchEvent(new CustomEvent('timeline:import'))}
                 statusOpen={mobileStatusOpen}
                 setStatusOpen={setMobileStatusOpen}
-                localImportProps={{ isOpen: localImportOpen, plans: localImportPlans, onImport: handleLocalImport, onClose: handleLocalImportClose }}
+                localImportProps={localImport}
                 isNewUser={isNewUser}
-                showAuthRedirecting={isAuthRedirecting && !justLoggedInUser}
+                showAuthRedirecting={showAuthRedirecting}
             >
                 {children}
             </MilspecLayout>
@@ -615,7 +159,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* リダイレクト認証中オーバーレイ — Discord/Twitter からの戻り時、 processPendingAuth
                 完了前に表示。 実際にログイン処理中の場面のみ出る。 */}
-            {isAuthRedirecting && !justLoggedInUser && (
+            {showAuthRedirecting && (
                 <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-app-bg">
                     <div className="flex flex-col items-center gap-4">
                         <Loader2 size={28} className="animate-spin text-app-text-muted" />
@@ -830,40 +374,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             )}
 
             {/* Mobile Bottom Nav — 排他制御付きトグル（チュートリアル中は非表示） */}
-            {!isTutorialActive && <MobileBottomNav
-                onMenuToggle={() => {
-                    const next = !mobileMenuOpen;
-                    setMobileMenuOpen(next);
-                    if (next) { setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileShareOpen(false); setMobileAccountOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
-                }}
-                onImportToggle={() => {
-                    const next = !mobileToolsOpen;
-                    setMobileToolsOpen(next);
-                    if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileShareOpen(false); setMobileAccountOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
-                }}
-                onCueToggle={() => {
-                    setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileShareOpen(false); setMobileAccountOpen(false);
-                    window.dispatchEvent(new Event('mobile:open-cue-sheet'));
-                }}
-                onShareToggle={() => {
-                    const next = !mobileShareOpen;
-                    setMobileShareOpen(next);
-                    if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileAccountOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
-                }}
-                onLoginOpen={() => {
-                    const authUser = useAuthStore.getState().user;
-                    if (authUser) {
-                        const next = !mobileAccountOpen;
-                        setMobileAccountOpen(next);
-                        if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileShareOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
-                    } else {
-                        setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileShareOpen(false);
-                        window.dispatchEvent(new Event('mobile:close-miti-flow'));
-                        setMobileLoginModalOpen(true);
-                    }
-                }}
-                activeTab={mobileMenuOpen ? 'menu' : mobileToolsOpen ? 'import' : mobileShareOpen ? 'share' : mobileAccountOpen ? 'login' : undefined}
-            />}
+            {!isTutorialActive && <MobileBottomNav {...navHandlers} />}
 
             {/* Mobile: ログインモーダル（未ログイン時） */}
             <LoginModal isOpen={mobileLoginModalOpen} onClose={() => setMobileLoginModalOpen(false)} />
@@ -900,10 +411,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* B-1 Revision 3: ローカル取り込みダイアログ */}
             <LocalImportDialog
-                isOpen={localImportOpen}
-                plans={localImportPlans}
-                onImport={handleLocalImport}
-                onClose={handleLocalImportClose}
+                isOpen={localImport.isOpen}
+                plans={localImport.plans}
+                onImport={localImport.onImport}
+                onClose={localImport.onClose}
             />
 
             {/* Phase B-1.5 Task 17: 共有 URL 自動取り込みシート。
