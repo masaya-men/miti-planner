@@ -17,7 +17,7 @@ import {
   getDefaultStatsByLevelFromStore,
   getPatchStatsFromStore,
 } from '../hooks/useSkillsData';
-import { useTutorialStore } from './useTutorialStore';
+import { completeTutorialEvent, isTutorialActive } from './tutorialBridge';
 import { DEFAULT_NEW_MODE } from '../utils/mitigationResolver';
 import type { CollabHandlers } from '../lib/collab/collabTypes';
 import type { BatchOp } from '../lib/collab/yjsPlanData';
@@ -945,14 +945,14 @@ export const useMitigationStore = create<MitigationState>()(
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋な閲覧者のみブロック(編集者ジョイナーは active=true で委譲へ)
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.upsertItems('timelineEvents', [event]);
-                        useTutorialStore.getState().completeEvent('event:saved');
+                        completeTutorialEvent('event:saved');
                         return;
                     }
                     pushHistory();
                     set((state) => ({
                         timelineEvents: [...state.timelineEvents, event].sort((a, b) => a.time - b.time)
                     }));
-                    useTutorialStore.getState().completeEvent('event:saved');
+                    completeTutorialEvent('event:saved');
                 },
 
                 importTimelineEvents: (events, importPhases, importLabels, mode) => {
@@ -988,7 +988,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.importBulk(resolved.events, mergedPhases, finalLabels, resolved.clearMitigations);
-                        if (events.length > 0) useTutorialStore.getState().completeEvent('content:selected');
+                        if (events.length > 0) completeTutorialEvent('content:selected');
                         return;
                     }
                     pushHistory();
@@ -1006,7 +1006,7 @@ export const useMitigationStore = create<MitigationState>()(
                     }
                     set(update as any);
                     if (events.length > 0) {
-                        useTutorialStore.getState().completeEvent('content:selected');
+                        completeTutorialEvent('content:selected');
                     }
                 },
 
@@ -1388,7 +1388,7 @@ export const useMitigationStore = create<MitigationState>()(
                             set({ astrologianDrawChainPrompt: { memberId: mitigation.ownerId, startTime: mitigation.time, startKind: mitigation.mitigationId as 'astral_draw' | 'umbral_draw' } });
                         }
                         get()._collabHandlers!.add(mitigation);
-                        useTutorialStore.getState().completeEvent('mitigation:added');
+                        completeTutorialEvent('mitigation:added');
                         return;
                     }
                     pushHistory();
@@ -1440,7 +1440,7 @@ export const useMitigationStore = create<MitigationState>()(
                         };
                     });
                     // Tutorial: notify that a mitigation has been added
-                    useTutorialStore.getState().completeEvent('mitigation:added');
+                    completeTutorialEvent('mitigation:added');
                 },
 
                 removeMitigation: (id) => {
@@ -1850,7 +1850,7 @@ export const useMitigationStore = create<MitigationState>()(
                 setItem: (name: string, value: unknown) => {
                     // チュートリアル中 or ⑤-3b ジョイナー読み取り専用中は書き込みスキップ
                     // (壊れたデータ／他人の部屋データを自分の localStorage に永続化しない)。
-                    if (useTutorialStore.getState().isActive || useMitigationStore.getState()._collabReadonly) return;
+                    if (isTutorialActive() || useMitigationStore.getState()._collabReadonly) return;
                     localStorage.setItem(name, JSON.stringify(value));
                 },
                 removeItem: (name: string) => {

@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware';
 import { TUTORIALS, TUTORIAL_IDS, type TutorialStep } from '../data/tutorialDefinitions';
 import { useMitigationStore, type TutorialSnapshot } from './useMitigationStore';
 import { usePlanStore } from './usePlanStore';
+import { registerTutorialBridge } from './tutorialBridge';
 
 // ─────────────────────────────────────────────
 // 後方互換: 旧コードが TUTORIAL_STEPS を import している箇所向け
@@ -334,3 +335,8 @@ export const useTutorialStore = create<TutorialState>()(
     }
   )
 );
+
+registerTutorialBridge({
+  completeEvent: (eventName) => useTutorialStore.getState().completeEvent(eventName),
+  isActive: () => useTutorialStore.getState().isActive,
+});
