@@ -145,7 +145,7 @@ export default [
   { id: 'miti/toast', route: '/miti', storage: lanes, ready: 'div.fixed.bottom-24', axes: winAx,
     open: async (page) => {
       await page.waitForSelector(ROW);
-      await page.evaluate(async () => { const m = await import('/src/components/Toast.tsx'); m.showToast('見本のトースト', 'success'); });
+      await page.evaluate(async () => { const m = await import('/src/components/toastBus.ts'); m.showToast('見本のトースト', 'success'); });
     }, covers: ['Toast'] },
   { id: 'miti/footer-legal', route: '/miti', storage: lanes, ready: 'footer a[href="/privacy"]', axes: winAx,
     open: click('footer button.underline'), covers: ['AppFooter'] },
