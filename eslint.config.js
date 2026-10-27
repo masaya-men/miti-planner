@@ -33,4 +33,12 @@ export default defineConfig([
       'react-hooks/incompatible-library': 'off',
     },
   },
+  {
+    // テストの偽物(モック・一部だけの入力データ)は any で書くのが実用的で、型を付けても製品は守れない。
+    // 本体コードの any は引き続きエラー。
+    files: ['**/__tests__/**/*.{ts,tsx}', '**/*.test.{ts,tsx}', 'vitest.setup.ts', 'playwright/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
 ])
