@@ -54,6 +54,8 @@ import { isLivingDeadStyle } from '../utils/livingDead';
 import { resolveMitigationTap } from '../utils/mitigationTapResolver';
 import { resolveSeraphismMitigation } from '../utils/scholarShieldRules';
 import { useTimelineMobileScrollChrome } from './timeline/useTimelineMobileScrollChrome';
+import { useTimelineAaEscape, useTimelineShortcutKeys, useTimelineEscapeKeys } from './timeline/useTimelineKeyboard';
+import { useTimelineHeaderEvents, useTimelineTutorialEvents, useTimelineProgressJump, useTimelineResetUiEvent, useTimelineClearMenuOutsideClick } from './timeline/useTimelineWindowEvents';
 import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
 import type { MemberRefEntry } from './Timeline.layoutHooks';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -400,6 +402,14 @@ const Timeline: React.FC = () => {
     // リロードで null に戻るため、開き直した時は既存競合が両方光る(自己責任)。
     const lastPlacedMitigationId = useMitigationStore(s => s.lastPlacedMitigationId);
 
+    // 取り込み・オートプラン・AA の state(effect を渡すフックより前で必要なため、元の宣言位置から上へ移動。useState のみ・順序影響なし)。
+    const [importModalOpen, setImportModalOpen] = useState(false);
+    const [showGridImport, setShowGridImport] = useState(false);
+    const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning'; confirmLabel?: string; cancelLabel?: string } | null>(null);
+    const [isMitiSheetOpen, setIsMitiSheetOpen] = useState(false);
+    const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
+    const [aaSettingsOpen, setAaSettingsOpen] = useState(false);
+
     const handleAutoPlan = useCallback(() => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         const executePlan = () => {
@@ -430,20 +440,7 @@ const Timeline: React.FC = () => {
         }
     }, [t]);
 
-    // Consolidated Header Event Listeners
-    useEffect(() => {
-        const handleAutoPlanEvent = () => handleAutoPlan();
-        const handleImportEvent = () => setImportModalOpen(true);
-        const handleGridImportEvent = () => setShowGridImport(true);
-        window.addEventListener('timeline:autoplan', handleAutoPlanEvent);
-        window.addEventListener('timeline:import', handleImportEvent);
-        window.addEventListener('timeline:grid-import', handleGridImportEvent);
-        return () => {
-            window.removeEventListener('timeline:autoplan', handleAutoPlanEvent);
-            window.removeEventListener('timeline:import', handleImportEvent);
-            window.removeEventListener('timeline:grid-import', handleGridImportEvent);
-        };
-    }, [handleAutoPlan]);
+    useTimelineHeaderEvents({ handleAutoPlan, setImportModalOpen, setShowGridImport });
 
     // メモ・カーソル送信フックへ渡すため、元の宣言位置(後方)からここへ移動(useRef のみ・順序影響なし)。
     const timeToYMapRef = useRef(new Map<number, number>());
@@ -469,80 +466,13 @@ const Timeline: React.FC = () => {
 
     // Tutorial auto-open logic
     const { isActive: tutorialActive, currentStepIndex: tutorialStepIndex } = useTutorialStore();
-    useEffect(() => {
-        if (tutorialActive && tutorialStepIndex === 0) {
-            setIsAaModeEnabled(false);
-            setAaSettingsOpen(false);
-        }
-    }, [tutorialActive, tutorialStepIndex]);
+    useTimelineTutorialEvents({
+        tutorialActive, tutorialStepIndex, mobilePartyOpen, isMobileView,
+        setIsAaModeEnabled, setAaSettingsOpen, setPartySettingsOpenLocal, setMobilePartyOpen,
+        setMitigationSelectorOpen, setIsModalOpen, setPhaseDropdownOpen, setGimmickDropdownOpen, setMechanicSearchOpen,
+    });
 
-    // 旧チュートリアルのparty-slots自動オープンロジックは削除済み（TutorialBlocker方式に移行）
-
-    // モバイルでパーティが開かれたらチュートリアルイベントを通知
-    useEffect(() => {
-        if (mobilePartyOpen) {
-            useTutorialStore.getState().completeEvent('party:opened');
-        }
-    }, [mobilePartyOpen]);
-
-    // チュートリアル戻るボタン用: ストアからモーダル制御するカスタムイベント
-    useEffect(() => {
-        const handleCloseAll = () => {
-            setPartySettingsOpenLocal(false);
-            setMobilePartyOpen(false);
-            setMitigationSelectorOpen(false);
-            setIsModalOpen(false);
-        };
-        const handleOpenParty = () => {
-            if (isMobileView) {
-                setMobilePartyOpen(true);
-            } else {
-                setPartySettingsOpenLocal(true);
-            }
-        };
-        const handlePartySettings = (e: Event) => {
-            const open = (e as CustomEvent).detail?.open ?? true;
-            if (isMobileView) {
-                setMobilePartyOpen(open);
-            } else {
-                setPartySettingsOpenLocal(open);
-            }
-        };
-        const handlePhaseJump = () => setPhaseDropdownOpen(prev => !prev);
-        const handleLabelJump = () => setGimmickDropdownOpen(prev => !prev);
-        const handleMechanicSearch = () => setMechanicSearchOpen(prev => !prev);
-        window.addEventListener('tutorial:close-all-modals', handleCloseAll);
-        window.addEventListener('tutorial:open-party-modal', handleOpenParty);
-        window.addEventListener('timeline:party-settings', handlePartySettings);
-        window.addEventListener('mobile:phase-jump', handlePhaseJump);
-        window.addEventListener('mobile:label-jump', handleLabelJump);
-        window.addEventListener('mobile:mechanic-search', handleMechanicSearch);
-        return () => {
-            window.removeEventListener('tutorial:close-all-modals', handleCloseAll);
-            window.removeEventListener('tutorial:open-party-modal', handleOpenParty);
-            window.removeEventListener('timeline:party-settings', handlePartySettings);
-            window.removeEventListener('mobile:phase-jump', handlePhaseJump);
-            window.removeEventListener('mobile:label-jump', handleLabelJump);
-            window.removeEventListener('mobile:mechanic-search', handleMechanicSearch);
-        };
-    }, []);
-
-    // 記録パネルからのフェーズジャンプ: 独立 useEffect で既存リスナに干渉しない。
-    // handleNavJump が useCallback で安定しているため、deps に含めて stale closure を防ぐ。
-    useEffect(() => {
-        const handleProgressJump = (e: Event) => {
-            const { time } = (e as CustomEvent<{ time: number }>).detail ?? {};
-            if (typeof time !== 'number') return;
-            // 道クリックの任意時間 → timeToYMap に存在する最寄りの時間へスナップ（厳密さ不要）
-            const map = timeToYMapRef.current;
-            if (map.has(time)) { handleNavJump(time); return; }
-            let nearest: number | null = null, best = Infinity;
-            map.forEach((_y, tk) => { const d = Math.abs(tk - time); if (d < best) { best = d; nearest = tk; } });
-            if (nearest !== null) handleNavJump(nearest);
-        };
-        window.addEventListener('progress:jump-to-time', handleProgressJump);
-        return () => window.removeEventListener('progress:jump-to-time', handleProgressJump);
-    }, [handleNavJump]);
+    useTimelineProgressJump({ handleNavJump, timeToYMapRef });
 
 
     // プラン切替時に縦横スクロールをトップ・左端へ、空行非表示をデフォルト(コンパクト)にリセット
@@ -596,11 +526,6 @@ const Timeline: React.FC = () => {
         },
         [t],
     );
-
-    const [isMitiSheetOpen, setIsMitiSheetOpen] = useState(false);
-
-    const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
-    const [aaSettingsOpen, setAaSettingsOpen] = useState(false);
 
     const aaSettingsButtonRef = useRef<HTMLButtonElement>(null);
     useSmoothWheelScroll(scrollContainerRef, { horizontalScrollOnShift: true, stiffness: 80, wheelMultiplier: 1.5 });
@@ -750,20 +675,8 @@ const Timeline: React.FC = () => {
         mobileEffectBarMode, timelineMitigations, timelineEvents,
     });
 
-    // AA モード中に Escape キーで終了
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && isAaModeEnabled) {
-                setIsAaModeEnabled(false);
-            }
-        };
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [isAaModeEnabled]);
+    useTimelineAaEscape({ isAaModeEnabled, setIsAaModeEnabled });
 
-    const [importModalOpen, setImportModalOpen] = useState(false);
-    const [showGridImport, setShowGridImport] = useState(false);
-    const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning'; confirmLabel?: string; cancelLabel?: string } | null>(null);
 
 
 
@@ -1278,123 +1191,21 @@ const Timeline: React.FC = () => {
     const [clearMenuOpen, setClearMenuOpen] = useState(false);
     const clearMenuButtonRef = useRef<HTMLButtonElement>(null);
 
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用は undo/redo ショートカット無効
-            const tag = (e.target as HTMLElement)?.tagName;
-            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    useTimelineShortcutKeys({
+        readOnlyRef, phaseDropdownOpen, gimmickDropdownOpen,
+        setPhaseDropdownOpen, setGimmickDropdownOpen, setTimeInputOpen, setMechanicSearchOpen,
+        handleTogglePhaseCollapse, handleToggleLabelCollapse,
+    });
 
-            const key = e.key.toLowerCase();
-            if ((e.ctrlKey || e.metaKey) && key === 'z' && !e.shiftKey) {
-                e.preventDefault();
-                useMitigationStore.getState().undo();
-            }
-            if ((e.ctrlKey || e.metaKey) && key === 'z' && e.shiftKey) {
-                e.preventDefault();
-                useMitigationStore.getState().redo();
-            }
-            if ((e.ctrlKey || e.metaKey) && key === 'y') {
-                e.preventDefault();
-                useMitigationStore.getState().redo();
-            }
-            // 単独キーショートカット（PCのみ、Shiftは許可）
-            if (e.ctrlKey || e.metaKey || e.altKey) return;
-            if (typeof window !== 'undefined' && window.innerWidth < 768) return;
-            if (key === 'p' && e.shiftKey) {
-                // Shift+P: フェーズ列の表示/非表示
-                e.preventDefault();
-                if (phaseDropdownOpen) setPhaseDropdownOpen(false);
-                handleTogglePhaseCollapse();
-            } else if (key === 'p' && !e.shiftKey) {
-                // P: フェーズドロップダウン開閉
-                e.preventDefault();
-                setPhaseDropdownOpen(prev => !prev);
-            } else if (key === 't') {
-                e.preventDefault();
-                setTimeInputOpen(prev => !prev);
-            } else if (key === 'l' && e.shiftKey) {
-                // Shift+L: ラベル列の表示/非表示
-                e.preventDefault();
-                if (gimmickDropdownOpen) setGimmickDropdownOpen(false);
-                handleToggleLabelCollapse();
-            } else if (key === 'l' && !e.shiftKey) {
-                // L: ラベルドロップダウン開閉
-                e.preventDefault();
-                setGimmickDropdownOpen(prev => !prev);
-            } else if (key === 'a') {
-                e.preventDefault();
-                setMechanicSearchOpen(prev => !prev);
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [phaseDropdownOpen, gimmickDropdownOpen]);
+    useTimelineResetUiEvent({ setIsAaModeEnabled });
 
-    useEffect(() => {
-        const handleReset = () => {
-            setIsAaModeEnabled(false);
-        };
-        window.addEventListener('tutorial:reset-ui', handleReset);
-        return () => {
-            window.removeEventListener('tutorial:reset-ui', handleReset);
-        };
-    }, []);
+    useTimelineEscapeKeys({
+        eventPopover, setEventPopover, clipboardEvent, setClipboardEvent,
+        timelineSelectMode, setTimelineSelectMode, labelSelectMode, setLabelSelectMode,
+        throttledUpdatePreview,
+    });
 
-    // イベントポップオーバー: Escapeで閉じる
-    useEffect(() => {
-        if (!eventPopover) return;
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                setEventPopover(null);
-            }
-        };
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [eventPopover]);
-
-    // コピーモード: Escapeでキャンセル
-    useEffect(() => {
-        if (!clipboardEvent) return;
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                setClipboardEvent(null);
-            }
-        };
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [clipboardEvent]);
-
-    // TL選択モード: Escapeでキャンセル
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                if (timelineSelectMode) {
-                    setTimelineSelectMode(null);
-                    throttledUpdatePreview(null);
-                }
-                if (labelSelectMode) {
-                    setLabelSelectMode(null);
-                    throttledUpdatePreview(null);
-                }
-            }
-        };
-        if (timelineSelectMode || labelSelectMode) {
-            window.addEventListener('keydown', handleKeyDown);
-            return () => window.removeEventListener('keydown', handleKeyDown);
-        }
-    }, [timelineSelectMode, labelSelectMode, throttledUpdatePreview]);
-
-    useEffect(() => {
-        if (!clearMenuOpen) return;
-        const handleClick = () => setClearMenuOpen(false);
-        const timer = setTimeout(() => {
-            window.addEventListener('click', handleClick);
-        }, 0);
-        return () => {
-            clearTimeout(timer);
-            window.removeEventListener('click', handleClick);
-        };
-    }, [clearMenuOpen]);
+    useTimelineClearMenuOutsideClick({ clearMenuOpen, setClearMenuOpen });
 
     // 注意: sortedPartyMembers は TimelineRow 等で「H1 の maxHp を引く」ような計算にも
     // partyMembers として渡って使われている(表示専用ではない)。表示/非表示スイッチは
