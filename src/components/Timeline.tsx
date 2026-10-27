@@ -27,7 +27,7 @@ import {
     MOBILE_EFFECT_BAR_SLOT_PITCH,
 } from '../utils/mobileEffectBar';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, CloudDownload, Sword, ChevronDown, ChevronLeft, Settings, Crosshair
+    Pencil, Trash2, Plus, X, Undo2, Redo2, CloudDownload, Sword, ChevronLeft, Settings, Crosshair
 } from 'lucide-react';
 import VideoRecorderModal from './VideoRecorderModal';
 import { useJobs, useMitigations, getMitigationPriority } from '../hooks/useSkillsData';
@@ -60,8 +60,7 @@ import { HeaderPhaseDropdown } from './HeaderPhaseDropdown';
 import { HeaderGimmickDropdown } from './HeaderGimmickDropdown';
 import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
-import { RecastRow, type RecastRowHandle } from './RecastRow';
-import { SheetColumnHeader } from './timeline/sheet/SheetColumnHeader';
+import type { RecastRowHandle } from './RecastRow';
 import { sheetColumnIndex, SHEET_ICON_PX } from './timeline/sheet/sheetColumns';
 import { sheetIconLeft } from './timeline/sheet/sheetGeometry';
 import { useTimelineDamage } from './timeline/useTimelineDamage';
@@ -76,6 +75,7 @@ import { SheetColumnTooltip } from './timeline/sheet/SheetColumnTooltip';
 import { SheetTargetPopover } from './timeline/sheet/SheetTargetPopover';
 import './timeline/sheet/sheet.css';
 import { TimelineControlBar } from './timeline/TimelineControlBar';
+import { TimelineHeader } from './timeline/TimelineHeader';
 
 // 軍事専用部品は標準テーマに配信しないよう遅延読み込み(useSortSlide は軽い hook なので静的のまま)
 const MilspecReticle = React.lazy(() => import('./military/table/MilspecReticle').then(m => ({ default: m.MilspecReticle })));
@@ -573,138 +573,16 @@ const Timeline: React.FC = () => {
                         sheetCols={sheetCols} sheetHiddenColumns={sheetHiddenColumns} handleOpenSheetHidden={handleOpenSheetHidden}
                     />
 
-                    <div
-                        ref={headerRef}
-                        className={clsx(
-                            "flex-shrink-0 z-50 bg-app-surface2 border-b border-app-border text-app-md font-medium text-app-text uppercase tracking-wider text-center h-10 select-none overflow-hidden",
-                            isMobileTimeline && "hidden"
-                        )}
-                    >
-                        <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max will-change-transform">
-                            {/* モバイル: フェーズなし → ラベルをフェーズ位置に表示 */}
-                            {(() => {
-                                const hasPhases = phases.length > 0;
-                                const mobileLabelInPhaseSlot = !hasPhases && isMobileView;
-                                return (
-                                    <>
-                                        {!phaseColumnCollapsed ? (
-                                            <Tooltip content={t('timeline.header_phase_tooltip')}>
-                                                <div
-                                                    ref={phaseHeaderRef}
-                                                    className={`${mobileLabelInPhaseSlot ? 'hidden md:flex' : 'flex'} w-[24px] min-w-[24px] md:w-[var(--col-phase-w)] md:min-w-[var(--col-phase-w)] md:max-w-[var(--col-phase-w)] flex-none border-r border-app-border h-full items-center justify-center text-app-text-muted font-black bg-transparent text-app-xs md:text-app-md md:cursor-pointer md:hover:text-app-text transition-colors`}
-                                                    onClick={() => { if (window.innerWidth >= 768) setPhaseDropdownOpen(!phaseDropdownOpen); }}
-                                                >
-                                                    <span className="md:hidden">{t('timeline.header_phase_short')}</span>
-                                                    <span className="hidden md:inline md:items-center md:gap-1">
-                                                        {t('timeline.header_phase')}
-                                                        <ChevronDown size={12} className="inline ml-0.5" />
-                                                    </span>
-                                                </div>
-                                            </Tooltip>
-                                        ) : (
-                                            <Tooltip content={`${t('timeline.nav_phase_expand')} (Shift+P)`}>
-                                                <div
-                                                    ref={phaseHeaderRef}
-                                                    className="w-[var(--col-phase-collapsed-w)] min-w-[var(--col-phase-collapsed-w)] max-w-[var(--col-phase-collapsed-w)] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
-                                                    onClick={() => handleTogglePhaseCollapse()}
-                                                >
-                                                    <ChevronDown size={12} className="text-app-text-muted -rotate-90" />
-                                                </div>
-                                            </Tooltip>
-                                        )}
-                                        {/* モバイル: フェーズなし → ラベルヘッダーをフェーズ位置に */}
-                                        {mobileLabelInPhaseSlot && labelColumnVisible && (
-                                            <div
-                                                ref={gimmickHeaderRef}
-                                                className="w-[24px] min-w-[24px] md:hidden flex-none border-r border-app-border h-full flex items-center justify-center text-app-text-muted font-black text-app-xs"
-                                                onClick={() => setGimmickDropdownOpen(!gimmickDropdownOpen)}
-                                            >
-                                                {t('timeline.header_gimmick_short')}
-                                            </div>
-                                        )}
-                                        {/* PC: ラベル列ヘッダー */}
-                                        {labelColumnVisible ? (
-                                            <Tooltip content={t('timeline.header_gimmick_tooltip')}>
-                                                <div
-                                                    ref={!mobileLabelInPhaseSlot ? gimmickHeaderRef : undefined}
-                                                    className="hidden md:flex w-[var(--col-label-w)] min-w-[var(--col-label-w)] max-w-[var(--col-label-w)] flex-none border-r border-app-border h-full items-center justify-center bg-transparent text-app-text-muted font-black text-app-md cursor-pointer hover:text-app-text transition-colors"
-                                                    onClick={() => setGimmickDropdownOpen(!gimmickDropdownOpen)}
-                                                >
-                                                    <span className="flex items-center gap-0.5">
-                                                        {t('timeline.header_gimmick')}
-                                                        <ChevronDown size={10} className="inline" />
-                                                    </span>
-                                                </div>
-                                            </Tooltip>
-                                        ) : (
-                                            <Tooltip content={`${t('timeline.nav_label_expand')} (Shift+L)`}>
-                                                <div
-                                                    ref={!mobileLabelInPhaseSlot ? gimmickHeaderRef : undefined}
-                                                    className="w-[var(--col-label-collapsed-w)] min-w-[var(--col-label-collapsed-w)] max-w-[var(--col-label-collapsed-w)] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
-                                                    onClick={() => handleToggleLabelCollapse()}
-                                                >
-                                                    <ChevronDown size={12} className="text-app-text-muted -rotate-90" />
-                                                </div>
-                                            </Tooltip>
-                                        )}
-                                    </>
-                                );
-                            })()}
-                            <Tooltip content={t('timeline.header_time_tooltip')}>
-                                <div
-                                    ref={timeHeaderRef}
-                                    className="w-[36px] min-w-[36px] md:w-[var(--col-time-w)] md:min-w-[var(--col-time-w)] md:max-w-[var(--col-time-w)] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-app-xs md:text-app-base md:cursor-pointer md:hover:text-app-text transition-colors"
-                                    onClick={() => { if (window.innerWidth >= 768) setTimeInputOpen(!timeInputOpen); }}
-                                >
-                                    <span className="md:hidden">{t('timeline.header_time')}</span>
-                                    <span className="hidden md:inline md:items-center md:gap-0.5">
-                                        {t('timeline.header_time')}
-                                        <ChevronDown size={10} className="inline ml-0.5" />
-                                    </span>
-                                </div>
-                            </Tooltip>
-                            <Tooltip content={t('timeline.header_mechanic_tooltip')} wrapperClassName="flex-1 md:flex-none md:w-[var(--col-mechanic-w)] md:min-w-[var(--col-mechanic-w)] md:max-w-[var(--col-mechanic-w)] h-full">
-                                <div
-                                    ref={mechanicHeaderRef}
-                                    className="w-full border-r border-app-border h-full flex items-center bg-transparent text-app-text-muted text-app-sm md:text-app-base pl-2 justify-start font-black cursor-pointer hover:text-app-text transition-colors"
-                                    onClick={() => setMechanicSearchOpen(!mechanicSearchOpen)}
-                                >
-                                    <span className="flex items-center gap-0.5 md:gap-1">
-                                        {t('timeline.header_mechanic')}
-                                        <ChevronDown size={10} className="inline" />
-                                    </span>
-                                </div>
-                            </Tooltip>
-                            <div className="w-[var(--col-counter-w)] min-w-[var(--col-counter-w)] md:max-w-[var(--col-counter-w)] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
-                                <span className="md:hidden">{t('timeline.header_raw_short')}</span>
-                                <span className="hidden md:inline">{t('timeline.header_raw')}</span>
-                            </div>
-                            <div className="w-[var(--col-counter-w)] min-w-[var(--col-counter-w)] md:max-w-[var(--col-counter-w)] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
-                                <span className="md:hidden">{t('timeline.header_taken_short')}</span>
-                                <span className="hidden md:inline">{t('timeline.header_taken')}</span>
-                            </div>
-                            {/* セッション 18 案 C1: ヘッダーのメンバー列領域はリキャストアイコン専用に。
-                                旧ジョブアイコン行は controlBar に移動 (JobPickerRow)。
-                                OFF 時もセルは render する (= 罫線は維持)。 中のアイコンだけ scroll handler で hideAll。
-                                軍事の表だけ renderIdle で「アイコンが 1 つも出ていない列」にロール色の線 + ジョブ略号を描く
-                                (出し分けは RecastRow が data-recast-active に直書き + CSS)。 */}
-                            {sheetColumnMap ? (
-                                <SheetColumnHeader
-                                    members={visiblePartyMembers}
-                                    sheetColumnMap={sheetColumnMap}
-                                    onHideColumn={handleHideSheetColumn}
-                                />
-                            ) : (
-                                <RecastRow
-                                    ref={recastRowRef}
-                                    partyMembers={visiblePartyMembers}
-                                    placements={timelineMitigations}
-                                    mitigationDefs={MITIGATIONS}
-                                    renderIdle={isMilspecTable ? renderMilspecIdle : undefined}
-                                />
-                            )}
-                        </div>
-                    </div>
+                    <TimelineHeader
+                        headerRef={headerRef} t={t} isMobileTimeline={isMobileTimeline} isMobileView={isMobileView} isMilspecTable={isMilspecTable}
+                        phases={phases} phaseColumnCollapsed={phaseColumnCollapsed} labelColumnVisible={labelColumnVisible}
+                        phaseHeaderRef={phaseHeaderRef} gimmickHeaderRef={gimmickHeaderRef} timeHeaderRef={timeHeaderRef} mechanicHeaderRef={mechanicHeaderRef} recastRowRef={recastRowRef}
+                        phaseDropdownOpen={phaseDropdownOpen} setPhaseDropdownOpen={setPhaseDropdownOpen} gimmickDropdownOpen={gimmickDropdownOpen} setGimmickDropdownOpen={setGimmickDropdownOpen}
+                        timeInputOpen={timeInputOpen} setTimeInputOpen={setTimeInputOpen} mechanicSearchOpen={mechanicSearchOpen} setMechanicSearchOpen={setMechanicSearchOpen}
+                        handleTogglePhaseCollapse={handleTogglePhaseCollapse} handleToggleLabelCollapse={handleToggleLabelCollapse}
+                        sheetColumnMap={sheetColumnMap} visiblePartyMembers={visiblePartyMembers} handleHideSheetColumn={handleHideSheetColumn}
+                        timelineMitigations={timelineMitigations} MITIGATIONS={MITIGATIONS} renderMilspecIdle={renderMilspecIdle}
+                    />
 
                     {/* MYジョブハイライト: 親コンテナに data-myjob-highlight を立てるだけ(CSS で薄暗く) */}
                     <MyJobHighlightAttrBridge targetRef={scrollContainerRef} />
