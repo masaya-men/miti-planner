@@ -54,6 +54,7 @@ import { resolveMitigationTap } from '../utils/mitigationTapResolver';
 import { resolveSeraphismMitigation } from '../utils/scholarShieldRules';
 import { useTimelineMobileScrollChrome } from './timeline/useTimelineMobileScrollChrome';
 import { useTimelineAaEscape, useTimelineShortcutKeys, useTimelineEscapeKeys } from './timeline/useTimelineKeyboard';
+import { useTimelineDialogs } from './timeline/useTimelineDialogs';
 import { useTimelineAutoPlan } from './timeline/useTimelineAutoPlan';
 import { useTimelineHeaderEvents, useTimelineTutorialEvents, useTimelineProgressJump, useTimelineResetUiEvent, useTimelineClearMenuOutsideClick } from './timeline/useTimelineWindowEvents';
 import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
@@ -242,18 +243,25 @@ const Timeline: React.FC = () => {
         handleOpenPip, handleClosePip, openPipMenu, scheduleClosePipMenu, cancelClosePipMenu,
     } = useTimelinePip();
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
-    const [selectedTime, setSelectedTime] = useState<number>(0);
-    const [eventModalPosition, setEventModalPosition] = useState({ x: 0, y: 0 });
-    const [eventPopover, setEventPopover] = useState<{ event: TimelineEvent; position: { x: number; y: number } } | null>(null);
-
-    const [isPhaseModalOpen, setIsPhaseModalOpen] = useState(false);
-    const [selectedPhase, setSelectedPhase] = useState<{ id: string; name: LocalizedString; startTime: number; endTime: number } | null>(null);
-    const [selectedPhaseTime, setSelectedPhaseTime] = useState<number>(0);
-    const [phaseModalPosition, setPhaseModalPosition] = useState({ x: 0, y: 0 });
-    const [timelineSelectMode, setTimelineSelectMode] = useState<{ phaseId: string; startTime: number; field: 'startTime' | 'endTime' } | null>(null);
-    const [labelSelectMode, setLabelSelectMode] = useState<{ labelId: string; startTime: number; field: 'startTime' | 'endTime' } | null>(null);
+    // 窓(モーダル・ポップオーバー・ドロップダウン・選択モード)の開閉 state
+    const {
+        isModalOpen, setIsModalOpen, selectedEvent, setSelectedEvent, selectedTime, setSelectedTime,
+        eventModalPosition, setEventModalPosition, eventPopover, setEventPopover,
+        isPhaseModalOpen, setIsPhaseModalOpen, selectedPhase, setSelectedPhase, selectedPhaseTime, setSelectedPhaseTime,
+        phaseModalPosition, setPhaseModalPosition, timelineSelectMode, setTimelineSelectMode, labelSelectMode, setLabelSelectMode,
+        phasePopover, setPhasePopover,
+        isLabelModalOpen, setIsLabelModalOpen, selectedLabel, setSelectedLabel, selectedLabelTime, setSelectedLabelTime,
+        labelModalPosition, setLabelModalPosition, labelPopover, setLabelPopover,
+        mobileMitiFlow, setMobileMitiFlow, mobileContextMenu, setMobileContextMenu,
+        mitigationSelectorOpen, setMitigationSelectorOpen, selectorPosition, setSelectorPosition,
+        selectedMemberId, setSelectedMemberId, selectedMitigationTime, setSelectedMitigationTime,
+        jobPickerOpen, setJobPickerOpen, jobPickerPosition, setJobPickerPosition, jobPickerMemberId, setJobPickerMemberId,
+        phaseDropdownOpen, setPhaseDropdownOpen, gimmickDropdownOpen, setGimmickDropdownOpen,
+        timeInputOpen, setTimeInputOpen, mechanicSearchOpen, setMechanicSearchOpen,
+        migrationConfig, setMigrationConfig,
+        importModalOpen, setImportModalOpen, showGridImport, setShowGridImport, confirmDialog, setConfirmDialog,
+        clearMenuOpen, setClearMenuOpen,
+    } = useTimelineDialogs();
     const [showPreStart] = useState(true);
     const isMobileTimeline = typeof window !== 'undefined' && window.innerWidth < 768;
     // PC 軍事モードのときだけ true。標準では常に false = 従来 DOM のまま (標準モード不変)。
@@ -293,46 +301,7 @@ const Timeline: React.FC = () => {
         return Math.max(1, Math.floor(availableWidth / MOBILE_MITI_ICON_PITCH_PX));
     }, [sheetWidth]);
 
-    const [phasePopover, setPhasePopover] = useState<{ phase: Phase; position: { x: number; y: number }; clickTime: number } | null>(null);
 
-    const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
-    const [selectedLabel, setSelectedLabel] = useState<{ id: string; name: LocalizedString; startTime: number; endTime: number } | null>(null);
-    const [selectedLabelTime, setSelectedLabelTime] = useState<number>(0);
-    const [labelModalPosition, setLabelModalPosition] = useState({ x: 0, y: 0 });
-    const [labelPopover, setLabelPopover] = useState<{ label: Label; position: { x: number; y: number }; clickTime: number } | null>(null);
-
-    const [mobileMitiFlow, setMobileMitiFlow] = useState<{
-        isOpen: boolean;
-        time: number;
-        step: 'job' | 'skill';
-        selectedMemberId: string | null;
-        // 対象/鼓舞の選択が必要なスキルをタップしたとき、サブ選択ビューに渡す情報。null = 通常のスキル一覧。
-        pending?:
-            | { mode: 'target'; mit: Mitigation; ownerId: string }
-            | { mode: 'shield'; mit: Mitigation; ownerId: string; shields: AppliedMitigation[] }
-            | null;
-    }>({ isOpen: false, time: 0, step: 'job', selectedMemberId: null, pending: null });
-
-    const [mobileContextMenu, setMobileContextMenu] = useState<{
-        isOpen: boolean;
-        event: TimelineEvent | null;
-        time: number;
-    } | null>(null);
-
-    const [mitigationSelectorOpen, setMitigationSelectorOpen] = useState(false);
-    const [selectorPosition, setSelectorPosition] = useState({ x: 0, y: 0 });
-    const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
-    const [selectedMitigationTime, setSelectedMitigationTime] = useState<number>(0);
-
-    const [jobPickerOpen, setJobPickerOpen] = useState(false);
-    const [jobPickerPosition, setJobPickerPosition] = useState({ x: 0, y: 0 });
-    const [jobPickerMemberId, setJobPickerMemberId] = useState<string | null>(null);
-
-    // ヘッダーナビゲーション
-    const [phaseDropdownOpen, setPhaseDropdownOpen] = useState(false);
-    const [gimmickDropdownOpen, setGimmickDropdownOpen] = useState(false);
-    const [timeInputOpen, setTimeInputOpen] = useState(false);
-    const [mechanicSearchOpen, setMechanicSearchOpen] = useState(false);
     const [phaseColumnCollapsed, setPhaseColumnCollapsed] = useState(() => {
         try { return localStorage.getItem('lopo-phase-col-collapsed') === 'true'; } catch { return false; }
     });
@@ -351,12 +320,6 @@ const Timeline: React.FC = () => {
     const timeHeaderRef = useRef<HTMLDivElement>(null);
     const mechanicHeaderRef = useRef<HTMLDivElement>(null);
 
-    const [migrationConfig, setMigrationConfig] = useState<{
-        isOpen: boolean;
-        memberId: string;
-        oldJobId: string;
-        newJobId: string;
-    } | null>(null);
 
     const fightDuration = DEFAULT_FIGHT_DURATION_SEC;
 
@@ -398,10 +361,6 @@ const Timeline: React.FC = () => {
     // リロードで null に戻るため、開き直した時は既存競合が両方光る(自己責任)。
     const lastPlacedMitigationId = useMitigationStore(s => s.lastPlacedMitigationId);
 
-    // 取り込み・確認ダイアログの state(effect を渡すフックより前で必要なため、元の宣言位置から上へ移動。useState のみ・順序影響なし)。
-    const [importModalOpen, setImportModalOpen] = useState(false);
-    const [showGridImport, setShowGridImport] = useState(false);
-    const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning'; confirmLabel?: string; cancelLabel?: string } | null>(null);
 
     // 現在のプラン(sheetImportDefault と currentContentId の元)。使う位置(上)へ元の宣言位置から移動(store 購読のみ・順序影響なし)。
     const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
@@ -1138,7 +1097,6 @@ const Timeline: React.FC = () => {
         livingDeadTriggers, shieldExhaustedAt, barrierOverwrittenAt,
     } = useTimelineDamage({ timelineEvents, timelineMitigations, partyMembers, phases, eventsByTime, lastPlacedMitigationId });
 
-    const [clearMenuOpen, setClearMenuOpen] = useState(false);
     const clearMenuButtonRef = useRef<HTMLButtonElement>(null);
 
     useTimelineShortcutKeys({
