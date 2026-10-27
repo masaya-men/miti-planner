@@ -1,0 +1,9 @@
+{
+  "warnAt": 0.8,
+  "files": [
+    { "path": "~/.claude/CLAUDE.md", "maxLines": 100, "maxKB": 10, "why": "全プロジェクトで毎回読む" },
+    { "path": "CLAUDE.md", "maxLines": 100, "maxKB": 10, "why": "毎回読む" },
+    { "path": "{memory}/MEMORY.md", "maxLines": 200, "maxKB": 25, "why": "この上限を超えた分は読み込まれない" },
+    { "path": "docs/TODO.md", "maxLines": 200, "maxKB": 25, "why": "毎回読む。完了・経緯は TODO_COMPLETED.md へ" }
+  ]
+}

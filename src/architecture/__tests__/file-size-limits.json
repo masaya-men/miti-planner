@@ -1,0 +1,90 @@
+{
+  "maxLines": 500,
+  "ignore": [
+    {
+      "pattern": "^src/locales/",
+      "reason": "翻訳データ(5 言語の文言の一覧)。1 キー 1 行のデータで、分けると言語間の突き合わせが難しくなる"
+    },
+    {
+      "pattern": "^src/data/templates/",
+      "reason": "コンテンツごとのタイムラインのデータ(攻撃の一覧)。1 コンテンツ 1 ファイルのデータで、プログラムではない"
+    },
+    {
+      "pattern": ".generated.",
+      "reason": "自動生成ファイル(人は編集しない・生成元を直す)"
+    },
+    {
+      "pattern": "^docs/housing-maps-src/.*.svg$",
+      "reason": "ハウジング地図の元絵(書き出した SVG データ・エーテライト座標の正典)。プログラムではない"
+    },
+    {
+      "pattern": "^scripts/milspec-sp2/.baseline/",
+      "reason": "検査道具が自動で書き出した計測の基準値(データ)"
+    },
+    {
+      "pattern": "^src/data/contents.json$",
+      "reason": "コンテンツのマスターデータ(1 コンテンツ 1 項目の一覧)。プログラムではない"
+    },
+    {
+      "pattern": "^scripts/visual-regress/fixtures/",
+      "reason": "見た目比較の固定データ(サーバー応答の写し)。プログラムではない"
+    }
+  ],
+  "frozen": {
+    "api/admin/_templatesHandler.ts": 521,
+    "api/og/_housingerCard.ts": 518,
+    "public/ogp-preview.html": 509,
+    "src/__tests__/housing/HousingerPage.test.tsx": 665,
+    "src/__tests__/housing/housingValidation.test.ts": 851,
+    "src/api/fflogs.ts": 551,
+    "src/components/__tests__/SpreadsheetGridImportModal.test.tsx": 871,
+    "src/components/admin/AdminContentForm.tsx": 566,
+    "src/components/admin/AdminServers.tsx": 513,
+    "src/components/admin/AdminTemplates.tsx": 570,
+    "src/components/admin/SkillFormModal.tsx": 535,
+    "src/components/admin/TemplateEditor.tsx": 810,
+    "src/components/admin/wizard/ContentWizard.tsx": 666,
+    "src/components/admin/wizard/StatsWizard.tsx": 946,
+    "src/components/admin/wizard/TemplateWizard.tsx": 609,
+    "src/components/ConsolidatedHeader.tsx": 533,
+    "src/components/EventForm.tsx": 981,
+    "src/components/FFLogsImportModal.tsx": 551,
+    "src/components/housing/browse/__tests__/ListingCard.test.tsx": 647,
+    "src/components/housing/pages/__tests__/RegisterPage.test.tsx": 2132,
+    "src/components/housing/pages/__tests__/TourNavPage.test.tsx": 506,
+    "src/components/housing/tour/TourNavMap.tsx": 564,
+    "src/components/LocalImportDialog.tsx": 616,
+    "src/components/military/__tests__/relayout.test.ts": 594,
+    "src/components/MitigationSelector.tsx": 623,
+    "src/components/MitigationSheet.css": 1001,
+    "src/components/MitigationSheet.tsx": 678,
+    "src/components/MobileFab.tsx": 812,
+    "src/components/MobilePartySettings.tsx": 550,
+    "src/components/PartySettingsModal.tsx": 787,
+    "src/components/PipView.tsx": 515,
+    "src/components/ShareModal.tsx": 540,
+    "src/components/Timeline.tsx": 930,
+    "src/components/timeline/useTimelineEditing.ts": 555,
+    "src/components/TimelineRow.tsx": 686,
+    "src/data/mockData.ts": 827,
+    "src/hooks/useTemplateEditor.ts": 527,
+    "src/index.css": 1478,
+    "src/lib/__tests__/executeShareImport.test.ts": 521,
+    "src/lib/collab/collabProvider.ts": 518,
+    "src/lib/planService.ts": 561,
+    "src/lib/translationDataLoaders.ts": 600,
+    "src/store/__tests__/useMitigationStore.collab.test.ts": 698,
+    "src/styles/housing.css": 11216,
+    "src/styles/military.css": 1996,
+    "src/utils/autoPlanner.ts": 709,
+    "src/utils/fflogsMapper.ts": 681,
+    "src/utils/housingValidation.ts": 603,
+    "src/utils/resourceTracker.ts": 735
+  },
+  "exceptions": {
+    "firestore.rules": {
+      "maxLines": 560,
+      "reason": "Firebase の仕様で Firestore のルールは 1 ファイルしか配備できない(中は関数で整理する)"
+    }
+  }
+}
