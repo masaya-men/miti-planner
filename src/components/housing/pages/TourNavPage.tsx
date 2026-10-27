@@ -1,25 +1,23 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
-import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
-import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { buildTourPool } from '../../../lib/housing/buildTourPool';
-import { canAddToTour, tourAnchorRegion, tourRegionConflict } from '../../../lib/housing/tourCrossing';
-import { resolveTourOrder } from '../../../lib/housing/resolveTourOrder';
 import { useTourRenderModel } from '../../../lib/housing/useTourRenderModel';
 import { useElapsed, formatElapsed } from '../../../lib/housing/useElapsed';
 import { termLabel } from '../../../lib/housing/housingTerms';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
-import { createSharedTour } from '../../../lib/housingApiClient';
-import { buildTourSnapshots, snapshotContainsHiddenAddress } from '../../../lib/sharedTour/snapshot';
-import { pushHostState, endHostTour } from '../../../lib/sharedTour/hostSync';
+import { endHostTour } from '../../../lib/sharedTour/hostSync';
+import { useTourPlanning } from '../tour/useTourPlanning';
+import { useTourReplan } from '../tour/useTourReplan';
+import { useHostInvite } from '../tour/useHostInvite';
+import { useTourExit } from '../tour/useTourExit';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNavMap } from '../tour/TourNavMap';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
@@ -35,9 +33,7 @@ import { HousingLoginPrompt } from '../HousingLoginPrompt';
 import { TourMobileBar } from '../tour/TourMobileBar';
 import { TourAddressExposureDialog } from '../tour/TourAddressExposureDialog';
 import { HousingReportModal } from '../report/HousingReportModal';
-import { showToast } from '../../Toast';
 import type { MockListing } from '../../../data/housing/mockListings';
-import type { TourSnapshot } from '../../../types/sharedTour';
 
 /**
  * ツアー中(Nav)ページ (Task8): オーケストレーター。
@@ -47,6 +43,9 @@ import type { TourSnapshot } from '../../../types/sharedTour';
  * 派生 orchestration は Task 2.4 で `useTourRenderModel` へ抽出し、参加者ページ(JoinTourPage)と共有している。
  * 完了判定はページローカルの `completed` state で表現し、
  * store の `next()` が持つ `currentIndex` の `length-1` クランプ (既存仕様・非破壊) には依存しない。
+ * 計画フェーズ/並び替え/招待/終わり方の処理は tour/ のフック (useTourPlanning/useTourReplan/
+ * useHostInvite/useTourExit) に分けてある。effect の登録順 (計画の選択戻し → 招待の live 同期) を保つため、
+ * フックはこの順で呼ぶ。
  */
 export const TourNavPage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -59,13 +58,9 @@ export const TourNavPage: React.FC = () => {
   const currentIndex = useHousingTourStore((s) => s.currentIndex);
   const next = useHousingTourStore((s) => s.next);
   const prev = useHousingTourStore((s) => s.prev);
-  const stop = useHousingTourStore((s) => s.stop);
-  const reset = useHousingTourStore((s) => s.reset);
   const phase = useHousingTourStore((s) => s.phase);
   const viewStartAt = useHousingTourStore((s) => s.viewStartAt);
   const startViewing = useHousingTourStore((s) => s.startViewing);
-  const reorderRemaining = useHousingTourStore((s) => s.reorderRemaining);
-  const exitTourMode = useHousingViewStore((s) => s.exitTourMode);
 
   const listings = useHousingListingsStore((s) => s.listings);
   const myListings = useHousingListingsStore((s) => s.myListings);
@@ -76,22 +71,6 @@ export const TourNavPage: React.FC = () => {
 
   const [completed, setCompleted] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
-
-  // 共有ツアー同期 (Task 2.1): 幹事が発行した招待の token。null=未発行。
-  // mount 時の自動復帰 (localStorage からの token 復帰) は今回スコープ外
-  // (設計§7 の同端末復帰は別タスク・stale token 誤表示を避ける)。
-  const [tourToken, setTourToken] = useState<string | null>(null);
-  // 招待発行前にホストが書ける短い文章(OGPカードにも使う)。
-  const [tourName, setTourName] = useState('');
-  // 招待リンク発行中 (create-shared-tour API 応答待ち)。ボタンを「作成中…」にして二重発行も防ぐ。
-  const [creatingInvite, setCreatingInvite] = useState(false);
-  // 住所露出警告ダイアログの表示に使う「発行待ち」の中身 (非公開/一時追加を含む場合のみ立つ)。
-  // alsoCopy: スマホ下部バー由来の発行(発行直後に自動でリンクをコピーまで行う)かどうか。
-  const [pendingInvite, setPendingInvite] = useState<{
-    snaps: TourSnapshot[];
-    hasEphemeral: boolean;
-    alsoCopy: boolean;
-  } | null>(null);
 
   // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) + 一時 listing (計画: 住所登録なし一時ツアー Task2) を合流。
   const pool = useMemo(
@@ -107,23 +86,9 @@ export const TourNavPage: React.FC = () => {
 
   const isLast = currentIndex === listingIds.length - 1;
 
-  // ナビ中の並び替え (replanning): 計画画面と同じ部品を「残りの家だけ」で再利用する。
-  // draft は開始時に listingIds.slice(currentIndex) で初期化し、「ツアーに戻る」で store へ確定する
-  // (ページを離れた場合は draft ごと捨てる)。
-  const [replanning, setReplanning] = useState(false);
-  const [replanDraft, setReplanDraft] = useState<string[]>([]);
-  const [replanSelectedId, setReplanSelectedId] = useState<string | null>(null);
-  const replanPinnedIds = useTourTrayStore((s) => s.pinnedIds);
-  const startReplan = useCallback(() => {
-    setReplanDraft(listingIds.slice(currentIndex));
-    setReplanSelectedId(listingIds[currentIndex] ?? null);
-    setReplanning(true);
-  }, [listingIds, currentIndex]);
-  const resumeFromReplan = useCallback(() => {
-    // 画面に見えている順 (ピン留め込みの解決済み順) をそのまま確定する。
-    reorderRemaining(resolveTourOrder(replanDraft, pool, { pinnedIds: replanPinnedIds }));
-    setReplanning(false);
-  }, [reorderRemaining, replanDraft, pool, replanPinnedIds]);
+  const {
+    replanning, replanDraft, setReplanDraft, replanSelectedId, setReplanSelectedId, startReplan, resumeFromReplan,
+  } = useTourReplan(listingIds, currentIndex, pool);
 
   // 中央マップの跨ぎ案内カード: 「次へ」の1回目(ack)で該当ステップだけ確認済みにして消す(次の跨ぎでまた出す)。
   // カード自体にはボタンを持たず、ack への到達手段は下記 onPrimary の「次へ」二段階ロジックに一本化している。
@@ -170,209 +135,21 @@ export const TourNavPage: React.FC = () => {
 
   const onGoFavorites = useCallback(() => navigate('/housing/favorites'), [navigate]);
 
-  // 空状態/計画画面の「住所から追加」モーダル (計画: 住所登録なし一時ツアー Task3)。
-  // 開閉 state をここ (TourNavPage) が持つことで、trayIds 0↔1 や PC↔スマホ切替でレイアウトが
-  // 入れ替わっても EphemeralAddPanel がアンマウントされず、Allmarks 一括インポートの進捗が
-  // 途中で消えない。
-  const [addOpen, setAddOpen] = useState(false);
-  // BrowsePage.addToTray と同型: 一時 listing をストアから fresh 解決 → 跨ぎ検査 →
-  // useTourTrayStore へ積む。旧実装はページローカルの emptyTrayIds に積んでいたため、
-  // 探す等へ遷移した瞬間に消え、trayIds が 0 のままで PC 計画ビューにも切り替わらなかった
-  // (2026-09-04 bug #3 修正)。
-  const onAddToTray = useCallback(
-    (id: string) => {
-      const eph = useEphemeralListingsStore.getState().ephemeralListings;
-      const candidate = pool.find((l) => l.id === id) ?? eph.find((l) => l.id === id);
-      if (!candidate || candidate.visibility === 'unlisted') return;
-      const curTrayIds = useTourTrayStore.getState().trayIds;
-      const trayRegion = tourAnchorRegion(
-        curTrayIds.map(
-          (tid) => (pool.find((l) => l.id === tid) ?? eph.find((l) => l.id === tid))?.region ?? null,
-        ),
-      );
-      if (!canAddToTour(trayRegion, candidate.region ?? '')) {
-        showToast(t('housing.tour.region_block'), 'error');
-        return;
-      }
-      useTourTrayStore
-        .getState()
-        .setTrayIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
-    },
-    [pool, t],
-  );
+  const {
+    addOpen, setAddOpen, onAddToTray,
+    trayIds, setTrayIds, trayRegionForAdd,
+    selectedPlanId, setSelectedPlanId, selectedPlanListing,
+    planMannerOpen, setPlanMannerOpen, commitPlanStart,
+  } = useTourPlanning(pool);
 
-  // 計画画面(蛇行グリッド): トレイに1件以上あれば「ツアー未開始だが計画中」として
-  // TourEmptyState の代わりに TourTrayDetailPanel + TourTrayBoard(PC)/TourTrayList(スマホ)を出す。
-  const trayIds = useTourTrayStore((s) => s.trayIds);
-  const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
-  const pinnedIds = useTourTrayStore((s) => s.pinnedIds);
-  // EphemeralAddPanel の早期跨ぎブロック用: いまトレイに入っている家の非OCEアンカー地域。
-  const trayRegionForAdd = useMemo(
-    () => tourAnchorRegion(trayIds.map((tid) => pool.find((l) => l.id === tid)?.region ?? null)),
-    [trayIds, pool],
-  );
-  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
-  const [planMannerOpen, setPlanMannerOpen] = useState(false);
+  const {
+    tourToken, tourName, setTourName, creatingInvite, pendingInvite, setPendingInvite,
+    onInvite, onConfirmExpose, onCopyInvite, onMobileInviteTap,
+  } = useHostInvite({
+    isLoggedIn, openLogin, listingIds, pool, ephemeral, currentIndex, phase, viewStartAt, crossingAckIndex,
+  });
 
-  // 選択中idがトレイから外れたら(削除/開始等)、先頭の家へ選択を戻す。
-  // 「先頭」はトレイ配列の生の順ではなく、グリッド/一覧が実際に表示している解決済みの順
-  // (resolveTourOrder = ピン留め + 効率順) の先頭に合わせる。
-  // でないと初期選択の家がカード①と一致せず紛らわしい。
-  useEffect(() => {
-    if (trayIds.length === 0) {
-      setSelectedPlanId(null);
-      return;
-    }
-    if (!selectedPlanId || !trayIds.includes(selectedPlanId)) {
-      const displayOrder = resolveTourOrder(trayIds, pool, { pinnedIds });
-      setSelectedPlanId(displayOrder[0] ?? trayIds[0]);
-    }
-  }, [trayIds, selectedPlanId, pool, pinnedIds]);
-
-  const selectedPlanListing = selectedPlanId
-    ? (pool.find((l) => l.id === selectedPlanId) ?? null)
-    : null;
-
-  // 計画画面の「ツアーを開始する」。BrowsePage.commitStart / FavoritesPage.commitStart と同型
-  // (resolveTourOrder → 跨ぎ検査 → マナー確認 → setListings/start/enterTourMode/clear)。
-  // 既にこのページ(/housing/tour)にいるため、開始後の navigate は不要
-  // (useHousingTourStore.listingIds が非0になり、このページ自身が実行中の3パネルへ再描画される)。
-  const commitPlanStart = useCallback(() => {
-    if (trayIds.length === 0) return;
-    const orderedIds = resolveTourOrder(trayIds, pool, { pinnedIds });
-    const stops = orderedIds
-      .map((id) => pool.find((l) => l.id === id))
-      .filter((l): l is MockListing => Boolean(l));
-    const conflict = tourRegionConflict(stops);
-    if (conflict) {
-      showToast(t('housing.tour.region_block_start', { regions: conflict.join(' / ') }), 'error');
-      return;
-    }
-    useHousingTourStore.getState().setListings(orderedIds);
-    useHousingTourStore.getState().start();
-    useHousingViewStore.getState().enterTourMode();
-    useTourTrayStore.getState().clear();
-    setPlanMannerOpen(false);
-  }, [trayIds, pool, pinnedIds, t]);
-
-  // 共有ツアー同期 (Task 2.1): 幹事の「みんなを招待」発行フロー。
-  // 実際の Firestore 書き込み (create-shared-tour) を行う共通処理。
-  // alsoCopy=true のときは発行直後にそのままリンクをクリップボードへコピーする
-  // (スマホ下部バーは「発行」と「コピー」を1タップに統合しているため)。
-  const doCreate = useCallback(
-    async (snaps: TourSnapshot[], alsoCopy = false) => {
-      setCreatingInvite(true);
-      try {
-        const { tourToken: token } = await createSharedTour(snaps, tourName);
-        setTourToken(token);
-        localStorage.setItem('lopo_shared_tour_token', token);
-        if (alsoCopy) {
-          const url = `${location.origin}/housing/tour/${token}`;
-          void navigator.clipboard?.writeText(url);
-          showToast(t('housing.tour.nav.invite.copied'), 'success');
-        }
-      } catch {
-        showToast(t('housing.tour.nav.invite.error'), 'error');
-      } finally {
-        setCreatingInvite(false);
-      }
-    },
-    [t, tourName],
-  );
-
-  // 「みんなを招待」の共通処理。非公開/一時追加の家を含む場合は警告ダイアログを挟み、
-  // それ以外は確認なしで即発行する。
-  // 招待の発行(create-shared-tour)はログイン必須(housingApiClient 参照)。デスクトップは
-  // パネルごとログイン案内に差し替えるため通常ここに来ないが、スマホ下部バーはボタンが
-  // 常設のため、未ログイン時はここでログインモーダルを開いて終わる(サイレント失敗の防止)。
-  const startInvite = useCallback(
-    (alsoCopy: boolean) => {
-      if (!isLoggedIn) {
-        openLogin();
-        return;
-      }
-      const snaps = buildTourSnapshots(listingIds, pool);
-      const hasEphemeral = listingIds.some((id) => ephemeral.some((e) => e.id === id));
-      const containsHidden = snapshotContainsHiddenAddress(snaps);
-      if (hasEphemeral || containsHidden) {
-        setPendingInvite({ snaps, hasEphemeral, alsoCopy });
-      } else {
-        void doCreate(snaps, alsoCopy);
-      }
-    },
-    [isLoggedIn, openLogin, listingIds, pool, ephemeral, doCreate],
-  );
-
-  // デスクトップ(TourInvitePanel)の「みんなを招待」ボタン。発行のみ、コピーは別ボタン。
-  const onInvite = useCallback(() => startInvite(false), [startInvite]);
-
-  // 警告ダイアログの「このまま招待する」。
-  const onConfirmExpose = useCallback(() => {
-    if (pendingInvite) void doCreate(pendingInvite.snaps, pendingInvite.alsoCopy);
-    setPendingInvite(null);
-  }, [pendingInvite, doCreate]);
-
-  // 招待リンクをクリップボードへコピー。
-  const onCopyInvite = useCallback(() => {
-    if (!tourToken) return;
-    const url = `${location.origin}/housing/tour/${tourToken}`;
-    void navigator.clipboard?.writeText(url);
-    showToast(t('housing.tour.nav.invite.copied'), 'success');
-  }, [tourToken, t]);
-
-  // スマホ下部バーの招待アイコン。発行済みならコピーのみ、未発行なら発行して自動コピー(1タップ統合)。
-  const onMobileInviteTap = useCallback(() => {
-    if (tourToken) {
-      onCopyInvite();
-      return;
-    }
-    startInvite(true);
-  }, [tourToken, onCopyInvite, startInvite]);
-
-  // 幹事の操作 (前へ/見学/次へ) を live state に反映する (孤児 live 防止は onFinish 側で別途)。
-  useEffect(() => {
-    if (!tourToken) return;
-    // #A: crossingAckIndex(幹事の「移動しました」)も同期し、参加者の跨ぎ overlay を主催者操作でだけ解除する。
-    void pushHostState(tourToken, { currentIndex, phase, viewStartAt, crossingAckedIndex: crossingAckIndex, order: listingIds });
-  }, [tourToken, currentIndex, phase, viewStartAt, crossingAckIndex, listingIds]);
-
-  const onFinish = useCallback(() => {
-    // ツアー終了時、共有中なら live state を ended にして参加者側を追従させる (孤児 live 防止)。
-    if (tourToken) {
-      void endHostTour(tourToken);
-      localStorage.removeItem('lopo_shared_tour_token');
-    }
-    stop();
-    exitTourMode();
-    reset();
-    navigate('/housing');
-  }, [tourToken, stop, exitTourMode, reset, navigate]);
-
-  const backToBrowse = useCallback(() => {
-    // 完了後にツアーを離れる＝共有中なら live を ended にして参加者を追従させる（孤児 live 防止・onFinish と同型）。
-    if (tourToken) {
-      void endHostTour(tourToken);
-      localStorage.removeItem('lopo_shared_tour_token');
-    }
-    stop();
-    exitTourMode();
-    reset();
-    setCompleted(false);
-    navigate('/housing');
-  }, [tourToken, stop, exitTourMode, reset, navigate]);
-
-  const backToFavorites = useCallback(() => {
-    // 完了後にツアーを離れる＝共有中なら live を ended にして参加者を追従させる（孤児 live 防止・onFinish と同型）。
-    if (tourToken) {
-      void endHostTour(tourToken);
-      localStorage.removeItem('lopo_shared_tour_token');
-    }
-    stop();
-    exitTourMode();
-    reset();
-    setCompleted(false);
-    navigate('/housing/favorites');
-  }, [tourToken, stop, exitTourMode, reset, navigate]);
+  const { onFinish, backToBrowse, backToFavorites } = useTourExit(tourToken, setCompleted);
 
   const onPrimary = useCallback(() => {
     // L: 跨ぎ(DCトラベル/ワールド訪問)のぼかしオーバーレイ表示中は、「次へ」の1回目で
