@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { TemplateData } from '../../data/templateLoader';
+import type { TemplateData } from '../../types/template';
 import { resolveTemplatePhaseAppend } from '../templateImportPhases';
 
 const ph = (id: number, startTimeSec: number) => ({

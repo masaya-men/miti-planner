@@ -6,7 +6,7 @@
  */
 
 import type { TimelineEvent, Phase, Label } from '../types';
-import type { TemplateData } from '../data/templateLoader';
+import type { TemplateData } from '../types/template';
 
 // ─────────────────────────────────────────────
 // 公開型定義

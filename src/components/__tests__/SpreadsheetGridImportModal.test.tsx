@@ -9,7 +9,7 @@ import {
 } from '../SpreadsheetGridImportModal';
 import type { GridTable } from '../../lib/sheetImport/gridTypes';
 import type { SheetImportResult } from '../../lib/sheetImport/buildPlanFromSheets';
-import type { TemplateData } from '../../data/templateLoader';
+import type { TemplateData } from '../../types/template';
 import { getTemplate } from '../../data/templateLoader';
 import { useIsMobile } from '../../hooks/useIsMobile';
 

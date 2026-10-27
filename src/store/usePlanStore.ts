@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { SavedPlan, ContentLevel } from '../types';
-import type { TemplateData } from '../data/templateLoader';
+import type { TemplateData } from '../types/template';
 import { getTemplate } from '../data/templateLoader';
 import type { PlanData } from '../types';
 import { useMitigationStore } from './useMitigationStore';

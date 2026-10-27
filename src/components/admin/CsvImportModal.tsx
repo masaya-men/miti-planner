@@ -17,7 +17,7 @@ import {
   type ParsedRow,
 } from '../../utils/templateConversions';
 import type { TimelineEvent } from '../../types';
-import type { TemplateData } from '../../data/templateLoader';
+import type { TemplateData } from '../../types/template';
 
 // ─────────────────────────────────────────────
 // 型定義

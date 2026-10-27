@@ -15,7 +15,7 @@ import {
 } from '../store/useMasterDataStore';
 import type { MasterConfig, MasterContents, MasterSkills, MasterStats } from '../store/useMasterDataStore';
 import type { MasterServers } from '../types';
-import type { TemplateData } from '../data/templateLoader';
+import type { TemplateData } from '../types/template';
 
 // 静的フォールバック用のインポート
 import {

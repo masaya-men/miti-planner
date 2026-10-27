@@ -20,7 +20,7 @@ import { MsIcon } from './milspecIcons';
 import { bbox, chamRect } from './armor/geom';
 import type { CapSpec } from './armor/types';
 import { SB_FRAME, SB_PANELS, SB_KEY_ROWS, SB_TREE_BOX, SB_DECOR, SB_TRACES, sbY, sbPath } from './sidebarGeometry';
-import type { MilspecLayoutProps } from './MilspecLayout';
+import type { MilspecLayoutProps } from './milspecLayoutTypes';
 // 副作用 import: i18next の初期化(標準 Sidebar.tsx:35 と同じ理由)。
 import '../../i18n';
 

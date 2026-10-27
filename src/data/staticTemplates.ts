@@ -5,7 +5,7 @@
  * 最後のフォールバックとして動的 import で読む(templateLoader と分けて循環 import を避ける)。
  */
 
-import type { TemplateData } from './templateLoader';
+import type { TemplateData } from '../types/template';
 import { ensureLabels, filterPhantomPhases } from './templateNormalize';
 
 // 静的ファイル（Vite glob import）— フォールバック用に維持

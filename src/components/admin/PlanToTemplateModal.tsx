@@ -11,7 +11,7 @@ import { useEscapeClose } from '../../hooks/useEscapeClose';
 import { apiFetch } from '../../lib/apiClient';
 import { convertPlanToTemplate } from '../../utils/templateConversions';
 import type { TimelineEvent, Phase } from '../../types';
-import type { TemplateData } from '../../data/templateLoader';
+import type { TemplateData } from '../../types/template';
 
 // ─────────────────────────────────────────────
 // Props

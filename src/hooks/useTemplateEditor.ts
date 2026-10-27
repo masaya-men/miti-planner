@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import type { TimelineEvent, LocalizedString } from '../types';
-import type { TemplateData } from '../data/templateLoader';
+import type { TemplateData } from '../types/template';
 import { isLegacyLabelFormat, migrateLabels } from '../utils/labelMigration';
 import { ensurePhaseEndTimes } from '../utils/phaseMigration';
 

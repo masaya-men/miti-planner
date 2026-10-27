@@ -5,7 +5,7 @@
  * templateLoader(取得の窓口)と staticTemplates(静的ファイル)の両方が使う。
  */
 
-import type { TemplateData } from './templateLoader';
+import type { TemplateData } from '../types/template';
 import { isLegacyLabelFormat, migrateLabels } from '../utils/labelMigration';
 import { ensurePhaseEndTimes } from '../utils/phaseMigration';
 

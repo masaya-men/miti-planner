@@ -21,7 +21,7 @@ import { resolveImportEvents } from '../../utils/importModes';
 import { resolveTemplatePhaseAppend } from '../../utils/templateImportPhases';
 import { AdminPage } from './AdminPage';
 import type { TimelineEvent } from '../../types';
-import type { TemplateData } from '../../data/templateLoader';
+import type { TemplateData } from '../../types/template';
 
 interface TemplateItem {
   contentId: string;

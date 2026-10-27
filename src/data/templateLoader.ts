@@ -6,19 +6,9 @@
  * 静的ファイル（Vite glob import）はフォールバック用に維持。
  */
 
-import type { TimelineEvent, LocalizedString } from '../types';
+import type { TemplateData } from '../types/template';
 import { fetchTemplate as fetchFromFirestore } from '../hooks/useMasterData';
 import { ensureLabels, filterPhantomPhases } from './templateNormalize';
-
-export interface TemplateData {
-  contentId: string;
-  generatedAt: string;
-  sourceLogsCount: number;
-  timelineEvents: TimelineEvent[];
-  phases: { id: number; startTimeSec: number; name?: LocalizedString; }[];
-  labels?: { id: number; startTimeSec: number; name: LocalizedString; endTimeSec?: number }[];
-  _warning?: string;
-}
 
 /**
  * テンプレートデータを取得する。

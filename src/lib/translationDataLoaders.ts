@@ -15,7 +15,7 @@ import {
   CONTENT_SERIES,
 } from '../data/contentRegistry';
 import type { ContentCategory, ContentSeries } from '../types';
-import type { TemplateData } from '../data/templateLoader';
+import type { TemplateData } from '../types/template';
 
 // ─────────────────────────────────────────────
 // 型定義

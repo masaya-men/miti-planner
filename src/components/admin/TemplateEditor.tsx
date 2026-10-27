@@ -5,7 +5,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TimelineEvent, LocalizedString } from '../../types';
-import type { TemplateData } from '../../data/templateLoader';
+import type { TemplateData } from '../../types/template';
 import type { EditState, TemplateLabel } from '../../hooks/useTemplateEditor';
 import { formatTime, parseTimeString } from '../../utils/templateConversions';
 import { parseSheetAliases } from '../../lib/sheetImport/carryOverTargets';

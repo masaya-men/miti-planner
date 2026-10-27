@@ -1,4 +1,4 @@
-import type { TemplateData } from '../data/templateLoader';
+import type { TemplateData } from '../types/template';
 
 /**
  * テンプレートエディター向けのフェーズ取り込み解決（純粋関数）。

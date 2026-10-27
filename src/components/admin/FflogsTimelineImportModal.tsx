@@ -12,7 +12,7 @@ import { useEscapeClose } from '../../hooks/useEscapeClose';
 import { parseFflogsUrl } from '../../lib/fflogs/parseFflogsUrl';
 import { fetchAndMapFflogs } from '../../lib/fflogs/fetchAndMapFflogs';
 import type { TimelineEvent } from '../../types';
-import type { TemplateData } from '../../data/templateLoader';
+import type { TemplateData } from '../../types/template';
 import type { MapperResult } from '../../utils/fflogsMapper';
 
 type ImportMode = 'replace_all' | 'append';
