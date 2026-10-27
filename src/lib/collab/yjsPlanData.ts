@@ -1,5 +1,5 @@
 import * as Y from "yjs";
-import type { TimelineEvent, Phase, Label, PlanMemo } from "../../types";
+import type { TimelineEvent, Phase, Label, PlanMemo, PlanData } from "../../types";
 
 /** ②-b-1 で同期する Y.Doc トップレベルのキー(②-a の timelineMitigations と並ぶ)。 */
 export const TIMELINE_EVENTS_KEY = "timelineEvents";
@@ -102,6 +102,12 @@ export function applyReplace(arr: Y.Array<Y.Map<unknown>>, items: Array<{ id: st
   for (const item of items) arr.push([recordToYMap(item)]);
 }
 
+/** 位置指定の挿入(削除の取り消しで元の位置へ戻す用)。同じ id が既にあれば何もしない。index は範囲内に丸める。 */
+export function applyInsertAt(arr: Y.Array<Y.Map<unknown>>, index: number, item: { id: string }): void {
+  if (indexOfById(arr, item.id) >= 0) return;
+  arr.insert(Math.max(0, Math.min(index, arr.length)), [recordToYMap(item)]);
+}
+
 /** batch ハンドラの 1 操作。upsert/remove/replace を任意キーへ。 */
 export interface BatchOp {
   kind: "upsert" | "remove" | "replace";
@@ -185,6 +191,43 @@ export function readContentId(doc: Y.Doc): string | undefined {
 export function readOwnerLabel(doc: Y.Doc): string | undefined {
   return doc.getMap(PLAN_META_KEY).get(META_OWNER_LABEL) as string | undefined;
 }
+
+/** PlanData の 1 項目が載る Y.Doc の場所と、サーバー保存時の Firestore パス。 */
+export interface CollabSyncTarget {
+  kind: "array" | "meta";
+  /** array=Y.Doc トップレベルのキー / meta=planMeta 内のキー */
+  yjsKey: string;
+  /** api/collab/_saveHandler.ts が書く Firestore のパス */
+  savePath: string;
+}
+
+/**
+ * PlanData の全項目が共同編集でどう扱われるかの唯一の一覧(2026-10-27 整頓④)。
+ * PlanData に項目を足すとここで型エラーになる → docs/ADDING_PLAN_DATA_FIELDS.md の手順で配線し、ここに足す。
+ * 網羅テスト = src/lib/collab/__tests__/planDataCollabCoverage.test.ts(seed・部屋→手元・復元・保存・worker を突き合わせる)。
+ */
+export const PLAN_DATA_COLLAB = {
+  timelineMitigations: { sync: [{ kind: "array", yjsKey: MITIGATIONS_KEY, savePath: "data.timelineMitigations" }] },
+  timelineEvents: { sync: [{ kind: "array", yjsKey: TIMELINE_EVENTS_KEY, savePath: "data.timelineEvents" }] },
+  phases: { sync: [{ kind: "array", yjsKey: PHASES_KEY, savePath: "data.phases" }] },
+  labels: { sync: [{ kind: "array", yjsKey: LABELS_KEY, savePath: "data.labels" }] },
+  memos: { sync: [{ kind: "array", yjsKey: MEMOS_KEY, savePath: "data.memos" }] },
+  partyMembers: { sync: [{ kind: "array", yjsKey: PARTY_MEMBERS_KEY, savePath: "data.partyMembers" }] },
+  progress: {
+    sync: [
+      { kind: "array", yjsKey: PROGRESS_POINTS_KEY, savePath: "data.progress.points" },
+      { kind: "meta", yjsKey: META_PROGRESS_CLEARED, savePath: "data.progress.cleared" },
+      { kind: "meta", yjsKey: META_PROGRESS_DAYS, savePath: "data.progress.activeDays" },
+      { kind: "meta", yjsKey: META_PROGRESS_HOURS, savePath: "data.progress.activeHours" },
+    ],
+  },
+  currentLevel: { sync: [{ kind: "meta", yjsKey: META_LEVEL, savePath: "data.currentLevel" }] },
+  aaSettings: { sync: [{ kind: "meta", yjsKey: META_AA, savePath: "data.aaSettings" }] },
+  schAetherflowPatterns: { sync: [{ kind: "meta", yjsKey: META_SCH, savePath: "data.schAetherflowPatterns" }] },
+  myMemberId: { notSynced: "自分がどのメンバーかは人ごと(同期すると他の人のハイライトを壊す)" },
+  hiddenPartyMemberIds: { notSynced: "表示の絞り込みは人ごと(共同編集に入るとき解除する)" },
+  timelineSortOrder: { notSynced: "メンバーの並び順は人ごと(共同編集に入るとき既定に戻す)" },
+} as const satisfies Record<keyof PlanData, { sync: readonly CollabSyncTarget[] } | { notSynced: string }>;
 
 /** 型エクスポート(consumer の参照用)。 */
 export type { TimelineEvent, Phase, Label, PlanMemo };

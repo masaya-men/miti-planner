@@ -14,6 +14,8 @@ export interface CollabHandlers {
   // generic: 完全な型付きオブジェクト(TimelineEvent 等)も部分フィールドのリテラル({id,endTime})も受ける。
   upsertItems: <T extends { id: string }>(key: PlanArrayKey, items: T[]) => void;
   removeItems: (key: PlanArrayKey, ids: string[]) => void;
+  // 位置指定の挿入(削除の取り消しで元の並び位置へ戻す。upsert は末尾に足すため順番が崩れる)
+  insertItemAt: <T extends { id: string }>(key: PlanArrayKey, index: number, item: T) => void;
   // planMeta スカラー
   setMeta: (
     field: "currentLevel" | "aaSettings" | "schAetherflowPatterns"

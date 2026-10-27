@@ -7,7 +7,8 @@ import { appliedToYMap, readMitigations, indexOfMitigation, YJS_MITIGATIONS_KEY 
 import {
   TIMELINE_EVENTS_KEY, PHASES_KEY, LABELS_KEY, MEMOS_KEY, PLAN_META_KEY,
   META_LEVEL, META_AA, META_SCH, PARTY_MEMBERS_KEY, PROGRESS_POINTS_KEY,
-  applyUpsert, applyRemove, setMetaField, readArray, readPlanMeta, readContentId, readOwnerLabel,
+  META_PROGRESS_CLEARED, META_PROGRESS_DAYS, META_PROGRESS_HOURS,
+  applyUpsert, applyRemove, applyInsertAt, setMetaField, readArray, readPlanMeta, readContentId, readOwnerLabel,
   recordToYMap, buildArrByKey, applyBatch, metaKeyForField,
 } from './yjsPlanData';
 import { dedupeById } from './dedupeById';
@@ -115,7 +116,7 @@ function dissipationIdsOverlapping(
  * client 側 空上書き防御: 「doc 側が空・手元(store)が非空」の構造フィールドだけを
  * 手元から id 単位 upsert で再シードする(列増殖しない)。部分的な空(例: 軽減だけ空・
  * イベントは残る)でも手元を潰さない＝サーバ _logic.ts emptyOverwriteSkips と対の多重防御。
- * 全構造フィールドが空(=seed 完全失敗)のときだけ labels/memos/meta も手元から復元する。
+ * 全構造フィールドが空(=seed 完全失敗)のときだけ labels/memos/進捗/meta も手元から復元する。
  * origin='local' で 1 transaction。observeDeep 経由で store と一致し、onSave で Firestore へ復元される。
  * 返り値 = 再シードしたフィールド数(0 = 防御不要だった)。
  */
@@ -150,6 +151,11 @@ function reseedEmptyDocFields(
       if (s.currentLevel !== undefined) setMetaField(doc, META_LEVEL, s.currentLevel);
       if (s.aaSettings !== undefined) setMetaField(doc, META_AA, s.aaSettings);
       if (s.schAetherflowPatterns !== undefined) setMetaField(doc, META_SCH, s.schAetherflowPatterns);
+      // 進捗(2026-10-27 抜けを補う): 打点と 3 スカラー
+      applyUpsert(doc.getArray<Y.Map<unknown>>(PROGRESS_POINTS_KEY), s.progress?.points ?? []);
+      if (s.progress?.cleared !== undefined) setMetaField(doc, META_PROGRESS_CLEARED, s.progress.cleared);
+      if (s.progress?.activeDays !== undefined) setMetaField(doc, META_PROGRESS_DAYS, s.progress.activeDays);
+      if (s.progress?.activeHours !== undefined) setMetaField(doc, META_PROGRESS_HOURS, s.progress.activeHours);
     }
   }, 'local');
   return need.size;
@@ -366,6 +372,9 @@ export function startCollabSession(
     },
     removeItems: (key, ids) => {
       doc.transact(() => applyRemove(arrByKey[key], ids), 'local');
+    },
+    insertItemAt: (key, index, item) => {
+      doc.transact(() => applyInsertAt(arrByKey[key], index, item), 'local');
     },
     setMeta: (field, value) => {
       const k = metaKeyForField(field);

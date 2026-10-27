@@ -9,7 +9,7 @@ const applied = (over: Partial<AppliedMitigation> = {}): AppliedMitigation => ({
 
 const mockHandlers = (): CollabHandlers => ({
   add: vi.fn(), remove: vi.fn(), updateTime: vi.fn(),
-  upsertItems: vi.fn(), removeItems: vi.fn(), setMeta: vi.fn(), importBulk: vi.fn(), batch: vi.fn(),
+  upsertItems: vi.fn(), removeItems: vi.fn(), insertItemAt: vi.fn(), setMeta: vi.fn(), importBulk: vi.fn(), batch: vi.fn(),
   undo: vi.fn(), redo: vi.fn(),
 });
 
@@ -324,7 +324,7 @@ describe('②-c collab 中の undo/redo は handlers に委譲する', () => {
 // Task 4: 進捗操作の collab 委譲 + Yjs→store 反映
 const noopHandlers = {
     add: vi.fn(), remove: vi.fn(), updateTime: vi.fn(),
-    upsertItems: vi.fn(), removeItems: vi.fn(), setMeta: vi.fn(),
+    upsertItems: vi.fn(), removeItems: vi.fn(), insertItemAt: vi.fn(), setMeta: vi.fn(),
     importBulk: vi.fn(), batch: vi.fn(), undo: vi.fn(), redo: vi.fn(),
 };
 
@@ -354,6 +354,17 @@ describe('Task4: 進捗操作の collab 委譲', () => {
         store.enterCollabMode({ ...noopHandlers, removeItems });
         store.removeProgressPoint('pt_x');
         expect(removeItems).toHaveBeenCalledWith('progressPoints', ['pt_x']);
+        store.exitCollabMode();
+    });
+
+    it('collab中の insertProgressPointAt(削除の取り消し)は insertItemAt(progressPoints) へ委譲しローカル set しない', () => {
+        const insertItemAt = vi.fn();
+        const store = useMitigationStore.getState();
+        store.enterCollabMode({ ...noopHandlers, insertItemAt });
+        const point = { id: 'pt_undo', ts: 2, reachedPos: 20 };
+        store.insertProgressPointAt(1, point);
+        expect(insertItemAt).toHaveBeenCalledWith('progressPoints', 1, point);
+        expect(useMitigationStore.getState().progress.points).toHaveLength(0);
         store.exitCollabMode();
     });
 

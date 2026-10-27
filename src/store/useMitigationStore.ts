@@ -1726,6 +1726,10 @@ export const useMitigationStore = create<MitigationState>()(
                 },
                 insertProgressPointAt: (index, point) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.insertItemAt('progressPoints', index, point);
+                        return;
+                    }
                     set((state) => ({ progress: { ...state.progress, points: insertProgressPoint(state.progress.points, index, point) } }));
                 },
 
