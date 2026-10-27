@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MobileContextMenu } from './MobileContextMenu';
 import { MobileEffectBarLayer } from './MobileEffectBarLayer';
 
 import { useMitigationStore } from '../store/useMitigationStore';
@@ -10,26 +9,15 @@ import { useCollabJoinerSession } from '../store/useCollabJoinerSession';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useThemeStore, useEffectiveTimelineView } from '../store/useThemeStore';
 import type { PartyMember, AppliedMitigation } from '../types';
-import { getPhaseName } from '../types';
-import { EventModal } from './EventModal';
-import { BoundaryEditModal } from './BoundaryEditModal';
 
-import { MitigationSelector } from './MitigationSelector';
-import { JobPicker } from './JobPicker';
-import { PartySettingsModal } from './PartySettingsModal';
-import { JobMigrationModal } from './JobMigrationModal';
 import {
     computeMobileEffectBars,
     MOBILE_EFFECT_BAR_ROW_INSET,
     MOBILE_EFFECT_BAR_SLOT_PITCH,
 } from '../utils/mobileEffectBar';
-import {
-    X
-} from 'lucide-react';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import clsx from 'clsx';
 import { DEFAULT_FIGHT_DURATION_SEC } from '../constants/timeline';
-import { FFLogsImportModal } from './FFLogsImportModal';
 import { ConflictOffscreenArrows } from './timeline/ConflictOffscreenArrows';
 import type { ConflictPoint } from './timeline/conflictArrows';
 import { EMPTY_ROW_LAYOUT } from './timeline/rowLayout';
@@ -41,14 +29,8 @@ import { useTimelineDialogs } from './timeline/useTimelineDialogs';
 import { useTimelineAutoPlan } from './timeline/useTimelineAutoPlan';
 import { useTimelineHeaderEvents, useTimelineTutorialEvents, useTimelineProgressJump, useTimelineResetUiEvent, useTimelineClearMenuOutsideClick } from './timeline/useTimelineWindowEvents';
 import { useTimelineViewMode, useTimelineSheetWidth, useTimelineColumnCollapse, useTimelineRowLayout, useTimelinePartyOrder, useTimelineMemberXMap, useTimelineHoverGeom } from './timeline/useTimelineLayout';
-import { ConfirmDialog } from './ConfirmDialog';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
-import { Tooltip } from './ui/Tooltip';
-import { HeaderPhaseDropdown } from './HeaderPhaseDropdown';
-import { HeaderGimmickDropdown } from './HeaderGimmickDropdown';
-import { HeaderTimeInput } from './HeaderTimeInput';
-import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 import type { RecastRowHandle } from './RecastRow';
 import { sheetColumnIndex, SHEET_ICON_PX } from './timeline/sheet/sheetColumns';
 import { sheetIconLeft } from './timeline/sheet/sheetGeometry';
@@ -56,10 +38,6 @@ import { useTimelineDamage } from './timeline/useTimelineDamage';
 import { useTimelinePreviewHighlight } from './timeline/useTimelinePreviewHighlight';
 import { useTimelinePip } from './timeline/useTimelinePip';
 import { TimelinePipLayer } from './timeline/TimelinePipLayer';
-import { useSheetHiddenSkillsStore } from '../store/useSheetHiddenSkillsStore';
-import { SheetHiddenPopover } from './timeline/sheet/SheetHiddenPopover';
-import { SheetColumnTooltip } from './timeline/sheet/SheetColumnTooltip';
-import { SheetTargetPopover } from './timeline/sheet/SheetTargetPopover';
 import './timeline/sheet/sheet.css';
 import { TimelineControlBar } from './timeline/TimelineControlBar';
 import { TimelineHeader } from './timeline/TimelineHeader';
@@ -67,6 +45,7 @@ import { TimelineRows } from './timeline/TimelineRows';
 import { TimelineBands } from './timeline/TimelineBands';
 import { TimelineMitigationLayer } from './timeline/TimelineMitigationLayer';
 import { TimelinePopovers } from './timeline/TimelinePopovers';
+import { TimelineDialogs, TimelineDialogsLower } from './timeline/TimelineDialogs';
 import { TimelineMobileSheets, TimelineMobileTools } from './timeline/TimelineMobileSheets';
 import { TimelineModeBars } from './timeline/TimelineModeBars';
 
@@ -75,14 +54,11 @@ const MilspecReticle = React.lazy(() => import('./military/table/MilspecReticle'
 const MilspecRowPrinter = React.lazy(() => import('./military/table/MilspecRowPrinter').then(m => ({ default: m.MilspecRowPrinter })));
 import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
-import { MemoFloatingBar } from './Memo/MemoFloatingBar';
 import { useTimelineNavJump, useTimelinePlanScrollReset, useTimelineScrollSync } from './timeline/useTimelineScrollSync';
 import { CursorOverlay } from './collab/CursorOverlay';
 import { useCollabPresenceStore } from '../store/useCollabPresenceStore';
 import { useProgressRecording } from './progress/useProgressRecording';
-import { SpreadsheetGridImportModal } from './SpreadsheetGridImportModal';
 
-import { PlacementToast } from './timeline/sheet/PlacementToast';
 import { useTimelineMemo, useTimelineCursorSend } from './timeline/useTimelineMemoCursor';
 import { useTimelineSheetViewState, useTimelineSheetTap, useTimelineSheetColumns, useTimelineSheetHover } from './timeline/useTimelineSheetView';
 import { getMitigationColorClasses } from './timeline/MitigationItem';
@@ -771,134 +747,60 @@ const Timeline: React.FC = () => {
                 </div>
             </div>
 
-            {/* メモモード フローティングバー */}
-            {isMemoMode && (
-                <MemoFloatingBar
-                    memoCount={memos.length}
-                    onExit={() => useMitigationStore.getState().setToolMode('idle')}
-                />
-            )}
-
-            {clipboardEvent && (
-                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[99980] flex items-center gap-3 px-5 py-2.5 bg-app-bg border border-app-text/15 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,.6)] transition-all duration-300 pointer-events-auto">
-                    <div className="flex items-center gap-2">
-                        <span className="text-app-4xl drop-shadow-md">📋</span>
-                        <div className="flex flex-col">
-                            <span className="font-bold text-app-2xl leading-tight drop-shadow-md text-app-text">
-                                {t('timeline.copying', { name: clipboardEvent.name ? getPhaseName(clipboardEvent.name, contentLanguage) : t('timeline.event') })}
-                            </span>
-                            <span className="text-app-base text-app-text-muted leading-tight">
-                                {t('timeline.paste_hint')}
-                            </span>
-                        </div>
-                    </div>
-                    <Tooltip content={t('timeline.cancel_copy')}>
-                        <button
-                            onClick={() => setClipboardEvent(null)}
-                            className="ml-3 bg-app-text/10 hover:bg-app-text/20 p-1.5 rounded-full cursor-pointer text-app-text"
-                        >
-                            <X size={16} />
-                        </button>
-                    </Tooltip>
-                </div>
-            )
-            }
-
-            <EventModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSave={handleSave}
-                onDelete={handleDelete}
-                initialData={selectedEvent}
-                initialTime={selectedTime}
-                position={eventModalPosition}
-            />
-
-            {mobileContextMenu?.event && (
-                <MobileContextMenu
-                    isOpen={mobileContextMenu.isOpen}
-                    onClose={() => setMobileContextMenu(null)}
-                    event={mobileContextMenu.event}
-                    time={mobileContextMenu.time}
-                    onEdit={handleContextEdit}
-                    onAdd={handleContextAdd}
-                    onDelete={handleContextDelete}
-                    contentLanguage={contentLanguage}
-                />
-            )}
-
-            <BoundaryEditModal
-                isOpen={isPhaseModalOpen}
-                isEdit={!!selectedPhase}
-                initial={selectedPhase ? { name: selectedPhase.name, startTime: selectedPhase.startTime, endTime: selectedPhase.endTime } : undefined}
-                onClose={() => setIsPhaseModalOpen(false)}
-                onSave={handlePhaseSave}
-                onDelete={selectedPhase ? handlePhaseDelete : undefined}
-                onTimelineSelectStart={selectedPhase ? () => {
-                    const anchorTime = selectedPhase.endTime ?? selectedPhase.startTime;
-                    setTimelineSelectMode({ phaseId: selectedPhase.id, startTime: anchorTime, field: 'startTime' });
-                    setIsPhaseModalOpen(false);
-                } : undefined}
-                onTimelineSelectEnd={selectedPhase ? () => {
-                    const phase = phases.find(p => p.id === selectedPhase.id);
-                    setTimelineSelectMode({ phaseId: selectedPhase.id, startTime: phase?.startTime ?? 0, field: 'endTime' });
-                    setIsPhaseModalOpen(false);
-                } : undefined}
-                mode="phase"
-                position={phaseModalPosition}
-            />
-            <BoundaryEditModal
-                isOpen={isLabelModalOpen}
-                isEdit={!!selectedLabel}
-                initial={selectedLabel ? { name: selectedLabel.name, startTime: selectedLabel.startTime, endTime: selectedLabel.endTime } : undefined}
-                onClose={() => setIsLabelModalOpen(false)}
-                onSave={handleLabelSave}
-                onDelete={selectedLabel ? handleLabelDelete : undefined}
-                onTimelineSelectStart={selectedLabel ? () => {
-                    const anchorTime = selectedLabel.endTime ?? selectedLabel.startTime;
-                    setLabelSelectMode({ labelId: selectedLabel.id, startTime: anchorTime, field: 'startTime' });
-                    setIsLabelModalOpen(false);
-                } : undefined}
-                onTimelineSelectEnd={selectedLabel ? () => {
-                    const label = labels.find(l => l.id === selectedLabel.id);
-                    setLabelSelectMode({ labelId: selectedLabel.id, startTime: label?.startTime ?? 0, field: 'endTime' });
-                    setIsLabelModalOpen(false);
-                } : undefined}
-                mode="label"
-                position={labelModalPosition}
-            />
-            <HeaderPhaseDropdown
-                isOpen={phaseDropdownOpen}
-                onClose={() => setPhaseDropdownOpen(false)}
+            <TimelineDialogs
+                t={t}
+                contentLanguage={contentLanguage}
+                isMemoMode={isMemoMode}
+                memos={memos}
+                clipboardEvent={clipboardEvent}
+                setClipboardEvent={setClipboardEvent}
+                isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
+                handleSave={handleSave}
+                handleDelete={handleDelete}
+                selectedEvent={selectedEvent}
+                selectedTime={selectedTime}
+                eventModalPosition={eventModalPosition}
+                mobileContextMenu={mobileContextMenu}
+                setMobileContextMenu={setMobileContextMenu}
+                handleContextEdit={handleContextEdit}
+                handleContextAdd={handleContextAdd}
+                handleContextDelete={handleContextDelete}
+                isPhaseModalOpen={isPhaseModalOpen}
+                setIsPhaseModalOpen={setIsPhaseModalOpen}
+                selectedPhase={selectedPhase}
+                handlePhaseSave={handlePhaseSave}
+                handlePhaseDelete={handlePhaseDelete}
+                setTimelineSelectMode={setTimelineSelectMode}
                 phases={phases}
-                onJump={handleNavJump}
-                isCollapsed={phaseColumnCollapsed}
-                onToggleCollapse={handleTogglePhaseCollapse}
-                triggerRef={phaseHeaderRef}
-            />
-            <HeaderGimmickDropdown
-                isOpen={gimmickDropdownOpen}
-                onClose={() => setGimmickDropdownOpen(false)}
+                phaseModalPosition={phaseModalPosition}
+                isLabelModalOpen={isLabelModalOpen}
+                setIsLabelModalOpen={setIsLabelModalOpen}
+                selectedLabel={selectedLabel}
+                handleLabelSave={handleLabelSave}
+                handleLabelDelete={handleLabelDelete}
+                setLabelSelectMode={setLabelSelectMode}
                 labels={labels}
-                onJump={handleNavJump}
-                triggerRef={gimmickHeaderRef}
-                isCollapsed={labelColumnCollapsed}
-                onToggleCollapse={handleToggleLabelCollapse}
-            />
-            <HeaderTimeInput
-                isOpen={timeInputOpen}
-                onClose={() => setTimeInputOpen(false)}
-                onJump={handleNavJump}
-                triggerRef={timeHeaderRef}
+                labelModalPosition={labelModalPosition}
+                phaseDropdownOpen={phaseDropdownOpen}
+                setPhaseDropdownOpen={setPhaseDropdownOpen}
+                gimmickDropdownOpen={gimmickDropdownOpen}
+                setGimmickDropdownOpen={setGimmickDropdownOpen}
+                timeInputOpen={timeInputOpen}
+                setTimeInputOpen={setTimeInputOpen}
+                mechanicSearchOpen={mechanicSearchOpen}
+                setMechanicSearchOpen={setMechanicSearchOpen}
+                handleNavJump={handleNavJump}
+                phaseColumnCollapsed={phaseColumnCollapsed}
+                labelColumnCollapsed={labelColumnCollapsed}
+                handleTogglePhaseCollapse={handleTogglePhaseCollapse}
+                handleToggleLabelCollapse={handleToggleLabelCollapse}
+                phaseHeaderRef={phaseHeaderRef}
+                gimmickHeaderRef={gimmickHeaderRef}
+                timeHeaderRef={timeHeaderRef}
+                mechanicHeaderRef={mechanicHeaderRef}
                 maxTime={maxTime}
-            />
-            <HeaderMechanicSearch
-                isOpen={mechanicSearchOpen}
-                onClose={() => setMechanicSearchOpen(false)}
-                events={timelineEvents}
-                phases={phases}
-                onJump={handleNavJump}
-                triggerRef={mechanicHeaderRef}
+                timelineEvents={timelineEvents}
             />
 
             <TimelineMobileSheets
@@ -917,90 +819,47 @@ const Timeline: React.FC = () => {
                 removeMitigation={removeMitigation}
             />
 
-            {/* スプシ表示: 置けないマスを押したときのトースト・対象 / 鼓舞を選ぶ小窓 */}
-            {isSheetView && <PlacementToast key={sheetToast?.n} message={sheetToast?.message ?? null} />}
-            {isSheetView && sheetColHover && !sheetPopover && (
-                <SheetColumnTooltip def={sheetColHover.def} x={sheetColHover.x} y={sheetColHover.y} />
-            )}
-            {isSheetView && sheetHiddenPopover && (
-                <SheetHiddenPopover
-                    state={sheetHiddenPopover}
-                    columns={sheetHiddenColumns?.get(sheetHiddenPopover.memberId) ?? []}
-                    onShow={(id) => useSheetHiddenSkillsStore.getState().show(id)}
-                    onShowAll={() => {
-                        useSheetHiddenSkillsStore.getState().showMany((sheetHiddenColumns?.get(sheetHiddenPopover.memberId) ?? []).map(c => c.mitigationId));
-                        setSheetHiddenPopover(null);
-                    }}
-                    onClose={handleCloseSheetHidden}
-                />
-            )}
-            {isSheetView && sheetPopover && (
-                <SheetTargetPopover state={sheetPopover} onPick={handleSheetPopoverPick} onClose={handleSheetPopoverClose} />
-            )}
-
-            <MitigationSelector
-                isOpen={mitigationSelectorOpen}
-                onClose={() => setMitigationSelectorOpen(false)}
-                onSelect={handleMitigationSelect}
-                onRemove={removeMitigation}
-                ownerId={selectedMemberId}
-                jobId={selectedMemberId ? partyMembers.find(m => m.id === selectedMemberId)?.jobId || null : null}
-                position={selectorPosition}
-                activeMitigations={timelineMitigations.filter(m => m.ownerId === selectedMemberId)}
-                selectedTime={selectedMitigationTime}
-            />
-
-            <JobPicker
-                isOpen={jobPickerOpen}
-                onClose={() => setJobPickerOpen(false)}
-                onSelect={handleJobSelect}
-                position={jobPickerPosition}
-                currentJobId={jobPickerMemberId ? partyMembers.find(m => m.id === jobPickerMemberId)?.jobId || null : null}
-            />
-
-            {/* PC版のみ: PartySettingsModal（モバイルはLayout.tsxのMobileBottomSheetで表示） */}
-            {!isMobileView && (
-                <PartySettingsModal
-                    isOpen={partySettingsOpen}
-                    onClose={() => setPartySettingsOpen(false)}
-                />
-            )}
-
-            <FFLogsImportModal
-                isOpen={importModalOpen}
-                onClose={() => setImportModalOpen(false)}
-            />
-
-            {/* 列グリッド取込モーダル: handleSheetImport / sheetImportDefault を利用 */}
-            <SpreadsheetGridImportModal
-                isOpen={showGridImport}
-                onClose={() => setShowGridImport(false)}
-                onImport={handleSheetImport}
-                defaultSelection={sheetImportDefault}
-            />
-
-            {
-                migrationConfig && (
-                    <JobMigrationModal
-                        isOpen={migrationConfig.isOpen}
-                        onConfirm={handleMigrationConfirm}
-                        onCancel={handleMigrationCancel}
-                        oldJob={JOBS.find(j => j.id === migrationConfig.oldJobId) || JOBS[0]}
-                        newJob={JOBS.find(j => j.id === migrationConfig.newJobId) || JOBS[0]}
-                        memberName={partyMembers.find(m => m.id === migrationConfig.memberId)?.id || ''}
-                    />
-                )
-            }
-
-            <ConfirmDialog
-                isOpen={confirmDialog !== null}
-                title={confirmDialog?.title ?? ''}
-                message={confirmDialog?.message ?? ''}
-                variant={confirmDialog?.variant ?? 'danger'}
-                onConfirm={() => confirmDialog?.onConfirm?.()}
-                onCancel={() => setConfirmDialog(null)}
-                confirmLabel={confirmDialog?.confirmLabel ?? t('ui.ok', 'OK')}
-                cancelLabel={confirmDialog?.cancelLabel ?? t('common.cancel', 'キャンセル')}
+            <TimelineDialogsLower
+                t={t}
+                JOBS={JOBS}
+                isSheetView={isSheetView}
+                isMobileView={isMobileView}
+                sheetToast={sheetToast}
+                sheetColHover={sheetColHover}
+                sheetPopover={sheetPopover}
+                sheetHiddenPopover={sheetHiddenPopover}
+                setSheetHiddenPopover={setSheetHiddenPopover}
+                sheetHiddenColumns={sheetHiddenColumns}
+                handleCloseSheetHidden={handleCloseSheetHidden}
+                handleSheetPopoverPick={handleSheetPopoverPick}
+                handleSheetPopoverClose={handleSheetPopoverClose}
+                mitigationSelectorOpen={mitigationSelectorOpen}
+                setMitigationSelectorOpen={setMitigationSelectorOpen}
+                handleMitigationSelect={handleMitigationSelect}
+                removeMitigation={removeMitigation}
+                selectedMemberId={selectedMemberId}
+                partyMembers={partyMembers}
+                selectorPosition={selectorPosition}
+                timelineMitigations={timelineMitigations}
+                selectedMitigationTime={selectedMitigationTime}
+                jobPickerOpen={jobPickerOpen}
+                setJobPickerOpen={setJobPickerOpen}
+                handleJobSelect={handleJobSelect}
+                jobPickerPosition={jobPickerPosition}
+                jobPickerMemberId={jobPickerMemberId}
+                partySettingsOpen={partySettingsOpen}
+                setPartySettingsOpen={setPartySettingsOpen}
+                importModalOpen={importModalOpen}
+                setImportModalOpen={setImportModalOpen}
+                showGridImport={showGridImport}
+                setShowGridImport={setShowGridImport}
+                handleSheetImport={handleSheetImport}
+                sheetImportDefault={sheetImportDefault}
+                migrationConfig={migrationConfig}
+                handleMigrationConfirm={handleMigrationConfirm}
+                handleMigrationCancel={handleMigrationCancel}
+                confirmDialog={confirmDialog}
+                setConfirmDialog={setConfirmDialog}
             />
             <TimelineMobileTools
                 t={t}
