@@ -112,3 +112,9 @@ scripts/sticky-scroll/.baseline/
 # 全画面の自動見た目比較: 撮影結果とキャッシュ(コミットしない)
 scripts/visual-regress/.out/
 scripts/visual-regress/.cache/
+
+# ルート直下の一時ファイル(作業用の残り物を追跡しない)
+/tmp_*
+/temp_*
+/build_errors*.txt
+/*.xlsx

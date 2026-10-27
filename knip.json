@@ -8,7 +8,6 @@
     "workers/media-proxy/src/index.ts",
     "workers/collab/scripts/*.mjs",
     "scripts/**/*.{ts,mjs,cjs,js}",
-    "*.{mjs,cjs}",
     "playwright/**/*.ts",
     "src/**/__tests__/**/*.{ts,tsx}",
     "api/**/__tests__/**/*.ts",
@@ -24,8 +23,6 @@
   ],
   "ignoreDependencies": [
     "playwright",
-    "partyserver",
-    "xlsx",
     "cloudflare"
   ],
   "ignoreBinaries": ["knip"],
