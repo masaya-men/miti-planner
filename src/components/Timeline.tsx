@@ -68,7 +68,7 @@ import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 import { RecastRow, type RecastRowHandle } from './RecastRow';
 import { SheetColumnHeader } from './timeline/sheet/SheetColumnHeader';
-import { buildSheetColumnMap, buildHiddenSheetColumnMap, sheetColumnAt, sheetColumnFromX, sheetColumnIndex, SHEET_ICON_PX, type SheetColumn } from './timeline/sheet/sheetColumns';
+import { sheetColumnIndex, SHEET_ICON_PX } from './timeline/sheet/sheetColumns';
 import { sheetIconLeft } from './timeline/sheet/sheetGeometry';
 import { useTimelineDamage } from './timeline/useTimelineDamage';
 import { useTimelinePreviewHighlight } from './timeline/useTimelinePreviewHighlight';
@@ -77,9 +77,9 @@ import { TimelinePipLayer } from './timeline/TimelinePipLayer';
 import { placementsWithColumn } from './timeline/sheet/sheetCooldown';
 import { SheetCooldownLines } from './timeline/sheet/SheetCooldownLines';
 import { useSheetHiddenSkillsStore } from '../store/useSheetHiddenSkillsStore';
-import { SheetHiddenPopover, type SheetHiddenPopoverState } from './timeline/sheet/SheetHiddenPopover';
+import { SheetHiddenPopover } from './timeline/sheet/SheetHiddenPopover';
 import { SheetColumnTooltip } from './timeline/sheet/SheetColumnTooltip';
-import { SheetTargetPopover, type SheetPopoverState } from './timeline/sheet/SheetTargetPopover';
+import { SheetTargetPopover } from './timeline/sheet/SheetTargetPopover';
 import './timeline/sheet/sheet.css';
 import { JobPickerRow } from './JobPickerRow';
 // 軍事専用部品は標準テーマに配信しないよう遅延読み込み(useSortSlide は軽い hook なので静的のまま)
@@ -107,7 +107,8 @@ import { PlacementToast } from './timeline/sheet/PlacementToast';
 import { backdropClose } from '../utils/backdropClose';
 import { TableHoverHighlight, type HoverGeom } from './timeline/sheet/TableHoverHighlight';
 import { lanesBands, sheetBands, convertMemberX, lanesSheetWidth, readLanesColumnVars, memoCreateXRatio } from './timeline/sheet/memberX';
-import { buildAppliedMitigation, resolveSheetTap } from './timeline/sheet/sheetTap';
+import { buildAppliedMitigation } from './timeline/sheet/sheetTap';
+import { useTimelineSheetViewState, useTimelineSheetTap, useTimelineSheetColumns, useTimelineSheetHover } from './timeline/useTimelineSheetView';
 import { MitigationItem, getMitigationColorClasses } from './timeline/MitigationItem';
 
 function genId(): string {
@@ -207,12 +208,7 @@ const Timeline: React.FC = () => {
         if (isSheetView) st.setSheetRowBorders(!st.sheetRowBorders);
         else st.setShowRowBorders(!st.showRowBorders);
     }, [isSheetView]);
-    // スプシ表示: マスのクリック判定が読む列(下方の sheetColumnMap を毎 render 差し替え)・弾いたときのトースト・対象選択の小窓
-    const sheetColumnMapRef = useRef<ReadonlyMap<string, SheetColumn[]> | null>(null);
-    const [sheetToast, setSheetToast] = useState<{ message: string; n: number } | null>(null);
-    const [sheetPopover, setSheetPopover] = useState<SheetPopoverState | null>(null);
-    // レーン表示へ切り替えたら小窓は閉じる(戻したときに再び出ないように)
-    useEffect(() => { if (!isSheetView) setSheetPopover(null); }, [isSheetView]);
+    const { sheetColumnMapRef, sheetToast, setSheetToast, sheetPopover, setSheetPopover } = useTimelineSheetViewState({ isSheetView });
     // メモ・カーソルの横位置変換(保存・送信する xRatio は常にレーン表示の座標)。
     // 実体は memberLayout が決まった後(下方)で毎 render 差し替える。ハンドラは ref 経由で読む。
     const memberXMapRef = useRef<{ toPx: (xRatio: number) => number; toRatio: (px: number) => number }>({
@@ -1228,77 +1224,9 @@ const Timeline: React.FC = () => {
         }
     };
 
-    // スプシ表示のマス押下。クリックの基準は「そのメンバーのマス」の左端。効果帯(MitigationItem の data-mit-bar)から
-    // 転送されたクリックは currentTarget が帯なので、同じ点の下にあるマス([data-sheet-cols])を引き直す。
-    const sheetTRef = useRef(t);
-    sheetTRef.current = t;
-    const sheetDefsRef = useRef(MITIGATIONS);
-    sheetDefsRef.current = MITIGATIONS;
-    const handleSheetCellTap = useCallback((sheetMap: ReadonlyMap<string, SheetColumn[]>, memberId: string, time: number, e: React.MouseEvent) => {
-        const cols = sheetMap.get(memberId);
-        const target = e.currentTarget as HTMLElement | null;
-        const cell = target?.hasAttribute?.('data-sheet-cols')
-            ? target
-            : (document.elementsFromPoint?.(e.clientX, e.clientY) ?? []).find(el => el.hasAttribute('data-sheet-cols')) as HTMLElement | undefined;
-        if (!cols || !cell) return;
-        const colIndex = sheetColumnAt(e.clientX, cell.getBoundingClientRect().left);
-        const col = cols[colIndex];
-        if (!col) return;
-        const all = useMitigationStore.getState().timelineMitigations;
-        const ownerMitigations = all.filter(m => m.ownerId === memberId);
-        // もう一度押して消す: この列に描かれている配置(版違い・セラフィズム差し替えなど id が列と違うものも含む)
-        const defs = sheetDefsRef.current;
-        const existing = ownerMitigations.find(m => m.time === time && sheetColumnIndex(cols, m.mitigationId, defs) === colIndex);
-        if (existing) {
-            useMitigationStore.getState().removeMitigation(existing.id);
-            return;
-        }
-        // セラフィズム中は鼓舞激励の策→マニフェステーション等に差し替わる(レーン表示の MitigationSelector と同じ)
-        const colDef = resolveSeraphismMitigation(col.def, time, ownerMitigations, defs);
-        const r = resolveSheetTap(colDef, time, ownerMitigations, all, (k, o) => String(sheetTRef.current(k, o as never)));
-        switch (r.kind) {
-            case 'remove':
-                useMitigationStore.getState().removeMitigation(r.id);
-                return;
-            case 'place':
-                // 後ろ向きの重なり(warning)は通常表示と同じく置いて、競合の脈動・矢印に任せる
-                useMitigationStore.getState().addMitigation(buildAppliedMitigation(colDef, time, memberId, { linkedMitigationId: r.linkedMitigationId }));
-                return;
-            case 'blocked':
-                // 本当に置けない(レーン表示でも置けない)ときはトーストだけ。マスは揺らさない
-                setSheetToast(prev => ({ message: r.message ?? sheetTRef.current('timeline.cannot_place_here'), n: (prev?.n ?? 0) + 1 }));
-                return;
-            case 'selectTarget':
-            case 'selectShield':
-                setSheetPopover({
-                    memberId, time, def: colDef, kind: r.kind,
-                    shields: r.kind === 'selectShield' ? r.shields : [],
-                    x: e.clientX, y: e.clientY,
-                });
-                return;
-        }
-    }, []);
-
-    useEffect(() => {
-        if (!sheetToast) return;
-        const timer = setTimeout(() => setSheetToast(null), 2500);
-        return () => clearTimeout(timer);
-    }, [sheetToast]);
-
-    const handleSheetPopoverPick = useCallback((pick: { targetId?: string; linkedMitigationId?: string }) => {
-        if (sheetPopover && !readOnlyRef.current) {
-            // 小窓を開いている間に共同編集で別の配置が入った場合に備え、選んだ時点で配置可否を再判定する
-            const own = useMitigationStore.getState().timelineMitigations.filter(m => m.ownerId === sheetPopover.memberId);
-            const status = validateMitigationPlacement(sheetPopover.def, sheetPopover.time, own, (k, o) => String(sheetTRef.current(k, o as never)));
-            if (!status.available && !status.conflictOverride) {
-                setSheetToast(prev => ({ message: status.message ?? sheetTRef.current('timeline.cannot_place_here'), n: (prev?.n ?? 0) + 1 }));
-            } else {
-                useMitigationStore.getState().addMitigation(buildAppliedMitigation(sheetPopover.def, sheetPopover.time, sheetPopover.memberId, pick));
-            }
-        }
-        setSheetPopover(null);
-    }, [sheetPopover]);
-    const handleSheetPopoverClose = useCallback(() => setSheetPopover(null), []);
+    const { handleSheetCellTap, handleSheetPopoverPick, handleSheetPopoverClose } = useTimelineSheetTap({
+        t, MITIGATIONS, readOnlyRef, sheetToast, setSheetToast, sheetPopover, setSheetPopover,
+    });
 
     const handleCellClick = useCallback((memberId: string, time: number, e: React.MouseEvent) => {
         // 進捗記録モード中はクリックを横取りして到達点を記録（既存の軽減配置には入らない）
@@ -1646,31 +1574,10 @@ const Timeline: React.FC = () => {
         [sortedPartyMembers, hiddenPartyMemberIds]
     );
 
-    // スプシ表示: メンバー id → 列(軽減技)。列数の Map は参照を安定させる(TimelineRow の memo 比較は参照比較)
-    // 列見出しで隠した技(全体で 1 つの設定・技 ID)。隠した列は表から外し、ジョブ欄の「+(数)」から再表示する
-    const sheetHiddenIds = useSheetHiddenSkillsStore(s => s.hiddenIds);
-    const sheetHiddenSet = useMemo(() => new Set(sheetHiddenIds), [sheetHiddenIds]);
-    const sheetColumnMap = useMemo(
-        () => isSheetView ? buildSheetColumnMap(visiblePartyMembers, MITIGATIONS, currentLevel, sheetHiddenSet) : null,
-        [isSheetView, visiblePartyMembers, MITIGATIONS, currentLevel, sheetHiddenSet]
-    );
-    const sheetHiddenColumns = useMemo(
-        () => isSheetView ? buildHiddenSheetColumnMap(visiblePartyMembers, MITIGATIONS, currentLevel, sheetHiddenSet) : undefined,
-        [isSheetView, visiblePartyMembers, MITIGATIONS, currentLevel, sheetHiddenSet]
-    );
-    const [sheetHiddenPopover, setSheetHiddenPopover] = useState<SheetHiddenPopoverState | null>(null);
-    const handleOpenSheetHidden = useCallback((memberId: string, e: React.MouseEvent) => {
-        setSheetHiddenPopover({ memberId, x: e.clientX, y: e.clientY });
-    }, []);
-    const handleCloseSheetHidden = useCallback(() => setSheetHiddenPopover(null), []);
-    const handleHideSheetColumn = useCallback((id: string) => {
-        useSheetHiddenSkillsStore.getState().hide(id);
-    }, []);
-    const sheetCols = useMemo(
-        () => sheetColumnMap ? new Map([...sheetColumnMap].map(([id, c]) => [id, c.length] as [string, number])) : undefined,
-        [sheetColumnMap]
-    );
-    sheetColumnMapRef.current = sheetColumnMap;
+    const {
+        sheetColumnMap, sheetHiddenColumns, sheetHiddenPopover, setSheetHiddenPopover,
+        handleOpenSheetHidden, handleCloseSheetHidden, handleHideSheetColumn, sheetCols,
+    } = useTimelineSheetColumns({ isSheetView, visiblePartyMembers, MITIGATIONS, currentLevel, sheetColumnMapRef });
 
     // 軍事の表: リキャスト中のアイコンが無い列の見出し = ロール色の短い線 + ジョブ略号(見本 v11 css:472-475)
     const renderMilspecIdle = useCallback((m: PartyMember) => {
@@ -1752,18 +1659,9 @@ const Timeline: React.FC = () => {
     }, [isSheetView, visiblePartyMembers, memberStartPx, memberLayout, sheetWidth, scrollViewportW]);
     memberXMapRef.current = memberXMap;
 
-    // スプシ表示: マウスがある列の技(アイコン+名前)のツールチップ。状態は「どの列か」が変わった時だけ更新する
-    // (列が同じ間の追従は SheetColumnTooltip が document の pointermove で位置だけ動かす)。マス 1 つずつの DOM は作らない
-    const [sheetColHover, setSheetColHover] = useState<{ key: string; def: Mitigation; x: number; y: number } | null>(null);
-    const handleSheetPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-        if (!sheetColumnMap || e.pointerType === 'touch') return;
-        const rect = sheetContainerRef.current?.getBoundingClientRect();
-        if (!rect) return;
-        const hit = sheetColumnFromX(e.clientX, rect.left, sheetBands(visiblePartyMembers, memberLayout), sheetColumnMap);
-        const key = hit ? `${hit.memberId}:${hit.column.mitigationId}` : null;
-        setSheetColHover(prev => (prev?.key ?? null) === key ? prev : (hit ? { key: key!, def: hit.column.def, x: e.clientX, y: e.clientY } : null));
-    };
-    const handleSheetPointerLeave = () => setSheetColHover(null);
+    const { sheetColHover, handleSheetPointerMove, handleSheetPointerLeave } = useTimelineSheetHover({
+        sheetContainerRef, sheetColumnMap, visiblePartyMembers, memberLayout,
+    });
     // ホバー強調(TableHoverHighlight)が pointermove で読む最新の幾何
     const hoverGeomRef = useRef<HoverGeom>({ mode: 'lanes', bands: [], columnMap: null, layout: EMPTY_ROW_LAYOUT });
     hoverGeomRef.current = {
