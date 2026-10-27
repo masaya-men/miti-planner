@@ -553,7 +553,9 @@ describe('HousingerPage', () => {
     await screen.findByRole('heading', { name: 'たかし' });
     const selectButtons = await screen.findAllByTestId('housing-card-select');
     expect(selectButtons).toHaveLength(1);
-    expect(selectButtons[0].className).toContain('is-selected');
+    // 自動選択は一覧の表示後の effect で付くため、ボタンが出た瞬間ではなく印が付くまで待つ
+    // (負荷が高いと印が付く前に見てしまい時々落ちていた)。
+    await waitFor(() => expect(selectButtons[0].className).toContain('is-selected'));
   });
 
   it('他人が見ると代表作選択トグルは出ない', async () => {
