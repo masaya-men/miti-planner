@@ -10,15 +10,8 @@ import type { EditMediaMode } from '../edit/HousingEditMediaModeTabs';
 import { RegisterSectionVisibility } from '../register/RegisterSectionVisibility';
 import { RegisterSectionConfirm } from '../register/RegisterSectionConfirm';
 import { RegisterHousingerCta } from '../register/RegisterHousingerCta';
-import { RegisterStepperNav } from '../register/RegisterStepperNav';
-import { RegisterGuide } from '../register/RegisterGuide';
-import { RegisterCheckPanel } from '../register/RegisterCheckPanel';
-import { RegisterDuplicatePanel } from '../register/RegisterDuplicatePanel';
-import { RegisterAddressMap } from '../register/RegisterAddressMap';
 import { HousingDuplicateWarningDialog } from '../HousingDuplicateWarningDialog';
 import { useHousingUpdate } from '../edit/useHousingUpdate';
-import { registrationTicketsRemaining } from '../../../utils/housingQuota';
-import { REGISTRATION_INITIAL_BONUS, REGISTRATION_DAILY_QUOTA } from '../../../constants/housing';
 import type { HousingListing } from '../../../types/housing';
 import { useRegisterFields } from '../register/page/useRegisterFields';
 import { useRegistrationQuota } from '../register/page/useRegistrationQuota';
@@ -30,6 +23,9 @@ import { useRegisterDuplicateCheck } from '../register/page/useRegisterDuplicate
 import { useRegisterSubmit } from '../register/page/useRegisterSubmit';
 import { useRegisterEditMedia } from '../register/page/useRegisterEditMedia';
 import { useRegisterAutosave } from '../register/page/useRegisterAutosave';
+import { RegisterLeftColumn } from '../register/page/RegisterLeftColumn';
+import { RegisterAutosaveNotice } from '../register/page/RegisterAutosaveNotice';
+import { RegisterRightColumn } from '../register/page/RegisterRightColumn';
 
 export { buildDraftImageFields } from '../register/page/registerPageModel';
 
@@ -103,64 +99,21 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       {/* 左カラム: ステッパーナビ (スクロール) + 本日の登録枠 (下端固定・#6)。
           残数はスクロールに埋もれないよう、スクロール領域の外=左パネル最下部に固定する。
           「登録の流れ」(RegisterGuide) はステッパーと役割が重複していたため右カラムへ移設。 */}
-      <section className="housing-register-panel" data-region="left">
-        <div className="housing-register-col housing-register-col-left">
-          <div className="housing-register-left-scroll">
-            <RegisterStepperNav steps={steps} onJump={handleJumpToStep} progress={stepperProgress} />
-          </div>
-          {(isAdmin || (remaining != null && registrationCount != null)) && (
-            <>
-              <p
-                className="housing-register-left-remaining"
-                data-testid="housing-register-guide-remaining"
-              >
-                {isAdmin
-                  ? t('housing.register.quota.admin')
-                  : registrationTicketsRemaining(registrationCount!) > 0
-                    ? t('housing.register.quota.tickets_remaining', {
-                        remaining: registrationTicketsRemaining(registrationCount!),
-                        total: REGISTRATION_INITIAL_BONUS,
-                      })
-                    : t('housing.register.quota.daily_remaining', {
-                        remaining: remaining!,
-                        max: REGISTRATION_DAILY_QUOTA,
-                      })}
-              </p>
-              {!isAdmin && registrationTicketsRemaining(registrationCount!) > 0 && (
-                <p className="housing-register-left-remaining-hint">
-                  {t('housing.register.quota.tickets_hint', { max: REGISTRATION_DAILY_QUOTA })}
-                </p>
-              )}
-            </>
-          )}
-        </div>
-      </section>
+      <RegisterLeftColumn
+        steps={steps}
+        onJump={handleJumpToStep}
+        progress={stepperProgress}
+        isAdmin={isAdmin}
+        remaining={remaining}
+        registrationCount={registrationCount}
+      />
 
       {/* 中央カラム: セクション群。spec 正典順 (media→address→intro→visibility→confirm)。 */}
       <section className="housing-register-panel" data-region="center">
         <div className="housing-register-col housing-register-col-center" ref={scrollContainerRef}>
           <div className="housing-register-sections">
             {restoredNoticeVisible && (
-              <div className="housing-register-autosave-notice" data-testid="housing-register-autosave-notice">
-                <div className="housing-register-autosave-notice-body">
-                  <p className="housing-register-autosave-notice-text">
-                    {t('housing.register.autosave.restored')}
-                  </p>
-                  {postUrl && (
-                    <p className="housing-register-autosave-notice-hint">
-                      {t('housing.register.autosave.sns_refetch')}
-                    </p>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  className="housing-register-autosave-discard"
-                  data-testid="housing-register-autosave-discard"
-                  onClick={handleDiscardRestore}
-                >
-                  {t('housing.register.autosave.discard')}
-                </button>
-              </div>
+              <RegisterAutosaveNotice postUrl={postUrl} onDiscard={handleDiscardRestore} />
             )}
             <div ref={(el) => { sectionRefs.current.media = el; }} data-step-id="media">
               {mode === 'edit' ? (
@@ -263,27 +216,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       </section>
 
       {/* 右カラム: チェック/重複パネル + 区画マッププレビュー (Task13 本実装) */}
-      <section className="housing-register-panel" data-region="right">
-        <div className="housing-register-col housing-register-col-right">
-          <RegisterCheckPanel items={checkPanelItems} />
-          {/* 重複照会パネルは create 専用。編集モードは自分の doc が必ずヒットして誤「重複」に
-              なるため出さない (ライブ照会 effect 側も mode==='edit' で走らせない・I 根治)。 */}
-          {mode !== 'edit' && (
-            <RegisterDuplicatePanel
-              state={duplicateState}
-              duplicates={duplicates}
-              privateMatchCount={privateMatchCount}
-            />
-          )}
-          {/* #5: 静的ミニマップから、ツアーと同じ「動くマップ」に統一。住所が地図解決
-              できるまで (area+plot / area+apartmentBuilding) は何も出さない。 */}
-          <RegisterAddressMap address={address} />
-
-          {/* 「登録の流れ」を左から移設。左のライブステッパー (現在地) と役割が重複していたため、
-              教育的な説明はこちら (参照材料) に置き、左は現在地表示に専念させる。 */}
-          <RegisterGuide />
-        </div>
-      </section>
+      <RegisterRightColumn
+        mode={mode}
+        checkPanelItems={checkPanelItems}
+        duplicateState={duplicateState}
+        duplicates={duplicates}
+        privateMatchCount={privateMatchCount}
+        address={address}
+      />
 
       {/* submit 時の同住所公開重複ダイアログ。「戻って修正」/「それでも登録」 の二択。 */}
       {submitDuplicates && (
