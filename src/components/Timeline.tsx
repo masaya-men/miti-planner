@@ -7,13 +7,12 @@ import { MobileContextMenu } from './MobileContextMenu';
 import { MobileEffectBarLayer } from './MobileEffectBarLayer';
 
 import { useMitigationStore } from '../store/useMitigationStore';
-import { useRenderPendingStore } from '../store/useRenderPendingStore';
 import { useShallow } from 'zustand/react/shallow';
 import { usePlanStore } from '../store/usePlanStore';
 import { useCollabJoinerSession } from '../store/useCollabJoinerSession';
 import { useTutorialStore } from '../store/useTutorialStore';
-import { useThemeStore, useEffectiveThemeStyle, useEffectiveTimelineView } from '../store/useThemeStore';
-import type { TimelineEvent, PartyMember, AppliedMitigation } from '../types';
+import { useThemeStore, useEffectiveTimelineView } from '../store/useThemeStore';
+import type { PartyMember, AppliedMitigation } from '../types';
 import { getPhaseName } from '../types';
 import { EventModal } from './EventModal';
 import { ClearMitigationsPopover } from './ClearMitigationsPopover';
@@ -27,8 +26,6 @@ import {
     computeMobileEffectBars,
     MOBILE_EFFECT_BAR_ROW_INSET,
     MOBILE_EFFECT_BAR_SLOT_PITCH,
-    MOBILE_MITI_ICON_PITCH_PX,
-    MOBILE_MITI_ICONS_ROW_PADDING_PX,
 } from '../utils/mobileEffectBar';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
@@ -38,13 +35,12 @@ import VideoRecorderModal from './VideoRecorderModal';
 import { useJobs, useMitigations, getMitigationPriority } from '../hooks/useSkillsData';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import clsx from 'clsx';
-import { getSortedPartyMemberIds } from '../constants/party';
 import { DEFAULT_FIGHT_DURATION_SEC } from '../constants/timeline';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { ConflictOffscreenArrows } from './timeline/ConflictOffscreenArrows';
 import type { ConflictPoint } from './timeline/conflictArrows';
-import { computeRowLayout, EMPTY_ROW_LAYOUT, ROW_UNIT_PX, barStartY, barEndY, childIconCutY } from './timeline/rowLayout';
+import { EMPTY_ROW_LAYOUT, barStartY, barEndY, childIconCutY } from './timeline/rowLayout';
 import type { RowLayout } from './timeline/rowLayout';
 import { calculateLinkedShieldValue } from '../utils/calculator';
 import { isLivingDeadStyle } from '../utils/livingDead';
@@ -56,8 +52,7 @@ import { useTimelineEditing, useTimelineMitigationEditing } from './timeline/use
 import { useTimelineDialogs } from './timeline/useTimelineDialogs';
 import { useTimelineAutoPlan } from './timeline/useTimelineAutoPlan';
 import { useTimelineHeaderEvents, useTimelineTutorialEvents, useTimelineProgressJump, useTimelineResetUiEvent, useTimelineClearMenuOutsideClick } from './timeline/useTimelineWindowEvents';
-import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
-import type { MemberRefEntry } from './Timeline.layoutHooks';
+import { useTimelineViewMode, useTimelineSheetWidth, useTimelineColumnCollapse, useTimelineRowLayout, useTimelinePartyOrder, useTimelineMemberXMap, useTimelineHoverGeom } from './timeline/useTimelineLayout';
 import { ConfirmDialog } from './ConfirmDialog';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
@@ -92,7 +87,7 @@ const MilspecRowPrinter = React.lazy(() => import('./military/table/MilspecRowPr
 import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
 import { MemoFloatingBar } from './Memo/MemoFloatingBar';
-import { yToTimeSec, pxToXRatio, xRatioToPx, reanchorScrollTop } from './Memo/coords';
+import { yToTimeSec, reanchorScrollTop } from './Memo/coords';
 import { CursorOverlay } from './collab/CursorOverlay';
 import { useCollabPresenceStore } from '../store/useCollabPresenceStore';
 import { useProgressRecording } from './progress/useProgressRecording';
@@ -101,8 +96,7 @@ import { shieldEffectBarEndsOnBarrierExhaustion } from '../utils/barrierStacking
 
 import { PlacementToast } from './timeline/sheet/PlacementToast';
 import { backdropClose } from '../utils/backdropClose';
-import { TableHoverHighlight, type HoverGeom } from './timeline/sheet/TableHoverHighlight';
-import { lanesBands, sheetBands, convertMemberX, lanesSheetWidth, readLanesColumnVars } from './timeline/sheet/memberX';
+import { TableHoverHighlight } from './timeline/sheet/TableHoverHighlight';
 import { useTimelineMemo, useTimelineCursorSend } from './timeline/useTimelineMemoCursor';
 import { useTimelineSheetViewState, useTimelineSheetTap, useTimelineSheetColumns, useTimelineSheetHover } from './timeline/useTimelineSheetView';
 import { MitigationItem, getMitigationColorClasses } from './timeline/MitigationItem';
@@ -261,12 +255,7 @@ const Timeline: React.FC = () => {
         clearMenuOpen, setClearMenuOpen,
     } = useTimelineDialogs();
     const [showPreStart] = useState(true);
-    const isMobileTimeline = typeof window !== 'undefined' && window.innerWidth < 768;
-    // PC 軍事モードのときだけ true。標準では常に false = 従来 DOM のまま (標準モード不変)。
-    const themeStyle = useEffectiveThemeStyle();
-    const isMilspecTable = themeStyle === 'military' && !isMobileTimeline;
-    // 1 段の高さ(PC=攻撃 1 つ分 / スマホ=カード 1 枚)。縦位置は rowLayout(下で計算)から得る
-    const rowUnitPx = isMobileTimeline ? ROW_UNIT_PX.mobile : ROW_UNIT_PX.pc;
+    const { isMobileTimeline, isMilspecTable, rowUnitPx } = useTimelineViewMode();
     // プレビュー強調フックが参照する ref(scrollContainerRef / rowLayoutRef は宣言位置のみここへ前出し)
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     // 行の配置係の最新値。コールバック(スクロール同期・ジャンプ・範囲選択)は描画後にこれを読む。
@@ -276,43 +265,13 @@ const Timeline: React.FC = () => {
         scrollContainerRef, rowLayoutRef, timelineSelectMode, labelSelectMode, showPreStart,
     });
     const sheetContainerRef = useRef<HTMLDivElement>(null);
-    // sheetWidth を state 化 + ResizeObserver で動的更新 (初期 0 で left=0 に固まる問題を解決)
-    const [sheetWidth, setSheetWidth] = useState(0);
-    useLayoutEffect(() => {
-        const el = sheetContainerRef.current;
-        if (!el) return;
-        const updateWidth = () => setSheetWidth(el.getBoundingClientRect().width);
-        updateWidth();
-        const observer = new ResizeObserver(updateWidth);
-        observer.observe(el);
-        return () => observer.disconnect();
-    }, []);
-    // ④-b-2: CursorOverlay の rAF が再描画なしで最新幅を読めるよう ref ミラーを保持(sheetWidth は低頻度更新)。
-    const sheetWidthRef = useRef(sheetWidth);
-    sheetWidthRef.current = sheetWidth;
-
-    // モバイル軽減アイコン専用行: 1行に入りきる最大アイコン数(画面幅から算出、maxConcurrentと
-    // 同じ考え方)。あふれた分は折り返さず「+N」バッジにする(2026-08-13ユーザー要望=
-    // 行の高さを固定コマからはみ出させないため、2段折り返しは絶対にしない)。
-    const maxMitiIconsPerRow = useMemo(() => {
-        const availableWidth = (sheetWidth > 0 ? sheetWidth : 350) - MOBILE_MITI_ICONS_ROW_PADDING_PX * 2;
-        return Math.max(1, Math.floor(availableWidth / MOBILE_MITI_ICON_PITCH_PX));
-    }, [sheetWidth]);
+    const { sheetWidth, sheetWidthRef, maxMitiIconsPerRow } = useTimelineSheetWidth({ sheetContainerRef });
 
 
-    const [phaseColumnCollapsed, setPhaseColumnCollapsed] = useState(() => {
-        try { return localStorage.getItem('lopo-phase-col-collapsed') === 'true'; } catch { return false; }
-    });
-    const [labelColumnCollapsed, setLabelColumnCollapsed] = useState(() => {
-        try { return localStorage.getItem('lopo-label-col-collapsed') === 'true'; } catch { return false; }
-    });
-    // リキャスト行の表示 ON/OFF (セッション 18 案 C1 物理移動)。 デフォルト ON。
-    const [recastRowVisible, setRecastRowVisible] = useState(() => {
-        try {
-            const v = localStorage.getItem('lopo-recast-row-visible');
-            return v === null ? true : v === 'true';
-        } catch { return true; }
-    });
+    const {
+        phaseColumnCollapsed, labelColumnCollapsed, recastRowVisible,
+        handleTogglePhaseCollapse, handleToggleLabelCollapse, handleToggleRecastRowVisible,
+    } = useTimelineColumnCollapse();
     const phaseHeaderRef = useRef<HTMLDivElement>(null);
     const gimmickHeaderRef = useRef<HTMLDivElement>(null);
     const timeHeaderRef = useRef<HTMLDivElement>(null);
@@ -320,30 +279,6 @@ const Timeline: React.FC = () => {
 
 
     const fightDuration = DEFAULT_FIGHT_DURATION_SEC;
-
-    const handleTogglePhaseCollapse = () => {
-        setPhaseColumnCollapsed(prev => {
-            const next = !prev;
-            try { localStorage.setItem('lopo-phase-col-collapsed', String(next)); } catch {}
-            return next;
-        });
-    };
-
-    const handleToggleLabelCollapse = () => {
-        setLabelColumnCollapsed(prev => {
-            const next = !prev;
-            try { localStorage.setItem('lopo-label-col-collapsed', String(next)); } catch {}
-            return next;
-        });
-    };
-
-    const handleToggleRecastRowVisible = () => {
-        setRecastRowVisible(prev => {
-            const next = !prev;
-            try { localStorage.setItem('lopo-recast-row-visible', String(next)); } catch {}
-            return next;
-        });
-    };
 
     const hasLabels = labels.length > 0;
     const labelColumnVisible = !labelColumnCollapsed && !(phaseColumnCollapsed && !hasLabels);
@@ -587,61 +522,10 @@ const Timeline: React.FC = () => {
 
 
 
-    const gridLines = useMemo(() => {
-        const lines = [];
-        const start = -10;
-        const end = fightDuration;
-        for (let i = start; i <= end; i++) {
-            lines.push(i);
-        }
-        return lines;
-    }, [fightDuration]);
-
-    const eventsByTime = useMemo(() => {
-        const targetOrder = { MT: 0, ST: 1 } as const;
-        const map = new Map<number, TimelineEvent[]>();
-        timelineEvents.forEach(event => {
-            const t = event.time;
-            if (!map.has(t)) map.set(t, []);
-            map.get(t)?.push(event);
-        });
-        // 同一時刻内: MT → ST → AoE の順を保証
-        map.forEach(events => {
-            if (events.length > 1) {
-                events.sort((a, b) =>
-                    (targetOrder[a.target as keyof typeof targetOrder] ?? 2) -
-                    (targetOrder[b.target as keyof typeof targetOrder] ?? 2)
-                );
-            }
-        });
-        return map;
-    }, [timelineEvents]);
-
-    // 行の配置係: 各秒の行の位置と高さ・表全体の高さを 1 か所で決める(縦位置の答えはすべてここから)。
-    // 行の高さ = 1 段 × max(1, 攻撃数)。空の行を隠す設定の可視判定もここ(旧: 表全体の高さと描画ループで二重に計算)。
-    const forceShowTime0 = useTutorialStore(s => s.isActive && s.getCurrentStep()?.id === 'create-6-add-event');
-    const rowLayout = useMemo(() => {
-        let maxPopulatedTime = -11;
-        if (hideEmptyRows) {
-            timelineEvents.forEach(e => { if (e.time > maxPopulatedTime) maxPopulatedTime = e.time; });
-            timelineMitigations.forEach(m => { if (m.time > maxPopulatedTime) maxPopulatedTime = m.time; });
-        }
-        const mitStartTimes = new Set<number>();
-        timelineMitigations.forEach(m => { if (!m.autoHidden) mitStartTimes.add(m.time); });
-        return computeRowLayout({
-            times: gridLines,
-            eventCountAt: t => eventsByTime.get(t)?.length ?? 0,
-            hasMitigationStartAt: t => mitStartTimes.has(t),
-            hideEmptyRows,
-            maxPopulatedTime,
-            forceVisibleTimes: forceShowTime0 ? new Set([0]) : undefined,
-            unitPx: rowUnitPx,
-        });
-    }, [gridLines, eventsByTime, timelineEvents, timelineMitigations, hideEmptyRows, forceShowTime0, rowUnitPx]);
-    // 縦位置を使うコールバック(スクロール同期・ジャンプ・範囲選択・メモ・カーソル)は ref 経由で最新を読む
-    rowLayoutRef.current = rowLayout;
-    timeToYMapRef.current = rowLayout.timeToY;
-    sortedTimeYRef.current = rowLayout.sortedTimeY;
+    const { eventsByTime, rowLayout } = useTimelineRowLayout({
+        fightDuration, timelineEvents, timelineMitigations, hideEmptyRows, rowUnitPx,
+        rowLayoutRef, timeToYMapRef, sortedTimeYRef,
+    });
 
     // 行の位置が変わったら(攻撃の追加・空の行を隠すの切り替えなど)、スクロールを待たずに
     // リキャスト行とスマホのフェーズ表示を今の行の位置で合わせ直す(どちらもふだんはスクロール時にしか更新されない)
@@ -718,27 +602,7 @@ const Timeline: React.FC = () => {
 
     useTimelineClearMenuOutsideClick({ clearMenuOpen, setClearMenuOpen });
 
-    // 注意: sortedPartyMembers は TimelineRow 等で「H1 の maxHp を引く」ような計算にも
-    // partyMembers として渡って使われている(表示専用ではない)。表示/非表示スイッチは
-    // 見た目だけの絞り込みという確定仕様のため、ここでは絶対にフィルタしない。
-    // 非表示メンバーの列描画だけを絞り込みたい箇所は、必ず visiblePartyMembers
-    // (この下で定義・hiddenPartyMemberIds を反映した派生リスト)の方を使うこと。
-    const sortedPartyMembers = useMemo(() => {
-        const order = getSortedPartyMemberIds(partySortOrder);
-
-        return [...partyMembers].sort((a, b) => {
-            const indexA = order.indexOf(a.id);
-            const indexB = order.indexOf(b.id);
-            return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
-        });
-    }, [partyMembers, partySortOrder]);
-
-    // 表示/非表示スイッチで隠したメンバーを除いた列描画専用リスト。JobPickerRow/RecastRow など
-    // 「メンバーごとに1列描画するだけ」のコンポーネントにのみ渡す(見た目だけへの影響に限定するため)。
-    const visiblePartyMembers = useMemo(
-        () => sortedPartyMembers.filter((m) => !hiddenPartyMemberIds.includes(m.id)),
-        [sortedPartyMembers, hiddenPartyMemberIds]
-    );
+    const { sortedPartyMembers, visiblePartyMembers } = useTimelinePartyOrder({ partyMembers, partySortOrder, hiddenPartyMemberIds });
 
     const {
         sheetColumnMap, sheetHiddenColumns, sheetHiddenPopover, setSheetHiddenPopover,
@@ -756,94 +620,17 @@ const Timeline: React.FC = () => {
         );
     }, [JOBS]);
 
-    // DOM 計測ベースの memberLayout (CSS clamp() に追従)
-    const [refVersion, setRefVersion] = useState(0);
-    const memberHeaderRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
-
-    const setMemberHeaderRef = useCallback((id: string, el: HTMLDivElement | null) => {
-        const prev = memberHeaderRefs.current.get(id);
-        if (prev !== el) {
-            memberHeaderRefs.current.set(id, el);
-            setRefVersion(v => v + 1);
-        }
-    }, []);
-
-    // メンバーごとに安定した ref コールバックをキャッシュ。
-    // JSX 内でインライン関数 `(el) => setMemberHeaderRef(id, el)` を書くと
-    // 毎レンダーで新インスタンスが生成され React が detach→attach を繰り返し、
-    // setRefVersion → 再レンダー → 無限ループを起こす。
-    // useRef に id→callback をキャッシュすることで関数参照を安定化する。
-    const memberRefCallbacks = useRef<Map<string, (el: HTMLDivElement | null) => void>>(new Map());
-    const getMemberRefCallback = useCallback((id: string) => {
-        if (!memberRefCallbacks.current.has(id)) {
-            memberRefCallbacks.current.set(id, (el: HTMLDivElement | null) => setMemberHeaderRef(id, el));
-        }
-        return memberRefCallbacks.current.get(id)!;
-    }, [setMemberHeaderRef]);
-
-    const memberRefEntries = useMemo(
-        (): MemberRefEntry[] => sortedPartyMembers.map(m => ({ id: m.id, el: memberHeaderRefs.current.get(m.id) ?? null })),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [sortedPartyMembers, refVersion],
-    );
-    const memberLayout = useMeasuredMemberLayout(memberRefEntries);
-
-    // 表示メンバー絞り込みトグル(PartyVisibilityMenu)が出す「更新中」インジケーターを消すタイミング。
-    // memberLayout は列の増減(=表示切り替え)による再描画カスケードの最後に更新される値なので、
-    // これが確定した = 一連の重い再描画が落ち着いた、とみなせる(2026-08-19実測で確認済み)。
-    useEffect(() => {
-        useRenderPendingStore.getState().hide();
-    }, [memberLayout]);
-
-    // メモ・カーソルの横位置: 保存/送信は常にレーン表示の xRatio。スプシ表示では「読む=レーン→スプシ、書く=スプシ→レーン」に
-    // 変換し、同じメンバーの列の中に収める(列の外=左の情報列は両表示で同じなのでそのまま)。
-    const [memberStartPx, setMemberStartPx] = useState(0);
-    const [scrollViewportW, setScrollViewportW] = useState(0);
-    useLayoutEffect(() => {
-        if (!isSheetView) return; // レーン表示では不要(余計な再描画を避ける)
-        const containerEl = sheetContainerRef.current;
-        const firstMemberEl = document.querySelector('[data-member-id]') as HTMLElement | null;
-        if (!containerEl || !firstMemberEl) return;
-        setMemberStartPx(firstMemberEl.getBoundingClientRect().left - containerEl.getBoundingClientRect().left);
-        setScrollViewportW(scrollContainerRef.current?.clientWidth ?? 0);
-    }, [memberLayout, isSheetView, sheetWidth, scrollContainerRef]);
-    const memberXMap = useMemo(() => {
-        if (!isSheetView) {
-            return {
-                toPx: (r: number) => xRatioToPx(r, sheetWidth),
-                toRatio: (px: number) => pxToXRatio(px, sheetWidth),
-            };
-        }
-        const { thW, dpsW, padX } = readLanesColumnVars();
-        const lanes = lanesBands(visiblePartyMembers, memberStartPx, thW, dpsW, padX);
-        const sheet = sheetBands(visiblePartyMembers, memberLayout);
-        const lanesWidth = lanesSheetWidth(scrollViewportW, sheetWidth);
-        return {
-            toPx: (r: number) => convertMemberX(r * lanesWidth, lanes, sheet),
-            toRatio: (px: number) => (lanesWidth > 0 ? convertMemberX(px, sheet, lanes) / lanesWidth : 0),
-        };
-    }, [isSheetView, visiblePartyMembers, memberStartPx, memberLayout, sheetWidth, scrollViewportW]);
-    memberXMapRef.current = memberXMap;
+    // DOM 計測ベースの memberLayout・横位置変換
+    const { getMemberRefCallback, memberLayout, memberXMap } = useTimelineMemberXMap({
+        sortedPartyMembers, visiblePartyMembers, isSheetView, sheetWidth, sheetContainerRef, scrollContainerRef, memberXMapRef,
+    });
 
     const { sheetColHover, handleSheetPointerMove, handleSheetPointerLeave } = useTimelineSheetHover({
         sheetContainerRef, sheetColumnMap, visiblePartyMembers, memberLayout,
     });
-    // ホバー強調(TableHoverHighlight)が pointermove で読む最新の幾何
-    const hoverGeomRef = useRef<HoverGeom>({ mode: 'lanes', bands: [], columnMap: null, layout: EMPTY_ROW_LAYOUT });
-    hoverGeomRef.current = {
-        mode: isSheetView ? 'sheet' : 'lanes',
-        // レーン表示の memberLayout は列の内側(左右の余白 padX を除いた幅)なので、帯は余白ぶん広げてセル全体に合わせる
-        bands: isSheetView
-            ? sheetBands(visiblePartyMembers, memberLayout)
-            : (() => { const padX = readLanesColumnVars().padX; return sheetBands(visiblePartyMembers, memberLayout).map(b => ({ ...b, left: b.left - padX, width: b.width + padX * 2 })); })(),
-        columnMap: sheetColumnMap,
-        layout: rowLayout,
-    };
-    // レーン表示は従来どおり rAF 内で最新の sheetWidthRef を読む。スプシ表示だけ列変換。
-    const cursorToLocalXRef = useRef(memberXMap.toPx);
-    cursorToLocalXRef.current = isSheetView
-        ? memberXMap.toPx
-        : (r: number) => xRatioToPx(r, sheetWidthRef.current);
+    const { hoverGeomRef, cursorToLocalXRef } = useTimelineHoverGeom({
+        isSheetView, visiblePartyMembers, memberLayout, sheetColumnMap, rowLayout, memberXMap, sheetWidthRef,
+    });
 
     // 画面外ガイド矢印用: 競合中インスタンスの列中央X + コンテンツ内絶対Y を算出。
     // Y は rowLayout(同じレンダーで計算済みの行の配置)から得る。旧実装の「直前レンダーの

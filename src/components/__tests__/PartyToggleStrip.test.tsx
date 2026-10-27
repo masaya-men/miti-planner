@@ -50,7 +50,7 @@ describe('PartyToggleStrip', () => {
   });
 
   it('全員表示中に ALL を押しても何も起きない(読み込み表示が出っぱなしにならない)', () => {
-    // 根因: 列が変わらないと Timeline.tsx の memberLayout が更新されず pending.hide() が呼ばれない
+    // 根因: 列が変わらないと timeline/useTimelineLayout.ts の memberLayout が更新されず pending.hide() が呼ばれない
     useRenderPendingStore.setState({ pending: false });
     const before = useMitigationStore.getState().hiddenPartyMemberIds;
     render(<PartyToggleStrip />);
