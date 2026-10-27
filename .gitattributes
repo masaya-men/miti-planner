@@ -1,0 +1,3 @@
+# vitest はスナップショットを LF で書き直す。core.autocrlf=true の Windows で CRLF のまま取り出すと、
+# 中身が同じでもテストのたびに「変更あり」に見えるため LF に固定する
+*.snap text eol=lf
