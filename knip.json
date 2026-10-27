@@ -1,0 +1,35 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "index.html",
+    "api/**/*.ts",
+    "!api/_lib/**",
+    "workers/collab/src/index.ts",
+    "workers/media-proxy/src/index.ts",
+    "workers/collab/scripts/*.mjs",
+    "scripts/**/*.{ts,mjs,cjs,js}",
+    "*.{mjs,cjs}",
+    "playwright/**/*.ts",
+    "src/**/__tests__/**/*.{ts,tsx}",
+    "api/**/__tests__/**/*.ts",
+    "scripts/**/__tests__/**/*.ts",
+    "workers/**/*.test.ts"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx}",
+    "api/**/*.ts",
+    "workers/*/src/**/*.ts",
+    "workers/*/scripts/**",
+    "scripts/**/*.{ts,mjs,cjs,js}"
+  ],
+  "ignoreDependencies": [
+    "playwright",
+    "partyserver",
+    "xlsx",
+    "cloudflare"
+  ],
+  "ignoreBinaries": ["knip"],
+  "ignoreUnresolved": [
+    "^/src/"
+  ]
+}

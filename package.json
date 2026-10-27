@@ -17,7 +17,8 @@
     "test:e2e": "playwright test",
     "test:e2e:housing": "playwright test playwright/housing",
     "test:e2e:miti": "playwright test playwright/miti",
-    "prepare": "husky"
+    "prepare": "husky",
+    "knip": "knip"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
