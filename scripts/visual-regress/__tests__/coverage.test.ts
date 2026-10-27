@@ -21,10 +21,8 @@ const HAND_WRITTEN = [
   'PipView', 'SystemNotificationBar', 'LocalDataSafetyBar',
 ];
 
-/** 未使用の窓(パス単位で除外。admin 版 CsvImportModal とは別物) */
+/** 未使用の窓(パス単位で除外) */
 const UNUSED_PATHS = [
-  'src/components/SaveDialog.tsx',
-  'src/components/CsvImportModal.tsx',
   'src/components/housing/HousingOnboardingDialog.tsx',
   'src/components/housing/workspace/HousingToast.tsx',
 ];
