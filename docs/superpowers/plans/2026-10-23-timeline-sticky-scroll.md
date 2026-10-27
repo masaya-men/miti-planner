@@ -1,5 +1,7 @@
 # 軽減表の横スクロール(情報列の固定・見出しの同時移動・MIL-SPEC 横バー) Implementation Plan
 
+2026-10-27 整頓⑤で Timeline.tsx を分割したため、Timeline.tsx の行参照を分割後の場所に書き換えた(旧行は split-base=5aba5053 基準)。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans。1 回に 1 タスクだけ行う。チェックボックス(`- [ ]`)で進捗を管理する。
 
 **Goal:** PC の `/miti` で、横スクロール時に情報列 6 つを固定し、見出し・ボタンの欄を本文と同じコマで動かし、MIL-SPEC の横バーを S1「窪みの溝」にする。既存機能は変更前の記録と機械で突き合わせて壊さない。
@@ -45,7 +47,7 @@
 **モデル:** Sonnet high(項目数が多く、手を抜くと後段の検収が空洞化するため。実装の判断は不要)
 
 **対象ファイル(新規):** `scripts/sticky-scroll/regress.mjs`、`scripts/sticky-scroll/README.md`(使い方 10 行以内)、`.gitignore` に `scripts/sticky-scroll/.baseline/` を 1 行追加。
-**読むだけ:** `scripts/milspec-sp2/_fixture.mjs`(注入・launch・gotoMiti の流儀を踏襲)、`src/components/Timeline.tsx`(各 file:line は設計書 §2・§4 の表)、`src/components/timeline/sheet/memberX.ts`。
+**読むだけ:** `scripts/milspec-sp2/_fixture.mjs`(注入・launch・gotoMiti の流儀を踏襲)、`src/components/Timeline.tsx` と `src/components/timeline/`(各 file:line は設計書 §2・§4 の表。設計書側の Timeline.tsx 行は旧行=split-base)、`src/components/timeline/sheet/memberX.ts`。
 
 **内容:** 設計書 §4 の [自] 全項目を Playwright で実行し、結果(要素の画面上の位置・計算済みスタイル・保存された xRatio・送信値・`[data-time-row]` 数・`sheetContainer.offsetWidth`・`scroller.scrollWidth/clientWidth`・`sheetWidth` 相当の実測・チュートリアル目印 3 つの `getBoundingClientRect`)を JSON で `.baseline/regress-<cond>.json` に書く。
 - 条件: 画面 3 種(本人 / 多数派 / 大画面)× テーマ(標準ダーク・標準ライト・MIL-SPEC ダーク・MIL-SPEC ライト)× 表示(ふつう・スプシ)× 8 人 / 4 人以下。組み合わせが膨大な項目は、設計書 §4 の B 番号ごとに代表条件を決め、README に書く。
@@ -127,7 +129,7 @@
 **モデル:** Sonnet medium
 
 **対象ファイル(新規):** `src/components/timeline/sheet/__tests__/stickyCoords.test.ts`(テストのみ。実装ファイル `src/components/timeline/sheet/stickyCoords.ts` は**まだ作らない**)
-**読むだけ:** `src/components/timeline/sheet/memberX.ts`(`readLanesColumnVars` `lanesBands` `lanesSheetWidth` `memoCreateXRatio`)、`src/components/Timeline.tsx:1122-1158`。前回の `infoPaneWidthCss` の式は `git show 9387f140` で参照。
+**読むだけ:** `src/components/timeline/sheet/memberX.ts`(`readLanesColumnVars` `lanesBands` `lanesSheetWidth` `memoCreateXRatio`)、`src/components/timeline/useTimelineMemoCursor.ts:60-98`(handleSheetClick。旧 Timeline.tsx:1122-1158)。前回の `infoPaneWidthCss` の式は `git show 9387f140` で参照。
 **テスト内容(関数の署名もここで確定し、README コメントに書く):**
 - `toSheetX(clientX, { scrollerLeft, frozenW, sheetLeft }): number`
   - 画面の x < frozenW → x画面 を返す / それ以外 → `clientX - sheetLeft` / scrollLeft 0 では全域で今の `clientX - sheetLeft` と一致 / 境界(= frozenW ちょうど)はレーン側。
@@ -148,7 +150,7 @@
 
 **モデル:** Sonnet high(捨てる試作だが、結果が関門の判断を決めるため。実装の自由度が高く、止まって報告する判断も要る)
 
-**対象ファイル(試作ブランチ上でのみ編集):** `src/components/Timeline.tsx:3529`(sheetContainer の幅)、`src/components/TimelineRow.tsx:340-353, 389-686`(時間の列だけ)。
+**対象ファイル(試作ブランチ上でのみ編集):** `src/components/Timeline.tsx:608`(sheetContainer の幅。旧 Timeline.tsx:3529)、`src/components/TimelineRow.tsx:340-353, 389-686`(時間の列だけ)。
 **試作の範囲(これ以上やらない):** sheetContainer の幅を中身に合わせる + 情報列の上に**空の**不透明な sticky の箱(z 70)+ 時間の列だけをその箱の中の `content-visibility` 付きの行で描く。
 **先に書く失敗テスト(撮影比較ではなく計測スクリプト):** `scripts/sticky-scroll/proto-body.mjs`(これは commit してよい唯一のファイル)。scrollLeft 0 / 中間 / 最大で箱の画面上の x を測り、`elementsFromPoint` の最前面を調べ、縦に高速スクロールしても箱の中の行が抜けないかを調べる。まず現行コードで実行して「箱が無い」で失敗することを確認。
 **合格条件(機械):**
@@ -166,7 +168,7 @@
 
 **モデル:** Sonnet high(Chrome / WebKit / Firefox の挙動判断、Lightning CSS の残り方の確認が絡み、結果が H1 切替を決める)
 
-**対象ファイル(試作ブランチ上でのみ編集):** `src/components/Timeline.tsx:3337-3343`(見出し)と `:1528-1552`(`handleScrollSync`)、`:3474-3481`(スクロールの入れ物に `scroll-timeline: --tl-x x`)、共通の親 `.glass-panel` に `timeline-scope: --tl-x`、CSS は `src/index.css` の末尾に試作用ブロック。
+**対象ファイル(試作ブランチ上でのみ編集):** `src/components/timeline/TimelineHeader.tsx:54-60`(見出し。旧 Timeline.tsx:3337-3343)と `src/components/timeline/useTimelineScrollSync.ts:96-121`(`handleScrollSync`。旧 :1528-1552)、`src/components/Timeline.tsx:552-561`(スクロールの入れ物 ref={scrollContainerRef}。旧 :3474-3481。ここに `scroll-timeline: --tl-x x`)、共通の親 `.glass-panel` に `timeline-scope: --tl-x`、CSS は `src/index.css` の末尾に試作用ブロック。
 **試作の範囲:** 見出しだけを窓 + トラック + スクロール連動アニメーション(`@keyframes tl-track-x`、`--tl-max` は ResizeObserver で書く)。ボタンの欄・本文は触らない。非対応ブラウザでは今の JS に戻す。
 **先に書く失敗テスト:** Task 3 の `frame-sync.mjs --expect-zero` を試作前に実行して失敗(ずれあり)することを再確認し、試作後に成功させる。
 **合格条件(機械):**
@@ -205,14 +207,14 @@
 
 **モデル:** Sonnet medium
 
-**対象:** `src/components/Timeline.tsx:836-850`(`sheetWidth` の ResizeObserver を、sheetContainer からスクロールの入れ物の `contentRect.width` に替える。カーソル用 ref ミラーはそのまま)、`:1151`(`memoCreateXRatio(xPx, rect.width, …)` の `rect.width` → `sheetWidth`)。`src/components/timeline/sheet/memberX.ts:70-` は引数の受け渡しだけ確認(変えない)。
+**対象:** `src/components/timeline/useTimelineLayout.ts:37-51`(useTimelineSheetWidth の `sheetWidth` の ResizeObserver。旧 Timeline.tsx:836-850。これを、sheetContainer からスクロールの入れ物の `contentRect.width` に替える。カーソル用 ref ミラーはそのまま)、`src/components/timeline/useTimelineMemoCursor.ts:89`(handleSheetClick 内の `memoCreateXRatio(xPx, rect.width, …)` の `rect.width` → `sheetWidth`。旧 Timeline.tsx:1151)。`src/components/timeline/sheet/memberX.ts:70-` は引数の受け渡しだけ確認(変えない)。
 **先に書く失敗テスト:** `src/components/timeline/__tests__/Timeline.sheetWidth.test.tsx`(新規)。入れ物の内容幅が変わると `sheetWidth` が追従し、sheetContainer の幅を広げても `memoCreateXRatio` の分母が変わらないこと(ResizeObserver をモックし、sheetContainer を `w-max` で 3000px、入れ物 1188px のときに分母が 1188)。まず赤を確認。
 **合格条件:**
 1. 新テスト緑 + `Timeline.sheet.test.tsx` `Timeline.layout.test.tsx` 緑。
 2. `regress.mjs --compare=baseline` で差 0。
 3. `sheetWidth` の実測の差 0.01px 以内(1489・1920・2560 × サイドバー開閉 × ふつう/スプシ)。小数点以下の一致(設計書 §12)を数値で報告。
 **検証コマンド:** `rtk npx vitest run src/components/timeline/__tests__/Timeline.sheetWidth.test.tsx src/components/Timeline.sheet.test.tsx` / `rtk node scripts/sticky-scroll/regress.mjs --out=after --compare=baseline`
-**触らない:** `Timeline.tsx` の `:3529` 以降(行の描画)、`memberX.ts` 本体、`coords.ts`。
+**触らない:** `Timeline.tsx:608` 以降と `timeline/TimelineRows.tsx` / `timeline/TimelineBands.tsx`(行の描画。旧 Timeline.tsx:3529 以降)、`memberX.ts` 本体、`coords.ts`。
 **commit:** `refactor(timeline): xRatio の分母を入れ物の内容幅から測る(sheetContainer の幅から切り離し)`
 
 ## Task 9: 設計書 2-2 — `toSheetX` と固定列の幅の関数(§6.3、§6.4。固定列の幅 0 のまま)
@@ -220,7 +222,7 @@
 **モデル:** Sonnet medium
 
 **対象(新規):** `src/components/timeline/sheet/stickyCoords.ts`(`toSheetX` `computeFrozenWidth` `frozenWidthCss` `sheetContentWidth`)。Task 5 のテストを緑にする。行のセル幅を出す関数は Task 5 のコメントの `file:line` を再利用(式は 1 か所にする)。
-**変更(最小):** `Timeline.tsx` の `clientX` 利用先 6 か所(設計書 §6.4 の列挙。`:1133, :1496, :2198-2200, :2943`、`TableHoverHighlight.tsx:34`、`MemoOverlay.tsx:99`)で `toSheetX` を呼ぶ。ただし `frozenW = 0` を渡す(動きは変わらない)。
+**変更(最小):** `clientX` 利用先 6 か所(設計書 §6.4 の列挙。`useTimelineMemoCursor.ts:72`(handleSheetClick。旧 Timeline.tsx:1133)、`useTimelineMemoCursor.ts:196`(useTimelineCursorSend の onMove。旧 :1496)、`useTimelineSheetView.ts:58-62`(handleSheetCellTap。旧 :2198-2200)、`useTimelineSheetView.ts:186`(handleSheetPointerMove の sheetColumnFromX。旧 :2943)、`TableHoverHighlight.tsx:34`、`MemoOverlay.tsx:99`)で `toSheetX` を呼ぶ。ただし `frozenW = 0` を渡す(動きは変わらない)。
 **先に書く失敗テスト:** Task 5 のテスト(赤)。
 **合格条件:**
 1. `rtk npx vitest run src/components/timeline/sheet/__tests__/stickyCoords.test.ts` 緑。
@@ -234,7 +236,7 @@
 
 **モデル:** Sonnet high(MIL-SPEC の `nth-child` 指定の書き換えが多く、見た目の回帰が出やすいため。Opus は不要)
 
-**対象:** `Timeline.tsx:3040-3047`(ボタンの欄)、`:3337-3343`(見出し)、`:1528-1552`(`handleScrollSync` の書く先を inner → トラックに)、`:1568-1580`、`src/components/Timeline.layoutHooks.ts:24-58`(`offsetLeft` 実測の基準がトラックでも同じ値になること)、`src/components/military/table/milspecTable.css:21-23, 59-75, 221, 287-294`、`milspecDeck.css:5-9`、`MilspecReticle.tsx:76`(`#timeline-header-inner > :nth-child(-n+4)` が効き続けること)、`MilspecControlDeck.tsx:79`(漏れ光の長さ)、`src/index.css`(`tl-track-x` の `@keyframes` と `--tl-max`)。
+**対象:** `timeline/TimelineControlBar.tsx:80-87`(ボタンの欄。旧 Timeline.tsx:3040-3047)、`timeline/TimelineHeader.tsx:54-60`(見出し。旧 :3337-3343)、`timeline/useTimelineScrollSync.ts:96-121`(`handleScrollSync` の書く先を inner → トラックに。旧 :1528-1552)、`timeline/useTimelineScrollSync.ts:136-148`(syncPadding。旧 :1568-1580)、`src/components/Timeline.layoutHooks.ts:24-58`(`offsetLeft` 実測の基準がトラックでも同じ値になること)、`src/components/military/table/milspecTable.css:21-23, 59-75, 221, 287-294`、`milspecDeck.css:5-9`、`MilspecReticle.tsx:76`(`#timeline-header-inner > :nth-child(-n+4)` が効き続けること)、`MilspecControlDeck.tsx:79`(漏れ光の長さ)、`src/index.css`(`tl-track-x` の `@keyframes` と `--tl-max`)。
 - 「固定の側」は inner の直接の子のまま。窓 = `absolute; top:0; bottom:0; left: var(--frozen-w); right:0; overflow:hidden`。トラック = `absolute; left: calc(-1 * var(--frozen-w)); width: max-content`(設計書 §5.3)。窓とトラックには MIL-SPEC の `> *` の指定(`position: relative; height: 100%`)を当てない。
 - 非対応の判定は `CSS.supports('animation-timeline: --a') && CSS.supports('timeline-scope: --a')`。Task 7 の結果(Lightning CSS で残るか)に従い、CSS か JS(`style.animationTimeline`)で書く。
 - このタスクでは `--frozen-w` はまだ **0 ではなく本来の値**を定義する(窓の左端に必要)。ただし本文はまだ固定しない(Task 11)。
@@ -254,7 +256,7 @@
 **モデル:** **Opus high**(理由: 本計画で最も影響範囲が広い。`TimelineRowContent` を 2 部品に分割しつつ JSX・クラス名・data 属性・`data-tutorial` を 1 文字も変えずに移し、`content-visibility` の重なりの箱・縞模様の偶奇・メモ化比較まで同時に守る必要がある。誤りは前回の撤回の主因 A1・A4 に直結し、Sonnet での手戻りコストが高い)
 
 **対象:**
-- `Timeline.tsx:3529`(sheetContainer の幅 = `sheetContentWidth`、PC のみ。スマホは触らない)、`:3695, 3747`(フェーズ・ラベルの帯)と `:3773`(時刻選択の枠)をペインの中へ、`renderItems` のループ(行を作る箇所)で情報側とレーン側の両方を作る。
+- `Timeline.tsx:608`(sheetContainer の幅 = `sheetContentWidth`、PC のみ。スマホは触らない。旧 Timeline.tsx:3529)、`timeline/TimelineBands.tsx:63, 114`(フェーズ・ラベルの帯 data-phase-overlay / data-label-overlay。旧 :3695, 3747)と `timeline/TimelineBands.tsx:140`(時刻選択の枠 ref={overlayRef}。旧 :3773)をペインの中へ、`timeline/TimelineRows.tsx:61-139` の `renderItems` のループ(行を作る箇所)で情報側とレーン側の両方を作る。
 - `TimelineRow.tsx:340-353, 389-686`(`TimelineRowContent` を「情報列だけ」と「メンバー列だけ」に分ける。`data-row-part="info"|"lanes"`、レーン側の最初の子に `data-frozen-spacer`。どちらも `memo` + `rowPropsEqual`)。
 - ペイン: `position: sticky; left: 0; z-index: 70`、不透明の地、`isolate`。行は両方の親で最初の子(縞模様 `nth-child(even)` の偶奇を揃える)。
 **先に書く失敗テスト:**
@@ -308,7 +310,7 @@
 
 **モデル:** Sonnet high(座標の取り違えは保存データ(xRatio)に直結するため)
 
-**対象:** Task 9 で `frozenW = 0` にした 6 か所を本来の値に(`Timeline.tsx:1122-1158`(メモ作成・固定列の上は横に動かしても作らない)、`:1488-1526`(カーソル送信)、`:2198-2200`(スプシのマス判定で固定列の上は無視)、`:2943`(スプシ列のツールチップ・固定列の上は出さない)、`TableHoverHighlight.tsx:22-50`(固定列の上ではレーンの強調を消す)、`MemoOverlay.tsx:99`(ドラッグの離した位置))。スクロールの入れ物に `scroll-padding-left: var(--frozen-w)`(B9-7)。`--frozen-w` は入れ物と `.glass-panel` に置く(設計書 §6.3)。
+**対象:** Task 9 で `frozenW = 0` にした 6 か所を本来の値に(`useTimelineMemoCursor.ts:60-98`(handleSheetClick・メモ作成・固定列の上は横に動かしても作らない。旧 Timeline.tsx:1122-1158)、`useTimelineMemoCursor.ts:182-227`(useTimelineCursorSend・カーソル送信。旧 :1488-1526)、`useTimelineSheetView.ts:58-62`(handleSheetCellTap・スプシのマス判定で固定列の上は無視。旧 :2198-2200)、`useTimelineSheetView.ts:186`(handleSheetPointerMove・スプシ列のツールチップ・固定列の上は出さない。旧 :2943)、`TableHoverHighlight.tsx:22-50`(固定列の上ではレーンの強調を消す)、`MemoOverlay.tsx:99`(ドラッグの離した位置))。スクロールの入れ物に `scroll-padding-left: var(--frozen-w)`(B9-7)。`--frozen-w` は入れ物と `.glass-panel` に置く(設計書 §6.3)。
 **先に書く失敗テスト:** `Timeline.memoCreate.test.tsx` `Timeline.cursorSend.test.tsx`(新規。横に 300px 動かした状態で、情報列の上を押しても作らない / 送信値は §6.4 の決まりどおり / スクロール 0 では baseline と同じ値)。`TableHoverHighlight` のテスト追記。赤を確認。
 **合格条件:**
 1. 新規・既存テスト緑。
@@ -322,7 +324,7 @@
 
 **モデル:** Sonnet high(z の順を取り違えると A6 が再発。ただし z の表は設計書で確定済みのため Opus は不要)
 
-**対象:** `src/components/collab/CursorOverlay.tsx:56-87`(1 人につきレーン層とペイン内の 2 要素。rAF で切替)、`MemoOverlay.tsx:62, 99-112`(情報列の位置のメモはペインの中)、`cursor.css:7`、`memo.css:22, 31`、`Timeline.tsx:3514-3527`(競合矢印を PC のみ sheetContainer の中へ。z 55)、`ConflictOffscreenArrows.tsx:92`、`MilspecReticle.tsx:103-109, 164`(左端の切り取り = 入れ物の左端 + 固定列の幅。狙う相手で z 60 / 75)、ドラッグ中のメモ z 80。
+**対象:** `src/components/collab/CursorOverlay.tsx:56-87`(1 人につきレーン層とペイン内の 2 要素。rAF で切替)、`MemoOverlay.tsx:62, 99-112`(情報列の位置のメモはペインの中)、`cursor.css:7`、`memo.css:22, 31`、`Timeline.tsx:590-606`(競合矢印を PC のみ sheetContainer の中へ。z 55。旧 Timeline.tsx:3514-3527)、`ConflictOffscreenArrows.tsx:92`、`MilspecReticle.tsx:103-109, 164`(左端の切り取り = 入れ物の左端 + 固定列の幅。狙う相手で z 60 / 75)、ドラッグ中のメモ z 80。
 **先に書く失敗テスト:** `CursorOverlay.test.tsx` に「受信 x が情報列のとき、ペイン内の要素が表示・レーン層は非表示」を追加。`scripts/sticky-scroll/zorder.mjs`(新規): 横に 300px 動かした状態で `elementsFromPoint` により、(a) 固定列の上の最前面がペインの要素、(b) 情報列を指す相手のカーソルがペインより前、(c) レーンのアイコンが固定列の右側では最前面、(d) 画面外の競合矢印がペインの下、(e) ドラッグ中のメモが固定列の上で見える、を判定。赤を確認。
 **合格条件:**
 1. `zorder.mjs` が 5 項目すべて合格。
