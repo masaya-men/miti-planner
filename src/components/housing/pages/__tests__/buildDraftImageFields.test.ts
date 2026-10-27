@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { buildDraftImageFields, EMPTY_SNS_CAPTURE, type SnsCapture } from '../RegisterPage';
+import { buildDraftImageFields } from '../RegisterPage';
+import { EMPTY_SNS_CAPTURE, type SnsCapture } from '../../register/snsCapture';
 import type { CompressedImage } from '../../../../lib/housing/imageCompression';
 
 const FAKE_IMAGE = {} as CompressedImage;

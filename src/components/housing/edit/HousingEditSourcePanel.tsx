@@ -5,7 +5,7 @@ import type { YoutubeFetchedData, OgpFetchedData } from '../register/HousingRegi
 import { HousingRegisterMultiUrlField } from '../register/HousingRegisterMultiUrlField';
 import { deleteListingSourceImage, reorderListingSourceImages } from '../../../lib/housingApiClient';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
-import { EMPTY_SNS_CAPTURE, mergeTweetPhotoAspectRatios, type SnsCapture } from '../pages/RegisterPage';
+import { EMPTY_SNS_CAPTURE, mergeTweetPhotoAspectRatios, type SnsCapture } from '../register/snsCapture';
 import { isDuplicatePostUrl, shouldRejectIncomingVideo } from '../../../lib/housing/multiSourceGuards';
 import { showToast } from '../../Toast';
 import { HousingImage } from '../media/HousingImage';

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { HousingEditMediaModeTabs, type EditMediaMode } from './HousingEditMediaModeTabs';
 import { HousingEditThumbnailPanel } from './HousingEditThumbnailPanel';
 import { HousingEditSourcePanel, type EditVideoPreview } from './HousingEditSourcePanel';
-import type { SnsCapture } from '../pages/RegisterPage';
+import type { SnsCapture } from '../register/snsCapture';
 
 export interface HousingEditMediaSectionProps {
   listingId: string;

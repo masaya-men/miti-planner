@@ -10,7 +10,7 @@
  *   - ALLOWED にあるのに無くなった循環も落ちる(直したら ALLOWED から消す=許可を残さない)。
  *   ALLOWED は 0 件を目指して 1 件ずつ減らす。
  * 型だけの import(import type)は実行時に読まれないので数えない(skipTypeImports)。
- *   2026-10-27 の計測 9 件のうち 5 件は型だけの循環で、実行時の循環は下の 4 件。
+ *   2026-10-27 の計測 9 件のうち 5 件は型だけの循環で、実行時の循環 4 件は同日に解消した。
  */
 import { describe, it, expect } from 'vitest';
 import { join } from 'node:path';
@@ -18,10 +18,8 @@ import madge from 'madge';
 
 const ROOT = join(__dirname, '..', '..');
 
-/** 今ある循環(src からの相対・madge の表記)。直したら消す */
-const ALLOWED: string[] = [
-  'components/housing/pages/RegisterPage.tsx > components/housing/edit/HousingEditMediaSection.tsx > components/housing/edit/HousingEditSourcePanel.tsx',
-];
+/** 例外として許す循環(src からの相対・madge の表記)。2026-10-27 に 0 件へ解消済み。足すときは理由を添える */
+const ALLOWED: string[] = [];
 
 describe('循環 import の検査', () => {
   it('src の循環 import が許可リストと一致する(増えても、直したのに残っていても落ちる)', async () => {
