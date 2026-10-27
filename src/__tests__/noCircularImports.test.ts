@@ -20,7 +20,6 @@ const ROOT = join(__dirname, '..', '..');
 
 /** 今ある循環(src からの相対・madge の表記)。直したら消す */
 const ALLOWED: string[] = [
-  'store/useAuthStore.ts > utils/logoUpload.ts',
   'components/housing/pages/RegisterPage.tsx > components/housing/edit/HousingEditMediaSection.tsx > components/housing/edit/HousingEditSourcePanel.tsx',
 ];
 

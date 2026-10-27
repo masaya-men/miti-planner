@@ -186,7 +186,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
         // ① Firebase Storageのチームロゴ・アバターを削除
         try {
-            await deleteTeamLogo(uid);
+            await deleteTeamLogo(uid, () => useAuthStore.getState().profileDisplayName);
         } catch {
             // ロゴが存在しない場合は無視
         }

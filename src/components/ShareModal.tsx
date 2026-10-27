@@ -207,7 +207,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 
         setUploading(true);
         try {
-            const url = await uploadTeamLogo(user.uid, file);
+            const url = await uploadTeamLogo(user.uid, file, () => useAuthStore.getState().profileDisplayName);
             setTeamLogoUrl(url);
             showToast(t('team_logo.upload_success'));
             setShowLogo(true);
@@ -234,7 +234,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const handleLogoDelete = async () => {
         if (!user) return;
         try {
-            await deleteTeamLogo(user.uid);
+            await deleteTeamLogo(user.uid, () => useAuthStore.getState().profileDisplayName);
             setTeamLogoUrl(null);
             setShowLogo(false);
             showToast(t('team_logo.remove_success'));

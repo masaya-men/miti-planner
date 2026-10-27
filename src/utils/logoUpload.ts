@@ -6,7 +6,6 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { storage, db } from '../lib/firebase';
 import { COLLECTIONS } from '../types/firebase';
-import { useAuthStore } from '../store/useAuthStore';
 
 /** ロゴファイルの最大サイズ（2MB） */
 const MAX_SIZE = 2 * 1024 * 1024;
@@ -61,11 +60,15 @@ export function validateLogoFile(file: File): string | null {
     return null;
 }
 
+/** users/{uid} を新規作成するときの表示名。呼ぶ側(ログイン状態を持つ側)が渡す。
+ *  ログイン状態を直接読むと useAuthStore ⇄ logoUpload の循環 import になるため、作成時に読む関数で受け取る */
+export type GetDisplayName = () => string | null | undefined;
+
 /**
  * Firestore の users/{uid} ドキュメントに teamLogoUrl を保存する
  * ドキュメントが存在しない場合は、セキュリティルールが要求する必須フィールド付きで作成する
  */
-async function saveLogoUrlToFirestore(userId: string, url: string | null): Promise<void> {
+async function saveLogoUrlToFirestore(userId: string, url: string | null, getDisplayName: GetDisplayName): Promise<void> {
     const userRef = doc(db, COLLECTIONS.USERS, userId);
     const snapshot = await getDoc(userRef);
 
@@ -76,7 +79,7 @@ async function saveLogoUrlToFirestore(userId: string, url: string | null): Promi
         // ドキュメントが存在しない場合は必須フィールド付きで作成
         const provider = 'discord' as const;
         await setDoc(userRef, {
-            displayName: useAuthStore.getState().profileDisplayName || 'User',
+            displayName: getDisplayName() || 'User',
             provider,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
@@ -91,7 +94,7 @@ async function saveLogoUrlToFirestore(userId: string, url: string | null): Promi
  * チームロゴをアップロードする
  * リサイズ → Firebase Storage → Firestore の順に処理し、ダウンロード URL を返す
  */
-export async function uploadTeamLogo(userId: string, file: File): Promise<string> {
+export async function uploadTeamLogo(userId: string, file: File, getDisplayName: GetDisplayName): Promise<string> {
     let blob: Blob;
     try {
         blob = await resizeToJpeg(file);
@@ -110,7 +113,7 @@ export async function uploadTeamLogo(userId: string, file: File): Promise<string
 
     const url = await getDownloadURL(storageRef);
     try {
-        await saveLogoUrlToFirestore(userId, url);
+        await saveLogoUrlToFirestore(userId, url, getDisplayName);
     } catch (err) {
         console.error('[LogoUpload] Firestore 保存失敗:', err);
         throw err;
@@ -124,7 +127,7 @@ export async function uploadTeamLogo(userId: string, file: File): Promise<string
  * Storage からファイルを削除し、Firestore の URL を null にする
  * Storage にファイルが存在しない場合はエラーを無視する
  */
-export async function deleteTeamLogo(userId: string): Promise<void> {
+export async function deleteTeamLogo(userId: string, getDisplayName: GetDisplayName): Promise<void> {
     // 現行（JPEG）と旧形式（WebP）の両方を削除試行
     for (const ext of ['team-logo.jpg', 'team-logo.webp']) {
         try {
@@ -134,7 +137,7 @@ export async function deleteTeamLogo(userId: string): Promise<void> {
         }
     }
     try {
-        await saveLogoUrlToFirestore(userId, null);
+        await saveLogoUrlToFirestore(userId, null, getDisplayName);
     } catch (err) {
         console.error('[LogoUpload] Firestore ロゴURL削除失敗:', err);
         throw err;
