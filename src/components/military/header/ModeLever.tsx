@@ -6,7 +6,6 @@ import { useTransitionOverlay } from '../../ui/transitionOverlayContext';
 import { useCanPreviewWip } from '../../../hooks/useCanPreviewWip';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import { isPowered, powerOn, powerOff } from '../power/power';
-import './milspecH4.css';
 import './ModeLever.css';
 
 // H4 MODE T 字レバー(見本 js:1141-1157)= MIL-SPEC の電源スイッチ。位置は電源に追従(off = 上・on = 下)。

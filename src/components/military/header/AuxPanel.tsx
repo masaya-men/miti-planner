@@ -22,7 +22,6 @@ import { useMitigationStore } from '../../../store/useMitigationStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { getContentById } from '../../../data/contentRegistry';
 import { getPhaseName } from '../../../types';
-import './milspecH4.css';
 import './AuxPanel.css';
 
 // H4(見本 js:890-903): AUX(チュートリアル)・DSP(昼夜ロッカー)・MODE(T 字レバー)・COM(共有 / 同期 / 言語 / ログイン)。

@@ -1,9 +1,0 @@
-/* 表の操作列(見本 v11 css:106-108, 182-214, 245-258, 610)。見本の --xxx は --ma-xxx 読み替え。
-   MilspecControlDeck / MilspecSwitches からだけ import する。全規則 .theme-military 前置・milspec- 接頭辞。 */
-
-/* ---- 器: 外枠(controlBar)・内側 #timeline-controls-inner は素通しにして、装甲(deck / deck-bp)だけが見えるようにする ---- */
-.theme-military .milspec-app div:has(> #timeline-controls-inner) {
-  background: none; border-bottom-color: transparent;
-  overflow: visible; /* 装甲の影・キーの浮きを切らない */
-}
-.theme-military .milspec-app #timeline-controls-inner { position: relative; background: none; box-shadow: none; }

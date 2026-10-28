@@ -13,7 +13,6 @@ import { MilspecHRocker, MilspecHSlide } from './MilspecSwitches';
 import {
   BOARD_FRAME, DECK_ACC, DECK_COLS, DECK_FRAME, DECK_H, DECK_W, aaCaps, boardPanel, deckPanel, trCaps, urCaps,
 } from './deckGeometry';
-import './milspecDeck.css';
 // 副作用 import: i18next の初期化(単体テストの安全網。実アプリでは起動時に初期化済み)
 import '../../../i18n';
 import { leakTrace } from './milspecControlDeckTraces';

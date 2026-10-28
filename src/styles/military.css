@@ -5,5 +5,7 @@
 @import "./military/standard-revert.css";
 @import "./military/primitives.css";
 @import "./military/backdrop.css";
-@import "./military/pending-1.css";
-@import "./military/pending-2.css";
+@import "./military/standard-parts.css";
+@import "./military/unused/pending-2.css";
+@import "./military/unused/milspecH4.css";
+@import "./military/boot-parts.css";

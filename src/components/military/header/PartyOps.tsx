@@ -18,7 +18,6 @@ import { useRenderPendingStore } from '../../../store/useRenderPendingStore';
 import { useJobs } from '../../../hooks/useSkillsData';
 import { useCanPreviewWip } from '../../../hooks/useCanPreviewWip';
 import { PARTY_MEMBER_IDS } from '../../../constants/party';
-import './milspecH4.css';
 
 // H5(見本 js:904-927): PARTY OPS(パーティ編成・ステータス設定)・取り込み / その他・CRT・表示メンバー(ALL + 8 人)・表の見た目(ふつう / スプシ)・SORT。
 // 親は「ヘッダー区画」(position:absolute の座標系)。座標は headerLayout の keyRows と decor.h5。

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
-import './milspecH4.css';
 import './ThemeRocker.css';
 
 // H4 DSP 縦ロッカー(見本 js:1083-1089)。上 = 昼 / 下 = 夜。親は「ヘッダー区画」(absolute の座標系)。

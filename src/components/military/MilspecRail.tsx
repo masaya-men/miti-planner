@@ -4,7 +4,6 @@ import { burst } from './fx/engine';
 import { MilspecRivet } from './MilspecDecor';
 import { railLayout } from './rail/railGeometry';
 import { railSVG } from './rail/railSvg';
-import './rail/milspecRail.css';
 import './MilspecRail.css';
 
 export interface MilspecRailProps {
