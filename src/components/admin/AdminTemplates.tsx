@@ -8,7 +8,7 @@ import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { showToast } from '../toastBus';
 import { useTemplateEditor } from '../../hooks/useTemplateEditor';
-import type { TranslationMatchResult } from '../../hooks/useTemplateEditor';
+import type { TranslationMatchResult } from '../../hooks/templateEditor/templateEditorTypes';
 import { TemplateEditor } from './TemplateEditor';
 import { TemplateEditorToolbar } from './TemplateEditorToolbar';
 import { PlanToTemplateModal } from './PlanToTemplateModal';

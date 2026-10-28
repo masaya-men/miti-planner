@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
 import { useHousingUpdate } from '../../edit/useHousingUpdate';
-import type { RegistrationDraft } from '../../../../utils/housingValidation';
+import type { RegistrationDraft } from '../../../../utils/housingRegistrationTypes';
 import type { HousingListing } from '../../../../types/housing';
 import type { SnsCapture } from '../snsCapture';
 import type { RegisterFields } from './useRegisterFields';

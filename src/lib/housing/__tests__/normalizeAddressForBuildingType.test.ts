@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { normalizeAddressForBuildingType } from '../normalizeAddressForBuildingType';
-import { validateAddress, type AddressInput } from '../../../utils/housingValidation';
+import { validateAddress } from '../../../utils/housingValidation';
+import type { AddressInput } from '../../../utils/housingRegistrationTypes';
 
 const baseApartment = {
   dc: 'Mana',

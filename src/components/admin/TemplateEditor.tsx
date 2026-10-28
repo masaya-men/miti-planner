@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TimelineEvent, LocalizedString } from '../../types';
 import type { TemplateData } from '../../types/template';
-import type { EditState, TemplateLabel } from '../../hooks/useTemplateEditor';
+import type { EditState, TemplateLabel } from '../../hooks/templateEditor/templateEditorTypes';
 import { formatTime, parseTimeString } from '../../utils/templateConversions';
 import { parseSheetAliases } from '../../lib/sheetImport/carryOverTargets';
 import { getPhaseForTime, getLabelForTime, getCellHighlight, highlightClass } from './templates/templateEditorHelpers';

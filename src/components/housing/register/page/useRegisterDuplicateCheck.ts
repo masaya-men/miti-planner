@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { RegisterDuplicateState } from '../RegisterDuplicatePanel';
 import { checkDuplicate, type DuplicateEntry } from '../../../../lib/housingApiClient';
-import type { AddressInput } from '../../../../utils/housingValidation';
+import type { AddressInput } from '../../../../utils/housingRegistrationTypes';
 
 export function useRegisterDuplicateCheck(mode: 'create' | 'edit', addressOk: boolean, addressCandidate: AddressInput) {
   // ===== 右カラム: 重複照会 (debounce 500ms, Task13) =====

@@ -2,7 +2,7 @@
  * テンプレートエディター — セル 1 つの編集を state に反映する計算(翻訳・スプシ表記の自動伝播つき)
  */
 import type { TimelineEvent, LocalizedString } from '../../types';
-import type { EditState } from '../useTemplateEditor';
+import type { EditState } from './templateEditorTypes';
 
 export function applyCellEdit(
   prev: EditState,

@@ -10,25 +10,8 @@ import { AdvancedSettingsSection } from './contentForm/AdvancedSettingsSection';
 import { extractEncounterIdFromUrl, emptyContent } from './contentForm/contentFormHelpers';
 import { CATEGORIES, LEVELS, inputClass, selectClass, labelClass, exampleClass } from './contentForm/contentFormOptions';
 import { CONTENT_SERIES } from '../../data/contentRegistry';
+import type { ContentData } from './contentForm/contentFormTypes';
 
-/** コンテンツデータの型 */
-export interface ContentData {
-  id: string;
-  nameJa: string;
-  nameEn: string;
-  nameZh: string;
-  nameZhHant: string;
-  nameKo: string;
-  shortNameJa: string;
-  shortNameEn: string;
-  category: string;
-  level: number;
-  patch: string;
-  seriesId: string;
-  order: number;
-  fflogsEncounterId: number | null;
-  hasCheckpoint: boolean;
-}
 
 
 /** 新規シリーズも併せて作成する場合に onSave に渡されるオブジェクト */

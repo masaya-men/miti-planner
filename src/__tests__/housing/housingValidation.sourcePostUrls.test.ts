@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { validateImage, buildListingImageFields } from '../../utils/housingImageValidation';
-import type { RegistrationDraft } from '../../utils/housingValidation';
+import type { RegistrationDraft } from '../../utils/housingRegistrationTypes';
 
 const baseSnsDraft: RegistrationDraft = {
   dc: 'Mana', server: 'Pandaemonium', area: 'Shirogane', ward: 3,

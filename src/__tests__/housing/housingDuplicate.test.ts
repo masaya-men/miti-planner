@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildAddressKey, isSameAddress } from '../../utils/housingDuplicate';
-import type { AddressInput } from '../../utils/housingValidation';
+import type { AddressInput } from '../../utils/housingRegistrationTypes';
 
 const baseAddr: Pick<AddressInput, 'dc' | 'server' | 'area' | 'ward'> = {
   dc: 'Mana',

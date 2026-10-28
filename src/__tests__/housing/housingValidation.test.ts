@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { validateAddress, type AddressInput } from '../../utils/housingValidation';
+import { validateAddress } from '../../utils/housingValidation';
+import type { AddressInput } from '../../utils/housingRegistrationTypes';
 
 const baseAddr: Pick<AddressInput, 'dc' | 'server' | 'area' | 'ward'> = {
   dc: 'Mana',

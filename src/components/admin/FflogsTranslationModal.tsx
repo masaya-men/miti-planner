@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
 import { resolveFight, fetchFightEvents } from '../../api/fflogs';
 import type { TimelineEvent } from '../../types';
-import type { TranslationMatchResult } from '../../hooks/useTemplateEditor';
+import type { TranslationMatchResult } from '../../hooks/templateEditor/templateEditorTypes';
 
 // ─────────────────────────────────────────────
 // 型定義

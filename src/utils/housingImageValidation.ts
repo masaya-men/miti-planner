@@ -16,7 +16,7 @@ import {
   isVideoTwimgHost,
   isYoutubeThumbHost,
 } from './housingImageUrlChecks.js';
-import type { RegistrationDraft } from './housingValidation.js';
+import type { RegistrationDraft } from './housingRegistrationTypes.js';
 
 /**
  * SNS 画像フィールドの検証。imageMode!=='sns' のときは、postUrl が無ければ常に ok。

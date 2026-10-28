@@ -7,7 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { showToast } from '../toastBus';
-import { AdminContentForm, type ContentData, type NewSeriesPayload } from './AdminContentForm';
+import { AdminContentForm, type NewSeriesPayload } from './AdminContentForm';
+import type { ContentData } from './contentForm/contentFormTypes';
 import { AdminPage } from './AdminPage';
 
 export function AdminContents() {

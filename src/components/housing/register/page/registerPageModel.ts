@@ -1,5 +1,5 @@
 import type { RegisterAddressValues } from '../RegisterSectionAddress';
-import type { RegistrationDraft } from '../../../../utils/housingValidation';
+import type { RegistrationDraft } from '../../../../utils/housingRegistrationTypes';
 import type { CompressedImage } from '../../../../lib/housing/imageCompression';
 import type { HousingArea, HousingListing, HousingSize } from '../../../../types/housing';
 import { regionForDC } from '../../../../data/housing/dcServerMap';

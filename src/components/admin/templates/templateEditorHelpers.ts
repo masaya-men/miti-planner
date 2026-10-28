@@ -3,7 +3,7 @@
  */
 import type { LocalizedString } from '../../../types';
 import type { TemplateData } from '../../../types/template';
-import type { EditState, TemplateLabel } from '../../../hooks/useTemplateEditor';
+import type { EditState, TemplateLabel } from '../../../hooks/templateEditor/templateEditorTypes';
 
 export function getPhaseForTime(
   time: number,

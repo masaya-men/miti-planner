@@ -1,7 +1,7 @@
 /**
  * コンテンツ編集フォーム — 上級者設定(FFLogs エンカウンターID・略称の上書き)
  */
-import type { ContentData } from '../AdminContentForm';
+import type { ContentData } from './contentFormTypes';
 import { inputClass, labelClass, exampleClass } from './contentFormOptions';
 
 interface AdvancedSettingsSectionProps {

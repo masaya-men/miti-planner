@@ -11,7 +11,7 @@
  * apartment は各 ward に 2 棟存在するため、 `B${apartmentBuilding}` で号棟を区別する (2026-05-27 追加)。
  * ownerType (個人/FC) は schema 削除済み。
  */
-import type { AddressInput } from './housingValidation.js';
+import type { AddressInput } from './housingRegistrationTypes.js';
 
 export function buildAddressKey(addr: AddressInput): string {
   const base = `${addr.dc}|${addr.server}|${addr.area}|W${addr.ward}`;

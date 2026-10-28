@@ -1,7 +1,7 @@
 /**
  * コンテンツ編集フォーム — FFLogs URL からの ID 抽出と空フォームの初期値
  */
-import type { ContentData } from '../AdminContentForm';
+import type { ContentData } from './contentFormTypes';
 
 /**
  * FFLogs URL から encounter ID を抽出する。

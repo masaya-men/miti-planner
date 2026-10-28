@@ -2,7 +2,7 @@
  * コンテンツ編集フォーム — 零式の設定(シリーズ選択/新規シリーズ・層)
  */
 import { CONTENT_SERIES } from '../../../data/contentRegistry';
-import type { ContentData } from '../AdminContentForm';
+import type { ContentData } from './contentFormTypes';
 import { SAVAGE_TIERS, inputClass, selectClass, labelClass } from './contentFormOptions';
 
 interface SavageSettingsSectionProps {

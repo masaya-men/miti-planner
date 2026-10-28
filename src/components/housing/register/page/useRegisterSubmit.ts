@@ -3,7 +3,7 @@ import { useHousingListingsStore } from '../../../../store/useHousingListingsSto
 import { useHousingUpdate } from '../../edit/useHousingUpdate';
 import { showToast } from '../../../toastBus';
 import { checkDuplicate, registerListing, uploadListingThumbnail, QuotaExhaustedError, type DuplicateEntry } from '../../../../lib/housingApiClient';
-import type { RegistrationDraft } from '../../../../utils/housingValidation';
+import type { RegistrationDraft } from '../../../../utils/housingRegistrationTypes';
 import { normalizeAddressForBuildingType } from '../../../../lib/housing/normalizeAddressForBuildingType';
 import { AUTOSAVE_KEY } from '../../../../lib/housing/registerAutosave';
 import { SAVED_IMAGES_LIMIT } from '../HousingRegisterImageField';

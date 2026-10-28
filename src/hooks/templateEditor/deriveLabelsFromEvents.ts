@@ -3,7 +3,7 @@
  */
 import type { TimelineEvent } from '../../types';
 import type { TemplateData } from '../../types/template';
-import type { TemplateLabel } from '../useTemplateEditor';
+import type { TemplateLabel } from './templateEditorTypes';
 import { isLegacyLabelFormat, migrateLabels } from '../../utils/labelMigration';
 import { ensurePhaseEndTimes } from '../../utils/phaseMigration';
 

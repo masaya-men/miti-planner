@@ -6,7 +6,7 @@
  * - checkDuplicate: 同住所重複チェック (フォーム送信前のプレチェック)
  */
 import { buildHousingHeaders as buildHeaders } from './housingAuthHeaders';
-import type { AddressInput, RegistrationDraft } from '../utils/housingValidation';
+import type { AddressInput, RegistrationDraft } from '../utils/housingRegistrationTypes';
 import type { TourSnapshot } from '../types/sharedTour';
 
 const API_BASE = '/api/housing';

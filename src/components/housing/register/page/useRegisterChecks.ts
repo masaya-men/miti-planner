@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import type { RegisterConfirmSummary } from '../RegisterSectionConfirm';
 import type { RegisterStep, RegisterStepState } from '../RegisterStepperNav';
-import { validateAddress, validateTitle, type AddressInput } from '../../../../utils/housingValidation';
+import { validateAddress, validateTitle } from '../../../../utils/housingValidation';
+import type { AddressInput } from '../../../../utils/housingRegistrationTypes';
 import { computeRegisterChecklist, isReadyToPublish } from '../../../../lib/housing/registerChecklist';
 import { normalizeAddressForBuildingType } from '../../../../lib/housing/normalizeAddressForBuildingType';
 import { formatFullHousingAddress } from '../../../../lib/housing/formatHousingAddress';

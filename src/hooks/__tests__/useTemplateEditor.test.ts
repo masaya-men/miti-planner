@@ -2,7 +2,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useTemplateEditor } from '../useTemplateEditor';
 import type { TimelineEvent } from '../../types';
-import type { TranslationMatchResult } from '../useTemplateEditor';
+import type { TranslationMatchResult } from '../templateEditor/templateEditorTypes';
 
 function makeEvents(): TimelineEvent[] {
   return [

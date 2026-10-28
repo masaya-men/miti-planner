@@ -8,7 +8,8 @@
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
-import { validateAddress, type AddressInput } from '../../src/utils/housingValidation.js';
+import { validateAddress } from '../../src/utils/housingValidation.js';
+import type { AddressInput } from '../../src/utils/housingRegistrationTypes.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import type { HousingReq, HousingRes } from './_httpTypes.js';
 
