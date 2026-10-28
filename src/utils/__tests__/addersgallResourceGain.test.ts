@@ -7,7 +7,7 @@ vi.mock('../../store/useMasterDataStore', () => ({
     },
 }));
 
-import { getAddersgallStacks } from '../resourceTracker';
+import { getAddersgallStacks } from '../jobResourceStacks';
 import type { AppliedMitigation } from '../../types';
 
 function makeApplied(id: string, time: number): AppliedMitigation {
