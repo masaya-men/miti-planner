@@ -55,7 +55,7 @@ export default [
 
   // ───────── タイムラインの行から開くシート・メニュー ─────────
   { id: 'mobile/sheet-mitigation-flow', route: '/miti', storage: lanes, ready: sheet('軽減を追加', 'Add Mitigation'), axes: popAx,
-    open: async (page) => { await page.locator(ROW).first().click(); }, covers: ['MobileBottomSheet', 'TimelineMobileSheets'] },
+    open: async (page) => { await page.locator(ROW).first().click(); }, covers: ['MobileBottomSheet', 'TimelineMobileSheets', 'TimelineMobileTools'] },
   { id: 'mobile/ctx-long-press', route: '/miti', storage: lanes, ready: 'text=/イベントを編集|Edit Event/', axes: popAx,
     open: async (page) => {
       // 行を 300ms 以上押し続ける(touchstart のまま待つ)

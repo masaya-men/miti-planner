@@ -42,7 +42,7 @@ const ALLOWED: Record<string, number> = {
   'components/housing/tour/TourVisitedList.tsx': 1,
   'components/housing/workspace/HousingCardVideoOverlay.tsx': 1,
   'components/localImport/LocalImportPlanRow.tsx': 1,
-  'components/military/MilspecContentTree.tsx': 3,
+  'components/military/tree/MilspecPlanRow.tsx': 3,
   'components/military/MilspecNotifBeacon.tsx': 1,
   'components/military/MilspecRail.tsx': 1,
   'components/military/MilspecVent.tsx': 1,
