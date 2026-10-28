@@ -50,7 +50,6 @@ const ALLOWED: Record<string, string> = {
   'components/admin/SheetTargetMatchModal.tsx': '管理画面(別担当)',
   'components/admin/SkillFormModal.tsx': '管理画面(別担当)',
   'components/housing/HousingDuplicateWarningDialog.tsx': 'ハウジング(独自トンマナ・別担当)',
-  'components/housing/HousingOnboardingDialog.tsx': 'ハウジング(独自トンマナ・別担当)',
   'components/housing/register/HousingRegisterImageField.tsx': 'ハウジング(独自トンマナ・別担当)',
 };
 

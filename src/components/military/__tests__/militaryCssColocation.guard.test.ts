@@ -26,9 +26,6 @@ const SHARED_ALLOW: Record<string, string> = {
   'primitives.css': '3 つ以上の MIL-SPEC 部品が使う共通部品(装甲板・基板・押下フィードバック等)',
 };
 
-/** JSX/TS に見つからない規則の置き場(減らすだけ。確かめて消したらここからも消す) */
-const UNUSED_ALLOW = ['pending-2.css', 'milspecH4.css'];
-
 function walk(dir: string, ext: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
@@ -54,11 +51,9 @@ describe('MIL-SPEC CSS の置き場所', () => {
   });
 
   it('共有フォルダは許可したファイルだけ', () => {
-    const shared = readdirSync(SHARED_DIR).filter((n) => n !== 'unused').sort();
+    // 使われていない規則の置き場 unused/ は 10-28 に確かめて全部消した。使わない規則は置いておかずに消す
+    const shared = readdirSync(SHARED_DIR).sort();
     expect(shared, '新しい共有は SHARED_ALLOW に理由つきで足す。部品の見た目なら部品の隣へ').toEqual(Object.keys(SHARED_ALLOW).sort());
-    const unused = readdirSync(join(SHARED_DIR, 'unused'));
-    const added = unused.filter((n) => !UNUSED_ALLOW.includes(n));
-    expect(added, 'unused/ は減らすだけ').toEqual([]);
   });
 
   it('部品の CSS 同士で順番頼りが無い', () => {

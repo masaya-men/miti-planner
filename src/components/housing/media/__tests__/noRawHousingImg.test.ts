@@ -12,7 +12,6 @@ const ROOT = join(__dirname, '..', '..');
 const ALLOW: Record<string, string> = {
   'media/HousingImage.tsx': '部品本体',
   'housinger/HousingerAvatar.tsx': 'アバター',
-  'HousingTabBar.tsx': 'アバター',
   'login/HousingAccountModal.tsx': 'アバター',
   'shell/AppHeader.tsx': 'アバター',
   'shell/HousingBottomNav.tsx': 'アバター',

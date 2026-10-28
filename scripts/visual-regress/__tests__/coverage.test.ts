@@ -22,10 +22,7 @@ const HAND_WRITTEN = [
 ];
 
 /** 未使用の窓(パス単位で除外) */
-const UNUSED_PATHS = [
-  'src/components/housing/HousingOnboardingDialog.tsx',
-  'src/components/housing/workspace/HousingToast.tsx',
-];
+const UNUSED_PATHS: string[] = [];
 
 /** 窓の殻そのものの定義や、窓ではない描画部品(殻を import していても検査対象にしない) */
 const NOT_WINDOWS = ['ModalShell', 'HousingPanelModal', 'MobileBottomSheet', 'ConfirmDialog'];

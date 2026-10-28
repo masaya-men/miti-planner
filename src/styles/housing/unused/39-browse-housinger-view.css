@@ -1,5 +1,0 @@
-/* JSX に見つからない規則(部品が消えた等)。 消さずに集めてある。 確かめてから削除する別タスク。 */
-.housing-tagpicker-status {
-  font-size: var(--housing-text-sm);
-  color: var(--housing-text-dim);
-}

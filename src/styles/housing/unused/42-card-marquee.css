@@ -1,7 +1,0 @@
-/* JSX に見つからない規則(部品が消えた等)。 消さずに集めてある。 確かめてから削除する別タスク。 */
-.housing-pill {
-  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
-  background: var(--housing-honey-soft);
-  border: 1px solid var(--housing-panel-border);
-  border-radius: calc(6px * var(--housing-scale)); padding: calc(2px * var(--housing-scale)) calc(7px * var(--housing-scale));
-}

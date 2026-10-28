@@ -36,7 +36,6 @@ const ALLOWED: Record<string, number> = {
   'components/housing/listing/HousingPhotoGallery.tsx': 1,
   'components/housing/listing/HousingShareButton.tsx': 1,
   'components/housing/housinger/HousingerIdentity.tsx': 2,
-  'components/housing/register/HousingRegisterFieldBadge.tsx': 1,
   'components/housing/shell/AppHeader.tsx': 1,
   'components/housing/tour/TourInvitePanel.tsx': 1,
   'components/housing/tour/TourMobileBar.tsx': 1,

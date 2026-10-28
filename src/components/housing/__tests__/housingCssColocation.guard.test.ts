@@ -29,15 +29,6 @@ const SHARED_ALLOW: Record<string, string> = {
   'center-tokens.css': '中央パネルの倍率トークン(scripts/housing-scale/center-tokens.mjs が生成)',
 };
 
-/** JSX に見つからない規則の置き場(減らすだけ。確かめて消したらここからも消す) */
-const UNUSED_ALLOW = [
-  '02-filter-panel.css', '04-register-ward-minimap.css', '05-favorites-modal.css', '06-manner-dialog.css', '07-skeleton.css',
-  '08-toast.css', '09-register-field-badge.css', '10-register-form-base.css', '11-register-image-upload.css',
-  '12-register-checklist.css', '16-register-confirm-summary.css', '17-login-account.css', '19-detail.css',
-  '24-report-guide-modal.css', '29-register-page-layout.css', '39-browse-housinger-view.css', '42-card-marquee.css',
-  '47-tour-add-temp-house.css', '53-tour-invite.css', '54-theme-reveal.css', '62-mobile-layout.css',
-];
-
 function walk(dir: string, ext: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
@@ -63,11 +54,9 @@ describe('ハウジング CSS の置き場所', () => {
   });
 
   it('共有フォルダは許可したファイルだけ', () => {
-    const shared = readdirSync(SHARED_DIR).filter((n) => n !== 'unused').sort();
+    // 使われていない規則の置き場 unused/ は 10-28 に確かめて全部消した。使わない規則は置いておかずに消す
+    const shared = readdirSync(SHARED_DIR).sort();
     expect(shared, '新しい共有は SHARED_ALLOW に理由つきで足す。部品の見た目なら部品の隣へ').toEqual(Object.keys(SHARED_ALLOW).sort());
-    const unused = readdirSync(join(SHARED_DIR, 'unused'));
-    const added = unused.filter((n) => !UNUSED_ALLOW.includes(n));
-    expect(added, 'unused/ は減らすだけ').toEqual([]);
   });
 
   it('共有の入口は部品の CSS より先に読まれ、部品の CSS は全部アプリから読まれる', () => {

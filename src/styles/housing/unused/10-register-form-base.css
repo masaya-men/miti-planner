@@ -1,8 +1,0 @@
-/* JSX に見つからない規則(部品が消えた等)。 消さずに集めてある。 確かめてから削除する別タスク。 */
-/* ===== Register Form 基礎クラス (Phase 2A) ===== */
-.housing-register-form {
-  display: flex;
-  flex-direction: column;
-  gap: calc(14px * var(--housing-scale));
-  color: var(--housing-text);
-}

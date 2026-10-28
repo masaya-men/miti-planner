@@ -22,8 +22,8 @@ const ROOT = process.cwd();
 const CSS_PATH = join(ROOT, 'src/styles/housing.css');
 const MAP_DIR = join(ROOT, 'src/data/housing');
 
-// 表示 SVG を inline 展開する 2 つのホスト (MapView / WardMapPreview)
-const HOSTS = ['housing-map-svg-host', 'housing-ward-preview-svg-host'] as const;
+// 表示 SVG を inline 展開するホスト (MapView。旧 WardMapPreview は 10-28 に部品ごと削除)
+const HOSTS = ['housing-map-svg-host'] as const;
 
 // WARD_MAP_LOADERS に載る全 10 マップの表示 SVG (本街 + 拡張)
 const MAP_FILES = [
@@ -63,20 +63,20 @@ function redStrokeTags(svg: string): string[] {
 }
 
 describe('ward map の Node/ナビ赤線 (#FF0000) 隠蔽', () => {
-  it('両ホストの隠蔽セレクタは要素非依存 [stroke="#FF0000"] (path 限定に戻すと circle Node が漏れる)', () => {
+  it('ホストの隠蔽セレクタは要素非依存 [stroke="#FF0000"] (path 限定に戻すと circle Node が漏れる)', () => {
     for (const host of HOSTS) {
       const sel = hidingSelectorFor(host);
       expect(sel, `${host} の隠蔽ルールが housing.css に見当たらない`).toBe('[stroke="#FF0000"]');
     }
   });
 
-  it.each(MAP_FILES)('%s: 全ての #FF0000 要素が WardMapPreview の隠蔽セレクタで隠れる', (file) => {
+  it.each(MAP_FILES)('%s: 全ての #FF0000 要素が MapView の隠蔽セレクタで隠れる', (file) => {
     const svg = readFileSync(join(MAP_DIR, file), 'utf8');
     const tags = redStrokeTags(svg);
     // どのマップにも Node + ナビ赤線があるはず (0 なら素材破損 or セレクタ前提崩れ)
     expect(tags.length).toBeGreaterThan(0);
 
-    const qualifier = tagQualifierOf(hidingSelectorFor('housing-ward-preview-svg-host')!);
+    const qualifier = tagQualifierOf(hidingSelectorFor('housing-map-svg-host')!);
     // qualifier=null (要素非依存) なら全タグを覆う。path 限定に退行すると circle が覆えず fail。
     for (const tag of tags) {
       const covered = qualifier === null || qualifier === tag;

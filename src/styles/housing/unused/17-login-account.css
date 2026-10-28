@@ -1,6 +1,0 @@
-/* JSX に見つからない規則(部品が消えた等)。 消さずに集めてある。 確かめてから削除する別タスク。 */
-.housing-account-divider {
-    height: calc(1px * var(--housing-scale));
-    background: var(--housing-account-divider);
-    margin: calc(20px * var(--housing-scale)) 0;
-}

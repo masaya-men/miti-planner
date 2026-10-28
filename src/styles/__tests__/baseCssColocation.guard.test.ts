@@ -49,8 +49,9 @@ const rel = (p: string) => relative(SRC, p).replace(/\\/g, '/');
 // housing・military は別の移行で済み(それぞれの見張りが守る)
 const componentCss = walk(COMPONENTS, '.css').filter((f) => !/[\\/](housing|military)[\\/]/.test(f));
 const sharedCss = readdirSync(SHARED_DIR).filter((n) => n.endsWith('.css'));
-/** CLASSES にあるが規則が残っていない class(RecastRow.css にコメントで名前が出るだけ。旧ラッパーは廃止済み) */
-const NO_RULE = ['recast-row'];
+/** CLASSES にあるが規則が残っていない class(recast-row=RecastRow.css にコメントで名前が出るだけ・旧ラッパーは廃止済み/
+ *  water-drop・glass-tier1=どの部品も使わず unused/ に置いていた規則を 10-28 に消した) */
+const NO_RULE = ['recast-row', 'water-drop', 'glass-tier1'];
 /** 同じフォルダの部品でなく、上のフォルダの部品が import する CSS(今回の移行より前から。理由つきで足す) */
 const IMPORTED_FROM_PARENT: Record<string, string> = {
   'components/timeline/sheet/sheet.css': 'スプシ表示の複数部品が共有する見た目。Timeline.tsx が import する',
@@ -59,9 +60,9 @@ const classSet = new Set<string>(CLASSES);
 
 describe('標準の CSS の置き場所(index.css 移行後)', () => {
   it('src/styles/base/ には許可一覧のファイルしか無い', () => {
-    const entries = readdirSync(SHARED_DIR).filter((n) => n !== 'unused').sort();
+    // 使われていない規則の置き場 unused/ は 10-28 に確かめて消した。使わない規則は置いておかずに消す
+    const entries = readdirSync(SHARED_DIR).sort();
     expect(entries, '新しい共有は SHARED_ALLOW に理由つきで足す。部品の見た目なら部品の隣へ').toEqual(Object.keys(SHARED_ALLOW).sort());
-    expect(readdirSync(join(SHARED_DIR, 'unused')), 'unused/ は index-unused.css だけ(減らすだけ)').toEqual(['index-unused.css']);
   });
 
   it('入口 index.css は Tailwind の設定・@import・@theme・@theme が使う keyframes(ripple・gearSpin)だけ', () => {
@@ -87,16 +88,15 @@ describe('標準の CSS の置き場所(index.css 移行後)', () => {
     }
     expect(inShared, 'CLASSES の class は部品の隣の CSS に置く。共有へ戻さない').toEqual([]);
 
-    // 規則のセレクタに出る class(右端でなくても数える)。使われていない規則は unused/ に集めてあるので、そこにあるのも可
+    // 規則のセレクタに出る class(右端でなくても数える)
     const found = new Set<string>();
-    const unusedFile = join(SHARED_DIR, 'unused/index-unused.css');
-    for (const f of [...componentCss, unusedFile]) {
+    for (const f of componentCss) {
       for (const r of parseRules(readFileSync(f, 'utf8'), rel(f))) {
         for (const m of (r.selector ?? '').matchAll(/\.([\w-]+)/g)) found.add(m[1]);
       }
     }
     const missing = CLASSES.filter((c: string) => !found.has(c) && !NO_RULE.includes(c));
-    expect(missing, '部品の隣の CSS(または unused/)に規則が見つからない class').toEqual([]);
+    expect(missing, '部品の隣の CSS に規則が見つからない class').toEqual([]);
 
     const orphans = componentCss.filter((css) => !(rel(css) in IMPORTED_FROM_PARENT)).filter((css) => {
       const line = `import './${basename(css)}';`;
