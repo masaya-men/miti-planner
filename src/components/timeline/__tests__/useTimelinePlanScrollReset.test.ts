@@ -41,6 +41,11 @@ describe('useTimelinePlanScrollReset の戻り値', () => {
         expect(result.current).toBe(false);
     });
 
+    it('空のプランを開いた最初の描画で「出す」を返す(軽減を置く時刻を見せる・今までどおり)', () => {
+        const { result } = renderHook(() => useTimelinePlanScrollReset({ scrollContainerRef: { current: null }, currentPlanId: 'empty', joinerRoomToken: null, hideEmptyRows: true }));
+        expect(result.current).toBe(false);
+    });
+
     it('チュートリアル中はストアの値をそのまま使う', () => {
         useTutorialStore.setState({ isActive: true });
         const { result } = renderHook(() => useTimelinePlanScrollReset({ scrollContainerRef: { current: null }, currentPlanId: 'full', joinerRoomToken: null, hideEmptyRows: false }));

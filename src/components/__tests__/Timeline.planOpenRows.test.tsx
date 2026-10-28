@@ -117,11 +117,4 @@ describe('プランを開いた時に全行を作って捨てない', () => {
     expect(container.querySelectorAll('[data-time-row]').length).toBeGreaterThan(0);
     expect(removed).toBe(0);
   });
-
-  it('対照: 空のプランを開いたら「出す」に切り替わる(今までどおり)', () => {
-    usePlanStore.setState({ plans: [plan('po-empty', [])] as never, currentPlanId: 'po-empty' });
-    useMitigationStore.setState({ hideEmptyRows: true, timelineEvents: [] });
-    render(<MemoryRouter><Timeline /></MemoryRouter>);
-    expect(useMitigationStore.getState().hideEmptyRows).toBe(false);
-  });
 });
