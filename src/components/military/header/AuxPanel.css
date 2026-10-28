@@ -6,8 +6,6 @@
 .theme-military .milspec-keybtn:disabled { cursor: default; opacity: 0.55; }
 /* フォーカス枠は clip-path で切れるため、フォーカス中だけ clip を外し MilspecKey と同じ枠を出す */
 .theme-military .milspec-keybtn:focus-visible { outline: 1.2px solid var(--ma-on); outline-offset: 2px; clip-path: none !important; }
-.theme-military .milspec-keybtn:not(:disabled):hover .sh { transform: translate(0, 0.7px) scale(1.015); }
-.theme-military .milspec-keybtn:not(:disabled):hover .rim { opacity: 0.34; }
 .theme-military .milspec-key-na { opacity: 0.38; }
 
 /* MIL-SPEC v11 ヘッダー H4(縦ロッカー・T 字レバー・走査線ワイプ・キー列)。見本 css:182-275, 616-617 を --ma-* 読み替えで移したもの。

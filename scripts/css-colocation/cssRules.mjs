@@ -188,8 +188,22 @@ export function propsOverlap(p, q) {
   return (SHORTHAND_EXTRA[p] ?? []).some((x) => q === x || q.startsWith(`${x}-`)) || (SHORTHAND_EXTRA[q] ?? []).some((x) => p === x || p.startsWith(`${x}-`));
 }
 
-/** 並び順で A が先の「順番頼りの組」 [A, B, 性質] を返す。 related = 別名の class が同じ要素に付きうるか(classGroups.mjs) */
-export function findOrderPairs(rules, related = (a, b) => a === b, prefixRe = HOUSING_PREFIX) {
+/** 右端の複合セレクタに対象 class が無い時の、 右端の名前(対象外の class・属性名) */
+function rightNamesOf(selector, prefixRe) {
+  const cs = compounds(selector);
+  const rest = stripPseudoFns(cs[cs.length - 1] ?? '').rest;
+  const classes = (rest.match(/\.[\w-]+/g) || []).map((c) => c.slice(1));
+  if (classes.some((c) => prefixRe.test(c))) return [];
+  const attrs = [...(cs[cs.length - 1] ?? '').matchAll(/\[([\w-]+)/g)].map((m) => m[1]);
+  return [...classes, ...attrs];
+}
+
+/**
+ * 並び順で A が先の「順番頼りの組」 [A, B, 性質] を返す。 related = 別名の class が同じ要素に付きうるか(classGroups.mjs)。
+ * rightNames: 右端に対象 class が無い規則(.milspec-key:hover .sh 等)は、 祖先の class に加えて右端の名前が同じものも同じ対象とみなす
+ * (別の祖先を経て同じ要素に効く組を拾う)。
+ */
+export function findOrderPairs(rules, related = (a, b) => a === b, prefixRe = HOUSING_PREFIX, { rightNames = false } = {}) {
   const entries = [];
   rules.forEach((r, i) => {
     if (r.kind !== 'rule') return;
@@ -197,7 +211,7 @@ export function findOrderPairs(rules, related = (a, b) => a === b, prefixRe = HO
     for (const sel of r.selectors) {
       const subj = subjectClasses(sel, prefixRe);
       if (!subj.length) continue;
-      entries.push({ i, r, props, spec: specificity(sel).join(','), subj });
+      entries.push({ i, r, props, spec: specificity(sel).join(','), subj, names: rightNames ? rightNamesOf(sel, prefixRe) : [] });
     }
   });
   // 詳細度で束ねてから組を探す。 @media は条件なし・スマホ用などが同時に効くので束ねる鍵にしない(幅が重ならない組だけ外す)
@@ -206,7 +220,7 @@ export function findOrderPairs(rules, related = (a, b) => a === b, prefixRe = HO
     if (!buckets.has(e.spec)) buckets.set(e.spec, []);
     buckets.get(e.spec).push(e);
   }
-  const sameTarget = (x, y) => x.subj.some((a) => y.subj.some((b) => a === b || related(a, b)));
+  const sameTarget = (x, y) => x.subj.some((a) => y.subj.some((b) => a === b || related(a, b))) || x.names.some((n) => y.names.includes(n));
   const seen = new Set();
   const pairs = [];
   for (const list of buckets.values()) {

@@ -1,5 +1,5 @@
 // ビルド後の CSS を基準と比べる道具。 規則の欠け・重複と、 「順番頼りの組」の前後の入れ替わりを見る。
-// 起動時の CSS(index.html が読む)と後読みの CSS(遅延読み込みの部品と一緒に読む)の両方を比べる。
+// 起動時の CSS(index.html が読む)と後読みの CSS(遅延読み込みの部品と一緒に読む)の両方を比べ、 起動時 ↔ 後読みの移動も一覧にする。
 // 使い方: node scripts/css-colocation/compare-build.mjs --save-as=<名前>   (今の作業ツリーをビルドして基準に保存)
 //         node scripts/css-colocation/compare-build.mjs --compare=<名前>   (今をビルドして基準と比べる・差があれば exit 1)
 // minify なしでビルドする(minify の宣言統合で判定がぶれないため)。 約 15 秒。
@@ -69,7 +69,19 @@ export function compareBuilds(base, next, related = (a, b) => a === b, prefixRe 
     }
     if (pa > pb) flipped.push({ a: `${a.media ? `@media ${a.media} ` : ''}${a.selector}`, b: `${b.media ? `@media ${b.media} ` : ''}${b.selector}`, prop });
   }
-  return { missing, extra, flipped, lazyCross };
+  // 起動時 ↔ 後読みの移動(同一性は置き場所を含まないので missing/extra には出ない)。
+  // 起動時 → 後読み は「その規則が描く要素が起動時から画面に出るなら、部品が開くまで素の見た目になる」ので要確認
+  const nextPlace = new Map(nextIds.map((id, i) => [id, nextRules[i].place]));
+  const toLazy = [];
+  const toEager = [];
+  baseIds.forEach((id, i) => {
+    if (!nextPlace.has(id)) return;
+    const was = baseRules[i].place;
+    const now = nextPlace.get(id);
+    if (!was && now) toLazy.push(`${id.replace(/#\d+$/, '')} → ${now}`);
+    else if (was && !now) toEager.push(`${id.replace(/#\d+$/, '')} ← ${was}`);
+  });
+  return { missing, extra, flipped, lazyCross, toLazy, toEager };
 }
 
 /** 起動時の CSS 1 本どうしの比較(後読みなし) */
@@ -130,6 +142,9 @@ async function main() {
   for (const m of r.missing.slice(0, 20)) console.log('  欠け:', m.slice(0, 200));
   for (const e of r.extra.slice(0, 20)) console.log('  重複:', e.slice(0, 200));
   for (const f of r.flipped.slice(0, 40)) console.log(`  入れ替わり [${f.prop}]: ${f.a}  ⇄  ${f.b}`);
+  // 起動時 → 後読み の一覧(要確認=その要素は後読みの部品だけが描くか)は .out/moved.txt に全部書く
+  fs.writeFileSync(path.join(OUT, 'moved.txt'), [`# 起動時 → 後読み ${r.toLazy.length}`, ...r.toLazy, '', `# 後読み → 起動時 ${r.toEager.length}`, ...r.toEager].join('\n'));
+  console.log(`起動時 → 後読み ${r.toLazy.length} / 後読み → 起動時 ${r.toEager.length}(一覧 scripts/css-colocation/.out/moved.txt。起動時 → 後読みは、その要素を後読みの部品だけが描くか確かめる)`);
   if (r.missing.length || r.extra.length || r.flipped.length) process.exit(1);
 }
 

@@ -87,6 +87,15 @@ describe('findOrderPairs', () => {
     expect(findOrderPairs(rules, undefined, /^milspec-/)).toHaveLength(1);
     expect(findOrderPairs(rules)).toHaveLength(0);
   });
+  it('右端に対象 class が無い規則は、 右端の名前(class・属性)が同じなら別の祖先でも組(rightNames)', () => {
+    const rules = parseRules('.milspec-key:hover .sh{transform:none} .milspec-keybtn:hover .sh{transform:none}', 'x.css');
+    expect(findOrderPairs(rules, undefined, /^milspec-/)).toHaveLength(0);
+    expect(findOrderPairs(rules, undefined, /^milspec-/, { rightNames: true })).toHaveLength(1);
+  });
+  it('rightNames でも右端の名前が違えば組にならない', () => {
+    const rules = parseRules('.milspec-a .sh{opacity:1} .milspec-b .rim{opacity:0}', 'x.css');
+    expect(findOrderPairs(rules, undefined, /^milspec-/, { rightNames: true })).toHaveLength(0);
+  });
   it('性質が違えば組にならない', () => {
     expect(pairs('.housing-a{color:red} .housing-a{margin:0}')).toHaveLength(0);
   });

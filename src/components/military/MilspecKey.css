@@ -35,6 +35,9 @@
 .theme-military .milspec-key[data-pressed] .sh { opacity: 0.3; transform: none; }
 .theme-military .milspec-key[data-pressed] .lip { stroke: var(--ma-on); filter: drop-shadow(0 0 1.2px rgba(var(--ma-on-rgb),0.9)); }
 .theme-military .milspec-key[data-pressed] .milspec-key-lb { color: var(--ma-kink-hot); }
+/* ボタンのキー(AuxPanel・PartyOps)のホバー。 MilspecKeyCap の .sh / .rim は .milspec-key のホバーと同じ要素なので、 その後ろのここに置く */
+.theme-military .milspec-keybtn:not(:disabled):hover .sh { transform: translate(0, 0.7px) scale(1.015); }
+.theme-military .milspec-keybtn:not(:disabled):hover .rim { opacity: 0.34; }
 .theme-military .milspec-keybtn:not(:disabled):hover .milspec-key-hov { transform: translateY(-0.6px); }
 .theme-military .milspec-keybtn:not(:disabled):hover .milspec-key-lb { color: var(--ma-kink-hot); }
 .theme-military .milspec-keybtn:not(:disabled):hover .milspec-key-lb svg { stroke: var(--ma-kink-hot); }

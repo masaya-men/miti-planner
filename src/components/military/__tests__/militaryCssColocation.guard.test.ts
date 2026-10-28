@@ -64,7 +64,8 @@ describe('MIL-SPEC CSS の置き場所', () => {
   it('部品の CSS 同士で順番頼りが無い', () => {
     const rules = componentCss.flatMap((f) => parseRules(readFileSync(f, 'utf8'), rel(f)));
     const related = classGroups(walk(SRC, '.tsx').map((f) => readFileSync(f, 'utf8')), PREFIX);
-    const cross = findOrderPairs(rules, related, PREFIX)
+    // rightNames: .milspec-key:hover .sh と .milspec-keybtn:hover .sh のように別の祖先を経て同じ要素に効く組も拾う
+    const cross = findOrderPairs(rules, related, PREFIX, { rightNames: true })
       .filter(([a, b]: Array<{ file: string }>) => a.file !== b.file)
       .map(([a, b, prop]: [{ file: string; selector: string; media: string }, { file: string; selector: string }, string]) =>
         `[${prop}] ${a.media ? `@media ${a.media} ` : ''}${a.selector} (${a.file}) ⇄ ${b.selector} (${b.file})`);
