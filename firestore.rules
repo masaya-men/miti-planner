@@ -62,15 +62,18 @@ service cloud.firestore {
                     && request.resource.data.isPublic is bool
                     && request.resource.data.data is map
                     && request.resource.data.version == 1
-                    && request.resource.data.copyCount == 0
-                    && request.resource.data.useCount == 0;
+                    // copyCount/useCount は「みんなの軽減表」撤去済みで現行アプリは書かない。
+                    // 旧版アプリ (0 を送る) との後方互換のため「欄が無い、または 0」だけ許す。
+                    && (!('copyCount' in request.resource.data) || request.resource.data.copyCount == 0)
+                    && (!('useCount' in request.resource.data) || request.resource.data.useCount == 0);
 
       allow update: if isOwner(resource.data.ownerId)
                     // オーナーIDの変更禁止
                     && request.resource.data.ownerId == resource.data.ownerId
-                    // copyCount/useCountの改ざん防止（クライアントからは変更不可・両分岐共通）
-                    && request.resource.data.copyCount == resource.data.copyCount
-                    && request.resource.data.useCount == resource.data.useCount
+                    // copyCount/useCount: 撤去済みの旧欄。値の改ざんは不可、欄を消すのは可
+                    // (旧版アプリは元と同じ値を送る・新版は触らない)。両分岐共通。
+                    && (!('copyCount' in request.resource.data) || request.resource.data.copyCount == resource.data.get('copyCount', null))
+                    && (!('useCount' in request.resource.data) || request.resource.data.useCount == resource.data.get('useCount', null))
                     && (
                       // (A) ソフトデリート (墓標化): deleted=true をセットする更新。
                       //     内容フィールドの妥当性は不問 (削除済み doc は表示・カウント対象外)。
