@@ -4,7 +4,7 @@ import { pxToXRatio } from '../../Memo/coords';
 /** 1 メンバーの列の横位置(シート左端基準 px)。 */
 export interface MemberBand { id: string; left: number; width: number }
 
-/** レーン表示の列 CSS 変数の実値(index.css の --col-th-w / --col-dps-w / --col-member-pad-x)。読めなければ既定値。 */
+/** レーン表示の列 CSS 変数の実値(src/styles/base/tokens-columns.css の --col-th-w / --col-dps-w / --col-member-pad-x)。読めなければ既定値。 */
 export function readLanesColumnVars(): { thW: number; dpsW: number; padX: number } {
     const read = (name: string, fallback: number): number => {
         if (typeof document === 'undefined') return fallback;

@@ -18,7 +18,7 @@ interface MobileEffectBarLayerProps {
 /**
  * モバイル軽減表: スクロール量に連動して専用行アイコンから変身するエフェクト棒のオーバーレイ層。
  * 変身の進み具合(0〜1)は親(Timeline.tsx)がコンテナに設定する `--mobile-effect-bar-progress`
- * というCSS変数で、伸縮・拡大縮小・横スライドはすべてCSS側(index.css)のtransformで行う
+ * というCSS変数で、伸縮・拡大縮小・横スライドはすべてCSS側(MobileEffectBarLayer.css)のtransformで行う
  * (React再レンダーなしでスクロールに追従させるため、このコンポーネント自身は常時マウントし続ける)。
  * 棒本体(mobile-effect-bar-fill)とアイコンを別要素にしているのは、棒の伸び(scaleY)がアイコンの
  * 縮小(scale)に干渉しないようにするため(子要素は親のtransformの影響を受けてしまう)。

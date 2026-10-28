@@ -169,7 +169,7 @@ export const TimelineMitigationLayer: React.FC<TimelineMitigationLayerProps> = (
                 const layout = memberLayout.get(ownerMitigations[0]?.ownerId);
                 // 初回マウント時 layout 未確定 (refs が null) のため fallback 値で 1 フレーム描画。 2pass 目で実測値に上書きされる
                 // セッション 17: T/H=151 (N=6 対称), DPS=53 (N=2 維持)
-                // 詳細は src/index.css のコメント参照
+                // 詳細は src/styles/base/tokens-columns.css のコメント参照
                 const fallbackColWidth = member?.role === 'tank' || member?.role === 'healer' ? 151 : 53;
                 const colStart = layout?.left ?? 0;
                 const colWidth = layout?.width ?? fallbackColWidth;

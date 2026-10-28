@@ -37,7 +37,7 @@ const LIMIT_TH = 6;
 /** DPS の表示上限 */
 const LIMIT_DPS = 2;
 
-// padding-left / padding-right は .recast-cell の CSS (src/index.css) で定義する。
+// padding-left / padding-right は .recast-cell の CSS (src/components/RecastRow.css) で定義する。
 // 計算式: padding-left = calc(--col-member-pad-x + 2px)
 //   本文 MitigationItem の絶対配置 left = colStart + VISUAL_OFFSET(2)
 //   colStart = JobPicker.offsetLeft + computed paddingLeft (= --col-member-pad-x = 2.9px)

@@ -364,7 +364,7 @@ const LegalPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     const { runTransition } = useTransitionOverlay();
     const toggleTheme = () => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme');
 
-    // body の overflow-hidden を一時的に解除（index.cssでグローバル設定されている）
+    // body の overflow-hidden を一時的に解除（src/styles/base/global.css でグローバル設定されている）
     // + マウント時にスクロール位置を上端へリセット（前ページのスクロールが引き継がれるバグ対策）
     React.useEffect(() => {
         document.body.style.overflow = 'auto';

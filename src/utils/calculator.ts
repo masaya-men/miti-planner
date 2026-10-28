@@ -19,7 +19,7 @@ const floor = Math.floor;
 
 /**
  * パーティメンバー列の CSS 幅式を返す (マージン込みの全幅)。
- * src/index.css の `--col-th-w` (タンク/ヒーラー) / `--col-dps-w` (DPS) +
+ * src/styles/base/tokens-columns.css の `--col-th-w` (タンク/ヒーラー) / `--col-dps-w` (DPS) +
  * `--col-member-pad-x` × 2 (セッション 17 で追加された左右マージン) の合計。
  *
  * 内側 (アイコン配置エリア) を直接参照したい場合は元の CSS 変数 (var(--col-th-w) 等) を使う。

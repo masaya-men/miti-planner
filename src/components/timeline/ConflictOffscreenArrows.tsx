@@ -99,7 +99,7 @@ export function ConflictOffscreenArrows({ points, scrollContainerRef, topInset =
                                 aria-label={label}
                                 className="animate-conflict-arrow-pulse flex items-center justify-center w-6 h-6 cursor-pointer text-app-amber hover:text-app-amber-hover"
                             >
-                                {/* 太めのシェブロンのみ。グローはテーマ別 (.conflict-chevron / index.css) */}
+                                {/* 太めのシェブロンのみ。グローはテーマ別 (.conflict-chevron / ConflictOffscreenArrows.css) */}
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
                                     aria-hidden="true" className="conflict-chevron">
