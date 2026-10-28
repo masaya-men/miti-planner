@@ -1,16 +1,12 @@
-import { backdropClose } from '../utils/backdropClose';
 import React, { useState, useRef, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useStableCallback } from '../hooks/useStableCallback';
 import { ModalShell } from './ui/ModalShell';
-import { ModalHeader, ModalFooter, ModalButton, INPUT_CLASS } from './ui/ModalParts';
-import { CloudDownload, AlertCircle, Link, Loader2, CheckCircle2, LogIn } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import clsx from 'clsx';
-import type { FFLogsRawEvent, FFLogsFight } from '../api/fflogsTypes';
+import { ModalHeader, ModalFooter, ModalButton } from './ui/ModalParts';
+import { CloudDownload, Loader2, CheckCircle2, LogIn } from 'lucide-react';
+import type { FFLogsFight } from '../api/fflogsTypes';
 import type { MapperResult } from '../utils/fflogsMapper';
 import { fetchAndMapFflogs } from '../lib/fflogs/fetchAndMapFflogs';
 import { useMitigationStore } from '../store/useMitigationStore';
@@ -19,53 +15,16 @@ import type { ImportMode } from '../utils/importModes';
 import { apiFetch } from '../lib/apiClient';
 import { LoginModal } from './LoginModal';
 import { parseFflogsUrl } from '../lib/fflogs/parseFflogsUrl';
-
-// クライアント側レート制限: 1時間あたり最大15回
-const IMPORT_RATE_LIMIT = 15;
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1時間
-
-function getImportTimestamps(): number[] {
-    try {
-        const raw = localStorage.getItem('fflogs-import-timestamps');
-        if (!raw) return [];
-        return JSON.parse(raw) as number[];
-    } catch {
-        return [];
-    }
-}
-
-function recordImport(): void {
-    const now = Date.now();
-    const cutoff = now - RATE_LIMIT_WINDOW_MS;
-    const timestamps = getImportTimestamps().filter(t => t > cutoff);
-    timestamps.push(now);
-    localStorage.setItem('fflogs-import-timestamps', JSON.stringify(timestamps));
-}
-
-function getRemainingImports(): number {
-    const now = Date.now();
-    const cutoff = now - RATE_LIMIT_WINDOW_MS;
-    const recentCount = getImportTimestamps().filter(t => t > cutoff).length;
-    return Math.max(0, IMPORT_RATE_LIMIT - recentCount);
-}
+import { IMPORT_RATE_LIMIT, getRemainingImports, recordImport } from '../lib/fflogs/importRateLimit';
+import type { ImportStatus } from './fflogsImport/importStatus';
+import { FFLogsPreviewStats } from './fflogsImport/FFLogsPreviewStats';
+import { FFLogsUrlInput } from './fflogsImport/FFLogsUrlInput';
+import { FFLogsMobileSheet } from './fflogsImport/FFLogsMobileSheet';
 
 interface FFLogsImportModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
-
-type ImportStatus =
-    | { phase: 'idle' }
-    | { phase: 'loading'; message: string }
-    | { phase: 'preview'; fight: FFLogsFight; events: FFLogsRawEvent[]; mapped: MapperResult }
-    | { phase: 'error'; message: string };
-
-/* Slide-in animation for buttons */
-const slideUp = {
-    initial: { opacity: 0, y: 30 },
-    animate: { opacity: 1, y: 0, transition: { type: 'spring' as const, damping: 20, stiffness: 300 } },
-    exit: { opacity: 0, y: 20, transition: { duration: 0.15 } }
-};
 
 export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, onClose }) => {
     const isMobile = useIsMobile();
@@ -270,125 +229,24 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     }
 
     /* ────── Preview stats (shared) ────── */
-    const renderPreviewStats = () => {
-        if (status.phase !== 'preview') return null;
-        return (
-            <div className="space-y-3">
-                {/* Fight info */}
-                <div className="p-4 rounded-xl bg-app-text/5 border border-app-border">
-                    <div className="flex items-center gap-2 text-app-text text-app-2xl font-bold mb-3">
-                        <CheckCircle2 size={16} />
-                        {t('fflogs.ready')}
-                    </div>
-                    <div className="space-y-4">
-                        <div>
-                            <span className="text-app-text-muted block text-app-lg mb-1 uppercase tracking-wider">{t('fflogs.fight')}</span>
-                            <span className="text-app-3xl font-bold text-app-text">
-                                {status.fight.name}
-                            </span>
-                        </div>
-                        <div>
-                            <span className="text-app-text-muted block text-app-lg mb-1 uppercase tracking-wider">{t('fflogs.duration')}</span>
-                            <span className="text-app-text font-bold">
-                                {Math.floor((status.fight.endTime - status.fight.startTime) / 1000 / 60)}m{' '}
-                                {Math.floor(((status.fight.endTime - status.fight.startTime) / 1000) % 60)}s
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-
-                {/* 取り込みモード選択（既存タイムラインがある時のみ） */}
-                {existingEventCount > 0 ? (
-                    <div className="flex flex-col gap-2">
-                        <span className="text-app-text-muted text-app-lg uppercase tracking-wider">
-                            {t('fflogs.import_mode.label')}
-                        </span>
-                        {(['replace_all', 'replace_keep', 'append'] as ImportMode[]).map((m) => (
-                            <label
-                                key={m}
-                                className={clsx(
-                                    'flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all duration-200 text-app-lg',
-                                    importMode === m
-                                        ? 'border-app-text bg-app-text/5 text-app-text'
-                                        : 'border-app-border text-app-text-muted hover:border-app-text/40',
-                                )}
-                            >
-                                <input
-                                    type="radio"
-                                    name="fflogs-import-mode"
-                                    value={m}
-                                    checked={importMode === m}
-                                    onChange={() => setImportMode(m)}
-                                    className="accent-app-text"
-                                />
-                                <span className="flex-1">{t(`fflogs.import_mode.${m}`)}</span>
-                                {m === 'replace_all' && (
-                                    <span className="flex items-center gap-1 text-app-amber text-app-md">
-                                        <AlertCircle size={12} className="shrink-0" />
-                                        {t('fflogs.import_mode.replace_all_warning')}
-                                    </span>
-                                )}
-                            </label>
-                        ))}
-                    </div>
-                ) : null}
-                {status.mapped.stats.isEnglishOnly && (
-                    <p className="text-app-lg text-app-amber">
-                        {t('fflogs.english_only_warning')}
-                    </p>
-                )}
-            </div>
-        );
-    };
+    const previewStats = (
+        <FFLogsPreviewStats
+            status={status}
+            existingEventCount={existingEventCount}
+            importMode={importMode}
+            setImportMode={setImportMode}
+        />
+    );
 
     /* ────── URL input + parse info (shared) ────── */
-    const renderUrlInput = () => (
-        <>
-            <p className="text-app-2xl text-app-text-muted mb-1 leading-relaxed">
-                {t('fflogs.description')}
-            </p>
-            <p className="text-app-lg text-app-text-muted mb-4 font-mono">
-                {t('fflogs.url_format')}
-            </p>
-
-            <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Link size={16} className="text-app-text-muted" />
-                </div>
-                <input
-                    type="text"
-                    value={url}
-                    onChange={handleUrlChange}
-                    disabled={isLoading || status.phase === 'preview'}
-                    className={`${INPUT_CLASS} !pl-10 font-mono`}
-                    placeholder={t('fflogs.placeholder')}
-                    spellCheck={false}
-                />
-            </div>
-
-            {urlError && (
-                <div className="mt-3 flex items-start gap-2 text-app-red bg-app-red-dim p-3 rounded-lg border border-app-red-border text-app-2xl">
-                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                    <p>{urlError}</p>
-                </div>
-            )}
-
-
-            {status.phase === 'loading' && (
-                <div className="mt-4 flex items-center gap-3 p-4 rounded-xl bg-app-text/5 border border-app-border text-app-text text-app-2xl">
-                    <Loader2 size={16} className="shrink-0 animate-spin" />
-                    <span>{status.message}</span>
-                </div>
-            )}
-
-            {status.phase === 'error' && (
-                <div className="mt-4 flex items-start gap-2 text-app-red bg-app-red-dim p-3 rounded-lg border border-app-red-border text-app-2xl">
-                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                    <p className="whitespace-pre-wrap">{status.message}</p>
-                </div>
-            )}
-        </>
+    const urlInput = (
+        <FFLogsUrlInput
+            url={url}
+            handleUrlChange={handleUrlChange}
+            isLoading={isLoading}
+            status={status}
+            urlError={urlError}
+        />
     );
 
     /* ────── Desktop: 中央の窓 ────── */
@@ -404,10 +262,10 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
                 {/* Content */}
                 <div className="p-5 flex-1 overflow-y-auto">
-                    {renderUrlInput()}
+                    {urlInput}
                     {status.phase === 'preview' && (
                         <div className="mt-4">
-                            {renderPreviewStats()}
+                            {previewStats}
                         </div>
                     )}
                 </div>
@@ -438,114 +296,20 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     }
 
     /* ────── Mobile: 下から出るシート(step-by-step ボタン) ────── */
-    return createPortal(
-        <AnimatePresence>
-            <div className="fixed inset-0 z-[200] flex md:items-center md:justify-center" {...backdropClose(handleClose)}>
-                {/* Backdrop */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    data-backdrop className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
-                />
-
-                {/* ─── Mobile: Bottom Sheet with inline step-by-step buttons ─── */}
-                <div className="md:hidden fixed bottom-0 left-0 right-0 z-[201]" onClick={(e) => e.stopPropagation()}>
-                    <motion.div
-                        ref={modalRef}
-                        initial={{ y: '100%' }}
-                        animate={{ y: 0 }}
-                        exit={{ y: '100%' }}
-                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="glass-tier3 rounded-t-2xl shadow-sm flex flex-col max-h-[65vh]"
-                        style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
-                    >
-                        {/* Drag handle */}
-                        <div
-                            className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing shrink-0"
-                            onTouchStart={handleTouchStart}
-                            onTouchMove={handleTouchMove}
-                            onTouchEnd={handleTouchEnd}
-                        >
-                            <div className="w-10 h-1 rounded-full bg-app-border" />
-                        </div>
-
-                        {/* Header */}
-                        <ModalHeader
-                            icon={<CloudDownload size={18} className="text-app-text" />}
-                            title={t('fflogs.title')}
-                            onClose={handleClose}
-                            closeLabel={t('common.close')}
-                        />
-
-                        {/* Scrollable Content — ALL buttons are inline here, no fixed footer */}
-                        <div className="flex-1 overflow-y-auto overscroll-contain p-5 pb-24">
-                            {renderUrlInput()}
-
-                            {/* ─ Step 2: Fetch/Cancel appear after URL is detected ─ */}
-                            <AnimatePresence>
-                                {canFetch && (
-                                    <motion.div {...slideUp} key="fetch-actions" className="mt-5 flex flex-col gap-3">
-                                        <button
-                                            onClick={handleFetch}
-                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-app-2xl font-bold uppercase bg-app-blue text-white hover:bg-app-blue-hover active:scale-[0.98] transition-transform cursor-pointer"
-                                        >
-                                            <CloudDownload size={18} />
-                                            {t('fflogs.fetch_button')}
-                                        </button>
-                                        <button
-                                            onClick={handleClose}
-                                            className="w-full py-3 rounded-xl text-app-2xl font-bold text-app-text bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
-                                        >
-                                            {t('common.cancel', 'キャンセル')}
-                                        </button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
-                            {/* Loading — show spinner inline */}
-                            <AnimatePresence>
-                                {isLoading && (
-                                    <motion.div {...slideUp} key="loading-inline" className="mt-5">
-                                        <button
-                                            disabled
-                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-app-2xl font-bold uppercase bg-app-text/50 text-app-bg/70 cursor-wait"
-                                        >
-                                            <Loader2 size={18} className="animate-spin" />
-                                            {t('fflogs.fetching_button')}
-                                        </button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
-                            {/* ─ Step 3: Preview + Import appear after fetch ─ */}
-                            <AnimatePresence>
-                                {status.phase === 'preview' && (
-                                    <motion.div {...slideUp} key="preview-actions" className="mt-5 space-y-4">
-                                        {renderPreviewStats()}
-
-                                        <button
-                                            onClick={handleImport}
-                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-app-2xl font-bold uppercase bg-app-blue text-white hover:bg-app-blue-hover active:scale-[0.98] transition-transform cursor-pointer"
-                                        >
-                                            <CheckCircle2 size={18} />
-                                            {t('fflogs.import_button')}
-                                        </button>
-                                        <button
-                                            onClick={handleClose}
-                                            className="w-full py-3 rounded-xl text-app-2xl font-bold text-app-text bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
-                                        >
-                                            {t('common.cancel', 'キャンセル')}
-                                        </button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                    </motion.div>
-                </div>
-
-            </div>
-        </AnimatePresence>,
-        document.body
+    return (
+        <FFLogsMobileSheet
+            handleClose={handleClose}
+            modalRef={modalRef}
+            handleTouchStart={handleTouchStart}
+            handleTouchMove={handleTouchMove}
+            handleTouchEnd={handleTouchEnd}
+            urlInput={urlInput}
+            previewStats={previewStats}
+            canFetch={canFetch}
+            isLoading={isLoading}
+            status={status}
+            handleFetch={handleFetch}
+            handleImport={handleImport}
+        />
     );
 };
