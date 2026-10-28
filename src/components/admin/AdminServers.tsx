@@ -10,6 +10,10 @@ import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { showToast } from '../toastBus';
 import { AdminPage } from './AdminPage';
+import { ServersDcTab } from './servers/ServersDcTab';
+import { ServersHousingTab } from './servers/ServersHousingTab';
+import { ServersSizesTab } from './servers/ServersSizesTab';
+import { ServersTagsTab } from './servers/ServersTagsTab';
 import type { MasterServers } from '../../types';
 
 type TabKey = 'dc' | 'housing' | 'sizes' | 'tags';
@@ -94,9 +98,6 @@ export function AdminServers() {
       )
     : 0;
 
-  const inputClass =
-    'px-2 py-1 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text w-full';
-  const labelClass = 'block text-app-base text-app-text-muted mb-0.5';
 
   const tabs: { key: TabKey; labelKey: string }[] = [
     { key: 'dc', labelKey: 'admin.servers_dc' },
@@ -208,13 +209,6 @@ export function AdminServers() {
     setDirty(true);
   };
 
-  /** カンマ区切り文字列 ↔ 配列のヘルパー */
-  const toCommaSeparated = (arr: string[]) => arr.join(', ');
-  const fromCommaSeparated = (str: string) =>
-    str
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
 
   const metaNode = (
     <span className="text-app-base text-app-text-muted">
@@ -260,251 +254,34 @@ export function AdminServers() {
         <div className="flex flex-col h-full min-h-0">
           {/* DC タブ */}
           {activeTab === 'dc' && (
-            <div className="h-full min-h-0 flex gap-4">
-              {/* 左パネル: DC一覧 */}
-              <div className="w-48 shrink-0 border border-app-text/10 rounded flex flex-col min-h-0">
-                <div className="shrink-0 p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
-                  {t('admin.servers_dc')}
-                </div>
-                <div className="flex-1 min-h-0 overflow-y-auto">
-                  {Object.entries(data.datacenters).map(([dcKey, dc]) => {
-                    const count = Object.keys(dc.servers).length;
-                    return (
-                      <button
-                        key={dcKey}
-                        onClick={() => {
-                          setSelectedDc(dcKey);
-                          setExpandedServer(null);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-app-lg border-b border-app-text/5 transition-colors ${
-                          selectedDc === dcKey
-                            ? 'bg-app-text/10 font-bold'
-                            : 'hover:bg-app-text/5'
-                        }`}
-                      >
-                        <span>{dcKey}</span>
-                        <span className="ml-1 text-app-text-muted">({count})</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 右パネル: 選択DCのサーバー一覧 */}
-              <div className="flex-1 min-h-0 border border-app-text/10 rounded flex flex-col">
-                <div className="shrink-0 p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
-                  {selectedDc
-                    ? `${selectedDc} (${Object.keys(data.datacenters[selectedDc]?.servers ?? {}).length})`
-                    : 'DCを選択してください'}
-                </div>
-
-                {selectedDc && data.datacenters[selectedDc] && (
-                  <>
-                    {/* DCエイリアス */}
-                    <div className="shrink-0 px-3 py-2 border-b border-app-text/10">
-                      <label className={labelClass}>
-                        DC {t('admin.servers_aliases')}
-                      </label>
-                      <input
-                        className={inputClass}
-                        value={toCommaSeparated(data.datacenters[selectedDc].aliases)}
-                        onChange={(e) =>
-                          updateDcAliases(selectedDc, fromCommaSeparated(e.target.value))
-                        }
-                        placeholder="alias1, alias2"
-                      />
-                    </div>
-
-                    {/* サーバーリスト */}
-                    <div className="flex-1 min-h-0 overflow-y-auto">
-                      {Object.entries(data.datacenters[selectedDc].servers).length === 0 && (
-                        <p className="p-4 text-app-lg text-app-text-muted">
-                          {t('admin.no_data')}
-                        </p>
-                      )}
-                      {Object.entries(data.datacenters[selectedDc].servers).map(
-                        ([serverKey, aliases]) => (
-                          <div key={serverKey} className="border-b border-app-text/5">
-                            <button
-                              onClick={() =>
-                                setExpandedServer(
-                                  expandedServer === serverKey ? null : serverKey,
-                                )
-                              }
-                              className="w-full text-left px-3 py-2 text-app-lg hover:bg-app-text/5 transition-colors flex items-center gap-3"
-                            >
-                              <span className="flex-1">{serverKey}</span>
-                              <span className="text-app-text-muted text-app-base">
-                                {t('admin.servers_aliases')}: {aliases.length}
-                              </span>
-                              <span className="text-app-text-muted text-app-base">
-                                {expandedServer === serverKey ? '▲' : '▼'}
-                              </span>
-                            </button>
-
-                            {expandedServer === serverKey && (
-                              <div className="px-3 pb-3 pt-1 bg-app-text/5">
-                                <label className={labelClass}>
-                                  {t('admin.servers_aliases')}
-                                </label>
-                                <input
-                                  className={inputClass}
-                                  value={toCommaSeparated(aliases)}
-                                  onChange={(e) =>
-                                    updateServerAliases(
-                                      selectedDc,
-                                      serverKey,
-                                      fromCommaSeparated(e.target.value),
-                                    )
-                                  }
-                                  placeholder="alias1, alias2"
-                                />
-                              </div>
-                            )}
-                          </div>
-                        ),
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
+            <ServersDcTab
+              data={data}
+              selectedDc={selectedDc}
+              setSelectedDc={setSelectedDc}
+              expandedServer={expandedServer}
+              setExpandedServer={setExpandedServer}
+              updateDcAliases={updateDcAliases}
+              updateServerAliases={updateServerAliases}
+            />
           )}
 
           {/* ハウジングエリア タブ */}
           {activeTab === 'housing' && (
-            <div className="h-full min-h-0 border border-app-text/10 rounded flex flex-col">
-              <div className="shrink-0 p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
-                {t('admin.servers_housing')} ({Object.keys(data.housingAreas).length})
-              </div>
-              <div className="flex-1 min-h-0 overflow-y-auto">
-                {Object.entries(data.housingAreas).map(([areaKey, area]) => (
-                  <div
-                    key={areaKey}
-                    className="px-3 py-3 border-b border-app-text/5"
-                  >
-                    <div className="text-app-lg font-bold mb-2">{areaKey}</div>
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
-                      {(['ja', 'en', 'ko', 'zh'] as const).map((lang) => (
-                        <div key={`name-${lang}`}>
-                          <label className={labelClass}>name ({lang})</label>
-                          <input
-                            className={inputClass}
-                            value={area.name[lang]}
-                            onChange={(e) =>
-                              updateHousingAreaLocalized(areaKey, 'name', lang, e.target.value)
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
-                      {(['ja', 'en', 'ko', 'zh'] as const).map((lang) => (
-                        <div key={`apt-${lang}`}>
-                          <label className={labelClass}>apartment_name ({lang})</label>
-                          <input
-                            className={inputClass}
-                            value={area.apartment_name[lang]}
-                            onChange={(e) =>
-                              updateHousingAreaLocalized(areaKey, 'apartment_name', lang, e.target.value)
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>
-                    <div>
-                      <label className={labelClass}>{t('admin.servers_aliases')}</label>
-                      <input
-                        className={inputClass}
-                        value={toCommaSeparated(area.aliases)}
-                        onChange={(e) =>
-                          updateHousingAreaAliases(areaKey, fromCommaSeparated(e.target.value))
-                        }
-                        placeholder="alias1, alias2"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ServersHousingTab
+              data={data}
+              updateHousingAreaLocalized={updateHousingAreaLocalized}
+              updateHousingAreaAliases={updateHousingAreaAliases}
+            />
           )}
 
           {/* サイズ タブ */}
           {activeTab === 'sizes' && (
-            <div className="h-full min-h-0 border border-app-text/10 rounded flex flex-col">
-              <div className="shrink-0 p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
-                {t('admin.servers_sizes')} ({data.housingSizes.length})
-              </div>
-              <div className="flex-1 min-h-0 overflow-y-auto">
-                {data.housingSizes.map((size, index) => (
-                  <div
-                    key={size.id}
-                    className="px-3 py-3 border-b border-app-text/5"
-                  >
-                    <div className="text-app-lg font-bold mb-2 font-mono text-app-text-muted">
-                      {size.id}
-                    </div>
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <div>
-                        <label className={labelClass}>label</label>
-                        <input
-                          className={inputClass}
-                          value={size.label}
-                          onChange={(e) =>
-                            updateHousingSize(index, 'label', e.target.value)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className={labelClass}>{t('admin.servers_aliases')}</label>
-                        <input
-                          className={inputClass}
-                          value={toCommaSeparated(size.aliases)}
-                          onChange={(e) =>
-                            updateHousingSize(
-                              index,
-                              'aliases',
-                              fromCommaSeparated(e.target.value),
-                            )
-                          }
-                          placeholder="alias1, alias2"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ServersSizesTab data={data} updateHousingSize={updateHousingSize} />
           )}
 
           {/* タグ タブ */}
           {activeTab === 'tags' && (
-            <div className="h-full min-h-0 border border-app-text/10 rounded flex flex-col">
-              <div className="shrink-0 p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
-                {t('admin.servers_tags')} ({Object.keys(data.tags).length})
-              </div>
-              <div className="flex-1 min-h-0 overflow-y-auto">
-                {Object.entries(data.tags).map(([category, tagList]) => (
-                  <div
-                    key={category}
-                    className="px-3 py-3 border-b border-app-text/5"
-                  >
-                    <div className="text-app-lg font-bold mb-2">{category}</div>
-                    <div>
-                      <label className={labelClass}>{t('admin.servers_tags')}</label>
-                      <input
-                        className={inputClass}
-                        value={toCommaSeparated(tagList)}
-                        onChange={(e) =>
-                          updateTags(category, fromCommaSeparated(e.target.value))
-                        }
-                        placeholder="tag1, tag2, tag3"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ServersTagsTab data={data} updateTags={updateTags} />
           )}
         </div>
       )}
