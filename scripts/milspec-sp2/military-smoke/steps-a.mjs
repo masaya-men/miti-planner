@@ -1,12 +1,19 @@
 import { state, step, fail, getState, MITI_STORE } from './state.mjs';
 import { applyFixture } from '../_fixture.mjs';
+import { readFileSync } from 'node:fs';
+
+// 切替ボタンの aria-label は翻訳 app.theme_style_switch(「見た目を切り替える」等)。どの言語で開いても見つかるよう 5 言語分を並べる
+const TOGGLE_SELECTOR = ['ja', 'en', 'zh', 'zh-Hant', 'ko']
+  .map((lng) => JSON.parse(readFileSync(new URL(`../../../src/locales/${lng}.json`, import.meta.url), 'utf8')).app.theme_style_switch)
+  .map((label) => `button[aria-label="${label}"]`)
+  .join(', ');
 
 export async function runStepsA(viewport) {
   const { page } = state;
 
     // ── step 1: 入口 assert + 軍事モード + fixture ───────────────────
     await step('標準ヘッダーの MIL-SPEC 切替ボタンが可視 → 軍事モードへ + fixture', async () => {
-      const toggle = page.locator('button[aria-label*="MIL-SPEC"]').first();
+      const toggle = page.locator(TOGGLE_SELECTOR).first();
       const count = await toggle.count();
       if (count === 0) fail('MIL-SPEC 切替ボタンが標準ヘッダーに存在しない (SP1 punch-list の入口消失)');
       if (!(await toggle.isVisible())) fail('MIL-SPEC 切替ボタンが不可視');

@@ -55,7 +55,7 @@ node scripts/milspec-sp2/standard-invariance.mjs        # exit 0 = 一致 / exit
 node scripts/milspec-sp2/military-smoke.mjs      # exit 0 = 全操作 OK + console エラー 0
 ```
 
-1. **標準ヘッダーに `button[aria-label*="MIL-SPEC"]` が可視**であることを assert
+1. **標準ヘッダーに 見た目の切替ボタン(aria-label=翻訳 `app.theme_style_switch`) が可視**であることを assert
    （SP1 の失敗 = この入口を消したこと）。その後は実アクション
    `useThemeStore.getState().setThemeStyle('military')` で確実に軍事モードへ
    （`localStorage` 直書きショートカットは使わない）。

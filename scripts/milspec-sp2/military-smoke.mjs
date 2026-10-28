@@ -9,7 +9,7 @@
  *   「入口が残っている」「操作が壊れていない」「エラーを吐かない」だけ。
  *
  * 手順 (step 番号は実行順・全 30 ステップ):
- *   1. 標準ヘッダーに MIL-SPEC 切替ボタン (button[aria-label*="MIL-SPEC"]) が
+ *   1. 標準ヘッダーに MIL-SPEC 切替ボタン (aria-label=翻訳 app.theme_style_switch) が
  *      表示されていることを assert (SP1 の失敗 = この入口を消したこと) →
  *      useThemeStore.setThemeStyle('military') で軍事へ + store 注入 fixture
  *      (プラン選択済 + 8 人 + 軽減 7 個)。
@@ -28,8 +28,7 @@
  *  12. リキャスト帯 (Task 7) の位置・列整合・横スクロール同期 +
  *      (d) 列折りたたみ (Shift+P / Shift+L) 後も帯がチップ/バー陣営に留まる (C1 の回帰検知)。
  *  13. リキャスト帯: T/H セルで 6 アイコンが 1 行に収まる (折り返しクリップ回帰)。
- *  14. 計器スクロールバー (Task 8): 縦バー可視化 + syncPadding + 目盛りキャップ ::after。
- *      (headless は ::-webkit-scrollbar 非描画のため幅の hard assert は WARN スキップ)
+ *  14. 縦スクロールバー非表示(10-23 決定): バー幅 0 + 見出し右端の目盛りキャップ ::after が無い。
  *  15. CSS 構造前提の自己防衛 (レビュー M8 / T4 #4): sheetContainer 先頭の
  *      [data-time-row] 連続性 + :has() アンカーの一意性。
  *  16. コンテンツキーで絶タブ (aria-pressed ちょうど 1 つ)。
