@@ -100,6 +100,18 @@ describe('findOrderPairs', () => {
     const rules = parseRules('.milspec-a .sh{opacity:1} .milspec-b .rim{opacity:0}', 'x.css');
     expect(findOrderPairs(rules, undefined, /^milspec-/, { rightNames: true })).toHaveLength(0);
   });
+  it('属性だけ・要素だけの規則(対象 class が無い)も、 右端の属性・要素が同じなら組(2026-10-28 宿題 d)', () => {
+    expect(pairs('[data-time-row]{background:red} [data-time-row]{background:blue}')).toHaveLength(1);
+    expect(pairs('.x [data-time-row]{color:red} .y [data-time-row]{color:blue}')).toHaveLength(1);
+    expect(pairs('div{color:red} div{color:blue}')).toHaveLength(1);
+    expect(pairs('.x svg{fill:red} .y svg{fill:blue}')).toHaveLength(1);
+  });
+  it('属性だけ・要素だけでも、 右端が違う・疑似要素が違う・性質が違えば組にならない', () => {
+    expect(pairs('[data-a]{color:red} [data-b]{color:blue}')).toHaveLength(0);
+    expect(pairs('div{color:red} span{color:blue}')).toHaveLength(0);
+    expect(pairs('[data-a]::before{content:"a"} [data-a]::after{content:"b"}')).toHaveLength(0);
+    expect(pairs('[data-a]{color:red} [data-a]{margin:0}')).toHaveLength(0);
+  });
   it('性質が違えば組にならない', () => {
     expect(pairs('.housing-a{color:red} .housing-a{margin:0}')).toHaveLength(0);
   });

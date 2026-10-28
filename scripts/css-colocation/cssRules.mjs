@@ -200,10 +200,23 @@ function rightNamesOf(selector, prefixRe) {
   return [...classes, ...attrs];
 }
 
+/** 対象 class を持たない規則(属性だけ・要素だけ。 [data-time-row]::after 等)の対象。 右端の複合セレクタの属性名・要素名と、 疑似要素 */
+function bareTargetOf(selector) {
+  const last = compounds(selector).pop() ?? '';
+  const rest = stripPseudoFns(last).rest.replace(/(^|[^:]):(before|after|first-line|first-letter)(?![\w-])/g, (_, a, b) => a + '::' + b);
+  const tag = /^[a-zA-Z][\w-]*/.exec(rest);
+  const names = [
+    ...[...last.matchAll(/\[([\w-]+)/g)].map((m) => '[' + m[1] + ']'),
+    ...(tag ? [tag[0].toLowerCase()] : []),
+  ];
+  return { names, pseudo: (rest.match(/::[\w-]+/) || [''])[0] };
+}
+
 /**
  * 並び順で A が先の「順番頼りの組」 [A, B, 性質] を返す。 related = 別名の class が同じ要素に付きうるか(classGroups.mjs)。
  * rightNames: 右端に対象 class が無い規則(.milspec-key:hover .sh 等)は、 祖先の class に加えて右端の名前が同じものも同じ対象とみなす
  * (別の祖先を経て同じ要素に効く組を拾う)。
+ * 対象 class を持たない規則(属性だけ・要素だけ)は、 右端の属性・要素名が同じで疑似要素も同じなら同じ対象とみなす(bare)。
  */
 export function findOrderPairs(rules, related = (a, b) => a === b, prefixRe = HOUSING_PREFIX, { rightNames = false } = {}) {
   const entries = [];
@@ -212,7 +225,11 @@ export function findOrderPairs(rules, related = (a, b) => a === b, prefixRe = HO
     const props = new Set(r.props);
     for (const sel of r.selectors) {
       const subj = subjectClasses(sel, prefixRe);
-      if (!subj.length) continue;
+      if (!subj.length) {
+        const bare = bareTargetOf(sel);
+        if (bare.names.length) entries.push({ i, r, props, spec: specificity(sel).join(','), subj, names: [], bare });
+        continue;
+      }
       entries.push({ i, r, props, spec: specificity(sel).join(','), subj, names: rightNames ? rightNamesOf(sel, prefixRe) : [] });
     }
   });
@@ -222,7 +239,8 @@ export function findOrderPairs(rules, related = (a, b) => a === b, prefixRe = HO
     if (!buckets.has(e.spec)) buckets.set(e.spec, []);
     buckets.get(e.spec).push(e);
   }
-  const sameTarget = (x, y) => x.subj.some((a) => y.subj.some((b) => a === b || related(a, b))) || x.names.some((n) => y.names.includes(n));
+  const sameBare = (x, y) => x.bare.pseudo === y.bare.pseudo && x.bare.names.some((n) => y.bare.names.includes(n));
+  const sameTarget = (x, y) => (x.bare || y.bare) ? !!(x.bare && y.bare && sameBare(x, y)) : x.subj.some((a) => y.subj.some((b) => a === b || related(a, b))) || x.names.some((n) => y.names.includes(n));
   const seen = new Set();
   const pairs = [];
   for (const list of buckets.values()) {
