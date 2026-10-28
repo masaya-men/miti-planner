@@ -21,9 +21,17 @@ const SHARED_ALLOW: Record<string, string> = {
   'semantic-tokens.css': '本番の意味トークン(--color-* 等)を MIL-SPEC へ付け替える。標準の部品にも効く',
   'standard-revert.css': 'ボードの中に描く窓(.glass-tier3)を標準の見た目へ掛け戻す。標準の部品に効く',
   'backdrop.css': '画面全体の背景・走査線・フォント(標準の Layout が描く [data-app-shell] に効く)',
-  'standard-parts.css': '標準の部品を .theme-military で描き変える規則。標準の部品は MIL-SPEC の後読みより先に画面に出る',
+  'standard-job-chip.css': '標準のジョブチップ .cj を .theme-military で描き変える。標準の部品は MIL-SPEC の後読みより先に画面に出る',
+  'standard-recast.css': '標準のリキャスト帯・アイコンを .theme-military で描き変える。標準の部品は MIL-SPEC の後読みより先に画面に出る',
+  'standard-scrollbar.css': '標準の表のスクロールバーを .theme-military で描き変える。標準の部品は MIL-SPEC の後読みより先に画面に出る',
+  'standard-table.css': '標準の表の枠・見出し・行を .theme-military で描き変える。標準の部品は MIL-SPEC の後読みより先に画面に出る',
+  'standard-effects.css': '標準の効果アイコン・効果帯を .theme-military で描き変える。標準の部品は MIL-SPEC の後読みより先に画面に出る',
   'boot-parts.css': '起動時から読まれる MIL-SPEC 部品(src/main.tsx から静的 import で届く)の見た目。後読みに置くと共有との勝ち負けが逆転しうる',
-  'primitives.css': '3 つ以上の MIL-SPEC 部品が使う共通部品(装甲板・基板・押下フィードバック等)',
+  'primitives.css': '3 つ以上の MIL-SPEC 部品が使う共通部品(装甲板・面取り・ビス等)',
+  'press-feedback.css': '全ボタン共通の押下フィードバック',
+  'lamp.css': '3 つ以上の部品が使うインジケータ球',
+  'sr-only.css': '視覚的に隠す(スクリーンリーダー用の名前)',
+  'pcb.css': '基板・プランコアの SVG 部品(複数の部品が使う)',
 };
 
 function walk(dir: string, ext: string, out: string[] = []): string[] {

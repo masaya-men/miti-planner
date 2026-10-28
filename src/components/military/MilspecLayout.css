@@ -102,7 +102,7 @@
    masaya 2026-09-05「スクロールバーもSF軍事っぽい細かいディテールと数字やデカールが施されたメーターに」。
    2026-10-23 masaya: 縦バーは出さない(スクロールはできる)。ヘッダー右端の目盛りキャップ(mockup .gauge-cap)も外した。
    → 今は .timeline-scroll-container の横バーだけを計器の見た目にする。規則本体は
-     src/styles/military/standard-parts.css の「計器スクロールバー」。ここは色の変数だけを持つ。
+     src/styles/military/standard-scrollbar.css の「計器スクロールバー」。ここは色の変数だけを持つ。
    ⚠ headless Chromium は overlay 型で ::-webkit-scrollbar を幅0で返す。
      可視の意匠確認は headed 実 Chrome / 実機のみ。
    スコープは .theme-military .milspec-app(モバイル軍事= SP3 へ漏らさない)。 ---------- */
