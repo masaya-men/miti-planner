@@ -140,8 +140,12 @@
   border: 2px solid rgba(255, 255, 255, 0.12);
   border-top-color: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
-  animation: logo-spin 600ms linear infinite;
+  animation: miti-spinner-rotate 600ms linear infinite;
   margin: auto;
+}
+
+@keyframes miti-spinner-rotate {
+  to { transform: rotate(360deg); }
 }
 
 .theme-light .miti-spinner {
