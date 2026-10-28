@@ -39,7 +39,7 @@ export const withPlan = (/** @type {{ theme: string, lang: string }} */ cond, /*
 
 const THEMES = ['standard-dark', 'standard-light'];
 const pageAx = { vp: ['1489', '1920'], theme: THEMES, lang: ['ja', 'en'] };
-const POP = 'div.fixed.glass-tier3.rounded-lg';
+const POP = 'div.fixed.float-surface[class*="rounded-[10px]"]';
 const winAx = { vp: ['1489'], theme: THEMES, lang: ['ja'] };
 // 時間削減(設計書 §10 の削り順 1)=窓の en 軸は外した(15 分に収まらなかったため)。戻すときは lang に 'en' を足す
 const winAxEn = { vp: ['1489'], theme: THEMES, lang: ['ja'] };
@@ -135,7 +135,7 @@ export default [
     }, covers: ['BoundaryEditModal'] },
   { id: 'miti/win-mitigation-selector', route: '/miti', storage: lanes, ready: '[data-tutorial-modal]:not([data-tutorial])', clip: 'ready', axes: winAx,
     open: async (page) => { await page.locator(`${ROW} [class*="group/cell"]`).nth(10).click(); }, covers: ['MitigationSelector'] },
-  { id: 'miti/win-job-picker', route: '/miti', storage: lanes, ready: 'div.glass-tier3.rounded-xl', clip: 'ready', axes: winAx,
+  { id: 'miti/win-job-picker', route: '/miti', storage: lanes, ready: 'div.float-surface.rounded-xl', clip: 'ready', axes: winAx,
     open: click('[data-testid="job-picker-trigger"] >> nth=0'), covers: ['JobPicker', 'JobPickerRow'] },
   { id: 'miti/ctx-plan-row', route: '/miti', storage: (cond) => withPlan(cond, 'm9s'), ready: 'text=名前変更', axes: winAx,
     open: async (page) => { await page.locator('text=見本プラン').first().click({ button: 'right' }); }, covers: ['ContextMenu', 'Sidebar'] },
@@ -146,7 +146,7 @@ export default [
     }, covers: ['Toast'] },
   { id: 'miti/footer-legal', route: '/miti', storage: lanes, ready: 'footer a[href="/privacy"]', axes: winAx,
     open: click('footer button.underline'), covers: ['AppFooter'] },
-  { id: 'miti/popover-pulse', route: '/miti', storage: lanes, ready: 'div.glass-tier3[class*="w-[240px]"]', axes: winAx,
+  { id: 'miti/popover-pulse', route: '/miti', storage: lanes, ready: 'div.float-surface[class*="w-[240px]"]', axes: winAx,
     open: click('footer button:has-text("パルス設定"), footer button:has-text("Pulse")'), covers: ['PulseSettings', 'AppFooter'] },
   { id: 'miti/win-local-data-safety', route: '/miti', storage: withPlan, ready: SHELL, clip: 'ready', axes: winAx,
     open: async (page) => { await page.click('text=この軽減表は今この端末'); }, covers: ['LocalDataSafetyModal', 'LocalDataSafetyBar'] },
