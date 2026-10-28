@@ -25,7 +25,6 @@ const ALLOWED: Record<string, string> = {
   'components/AppFooter.tsx': '窓ではない(フッターの全画面要素)',
   'components/GridOverlay.tsx': '窓ではない(グリッド表示)',
   'components/ImportProgressOverlay.tsx': '進行表示。外側クリックでは閉じない',
-  'components/LanguageSwitcher.tsx': '小さなドロップダウン(別方式)',
   'components/layout/AuthRedirectingOverlay.tsx': 'ログイン処理中の全画面表示(窓ではない)',
   'components/layout/LayoutOverlays.tsx': 'スマホのカンペ全画面表示(窓ではない)',
   'components/MobileFab.tsx': '窓ではない(浮遊ボタン)',

@@ -100,7 +100,7 @@ describe('セレクタと条件の書き方の正規化', () => {
 
 describe('順番頼りを探す対象(全部の対象の class)', () => {
   it('housing・milspec に加えて index.css から移した class も対象', () => {
-    for (const c of ['housing-a', 'housinger-a', 'milspec-a', 'recast-icon', 'empty-liquid-glass']) expect(ORDER_PREFIX.test(c)).toBe(true);
+    for (const c of ['housing-a', 'housinger-a', 'milspec-a', 'recast-icon', 'empty-plan-scrim']) expect(ORDER_PREFIX.test(c)).toBe(true);
     expect(ORDER_PREFIX.test('text-red-500')).toBe(false);
   });
 });

@@ -1,10 +1,10 @@
 [
   {
-    "rule": ".empty-liquid-glass:before",
+    "rule": ".empty-plan-scrim:before",
     "reason": "2026-10-28 index.css → Timeline.css。 Tailwind の後処理が -webkit-mask を展開する時に -webkit-mask-composite:xor と -webkit-mask-source-type:auto,auto を余分に二重で書いていた。 最後に効く値は同じ(-webkit-mask-source-type は初期値 auto)。 visual-regress で確認"
   },
   {
-    "rule": ".empty-liquid-glass:after",
+    "rule": ".empty-plan-scrim:after",
     "reason": "同上(::after 側)"
   },
   {

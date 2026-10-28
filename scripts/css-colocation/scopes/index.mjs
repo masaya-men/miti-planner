@@ -15,7 +15,7 @@ export const CLASSES = [
   'progress-detail', 'progress-detail-inner', 'progress-detail-content',
   'animate-conflict-arrow-pulse', 'conflict-chevron',
   'lopo-capsule-path', 'lopo-scan-fill', 'lopo-scan-clip', 'lopo-scan-line',
-  'empty-liquid-glass', 'empty-glass-corner', 'empty-glass-corner-tl', 'empty-glass-corner-tr', 'empty-glass-corner-bl', 'empty-glass-corner-br',
+  'empty-plan-scrim', 'empty-glass-corner', 'empty-glass-corner-tl', 'empty-glass-corner-tr', 'empty-glass-corner-bl', 'empty-glass-corner-br',
   'empty-glass-sheen', 'empty-glow-left', 'empty-glow-left-spread', 'empty-glow-bl-h', 'empty-glow-bl-v', 'empty-glow-bl-spread',
   'empty-burger-left-1', 'empty-burger-left-2', 'empty-burger-left-3', 'empty-burger-top-1', 'empty-burger-top-2', 'empty-burger-top-3',
   'empty-text-in', 'no-plan',
