@@ -49,4 +49,29 @@ describe('循環 import の検査', () => {
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
+  it('検出器そのものの確認: ディレクトリの index 経由の循環を拾う', async () => {
+    const dir = fs.mkdtempSync(join(os.tmpdir(), 'circ-'));
+    try {
+      fs.mkdirSync(join(dir, 'sub'));
+      fs.writeFileSync(join(dir, 'a.ts'), "import { s } from './sub';\nexport const a = s;\n");
+      fs.writeFileSync(join(dir, 'sub', 'index.ts'), "import { a } from '../a';\nexport const s = a;\n");
+      const found = (await madge(buildImportGraph(dir))).circular();
+      expect(found).toHaveLength(1);
+      expect(found[0].slice().sort()).toEqual(['a.ts', 'sub/index.ts']);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('検出器そのものの確認: .js 拡張子つきの import(実体は .ts)の循環を拾う', async () => {
+    const dir = fs.mkdtempSync(join(os.tmpdir(), 'circ-'));
+    try {
+      fs.writeFileSync(join(dir, 'x.ts'), "import { y } from './y.js';\nexport const x = y;\n");
+      fs.writeFileSync(join(dir, 'y.ts'), "import { x } from './x.js';\nexport const y = x;\n");
+      const found = (await madge(buildImportGraph(dir))).circular().map((c) => c.join(' > '));
+      expect(found).toEqual(['x.ts > y.ts']);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
