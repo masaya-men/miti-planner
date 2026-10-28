@@ -1,23 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-    CATEGORY_LABELS,
-    getContentById,
-} from '../data/contentRegistry';
-import { hasContentRegistry, getFilteredBosses, deriveContentId } from '../lib/contentSelection';
-import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
+import { hasContentRegistry } from '../lib/contentSelection';
+import type { ContentLevel, ContentCategory } from '../types';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
-import { commitNewPlan } from '../lib/commitNewPlan';
-import { useCollabSessionStore } from '../store/useCollabSessionStore';
-import { useTutorialStore } from '../store/useTutorialStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { PLAN_LIMITS } from '../types/firebase';
 import { LoginModal } from './LoginModal';
-import { AlertTriangle } from 'lucide-react';
-import clsx from 'clsx';
 import { ModalShell } from './ui/ModalShell';
-import { ModalHeader, ModalFooter, ModalButton, CloseButton, INPUT_CLASS } from './ui/ModalParts';
+import { ModalHeader, ModalFooter, ModalButton, CloseButton } from './ui/ModalParts';
+import { useNewPlanSelection } from './newPlan/useNewPlanSelection';
+import { createNewPlan } from './newPlan/createNewPlan';
+import { NewPlanLevelCategoryTabs } from './newPlan/NewPlanLevelCategoryTabs';
+import { NewPlanContentFields } from './newPlan/NewPlanContentFields';
+import { NewPlanLimitWarning } from './newPlan/NewPlanLimitWarning';
 
 interface NewPlanModalProps {
     isOpen: boolean;
@@ -26,9 +22,6 @@ interface NewPlanModalProps {
         タイトル入力にフォーカスする。MIL-SPEC のコンテンツツリー「＋追加」用。 */
     initialContentId?: string | null;
 }
-
-const LEVEL_OPTIONS: ContentLevel[] = [100, 90, 80, 70];
-const CATEGORY_OPTIONS: ContentCategory[] = ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
 
 export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, initialContentId }) => {
     const { t, i18n } = useTranslation();
@@ -44,75 +37,10 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, ini
     const isTotalLimitReached = totalPlanCount >= PLAN_LIMITS.MAX_TOTAL_PLANS;
     const isArchiveWarning = totalPlanCount >= PLAN_LIMITS.ARCHIVE_WARNING_THRESHOLD;
 
-    // Selection State — レベル・カテゴリは未選択スタート
-    const [level, setLevel] = useState<ContentLevel | null>(null);
-    const [category, setCategory] = useState<ContentCategory | null>(null);
-    const [boss, setBoss] = useState<ContentDefinition | null>(null);
-    const [title, setTitle] = useState('');
-    const skipCategoryResetRef = useRef(false);
-
-    // モーダルが開くたびにリセット。initialContentId があればそのコンテンツを選択済みにする。
-    useEffect(() => {
-        if (isOpen) {
-            useTutorialStore.getState().completeEvent('create:modal-opened');
-            const seed = initialContentId ? getContentById(initialContentId) : null;
-            if (seed && (seed.category === 'savage' || seed.category === 'ultimate')) {
-                skipCategoryResetRef.current = true; // 直後の [category] リセットを 1 回だけ無視
-                setLevel(seed.level);
-                setCategory(seed.category);
-                setBoss(seed);
-                setTitle(seed.shortName.en || seed.shortName.ja || '');
-            } else {
-                setLevel(null);
-                setCategory(null);
-                setBoss(null);
-                setTitle('');
-            }
-        }
-    }, [isOpen, initialContentId]);
-
-    const titleInputRef = useRef<HTMLInputElement>(null);
-
-    // 零式・絶の場合のみドロップダウン用のコンテンツリストを生成
-    // シリーズ単位で patch 降順 (新パッチ上)、 シリーズ内は order 昇順 (P1 → 本体、 1 層 → 4 層)。
-    const filteredBosses = React.useMemo(
-        () => getFilteredBosses(level, category),
-        [level, category],
-    );
-
-    // フィルタ変更時にbossをリセット
-    useEffect(() => {
-        if (boss && !filteredBosses.some(b => b.id === boss.id)) {
-            setBoss(null);
-        }
-    }, [filteredBosses, boss]);
-
-    // カテゴリ変更時にbossとタイトルをリセット。
-    // ただし initialContentId でシード中(open 直後の1回)はスキップ — シードした boss/title を消さない。
-    useEffect(() => {
-        if (skipCategoryResetRef.current) {
-            skipCategoryResetRef.current = false;
-            return;
-        }
-        setBoss(null);
-        setTitle('');
-        ;
-    }, [category]);
-
-    // ドロップダウンからボスを選択
-    const handleBossSelect = (selectedBoss: ContentDefinition) => {
-        setBoss(selectedBoss);
-        const defaultName = selectedBoss.shortName.en || selectedBoss.shortName.ja;
-        setTitle(defaultName);
-        ;
-
-        setTimeout(() => {
-            if (titleInputRef.current) {
-                titleInputRef.current.focus();
-                titleInputRef.current.select();
-            }
-        }, 50);
-    };
+    const {
+        level, setLevel, category, setCategory, boss, title, setTitle,
+        titleInputRef, filteredBosses, handleBossSelect,
+    } = useNewPlanSelection(isOpen, initialContentId);
 
     // バリデーション
     const isLevelSelected = level !== null;
@@ -129,66 +57,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, ini
 
     const handleCreate = () => {
         if (!canCreate || isBlocked || !level) return;
-
-        // 根治(2): 共同編集ON中なら先に切断。下の clearAllMitigations / updatePartyBulk が
-        // 「今繋がっている部屋(別プラン)」に委譲されて、その部屋を空にするのを防ぐ。
-        useCollabSessionStore.getState().disconnect();
-
-        // 1. 現在のプランを保存
-        if (activePlanId) {
-            updatePlan(activePlanId, { data: getSnapshot() });
-        }
-
-        const store = useMitigationStore.getState();
-        const useLevel = boss ? boss.level : level;
-
-        // 2. レベル・ステータス設定 + 軽減・パーティクリア
-        store.setCurrentLevel(useLevel);
-        store.applyDefaultStats(useLevel, boss?.patch);
-        store.clearAllMitigations();
-        store.updatePartyBulk(
-            store.partyMembers.map(m => ({ memberId: m.id, jobId: null }))
-        );
-        store.setMyMemberId(null);
-
-        // 3. 空のタイムラインで開始（テンプレートは読み込まない）
-        store.loadSnapshot({
-            ...store.getSnapshot(),
-            timelineEvents: [],
-            timelineMitigations: [],
-            phases: [],
-            memos: [], // 新規プランは前プランのメモを引き継がない
-        });
-        store.setHideEmptyRows(false);
-
-        // 4. contentId の決定
-        // 零式・絶: 既存のコンテンツID / それ以外: ユーザー入力名をそのまま使う
-        const contentId = deriveContentId(boss, category, title);
-
-        // 5. プラン保存 (crypto.randomUUID で同一 ms 連続作成時の ID 衝突を防止)
-        const newPlanId = `plan_${crypto.randomUUID()}`;
-        const finalSnapshot = store.getSnapshot();
-        // 根治(C-1): 持ち主確定→currentPlanId切替を安全な順序で行う共有処理(直前プラン破壊を防ぐ)
-        commitNewPlan({
-            id: newPlanId,
-            ownerId: 'local',
-            ownerDisplayName: 'Guest',
-            contentId,
-            category: category!,
-            level: useLevel as ContentLevel,
-            title: title.trim(),
-            isPublic: false,
-            data: finalSnapshot,
-            createdAt: Date.now(),
-            updatedAt: Date.now()
-        });
-
-        // チュートリアル通知
-        useTutorialStore.getState().completeEvent('content:selected');
-        useTutorialStore.getState().completeEvent('create:plan-created');
-
-        // サイドバーに作成結果を伝える
-        onClose({ contentId, level: useLevel as ContentLevel, category: category! });
+        createNewPlan({ level, boss, category, title, activePlanId, updatePlan, getSnapshot, onClose });
     };
 
     // Enterキーで作成
@@ -230,160 +99,32 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, ini
                     />
 
                     <div className="p-6 space-y-7 overflow-y-auto no-scrollbar">
-                        {/* Level Tabs */}
-                        <div className="space-y-3.5">
-                            <label className="text-app-base font-black text-app-text uppercase tracking-[0.25em] pl-1">
-                                {t('new_plan.level_label')}
-                            </label>
-                            <div className="flex gap-1.5 bg-glass-card/50 rounded-xl p-1.5 border border-glass-border/20 shadow-inner">
-                                {LEVEL_OPTIONS.map((l, idx) => (
-                                    <button
-                                        key={l}
-                                        data-tutorial={idx === 0 ? 'level-max' : undefined}
-                                        onClick={() => {
-                                            setLevel(l);
-                                            useTutorialStore.getState().completeEvent('create:level-selected');
-                                        }}
-                                        className={clsx(
-                                            "flex-1 py-2 rounded-lg text-app-md font-black transition-all duration-300 cursor-pointer",
-                                            level === l
-                                                ? "bg-app-toggle text-app-toggle-text shadow-lg scale-[1.02]"
-                                                : "text-app-text hover:bg-glass-hover"
-                                        )}
-                                    >
-                                        {l}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Category Tabs */}
-                        <div className="space-y-3.5">
-                            <label className="text-app-base font-black text-app-text uppercase tracking-[0.25em] pl-1">
-                                {t('new_plan.category_label')}
-                            </label>
-                            <div className="flex gap-2 overflow-x-auto no-scrollbar py-0.5">
-                                {CATEGORY_OPTIONS.map(cat => (
-                                    <button
-                                        key={cat}
-                                        data-tutorial={cat === 'dungeon' ? 'category-dungeon' : undefined}
-                                        onClick={() => {
-                                            setCategory(cat);
-                                            useTutorialStore.getState().completeEvent('create:category-selected');
-                                        }}
-                                        className={clsx(
-                                            "whitespace-nowrap px-6 py-2.5 rounded-full text-app-md font-black transition-all border cursor-pointer",
-                                            category === cat
-                                                ? "bg-app-toggle text-app-toggle-text border-app-toggle"
-                                                : "bg-glass-card/30 text-app-text border-glass-border/40 hover:border-glass-hover"
-                                        )}
-                                    >
-                                        {(CATEGORY_LABELS[cat][lang] || CATEGORY_LABELS[cat].ja).toUpperCase()}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* 零式・絶: コンテンツ一覧（フラットリスト） */}
-                        {hasContentRegistry(category) && (
-                            <div className="space-y-3.5">
-                                <label className="text-app-base font-black text-app-text uppercase tracking-[0.25em] pl-1">
-                                    {t('new_plan.content_label')}
-                                </label>
-                                {level ? (
-                                    filteredBosses.length > 0 ? (
-                                        <div className="flex flex-col gap-1.5 max-h-[200px] overflow-y-auto custom-scrollbar">
-                                            {filteredBosses.map(b => (
-                                                <button
-                                                    key={b.id}
-                                                    onClick={() => handleBossSelect(b)}
-                                                    className={clsx(
-                                                        "w-full px-4 py-3 rounded-xl text-app-lg font-black transition-all border cursor-pointer text-left active:scale-[0.98]",
-                                                        boss?.id === b.id
-                                                            ? "bg-app-toggle text-app-toggle-text border-app-toggle"
-                                                            : "bg-glass-card/30 text-app-text border-glass-border/40 hover:bg-glass-hover"
-                                                    )}
-                                                >
-                                                    {b.name[lang] || b.name.ja}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <p className="text-app-md text-app-text-muted text-center py-6 italic opacity-60">
-                                            {t('new_plan.no_matches')}
-                                        </p>
-                                    )
-                                ) : (
-                                    <p className="text-app-md text-app-text-muted text-center py-6 italic opacity-60">
-                                        {t('new_plan.select_level_first')}
-                                    </p>
-                                )}
-                            </div>
-                        )}
-
-                        {/* 零式・絶: プラン名入力 */}
-                        {hasContentRegistry(category) && boss && (
-                            <div className="space-y-3.5">
-                                <label className="text-app-base font-black text-app-text uppercase tracking-[0.25em] pl-1">
-                                    {t('new_plan.plan_name_label')}
-                                </label>
-                                <input
-                                    ref={titleInputRef}
-                                    type="text"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    onFocus={(e) => e.target.select()}
-                                    placeholder={t('new_plan.plan_name_placeholder')}
-                                    className={INPUT_CLASS}
-                                />
-                            </div>
-                        )}
-
-                        {/* ダンジョン・レイド・その他: 名前入力のみ */}
-                        {category !== null && !hasContentRegistry(category) && (
-                            <div className="space-y-3.5">
-                                <label className="text-app-base font-black text-app-text uppercase tracking-[0.25em] pl-1">
-                                    {t('new_plan.plan_name_label')}
-                                </label>
-                                <input
-                                    ref={titleInputRef}
-                                    data-tutorial="plan-name-input"
-                                    autoFocus
-                                    type="text"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    onFocus={(e) => e.target.select()}
-                                    placeholder={t('new_plan.free_name_placeholder')}
-                                    className={INPUT_CLASS}
-                                />
-                            </div>
-                        )}
+                        <NewPlanLevelCategoryTabs
+                            level={level}
+                            setLevel={setLevel}
+                            category={category}
+                            setCategory={setCategory}
+                            lang={lang}
+                        />
+                        <NewPlanContentFields
+                            level={level}
+                            category={category}
+                            boss={boss}
+                            title={title}
+                            setTitle={setTitle}
+                            titleInputRef={titleInputRef}
+                            filteredBosses={filteredBosses}
+                            handleBossSelect={handleBossSelect}
+                            lang={lang}
+                        />
                     </div>
 
-                    {/* 件数制限の警告 */}
-                    {(isBlocked || isArchiveWarning) && (
-                        <div className="px-6 pb-2">
-                            <div className={clsx(
-                                "flex items-start gap-2 p-3 rounded-xl text-app-md border",
-                                isBlocked
-                                    ? "bg-app-red-dim border-app-red-border text-app-red"
-                                    : "bg-app-amber-dim border-app-amber-border text-app-amber"
-                            )}>
-                                <AlertTriangle size={14} className="shrink-0 mt-0.5" />
-                                <div>
-                                    {isTotalLimitReached && (
-                                        <p>{t('new_plan.plan_limit_total', { max: PLAN_LIMITS.MAX_TOTAL_PLANS })}</p>
-                                    )}
-                                    {isContentLimitReached && !isTotalLimitReached && (
-                                        <p>{t('new_plan.plan_limit_per_content', { max: PLAN_LIMITS.MAX_PLANS_PER_CONTENT })}</p>
-                                    )}
-                                    {isArchiveWarning && !isBlocked && (
-                                        <p>{t('new_plan.plan_archive_warning', { threshold: PLAN_LIMITS.ARCHIVE_WARNING_THRESHOLD })}</p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    <NewPlanLimitWarning
+                        isBlocked={isBlocked}
+                        isArchiveWarning={isArchiveWarning}
+                        isTotalLimitReached={isTotalLimitReached}
+                        isContentLimitReached={isContentLimitReached}
+                    />
 
                     {/* Footer */}
                     <ModalFooter className="flex-wrap">
