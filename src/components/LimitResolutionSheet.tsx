@@ -6,7 +6,7 @@
 // - レイアウトを ShareImportSheet と同一 (左狭リスト + 右広 preview)、
 //   mobile も preview 表示 (hidden md:block 撤去)
 // - 削除進捗の 3 段テキストを廃止 → SweepOverlay (red) + ✓ ドロップイン + カード退場
-// - spring 値を MitigationSheet と統一 (stiffness: 300, damping: 28)
+// - spring 値を ShareImportSheet と統一 (stiffness: 300, damping: 28)
 // - motion.div に layout prop で内容拡張時の高さアニメ滑らか化
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
