@@ -11,9 +11,8 @@
   justify-content: center;
   padding: calc(16px * var(--housing-scale));
   background: var(--housing-panel-bg);
-  --tw-backdrop-blur: blur(calc(6px * var(--housing-scale)));
-  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  -webkit-backdrop-filter: blur(calc(6px * var(--housing-scale)));
+  backdrop-filter: blur(calc(6px * var(--housing-scale)));
 }
 .housing-tour-map-cross-card {
   display: flex;

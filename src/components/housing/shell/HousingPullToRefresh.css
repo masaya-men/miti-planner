@@ -32,9 +32,8 @@
    モーダル本体は前面なのでぼけない。css-rules の --tw-backdrop-blur パターンで書く。 */
 .housing-panel-modal-backdrop[data-backdrop="frost"] {
   background: transparent;
-  --tw-backdrop-blur: blur(calc(3px * var(--housing-scale)));
-  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  -webkit-backdrop-filter: blur(calc(3px * var(--housing-scale)));
+  backdrop-filter: blur(calc(3px * var(--housing-scale)));
 }
 .housing-panel-modal-backdrop {
     --housing-login-modal-width: calc(480px * var(--housing-scale));
