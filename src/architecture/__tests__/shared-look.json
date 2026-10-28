@@ -77,26 +77,11 @@
     },
     "mobile-width-handwritten": {
       "src/components/BoundaryEditModal.tsx": 1,
-      "src/components/EventForm.tsx": 1,
-      "src/components/EventModal.tsx": 1,
       "src/components/HeaderMechanicSearch.tsx": 2,
-      "src/components/Layout.tsx": 2,
-      "src/components/MitiPlannerPage.tsx": 1,
       "src/components/MitigationSelector.tsx": 1,
       "src/components/PartySettingsModal.tsx": 3,
       "src/components/PartyStatusPopover.tsx": 1,
-      "src/components/Timeline.tsx": 1,
-      "src/components/layout/useSidebarOpenState.ts": 1,
-      "src/components/military/MilspecTitleTooltip.tsx": 1,
-      "src/components/progress/ProgressRecordPanel.tsx": 3,
-      "src/components/timeline/TimelineHeader.tsx": 2,
-      "src/components/timeline/TimelinePopovers.tsx": 4,
-      "src/components/timeline/TimelineRowContent.tsx": 7,
-      "src/components/timeline/useTimelineAutoPlan.ts": 1,
-      "src/components/timeline/useTimelineKeyboard.ts": 1,
-      "src/components/timeline/useTimelineLayout.ts": 1,
-      "src/components/ui/Tooltip.tsx": 1,
-      "src/store/useThemeStore.ts": 1
+      "src/components/progress/ProgressRecordPanel.tsx": 3
     },
     "glass-tier-legacy": {
       "src/components/AppFooter.tsx": 1,
