@@ -163,7 +163,7 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
         <div
             ref={popoverRef}
             className={clsx(
-                "fixed glass-tier3 rounded-lg z-[9999] overflow-hidden animate-in fade-in zoom-in-95 duration-200 shadow-sm transition-opacity",
+                "fixed float-surface rounded-[10px] z-[9999] overflow-hidden animate-in fade-in zoom-in-95 duration-200 transition-opacity",
                 !isPositioned ? "opacity-0" : "opacity-100"
             )}
             style={{

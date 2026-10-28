@@ -53,7 +53,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }
     return createPortal(
         <div
             ref={menuRef}
-            className="fixed z-[100010] min-w-[160px] py-1 rounded-lg bg-app-surface2 border border-glass-border shadow-[0_12px_48px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]"
+            className="fixed z-[100010] min-w-[160px] py-1 rounded-[10px] float-surface"
             style={{ left: x, top: y }}
         >
             {items.map((item, i) => {

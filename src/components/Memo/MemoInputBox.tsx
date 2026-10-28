@@ -79,7 +79,7 @@ export const MemoInputBox: React.FC<MemoInputBoxProps> = ({
     return createPortal(
         <div
             ref={boxRef}
-            className="fixed z-[9999] glass-tier3 rounded-xl shadow-sm p-3 flex flex-col gap-2 animate-in fade-in zoom-in-95 duration-200"
+            className="fixed z-[9999] float-surface rounded-xl p-3 flex flex-col gap-2 animate-in fade-in zoom-in-95 duration-200"
             style={{ top: `${topPx}px`, left: `${leftPx}px`, width: 320 }}
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}

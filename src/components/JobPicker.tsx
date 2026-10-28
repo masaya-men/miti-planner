@@ -52,7 +52,7 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
                     initial={{ opacity: 0, scale: 0.95, y: -10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="pointer-events-auto glass-tier3 rounded-xl p-2 w-[220px] flex flex-col gap-2 absolute z-[100]"
+                    className="pointer-events-auto float-surface rounded-xl p-2 w-[220px] flex flex-col gap-2 absolute z-[100]"
                     style={{
                         left: Math.min(position.x, window.innerWidth - 240),
                         top: Math.min(position.y + 10, window.innerHeight - 300)

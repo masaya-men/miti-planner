@@ -83,7 +83,7 @@ export function TutorialCard({
       }}
       style={{ top, left, maxWidth: 280 }}
     >
-      <div className="rounded-xl shadow-xl bg-app-bg border border-app-text/10 overflow-hidden">
+      <div className="rounded-xl float-surface overflow-hidden">
         {/* 緑アクセントバー */}
         <div className="h-[3px] w-full rounded-t-xl" style={{ backgroundColor: 'var(--color-app-green)' }} />
 
@@ -104,7 +104,7 @@ export function TutorialCard({
                     <span className="text-app-sm font-bold uppercase">{i18n.language}</span>
                   </button>
                   {langOpen && (
-                    <div className="absolute right-0 top-full mt-1 bg-app-bg border border-app-text/15 rounded-lg shadow-xl py-1 min-w-[110px] z-[10010]">
+                    <div className="absolute right-0 top-full mt-1 float-surface rounded-[10px] py-1 min-w-[110px] z-[10010]">
                       {LANGUAGES.map(({ code, label }) => (
                         <button
                           key={code}

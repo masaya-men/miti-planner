@@ -24,8 +24,7 @@ export const SidebarFloatingBar: React.FC<SidebarFloatingBarProps> = ({ multiSel
                     {createPortal(
                         <div className={clsx(
                             "fixed bottom-6 left-1/2 z-[99980] flex items-center gap-3 px-5 py-2.5",
-                            "bg-app-bg border border-app-text/15 rounded-2xl",
-                            "shadow-[0_8px_32px_rgba(0,0,0,.6)]",
+                            "float-surface rounded-2xl",
                             "transition-all duration-300",
                             multiSelect.isEnabled && !bundleModalOpen
                                 ? "opacity-100 translate-x-[-50%] translate-y-0 pointer-events-auto"

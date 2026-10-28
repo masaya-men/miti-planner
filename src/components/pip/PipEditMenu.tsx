@@ -33,7 +33,7 @@ export const PipEditMenu: React.FC<PipEditMenuProps> = ({
                         onClick={closeMenu}
                     >
                         <div
-                            className="relative glass-tier3 rounded-xl shadow-2xl w-full max-w-[360px] py-4 px-3"
+                            className="relative float-surface rounded-xl w-full max-w-[360px] py-4 px-3"
                             onClick={e => e.stopPropagation()}
                             style={{ color: fgColor }}
                         >

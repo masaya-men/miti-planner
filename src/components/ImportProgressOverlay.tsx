@@ -45,7 +45,7 @@ export function ImportProgressOverlay({
                     transition={{ type: 'spring', stiffness: 300, damping: 28 }}
                     className="fixed inset-0 flex items-center justify-center pointer-events-none z-[99995] px-4"
                 >
-                    <div className="glass-tier3 px-5 py-4 rounded-xl border border-app-border shadow-xl w-full max-w-[320px]">
+                    <div className="float-surface px-5 py-4 rounded-xl w-full max-w-[320px]">
                         <div className="flex items-center justify-between mb-3 gap-3">
                             <span className="text-app-md font-semibold text-app-text">
                                 {label}

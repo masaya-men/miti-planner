@@ -25,6 +25,8 @@ const EXEMPT: Record<string, string> = {
     'layout/AuthRedirectingOverlay.tsx': 'ログインの移動中に画面全体を覆う表示(画面)',
     'party/PartyDragGhost.tsx': 'ドラッグ中の影(演出)',
     'MobilePartySettings.tsx': 'portal はドラッグ中の影(演出)だけ。シート本体は MobileBottomSheet',
+    'collab/PresenceControls.tsx': 'portal で JobPicker を出すだけ(素材は JobPicker 側)',
+    'fab/FabPartyVisGrid.tsx': 'FAB から出るジョブのアイコンのボタン(面を持たない)',
     'progress/ProgressCelebration.tsx': '進捗のお祝いの演出',
     'timeline/TimelinePipLayer.tsx': '小窓表示(PiP)の層。画面そのもの',
     'tutorial/TutorialBlocker.tsx': 'チュートリアルの操作止め(暗幕)',
@@ -37,32 +39,8 @@ const EXEMPT: Record<string, string> = {
     'tutorial/animations/PillFly.tsx': 'チュートリアルの演出',
 };
 
-/** まだ載せ替えていない浮かぶもの。載せ替えたら消す(消し忘れも下で落ちる)。 */
+/** まだ載せ替えていない浮かぶもの。2026-10-28 に全部載せ替えて空。以後は足さない(下のテストで止める)。 */
 const PENDING: Record<string, string> = {
-    'ImportProgressOverlay.tsx': 'Task 5',
-    'RenderPendingIndicator.tsx': 'Task 5',
-    'timeline/sheet/PlacementToast.tsx': 'Task 5',
-    'timeline/TimelineDialogs.tsx': 'Task 5',
-    'Memo/MemoFloatingBar.tsx': 'Task 5',
-    'Memo/MemoInputBox.tsx': 'Task 5',
-    'timeline/TimelineModeBars.tsx': 'Task 5',
-    'sidebar/SidebarFloatingBar.tsx': 'Task 5',
-    'ImportMenu.tsx': 'Task 5',
-    'HeaderToolsMenu.tsx': 'Task 5',
-    'HeaderPhaseDropdown.tsx': 'Task 5',
-    'HeaderGimmickDropdown.tsx': 'Task 5',
-    'HeaderMechanicSearch.tsx': 'Task 5',
-    'HeaderTimeInput.tsx': 'Task 5',
-    'LanguageSwitcher.tsx': 'Task 5',
-    'JobPicker.tsx': 'Task 5',
-    'ui/ContextMenu.tsx': 'Task 5',
-    'pip/PipEditMenu.tsx': 'Task 5',
-    'collab/PresenceControls.tsx': 'Task 5',
-    'fab/FabEffectModeChips.tsx': 'Task 5',
-    'fab/FabLanguageChips.tsx': 'Task 5',
-    'fab/FabPartyVisGrid.tsx': 'Task 5',
-    'tutorial/TutorialCard.tsx': 'Task 5',
-    'tutorial/TutorialMenu.tsx': 'Task 5',
 };
 
 function walk(dir: string): string[] {
@@ -98,6 +76,10 @@ describe('浮かぶものは素材 float-surface を使う', () => {
             .filter((f) => isCandidate(f.src) && !usesSurface(f.src) && !(f.key in EXEMPT) && !(f.key in PENDING))
             .map((f) => f.key);
         expect(bad, '浮かぶものなら className に float-surface を付ける。浮かぶものでなければ EXEMPT に理由つきで足す').toEqual([]);
+    });
+
+    it('PENDING は空(新しい浮かぶものは最初から float-surface で作る)', () => {
+        expect(Object.keys(PENDING)).toEqual([]);
     });
 
     it('PENDING と EXEMPT のファイルが実在する', () => {

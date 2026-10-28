@@ -31,10 +31,10 @@ export const FabEffectModeChips: React.FC<FabEffectModeChipsProps> = ({ effectMo
                             onClick={() => handleEffectModeSelect(mode)}
                             className={clsx(
                                 "fixed flex items-center justify-center rounded-full",
-                                "font-semibold text-app-xl shadow-lg select-none",
+                                "font-semibold text-app-xl select-none",
                                 mode === mobileEffectBarMode
                                     ? "bg-app-blue text-white shadow-app-blue/30"
-                                    : "bg-black/70 text-white/90 backdrop-blur-sm"
+                                    : "float-surface"
                             )}
                             style={{
                                 width: FAN_CHIP_SIZE,

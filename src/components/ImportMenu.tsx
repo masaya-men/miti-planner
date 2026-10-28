@@ -74,7 +74,7 @@ export function ImportMenu({ btnClassName, onImportLogs, readOnly, children }: I
             {open && createPortal(
                 <div
                     ref={menuRef}
-                    className="fixed min-w-[240px] rounded-lg border border-app-text/15 bg-app-bg shadow-lg py-1 z-[99999]"
+                    className="fixed min-w-[240px] rounded-[10px] float-surface py-1 z-[99999]"
                     style={{ top: pos.top, left: pos.left }}
                 >
                     {/* FF Logs から取り込み */}

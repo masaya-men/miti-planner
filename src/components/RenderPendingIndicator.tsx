@@ -28,7 +28,7 @@ export function RenderPendingIndicator() {
                     transition={{ duration: 0.15 }}
                     className="fixed inset-0 z-[999999] flex items-center justify-center pointer-events-none"
                 >
-                    <div className="flex items-center justify-center w-12 h-12 rounded-full border border-app-text/15 bg-app-bg shadow-lg">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full float-surface">
                         <Loader2 size={22} className="animate-spin text-app-text-muted" />
                     </div>
                 </motion.div>
