@@ -33,9 +33,9 @@ describe('planColocation(MIL-SPEC)', () => {
     const p = plan('.theme-military .milspec-logo{color:red}');
     expect(norm(p.outputs.get(`${M}/header/MilspecLogo.css`))).toContain('.milspec-logo{color:red}');
   });
-  it('起動時の部品が持ち主なら boot-parts へ', () => {
+  it('起動時の部品が持ち主なら standard-table へ(隣の CSS は置けない)', () => {
     const p = plan('.theme-military .milspec-toggle{color:red}', { staticFiles: [`${M}/MilspecStyleToggle.tsx`] });
-    expect([...p.outputs.keys()]).toEqual([`${S}/boot-parts.css`]);
+    expect([...p.outputs.keys()]).toEqual([`${S}/standard-table.css`]);
   });
   it('標準の部品が持ち主なら standard-table へ(旧 standard-parts を 5 本に分けた後の既定)', () => {
     const p = plan('.theme-military .recast-row .milspec-x{color:red}', {
