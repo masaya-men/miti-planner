@@ -1,22 +1,27 @@
 import React from 'react';
-import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
-    MoreHorizontal, X, List, Tag, Search,
+    List, Tag, Search,
     Globe, Sun, Moon,
-    Rows3, AlignJustify, ChevronDown,
+    Rows3, AlignJustify,
     Sparkles, Users,
 } from 'lucide-react';
-import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ContentLanguage, MobileEffectBarMode } from '../store/useThemeStore';
 import { useTransitionOverlay } from './ui/transitionOverlayContext';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
-import { SPRING, STAGGER } from '../tokens/motionTokens';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useJobs } from '../hooks/useSkillsData';
 import { PARTY_MEMBER_IDS } from '../constants/party';
+import { LANG_DISPLAY_ORDER } from './fab/mobileFabChips';
+import { useFabChipAnchors } from './fab/useFabChipAnchors';
+import { useFabMenuScroll } from './fab/useFabMenuScroll';
+import { FabLanguageChips } from './fab/FabLanguageChips';
+import { FabEffectModeChips } from './fab/FabEffectModeChips';
+import { FabPartyVisGrid } from './fab/FabPartyVisGrid';
+import { FabMainButton } from './fab/FabMainButton';
+import { FabMenu } from './fab/FabMenu';
 
 interface MobileFABProps {
     onToggleTheme: () => void;
@@ -28,105 +33,6 @@ interface MobileFABProps {
     hideEmptyRows?: boolean;
 }
 
-const LANG_LABELS: Record<ContentLanguage, string> = {
-    ja: '日',
-    en: 'EN',
-    zh: '中',
-    'zh-Hant': '繁',
-    ko: '한',
-};
-
-// チップ(言語/エフェクトモード共通)のレイアウト定数 — 対応するボタンのラベルの左に一直線
-const FAN_CHIP_SIZE = 36;
-const FAN_CHIP_GAP = 6;
-// 表示順序（左から: 日 EN 中 繁 한→ 右端が現在地に近い）
-const LANG_DISPLAY_ORDER: ContentLanguage[] = ['ja', 'en', 'zh', 'zh-Hant', 'ko'];
-// 2026-08-14: 'scroll'(連動)は一時除外していたが、初動の重さの主因の一つ
-// (.mobile-row-dim-textの属性セレクタ切替)を修正した実測で大幅改善したため復活。
-const EFFECT_MODE_ORDER: MobileEffectBarMode[] = ['icon', 'scroll', 'bar'];
-const EFFECT_MODE_CHIP_LABELS: Record<MobileEffectBarMode, string> = {
-    icon: '静止',
-    scroll: '連動',
-    bar: '常時',
-};
-
-// i番目のチップのx位置（対応ボタン中心基準、左方向=負）。
-// ボタン(44px) + gap(10px) + ラベル実測幅 + gap(12px) + チップ列。
-// ラベル幅を固定50px決め打ちにしていた版は「スクロール演出」等の長いラベルでチップが
-// ラベル本体に重なるバグだったため、実測値(labelWidth)を必須で受け取るようにした
-// (2026-08-14実機FB)。
-function fanChipX(i: number, count: number, labelWidth: number): number {
-    const labelOffset = -(MOBILE_TOKENS.fab.itemSize / 2 + 10 + labelWidth + 12);
-    return labelOffset - (count - 1 - i) * (FAN_CHIP_SIZE + FAN_CHIP_GAP) - FAN_CHIP_SIZE / 2;
-}
-
-// チップ(言語/エフェクトモード共通)のアニメーション variants
-const fanChipVariants = {
-    hidden: {
-        x: 0,
-        scale: 0,
-        opacity: 0,
-    },
-    visible: (custom: { i: number; targetX: number }) => ({
-        x: custom.targetX,
-        scale: 1,
-        opacity: 1,
-        transition: {
-            ...SPRING.bouncy,
-            delay: custom.i * 0.05,
-        },
-    }),
-    exit: (custom: { i: number; count: number; isSelected: boolean }) => {
-        if (custom.isSelected) {
-            return {
-                x: 0,
-                scale: 0,
-                opacity: 0,
-                transition: {
-                    duration: 0.2,
-                    ease: 'easeIn' as const,
-                },
-            };
-        }
-        return {
-            x: 0,
-            scale: 0,
-            opacity: 0,
-            transition: {
-                ...SPRING.snappy,
-                delay: (custom.count - 1 - custom.i) * 0.04,
-            },
-        };
-    },
-    tap: {
-        scale: 1.3,
-        transition: { duration: 0.1 },
-    },
-};
-
-// パーティ表示/非表示グリッド専用のチップvariants(2026-08-19、fanChipVariantsと同じ技法を
-// 2段×4列グリッドに適用)。1軸のx移動ではなくx/y両方でボタン位置から個別に飛び出す。
-// タップしても閉じない仕様のため exit の isSelected 分岐は不要(fanChipVariantsと違う点)。
-const partyVisCellVariants = {
-    hidden: { x: 0, y: 0, scale: 0, opacity: 0 },
-    visible: (custom: { i: number; targetX: number; targetY: number }) => ({
-        x: custom.targetX,
-        y: custom.targetY,
-        scale: 1,
-        opacity: 1,
-        transition: { ...SPRING.bouncy, delay: custom.i * (STAGGER.fab / 1000) },
-    }),
-    exit: (custom: { i: number; count: number }) => ({
-        x: 0,
-        y: 0,
-        scale: 0,
-        opacity: 0,
-        transition: {
-            ...SPRING.snappy,
-            delay: (custom.count - 1 - custom.i) * 0.04,
-        },
-    }),
-};
 
 // セッション 22: スマホは同期ボタン完全撤去。 FAB メニュー奥で結局見えないし、
 // 自動同期が信頼できる状態なので意味も乏しい。 PC ヘッダのインジケータ (SyncButton)
@@ -184,116 +90,17 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     // 操作できる)。
     const [partyVisOpen, setPartyVisOpen] = React.useState(false);
 
+
     // メニューのスクロール可否（端のフェード + ↓ アイコン表示用）
-    const menuRef = React.useRef<HTMLDivElement>(null);
-    const [canScrollUp, setCanScrollUp] = React.useState(false);
-    const [canScrollDown, setCanScrollDown] = React.useState(false);
-    const updateScrollState = React.useCallback(() => {
-        const el = menuRef.current;
-        if (!el) return;
-        setCanScrollUp(el.scrollTop > 0);
-        setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 1);
-    }, []);
-    React.useEffect(() => {
-        if (!open) return;
-        const timer = setTimeout(updateScrollState, 50);
-        return () => clearTimeout(timer);
-    }, [open, updateScrollState]);
-    const menuMaskImage = React.useMemo(() => {
-        const top = canScrollUp ? 'transparent 0, black 40px' : 'black 0';
-        const bottom = canScrollDown ? 'black calc(100% - 40px), transparent 100%' : 'black 100%';
-        return `linear-gradient(to bottom, ${top}, ${bottom})`;
-    }, [canScrollUp, canScrollDown]);
+    const { menuRef, canScrollDown, updateScrollState, menuMaskImage } = useFabMenuScroll(open);
 
-    // 言語ボタンの位置を取得（言語チップを Portal で body に出すため）
-    // overflow-y-auto のメニュー内では横方向に展開するチップが clip されるので Portal 化が必須。
-    // ラベル幅も一緒に実測する(チップの開始位置計算に使う。固定50px決め打ちだと「スクロール演出」
-    // のような長いラベルにチップが重なるバグだったため。2026-08-14実機FB)。
-    const langButtonRef = React.useRef<HTMLButtonElement>(null);
-    const langLabelRef = React.useRef<HTMLSpanElement>(null);
-    const [langButtonRect, setLangButtonRect] = React.useState<DOMRect | null>(null);
-    const [langLabelWidth, setLangLabelWidth] = React.useState(50);
-    React.useEffect(() => {
-        if (!langOpen) {
-            setLangButtonRect(null);
-            return;
-        }
-        const update = () => {
-            if (langButtonRef.current) {
-                setLangButtonRect(langButtonRef.current.getBoundingClientRect());
-            }
-            if (langLabelRef.current) {
-                setLangLabelWidth(langLabelRef.current.getBoundingClientRect().width);
-            }
-        };
-        update();
-        const onChange = () => update();
-        // capture phase でメニュー内 scroll も拾う
-        window.addEventListener('scroll', onChange, true);
-        window.addEventListener('resize', onChange);
-        return () => {
-            window.removeEventListener('scroll', onChange, true);
-            window.removeEventListener('resize', onChange);
-        };
-    }, [langOpen]);
+    // 言語/エフェクトモード/パーティ表示ボタンの位置とラベル幅の実測(チップを Portal で body に出すため)
+    const {
+        langButtonRef, langLabelRef, langButtonRect, langLabelWidth,
+        partyVisButtonRef, partyVisLabelRef, partyVisButtonRect, partyVisLabelWidth,
+        effectModeButtonRef, effectModeLabelRef, effectModeButtonRect, effectModeLabelWidth,
+    } = useFabChipAnchors({ langOpen, effectModeOpen, partyVisOpen });
 
-    // パーティ表示/非表示ボタンの位置取得(言語/エフェクトモードボタンと同じ仕組み)。
-    // ラベル幅も実測する(2026-08-19実機FB: 固定オフセットだとグリッドがFABラベル文言
-    // 「表示メンバー」に重なるバグだった。言語/エフェクトモードと同じ理由・同じ直し方)。
-    const partyVisButtonRef = React.useRef<HTMLButtonElement>(null);
-    const partyVisLabelRef = React.useRef<HTMLSpanElement>(null);
-    const [partyVisButtonRect, setPartyVisButtonRect] = React.useState<DOMRect | null>(null);
-    const [partyVisLabelWidth, setPartyVisLabelWidth] = React.useState(50);
-    React.useEffect(() => {
-        if (!partyVisOpen) {
-            setPartyVisButtonRect(null);
-            return;
-        }
-        const update = () => {
-            if (partyVisButtonRef.current) {
-                setPartyVisButtonRect(partyVisButtonRef.current.getBoundingClientRect());
-            }
-            if (partyVisLabelRef.current) {
-                setPartyVisLabelWidth(partyVisLabelRef.current.getBoundingClientRect().width);
-            }
-        };
-        update();
-        const onChange = () => update();
-        window.addEventListener('scroll', onChange, true);
-        window.addEventListener('resize', onChange);
-        return () => {
-            window.removeEventListener('scroll', onChange, true);
-            window.removeEventListener('resize', onChange);
-        };
-    }, [partyVisOpen]);
-
-    // エフェクトモードボタンの位置取得(言語ボタンと同じ仕組み)。
-    const effectModeButtonRef = React.useRef<HTMLButtonElement>(null);
-    const effectModeLabelRef = React.useRef<HTMLSpanElement>(null);
-    const [effectModeButtonRect, setEffectModeButtonRect] = React.useState<DOMRect | null>(null);
-    const [effectModeLabelWidth, setEffectModeLabelWidth] = React.useState(50);
-    React.useEffect(() => {
-        if (!effectModeOpen) {
-            setEffectModeButtonRect(null);
-            return;
-        }
-        const update = () => {
-            if (effectModeButtonRef.current) {
-                setEffectModeButtonRect(effectModeButtonRef.current.getBoundingClientRect());
-            }
-            if (effectModeLabelRef.current) {
-                setEffectModeLabelWidth(effectModeLabelRef.current.getBoundingClientRect().width);
-            }
-        };
-        update();
-        const onChange = () => update();
-        window.addEventListener('scroll', onChange, true);
-        window.addEventListener('resize', onChange);
-        return () => {
-            window.removeEventListener('scroll', onChange, true);
-            window.removeEventListener('resize', onChange);
-        };
-    }, [effectModeOpen]);
 
     // 言語切替タイマーのクリーンアップ
     React.useEffect(() => {
@@ -446,28 +253,6 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         },
     ];
 
-    // アニメーション: トークン使用
-    const itemVariants = {
-        hidden: { opacity: 0, y: 16, scale: 0.85 },
-        visible: (i: number) => ({
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            transition: {
-                ...SPRING.default,
-                delay: i * (STAGGER.fab / 1000),
-            },
-        }),
-        exit: (i: number) => ({
-            opacity: 0,
-            y: 12,
-            scale: 0.85,
-            transition: {
-                ...SPRING.snappy,
-                delay: i * 0.025,
-            },
-        }),
-    };
 
     const allItems = [...navItems, 'divider' as const, ...settingsItems];
 
@@ -498,315 +283,49 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                 )}
             </AnimatePresence>
 
-            {/* メニュー項目 */}
-            <AnimatePresence>
-                {open && (
-                    <motion.div
-                        key="fab-menu"
-                        ref={menuRef}
-                        onScroll={updateScrollState}
-                        className="flex flex-col items-end gap-2 mb-3 max-h-[calc(100svh-180px)] overflow-y-auto [&::-webkit-scrollbar]:hidden"
-                        style={{
-                            scrollbarWidth: 'none',
-                            maskImage: menuMaskImage,
-                            WebkitMaskImage: menuMaskImage,
-                        }}
-                        initial="hidden"
-                        animate="visible"
-                        exit="hidden"
-                    >
-                        {allItems.map((item, idx) => {
-                            if (item === 'divider') {
-                                return (
-                                    <motion.div
-                                        key="divider"
-                                        custom={idx}
-                                        variants={itemVariants}
-                                        className="w-28 h-px bg-app-border/60 my-0.5 mr-1"
-                                    />
-                                );
-                            }
-                            const isSync = item.key === 'sync';
-                            const isLang = item.key === 'language';
-                            const isEffectMode = item.key === 'effect-bar-mode';
-                            const isPartyVis = item.key === 'party-visibility';
-                            const isChipButton = isLang || isEffectMode || isPartyVis;
-                            const chipRef = isLang ? langButtonRef : isEffectMode ? effectModeButtonRef : partyVisButtonRef;
-                            const chipOpen = isLang ? langOpen : isEffectMode ? effectModeOpen : partyVisOpen;
-                            const chipLabelRef = isLang ? langLabelRef : isEffectMode ? effectModeLabelRef : isPartyVis ? partyVisLabelRef : undefined;
-                            return (
-                                <motion.div
-                                    key={item.key}
-                                    custom={idx}
-                                    variants={itemVariants}
-                                    className="flex items-center gap-2.5"
-                                    style={isChipButton ? { position: 'relative', zIndex: 50 } : undefined}
-                                >
-                                    {/* ラベル（ボタンの左） */}
-                                    <span
-                                        ref={isChipButton ? chipLabelRef : undefined}
-                                        className="text-app-xl font-semibold text-white/90 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1 select-none whitespace-nowrap shadow-md"
-                                    >
-                                        {item.label}
-                                    </span>
+            <FabMenu
+                open={open}
+                menuRef={menuRef}
+                updateScrollState={updateScrollState}
+                menuMaskImage={menuMaskImage}
+                canScrollDown={canScrollDown}
+                allItems={allItems}
+                langOpen={langOpen}
+                effectModeOpen={effectModeOpen}
+                partyVisOpen={partyVisOpen}
+                langButtonRef={langButtonRef}
+                effectModeButtonRef={effectModeButtonRef}
+                partyVisButtonRef={partyVisButtonRef}
+                langLabelRef={langLabelRef}
+                effectModeLabelRef={effectModeLabelRef}
+                partyVisLabelRef={partyVisLabelRef}
+            />
 
-                                    {/* ボタン */}
-                                    {isChipButton ? (
-                                        <motion.button
-                                            ref={chipRef}
-                                            onClick={item.onClick}
-                                            className={clsx(
-                                                "flex items-center justify-center border",
-                                                "shadow-xl active:scale-90 transition-transform duration-100",
-                                                "text-app-text"
-                                            )}
-                                            style={{
-                                                width: MOBILE_TOKENS.fab.itemSize,
-                                                height: MOBILE_TOKENS.fab.itemSize,
-                                                borderRadius: MOBILE_TOKENS.fab.radius,
-                                                backgroundColor: 'var(--color-fab-bg)',
-                                                borderColor: 'var(--color-fab-border)',
-                                            }}
-                                            animate={chipOpen ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-                                            whileTap={{ scale: 0.9 }}
-                                            transition={{ duration: 0.12 }}
-                                        >
-                                            {item.icon}
-                                        </motion.button>
-                                    ) : (
-                                        <button
-                                            onClick={item.onClick}
-                                            disabled={'disabled' in item ? Boolean(item.disabled) : false}
-                                            className={clsx(
-                                                "flex items-center justify-center border",
-                                                "shadow-xl active:scale-90 transition-transform duration-100",
-                                                "disabled:pointer-events-none disabled:opacity-40",
-                                                isSync
-                                                    ? "bg-app-blue/12 border-app-blue/20 text-app-blue"
-                                                    : "text-app-text"
-                                            )}
-                                            style={{
-                                                width: MOBILE_TOKENS.fab.itemSize,
-                                                height: MOBILE_TOKENS.fab.itemSize,
-                                                borderRadius: MOBILE_TOKENS.fab.radius,
-                                                ...(!isSync ? {
-                                                    backgroundColor: 'var(--color-fab-bg)',
-                                                    borderColor: 'var(--color-fab-border)',
-                                                } : {}),
-                                            }}
-                                        >
-                                            {item.icon}
-                                        </button>
-                                    )}
+            <FabLanguageChips
+                langButtonRect={langButtonRect}
+                langOpen={langOpen}
+                langLabelWidth={langLabelWidth}
+                selectedLang={selectedLang}
+                handleLanguageSelect={handleLanguageSelect}
+            />
 
-                                </motion.div>
-                            );
-                        })}
+            <FabEffectModeChips
+                effectModeButtonRect={effectModeButtonRect}
+                effectModeOpen={effectModeOpen}
+                effectModeLabelWidth={effectModeLabelWidth}
+                mobileEffectBarMode={mobileEffectBarMode}
+                handleEffectModeSelect={handleEffectModeSelect}
+            />
 
-                        {/* スクロール可能ヒント: ↓ アイコン（canScrollDown のみ。sticky bottom でメニュー下端に常駐） */}
-                        {canScrollDown && (
-                            <div
-                                className="sticky bottom-0 self-center pointer-events-none -mt-1"
-                                aria-hidden
-                            >
-                                <ChevronDown size={20} className="text-white drop-shadow-md animate-bounce" />
-                            </div>
-                        )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <FabPartyVisGrid
+                partyVisButtonRect={partyVisButtonRect}
+                partyVisOpen={partyVisOpen}
+                partyVisLabelWidth={partyVisLabelWidth}
+                partyVisibilityCells={partyVisibilityCells}
+                toggleHiddenPartyMember={toggleHiddenPartyMember}
+            />
 
-            {/* 言語チップ — Portal で body に出して、メニューの overflow に縛られず左に展開できる */}
-            {langButtonRect && createPortal(
-                <AnimatePresence>
-                    {langOpen && LANG_DISPLAY_ORDER.map((lang: ContentLanguage, i: number) => (
-                        <motion.button
-                            key={lang}
-                            custom={{ i, targetX: fanChipX(i, LANG_DISPLAY_ORDER.length, langLabelWidth), count: LANG_DISPLAY_ORDER.length, isSelected: selectedLang === lang }}
-                            variants={fanChipVariants}
-                            initial="hidden"
-                            animate="visible"
-                            exit="exit"
-                            whileTap="tap"
-                            onClick={() => handleLanguageSelect(lang)}
-                            className={clsx(
-                                "fixed flex items-center justify-center rounded-full",
-                                "font-semibold text-app-xl shadow-lg select-none",
-                                lang === (i18n.language as ContentLanguage)
-                                    ? "bg-app-blue text-white shadow-app-blue/30"
-                                    : "bg-black/70 text-white/90 backdrop-blur-sm"
-                            )}
-                            style={{
-                                width: FAN_CHIP_SIZE,
-                                height: FAN_CHIP_SIZE,
-                                left: langButtonRect.left + (MOBILE_TOKENS.fab.itemSize - FAN_CHIP_SIZE) / 2,
-                                top: langButtonRect.top + (MOBILE_TOKENS.fab.itemSize - FAN_CHIP_SIZE) / 2,
-                                zIndex: 9999,
-                            }}
-                        >
-                            {LANG_LABELS[lang]}
-                        </motion.button>
-                    ))}
-                </AnimatePresence>,
-                document.body
-            )}
-
-            {/* エフェクトモードチップ — 言語チップと同じPortalパターン(2026-08-14ユーザー要望)。 */}
-            {effectModeButtonRect && createPortal(
-                <AnimatePresence>
-                    {effectModeOpen && EFFECT_MODE_ORDER.map((mode, i) => (
-                        <motion.button
-                            key={mode}
-                            custom={{ i, targetX: fanChipX(i, EFFECT_MODE_ORDER.length, effectModeLabelWidth), count: EFFECT_MODE_ORDER.length, isSelected: mobileEffectBarMode === mode }}
-                            variants={fanChipVariants}
-                            initial="hidden"
-                            animate="visible"
-                            exit="exit"
-                            whileTap="tap"
-                            onClick={() => handleEffectModeSelect(mode)}
-                            className={clsx(
-                                "fixed flex items-center justify-center rounded-full",
-                                "font-semibold text-app-xl shadow-lg select-none",
-                                mode === mobileEffectBarMode
-                                    ? "bg-app-blue text-white shadow-app-blue/30"
-                                    : "bg-black/70 text-white/90 backdrop-blur-sm"
-                            )}
-                            style={{
-                                width: FAN_CHIP_SIZE,
-                                height: FAN_CHIP_SIZE,
-                                left: effectModeButtonRect.left + (MOBILE_TOKENS.fab.itemSize - FAN_CHIP_SIZE) / 2,
-                                top: effectModeButtonRect.top + (MOBILE_TOKENS.fab.itemSize - FAN_CHIP_SIZE) / 2,
-                                zIndex: 9999,
-                            }}
-                        >
-                            {EFFECT_MODE_CHIP_LABELS[mode]}
-                        </motion.button>
-                    ))}
-                </AnimatePresence>,
-                document.body
-            )}
-
-            {/* パーティ表示/非表示グリッド — 言語/エフェクトモードのfan-outチップと同じ技法
-                (ボタン位置から個別にバネで飛び出す・タップ後も閉じない)を2段×4列に適用
-                (2026-08-19)。共通の箱には入れず、ジョブアイコン1個ずつが独立したチップ。 */}
-            {partyVisButtonRect && createPortal(
-                <AnimatePresence>
-                    {partyVisOpen && partyVisibilityCells.map((m, i) => {
-                        const col = i % 4;
-                        const row = Math.floor(i / 4);
-                        // グリッド全体(4列×2段)の右端をFABラベル文言の左に実測ぶんの隙間を空けて置く
-                        // (fanChipXと同じ gap=10/12 の考え方。固定オフセットだと「表示メンバー」等の
-                        // 長いラベルに重なるバグだったため、言語/エフェクトモードと同じくラベル幅実測に揃えた)。
-                        const gridW = 4 * 44 + 3 * 6;
-                        const gridRight = partyVisButtonRect.left - 10 - partyVisLabelWidth - 12;
-                        const anchorLeft = gridRight - gridW;
-                        const anchorTop = partyVisButtonRect.top - (2 * 44 + 6 + 16 - MOBILE_TOKENS.fab.itemSize) / 2;
-                        const targetX = anchorLeft + col * (44 + 6) - partyVisButtonRect.left;
-                        const targetY = anchorTop + row * (44 + 6) - partyVisButtonRect.top;
-                        return (
-                            <motion.button
-                                key={m.id}
-                                type="button"
-                                custom={{ i, targetX, targetY, count: partyVisibilityCells.length }}
-                                variants={partyVisCellVariants}
-                                initial="hidden"
-                                animate="visible"
-                                exit="exit"
-                                onClick={() => toggleHiddenPartyMember(m.id)}
-                                // active:scale-90(CSS)は使わない: このボタンはframer-motionが
-                                // variants経由でx/y/scaleのtransformを継続制御しており、CSS:activeの
-                                // transformと取り合って指を置いた瞬間にアイコンが動こうとするような
-                                // 見た目になり、タップ判定が安定しない(メインFABボタンで2026-08-13に
-                                // 同じ原因を特定済み・下記769行目付近のコメント参照)。press演出は
-                                // whileTapだけに一本化する。
-                                whileTap={{ scale: 0.85, transition: { duration: 0.1 } }}
-                                className="fixed flex items-center justify-center"
-                                style={{
-                                    left: partyVisButtonRect.left,
-                                    top: partyVisButtonRect.top,
-                                    width: 44,
-                                    height: 44,
-                                    zIndex: 9999,
-                                }}
-                            >
-                                {m.icon ? (
-                                    <img
-                                        src={m.icon}
-                                        alt={m.id}
-                                        className={clsx(
-                                            'w-8 h-8 rounded-md object-cover drop-shadow-lg transition-all duration-150',
-                                            m.hidden && 'opacity-30 grayscale scale-90'
-                                        )}
-                                    />
-                                ) : (
-                                    // ジョブ未設定の空席: PC版(PartyVisibilityMenu)と同じくロール名を出す(2026-08-27)。
-                                    <span className={clsx(
-                                        'text-app-lg font-black text-white/80 tracking-tight drop-shadow-lg',
-                                        m.hidden && 'opacity-30'
-                                    )}>
-                                        {m.id}
-                                    </span>
-                                )}
-                            </motion.button>
-                        );
-                    })}
-                </AnimatePresence>,
-                document.body
-            )}
-
-            {/* メインFABボタン。タイムラインをスクロール中(かつメニューが開いていない時)だけ
-                縮小+透明化して隠す(親指の邪魔になる実機FB対応)。メニューを開いたまま偶発的に
-                スクロールされても本体ごと消えて宙に浮かないよう !open をガードに入れる。
-                閉じる時はfan-outチップも道連れに閉じる(2026-08-14実機FB=言語チップが
-                「言語を選択するまで消えない」バグの根治=このボタンでもチップを閉じる)。 */}
-            <motion.button
-                onClick={() => setOpen(prev => {
-                    const next = !prev;
-                    if (!next) closeAllChips();
-                    return next;
-                })}
-                className="flex items-center justify-center border text-app-text shadow-2xl"
-                style={{
-                    width: MOBILE_TOKENS.fab.size,
-                    height: MOBILE_TOKENS.fab.size,
-                    borderRadius: MOBILE_TOKENS.fab.radius,
-                    backgroundColor: 'var(--color-fab-bg)',
-                    borderColor: 'var(--color-fab-border)',
-                    pointerEvents: (isMobileScrolling && !open) ? 'none' : 'auto',
-                }}
-                // active:scale-90 + transition-all(CSS)を外した: framer-motionのanimate/whileTapと
-                // 同じtransformを取り合ってカクつく原因になっていた(2026-08-13実機FB=消える/出現する
-                // アニメがぎこちない)。press演出はwhileTapだけに一本化。
-                // scroll中の縮小/透明化はバネ(spring)だとopacityとscaleの収束タイミングがズレて
-                // ぎこちなく見えるため、両方が同じ速度で揃って動く一定時間のtween+MD3標準イージングに変更。
-                animate={{ scale: (isMobileScrolling && !open) ? 0 : 1, opacity: (isMobileScrolling && !open) ? 0 : 1 }}
-                transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
-                whileTap={{ scale: 0.88, transition: { duration: 0.1 } }}
-            >
-                <AnimatePresence mode="wait" initial={false}>
-                    {open ? (
-                        <motion.span
-                            key="close"
-                            initial={{ rotate: -45, opacity: 0 }}
-                            animate={{ rotate: 0, opacity: 1 }}
-                            exit={{ rotate: 45, opacity: 0 }}
-                            transition={{ duration: 0.15 }}
-                        >
-                            <X size={22} />
-                        </motion.span>
-                    ) : (
-                        <motion.span
-                            key="open"
-                            initial={{ rotate: 45, opacity: 0 }}
-                            animate={{ rotate: 0, opacity: 1 }}
-                            exit={{ rotate: -45, opacity: 0 }}
-                            transition={{ duration: 0.15 }}
-                        >
-                            <MoreHorizontal size={22} />
-                        </motion.span>
-                    )}
-                </AnimatePresence>
-            </motion.button>
+            <FabMainButton open={open} isMobileScrolling={isMobileScrolling} setOpen={setOpen} closeAllChips={closeAllChips} />
         </div>
     );
 };
