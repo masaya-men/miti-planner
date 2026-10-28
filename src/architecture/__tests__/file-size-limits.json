@@ -31,11 +31,6 @@
     }
   ],
   "frozen": {
-    "src/components/EventForm.tsx": 981,
-    "src/components/MitigationSelector.tsx": 623,
-    "src/components/timeline/useTimelineEditing.ts": 555,
-    "src/utils/autoPlanner.ts": 709,
-    "src/utils/resourceTracker.ts": 735
   },
   "exceptions": {
     "firestore.rules": {
