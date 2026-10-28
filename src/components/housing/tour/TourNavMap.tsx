@@ -1,58 +1,17 @@
 import { scalePx } from '../../../lib/housing/housingScale';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import type { TourMapModel } from '../../../lib/housing/buildTourMapPlacements';
-import { applyWheelZoom, zoomAt, type MapView } from '../../../lib/housing/mapZoom';
+import { applyWheelZoom, type MapView } from '../../../lib/housing/mapZoom';
 import { computeDefaultView, routeBbox } from '../../../lib/housing/mapDefaultView';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
-import type { TourCrossing } from '../../../lib/housing/tourCrossing';
-import { formatFullHousingAddress } from '../../../lib/housing/formatHousingAddress';
-import { canDisplayFullAddress } from '../../../lib/housing/listingPublish';
-import { isExtensionWard } from '../../../lib/housing/resolveWardMapRef';
-import { termLabel, displayDcName, displayWorldName } from '../../../lib/housing/housingTerms';
-import { getAreaName } from '../../../lib/housing/areaName';
+import { termLabel } from '../../../lib/housing/housingTerms';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
-import type { MockListing } from '../../../data/housing/mockListings';
-import type { HousingArea } from '../../../types/housing';
+import type { TourNavMapProps } from './tourNavMapTypes';
+import { TourNavMapAddress } from './TourNavMapAddress';
+import { TourNavMapCrossing } from './TourNavMapCrossing';
+import { useTourMapPointerGestures } from './useTourMapPointerGestures';
 import './TourNavMap.css';
-
-export interface TourNavMapProps {
-  status: 'none' | 'loading' | 'ready' | 'error';
-  svg: string | null;
-  viewBox: { w: number; h: number } | null;
-  model: TourMapModel | null;
-  /** 目的地(ステップ)の識別子。これが変わったら演出(ズームアウト→切替→ズームイン)を再生する。
-   *  経路の形(route 文字列)ではなくステップそのもので判定する(アパルトメントは経路が無く
-   *  連続すると route が同一になり、目的地変更を取りこぼすため)。 */
-  stepKey: string | number;
-  /** 起点エーテライトの名前。origin(座標)の上に常時ラベル表示する。無ければ非表示。 */
-  originName?: string | null;
-  /** 前の家→この家の移動種別。省略時は跨ぎ無し扱い。 */
-  crossing?: TourCrossing;
-  /** true の間、ステージにぼかし+跨ぎ案内カードを重ねる。省略時は出さない。 */
-  showCrossing?: boolean;
-  /** 参加者(閲覧専用): 跨ぎ案内カードに待機文言を出す(#A)。
-   *  地図が出るかどうかは主催者の操作(broadcast された crossingAckedIndex)でだけ決まる。
-   *  ack への到達手段は「次へ」ボタン(呼び出し側の二段階ロジック)に一本化しており、
-   *  このカード自体にはボタンを持たない。 */
-  crossingReadOnly?: boolean;
-  /** 現在の目的地の listing。左上のフル住所オーバーレイに使う。省略時はオーバーレイ自体を出さない。 */
-  addressListing?: MockListing | null;
-  /** 現在地→目的地の行き方。実機FB#4: スマホ下部バーの1行省略表示だと読み切れなかったため、
-   *  渡されたときだけ地図コンテナ下部の帯へ teleport(エーテライト名)/directions(行き方本文)を
-   *  2段(1行目=エーテライト・2行目以降=全文折返し)で表示する。
-   *  省略/null なら何も出さない(PC は呼び出し側が渡さないため従来通り無表示)。 */
-  footerDirections?: { teleport: string; directions: string } | null;
-  /** 実機FB: スマホの見学中(phase==='viewing')に出す経過時間チップの表示文言(整形済み)。
-   *  呼び出し側(TourNavPage)が isMobile && phase==='viewing' の時だけ渡す。
-   *  省略/null なら何も出さない(PC は呼び出し側が渡さないため従来通り無表示)。 */
-  viewingTimerText?: string | null;
-  /** 実機指摘(2026-08-12): スマホには招待の入口説明が一切無かったため追加。
-   *  地図下部の帯(footerDirections と同じ帯)に常時1行だけ出す招待案内(未ログイン/ログイン済みで文言が変わる)。
-   *  footerDirections が null(アパート等で行き方データが無い)でもこの文言だけは出したいため、
-   *  帯自体の表示条件は footerDirections || inviteHint とする。省略/null なら何も出さない(PC は渡さない)。 */
-  inviteHint?: string | null;
-}
 
 const FIT_PAD_PX = 28;         // 既定表示で経路が端に貼り付かない余白（実画面ゲートで調整可）
 const OVERVIEW_HOLD_MS = 350;  // 初回のみ: 全景を見せてからズームインを始めるまでの間
@@ -305,52 +264,8 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
     return () => wrap.removeEventListener('wheel', onWheel);
   }, [endIntro]);
 
-  // パン(1本指/ドラッグ) + ピンチ(2本指)。pointer events で PC/タッチ統一。
-  const ptrs = useRef<Map<number, { x: number; y: number }>>(new Map());
-  const pan = useRef<{ sx: number; sy: number; tx0: number; ty0: number } | null>(null);
-  const pinch = useRef<{ dist: number; scale: number } | null>(null);
+  const { onPointerDown, onPointerMove, onPointerUp } = useTourMapPointerGestures(wrapRef, view, setView, endIntro);
 
-  const localXY = (clientX: number, clientY: number) => {
-    const r = wrapRef.current?.getBoundingClientRect();
-    return { x: clientX - (r?.left ?? 0), y: clientY - (r?.top ?? 0) };
-  };
-  const onPointerDown = (e: React.PointerEvent) => {
-    endIntro(); // 演出中の操作は即中断(操作優先)
-    e.currentTarget.setPointerCapture?.(e.pointerId);
-    ptrs.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (ptrs.current.size === 1) {
-      pan.current = { sx: e.clientX, sy: e.clientY, tx0: view.tx, ty0: view.ty };
-      pinch.current = null;
-    } else if (ptrs.current.size === 2) {
-      const [a, b] = [...ptrs.current.values()];
-      pinch.current = { dist: Math.hypot(a.x - b.x, a.y - b.y), scale: view.scale };
-      pan.current = null;
-    }
-  };
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!ptrs.current.has(e.pointerId)) return;
-    ptrs.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (ptrs.current.size >= 2 && pinch.current) {
-      const [a, b] = [...ptrs.current.values()];
-      const dist = Math.hypot(a.x - b.x, a.y - b.y);
-      const mid = localXY((a.x + b.x) / 2, (a.y + b.y) / 2);
-      const base = pinch.current;
-      setView((v) => zoomAt(v, mid.x, mid.y, base.scale * (dist / base.dist)));
-    } else if (pan.current) {
-      const p = pan.current;
-      setView((v) => ({ ...v, tx: p.tx0 + (e.clientX - p.sx), ty: p.ty0 + (e.clientY - p.sy) }));
-    }
-  };
-  const onPointerUp = (e: React.PointerEvent) => {
-    ptrs.current.delete(e.pointerId);
-    if (ptrs.current.size < 2) pinch.current = null;
-    if (ptrs.current.size === 1) {
-      // ピンチ→単指: 残った指でパンを継続できるよう、その指の現在位置から pan を再初期化。
-      const [rem] = [...ptrs.current.values()];
-      pan.current = { sx: rem.x, sy: rem.y, tx0: view.tx, ty0: view.ty };
-    }
-    if (ptrs.current.size === 0) pan.current = null;
-  };
 
   // 起点エーテライトのラベル位置。overlay(viewBox, xMidYMid meet)→wrap px のレターボックス写像に
   // zoom transform(translate→scale, origin 0,0)を重ねて画面座標へ投影。定サイズ HTML。演出/フェード中は隠す。
@@ -448,25 +363,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
             2段目に最寄りエーテライト名を追加。エーテライト名には拡張街だと公式に「[拡張街]」
             プレフィックスが付くため、あわせて号地(plot)から拡張街かを判定し小さなバッジも出す。 */}
         {addressListing && (
-          <div className="housing-tour-map-address" data-testid="tour-map-address">
-            <div className="housing-tour-map-address-full">
-              <span className="housing-tour-map-address-full-text">
-                {canDisplayFullAddress(addressListing)
-                  ? formatFullHousingAddress(addressListing, i18n.language)
-                  : t('housing.card.addressPrivate')}
-              </span>
-              {canDisplayFullAddress(addressListing) && isExtensionWard(addressListing) && (
-                <span className="housing-tour-map-address-badge" data-testid="tour-map-extension-badge">
-                  {t('housing.tour.nav.address.extension_badge')}
-                </span>
-              )}
-            </div>
-            {canDisplayFullAddress(addressListing) && originLabel && (
-              <div className="housing-tour-map-address-aetheryte">
-                {t('housing.tour.nav.address.nearest_aetheryte', { aetheryte: originLabel })}
-              </div>
-            )}
-          </div>
+          <TourNavMapAddress addressListing={addressListing} originLabel={originLabel} />
         )}
         {displayed && (
           <div className="housing-hud is-top">
@@ -518,45 +415,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
           </div>
         )}
         {showCrossing && crossing.kind !== 'none' && (
-          <div className="housing-tour-map-cross" data-testid="tour-map-cross">
-            <div className="housing-tour-map-cross-card">
-              <p className="housing-tour-map-cross-text">
-                {crossing.kind === 'start' && (
-                  t('housing.tour.nav.cross.start', { dc: displayDcName(crossing.dc, locale), world: displayWorldName(crossing.dc, crossing.world, locale) })
-                )}
-                {crossing.kind === 'dc' && (
-                  <Trans
-                    i18nKey="housing.tour.nav.cross.dc"
-                    values={{
-                      dc: displayDcName(crossing.dc, locale),
-                      world: displayWorldName(crossing.dc, crossing.world, locale),
-                      area: crossing.area ? getAreaName(crossing.area as HousingArea, i18n.language) : '',
-                      ward: crossing.ward ?? '',
-                    }}
-                    components={{ hl: <span className="housing-tour-map-cross-highlight" /> }}
-                  />
-                )}
-                {crossing.kind === 'world' && (
-                  <Trans
-                    i18nKey="housing.tour.nav.cross.world"
-                    values={{
-                      world: displayWorldName(crossing.dc, crossing.world, locale),
-                      area: crossing.area ? getAreaName(crossing.area as HousingArea, i18n.language) : '',
-                      ward: crossing.ward ?? '',
-                    }}
-                    components={{ hl: <span className="housing-tour-map-cross-highlight" /> }}
-                  />
-                )}
-                {crossing.kind === 'region' && (
-                  t('housing.tour.nav.cross.region')
-                )}
-              </p>
-              {crossingReadOnly && (
-                // 参加者は操作できない。地図は主催者が「次へ」を押すと(broadcast で)出る。
-                <p className="housing-tour-map-cross-waiting">{t('housing.tour.nav.cross.waiting')}</p>
-              )}
-            </div>
-          </div>
+          <TourNavMapCrossing crossing={crossing} crossingReadOnly={crossingReadOnly} />
         )}
       </div>
     </div>
