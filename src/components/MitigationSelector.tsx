@@ -1,15 +1,13 @@
 import { backdropClose } from '../utils/backdropClose';
 import { useIsMobile } from '../hooks/useIsMobile';
 import React from 'react';
-import { ChevronLeft } from 'lucide-react';
-import { CloseButton } from './ui/ModalParts';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
-import { useMitigations, useJobs, getMitigationPriority } from '../hooks/useSkillsData';
+import { useMitigations, useJobs } from '../hooks/useSkillsData';
 import type { Mitigation, AppliedMitigation } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
-import { resolveSeraphismMitigation, matchesCopiesShieldSource } from '../utils/scholarShieldRules';
+import { matchesCopiesShieldSource } from '../utils/scholarShieldRules';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -17,6 +15,9 @@ import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import { MitigationSkillButton } from './mitigationSelector/MitigationSkillButton';
 import { MitigationTargetPicker } from './mitigationSelector/MitigationTargetPicker';
 import { MitigationShieldPicker } from './mitigationSelector/MitigationShieldPicker';
+import { MitigationSelectorHeader } from './mitigationSelector/MitigationSelectorHeader';
+import { useAdjustedPanelPosition } from './mitigationSelector/useAdjustedPanelPosition';
+import { getAvailableMitigations } from './mitigationSelector/getAvailableMitigations';
 
 interface MitigationSelectorProps {
     isOpen: boolean;
@@ -39,7 +40,6 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     const { t } = useTranslation();
 
     const panelRef = React.useRef<HTMLDivElement>(null);
-    const [adjustedPos, setAdjustedPos] = React.useState(position);
 
     const [selectedSingleTargetMit, setSelectedSingleTargetMit] = React.useState<Mitigation | null>(null);
     const [selectedCopyShieldMit, setSelectedCopyShieldMit] = React.useState<Mitigation | null>(null);
@@ -61,41 +61,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         }
     });
 
-    // ビューポート内に収めるための計算
-    React.useLayoutEffect(() => {
-        if (!isOpen || !panelRef.current || isCentered || isMobile) {
-            return;
-        }
-
-        const rect = panelRef.current.getBoundingClientRect();
-        // タイムライン scroll container を基準に「タイムライン内に確実に収まる」位置を計算
-        // (フッター高さ等を window.innerHeight から差し引かなくても、 タイムライン rect の
-        // bottom がそのまま「フッター上端 = モーダルが置ける限界」になる)
-        const timelineEl = document.querySelector('.timeline-scroll-container') as HTMLElement | null;
-        const timelineRect = timelineEl?.getBoundingClientRect();
-        const xMin = (timelineRect ? timelineRect.left : 0) + 12;
-        const xMax = (timelineRect ? timelineRect.right : window.innerWidth) - 12;
-        const yMin = (timelineRect ? timelineRect.top : 0) + 12;
-        const yMax = (timelineRect ? timelineRect.bottom : window.innerHeight) - 12;
-
-        let nx = position.x;
-        let ny = position.y;
-
-        // 右端チェック
-        if (nx + rect.width > xMax) {
-            nx = Math.max(xMin, xMax - rect.width);
-        }
-        // 下端チェック
-        if (ny + rect.height > yMax) {
-            ny = Math.max(yMin, yMax - rect.height);
-        }
-
-        // 差分がある場合のみ更新
-        if (Math.abs(nx - adjustedPos.x) > 1 || Math.abs(ny - adjustedPos.y) > 1) {
-            setAdjustedPos({ x: nx, y: ny });
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- adjustedPos は差分判定の読み取り専用。依存に入れると自分の setAdjustedPos で再実行されるため、開閉・位置・モバイル・中央表示が変わった時だけ走らせる
-    }, [isOpen, position.x, position.y, isMobile, isCentered]);
+    const adjustedPos = useAdjustedPanelPosition(isOpen, panelRef, position, isMobile, isCentered);
 
     React.useEffect(() => {
         if (!isOpen) {
@@ -131,69 +97,9 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         selectedTime < am.time + am.duration
     );
 
-    const availableMitigations = allJobMitigations
-        .filter((m: Mitigation) => {
-            // Level sync filtering
-            if (m.minLevel !== undefined && currentLevel < m.minLevel) return false;
-            if (m.maxLevel !== undefined && currentLevel > m.maxLevel) return false;
-
-            // Filter out hidden skills (e.g., Adloquium)
-            if (m.hidden) return false;
-
-            if (!m.requires) return true;
-
-            // AST カード専用: 最新のドローが対応する種別か (手札は次のドローまで保持される仕様)
-            if (m.requires === 'astral_draw' || m.requires === 'umbral_draw') {
-                const drawsBeforeNow = activeMitigations
-                    .filter(am => am.mitigationId === 'astral_draw' || am.mitigationId === 'umbral_draw')
-                    .filter(am => am.time <= selectedTime)
-                    .sort((a, b) => b.time - a.time);
-                if (drawsBeforeNow.length === 0) return false;
-                return drawsBeforeNow[0].mitigationId === m.requires;
-            }
-
-            return activeMitigations.some(am => {
-                const isNeutSect = am.mitigationId === 'neutral_sect';
-                const isHoroscope = am.mitigationId === 'horoscope';
-                // requiresWindow がある場合はそちらを使用（例: 金剛周天は30秒窓）
-                const window = m.requiresWindow ?? am.duration;
-                const isActive = selectedTime >= am.time && selectedTime < am.time + window;
-                if (!isActive) return false;
-
-                // Special handling for Astrologian conditional skills
-                if (m.requires === 'neutral_sect') {
-                    // Sun Sign MUST have Neutral Sect active
-                    if (m.id === 'sun_sign') {
-                        return isNeutSect;
-                    }
-                    // Helios-based skills can use either Neutral Sect or Horoscope
-                    return isNeutSect || isHoroscope;
-                }
-
-                return am.mitigationId === m.requires;
-            });
-        })
-        // ソートは「すり替え前」の id で行う。すり替え後の id でソートすると、セラフィズムの
-        // 発動/終了のたびに一覧内の表示位置が飛んでしまうため。
-        .sort((a: Mitigation, b: Mitigation) => getMitigationPriority(a.id) - getMitigationPriority(b.id))
-        .map((m: Mitigation) => {
-            // セラフィズム中: 鼓舞激励の策→マニフェステーション、意気軒高の策→アクセッション
-            const seraphismResolved = isSeraphismActive
-                ? resolveSeraphismMitigation(m, selectedTime, activeMitigations, MITIGATIONS)
-                : m;
-            if (seraphismResolved !== m) return seraphismResolved;
-
-            // Scholar Seraph dynamic changes (サモン・セラフィム中の名称のみ変更)
-            if (isSeraphActive) {
-                if (m.id === 'whispering_dawn') {
-                    return { ...m, name: { ...m.name, ja: '光輝の囁き', en: 'Angel\'s Whisper' }, icon: '/icons/Angel\'s_Whisper.png' };
-                }
-                if (m.id === 'fey_illumination') {
-                    return { ...m, name: { ...m.name, ja: 'セラフィックイルミネーション', en: 'Seraphic Illumination' }, icon: '/icons/Seraphic_Illumination.png' };
-                }
-            }
-            return m;
-        });
+    const availableMitigations = getAvailableMitigations({
+        allJobMitigations, currentLevel, activeMitigations, selectedTime, isSeraphActive, isSeraphismActive, MITIGATIONS,
+    });
 
     const handleMitigationClick = (mitigation: Mitigation) => {
         const existingInstance = activeMitigations.find(am => am.mitigationId === mitigation.id && am.time === selectedTime);
@@ -312,40 +218,13 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                     }}
             >
                 {isMobile && !isCentered && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mb-3 shrink-0" />}
-                <div className="flex justify-between items-center mb-2 pb-2 border-b border-app-border px-1 shrink-0 relative z-[101]">
-                    <div className="flex items-center pl-1">
-                        <div className="flex flex-col justify-center min-w-0">
-                            {selectedCopyShieldMit ? (
-                                <button
-                                    onClick={() => setSelectedCopyShieldMit(null)}
-                                    className="group flex items-center gap-1 text-app-base font-black text-app-text-sec uppercase tracking-tighter leading-none hover:text-app-text transition-colors cursor-pointer text-left"
-                                >
-                                    <ChevronLeft
-                                        size={12}
-                                        className="transition-transform duration-200 group-hover:-translate-x-0.5"
-                                    />
-                                    <span>{t('mitigation.select_shield', '展開する鼓舞を選択')}</span>
-                                </button>
-                            ) : selectedSingleTargetMit ? (
-                                <button
-                                    onClick={() => setSelectedSingleTargetMit(null)}
-                                    className="group flex items-center gap-1 text-app-base font-black text-app-text-sec uppercase tracking-tighter leading-none hover:text-app-text transition-colors cursor-pointer text-left"
-                                >
-                                    <ChevronLeft
-                                        size={12}
-                                        className="transition-transform duration-200 group-hover:-translate-x-0.5"
-                                    />
-                                    <span>{t('mitigation.select_target', '対象を選択')}</span>
-                                </button>
-                            ) : (
-                                <span className="text-app-base font-black text-app-text-sec uppercase tracking-tighter leading-none">
-                                    {t('mitigation.select')}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                    <CloseButton onClick={handleClose} label={t('common.close')} />
-                </div>
+                <MitigationSelectorHeader
+                    selectedCopyShieldMit={selectedCopyShieldMit}
+                    selectedSingleTargetMit={selectedSingleTargetMit}
+                    setSelectedCopyShieldMit={setSelectedCopyShieldMit}
+                    setSelectedSingleTargetMit={setSelectedSingleTargetMit}
+                    handleClose={handleClose}
+                />
 
                 <div className="relative h-[280px] sm:h-[320px] overflow-hidden rounded-lg">
                     {/* 背景のスキルリスト */}
