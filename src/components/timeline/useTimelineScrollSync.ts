@@ -2,8 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import type { MutableRefObject, RefObject } from 'react';
 import type { AppliedMitigation } from '../../types';
 import { useMitigationStore } from '../../store/useMitigationStore';
-import { usePlanStore } from '../../store/usePlanStore';
-import { useTutorialStore } from '../../store/useTutorialStore';
+import { planOpenHideEmptyRows } from './planOpenHideEmptyRows';
 import { useSmoothWheelScroll } from '../../lib/scroll/useSmoothWheelScroll';
 import { yToTimeSec, reanchorScrollTop } from '../Memo/coords';
 import type { RecastRowHandle } from '../RecastRow';
@@ -31,40 +30,36 @@ export function useTimelineNavJump({
     return { handleNavJump };
 }
 
-/** ② プラン切替でスクロールと空行非表示をリセットする effect と、ホイールのなめらかスクロール */
+/**
+ * ② プラン切替でスクロールと空行非表示をリセットする effect と、ホイールのなめらかスクロール。
+ * 戻り値 = この描画で使う「空の行は隠す」。切り替えた直後の描画では、ストアに書く前でも
+ * 切り替え後の値を返す(描いた後に戻すと、保存値が「出す」の時に全行を作って捨てて約 1.6 秒固まっていた・2026-10-28)。
+ */
 export function useTimelinePlanScrollReset({
-    scrollContainerRef, currentPlanId, joinerRoomToken,
+    scrollContainerRef, currentPlanId, joinerRoomToken, hideEmptyRows,
 }: {
     scrollContainerRef: RefObject<HTMLDivElement | null>;
     currentPlanId: string | null;
     joinerRoomToken: string | null;
-}) {
+    hideEmptyRows: boolean;
+}): boolean {
+    const resetKey = `${currentPlanId ?? ''}|${joinerRoomToken ?? ''}`;
+    // effect がストアへ書き終えたプラン。これと違う間は、ストアの値の代わりに切り替え後の値で描く
+    const appliedKeyRef = useRef<string | null>(null);
+    const pending = appliedKeyRef.current !== resetKey ? planOpenHideEmptyRows(currentPlanId, joinerRoomToken) : null;
+
     // プラン切替時に縦横スクロールをトップ・左端へ、空行非表示をデフォルト(コンパクト)にリセット
     useEffect(() => {
         if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollTo({ top: 0, left: 0 });
         }
-        // 共同編集ルーム表示中(ジョイナー)は currentPlanId が参加者自身の無関係な個人プランを
-        // 指したままになる(部屋を開いても更新されない)。その個人プランの空/非空を部屋の表示に
-        // 持ち込まないよう、常にコンパクト表示から開始する。
-        if (joinerRoomToken) {
-            useMitigationStore.getState().setHideEmptyRows(true);
-            return;
-        }
-        // チュートリアル中: NewPlanModal が hideEmptyRows を制御しているのでスキップ
-        // 空プラン (新規作成直後・テンプレ未整備コンテンツ等): 軽減配置時刻を見せたいので強制的に展開状態へ
-        const isTutorial = useTutorialStore.getState().isActive;
-        const plan = usePlanStore.getState().plans.find(p => p.id === currentPlanId);
-        const isEmptyPlan = plan ? (plan.data?.timelineEvents?.length ?? 0) === 0 : false;
-        if (isTutorial) return;
-        if (isEmptyPlan) {
-            useMitigationStore.getState().setHideEmptyRows(false);
-        } else {
-            useMitigationStore.getState().setHideEmptyRows(true);
-        }
+        appliedKeyRef.current = `${currentPlanId ?? ''}|${joinerRoomToken ?? ''}`;
+        const next = planOpenHideEmptyRows(currentPlanId, joinerRoomToken);
+        if (next !== null) useMitigationStore.getState().setHideEmptyRows(next);
     }, [currentPlanId, joinerRoomToken, scrollContainerRef]);
 
     useSmoothWheelScroll(scrollContainerRef, { horizontalScrollOnShift: true, stiffness: 80, wheelMultiplier: 1.5 });
+    return pending ?? hideEmptyRows;
 }
 
 interface UseTimelineScrollSyncArgs {

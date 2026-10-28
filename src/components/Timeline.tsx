@@ -66,7 +66,7 @@ const Timeline: React.FC = () => {
 
     const {
         aaSettings, partyMembers, timelineMitigations, timelineEvents, phases,
-        clipboardEvent, hideEmptyRows, currentLevel, laneRowBorders, sheetRowBorders, hiddenPartyMemberIds,
+        clipboardEvent, hideEmptyRows: storedHideEmptyRows, currentLevel, laneRowBorders, sheetRowBorders, hiddenPartyMemberIds,
         partySortOrder, collabReadonly, canUndo, canRedo, toolMode, memos,
         addEvent, updateEvent, removeEvent, addMitigation, setMemberJob, setAaSettings, removeMitigation, updateMitigationTime,
         addPhase, updatePhase, removePhase, updatePhaseEndTime, updatePhaseStartTime,
@@ -197,7 +197,8 @@ const Timeline: React.FC = () => {
 
     const currentPlanId = usePlanStore(s => s.currentPlanId);
     const aaSettingsButtonRef = useRef<HTMLButtonElement>(null);
-    useTimelinePlanScrollReset({ scrollContainerRef, currentPlanId, joinerRoomToken });
+    // 切り替えた直後の描画から切り替え後の値で描く(全行を作って捨てない)。以降の hideEmptyRows はこれ
+    const hideEmptyRows = useTimelinePlanScrollReset({ scrollContainerRef, currentPlanId, joinerRoomToken, hideEmptyRows: storedHideEmptyRows });
     const headerRef = useRef<HTMLDivElement>(null);
     const controlBarRef = useRef<HTMLDivElement>(null);
     // syncRecastRow がスクロール毎にY最近傍の時刻を逆引きするための索引。
