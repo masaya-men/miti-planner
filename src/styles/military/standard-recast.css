@@ -1,0 +1,71 @@
+/* ---------- リキャストのアイコン(軍事の表・見出しのメンバー列の中)
+   RecastRow はメンバー列(見出し #timeline-header-inner の直下の .recast-cell)に出る。
+   ⚠ .recast-cell の padding-left / justify-content(index.css)は触らない(本文の軽減バーと x を揃える実測値)。
+   ⚠ --cd-display / --cd-order / --cd-angle は RecastRow.update() が書く動作契約。ここでは色・形だけ skin する。
+   セルの罫線は幅を保ったまま透明に落とす。待機表示(線 + 略号)の規則もこのファイル。 ---------- */
+.theme-military .milspec-app #timeline-header-inner > .recast-cell {
+  background: transparent;
+  border-right-color: transparent;
+}
+
+/* アイコン = 円形の金属ソケットに沈んだレンズ(mockup .rc-icon 1292-1296)。
+   padding:2px(border-box なので 24px 幅は不変)で img を内側に落とし、
+   外周 2px を金属ベゼルとして見せる。overflow を visible に戻して残秒を下へ出す。 */
+.theme-military .milspec-app #timeline-header-inner .recast-icon {
+  padding: 2px;
+  border-radius: 50%;
+  overflow: visible;
+  background: radial-gradient(circle at 34% 28%, #454f5a, #1c232a 60%, #0a0d11 90%);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.6),
+    inset 0 1.5px 3px rgba(0,0,0,0.7),
+    0 1px 0 rgba(255,255,255,0.07);
+}
+.theme-military .milspec-app #timeline-header-inner .recast-icon img {
+  border-radius: 50%;
+  object-fit: cover;
+  filter: saturate(0.82) brightness(0.86);
+}
+/* clockswipe(mockup .rc-icon::after 1297-1299)。実アプリの ::before は
+   「transparent 0→--cd-angle / 暗幕 --cd-angle→360deg」という向きの契約なので
+   向きは変えず、円形化と暗幕の色だけ mockup(rgba(4,6,9,0.84))へ寄せる。 */
+.theme-military .milspec-app #timeline-header-inner .recast-icon::before {
+  inset: 2px;
+  border-radius: 50%;
+  background: conic-gradient(
+    transparent 0 var(--cd-angle, 0deg),
+    rgba(4,6,9,0.84) var(--cd-angle, 0deg) 360deg
+  );
+}
+/* 残秒(mockup .rc-num 1300)= アイコンの下にシアンの小数字。
+   実アプリの inset:0 中央配置(アイコン絵柄の上に白字)を解除して下へ出す。 */
+.theme-military .milspec-app #timeline-header-inner .recast-num {
+  inset: auto auto -7px 50%;
+  transform: translateX(-50%);
+  display: block;
+  width: auto;
+  white-space: nowrap;
+  font: 700 7px/1 'Share Tech Mono', ui-monospace, monospace;
+  color: var(--ms-cyan);
+  text-shadow: 0 0 3px var(--ms-cyan-glow);
+}
+
+/* light: dark 固定 hex / 重い黒 rgba を淡い金属色へ(Task 3/4/5/6 と同じ作法)。
+   --ms-recess-* / --ms-text-muted / --ms-cyan* は light 定義済 → 帯の地色は上書き不要。 */
+.theme-military.theme-light .milspec-app #timeline-header-inner .recast-icon {
+  background: radial-gradient(circle at 34% 28%, #ffffff, #ccd6df 60%, #a8b5c1 90%);
+  box-shadow:
+    inset 0 0 0 1px rgba(40,80,120,0.3),
+    inset 0 1.5px 3px rgba(40,80,120,0.28),
+    0 1px 0 rgba(255,255,255,0.8);
+}
+.theme-military.theme-light .milspec-app #timeline-header-inner .recast-icon img {
+  filter: saturate(0.9) brightness(0.98);
+}
+.theme-military.theme-light .milspec-app #timeline-header-inner .recast-icon::before {
+  background: conic-gradient(
+    transparent 0 var(--cd-angle, 0deg),
+    rgba(70,95,120,0.55) var(--cd-angle, 0deg) 360deg
+  );
+}
+

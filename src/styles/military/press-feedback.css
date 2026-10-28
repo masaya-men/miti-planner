@@ -1,0 +1,18 @@
+/* ===== 押下フィードバック(全ボタン共通・配線は Phase 2。ゾーン固有クラスは Phase 2 まで不活性) ===== */
+.theme-military .milspec-st-tab,
+.theme-military .milspec-st-btn,
+.theme-military .milspec-phase-h {
+  transition: transform .09s ease, box-shadow .14s ease, border-color .14s, background .14s, color .14s;
+  -webkit-tap-highlight-color: transparent; cursor: pointer;
+}
+.theme-military .milspec-st-btn:active { transform: translateY(1.5px); filter: none; box-shadow: var(--ms-shadow-inset) !important; }
+.theme-military .milspec-phase-h:active { transform: scale(0.99); }
+@keyframes btnflash {
+  0%   { box-shadow: 0 0 0 0 rgba(130,204,223,0.5), inset 0 0 0 1px var(--ms-bracket); }
+  100% { box-shadow: 0 0 0 10px rgba(130,204,223,0), inset 0 0 0 1px rgba(130,204,223,0); }
+}
+.theme-military .milspec-flash-fx { animation: btnflash .44s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .theme-military .milspec-flash-fx { animation: none; }
+}
+

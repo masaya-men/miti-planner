@@ -1,0 +1,15 @@
+/* ---------- インジケータ球 (mockup 1815-1828) ---------- */
+.theme-military .milspec-lamp {
+  position: absolute; width: 5px; height: 5px; border-radius: 50%; z-index: 5; pointer-events: none;
+  background: radial-gradient(circle at 40% 34%, #39424b, #20272e 60%, #0f141a);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.6), inset 0 1px 1px rgba(0,0,0,0.6), inset 0 -1px 0 rgba(255,255,255,0.05);
+}
+.theme-military .milspec-lamp.milspec-lit {
+  background: radial-gradient(circle at 38% 32%, var(--ms-lp-hi), var(--ms-lp-mid) 52%, var(--ms-lp-lo) 92%);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.5), inset 0 0 1px rgba(255,255,255,0.45),
+    0 0 calc(2px + 0.9px * var(--ms-tune-glow)) var(--ms-lp-glow);
+}
+.theme-military .milspec-lamp.cyan  { --ms-lp-hi:#e0f6fc; --ms-lp-mid:#63bad0; --ms-lp-lo:#1b3a44; --ms-lp-glow: rgba(130,204,223,0.5); }
+.theme-military .milspec-lamp.amber { --ms-lp-hi:#ffe1a6; --ms-lp-mid:#d1912f; --ms-lp-lo:#3a2810; --ms-lp-glow: rgba(246,162,62,0.45); }
+.theme-military .milspec-lamp.green { --ms-lp-hi:#c8f4d6; --ms-lp-mid:#45a768; --ms-lp-lo:#123021; --ms-lp-glow: rgba(89,208,137,0.45); }
+.theme-military.theme-light .milspec-lamp { background: radial-gradient(circle at 40% 34%, #c2ccd4, #9aa6b0 60%, #7f8b95); }

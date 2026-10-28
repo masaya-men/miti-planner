@@ -1,0 +1,56 @@
+/* =====================================================================
+   効果アイコン・効果帯・終点の目盛り(見本 v11 css:507-517)と照準(css:518-539)。
+   アイコンの大きさ・帯の位置は本番のまま(24px・アイコン中心から伸びる)。見た目だけ見本に合わせる。
+   効果の入れ物 = div.group(軍事の表の MitigationItem)。:has で「アイコンを直接持つ入れ物」だけに絞る。
+   ===================================================================== */
+
+/* アイコン枠の外側(標準の hover:scale-110 と shadow-md を消す。競合の輪 ring-2 は残す) */
+.theme-military .milspec-app div.group > div:has(> * > [data-mit-icon]) { scale: none; }
+.theme-military .milspec-app div.group > div:has(> * > [data-mit-icon]):not(.ring-2) { box-shadow: none; }
+/* アイコン: 角丸 2px・影・ホバーで浮く(300ms の跳ねるイージング) */
+.theme-military .milspec-app [data-mit-icon]:not(.bg-transparent) {
+  border: 0; background: none; border-radius: 2px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 2px 3px rgba(0,0,0,0.4);
+  transition: transform 300ms cubic-bezier(.2,1.3,.35,1), filter 160ms;
+}
+.theme-military .milspec-app [data-mit-icon]:not(.bg-transparent) img { border-radius: 2px; }
+.theme-military .milspec-app div.group:has(> div > * > [data-mit-icon]):hover [data-mit-icon]:not(.bg-transparent) {
+  transform: translateY(-0.8px) scale(1.06); filter: brightness(1.12);
+}
+/* 効果帯: 幅 4px・水色のグラデ・縁 1px。ホバーで charge の光が 1 秒周期で流れる。
+   overflow は付けない(中の Tooltip の当たり判定の左右 3px 拡張を切らないため)。光は帯自身の背景の重ねで描く。 */
+.theme-military .milspec-app [data-mit-bar] {
+  width: 4px; border-width: 0; border-radius: 0 0 1px 1px;
+  background: linear-gradient(90deg, #1e8fb0, #3ec4e6 50%, #1e8fb0);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.45);
+}
+.theme-military .milspec-app div.group:has(> div > * > [data-mit-icon]):hover > [data-mit-bar] {
+  background:
+    linear-gradient(180deg, transparent, rgba(235,252,255,0.85), transparent) 0 -30px / 100% 30px no-repeat,
+    linear-gradient(90deg, #1e8fb0, #3ec4e6 50%, #1e8fb0);
+  animation: milspec-charge 1s cubic-bezier(.5,0,.3,1) infinite;
+}
+@keyframes milspec-charge {
+  from { background-position: 0 -30px, 0 0; }
+  to { background-position: 0 calc(100% + 30px), 0 0; }
+}
+/* 終点の目盛り(10×1) */
+.theme-military .milspec-app [data-mit-end] { background: #9fe6f7; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.5); }
+@media (prefers-reduced-motion: reduce) {
+
+/* 動きを減らす設定: 効果帯の光・照準の動きを止める(見本 css:619 の全称指定は .theme-military 配下に閉じる) */
+  .theme-military .milspec-app div.group:has(> div > * > [data-mit-icon]):hover > [data-mit-bar] {
+    animation: none; background: linear-gradient(90deg, #1e8fb0, #3ec4e6 50%, #1e8fb0);
+  }
+  .theme-military .milspec-app [data-mit-icon]:not(.bg-transparent) { transition: none; }
+}
+
+/* 表の操作列(見本 v11 css:106-108, 182-214, 245-258, 610)。見本の --xxx は --ma-xxx 読み替え。
+   MilspecControlDeck / MilspecSwitches からだけ import する。全規則 .theme-military 前置・milspec- 接頭辞。 */
+
+/* ---- 器: 外枠(controlBar)・内側 #timeline-controls-inner は素通しにして、装甲(deck / deck-bp)だけが見えるようにする ---- */
+.theme-military .milspec-app div:has(> #timeline-controls-inner) {
+  background: none; border-bottom-color: transparent;
+  overflow: visible; /* 装甲の影・キーの浮きを切らない */
+}
+.theme-military .milspec-app #timeline-controls-inner { position: relative; background: none; box-shadow: none; }

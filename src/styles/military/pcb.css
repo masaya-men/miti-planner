@@ -1,0 +1,25 @@
+.theme-military .milspec-plan-core .pin { fill: #44484b; }
+.theme-military .milspec-plan-core .smd-end { fill: #5a5d60; }
+.theme-military .milspec-plan-core .ic { stroke: #1b1d1f; }
+.theme-military .milspec-pcb .brd { fill: var(--ma-pcb); }
+.theme-military .milspec-pcb .milspec-cu { fill: none; stroke: var(--ma-cu); stroke-width: 0.42; stroke-linejoin: miter; stroke-linecap: butt; }
+.theme-military .milspec-pcb .milspec-cu.dim { stroke: var(--ma-cu-dim); }
+.theme-military .milspec-pcb .milspec-cu.w { stroke-width: 0.75; }
+.theme-military .milspec-pcb .pad { fill: var(--ma-gold); }
+.theme-military .milspec-pcb .via { fill: #020403; stroke: var(--ma-gold); stroke-width: 0.32; }
+.theme-military .milspec-pcb .ic { fill: #0c0d0e; stroke: #26292c; stroke-width: 0.3; }
+.theme-military .milspec-pcb .ic-dot { fill: #2a2d30; }
+.theme-military .milspec-pcb .pin { fill: #8d9398; }
+.theme-military .milspec-pcb .smd { fill: #1a1c1e; }
+.theme-military .milspec-pcb .smd-end { fill: #b7bcc0; }
+.theme-military .milspec-pcb .silk { fill: var(--ma-pcb-silk); font: 600 3.1px/1 'Saira Semi Condensed', sans-serif; letter-spacing: 0.14em; }
+.theme-military .milspec-pcb .term { fill: #020403; stroke: var(--ma-gold); stroke-width: 0.45; }
+.theme-military .milspec-pcb .tp { fill: none; stroke: var(--ma-gold); stroke-width: 0.6; }
+.theme-military .milspec-pcb .xtal { fill: url(#stl-sh); stroke: rgba(0,0,0,0.6); stroke-width: 0.3; }
+.theme-military .milspec-pcb .crt-yd { fill: none; stroke: var(--ma-pcb-silk); stroke-width: 0.3; stroke-dasharray: 1.2 1; opacity: 0.55; }
+.theme-military .milspec-pcb .hatch { fill: var(--ma-cu); }
+.theme-military .milspec-pcb .gnd { opacity: 0.6; }
+
+.theme-military .milspec-vent .milspec-pcb { overflow: visible; pointer-events: none; }
+
+.theme-military .milspec-rail .milspec-pcb { overflow: visible; pointer-events: none; }

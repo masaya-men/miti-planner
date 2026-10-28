@@ -1,0 +1,45 @@
+/* 標準の部品を MIL-SPEC(.theme-military)で描き変える規則。 標準の部品は MIL-SPEC の後読みより先に画面に出るため共有に置く。 */
+/* ============================================================
+ * SP2: TIMELINE TABLE — タイムライン表の軍事化
+ * 正典: docs/.private/theme-refs/milspec-v11.css(v11)。表の行・見出し・効果アイコン・照準は
+ *   components/military/table/ の各部品の CSS(MilspecReticle.css 等)、操作列は MilspecControlDeck.css・MilspecSwitches.css、
+ *   差込口は MilspecJackRow.css。標準の部品(表の行・見出し・効果棒・ジョブチップ .cj・リキャスト帯・スクロールバー)の描き変えはこのファイル。
+ * 全ルール .theme-military 前置。モックの --raised-hi 等は --ms-raised-hi へ読み替え。
+ * ============================================================ */
+
+/* 表の行・見出し・致死の段・同時刻・フェーズの描き変えもこのファイル(見本 v11 css:455-507)。 */
+
+/* ---------- Task 5: コントロールバー — v11 の操作列(MilspecControlDeck)に置き換え済み。
+   旧 .subtoolbar 意匠(ロッカートグル・キートップ・仕切り・プレート)はここから撤去した。
+   新しい操作列の CSS は components/military/table/MilspecControlDeck.css・MilspecSwitches.css。 ---------- */
+
+/* ---------- ジョブチップ .cj(旧 mockup .cj 1023-1032)
+   ⚠ JobPickerRow の外側 [data-member-id] は useMeasuredMemberLayout が offsetLeft/offsetWidth/
+     paddingLeft を実測して全軽減バーの列 x を決める → 幅・padding・border 幅を変えない。意匠は
+     内側の .cursor-pointer div(box-sizing:border-box・w-full h-full)に載せ、外側の border-r は
+     色だけ recolor(幅不変)。
+   効果棒([data-mit-bar])・効果アイコンもこのファイル。
+   スコープは .theme-military .milspec-app。 ---------- */
+
+
+/* ジョブチップ .cj(mockup .cj 1024-1031)。外側 [data-member-id](実測対象)は border-r の色のみ。
+   内側 .cursor-pointer div(w-full h-full・border-box)に 4 色面取り + 金属グラデ + シルエット。 */
+.theme-military .milspec-app #timeline-controls-inner [data-member-id] {
+  border-right-color: var(--ms-cham-silhouette);
+}
+.theme-military .milspec-app #timeline-controls-inner [data-member-id] [class~="cursor-pointer"] {
+  border-radius: 1px;
+  border: 1px solid var(--ms-cr-r);
+  border-top-color: var(--ms-cr-t);
+  border-left-color: var(--ms-cr-l);
+  border-bottom-color: var(--ms-cr-b);
+  background: linear-gradient(180deg, #3a444f, #2a323c);
+  box-shadow: 0 0 0 1px var(--ms-cham-silhouette), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* light: dark 固定 hex / 重い黒 rgba を淡い金属色へ(Task 3/4/5 と同じ作法・最終調整は SP2 後)。 */
+.theme-military.theme-light .milspec-app #timeline-controls-inner [data-member-id] [class~="cursor-pointer"] {
+  background: linear-gradient(180deg, #d9e0e7, #c0c9d2);
+  box-shadow: 0 0 0 1px var(--ms-cham-silhouette), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+

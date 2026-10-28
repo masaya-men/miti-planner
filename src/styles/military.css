@@ -4,6 +4,14 @@
 @import "./military/semantic-tokens.css";
 @import "./military/standard-revert.css";
 @import "./military/primitives.css";
+@import "./military/press-feedback.css";
+@import "./military/lamp.css";
+@import "./military/sr-only.css";
+@import "./military/pcb.css";
 @import "./military/backdrop.css";
-@import "./military/standard-parts.css";
+@import "./military/standard-job-chip.css";
+@import "./military/standard-recast.css";
+@import "./military/standard-scrollbar.css";
+@import "./military/standard-table.css";
+@import "./military/standard-effects.css";
 @import "./military/boot-parts.css";
