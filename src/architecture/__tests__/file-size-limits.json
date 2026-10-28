@@ -46,7 +46,6 @@
     "src/components/admin/wizard/ContentWizard.tsx": 666,
     "src/components/admin/wizard/StatsWizard.tsx": 946,
     "src/components/admin/wizard/TemplateWizard.tsx": 609,
-    "src/components/ConsolidatedHeader.tsx": 533,
     "src/components/EventForm.tsx": 981,
     "src/components/FFLogsImportModal.tsx": 551,
     "src/components/housing/browse/__tests__/ListingCard.test.tsx": 647,

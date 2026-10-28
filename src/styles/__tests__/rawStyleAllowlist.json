@@ -1,7 +1,6 @@
 {
     "App.tsx": [0,2,0],
     "components/AASettingsPopover.tsx": [0,0,1],
-    "components/ConsolidatedHeader.tsx": [0,0,1],
     "components/DamageTypeIcon.tsx": [2,0,0],
     "components/DisplayNameEditor.tsx": [0,0,1],
     "components/EventForm.tsx": [1,0,2],
@@ -24,6 +23,7 @@
     "components/WelcomeSetup.tsx": [0,0,1],
     "components/collab/CursorOverlay.tsx": [0,1,0],
     "components/dev/MilspecTunePanel.tsx": [0,2,0],
+    "components/header/HeaderTitleArea.tsx": [0,0,1],
     "components/landing/LandingFooter.tsx": [0,0,4],
     "components/landing/LandingPage.tsx": [0,0,8],
     "components/landing/LangToggle.tsx": [0,0,1],
