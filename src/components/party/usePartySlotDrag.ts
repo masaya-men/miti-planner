@@ -16,7 +16,7 @@ export const usePartySlotDrag = (
         setDraftMembers(prev => prev.map((m, i) => i === targetIndex ? { ...m, jobId: job.id } : m));
         setFocusedSlot(null);
         useTutorialStore.getState().completeEvent('party:job-set');
-    }, []);
+    }, [setDraftMembers, setFocusedSlot]);
 
     const drag = useDragAndDrop<Job>({ holdDelay: 0, onDrop: handleDragDrop });
 

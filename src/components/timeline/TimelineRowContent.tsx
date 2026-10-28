@@ -15,7 +15,8 @@ import { sheetMemberStyle } from './sheet/sheetStyle';
 import type { TimelineRowContentProps } from './timelineRowTypes';
 import { MobileTargetBadge, MobileMitiIcons } from './TimelineRowMobileParts';
 import { PcTypeToggle, PcTargetToggle, PcCopyButton, PcAddEventButton } from './TimelineRowPcControls';
-import { isEventLethal, DamageTakenCell } from './TimelineRowDamageTaken';
+import { DamageTakenCell } from './TimelineRowDamageTaken';
+import { isEventLethal } from './isEventLethal';
 
 // TimelineRowContent(中身): 列のセル群。top/height は受け取らない(使わない)。
 export const TimelineRowContent = memo(({

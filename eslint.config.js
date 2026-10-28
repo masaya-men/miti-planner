@@ -44,8 +44,10 @@ export default defineConfig([
     // テストの偽物(モック・一部だけの入力データ)は any で書くのが実用的で、型を付けても製品は守れない。
     // 本体コードの any は引き続きエラー。
     files: ['**/__tests__/**/*.{ts,tsx}', '**/*.test.{ts,tsx}', 'vitest.setup.ts', 'playwright/**/*.ts'],
+    // テストの準備ファイルは画面として読み込まれない(開発中の画面の差し替え=Fast Refresh の対象外)。
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+      'react-refresh/only-export-components': 'off',
     },
   },
 ])
