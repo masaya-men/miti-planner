@@ -231,66 +231,6 @@
 /* ズーム時に地図がパネル外へはみ出さないよう DEV エディタのみクリップ。 */
 .housing-dev-tourpreview .housing-tour-map-wrap { overflow: hidden; }
 
-/* DC/ワールド跨ぎ案内: ステージ全面をぼかし、中央にカードで移動手段を案内する。
- * 暗幕にはしない(質感A案の濃紺フラット面 = skeleton と同じ --housing-panel-bg + ぼかし)。
- * ステージ内の他要素(コンパス z:2/ラベル z:4)より前面。
- * ぼかしは css-rules.md の --tw-backdrop-blur 変数パターン(直書き blur() 禁止)。 */
-.housing-tour-map-cross {
-  position: absolute;
-  inset: 0;
-  z-index: 6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: calc(16px * var(--housing-scale));
-  background: var(--housing-panel-bg);
-  --tw-backdrop-blur: blur(calc(6px * var(--housing-scale)));
-  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-}
-.housing-tour-map-cross-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: calc(12px * var(--housing-scale));
-  max-width: calc(320px * var(--housing-scale));
-  padding: calc(16px * var(--housing-scale)) calc(20px * var(--housing-scale));
-  border-radius: var(--housing-panel-radius);
-  background: var(--housing-panel-bg-solid);
-  border: 1px solid var(--housing-divider);
-  box-shadow: var(--housing-panel-shadow);
-  text-align: center;
-  /* 実機FB(2026-08-10): 主催者が「次へ」を押すまで見落とされがちだったため、
-     枠をハニーゴールドでゆっくり明滅させて視線誘導する(housing-tour-target-breatheと同系統)。 */
-  animation: housing-tour-cross-breathe 1.6s ease-in-out infinite;
-}
-@keyframes housing-tour-cross-breathe {
-  0%, 100% { border-color: var(--housing-divider); box-shadow: var(--housing-panel-shadow); }
-  50% { border-color: var(--housing-honey-border); box-shadow: var(--housing-panel-shadow), 0 0 calc(20px * var(--housing-scale)) var(--housing-honey-shadow-soft); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .housing-tour-map-cross-card { animation: none; }
-}
-.housing-tour-map-cross-text {
-  margin: 0;
-  font-size: var(--housing-text-sm);
-  line-height: 1.55;
-  color: var(--housing-text);
-  text-shadow: var(--housing-text-shadow);
-}
-/* 移動先の固有名詞(DC/ワールド/区画名)だけ目立たせ、実際にゲーム内で選ぶべき値を一目で分かるようにする。 */
-.housing-tour-map-cross-highlight {
-  font-size: var(--housing-text-lg);
-  font-weight: 700;
-  color: var(--housing-aether);
-}
-/* 参加者(閲覧専用)の待機文言(#A): ボタンではなく静かな注記。地図は主催者操作でだけ出る。 */
-.housing-tour-map-cross-waiting {
-  margin: 0;
-  font-size: var(--housing-text-xs);
-  color: var(--housing-text-mute);
-  text-shadow: var(--housing-text-shadow);
-}
 
 /* 現在地マーカー (originNodeId のノード座標に青丸) */
 .housing-tour-map-origin {

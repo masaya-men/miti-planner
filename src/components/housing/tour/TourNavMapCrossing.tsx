@@ -4,6 +4,7 @@ import { displayDcName, displayWorldName } from '../../../lib/housing/housingTer
 import { getAreaName } from '../../../lib/housing/areaName';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
 import type { HousingArea } from '../../../types/housing';
+import './TourNavMapCrossing.css';
 
 /** 地域跨ぎステップの案内カード(ぼかし+説明文)。 */
 export const TourNavMapCrossing: React.FC<{ crossing: TourCrossing; crossingReadOnly: boolean }> = ({ crossing, crossingReadOnly }) => {
