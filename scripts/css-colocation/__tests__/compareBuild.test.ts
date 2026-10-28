@@ -67,3 +67,25 @@ describe('compareBuilds(起動時の CSS+後読みの CSS)', () => {
     expect(compareBuilds(base, { eager: '', lazy: [] }, undefined, M).missing).toHaveLength(1);
   });
 });
+
+describe('値の書き方の正規化(Tailwind の後処理を通る index.css ↔ 通らない部品の CSS)', () => {
+  it('書き方だけの違いは同じ規則とみなす', () => {
+    const base = '.a{transition:transform .3s var(--x), color .15s ease}';
+    const next = '.a{transition: transform 0.3s var(--x), color 150ms ease}';
+    expect(compareCss(base, next)).toEqual({ missing: [], extra: [], flipped: [] });
+  });
+  it('keyframes の書き方だけの違いも同じとみなす', () => {
+    const base = '@keyframes k{0%{opacity:1}to{opacity:0}}';
+    const next = '@keyframes k {\n  0% { opacity: 1; }\n  100% { opacity: 0; }\n}';
+    expect(compareCss(base, next)).toEqual({ missing: [], extra: [], flipped: [] });
+  });
+  it('中身の違いは別の規則のまま', () => {
+    const r = compareCss('.a{backdrop-filter:var(--tw-backdrop-blur,)}', '.a{backdrop-filter:blur(12px)}');
+    expect(r.missing).toHaveLength(1);
+    expect(r.extra).toHaveLength(1);
+  });
+  it('段が違えば別の規則のまま', () => {
+    const r = compareCss('@layer components{.a{color:red}}', '.a{color:red}');
+    expect(r.missing).toHaveLength(1);
+  });
+});

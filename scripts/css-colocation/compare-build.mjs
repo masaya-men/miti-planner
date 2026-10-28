@@ -8,6 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { transform } from 'lightningcss';
 import { findOrderPairs, parseRules } from './cssRules.mjs';
 import { classGroups } from './classGroups.mjs';
 import { listTsx } from './srcFiles.mjs';
@@ -16,11 +17,27 @@ const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), '.out');
 // 順番頼りを探す対象の class(ハウジングと MIL-SPEC。 道具の対象を足したらここにも足す)
 const ALL_PREFIX = /^(housing(?:er)?|milspec)-/;
 
-/** 規則の同一性 = 条件+セレクタ+宣言+「同じものの何個目か」 */
+// Tailwind の後処理(Lightning CSS)は @import 等を含むファイル(index.css とその @import 先)だけに掛かり、 部品の隣の CSS は素通りする。
+// 移すと書き方だけ変わる(0.3s → .3s)ので、 両側を対象ブラウザ指定なしの minify でそろえて比べる。 対象ブラウザ由来の書き換え・削除は差として残る
+const minified = new Map();
+function minify(css) {
+  if (!minified.has(css)) {
+    let out;
+    try {
+      out = transform({ filename: 'x.css', code: Buffer.from(css), minify: true }).code.toString();
+    } catch {
+      out = css.replace(/\s+/g, ' ');
+    }
+    minified.set(css, out);
+  }
+  return minified.get(css);
+}
+
+/** 規則の同一性 = 条件+セレクタ+宣言(書き方をそろえたもの)+「同じものの何個目か」 */
 function identities(rules) {
   const count = new Map();
   return rules.map((r) => {
-    const base = r.kind === 'rule' ? `${r.media}|${r.selector}|${r.decls}` : `${r.media}|@${r.name} ${r.params}|${r.node.toString().replace(/\s+/g, ' ')}`;
+    const base = r.kind === 'rule' ? `${r.media}|${r.selector}|${minify(`a{${r.decls}}`)}` : `${r.media}|@${r.name} ${r.params}|${minify(r.node.toString())}`;
     const n = count.get(base) ?? 0;
     count.set(base, n + 1);
     return `${base}#${n}`;
