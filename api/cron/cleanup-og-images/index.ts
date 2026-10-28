@@ -58,14 +58,6 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
                 const match = file.name.match(/^og-images\/([a-f0-9]{16})\.png$/);
                 const hash = match?.[1];
 
-                // keepForever フラグ: Featured 指定中のプランは絶対に削除しない
-                if (hash) {
-                    const metaSnap = await db.collection(OG_IMAGE_META_COLLECTION).doc(hash).get();
-                    if (metaSnap.exists && metaSnap.data()?.keepForever === true) {
-                        continue;
-                    }
-                }
-
                 const [metadata] = await file.getMetadata();
                 const lastAccessedRaw = (metadata.metadata as { lastAccessedAt?: unknown } | undefined)?.lastAccessedAt;
                 const lastAccessed = typeof lastAccessedRaw === 'string' && /^\d+$/.test(lastAccessedRaw)
