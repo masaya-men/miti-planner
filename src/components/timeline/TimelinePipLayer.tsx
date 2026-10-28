@@ -33,7 +33,7 @@ export const TimelinePipLayer: React.FC<TimelinePipLayerProps> = ({
                     onMouseEnter={cancelClosePipMenu}
                     onMouseLeave={scheduleClosePipMenu}
                     style={{ position: 'fixed', top: pipMenuPos.top, left: pipMenuPos.left, zIndex: 9999 }}
-                    className="w-max overflow-hidden rounded-xl glass-tier3 border border-glass-border/40 shadow-lg"
+                    className="w-max overflow-hidden rounded-menu float-surface"
                 >
                     <button
                         onClick={() => { setPipMenuOpen(false); handleOpenPip('cue'); }}

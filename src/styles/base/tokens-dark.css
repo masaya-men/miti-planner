@@ -185,10 +185,6 @@
     --float-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
     --float-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
-    --glass-tier2-bg: rgba(255, 255, 255, 0.08);
-    --glass-tier2-blur: 28px;
-    --glass-tier2-border: rgba(255, 255, 255, 0.12);
-    --glass-tier2-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 
     --glass-tier1-bg: rgba(255, 255, 255, 0.03);
     --glass-tier1-blur: 16px;

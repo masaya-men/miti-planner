@@ -30,17 +30,6 @@
   --glass-tier3-blur: 2px;
 }
 
-.glass-tier2 {
-  --tw-backdrop-blur: blur(var(--glass-tier2-blur));
-  background: var(--glass-tier2-bg) !important;
-  border: 1px solid var(--glass-tier2-border) !important;
-  box-shadow: var(--glass-tier2-shadow) !important;
-}
-.glass-tier2 {
-  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
-  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
-}
-
 /* glass-panel — タイムライン枠のガラス表現 */
 .glass-panel {
   position: relative;

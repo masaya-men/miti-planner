@@ -17,16 +17,16 @@ export const CollabViewerCluster: React.FC = () => {
   return (
     // #2c: flex-wrap を外し 1 行固定(折り返しでヘッダーが縦に伸び縦スクロールが出るのを防ぐ)。
     <div className="flex items-center gap-2">
-      {/* 共同編集中ラベル + 参加者ドット */}
-      <div className="glass-tier2 flex items-center gap-2 px-3 py-1.5 rounded-full border border-app-border">
-        <span className="text-app-xs font-bold text-app-text whitespace-nowrap">
+      {/* 共同編集中ラベル + 参加者ドット(オーナー側 ShareButtons の札と同じ見た目・masaya 10-29) */}
+      <div className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-app-text/40 bg-app-text/10 text-app-text font-bold text-app-sm">
+        <span className="whitespace-nowrap">
           {liveCount > 0
             ? t('collab.chip_active_count', { count: liveCount })
             : t('collab.chip_active')}
         </span>
 
         {/* 参加者ドット(共有コンポーネント) */}
-        <ParticipantDots size={10} />
+        <ParticipantDots size={8} />
       </div>
 
       {/* カーソル + ジョブ操作(ヘッダー用コンパクト 1 行版)。

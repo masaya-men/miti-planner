@@ -89,10 +89,6 @@
   --share-modal-bg:     var(--ms-raised-grad);   /* 多数のモーダルが style で --glass-tier3-bg にこれを流す (ConfirmDialog 等) */
 
   /* ガラス tier2 / tier1 = パネルプレート化 */
-  --glass-tier2-bg:     var(--ms-plate-grad);
-  --glass-tier2-blur:   0px;
-  --glass-tier2-border: var(--ms-hairline);
-  --glass-tier2-shadow: var(--ms-shadow-panel);
   --glass-tier1-bg:     var(--ms-plate-grad);
   --glass-tier1-blur:   0px;
   --glass-tier1-border: var(--ms-hairline);
@@ -185,10 +181,6 @@
   --share-modal-bg:     var(--ms-raised-grad);
 
   /* ガラス tier2 / tier1 */
-  --glass-tier2-bg:     var(--ms-plate-grad);
-  --glass-tier2-blur:   0px;
-  --glass-tier2-border: var(--ms-hairline);
-  --glass-tier2-shadow: var(--ms-shadow-panel);
   --glass-tier1-bg:     var(--ms-plate-grad);
   --glass-tier1-blur:   0px;
   --glass-tier1-border: var(--ms-hairline);

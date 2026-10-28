@@ -63,11 +63,9 @@
       "src/components/WelcomeSetup.tsx": 1,
       "src/components/admin/CsvImportModal.tsx": 1,
       "src/components/admin/FflogsTranslationModal.tsx": 1,
-      "src/components/collab/CollabViewerCluster.tsx": 1,
       "src/components/header/HeaderCollapseHandle.tsx": 1,
       "src/components/layout/FocusModeRail.tsx": 1,
-      "src/components/sidebar/SidebarHandle.tsx": 1,
-      "src/components/timeline/TimelinePipLayer.tsx": 1
+      "src/components/sidebar/SidebarHandle.tsx": 1
     }
   }
 }
