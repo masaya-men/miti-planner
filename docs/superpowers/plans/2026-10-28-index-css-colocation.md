@@ -59,7 +59,7 @@ MIL-SPEC 計画の「用語」と同じ(規則の鍵・対象 class・詳細度�
 - [ ] **Step 1:** 行範囲で切る。 `@layer base { ... }` は塊の途中で切るなら各ファイルで `@layer base { }` に包み直す(段は同じ)。 移す待ち = §3 で 1〜2 部品・0 部品の規則。 共有に残す = §4.2(3 部品以上・トークン・全体・Tailwind 設定)
 - [ ] **Step 2:** `node scripts/css-colocation/compare-build.mjs --compare=pre-index` exit 0 / `npm run build` exit 0
 - [ ] **Step 3:** `npx vitest run src/styles src/architecture scripts/css-colocation` 失敗 0
-- [ ] **Step 4:** 裏で `node scripts/visual-regress/run.mjs --compare=dpr2 --only=miti/,miti-mobile/,miti-milspec/,site/` 全件一致
+- [ ] **Step 4:** 裏で `node scripts/visual-regress/run.mjs --compare=dpr2 --only=miti`(`--only` は部分一致 1 つだけ=miti・miti-mobile・miti-milspec を含む)と `--only=site/` の 2 回、 全件一致
 - [ ] **Step 5:** コミット
 
 ### Task 3: index の設定と道具の直し
