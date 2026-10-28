@@ -5,7 +5,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { planColocation, render, addCssImport } from './planColocation.mjs';
+import { execFileSync } from 'node:child_process';
+import { planColocation, render, addCssImport, removeCssImport } from './planColocation.mjs';
 import { reachable } from './reachable.mjs';
 import { listTsx } from './srcFiles.mjs';
 
@@ -38,7 +39,7 @@ async function main() {
     sharedDir: sc.sharedDir,
     unusedDir: sc.unusedDir,
     prefixRe: sc.prefixRe,
-    ...(sc.planOptions?.(reach) ?? {}),
+    ...(sc.planOptions?.(reach, jsx) ?? {}),
   });
 
   const inScope = (out) => {
@@ -82,10 +83,38 @@ async function main() {
   const importerOf = new Map(moving.map((u) => [u.dest.out, u.dest.importer]));
   const outputs = render(p.units, (u) => (u.dest.out && inScope(u.dest.out) ? u.dest.out : null));
   let entryText = fs.readFileSync(sc.entry, 'utf8').replace(/\r\n/g, '\n');
+  // 先に元のファイルを書き換える。 空になったものは消し、 読んでいた import(入口の @import か部品の import)も消す
+  // (古い名前 milspecFooter.css → 新しい名前 MilspecFooter.css のような大文字小文字だけの改名を Windows で書けるように)
+  const remaining = render(p.units, (u) => (u.dest.out && inScope(u.dest.out) ? null : u.src));
+  const touched = new Set(moving.map((u) => u.src));
+  const removed = [];
+  for (const s of sources) {
+    if (!touched.has(s.file)) continue;
+    const css = remaining.get(s.file);
+    if (css) {
+      fs.writeFileSync(s.file, css);
+      continue;
+    }
+    fs.rmSync(s.file);
+    removed.push(s.file);
+    if (!s.importers) entryText = entryText.replace(`${sc.importLine(s.file)}\n`, '');
+    for (const tsx of s.importers ?? []) {
+      const spec = path.posix.relative(path.posix.dirname(tsx), s.file);
+      fs.writeFileSync(tsx, removeCssImport(fs.readFileSync(tsx, 'utf8'), spec));
+    }
+  }
   const sharedImports = [];
   for (const [out, css] of outputs) {
     const name = path.basename(out, '.css');
+    // 行き先が残る共有の元ファイル(例 military の primitives.css)なら末尾に足す(元の並び=共有の規則が先、 を保つ)
+    if (sources.some((s) => s.file === out && s.role !== 'pending') && fs.existsSync(out)) {
+      fs.writeFileSync(out, `${fs.readFileSync(out, 'utf8').replace(/\s*$/, '\n\n')}${css}`);
+      continue;
+    }
     if (fs.existsSync(out)) throw new Error(`${out} が既にある(部品の隣の CSS への追記はこの道具ではしない)`);
+    // 大文字小文字だけ違う古いファイルを消した場合、 git(大文字小文字を区別しない設定)の索引に古い名前が残るので外す
+    const caseTwin = removed.find((f) => f !== out && f.toLowerCase() === out.toLowerCase());
+    if (caseTwin) execFileSync('git', ['rm', '--cached', '-q', caseTwin]);
     if (out.startsWith(`${sc.sharedDir}/`)) {
       const isUnused = out.startsWith(`${sc.unusedDir}/`);
       const head = isUnused ? sc.sharedHeader.unused : (sc.sharedHeader[name] ?? `/* 共有: ${name} */`);
@@ -99,17 +128,6 @@ async function main() {
     fs.writeFileSync(tsx, addCssImport(fs.readFileSync(tsx, 'utf8'), `${name}.css`));
   }
   if (sharedImports.length) entryText = sc.addSharedImports(entryText, sharedImports);
-  const remaining = render(p.units, (u) => (u.dest.out && inScope(u.dest.out) ? null : u.src));
-  const touched = new Set(moving.map((u) => u.src));
-  for (const s of sources) {
-    if (!touched.has(s.file)) continue;
-    const css = remaining.get(s.file);
-    if (css) fs.writeFileSync(s.file, css);
-    else {
-      fs.rmSync(s.file);
-      entryText = entryText.replace(`${sc.importLine(s.file)}\n`, '');
-    }
-  }
   fs.writeFileSync(sc.entry, entryText);
   console.log(`書き出し ${outputs.size} 本(${moving.length} 単位)`);
 }

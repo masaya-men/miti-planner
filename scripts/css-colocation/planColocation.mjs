@@ -35,6 +35,12 @@ export function destOfOwner(owner, sharedDir = HOUSING_DIRS.sharedDir) {
  *  5. それでも無い → 「使われていない候補」(class の無い規則は fileFallback → 番号ファイルの主な持ち主)
  * 共有ファイル(shared)は動かさない。 外枠ファイル(frame)は keepInFrame(持ち主) が真なら残す(既定 = shell/ の部品か持ち主なし)。
  * 対象を変える時は componentsDir / sharedDir / unusedDir / prefixRe を渡す(既定 = ハウジング)。
+ * MIL-SPEC 用の追加(既定はどれも無効。 scopes/military.mjs の militaryPlanOptions が渡す):
+ *  resolveHit(file)   → class を含むファイルを持ち主の部品に読み替える(.ts → それを import して描く .tsx)
+ *  templatePrefixes   → `milspec-x-${…}` の接頭辞で始まる class も、 その文字列を含むファイルが使っている扱い
+ *  tieOwner           → 3 つ以上の候補が同じ点数で割れた時の行き先(例 'shared:primitives')
+ *  classify(owner)    → 決まった持ち主の読み替え(起動時の部品 → boot-parts 等)。 overrides と shared: は読み替えない
+ *  ruleOwner(sel)     → class より先にセレクタ全体で決まる持ち主(標準の部品を描き変える規則 → standard-parts 等)。 null なら通常の判定
  */
 export function planColocation({
   sources,
@@ -49,13 +55,25 @@ export function planColocation({
   unusedDir = HOUSING_DIRS.unusedDir,
   prefixRe = HOUSING_PREFIX,
   keepInFrame = (owner) => !owner || owner.startsWith(`${componentsDir}/shell/`),
+  resolveHit = (file) => [file],
+  templatePrefixes = false,
+  tieOwner = null,
+  classify = (owner) => owner,
+  ruleOwner = () => null,
 }) {
   const isDev = (p) => p.startsWith(`${componentsDir}/dev/`);
+  const prefixesOf = new Map(
+    templatePrefixes ? jsx.map((j) => [j.file, [...j.text.matchAll(/([\w-]+-)\$\{/g)].map((m) => m[1]).filter((c) => prefixRe.test(c))]) : [],
+  );
   const hitCache = new Map();
   const hitsOf = (cls) => {
     if (!hitCache.has(cls)) {
       const re = new RegExp(`${cls.replace(/-/g, '\\-')}(?![\\w-])`);
-      let hits = jsx.filter((j) => re.test(j.text)).map((j) => j.file);
+      let files = jsx.filter((j) => re.test(j.text)).map((j) => j.file);
+      // .tsx が書いている class は .tsx だけを候補にする(.ts は class で要素を探すだけのことが多い=描いているのは .tsx)
+      if (files.some((f) => f.endsWith('.tsx'))) files = files.filter((f) => f.endsWith('.tsx'));
+      if (!files.length && templatePrefixes) files = jsx.filter((j) => prefixesOf.get(j.file).some((p) => cls.startsWith(p))).map((j) => j.file);
+      let hits = [...new Set(files.flatMap(resolveHit))];
       if (hits.length > 1 && hits.some((h) => !isDev(h))) hits = hits.filter((h) => !isDev(h));
       hitCache.set(cls, hits);
     }
@@ -129,11 +147,14 @@ export function planColocation({
     const mine = fileClasses.get(src) ?? new Set();
     const score = (f) => [...mine].filter((c) => hitsOf(c).includes(f)).length;
     const best = [...hits].sort((a, b) => score(b) - score(a) || a.localeCompare(b))[0];
-    ambiguous.set(probe, { cls: probe, candidates: hits, chosen: best });
-    return best;
+    const tied = tieOwner && hits.filter((h) => score(h) === score(best)).length >= 3;
+    ambiguous.set(probe, { cls: probe, candidates: hits, chosen: tied ? tieOwner : best });
+    return tied ? tieOwner : best;
   };
 
   const ownerOfSelector = (sel, src) => {
+    const byRule = ruleOwner(sel);
+    if (byRule) return byRule;
     for (const c of subjectClasses(sel, prefixRe)) {
       const o = ownerOfClass(c, src);
       if (o) return o;
@@ -217,6 +238,8 @@ export function planColocation({
     dominant.set(src.file, best?.[0] ?? null);
   }
   const base = (f) => path.basename(f);
+  const overrideValues = new Set([...Object.values(overrides), ...selOverrides.map(([, o]) => o)]);
+  const classified = (o) => (!o || o.startsWith('shared:') || overrideValues.has(o) ? o : classify(o));
   for (const u of units) {
     if (u.owner === undefined || u.owner === null) {
       u.owner = null;
@@ -224,11 +247,11 @@ export function planColocation({
     }
     const b = base(u.src);
     if (shared.includes(b)) u.dest = { kept: u.src };
-    else if (frame.includes(b) && keepInFrame(u.owner)) u.dest = { kept: u.src };
+    else if (frame.includes(b) && keepInFrame(classified(u.owner))) u.dest = { kept: u.src };
     else {
       // class が JSX に見つからない規則は、 消さずに「使われていない候補」へ集める。
       // class の無い規則はファイル単位の指定(fileFallback)→ 番号ファイルの主な持ち主
-      const owner = u.owner ?? (u.classless ? (fileFallback[b] ?? dominant.get(u.src)) : u.orphanKeyframes ? (fileFallback[b] ?? null) : null);
+      const owner = classified(u.owner ?? (u.classless ? (fileFallback[b] ?? dominant.get(u.src)) : u.orphanKeyframes ? (fileFallback[b] ?? null) : null));
       u.owner = owner;
       u.dest = owner ? destOfOwner(owner, sharedDir) : { out: `${unusedDir}/${b}` };
     }
@@ -288,6 +311,11 @@ export function render(units, keyOf) {
     out.set(k, `${root.toString().trim()}\n`);
   }
   return out;
+}
+
+/** import './<css>'; の行を消す(元の CSS が空になって消えた時) */
+export function removeCssImport(source, cssName) {
+  return source.split('\n').filter((l) => l.replace(/\r$/, '') !== `import './${cssName}';`).join('\n');
 }
 
 /** 最後の import 文の後ろに import './<css>'; を足す(既にあれば何もしない) */

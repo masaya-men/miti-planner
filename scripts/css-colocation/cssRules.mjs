@@ -34,7 +34,7 @@ function splitTop(text, isSep) {
 export const splitSelectorList = (sel) => splitTop(sel, (t, i) => (t[i] === ',' ? 1 : 0)).map((s) => s.trim()).filter(Boolean);
 
 /** 結合子(空白 > + ~)で複合セレクタに分ける */
-function compounds(sel) {
+export function compounds(sel) {
   const norm = sel.replace(/\s*([>+~])\s*/g, ' ').trim();
   return splitTop(norm, (t, i) => (/\s/.test(t[i]) ? 1 : 0)).filter(Boolean);
 }
