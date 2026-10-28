@@ -48,6 +48,13 @@ describe('浮かぶものの素材 float-surface', () => {
         expect(ruleWith(base, '.float-surface::before')).toContain('backdrop-filter: var(--tw-backdrop-blur,)');
     });
 
+    it('辺ごとに縁・影を消すクラス(glass-border-*-0 / glass-shadow-none)は .float-surface より後にあって勝つ', () => {
+        const surface = base.indexOf('.float-surface {');
+        for (const cls of ['.glass-border-t-0', '.glass-border-b-0', '.glass-border-l-0', '.glass-border-r-0', '.glass-shadow-none']) {
+            expect(base.indexOf(`${cls} {`), `${cls} が .float-surface より前にあると !important 同士で負ける`).toBeGreaterThan(surface);
+        }
+    });
+
     it('index.css が float-surface.css を読み込む', () => {
         expect(read('src/index.css')).toContain('@import "./styles/base/float-surface.css";');
     });

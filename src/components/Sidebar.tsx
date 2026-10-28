@@ -184,7 +184,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     {...backdropClose(handleCancelNewPlan)}
                 >
                     <div
-                        className="relative bg-app-bg border border-app-border rounded-2xl shadow-2xl w-[360px] max-w-[90vw] overflow-hidden"
+                        className="relative float-surface rounded-2xl w-[360px] max-w-[90vw] overflow-hidden"
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="px-5 py-4 border-b border-app-border">
@@ -262,8 +262,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     {...backdropClose(() => setShowDeleteConfirm(false))}
                 >
                     <div
-                        className="relative w-full max-w-[400px] glass-tier3 rounded-2xl overflow-hidden"
-                        style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
+                        className="relative w-full max-w-[400px] float-surface rounded-2xl overflow-hidden"
                         onClick={e => e.stopPropagation()}
                     >
                         {/* ヘッダー */}

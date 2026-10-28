@@ -39,6 +39,16 @@ const EXEMPT: Record<string, string> = {
     'tutorial/animations/PillFly.tsx': 'チュートリアルの演出',
 };
 
+/** 演出・初回の案内画面として、窓に似た面(背景+大きな影)を持ってよいファイル(上の EXEMPT の一部)。 */
+const PANEL_OK = new Set([
+    'MobileGuide.tsx',
+    'MobilePartySettings.tsx',
+    'party/PartyDragGhost.tsx',
+    'tutorial/animations/CompletionCard.tsx',
+    'tutorial/animations/FakeCompletionCard.tsx',
+    'tutorial/animations/PartyAutoFill.tsx',
+]);
+
 /** まだ載せ替えていない浮かぶもの。2026-10-28 に全部載せ替えて空。以後は足さない(下のテストで止める)。 */
 const PENDING: Record<string, string> = {
 };
@@ -80,6 +90,17 @@ describe('浮かぶものは素材 float-surface を使う', () => {
 
     it('PENDING は空(新しい浮かぶものは最初から float-surface で作る)', () => {
         expect(Object.keys(PENDING)).toEqual([]);
+    });
+
+    it('除外したファイルの中にも、窓・メニューの面(白地の指定や「背景+大きな影」)を残さない', () => {
+        // ファイルごと除外したサイドバー・フッターの中に窓が隠れていた(2026-10-28 最終レビュー)。
+        const panel = /\bbg-app-(bg|surface2?)\b.*\bshadow-(lg|xl|2xl)\b|\bshadow-(lg|xl|2xl)\b.*\bbg-app-(bg|surface2?)\b/;
+        const bad = files
+            .filter((f) => isCandidate(f.src) && !PANEL_OK.has(f.key))
+            .flatMap((f) => f.src.split('\n').map((line, i) => ({ f, line, i })))
+            .filter(({ line }) => line.includes('share-modal-bg') || panel.test(line))
+            .map(({ f, i }) => `${f.key}:${i + 1}`);
+        expect(bad).toEqual([]);
     });
 
     it('PENDING と EXEMPT のファイルが実在する', () => {
