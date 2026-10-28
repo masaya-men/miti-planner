@@ -94,7 +94,9 @@ beforeEach(() => {
   wip.can = true;
   useMitigationStore.setState({
     timelineEvents: events as never, phases: [], labels: [], timelineMitigations: [],
-    currentLevel: 100, hideEmptyRows: false, _history: [], _future: [],
+    currentLevel: 100,
+    // 表示の最初に useTimelinePlanScrollReset が空でないプランを「空の行は隠す」にするので、最初からその状態にしておく(false だと全行を一度作って捨てる=1 回 4 秒)
+    hideEmptyRows: true, _history: [], _future: [],
   });
   useMitigationStore.getState().setMemberJob('MT', 'war');
   usePlanStore.setState({ currentPlanId: 'ro-plan' });

@@ -130,7 +130,8 @@ beforeEach(() => {
     labels: [],
     timelineMitigations: [],
     currentLevel: 100,
-    hideEmptyRows: false,
+    // 表示の最初に useTimelinePlanScrollReset が空でないプランを「空の行は隠す」にするので、最初からその状態にしておく(false だと全行を一度作って捨てる=1 回 4 秒)
+    hideEmptyRows: true,
     _history: [],
     _future: [],
   });
@@ -403,17 +404,20 @@ describe('スプシ表示の本体', () => {
     const { def } = pickPlainColumn();
     for (const hide of [false, true]) {
       cleanup();
-      useMitigationStore.setState({ timelineMitigations: [], hideEmptyRows: hide });
+      useMitigationStore.setState({ timelineMitigations: [] });
       useMitigationStore.getState().addMitigation({ id: 'w1', mitigationId: def.id, ownerId: 'MT', time: 30, duration: def.duration } as never);
       useMitigationStore.getState().addMitigation({ id: 'w2', mitigationId: g.mitigationId, ownerId: 'MT', time: 60, duration: g.def.duration } as never);
       const { container } = renderTimeline();
+      // 表示の最初に「隠す」へ戻されるので、描いた後に切り替える
+      act(() => { useMitigationStore.setState({ hideEmptyRows: hide }); });
       expect(container.querySelectorAll('[data-mit-cd-box]').length).toBeGreaterThanOrEqual(2);
       act(() => { useMitigationStore.getState().removeMitigation('w1'); });
       act(() => { useMitigationStore.getState().removeMitigation('w2'); });
       expect(placedIcons(container).length).toBe(0);
       expect(container.querySelectorAll('[data-mit-cd-box]').length).toBe(0);
     }
-  });
+    // 「空の行も出す」側は全行(約 5 万要素)を描くため単体で 12 秒かかる。全体実行の混雑でも落ちないよう長めに待つ
+  }, 60_000);
 
   it('A10 スプシ: 本体のマウスがある列の技(アイコン+名前)のツールチップが 1 個だけ出て、列が変わると差し替わり、外れると消える', () => {
     const cols = warColumns();
