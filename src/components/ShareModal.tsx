@@ -1,21 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useTranslation, Trans } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { Copy, Check, Loader2, ExternalLink, Upload, Trash2, RefreshCw } from 'lucide-react';
-import clsx from 'clsx';
-import { useMitigationStore } from '../store/useMitigationStore';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/useAuthStore';
 import { LoginModal } from './LoginModal';
-import { uploadTeamLogo, deleteTeamLogo, validateLogoFile } from '../utils/logoUpload';
-import { showToast } from './toastBus';
-import { apiFetch } from '../lib/apiClient';
-import { stripSharedPersonalData } from '../lib/sharePrivacy';
 import type { SavedPlan } from '../types';
-import { buildOgImageUrl, type OgpLang } from '../lib/ogpHelpers';
 import { PopularConsentDialog } from './PopularConsentDialog';
 import { ModalShell } from './ui/ModalShell';
-import { ModalHeader, ModalButton } from './ui/ModalParts';
-import { hasPopularConsent, setPopularConsent } from '../lib/popularConsent';
+import { ModalHeader } from './ui/ModalParts';
+import { useShareLink } from './share/useShareLink';
+import { useTeamLogo } from './share/useTeamLogo';
+import { ShareOgPreview } from './share/ShareOgPreview';
+import { ShareGuestHint } from './share/ShareGuestHint';
+import { ShareTeamLogoSettings } from './share/ShareTeamLogoSettings';
+import { ShareActions } from './share/ShareActions';
 
 interface ShareModalProps {
     isOpen: boolean;
@@ -29,254 +25,18 @@ interface ShareModalProps {
 export const ShareModal: React.FC<ShareModalProps> = ({
     isOpen, onClose, contentLabel, currentPlan, bundlePlans,
 }) => {
-    const { t, i18n } = useTranslation();
-    const [shareUrl, setShareUrl] = useState<string | null>(null);
-    const [ogImageUrl, setOgImageUrl] = useState<string | null>(null);
-    const [, setLoading] = useState(false);
-    const [imageLoaded, setImageLoaded] = useState(false);
-    const [copied, setCopied] = useState(false);
-    const [shareIdRef, setShareIdRef] = useState<string | null>(null);
-    // logoHash はサーバーから返ってくる SHA-256 先頭16文字。OGP URL の lh パラメータ用で、
-    // 各 PUT/POST 直後にレスポンスから取り出して buildOgUrl に渡す。
-    // 永続 state は持たず、レスポンスごとに最新値を直接使うことで参照ズレを排除。
-
-    // チームロゴ関連
-    const { user, teamLogoUrl, setTeamLogoUrl } = useAuthStore();
+    const { t } = useTranslation();
+    const { user, teamLogoUrl } = useAuthStore();
     const [showLogo, setShowLogo] = useState(true);
-    const [uploading, setUploading] = useState(false);
-    const [dragging, setDragging] = useState(false);
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
-    const dragCountRef = useRef(0);
     const [showLoginModal, setShowLoginModal] = useState(false);
-    const [consentOpen, setConsentOpen] = useState(false);
-    const pendingPostRef = useRef<(() => void) | null>(null);
 
-    const isBundle = bundlePlans && bundlePlans.length > 0;
-
-    const lang: OgpLang = i18n.language === 'en' ? 'en' : 'ja';
-
-    /**
-     * OGP画像URLを構築するヘルパー。
-     *   imageHash あり: /og/{hash}.png（同一オリジン静的キャッシュ、サーバー側 og:image と一致）
-     *   imageHash なし: 従来の /api/og?... URL（後方互換）
-     * サーバーから返ってきた imageHash を必ず渡すことでサーバーと URL が完全一致する。
-     */
-    const buildOgUrl = (
-        id: string,
-        logo: boolean,
-        logoHash: string | null,
-        imageHash?: string | null,
-    ) => {
-        if (imageHash && /^[a-f0-9]{16}$/.test(imageHash)) {
-            return `${window.location.origin}/og/${imageHash}.png`;
-        }
-        return buildOgImageUrl(window.location.origin, id, {
-            showLogo: logo,
-            logoHash: logoHash || undefined,
-            lang,
-        });
-    };
-
-    // モーダルが開いたら共有URLを生成
-    useEffect(() => {
-        if (!isOpen) return;
-        setShareUrl(null);
-        setOgImageUrl(null);
-        setImageLoaded(false);
-        setCopied(false);
-
-        if (hasPopularConsent()) {
-            generateShareUrl();
-        } else {
-            pendingPostRef.current = generateShareUrl;
-            setConsentOpen(true);
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- モーダルが開いた時だけ共有 URL を生成する(generateShareUrl は毎回作り直される関数。依存に入れると毎描画で再生成してしまう)
-    }, [isOpen]);
-
-    const generateShareUrl = async () => {
-        setLoading(true);
-        try {
-            let body: Record<string, unknown>;
-            if (isBundle) {
-                // 個人状態(progress/memos)を端末から送らない（プライバシー: サーバ側strip より手前で除去）
-                body = { plans: bundlePlans!.map(p => ({ ...p, planData: stripSharedPersonalData(p.planData) })) };
-            } else {
-                const snapshot = useMitigationStore.getState().getSnapshot();
-                body = {
-                    planData: stripSharedPersonalData(snapshot),
-                    title: currentPlan?.title || '',
-                    contentId: currentPlan?.contentId || null,
-                };
-            }
-            // ロゴが有効ならストレージパスをサーバーに送る（サーバー側でfirebase-adminでダウンロード）
-            if (showLogo && teamLogoUrl && user) {
-                body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
-            }
-            body.lang = lang;
-
-            // App Check は付けない（サーバ側で share は App Check 免除）。匿名は初期化しない＝
-            // privacy 制限下での reCAPTCHA 交換失敗 (initial-throttle) を踏まない。ログイン時は
-            // 既に初期化済みなので apiFetch が peek でトークンを載せるが、サーバは参照しない。
-            const res = await apiFetch('/api/share', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-            });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            setShareIdRef(data.shareId);
-            const newLogoHash: string | null = typeof data.logoHash === 'string' ? data.logoHash : null;
-            const newImageHash: string | null = typeof data.imageHash === 'string' ? data.imageHash : null;
-            const url = `${window.location.origin}/share/${data.shareId}`;
-            setShareUrl(url);
-            setOgImageUrl(buildOgUrl(data.shareId, showLogo, newLogoHash, newImageHash));
-            if (data.logoBlocked) {
-                showToast(t('team_logo.logo_blocked'), 'error');
-            }
-        } catch (err) {
-            console.error('Share failed:', err);
-            showToast(t('app.share_failed') || '共有リンクの生成に失敗しました');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // 既存shareIdのロゴを更新（PUT）
-    // logoUrlOverride: setTeamLogoUrl 直後に呼ぶ場合、closure 内の古い teamLogoUrl
-    // (null のまま) を使うとサーバーがロゴ無しで PUT してしまい imageHash が過去と
-    // 同一になって React が bail-out する事象が発生する。最新の URL を引数で渡すことで
-    // closure を回避し、サーバーに必ず最新ロゴ状態を伝える。
-    const updateShareLogo = async (withLogo: boolean, logoUrlOverride?: string | null) => {
-        if (!shareIdRef) return;
-        setImageLoaded(false);
-        // ogImageUrl を一度 null にすることで <img> を確実にアンマウントする。
-        // 同じロゴで再追加する等で imageHash が過去と完全一致した場合、
-        // setOgImageUrl(同値) では React が bail-out して再レンダリングせず、
-        // ブラウザも新規ロードを開始しないため「永遠に生成中」になる事象への対策。
-        // await fetch をまたぐので React は途中で render を走らせ、<img> が消える。
-        setOgImageUrl(null);
-        try {
-            const body: Record<string, unknown> = { shareId: shareIdRef };
-            const effectiveLogoUrl = logoUrlOverride !== undefined ? logoUrlOverride : teamLogoUrl;
-            if (withLogo && effectiveLogoUrl && user) {
-                body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
-            }
-            // App Check は付けない（サーバ側で share は App Check 免除。プレビュー更新ボタン経由で
-            // 匿名も PUT に到達するため）。匿名は初期化しない＝reCAPTCHA 交換失敗を踏まない。
-            const res = await apiFetch('/api/share', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-            });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            if (data.logoBlocked) {
-                showToast(t('team_logo.logo_blocked'), 'error');
-            }
-            // サーバーから返ってきた logoHash / imageHash で URL を組み立て直す。
-            // ロゴ内容が変われば imageHash も変わるため URL が自然に変化し、
-            // ブラウザも Storage キャッシュも別エントリとして新画像を取得する
-            // （タイムスタンプ式キャッシュバスター不要でサーバーOGP URL と完全一致）。
-            const newLogoHash: string | null = typeof data.logoHash === 'string' ? data.logoHash : null;
-            const newImageHash: string | null = typeof data.imageHash === 'string' ? data.imageHash : null;
-            setOgImageUrl(buildOgUrl(shareIdRef, withLogo, newLogoHash, newImageHash));
-        } catch (err) {
-            console.error('Share logo update failed:', err);
-            showToast(t('app.share_failed'));
-            setImageLoaded(true); // エラー時にボタンを再有効化
-        }
-    };
-
-    // ロゴ表示トグル変更時にOGP画像を再生成
-    const handleToggleLogo = () => {
-        const next = !showLogo;
-        setShowLogo(next);
-        // shareデータのロゴを更新（ON→ロゴ埋め込み、OFF→ロゴ削除）
-        updateShareLogo(next);
-    };
-
-    // ロゴファイル処理（共通）
-    const processLogoFile = async (file: File) => {
-        if (!user) return;
-
-        const error = validateLogoFile(file);
-        if (error) {
-            showToast(t(`team_logo.${error}`), 'error');
-            return;
-        }
-
-        setUploading(true);
-        try {
-            const url = await uploadTeamLogo(user.uid, file, () => useAuthStore.getState().profileDisplayName);
-            setTeamLogoUrl(url);
-            showToast(t('team_logo.upload_success'));
-            setShowLogo(true);
-            // 既存shareデータのロゴを上書き更新
-            // setTeamLogoUrl 直後の closure では teamLogoUrl がまだ null なので、
-            // 引数で最新の url を直接渡す
-            await updateShareLogo(true, url);
-        } catch (err) {
-            console.error('[LogoUpload] アップロードエラー詳細:', err);
-            showToast(t('team_logo.error_upload_failed'), 'error');
-        } finally {
-            setUploading(false);
-        }
-    };
-
-    // ファイル選択からのアップロード
-    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) await processLogoFile(file);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-    };
-
-    // ロゴ削除処理
-    const handleLogoDelete = async () => {
-        if (!user) return;
-        try {
-            await deleteTeamLogo(user.uid, () => useAuthStore.getState().profileDisplayName);
-            setTeamLogoUrl(null);
-            setShowLogo(false);
-            showToast(t('team_logo.remove_success'));
-            // 既存shareデータからロゴを削除（closure 古い値回避のため null を明示渡し）
-            await updateShareLogo(false, null);
-        } catch {
-            showToast(t('team_logo.error_remove_failed'), 'error');
-        }
-    };
-
-    const handleConsentAccept = () => {
-        setPopularConsent();
-        setConsentOpen(false);
-        const fn = pendingPostRef.current;
-        pendingPostRef.current = null;
-        if (fn) fn();
-    };
-
-    const handleConsentCancel = () => {
-        setConsentOpen(false);
-        pendingPostRef.current = null;
-        onClose(); // モーダル全体を閉じる（共有を中止）
-    };
-
-    const handleCopy = async () => {
-        if (!shareUrl) return;
-        await navigator.clipboard.writeText(shareUrl);
-        setCopied(true);
-        showToast(t('app.link_copied'));
-        setTimeout(() => setCopied(false), 2000);
-    };
-
-    const handleShareX = () => {
-        if (!shareUrl) return;
-        const text = `${contentLabel || 'LoPo'} - ${t('app.title')}`;
-        window.open(
-            `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`,
-            '_blank',
-            'noopener,noreferrer'
-        );
-    };
+    const {
+        isBundle, shareUrl, ogImageUrl, imageLoaded, setImageLoaded, updateShareLogo,
+        consentOpen, handleConsentAccept, handleConsentCancel,
+    } = useShareLink({ isOpen, onClose, currentPlan, bundlePlans, showLogo });
+    const {
+        uploading, fileInputRef, handleToggleLogo, processLogoFile, handleLogoUpload, handleLogoDelete,
+    } = useTeamLogo({ showLogo, setShowLogo, updateShareLogo });
 
     if (!isOpen) return <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />;
 
@@ -294,192 +54,30 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 <div className="overflow-y-auto min-h-0">
 
                 {/* OGPプレビュー（ロゴD&D対応） */}
-                <div className="px-5 py-4">
-                    <div
-                        className={clsx(
-                            "relative w-full aspect-[1200/630] bg-app-surface2/60 rounded-lg overflow-hidden border transition-colors",
-                            user && dragging
-                                ? "border-app-text border-dashed"
-                                : "border-app-border"
-                        )}
-                        onDragEnter={user ? (e) => {
-                            e.preventDefault();
-                            dragCountRef.current++;
-                            setDragging(true);
-                        } : undefined}
-                        onDragOver={user ? (e) => { e.preventDefault(); } : undefined}
-                        onDragLeave={user ? () => {
-                            dragCountRef.current--;
-                            if (dragCountRef.current <= 0) {
-                                dragCountRef.current = 0;
-                                setDragging(false);
-                            }
-                        } : undefined}
-                        onDrop={user ? (e) => {
-                            e.preventDefault();
-                            dragCountRef.current = 0;
-                            setDragging(false);
-                            const file = e.dataTransfer.files[0];
-                            if (file) processLogoFile(file);
-                        } : undefined}
-                    >
-                        {/* D&Dオーバーレイ（ログインユーザーのみ） */}
-                        {user && dragging && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-app-bg/60 z-20 pointer-events-none">
-                                <span className="text-app-lg font-bold text-app-text">
-                                    {t('team_logo.upload')}
-                                </span>
-                            </div>
-                        )}
-                        {/* 生成中インジケータ */}
-                        {(!imageLoaded) && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
-                                <Loader2 size={24} className="animate-spin text-app-text-muted" />
-                                <span className="text-app-md text-app-text-muted font-medium">
-                                    {t('app.generating_preview')}
-                                </span>
-                            </div>
-                        )}
-                        {ogImageUrl && (
-                            // key に URL を渡すことで、ogImageUrl が変わるたびに <img> を
-                            // 完全に再マウントする。これにより古い img のロード状態が引き継がれず、
-                            // 新 src で確実に新規 fetch + onLoad/onError が発火する。
-                            // （src だけ書き換わっても新規ロードがトリガーされず「永遠に生成中」に
-                            //  なる事象への対策）
-                            <img
-                                key={ogImageUrl}
-                                src={ogImageUrl}
-                                alt="OGP Preview"
-                                className={clsx("w-full h-full object-contain transition-opacity duration-300", imageLoaded ? "opacity-100" : "opacity-0")}
-                                onLoad={() => setImageLoaded(true)}
-                                onError={() => setImageLoaded(true)}
-                            />
-                        )}
-                        {/* プレビュー更新ボタン（トグルOFF→ONと同じ処理で確実に再生成） */}
-                        {imageLoaded && ogImageUrl && (
-                            <button
-                                onClick={async () => {
-                                    await updateShareLogo(false);
-                                    await updateShareLogo(showLogo);
-                                }}
-                                className="absolute top-2 right-2 z-20 w-7 h-7 rounded-full bg-black/50 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/70 transition-all cursor-pointer"
-                                title={t('app.share_refresh_preview')}
-                            >
-                                <RefreshCw size={13} />
-                            </button>
-                        )}
-                    </div>
-                </div>
+                <ShareOgPreview
+                    canDropLogo={!!user}
+                    ogImageUrl={ogImageUrl}
+                    imageLoaded={imageLoaded}
+                    setImageLoaded={setImageLoaded}
+                    showLogo={showLogo}
+                    updateShareLogo={updateShareLogo}
+                    processLogoFile={processLogoFile}
+                />
 
                 {/* 非ログイン時のさりげない案内 */}
-                {!user && (
-                    <div className="px-5 pb-2">
-                        <p className="text-app-base text-app-text-muted text-center leading-relaxed">
-                            {t('app.share_guest_hint')
-                                .split(/<\/?login>/)
-                                .map((part, i) =>
-                                    i === 1 ? (
-                                        <button
-                                            key="login"
-                                            onClick={() => setShowLoginModal(true)}
-                                            className="underline hover:text-app-text transition-colors cursor-pointer"
-                                        >
-                                            {part}
-                                        </button>
-                                    ) : (
-                                        <span key={i}>{part}</span>
-                                    )
-                                )}
-                        </p>
-                    </div>
-                )}
+                {!user && <ShareGuestHint onLogin={() => setShowLoginModal(true)} />}
 
                 {/* チームロゴ設定（ログインユーザーのみ） */}
                 {user && (
-                    <div className="px-5 pb-2 space-y-2">
-                        {/* ロゴ表示トグル（ロゴがある場合のみ） */}
-                        {teamLogoUrl && (
-                            <button
-                                onClick={handleToggleLogo}
-                                className="flex items-center gap-2.5 w-full py-1.5 text-left group cursor-pointer"
-                            >
-                                <div className={clsx(
-                                    "w-8 h-[18px] rounded-full transition-colors duration-200 relative shrink-0",
-                                    showLogo ? "bg-app-text" : "bg-app-surface2 border border-app-border"
-                                )}>
-                                    <div className={clsx(
-                                        "absolute top-[2px] w-[14px] h-[14px] rounded-full transition-all duration-200",
-                                        showLogo ? "left-[15px] bg-app-bg" : "left-[2px] bg-app-text-muted"
-                                    )} />
-                                </div>
-                                <span className="text-app-lg text-app-text-muted group-hover:text-app-text transition-colors">
-                                    {t('team_logo.show_on_ogp')}
-                                </span>
-                            </button>
-                        )}
-
-                        {/* ロゴ設定行（コンパクト） */}
-                        <div className="flex items-center gap-2">
-                            {teamLogoUrl ? (
-                                <>
-                                    <img
-                                        src={teamLogoUrl}
-                                        alt="Team Logo"
-                                        className="w-8 h-8 rounded object-cover border border-app-border"
-                                    />
-                                    <button
-                                        onClick={handleLogoDelete}
-                                        disabled={uploading}
-                                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer border border-app-border"
-                                    >
-                                        <Trash2 size={11} />
-                                        {t('team_logo.remove')}
-                                    </button>
-                                </>
-                            ) : (
-                                <button
-                                    onClick={() => !uploading && fileInputRef.current?.click()}
-                                    disabled={uploading}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-app-md font-bold border border-app-border text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer"
-                                >
-                                    {uploading ? (
-                                        <Loader2 size={12} className="animate-spin" />
-                                    ) : (
-                                        <Upload size={12} />
-                                    )}
-                                    {uploading ? t('team_logo.uploading') : t('team_logo.upload')}
-                                </button>
-                            )}
-                            <span className="text-app-base text-app-text-muted ml-auto">
-                                {t('team_logo.format_hint')}
-                            </span>
-                        </div>
-
-                        {/* UGC注意書き */}
-                        <div className="flex items-start gap-1.5 text-app-xs text-app-text-muted leading-relaxed">
-                            <span className="shrink-0 mt-px">ⓘ</span>
-                            <div>
-                                <p>{t('team_logo.usage_notice')}</p>
-                                <p>
-                                    <Trans
-                                        i18nKey="team_logo.usage_notice_terms"
-                                        components={{
-                                            termsLink: <Link to="/terms" target="_blank" className="underline hover:text-app-text transition-colors" />
-                                        }}
-                                    />
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* 隠しファイルインプット */}
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/png,image/jpeg,image/webp"
-                            onChange={handleLogoUpload}
-                            className="hidden"
-                        />
-                    </div>
+                    <ShareTeamLogoSettings
+                        teamLogoUrl={teamLogoUrl}
+                        showLogo={showLogo}
+                        uploading={uploading}
+                        fileInputRef={fileInputRef}
+                        handleToggleLogo={handleToggleLogo}
+                        handleLogoUpload={handleLogoUpload}
+                        handleLogoDelete={handleLogoDelete}
+                    />
                 )}
 
                 {/* 野良主流掲載に関する常駐通知 */}
@@ -489,45 +87,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 </div>
 
                 {/* アクションボタン */}
-                <div className="px-5 pb-5 flex flex-col gap-2">
-                    {/* 生成中の状態表示 */}
-                    {!imageLoaded && shareUrl && (
-                        <div className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-app-2xl font-bold bg-app-surface2 text-app-text-muted cursor-not-allowed">
-                            <Loader2 size={16} className="animate-spin" />
-                            {t('app.share_generating')}
-                        </div>
-                    )}
-
-                    {/* URLコピー（生成中は非表示） */}
-                    {(imageLoaded || !shareUrl) && (
-                        <ModalButton variant="primary" onClick={handleCopy} disabled={!shareUrl} className="w-full">
-                            {copied ? <Check size={16} /> : <Copy size={16} />}
-                            {copied
-                                ? t('app.link_copied')
-                                : t('app.copy_share_url')
-                            }
-                        </ModalButton>
-                    )}
-
-                    {/* X共有（生成中は非表示） */}
-                    {(imageLoaded || !shareUrl) && (
-                        <ModalButton variant="secondary" onClick={handleShareX} disabled={!shareUrl} className="w-full">
-                            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                            </svg>
-                            {t('app.share_on_x')}
-                            <ExternalLink size={12} className="text-app-text-muted" />
-                        </ModalButton>
-                    )}
-
-                    {/* 画像無しで共有（URLだけコピー） */}
-                    {shareUrl && (
-                        <ModalButton variant="secondary" onClick={handleCopy} className="w-full">
-                            <Copy size={12} />
-                            {t('app.share_url_only')}
-                        </ModalButton>
-                    )}
-                </div>
+                <ShareActions shareUrl={shareUrl} imageLoaded={imageLoaded} contentLabel={contentLabel} />
                 </div>
         </ModalShell>
         <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />

@@ -29,7 +29,6 @@ const ALLOWED: Record<string, number> = {
   'components/MitigationSheetPreview.tsx': 2,
   'components/PipView.tsx': 11,
   'components/PulseSettings.tsx': 1,
-  'components/ShareModal.tsx': 1,
   'components/admin/AdminSkills.tsx': 1,
   'components/gridImport/GridImportPhaseBar.tsx': 1,
   'components/gridImport/GridView.tsx': 1,
@@ -54,6 +53,7 @@ const ALLOWED: Record<string, number> = {
   'components/military/header/ThemeRocker.tsx': 1,
   'components/progress/ActivityScrub.tsx': 1,
   'components/progress/ProgressRecordPanel.tsx': 1,
+  'components/share/ShareOgPreview.tsx': 1,
 };
 
 function walk(dir: string, out: string[] = []): string[] {
