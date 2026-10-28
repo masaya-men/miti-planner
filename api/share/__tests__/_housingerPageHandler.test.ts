@@ -55,12 +55,9 @@ vi.mock('../../src/lib/ogpPageShell.js', () => ({
   injectSeoSnapshot: vi.fn((html: string) => html),
 }));
 
-import {
-  collectImagesFromListings,
-  reorderListingImageArraysByBackgroundId,
-  buildHousingerSeoSnapshotHtml,
-  resolveHousingerUid,
-} from '../_housingerPageHandler.js';
+import { collectImagesFromListings, reorderListingImageArraysByBackgroundId } from '../_housingerCardImages.js';
+import { buildHousingerSeoSnapshotHtml } from '../_housingerSeoSnapshot.js';
+import { resolveHousingerUid } from '../_housingerUidResolve.js';
 import handler from '../_housingerPageHandler.js';
 
 function makeReqRes(overrides: Partial<{ query: Record<string, unknown>; headers: Record<string, string> }> = {}) {

@@ -17,10 +17,12 @@
  * 住所文字列は og:title/og:description のいずれにも含めない。
  */
 
-import { FieldPath } from 'firebase-admin/firestore';
+import { collectImagesFromListings, reorderListingImageArraysByBackgroundId } from './_housingerCardImages.js';
+import { buildHousingerSeoSnapshotHtml } from './_housingerSeoSnapshot.js';
+import { resolveHousingerUid } from './_housingerUidResolve.js';
 import { getStorage } from 'firebase-admin/storage';
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
-import { normalizeHousingerUid, stripHashedPrefix, extractHousingerShortCode, HOUSINGER_BIO_MAX_LENGTH } from '../../src/lib/housing/housingerProfile.js';
+import { normalizeHousingerUid, stripHashedPrefix, HOUSINGER_BIO_MAX_LENGTH } from '../../src/lib/housing/housingerProfile.js';
 import { buildHousingerOgCardParams } from '../../src/lib/ogpHousingerCard.js';
 import type { HousingerCardPattern } from '../../src/lib/ogpHousingerCard.js';
 import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
@@ -50,90 +52,10 @@ const DEFAULT_OG_TITLE = 'LoPo | FF14 軽減プランナー';
 const DEFAULT_OG_DESCRIPTION = 'FF14の軽減プランをサクサク作れるウェブアプリ。FFLogsから自動生成されたタイムラインで、最適な軽減配置を。';
 const DEFAULT_OG_IMAGE = '/api/og';
 
-/**
- * 複数 listing の画像候補配列(各要素=1物件分、先頭が代表画像)から、カードの写真スロットを
- * 優先順位付きで埋める: ①各物件の代表1枚ずつ ②足りなければ各物件の2枚目以降。
- * 巡回コピーでの穴埋めは行わない(それは呼び出し側=カード描画側 `_housingerCard.ts` の責務)。
- */
-export function collectImagesFromListings(listingImageArrays: string[][], target: number): string[] {
-  const result: string[] = [];
-  for (const imgs of listingImageArrays) {
-    if (result.length >= target) break;
-    if (imgs.length > 0) result.push(imgs[0]);
-  }
-  if (result.length < target) {
-    outer: for (const imgs of listingImageArrays) {
-      for (let i = 1; i < imgs.length; i++) {
-        if (result.length >= target) break outer;
-        result.push(imgs[i]);
-      }
-    }
-  }
-  return result;
-}
-
-/**
- * `listingImageArrays` の中から `backgroundListingId` に一致する要素を先頭へ移動する。
- * 一致なし(未指定/代表作から外れた/非公開になった等)ならそのまま返す = 既存の並び順を使う
- * (このあとの `collectImagesFromListings` が並び順の先頭を「背景兼ヒーロー」として扱う)。
- */
-export function reorderListingImageArraysByBackgroundId(
-  entries: { id: string; images: string[] }[],
-  backgroundListingId: string | null | undefined,
-): { id: string; images: string[] }[] {
-  if (!backgroundListingId) return entries;
-  const idx = entries.findIndex((e) => e.id === backgroundListingId);
-  if (idx <= 0) return entries;
-  const copy = [...entries];
-  const [target] = copy.splice(idx, 1);
-  copy.unshift(target);
-  return copy;
-}
-
 /** 相対パスの場合のみ絶対URLに組み立てる (現行データは基本的に絶対URL保存だが念のため)。 */
 function toAbsoluteUrl(url: string, origin: string): string {
   if (/^https?:\/\//.test(url)) return url;
   return `${origin}${url.startsWith('/') ? '' : '/'}${url}`;
-}
-
-/** ハウジンガーページのSEOスナップショット (Googlebot向けに<div id="root">へ埋め込む可視テキスト)。 */
-export function buildHousingerSeoSnapshotHtml(input: {
-  displayName: string;
-  bio: string;
-  listingCount: number;
-}): string {
-  const name = input.displayName || 'ハウジンガー';
-  const bioHtml = input.bio ? `<p>${escapeHtml(input.bio)}</p>` : '';
-  return `<h1>${escapeHtml(name)} のハウジング</h1>${bioHtml}<p>${input.listingCount}件のハウジングを公開中</p>`;
-}
-
-/**
- * 短縮URL (/h/:slug) の入口から来た場合、rawUid が空で rawSlug だけが来る。
- * 新しいデータは一切持たず、既存の uid (housing_profiles の doc ID) の先頭一致検索だけで
- * 実際の uid を解決する (client 側 resolveHousingerUidByShortCode と対の実装。名前部分は
- * 判定に使わない飾りのため、slug からは識別コードだけを取り出す)。
- * rawUid があればそれを優先しそのまま返す (通常の /housing/housinger/:uid 経路は不変)。
- * 解決できなければ空文字 (呼び出し側は既存の「uidパラメータが無い」ケースと同じ404に倒す)。
- */
-export async function resolveHousingerUid(
-  db: Pick<FirebaseFirestore.Firestore, 'collection'>,
-  rawUid: string,
-  rawSlug: string,
-): Promise<string> {
-  if (rawUid) return rawUid;
-  if (!rawSlug) return '';
-  const code = extractHousingerShortCode(rawSlug);
-  if (!code) return '';
-  const prefixStart = `hashed:${code}`;
-  const prefixEnd = `${prefixStart}\uf8ff`;
-  const snap = await db.collection(PROFILE_COLLECTION)
-    .where('isPublished', '==', true)
-    .where('isModerationHidden', '==', false)
-    .where(FieldPath.documentId(), '>=', prefixStart)
-    .where(FieldPath.documentId(), '<', prefixEnd)
-    .limit(1)
-    .get();
-  return snap.empty ? '' : stripHashedPrefix(snap.docs[0].id);
 }
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
