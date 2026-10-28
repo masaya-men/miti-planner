@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import type { TimelineEvent, Phase } from '../types';
 import { getPhaseName as getPhaseNameStr } from '../types';
+import { matchesMobile } from '../hooks/useIsMobile';
 import { formatTimeKeepFraction } from '../utils/timeFormat';
 import { useThemeStore } from '../store/useThemeStore';
 
@@ -70,7 +71,7 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
     useLayoutEffect(() => {
         if (isOpen) {
             const rect = triggerRef?.current?.getBoundingClientRect();
-            const isMobile = window.innerWidth < 768;
+            const isMobile = matchesMobile(window);
             if (rect && rect.height > 0) {
                 if (isMobile) {
                     const width = Math.min(window.innerWidth - 16, 320);
@@ -126,7 +127,7 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
 
     if (!isOpen) return null;
 
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const isMobile = matchesMobile(typeof window === 'undefined' ? undefined : window);
     const isMobileDrillDown = isMobile && selectedMechanic !== null;
 
     const handleMechanicClick = (entry: MechanicEntry) => {

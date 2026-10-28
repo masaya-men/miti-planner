@@ -10,6 +10,7 @@ import { MobileBottomSheet } from '../MobileBottomSheet';
 import { Tooltip } from '../ui/Tooltip';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { PhaseRoad } from './PhaseRoad';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import { ActivityScrub } from './ActivityScrub';
 import ProgressDetailPanel from './ProgressDetailPanel';
 
@@ -136,21 +137,6 @@ const PanelBody: React.FC = () => {
         </div>
     );
 };
-
-// -------------------- モバイル判定 --------------------
-
-/** モバイル判定 — 既存コードと同パターン (window.innerWidth < 768) */
-function useIsMobile(): boolean {
-    const [isMobile, setIsMobile] = useState(
-        typeof window !== 'undefined' ? window.innerWidth < 768 : false
-    );
-    useEffect(() => {
-        const check = () => setIsMobile(window.innerWidth < 768);
-        window.addEventListener('resize', check);
-        return () => window.removeEventListener('resize', check);
-    }, []);
-    return isMobile;
-}
 
 // -------------------- PC ドロワー --------------------
 
