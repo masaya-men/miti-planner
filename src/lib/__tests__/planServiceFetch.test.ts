@@ -42,7 +42,7 @@ function remoteDoc(id: string, deleted = false) {
         id,
         data: () => ({
             ownerId: UID, ownerDisplayName: '', title: id, contentId: 'm1s',
-            isPublic: false, shareId: null, copyCount: 0, useCount: 0,
+            isPublic: false, shareId: null,
             data: {}, version: 1, createdAt: undefined, updatedAt: undefined,
             ...(deleted ? { deleted: true } : {}),
         }),

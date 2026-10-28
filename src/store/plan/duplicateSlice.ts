@@ -47,8 +47,6 @@ export const createDuplicateSlice = ({ set, get }: PlanSliceContext): Pick<
             createdAt: Date.now(),
             updatedAt: Date.now(),
             isPublic: false,
-            copyCount: 0,
-            useCount: 0,
             archived: false,
             compressedData: undefined,
             // データ安全(2026-08-08): 複製は独立した新しいプラン。元プランが

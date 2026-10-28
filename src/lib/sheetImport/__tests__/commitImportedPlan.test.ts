@@ -46,7 +46,7 @@ function makeImportResult(): SheetImportResult {
 function makeOldPlan(): SavedPlan {
   return {
     id: 'plan-old', ownerId: 'local', ownerDisplayName: 'Guest', contentId: 'fru', title: '前の表',
-    isPublic: false, copyCount: 0, useCount: 0,
+    isPublic: false,
     data: {
       currentLevel: 100,
       timelineEvents: [{ id: 'old1', time: 5, name: { ja: '前の表', en: 'OLD' }, damageType: 'magical' }] as any,

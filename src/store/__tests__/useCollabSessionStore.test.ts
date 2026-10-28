@@ -56,7 +56,7 @@ describe('useCollabSessionStore', () => {
       currentPlanId: 'plan1',
       plans: [{
         id: 'plan1', ownerId: 'uid1', ownerDisplayName: 'Owner', title: 'p',
-        contentId: null, isPublic: false, copyCount: 0, useCount: 0,
+        contentId: null, isPublic: false,
         data: { timelineEvents: [], timelineMitigations: [], phases: [], partyMembers: [], labels: [], memos: [] },
         createdAt: 0, updatedAt: 0, collabMaxParticipants: 8,
       }],
@@ -178,7 +178,7 @@ describe('useCollabSessionStore', () => {
       currentPlanId: 'plan1',
       plans: [{
         id: 'plan1', ownerId: 'uid1', ownerDisplayName: 'Owner', title: 'p',
-        contentId: null, isPublic: false, copyCount: 0, useCount: 0,
+        contentId: null, isPublic: false,
         data: { timelineEvents: [], timelineMitigations: [], phases: [], partyMembers: [], labels: [], memos: [] },
         createdAt: 0, updatedAt: 0, activeCollabRoomToken: 'old',
       }],

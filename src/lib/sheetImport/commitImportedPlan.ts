@@ -70,8 +70,6 @@ export function commitImportedPlan(
     title: generateUniqueTitle(meta.title, plansState.plans, meta.contentId),
     contentId: meta.contentId,
     isPublic: false,
-    copyCount: 0,
-    useCount: 0,
     data: miti.getSnapshot(),
     createdAt: Date.now(),
     updatedAt: Date.now(),

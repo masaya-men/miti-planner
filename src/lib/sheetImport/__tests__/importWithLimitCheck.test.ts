@@ -13,7 +13,7 @@ vi.mock('../commitImportedPlan', () => ({ commitImportedPlan: vi.fn(() => 'newPl
 
 const mkPlan = (id: string, contentId: string): SavedPlan => ({
   id, ownerId: 'local', ownerDisplayName: '', title: id, contentId,
-  isPublic: false, copyCount: 0, useCount: 0, data: {} as any, createdAt: 0, updatedAt: 0,
+  isPublic: false, data: {} as any, createdAt: 0, updatedAt: 0,
 });
 
 const result = {

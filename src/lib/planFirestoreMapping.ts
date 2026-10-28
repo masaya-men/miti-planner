@@ -26,8 +26,6 @@ export function toFirestoreCreate(
     category: plan.category ?? null,
     isPublic: plan.isPublic ?? false,
     shareId: null,
-    copyCount: plan.copyCount ?? 0,
-    useCount: plan.useCount ?? 0,
     data: plan.data,
     version: 1,
     archivedAt: null,
@@ -66,8 +64,6 @@ export function fromFirestore(docId: string, data: FirestorePlan): SavedPlan {
     contentId: data.contentId || null,
     category: (data as FirestorePlan & { category?: SavedPlan['category'] }).category ?? undefined,
     isPublic: data.isPublic,
-    copyCount: data.copyCount,
-    useCount: data.useCount,
     data: data.data,
     createdAt: data.createdAt instanceof Timestamp
       ? data.createdAt.toMillis()

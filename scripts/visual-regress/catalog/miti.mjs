@@ -30,7 +30,7 @@ export const withPlan = (/** @type {{ theme: string, lang: string }} */ cond, /*
     'tutorial-storage': { state: { hasCompleted: true, hasVisitedShare: true, isActive: false, completed: { main: true, share: true } }, version: 0 },
     'plan-storage': {
       state: {
-        plans: [{ id: 'rg-plan', ownerId: 'guest', ownerDisplayName: '', title: '見本プラン', contentId, ...planExtra, isPublic: false, copyCount: 0, useCount: 0, data, createdAt: 1, updatedAt: 1 }],
+        plans: [{ id: 'rg-plan', ownerId: 'guest', ownerDisplayName: '', title: '見本プラン', contentId, ...planExtra, isPublic: false, data, createdAt: 1, updatedAt: 1 }],
         currentPlanId: 'rg-plan', lastActivePlanId: 'rg-plan', _dirtyPlanIds: [], _deletedPlanIds: [],
       }, version: 2,
     },

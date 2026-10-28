@@ -14,7 +14,7 @@ import type { SavedPlan } from '../../types';
 function makePlan(id: string): SavedPlan {
     return {
         id, ownerId: 'local', ownerDisplayName: '', title: id, contentId: 'm1s',
-        isPublic: false, copyCount: 0, useCount: 0,
+        isPublic: false,
         data: {} as any, createdAt: 1, updatedAt: 1,
     };
 }

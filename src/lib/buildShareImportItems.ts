@@ -48,8 +48,6 @@ export function buildNewPlan(item: ShareImportItem): SavedPlan {
     title: item.title,
     contentId: item.contentId,
     isPublic: false,
-    copyCount: 0,
-    useCount: 0,
     // コピーに個人状態(progress/memos)を載せない（クライアント側の belt: サーバstripが未デプロイ/
     // 旧共有でも確実にクリーンにする。サーバ GET strip とあわせ二重防御）。
     data: stripSharedPersonalData(item.planData),

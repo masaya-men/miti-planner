@@ -328,8 +328,6 @@ export interface SavedPlan {
     /** プラン作成時のレベル。フリープランのレベルフィルタに使用 */
     level?: ContentLevel;
     isPublic: boolean;
-    copyCount: number;
-    useCount: number;
     data: PlanData;
     createdAt: number;
     updatedAt: number;

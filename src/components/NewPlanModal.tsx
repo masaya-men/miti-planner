@@ -178,8 +178,6 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, ini
             level: useLevel as ContentLevel,
             title: title.trim(),
             isPublic: false,
-            copyCount: 0,
-            useCount: 0,
             data: finalSnapshot,
             createdAt: Date.now(),
             updatedAt: Date.now()

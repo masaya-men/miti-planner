@@ -10,8 +10,6 @@ const mkPlan = (id: string, contentId: string): SavedPlan => ({
   title: id,
   contentId,
   isPublic: false,
-  copyCount: 0,
-  useCount: 0,
   data: {} as any,
   createdAt: 0,
   updatedAt: 0,

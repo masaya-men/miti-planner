@@ -102,8 +102,6 @@ function makeCollabPlan(id: string) {
         title: `title_${id}`,
         data: { timelineMitigations: [{ id: 'm1' }] } as any,
         isPublic: false,
-        copyCount: 0,
-        useCount: 0,
         createdAt: 0,
         updatedAt: 0,
         // このプランは共同編集ルームに繋がっている状態。

@@ -187,8 +187,6 @@ export function useSidebarPlanActions({ t, runTransition, fullWidth, onClose, na
                 contentId: content.id,
                 title: planTitle,
                 isPublic: false,
-                copyCount: 0,
-                useCount: 0,
                 data: store.getSnapshot(),
                 createdAt: Date.now(),
                 updatedAt: Date.now()

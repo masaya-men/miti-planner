@@ -112,8 +112,6 @@ function makePlan(overrides: Partial<SavedPlan>): SavedPlan {
         contentId: 'fru',
         title: 'Test',
         isPublic: false,
-        copyCount: 0,
-        useCount: 0,
         data: {
             currentLevel: 100,
             timelineEvents: [],

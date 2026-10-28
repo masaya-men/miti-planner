@@ -28,7 +28,7 @@ import type { SavedPlan } from '../../types';
 function makePlan(id: string, mit: number): SavedPlan {
   return {
     id, ownerId: 'local', ownerDisplayName: 'Guest', contentId: 'fru', title: id,
-    isPublic: false, copyCount: 0, useCount: 0,
+    isPublic: false,
     data: {
       currentLevel: 100, timelineEvents: [], phases: [], labels: [], aaSettings: { damage: 0, type: 'physical', target: 'MT' }, schAetherflowPatterns: {},
       partyMembers: [{ id: 'm1', jobId: 'war' } as any],

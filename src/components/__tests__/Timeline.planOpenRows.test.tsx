@@ -72,7 +72,7 @@ const events = [0, 10, 20, 30].map((t, i) => ({
 function plan(id: string, timelineEvents: unknown[]) {
   return {
     id, ownerId: 'guest', ownerDisplayName: '', title: id, contentId: null, isPublic: false,
-    copyCount: 0, useCount: 0, createdAt: 1, updatedAt: 1,
+    createdAt: 1, updatedAt: 1,
     data: { currentLevel: 100, timelineEvents, timelineMitigations: [], phases: [], partyMembers: [] },
   };
 }

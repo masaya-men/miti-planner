@@ -48,7 +48,7 @@ const UID = 'user-123';
 function makePlan(id: string, ownerId: string, updatedAt = 2000): SavedPlan {
     return {
         id, ownerId, ownerDisplayName: '', title: id, contentId: 'm1s',
-        isPublic: false, copyCount: 0, useCount: 0,
+        isPublic: false,
         data: {} as any, createdAt: 1000, updatedAt,
     };
 }

@@ -26,10 +26,6 @@ export interface FirestorePlan {
   isPublic: boolean;
   /** 共有用短縮ID（nanoid 10文字） */
   shareId: string | null;
-  /** コピーされた回数 */
-  copyCount: number;
-  /** 閲覧回数 */
-  useCount: number;
   /** 軽減プランのフルデータ */
   data: PlanData;
   /** 楽観的ロック用バージョン番号 */

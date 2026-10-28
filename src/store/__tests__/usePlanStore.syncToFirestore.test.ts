@@ -92,8 +92,6 @@ function makePlan(id: string, contentId: string) {
         title: `title_${id}`,
         data: {} as any,
         isPublic: false,
-        copyCount: 0,
-        useCount: 0,
         createdAt: 0,
         updatedAt: 0,
     };

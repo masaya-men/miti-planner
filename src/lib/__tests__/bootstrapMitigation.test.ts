@@ -21,7 +21,7 @@ function nonEmptyData(): PlanData {
 function makePlan(data: PlanData): SavedPlan {
     return {
         id: 'fixed', ownerId: 'local', ownerDisplayName: 'Guest', contentId: 'fru',
-        title: 'T', isPublic: false, copyCount: 0, useCount: 0, data,
+        title: 'T', isPublic: false, data,
         createdAt: 0, updatedAt: 0,
     } as SavedPlan;
 }

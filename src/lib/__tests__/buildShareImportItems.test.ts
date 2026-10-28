@@ -160,7 +160,7 @@ describe('buildNewPlan', () => {
     expect(p1.id).not.toBe(p2.id);
   });
 
-  it('sets isPublic=false copyCount=0 useCount=0', () => {
+  it('sets isPublic=false', () => {
     const item = {
       sourceShareId: 'abc',
       contentId: 'fru',
@@ -169,8 +169,6 @@ describe('buildNewPlan', () => {
     };
     const plan = buildNewPlan(item);
     expect(plan.isPublic).toBe(false);
-    expect(plan.copyCount).toBe(0);
-    expect(plan.useCount).toBe(0);
   });
 
   it('sets createdAt and updatedAt to a recent timestamp', () => {

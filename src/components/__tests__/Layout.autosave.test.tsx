@@ -42,7 +42,7 @@ import { usePlanStore } from '../../store/usePlanStore';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { useAuthStore } from '../../store/useAuthStore';
 
-const basePlan = { ownerId: 'local', ownerDisplayName: 'u', title: 't', contentId: null, isPublic: false, copyCount: 0, useCount: 0, createdAt: 1, updatedAt: 1, _createdLoggedIn: true };
+const basePlan = { ownerId: 'local', ownerDisplayName: 'u', title: 't', contentId: null, isPublic: false, createdAt: 1, updatedAt: 1, _createdLoggedIn: true };
 
 describe('Layout の自動保存', () => {
     let updatePlan: ReturnType<typeof vi.fn>;

@@ -127,8 +127,6 @@ export const createPlanCrudSlice = ({ set, get }: PlanSliceContext): Pick<
             contentId: contentId,
             title: title,
             isPublic: false,
-            copyCount: 0,
-            useCount: 0,
             data: {
                 ...initialData,
                 timelineEvents: [...templateData.timelineEvents],
