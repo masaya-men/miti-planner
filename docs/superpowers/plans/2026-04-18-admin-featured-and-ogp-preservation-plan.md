@@ -1,3 +1,5 @@
+> 注: この機能は撤去済み。当時の計画として残す。
+
 # Admin Featured + OGP 高速化 + 削除防止 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

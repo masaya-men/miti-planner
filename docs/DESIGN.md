@@ -106,13 +106,14 @@
 - ボーダー: `border border-app-border` または `ring-1 ring-app-border`
 - 角丸: `rounded-2xl`（モーダル=`ModalShell` の既定の枠）, `rounded-lg`（カード）, `rounded-md`（小要素）
 
-### モーダル / ポップオーバー
+### 浮かぶもの(窓・シート・通知・メニュー・ツールチップ)
 
-- glass-tier3 を使用: `glass-tier3` クラス
-- shadow: `--glass-tier3-shadow` (ダーク: `0 12px 48px rgba(0,0,0,0.4)`)
-- 上辺ハイライト: `--glass-tier3-inset` (inset 0 1px 0 rgba(255,255,255,0.1))
+- 共通の素材 `.float-surface`（`src/styles/base/float-surface.css`）を使う。浮かぶものごとに別の素材を作らない
+- 持つもの: 背景(`--float-bg`)・ぼかし(`--float-blur`)・縁(`--float-border`)・影(`--float-shadow`)・上辺ハイライト(`--float-inset`)・文字色。値は tokens-dark / tokens-light の `--float-*`
+- 持たないもの: 角丸・余白・位置（各部品が持つ）
 - スマホ: 下からスライドイン、`rounded-t-2xl rounded-b-none`
 - PC: 中央またはクリック位置に表示
+- 設計書: `docs/superpowers/specs/2026-10-28-floating-surface-unify-design.md`
 
 ### 入力フィールド
 

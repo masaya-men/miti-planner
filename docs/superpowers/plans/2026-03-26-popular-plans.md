@@ -1,3 +1,5 @@
+> 注: この機能は撤去済み。当時の計画として残す。
+
 # 軽減表人気ページ 実装計画
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

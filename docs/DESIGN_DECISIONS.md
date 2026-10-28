@@ -107,7 +107,7 @@
 ## 確定した設計方針（2026-03-28 第25セッション追記）
 
 ### サイドバー・ヘッダー線統一の方針
-- glass-tier3クラス定義は触らない（23箇所で使用）
+- glass-tier3クラス定義は触らない（tsx 13 ファイルで使用 = 2026-10-29 実数。現在の浮かぶものの決まりは下記 float-surface の節）
 - 個別要素にglass-border-*-0で辺ごとにborderを除去する方式
 - backdrop-filterのblur境界は要素を1pxオーバーラップさせて隠す
 - ヘッダーハンドル上辺の微細なblur重なりはCSS構造的限界として許容
@@ -213,3 +213,14 @@
 
 ## ログイン体験
 - メール+パスワードログインも将来的に検討
+
+---
+
+## 浮かぶものの共通素材 `.float-surface`（2026-10-28 確定）
+
+- 浮かぶもの（窓・シート・通知・メニュー・ツールチップ）は 1 つの素材 `.float-surface`（`src/styles/base/float-surface.css`）を使う
+- ライト / ダークで同じ決まり（値は `--float-*` トークンで切り替える）
+- MIL-SPEC の色には染まらない（ボードの中では standard-revert.css が標準へ戻す）
+- ハウジング（`/housing`）は独自トンマナなので対象外
+- `/stgy` のナビ帯（`src/styles/stgy.css:44-50`）は iOS 風の別ページなので共通の素材に寄せない
+- 設計書: `docs/superpowers/specs/2026-10-28-floating-surface-unify-design.md`
