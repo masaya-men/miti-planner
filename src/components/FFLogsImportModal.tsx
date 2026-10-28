@@ -1,6 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useStableCallback } from '../hooks/useStableCallback';
 import { ModalShell } from './ui/ModalShell';
@@ -34,7 +33,6 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     const authUser = useAuthStore((s) => s.user);
     const isLoggedIn = !!authUser;
     // Esc: スマホの下から出るシートだけ自前。PC とログイン案内は ModalShell が受け持つ
-    useEscapeClose(isOpen && isMobile && isLoggedIn, onClose);
 
     const [url, setUrl] = useState('');
     const [urlError, setUrlError] = useState<string | null>(null);
@@ -299,6 +297,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     return (
         <FFLogsMobileSheet
             handleClose={handleClose}
+            onEscape={onClose}
             modalRef={modalRef}
             handleTouchStart={handleTouchStart}
             handleTouchMove={handleTouchMove}

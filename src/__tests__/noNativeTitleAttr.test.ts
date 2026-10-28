@@ -24,7 +24,6 @@ const SRC = join(__dirname, '..');
 
 /** ファイル(src からの相対・/ 区切り) → 許可する title 属性の個数 */
 const ALLOWED: Record<string, number> = {
-  'components/LocalImportDialog.tsx': 1,
   'components/LoginModal.tsx': 2,
   'components/MitigationSheetPreview.tsx': 2,
   'components/PulseSettings.tsx': 1,
@@ -43,6 +42,7 @@ const ALLOWED: Record<string, number> = {
   'components/housing/tour/TourMobileBar.tsx': 1,
   'components/housing/tour/TourVisitedList.tsx': 1,
   'components/housing/workspace/HousingCardVideoOverlay.tsx': 1,
+  'components/localImport/LocalImportPlanRow.tsx': 1,
   'components/military/MilspecContentTree.tsx': 3,
   'components/military/MilspecNotifBeacon.tsx': 1,
   'components/military/MilspecRail.tsx': 1,

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CloudDownload, Loader2, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { backdropClose } from '../../utils/backdropClose';
+import { useEscapeClose } from '../../hooks/useEscapeClose';
 import { ModalHeader } from '../ui/ModalParts';
 import type { ImportStatus } from './importStatus';
 
@@ -16,6 +17,8 @@ const slideUp = {
 
 interface FFLogsMobileSheetProps {
     handleClose: () => void;
+    /** Esc で閉じる(シートはスマホ・ログイン中・開いている時だけ描かれるので、描かれている間は常に有効) */
+    onEscape: () => void;
     modalRef: React.RefObject<HTMLDivElement | null>;
     handleTouchStart: (e: React.TouchEvent) => void;
     handleTouchMove: (e: React.TouchEvent) => void;
@@ -31,10 +34,11 @@ interface FFLogsMobileSheetProps {
 
 /* ────── Mobile: 下から出るシート(step-by-step ボタン) ────── */
 export const FFLogsMobileSheet: React.FC<FFLogsMobileSheetProps> = ({
-    handleClose, modalRef, handleTouchStart, handleTouchMove, handleTouchEnd,
+    handleClose, onEscape, modalRef, handleTouchStart, handleTouchMove, handleTouchEnd,
     urlInput, previewStats, canFetch, isLoading, status, handleFetch, handleImport,
 }) => {
     const { t } = useTranslation();
+    useEscapeClose(true, onEscape);
     return createPortal(
         <AnimatePresence>
             <div className="fixed inset-0 z-[200] flex md:items-center md:justify-center" {...backdropClose(handleClose)}>

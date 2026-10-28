@@ -15,6 +15,7 @@ const LEGACY: Record<string, 'window' | 'not-window'> = {
     // 下から出るシート(見た目は独自・Esc は対応済み)
     'LimitResolutionSheet.tsx': 'window',
     'ShareImportSheet.tsx': 'window',
+    'fflogsImport/FFLogsMobileSheet.tsx': 'window',
     // 窓ではない(スマホのメニュー・案内・チュートリアル・表の中の覆い等)
     'MobileGuide.tsx': 'not-window',
     'pip/PipEditMenu.tsx': 'not-window',
