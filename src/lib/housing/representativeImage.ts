@@ -12,8 +12,7 @@ import type { MockListing } from '../../data/housing/mockListings';
  * 2026-07-10 (地図表示モード計画 Task1): ListingCard.tsx のローカル実装をこちらへ
  * 移設 (挙動変更なし)。地図モードの拡大カード (Task2予定の MapSpotCard 等) からも
  * 代表画像を参照する見込みのため、プレースホルダ定数を export する。
- * FavoritesPreviewStrip.tsx のローカル実装はスコープ外のためまだ移設していない
- * (将来別途移行)。
+ * FavoritesPreviewStrip.tsx のローカル実装もこちらへ統合済み (2026-10-29)。
  */
 const LISTING_IMAGE_PLACEHOLDER = '/housing/mock-thumbs/1.svg';
 
