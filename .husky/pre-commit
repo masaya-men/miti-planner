@@ -37,3 +37,7 @@ if ! "$GITLEAKS" git --staged --redact=100 --verbose; then
 fi
 
 echo "✅ gitleaks: シークレット無し"
+
+# 作りの見張り(ファイルの大きさ・共通の見た目)。失敗したら commit しない。
+echo "🔍 作りの見張りを実行中..."
+./node_modules/.bin/vitest run src/architecture/__tests__ --reporter=dot || { echo "❌ 作りの見張りが失敗しました。commit を中止します。"; exit 1; }
