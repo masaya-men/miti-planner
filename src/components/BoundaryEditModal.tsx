@@ -1,4 +1,5 @@
 import { backdropClose } from '../utils/backdropClose';
+import { useIsMobile } from '../hooks/useIsMobile';
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -37,15 +38,8 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
     const [preservedName, setPreservedName] = useState<LocalizedString>({ ja: '', en: '' });
     const [startTime, setStartTime] = useState<number | null>(null);
     const [endTime, setEndTime] = useState<number | null>(null);
-    const [isMobile, setIsMobile] = useState(false);
+    const isMobile = useIsMobile();
     const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
 
     useEffect(() => { setMounted(true); return () => setMounted(false); }, []);
 
@@ -135,7 +129,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                         exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 10 }}
                         transition={{ duration: 0.1 }}
                         onClick={(e) => e.stopPropagation()}
-                        className={`absolute overflow-hidden float-surface pointer-events-auto flex flex-col ${isMobile ? 'w-full rounded-t-[20px] rounded-b-none glass-border-b-0' : 'w-[400px] rounded-xl'}`}
+                        className={`absolute overflow-hidden float-surface pointer-events-auto flex flex-col ${isMobile ? 'w-full rounded-t-sheet rounded-b-none glass-border-b-0' : 'w-[400px] rounded-xl'}`}
                         style={style}
                     >
                         {isMobile && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mt-3 shrink-0" />}

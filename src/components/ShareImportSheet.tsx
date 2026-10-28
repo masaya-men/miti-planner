@@ -168,9 +168,9 @@ export function ShareImportSheet() {
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="share-import-title"
-                        // 下から出るシート: h-[80vh] / rounded-t-[20px] / 素材 float-surface(2026-10-28 統一)
+                        // 下から出るシート: h-[80vh] / rounded-t-sheet / 素材 float-surface(2026-10-28 統一)
                         // 読み込み中は cursor-not-allowed で操作不能であることを明示 (呼吸アニメは維持)
-                        className={`float-surface glass-border-b-0 fixed bottom-0 left-0 right-0 z-[99991] rounded-t-[20px] rounded-b-none flex flex-col h-[80vh] ${isLoadingPhase ? 'cursor-not-allowed' : ''}`}
+                        className={`float-surface glass-border-b-0 fixed bottom-0 left-0 right-0 z-[99991] rounded-t-sheet rounded-b-none flex flex-col h-[80vh] ${isLoadingPhase ? 'cursor-not-allowed' : ''}`}
                         layout
                         initial={{ y: '100%' }}
                         animate={
@@ -227,7 +227,7 @@ export function ShareImportSheet() {
                             {isLoadingPhase && (
                                 <motion.div
                                     key="loading-overlay"
-                                    className="absolute inset-0 z-[1] flex flex-col items-center justify-center gap-6 px-6 py-12 bg-app-surface/95 rounded-t-2xl"
+                                    className="absolute inset-0 z-[1] flex flex-col items-center justify-center gap-6 px-6 py-12 bg-app-surface/95 rounded-t-sheet-sm"
                                     initial={{ opacity: 1 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}

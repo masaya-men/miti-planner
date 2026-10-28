@@ -1,4 +1,5 @@
 import { backdropClose } from '../utils/backdropClose';
+import { useIsMobile } from '../hooks/useIsMobile';
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useMitigationStore } from '../store/useMitigationStore';
@@ -29,6 +30,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
     const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
     useEscapeClose(isOpen, onClose);
+    const isMobile = useIsMobile();
     const LEVEL_MODIFIERS = useLevelModifiers();
     const popoverRef = useRef<HTMLDivElement>(null);
     const [mounted, setMounted] = useState(false);
@@ -174,12 +176,12 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                 className={clsx(
                     "float-surface flex flex-col overflow-y-auto",
                     "md:absolute md:top-0 md:left-0 md:h-full md:w-[450px] md:max-w-full md:border-r",
-                    "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:max-h-[65vh] max-md:rounded-t-2xl max-md:border-t max-md:pb-20",
+                    "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:max-h-[65vh] max-md:rounded-t-sheet-sm max-md:border-t max-md:pb-20",
                 )}
                 initial={false}
                 animate={visible
                     ? { x: 0, y: 0 }
-                    : window.innerWidth >= 768
+                    : !isMobile
                         ? { x: '-100%' }
                         : { y: '100%' }
                 }

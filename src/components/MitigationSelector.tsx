@@ -1,4 +1,5 @@
 import { backdropClose } from '../utils/backdropClose';
+import { useIsMobile } from '../hooks/useIsMobile';
 import React from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { CloseButton } from './ui/ModalParts';
@@ -47,7 +48,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     const { partyMembers, currentLevel, timelineMitigations } = useMitigationStore();
     const MITIGATIONS = useMitigations();
     const JOBS = useJobs();
-    const [isMobile, setIsMobile] = React.useState(false);
+    const isMobile = useIsMobile();
 
     // Escape: 対象選択中→スキル一覧に戻る、スキル一覧→モーダルを閉じる
     useEscapeClose(isOpen, () => {
@@ -59,13 +60,6 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
             onClose();
         }
     });
-
-    React.useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
 
     // ビューポート内に収めるための計算
     React.useLayoutEffect(() => {
@@ -307,7 +301,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 className={clsx(
                     "pointer-events-auto p-2 flex flex-col float-surface",
                     isMobile && !isCentered
-                        ? "fixed bottom-0 left-0 right-0 w-full rounded-t-[20px] rounded-b-none glass-border-b-0 translate-y-0"
+                        ? "fixed bottom-0 left-0 right-0 w-full rounded-t-sheet rounded-b-none glass-border-b-0 translate-y-0"
                         : "rounded-xl w-64",
                     !isCentered && !isMobile ? "fixed" : "relative"
                 )}

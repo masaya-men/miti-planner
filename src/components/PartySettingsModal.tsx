@@ -1,4 +1,5 @@
 import { backdropClose } from '../utils/backdropClose';
+import { useIsMobile } from '../hooks/useIsMobile';
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -35,6 +36,7 @@ interface PartySettingsModalProps {
 
 export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, onClose }) => {
     useEscapeClose(isOpen, onClose);
+    const isMobile = useIsMobile();
     const { t } = useTranslation();
     const { theme, contentLanguage } = useThemeStore();
     const JOBS = useJobs();
@@ -240,18 +242,18 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 className={clsx(
                     "relative flex flex-col float-surface",
                     "md:h-full md:w-[450px] md:max-w-full md:border-r",
-                    "max-md:fixed max-md:left-0 max-md:right-0 max-md:max-h-[70vh] max-md:rounded-t-2xl max-md:border-t",
+                    "max-md:fixed max-md:left-0 max-md:right-0 max-md:max-h-[70vh] max-md:rounded-t-sheet-sm max-md:border-t",
                 )}
                 initial={false}
                 animate={isOpen
                     ? { x: 0, y: 0 }
-                    : window.innerWidth >= 768
+                    : !isMobile
                         ? { x: '-100%' }
                         : { y: '100%' }
                 }
                 transition={SPRING.gentle}
                 style={{
-                    bottom: window.innerWidth < 768 ? 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' : undefined,
+                    bottom: isMobile ? 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' : undefined,
                 }}
             >
                 {/* Mobile drag handle */}
@@ -294,7 +296,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
 
                         {/* モバイル用インラインジョブ選択 */}
-                        {focusedSlot !== null && typeof window !== 'undefined' && window.innerWidth < 768 && (
+                        {focusedSlot !== null && isMobile && (
                             <PartyMobileJobPicker
                                 focusedSlot={focusedSlot}
                                 draftMembers={draftMembers}
