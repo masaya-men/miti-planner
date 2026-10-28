@@ -8,7 +8,7 @@
 // - 削除進捗の 3 段テキストを廃止 → SweepOverlay (red) + ✓ ドロップイン + カード退場
 // - spring 値を MitigationSheet と統一 (stiffness: 300, damping: 28)
 // - motion.div に layout prop で内容拡張時の高さアニメ滑らか化
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
