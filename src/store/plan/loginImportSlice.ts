@@ -1,4 +1,8 @@
 import { planService } from '../../lib/planService';
+import { useMitigationStore } from '../useMitigationStore';
+import { markWorkingStore, workingStoreEditedSince, resolveRemoteLoad } from '../../lib/keepLocalEditsOnRemoteLoad';
+import { addConflictCopies } from '../../lib/conflictCopy';
+import { takeRecoveredBases } from '../../lib/recoveredPlanBases';
 import { getToken } from 'firebase/app-check';
 import { ensureAppCheck, auth } from '../../lib/firebase';
 import type { PlanState, PlanSliceContext } from './types';
@@ -24,25 +28,35 @@ export const createLoginImportSlice = ({ set, get }: PlanSliceContext): Pick<
         // - _dirtyPlanIds をクリアして、ログアウト中の dirty キューが
         //   migrateLocalPlansToFirestore と同じ ID を再 upload するのを防ぐ
         set({ _isSyncing: true, _dirtyPlanIds: new Set<string>() });
+        // 取り込みの間に手元でした編集を、終わった時に古い内容で上書きしないための印 (2026-10-28 消失)
+        const startPlans = get().plans;
+        const workingMark = markWorkingStore(useMitigationStore.getState());
+        const bases = takeRecoveredBases(); // 起動時に書き戻した表の「もと」の版 (レビュー Important 2)
+        let keepWorking: boolean | null = null;
         try {
             const { merged, dirtyIds } = await planService.migrateLocalPlansToFirestore(
-                get().plans,
+                startPlans,
                 uid,
                 pendingDeleted,
             );
+            const now = get();
+            const r = resolveRemoteLoad({ merged, inputPlans: startPlans, currentPlans: now.plans, currentPlanId: now.currentPlanId, workingMark, working: useMitigationStore.getState(), bases });
+            keepWorking = r.keepWorking;
             set({
-                plans: merged,
-                // Firestoreに書き戻せなかったプランはdirtyとして残す（次回syncで再試行）
-                _dirtyPlanIds: new Set<string>(dirtyIds),
+                plans: r.plans,
+                // 書き戻せなかったプラン + 手元の物を残したプランはdirtyとして残す（次回syncで送る）
+                _dirtyPlanIds: new Set<string>([...dirtyIds, ...r.keptIds]),
                 // 未同期の削除は保持 (墓標未書き込みの削除が復活しないように)。次回 sync で墓標化される。
-                _deletedPlanIds: pendingDeleted,
+                _deletedPlanIds: new Set<string>([...pendingDeleted, ...now._deletedPlanIds]),
                 _lastSyncAt: Date.now(),
             });
+            addConflictCopies(r.conflicts, get().addPlan);
         } catch (err) {
             console.error('マイグレーションエラー:', err);
         } finally {
             set({ _isSyncing: false });
         }
+        return keepWorking ?? workingStoreEditedSince(workingMark, useMitigationStore.getState());
     },
 
     // ダイアログ取り込み候補。 `_createdLoggedIn === true` は自動同期されるので除外。

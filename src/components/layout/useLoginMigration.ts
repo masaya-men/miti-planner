@@ -94,7 +94,9 @@ export function useLoginMigration(isRemoteLoadingRef: React.MutableRefObject<boo
         planStore.migrateOnLogin(
             authUser.uid,
             profileName,
-        ).then(() => {
+        ).then((keptLocalEdits) => {
+            // 取り込みの間に置いた軽減等は、古い内容で読み直さず手元を残す (2026-10-28 消失)
+            if (keptLocalEdits) return;
             // マイグレーション後: Firestoreからマージした最新データをMitigationStoreに反映
             const { currentPlanId, plans } = usePlanStore.getState();
             if (currentPlanId) {

@@ -4,6 +4,7 @@ import { useMitigationStore } from '../../store/useMitigationStore';
 import { usePlanStore } from '../../store/usePlanStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { persistWorkingStore } from '../../lib/persistWorkingStore';
+import { markUnsavedWorking, clearUnsavedWorking } from '../../lib/unsavedWorkingMarker';
 import { showToast } from '../toastBus';
 
 // 自動保存（2層構造）
@@ -24,6 +25,7 @@ export function usePlanAutoSave(isRemoteLoadingRef: React.MutableRefObject<boole
                 getSnapshot: () => mitiStore.getSnapshot(),
                 updatePlan: (id, patch) => usePlanStore.getState().updatePlan(id, patch),
             });
+            clearUnsavedWorking(mitiStore._loadedPlanId);
         };
 
         /** Firestoreへの同期（ログイン中 + dirtyがある場合のみ）
@@ -56,8 +58,10 @@ export function usePlanAutoSave(isRemoteLoadingRef: React.MutableRefObject<boole
                 isRemoteLoadingRef.current = true;
                 usePlanStore.getState().pullFromFirestore(
                     authState.user.uid,
-                ).then(() => {
+                ).then((keptLocalEdits) => {
                     if (notifyUser) showToast(t('app.sync_pull_success'), 'info');
+                    // 取り直しの間の編集は上の監視が飛ばしている → 残した編集をここで保存し直す (2026-10-28 消失)
+                    if (keptLocalEdits) { saveSilently(); syncToCloud(); }
                 }).catch((err) => {
                     console.error('[LoPo] Firestore PULL エラー:', err);
                     if (notifyUser) showToast(t('app.sync_pull_error'), 'error');
@@ -81,6 +85,8 @@ export function usePlanAutoSave(isRemoteLoadingRef: React.MutableRefObject<boole
             // プランが選択されていなければスキップ
             const planIdAtChange = usePlanStore.getState().currentPlanId;
             if (!planIdAtChange) return;
+            // 表への保存(0.5 秒後)が走らずに終わっても次の起動で書き戻せるよう、先に印を残す
+            markUnsavedWorking(state._loadedPlanId, usePlanStore.getState().plans, state._collabActive);
 
             // インジケーター: 「保存中...」
             usePlanStore.getState().setSaveStatus('saving');

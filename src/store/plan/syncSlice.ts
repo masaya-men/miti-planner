@@ -1,6 +1,9 @@
 import type { SavedPlan } from '../../types';
 import { useMitigationStore } from '../useMitigationStore';
 import { planService } from '../../lib/planService';
+import { dirtyIdsAfterSync } from '../../lib/dirtyAfterSync';
+import { markWorkingStore, workingStoreEditedSince, resolveRemoteLoad } from '../../lib/keepLocalEditsOnRemoteLoad';
+import { addConflictCopies } from '../../lib/conflictCopy';
 import type { PlanState, PlanSliceContext } from './types';
 
 export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
@@ -19,8 +22,11 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
     pullFromFirestore: async (uid) => {
         const state = get();
         if (state._isSyncing) {
-            return;
+            return false;
         }
+        // 取り直しの間に手元でした編集を、終わった時に古い内容で上書きしないための印 (2026-10-28 消失)
+        const workingMark = markWorkingStore(useMitigationStore.getState());
+        let keptLocalEdits = false;
 
         // PULL 開始時点の状態を捕捉。 PULL 失敗時はここに復元する (= ユーザーが見ていた
         // 「同期済」 等の正しい状態を、 読み取り失敗だけで 'error' に上書きしないため)。
@@ -34,17 +40,21 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
                 // 端末側で削除済みと分かっている ID は復活させない (墓標伝播前のちらつき防止)
                 state._deletedPlanIds,
             );
+            keptLocalEdits = workingStoreEditedSince(workingMark, useMitigationStore.getState());
             if (changed) {
-                set({ plans: merged });
+                const r = resolveRemoteLoad({ merged, inputPlans: state.plans, currentPlans: get().plans, currentPlanId: get().currentPlanId, workingMark, working: useMitigationStore.getState() });
+                set({ plans: r.plans });
+                addConflictCopies(r.conflicts, get().addPlan);
+                keptLocalEdits = r.keepWorking;
                 const currentPlanId = get().currentPlanId;
                 if (currentPlanId) {
-                    const updatedPlan = merged.find(p => p.id === currentPlanId);
+                    const updatedPlan = r.plans.find(p => p.id === currentPlanId);
                     if (!updatedPlan) {
                         // 現在のプランがリモートで削除された → 無選択状態に戻す
                         const lastActive = get().lastActivePlanId;
                         set({ currentPlanId: null, lastActivePlanId: lastActive === currentPlanId ? null : lastActive });
                         useMitigationStore.getState().resetForTutorial();
-                    } else if (updatedPlan.data) {
+                    } else if (updatedPlan.data && !keptLocalEdits) {
                         const localPlan = state.plans.find(p => p.id === currentPlanId);
                         // リモートの方が新しい場合のみMitigationStoreを更新
                         if (localPlan && updatedPlan.updatedAt > localPlan.updatedAt) {
@@ -62,6 +72,7 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
                 useMitigationStore.getState().resetForTutorial();
             }
             set({ _isSyncing: false, _cloudStatus: 'synced' });
+            return keptLocalEdits;
         } catch (err) {
             console.error('Firestore PULL エラー:', err);
             // PULL は読み取り操作 (= ユーザーデータには影響なし) なので、 失敗しても
@@ -73,6 +84,7 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
                 _isSyncing: false,
                 _cloudStatus: prevStatus === 'synced' ? 'synced' : 'idle',
             });
+            return workingStoreEditedSince(workingMark, useMitigationStore.getState());
         }
     },
 
@@ -109,6 +121,7 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
             syncingDeletedIds = new Set([...syncingDeletedIds].filter(id => filterSet.has(id)));
         }
 
+        const syncStartedAt = Date.now();
         set({ _isSyncing: true, _cloudStatus: 'syncing' });
 
         try {
@@ -174,8 +187,8 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
 
             // 同期完了 → 同期した分のみをdirty/deletedから除去（同期中に追加された分は残す）
             set((current) => {
-                const remainingDirty = new Set(current._dirtyPlanIds);
-                for (const id of syncingDirtyIds) remainingDirty.delete(id);
+                // 送っている間に同じ表へ来た編集の印は残す (2026-10-28 消失調査)
+                const remainingDirty = dirtyIdsAfterSync(current._dirtyPlanIds, syncingDirtyIds, state.plans, current.plans);
                 const remainingDeleted = new Set(current._deletedPlanIds);
                 // 削除失敗したものはキューに残す（次回リトライ）
                 for (const id of syncingDeletedIds) {
@@ -184,7 +197,8 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
                 return {
                     _dirtyPlanIds: remainingDirty,
                     _deletedPlanIds: remainingDeleted,
-                    _lastSyncAt: Date.now(),
+                    // 送り始めた時刻 = 送っている間の編集を次回「新しい編集」と見なして間引かない
+                    _lastSyncAt: syncStartedAt,
                     _cloudStatus: 'synced' as const,
                 };
             });
@@ -258,6 +272,7 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
     manualSync: async (uid, displayName) => {
         if (get()._isSyncing) return;
 
+        const syncStartedAt = Date.now();
         set({ _isSyncing: true, _cloudStatus: 'syncing' });
         try {
             // PUSH: dirtyプランがあれば送信（最新のstateを使う）
@@ -307,31 +322,36 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
                 for (const planId of deletedRemotely) {
                     get().deletePlan(planId);
                 }
-                set({
-                    _dirtyPlanIds: new Set<string>(),
-                    _deletedPlanIds: new Set<string>(),
-                });
+                // 送っている間の編集・削除の印は残す (2026-10-28 消失調査)
+                set((current) => ({
+                    _dirtyPlanIds: dirtyIdsAfterSync(current._dirtyPlanIds, pushState._dirtyPlanIds, pushState.plans, current.plans),
+                    _deletedPlanIds: new Set([...current._deletedPlanIds].filter(id => !pushState._deletedPlanIds.has(id))),
+                }));
             }
 
             // PULL: Firestoreから最新を取得
             const currentPlans = get().plans;
+            const workingMark = markWorkingStore(useMitigationStore.getState());
             const { merged, changed } = await planService.fetchAndMerge(
                 currentPlans,
                 uid,
                 // PUSH 前に削除済みだった ID も復活させない (墓標が読めるまでの保険)
                 pushState._deletedPlanIds,
             );
+            // 取り直しの間に手元でした編集は古い内容で上書きしない (2026-10-28 消失)
             if (changed) {
-                set({ plans: merged });
+                const r = resolveRemoteLoad({ merged, inputPlans: currentPlans, currentPlans: get().plans, currentPlanId: get().currentPlanId, workingMark, working: useMitigationStore.getState() });
+                set({ plans: r.plans });
+                addConflictCopies(r.conflicts, get().addPlan);
                 const currentPlanId = get().currentPlanId;
                 if (currentPlanId) {
-                    const updatedPlan = merged.find(p => p.id === currentPlanId);
+                    const updatedPlan = r.plans.find(p => p.id === currentPlanId);
                     if (!updatedPlan) {
                         // 現在のプランがリモートで削除された → 無選択状態に戻す
                         const lastActive = get().lastActivePlanId;
                         set({ currentPlanId: null, lastActivePlanId: lastActive === currentPlanId ? null : lastActive });
                         useMitigationStore.getState().resetForTutorial();
-                    } else if (updatedPlan.data) {
+                    } else if (updatedPlan.data && !r.keepWorking) {
                         const localPlan = currentPlans.find(p => p.id === currentPlanId);
                         if (localPlan && updatedPlan.updatedAt > localPlan.updatedAt) {
                             // 根治(I-2): 現在プランを再ロード → 持ち主IDも明示して不変条件を保つ
@@ -348,7 +368,7 @@ export const createSyncSlice = ({ set, get }: PlanSliceContext): Pick<
                 set({ currentPlanId: null, lastActivePlanId: lastActive === finalPlanId ? null : lastActive });
                 useMitigationStore.getState().resetForTutorial();
             }
-            set({ _isSyncing: false, _cloudStatus: 'synced', _lastSyncAt: Date.now() });
+            set({ _isSyncing: false, _cloudStatus: 'synced', _lastSyncAt: syncStartedAt });
         } catch (err) {
             console.error('手動同期エラー:', err);
             set({ _isSyncing: false, _cloudStatus: 'error' });

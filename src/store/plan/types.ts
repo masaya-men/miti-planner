@@ -32,11 +32,13 @@ export interface PlanState {
     // Firestore同期アクション
     markDirty: (planId: string) => void;
     syncToFirestore: (uid: string, displayName: string, force?: boolean, onlyPlanIds?: string[]) => Promise<void>;
-    /** Firestoreから最新データを取得してローカルとマージ（PULL操作） */
-    pullFromFirestore: (uid: string) => Promise<void>;
+    /** Firestoreから最新データを取得してローカルとマージ（PULL操作）。
+     *  true = 取り直しの間に手元で編集があり、画面を読み直さずに残した(呼び出し側で保存し直す) */
+    pullFromFirestore: (uid: string) => Promise<boolean>;
     /** ログアウト前にdirtyプランを強制同期（_isSyncingチェックをバイパス） */
     forceSyncAll: (uid: string, displayName: string) => Promise<void>;
-    migrateOnLogin: (uid: string, displayName: string) => Promise<void>;
+    /** true = 取り込みの間に手元で編集があり残した(呼び出し側は画面を読み直さない) */
+    migrateOnLogin: (uid: string, displayName: string) => Promise<boolean>;
     /**
      * B-1 Revision 3: ローカルプラン (`ownerId='local'`) の ID 配列を返す。
      * Firestore への書き込みはここでは行わない（取り込み実行は `executeLocalImport`）。
