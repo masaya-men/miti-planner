@@ -1,4 +1,4 @@
-/* TimelineMobileSheets の見た目。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* TimelineMobileTools の見た目。 他の部品の見た目は同じ詳細度で上書きしない。 */
 /* ===== モバイル: 左端Undo/Redoもスクロール中は隠す(右端FABと同じ見た目に揃える・2026-08-13) ===== */
 /* MobileFAB.tsx側のtween(duration 0.2, MD3標準イージング)と揃えた値。 */
 .mobile-undo-redo-wrap {
