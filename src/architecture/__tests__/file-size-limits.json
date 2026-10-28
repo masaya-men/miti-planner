@@ -33,7 +33,6 @@
   "frozen": {
     "api/admin/_templatesHandler.ts": 521,
     "api/og/_housingerCard.ts": 518,
-    "public/ogp-preview.html": 509,
     "src/__tests__/housing/HousingerPage.test.tsx": 665,
     "src/__tests__/housing/housingValidation.test.ts": 851,
     "src/api/fflogs.ts": 551,
