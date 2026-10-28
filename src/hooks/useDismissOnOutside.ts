@@ -6,7 +6,7 @@ export type DismissOnOutsideOptions = { allowDuringTutorial?: boolean };
 // グローバルスタック: 複数パネルが重なった時に最前面だけが外側クリックに反応する
 const dismissStack: Array<symbol> = [];
 
-// 外側を押した後、その 1 回の click を下に届けないための待ち時間(click が来ない時の保険)
+// 離してから click が来ない時の保険の待ち時間
 const SWALLOW_MS = 400;
 
 /**
@@ -41,10 +41,16 @@ export function useDismissOnOutside(
 
       callbackRef.current();
 
-      // 次の click 1 回だけ止める(押下は止めない=focus は動く)。来なければ 400ms で外す
+      // 主ボタン以外は click が来ないので止めは置かない
+      if (e.button !== 0) return;
+
+      // 次の click 1 回だけ止める(押下は止めない=focus は動く)。
+      // 時計は離した時から 400ms(ゆっくり押しても効く)。キャンセルされたら click は来ないのですぐ外す
       let timer = 0;
       const release = () => {
         document.removeEventListener('click', swallow, true);
+        document.removeEventListener('pointerup', startTimer, true);
+        document.removeEventListener('pointercancel', release, true);
         window.clearTimeout(timer);
       };
       const swallow = (ev: MouseEvent) => {
@@ -52,8 +58,12 @@ export function useDismissOnOutside(
         ev.stopPropagation();
         release();
       };
+      const startTimer = () => {
+        timer = window.setTimeout(release, SWALLOW_MS);
+      };
       document.addEventListener('click', swallow, true);
-      timer = window.setTimeout(release, SWALLOW_MS);
+      document.addEventListener('pointerup', startTimer, true);
+      document.addEventListener('pointercancel', release, true);
     };
 
     document.addEventListener('pointerdown', handlePointerDown, true);

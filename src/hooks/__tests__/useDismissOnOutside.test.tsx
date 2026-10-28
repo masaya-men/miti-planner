@@ -92,15 +92,49 @@ describe('useDismissOnOutside', () => {
         expect(onBelow).toHaveBeenCalledTimes(1);
     });
 
-    it('click が来なければ 400ms で止めを外す', () => {
+    it('離してから 400ms で止めを外す(click が来ない場合)', () => {
         vi.useFakeTimers();
         const onDismiss = vi.fn();
         const onBelow = vi.fn();
         const { getByTestId } = render(<Harness onDismiss={onDismiss} onBelow={onBelow} />);
         fireEvent.pointerDown(getByTestId('below'));
+        fireEvent.pointerUp(getByTestId('below'));
         act(() => { vi.advanceTimersByTime(400); });
         fireEvent.click(getByTestId('below'));
         expect(onDismiss).toHaveBeenCalledTimes(1);
+        expect(onBelow).toHaveBeenCalledTimes(1);
+    });
+
+    it('ゆっくり押しても開くボタンは開き直さない', () => {
+        vi.useFakeTimers();
+        const onDismiss = vi.fn();
+        const onToggle = vi.fn();
+        const { getByTestId } = render(<Harness onDismiss={onDismiss} onToggle={onToggle} />);
+        fireEvent.pointerDown(getByTestId('opener'));
+        act(() => { vi.advanceTimersByTime(500); });
+        fireEvent.pointerUp(getByTestId('opener'));
+        fireEvent.click(getByTestId('opener'));
+        expect(onToggle).toHaveBeenCalledTimes(0);
+        expect(onDismiss).toHaveBeenCalledTimes(1);
+    });
+
+    it('pointercancel の後の次のタップは届く', () => {
+        const onDismiss = vi.fn();
+        const onBelow = vi.fn();
+        const { getByTestId } = render(<Harness onDismiss={onDismiss} onBelow={onBelow} />);
+        fireEvent.pointerDown(getByTestId('below'));
+        fireEvent.pointerCancel(getByTestId('below'));
+        fireEvent.click(getByTestId('below'));
+        expect(onBelow).toHaveBeenCalledTimes(1);
+    });
+
+    it('右ボタンで外を押すと閉じ、止めは置かない', () => {
+        const onDismiss = vi.fn();
+        const onBelow = vi.fn();
+        const { getByTestId } = render(<Harness onDismiss={onDismiss} onBelow={onBelow} />);
+        fireEvent.pointerDown(getByTestId('below'), { button: 2 });
+        expect(onDismiss).toHaveBeenCalledTimes(1);
+        fireEvent.click(getByTestId('below'));
         expect(onBelow).toHaveBeenCalledTimes(1);
     });
 
