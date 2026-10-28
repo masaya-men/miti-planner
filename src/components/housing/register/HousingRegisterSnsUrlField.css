@@ -1,0 +1,18 @@
+/* HousingRegisterSnsUrlField の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== Room number / SNS URL / fetch indicator ===== */
+.housing-room-number-field,
+.housing-register-sns-url-field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--housing-scale));
+}
+.housing-register-sns-url-help {
+  margin: calc(6px * var(--housing-scale)) 0 0;
+  font-size: var(--housing-text-xs);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
+/* 自動入力の免責文 (help 本文の直下に詰めて配置・同じ控えめトーン)。 */
+.housing-register-sns-url-help-disclaimer {
+  margin-top: calc(2px * var(--housing-scale));
+}

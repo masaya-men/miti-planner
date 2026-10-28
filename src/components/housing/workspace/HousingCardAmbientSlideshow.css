@@ -1,0 +1,21 @@
+/* HousingCardAmbientSlideshow の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 2026-05-27 ambient slideshow オーバーレイ (各カード独立、 desync クロスフェード) */
+.housing-card-ambient-slideshow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--housing-card-overlay-z-ambient);
+  overflow: hidden;
+}
+.housing-card-ambient-slideshow img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--housing-slideshow-img-fit);
+  opacity: 0;
+  transition: opacity var(--housing-slideshow-fade-ms) ease-in-out;
+}
+.housing-card-ambient-slideshow img[data-active='true'] {
+  opacity: 1;
+}

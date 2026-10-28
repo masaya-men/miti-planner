@@ -1,3 +1,4 @@
+import './HousingerAvatar.css';
 /**
  * ハウジンガーのアイコン表示 (spec §4.2/§4.3 共通部品)。
  * avatarUrl があれば画像、 無ければ名前の頭文字プレースホルダを表示する。

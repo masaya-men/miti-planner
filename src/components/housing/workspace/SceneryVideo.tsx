@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useVideoLoadRecovery } from './useVideoLoadRecovery';
+import './SceneryVideo.css';
 
 export interface SceneryVideoProps {
   theme: 'light' | 'dark';

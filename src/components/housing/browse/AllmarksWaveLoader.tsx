@@ -2,6 +2,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Home } from 'lucide-react';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
+import './AllmarksWaveLoader.css';
 
 const NUM_VISIBLE_BARS = 15;
 const BAR_WIDTH = 12;

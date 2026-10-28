@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNotifications } from './useNotifications';
 import { NotificationDropdown } from './NotificationDropdown';
+import './NotificationBell.css';
 
 export const NotificationBell: React.FC = () => {
   const { t } = useTranslation();

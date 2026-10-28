@@ -1,0 +1,15 @@
+/* HousingImage の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== HousingImage 失敗時の代替表示 (components/housing/media/HousingImage.tsx) ===== */
+.housing-image-fallback {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--housing-panel-inner);
+  color: var(--housing-text-mute);
+  overflow: hidden;
+}
+.housing-housinger-row-thumbs .housing-image-fallback {
+  width: calc(54px * var(--housing-scale)); height: calc(40px * var(--housing-scale)); border-radius: calc(6px * var(--housing-scale)); flex: 0 0 auto;
+}
+@media (max-width: 767px) {
+  .housing-housinger-row-thumbs .housing-image-fallback { width: 38px; height: 30px; }
+  .housing-housinger-row-thumbs .housing-image-fallback:nth-child(3) { display: none; }
+}

@@ -1,0 +1,94 @@
+/* LiquidGlassPanel の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== Glass Panel ===== */
+.housing-panel {
+  position: relative;
+  background: var(--housing-panel-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: var(--housing-panel-radius);
+  box-shadow:
+    0 calc(20px * var(--housing-scale)) calc(56px * var(--housing-scale)) rgba(0, 0, 0, 0.5),
+    inset 0 calc(1.5px * var(--housing-scale)) calc(1px * var(--housing-scale)) rgba(255, 255, 255, 0.14),
+    inset 0 calc(-1.5px * var(--housing-scale)) calc(2px * var(--housing-scale)) rgba(255, 255, 255, 0.05),
+    inset 0 0 calc(22px * var(--housing-scale)) rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  isolation: isolate;
+}
+.housing-panel.is-liquid {
+  backdrop-filter: var(--liquid-filter, none);
+}
+/* Vertical gradient ring border (top + bottom brightest) */
+.housing-panel::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: calc(1.5px * var(--housing-scale));
+  /* 質感A案: 眩しい白リムを抑えて落ち着いた縁に (旧 0.55/0.45 peak → 0.26/0.22)。 */
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.26) 0%,
+    rgba(255, 255, 255, 0.12) 14%,
+    rgba(255, 255, 255, 0.04) 32%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.04) 70%,
+    rgba(255, 255, 255, 0.12) 88%,
+    rgba(255, 255, 255, 0.22) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  z-index: 5;
+}
+/* Horizontal sheen overlay (left/right rim) */
+.housing-panel::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: calc(1.5px * var(--housing-scale));
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0.08) 12%,
+    transparent 35%,
+    transparent 65%,
+    rgba(255, 255, 255, 0.08) 88%,
+    rgba(255, 255, 255, 0.30) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: screen;
+}
+.housing-panel-corner {
+  position: absolute; width: calc(72px * var(--housing-scale)); height: calc(72px * var(--housing-scale));
+  pointer-events: none; z-index: 4;
+  mix-blend-mode: screen;
+}
+.housing-panel-corner.tl { top: 0; left: 0;
+  background: radial-gradient(ellipse at 0% 0%, rgba(255, 255, 255, 0.30) 0%, transparent 70%); }
+.housing-panel-corner.tr { top: 0; right: 0;
+  background: radial-gradient(ellipse at 100% 0%, rgba(255, 255, 255, 0.18) 0%, transparent 70%); }
+.housing-panel-corner.bl { bottom: 0; left: 0;
+  background: radial-gradient(ellipse at 0% 100%, rgba(255, 255, 255, 0.14) 0%, transparent 70%); }
+.housing-panel-corner.br { bottom: 0; right: 0;
+  background: radial-gradient(ellipse at 100% 100%, rgba(255, 255, 255, 0.10) 0%, transparent 70%); }
+.housing-panel-sheen {
+  position: absolute; top: 0; left: 10%; right: 10%; height: calc(1.5px * var(--housing-scale));
+  pointer-events: none; z-index: 6;
+  background: linear-gradient(to right,
+    transparent, rgba(255, 255, 255, 0.40) 25%, rgba(255, 255, 255, 0.65) 50%,
+    rgba(255, 255, 255, 0.40) 75%, transparent);
+  filter: blur(calc(0.4px * var(--housing-scale)));
+}
+.housing-panel-modal-shell > .housing-panel.is-liquid {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: rgba(8, 12, 20, 0.78);
+  border-radius: calc(18px * var(--housing-scale));
+}
+/* frost バリアントのモーダル本体は、暗い箱ではなくハウジングのトンマナ (質感A案の半透明ネイビー)
+   にする (2026-07-12 ユーザー指摘「暗い色はトンマナにない」)。背後は frost で薄ぼかしのみ。 */
+.housing-panel-modal-backdrop[data-backdrop="frost"] .housing-panel-modal-shell > .housing-panel.is-liquid {
+  background: var(--housing-panel-bg);
+}

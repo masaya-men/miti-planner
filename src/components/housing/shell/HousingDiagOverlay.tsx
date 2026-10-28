@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import './HousingDiagOverlay.css';
 
 const STORAGE_KEY = 'lopo_housing_diag';
 

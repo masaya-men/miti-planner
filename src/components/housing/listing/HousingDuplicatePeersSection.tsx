@@ -12,6 +12,7 @@ import type { HousingListing } from '../../../types/housing';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { HousingLongPressButton } from './HousingLongPressButton';
 import { HousingImage } from '../media/HousingImage';
+import './HousingDuplicatePeersSection.css';
 
 export interface HousingDuplicatePeersSectionProps {
   peers: HousingListing[];

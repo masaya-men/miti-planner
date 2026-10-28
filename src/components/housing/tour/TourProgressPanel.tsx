@@ -4,6 +4,7 @@ import { TourRouteSteps } from './TourRouteSteps';
 import { TourPhaseZone } from './TourPhaseZone';
 import type { TourProgress, TourStep } from '../../../lib/housing/tourNav';
 import type { PlotDirections } from '../../../lib/housing/wardDirections';
+import './TourProgressPanel.css';
 
 export interface TourProgressPanelProps {
   progress: TourProgress;

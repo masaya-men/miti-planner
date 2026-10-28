@@ -9,6 +9,7 @@ import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlaceme
 import { getPlotDirections } from '../../../lib/housing/wardDirections';
 import { regionForDC } from '../../../data/housing/dcServerMap';
 import { TourNavMap } from '../tour/TourNavMap';
+import './RegisterAddressMap.css';
 
 /**
  * 登録/編集ページ右カラムの住所プレビュー地図 (#5)。

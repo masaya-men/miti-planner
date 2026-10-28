@@ -6,6 +6,7 @@ import { MobileBottomSheet } from '../../MobileBottomSheet';
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 import { FilterPanel } from '../workspace/FilterPanel';
 import { TagPickerPanel } from '../browse/tagpicker/TagPickerPanel';
+import './HousingFilterSheet.css';
 
 export interface HousingFilterSheetProps {
   isOpen: boolean;

@@ -1,0 +1,31 @@
+/* HousingerAvatar の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ハウジンガーのアイコン (詳細行 / ハウジンガーページ大アイコン 共通)。
+   avatarUrl 未設定時は頭文字プレースホルダを丸背景に表示する。 */
+.housinger-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: calc(999px * var(--housing-scale));
+    overflow: hidden;
+    background: var(--housinger-avatar-bg);
+}
+.housinger-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.housinger-avatar-fallback {
+    color: var(--housinger-avatar-text);
+    font-weight: 700;
+}
+.housing-detail-byline-avatar .housinger-avatar-fallback {
+    font-size: var(--housing-text-xs);
+}
+.housing-tagpicker-chip-avatar .housinger-avatar-fallback {
+    font-size: var(--housing-text-xs);
+}
+.housinger-page-avatar .housinger-avatar-fallback {
+    font-size: var(--housing-detail-title-size);
+}

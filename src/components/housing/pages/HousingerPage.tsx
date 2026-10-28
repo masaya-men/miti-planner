@@ -14,6 +14,8 @@
  * - 一覧は探すのカードグリッド (ListingGrid) を流用する。 他人のページではカードに「ツアーに追加」
  *   (PC=ホバーで下端の帯・タッチ端末=右下の＋) を出す (tourAddVariant='overlay')。 本人のページには出さない。
  */
+// ハウジング共有の CSS(トークン・外枠・下地)は部品の CSS より先に読む(同じ詳細度なら後に読んだ方が勝つため)
+import '../../../styles/housing.css';
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -40,7 +42,7 @@ import {
   HousingerLoginView,
   HousingerUnavailableView,
 } from '../housinger/HousingerPageStates';
-import '../../../styles/housing.css';
+import './HousingerPage.css';
 
 /** 他人視点のツアー追加: トレイへの追加は ListingCard の attemptToggle が済ませる。表示スイッチ用。 */
 const noopAddToTour = (): void => {};

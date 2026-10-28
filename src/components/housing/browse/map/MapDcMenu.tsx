@@ -4,6 +4,7 @@ import { pickRegionLocale, regionLabel } from '../../../../data/housing/regionMa
 import { displayDcName } from '../../../../lib/housing/housingTerms';
 import { countDc, type MapIndexEntry } from '../../../../lib/housing/browseMapIndex';
 import { useScrollFade } from '../../../../lib/housing/useScrollFade';
+import './MapDcMenu.css';
 
 export interface MapDcMenuProps {
   index: MapIndexEntry[];

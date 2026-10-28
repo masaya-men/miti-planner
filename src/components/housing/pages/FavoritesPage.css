@@ -1,0 +1,73 @@
+/* FavoritesPage の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-favorites-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: calc(32px * var(--housing-scale));
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-sm);
+}
+
+/* ローディング / エラー (中央) */
+.housing-center-loading {
+  display: flex; align-items: center; justify-content: center;
+  height: 100%; color: var(--housing-text-mute); font-size: var(--housing-text-md);
+}
+
+/* ===== お気に入り一括操作バー (FavoritesBulkBar) ===== */
+/* タブ行ラッパ (実機FB第5弾): PC では箱を作らない (display:contents) = レイアウト不変。
+   スマホ側 media でタブ+選択カウントの1行 flex に切り替える。 */
+.housing-fav-tabsrow {
+  display: contents;
+}
+@media (max-width: 767px) {
+
+  /* ----- お気に入り: 「すべてツアーに追加」を見出し行の右端へ (実機FB第2弾#3) -----
+     一括バー (FavoritesBulkBar) の主アクションはタブの下にあり、件数が多いと
+     スクロールしないと見えない。見出し行にも控えめなチップとして複製し、
+     元の一括バー側のボタンは非表示にして同じ主張の強いボタンが2つ並ばないようにする。 */
+  .housing-fav-addall-top {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    height: 28px;
+    padding: 0 12px;
+    font-family: inherit;
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    color: var(--housing-text-dim);
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .housing-fav-addall-top:hover:not(:disabled) {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+  }
+  .housing-fav-addall-top:disabled {
+    opacity: var(--housing-disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  /* ----- 実機FB第4弾→第5弾: お気に入りの操作まわりを常に2行に固定してカード4枚を見せる -----
+     1行目 = タブ(すべて/最近追加) + 選択カウント(選択時のみ・同居)
+     2行目 = [すべて選択 選択解除]  …  [選択だけ追加 お気に入りから外す] (左右2グループ)
+     ボタンは「箱の中の箱」をやめて文字だけ (外箱 .housing-fav-bulkbar は残す)。 */
+  .housing-fav-tabsrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .housing-fav-selcount {
+    white-space: nowrap;
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+  }
+
+}

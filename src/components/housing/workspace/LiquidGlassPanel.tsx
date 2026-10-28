@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { makeDisplacementMapDataURL } from '../../../lib/housing/displacementMap';
+import './LiquidGlassPanel.css';
 
 /**
  * リサイズ連発時に変位マップ再生成をまとめる待ち時間 (ms)。条件フィールドの

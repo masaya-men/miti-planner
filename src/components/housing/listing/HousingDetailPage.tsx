@@ -16,6 +16,8 @@
  * - Task 2.4: `.housing-detail-panel` (シェル内スクロール) の中に `.housing-detail-shell`
  *   (探す/ツアーと同じ濃紺フラット面の 1 枚パネル) を挟む二層構造。
  */
+// ハウジング共有の CSS(トークン・外枠・下地)は部品の CSS より先に読む(同じ詳細度なら後に読んだ方が勝つため)
+import '../../../styles/housing.css';
 import { DetailSkeleton } from '../skeleton/HousingSkeletons';
 import { useSkeletonReveal } from '../../../lib/housing/useSkeletonReveal';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -23,7 +25,6 @@ import { useTranslation } from 'react-i18next';
 import { HousingDetailContent } from './HousingDetailContent';
 import { HousingDeleteConfirm } from '../delete/HousingDeleteConfirm';
 import { useHousingDetail } from './useHousingDetail';
-import '../../../styles/housing.css';
 
 export const HousingDetailPage: React.FC = () => {
   const { t } = useTranslation();

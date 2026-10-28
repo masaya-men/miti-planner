@@ -12,6 +12,7 @@
  */
 import { useEffect } from 'react';
 import { useLongPressConfirm } from '../../../lib/housing/useLongPressConfirm';
+import './HousingLongPressButton.css';
 
 export interface HousingLongPressButtonProps {
   label: string;

@@ -26,6 +26,7 @@ import { HousingFavHeart } from '../browse/HousingFavHeart';
 import { HousingDeleteConfirm } from '../delete/HousingDeleteConfirm';
 import { useHousingDelete } from '../delete/useHousingDelete';
 import { HousingReportModal } from '../report/HousingReportModal';
+import './HousingActionBar.css';
 
 export interface HousingActionBarProps {
   listing: HousingListing;

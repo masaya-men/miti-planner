@@ -1,5 +1,6 @@
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { TagPickerPanel } from './tagpicker/TagPickerPanel';
+import './BrowseTagView.css';
 
 /**
  * 探すページ中央パネル「タグ」ビュー。WorldSelectGate と同じ「中央パネルを丸ごと差し替える」

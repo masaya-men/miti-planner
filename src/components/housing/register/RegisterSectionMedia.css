@@ -1,0 +1,71 @@
+/* RegisterSectionMedia の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-register-media-success-note {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+/* B: 動画ツイートの最小プレビュー (poster 1枚 + 「動画あり」バッジ)。 token 経由・装飾ピルにしない。 */
+.housing-register-media-video {
+  position: relative;
+  margin-top: calc(8px * var(--housing-scale));
+  border-radius: calc(10px * var(--housing-scale));
+  overflow: hidden;
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-register-media-video-poster {
+  display: block;
+  width: 100%;
+  max-height: calc(200px * var(--housing-scale));
+  object-fit: cover;
+}
+.housing-register-media-video-badge {
+  position: absolute;
+  left: calc(8px * var(--housing-scale));
+  bottom: calc(8px * var(--housing-scale));
+  padding: calc(3px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  border-radius: calc(6px * var(--housing-scale));
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  color: var(--housing-candle);
+  background: var(--housing-overlay-strong);
+  border: 1px solid var(--housing-panel-border);
+}
+
+/* Batch2: 画像/動画の上限案内 (静かな注記・alert箱にしない) */
+.housing-register-image-limit-note {
+  margin: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+
+/* Batch2: アップロード欄の折りたたみトグル (URL優先UI)。byline/元の投稿リンクと同じ静かなリンク見た目。 */
+.housing-register-toggle-upload {
+  align-self: flex-start;
+  appearance: none;
+  cursor: pointer;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--housing-aether-soft);
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: color 0.12s ease, text-decoration-color 0.12s ease;
+}
+.housing-register-toggle-upload:hover {
+  color: var(--housing-candle);
+  text-decoration-color: currentColor;
+}
+.housing-register-toggle-upload:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+.housing-register-upload-warning {
+  margin: 0 0 calc(8px * var(--housing-scale));
+  padding-top: calc(10px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}

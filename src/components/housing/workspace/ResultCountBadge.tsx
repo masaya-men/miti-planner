@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import './ResultCountBadge.css';
 
 export interface ResultCountBadgeProps {
     result: number;

@@ -23,6 +23,7 @@ import {
 import { MapRail } from './MapRail';
 import { BrowseWardMap } from './BrowseWardMap';
 import { RoomListPanel } from './RoomListPanel';
+import './BrowseMapView.css';
 
 export interface BrowseMapViewProps {
   /** 左の絞り込み (サイズ・タグ・地域など) を適用済み。ただし DC / ワールドだけは外してある

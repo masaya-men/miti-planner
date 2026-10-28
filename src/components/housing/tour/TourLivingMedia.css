@@ -1,0 +1,20 @@
+/* TourLivingMedia の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 生きたカードのメディア枠 (現在カード=大 / 次の目的地カード=小 共用・TourLivingMedia.tsx) */
+.housing-tour-living-media {
+  position: relative;
+  overflow: hidden;
+  border-radius: calc(14px * var(--housing-scale));
+  aspect-ratio: 16 / 9;
+}
+.housing-tour-living-media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.housing-tour-dest-next .housing-tour-living-media {
+  flex: 0 0 auto;
+  width: calc(104px * var(--housing-scale));
+  aspect-ratio: 16 / 10;
+  border-radius: calc(8px * var(--housing-scale));
+}

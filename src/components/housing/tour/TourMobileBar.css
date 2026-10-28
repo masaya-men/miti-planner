@@ -1,0 +1,127 @@
+/* TourMobileBar の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 小さな枠ボタン = 副アクション (.housing-tour-progress-action--view と同じ見た目)。 */
+.housing-tour-reorder-btn {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; gap: calc(6px * var(--housing-scale));
+  padding: calc(4px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-xs); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border); border-radius: calc(8px * var(--housing-scale));
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-reorder-btn:hover { background: var(--housing-chip-bg-hover); }
+.housing-tour-reorder-btn:active { transform: scale(0.98); }
+.housing-tour-reorder-btn:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+/* スマホ下部バー: 上段 (右寄せで「順番を変える」)。 */
+.housing-tour-mobilebar-top {
+  flex: 1 0 100%; display: flex; justify-content: flex-end;
+}
+
+@media (max-width: 767px) {
+  /* ----- TourMobileBar: 下部の細い操作バー ----- */
+  .housing-tour-mobilebar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--housing-z-mobile-chrome);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--housing-tour-mobilebar-h);
+    padding: 8px 10px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    background: var(--housing-panel-bg-solid);
+    border-top: 1px solid var(--housing-panel-border);
+    box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.14);
+  }
+  .housing-tour-mobilebar[data-has-top] { flex-wrap: wrap; }
+  .housing-tour-mobilebar-directions {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+  }
+  .housing-tour-mobilebar-actions {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 6px;
+  }
+  .housing-tour-mobilebar-btn {
+    appearance: none;
+    cursor: pointer;
+    min-height: 34px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: var(--housing-text-xs);
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--housing-text);
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .housing-tour-mobilebar-btn:hover:not(:disabled) {
+    background: var(--housing-chip-bg-hover);
+  }
+  .housing-tour-mobilebar-btn:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+  .housing-tour-mobilebar-btn:disabled {
+    opacity: var(--housing-disabled-opacity);
+    cursor: not-allowed;
+  }
+  .housing-tour-mobilebar-btn:focus-visible {
+    outline: 2px solid var(--housing-honey);
+    outline-offset: 2px;
+  }
+  /* 実機2回目FB#7: 行き方が地図下部へ移って空いたバー左端に「終了」を置く。見た目は汎用ボタンと同型
+     (ハニーにしない・控えめ)。margin-right:auto で残りの要素(前へ/見学/次へ/招待)を右側へ寄せる
+     (旧 .housing-tour-mobilebar-directions の flex:1 が担っていた「左右に分ける」役割の引き継ぎ)。 */
+  .housing-tour-mobilebar-btn--finish {
+    margin-right: auto;
+  }
+  /* 次へ/完了 = 主アクション (ツアーはハニーゴールドが正典・右パネルのnextボタンと同型) */
+  .housing-tour-mobilebar-btn--next {
+    color: var(--housing-honey-text);
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+    border: 0;
+  }
+  /* 実機FB#5(2回目): 汎用 .housing-tour-mobilebar-btn:hover の灰色 background が
+     ハニーの次へにも勝ち、iOS はタップ後も hover が残る(sticky hover)ため
+     「次へが毎回消える(押せるが見えない)」症状になっていた。hover でもグラデを再指定して防ぐ。 */
+  .housing-tour-mobilebar-btn--next:hover:not(:disabled) {
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+    filter: brightness(1.05);
+  }
+  .housing-tour-mobilebar-invite {
+    appearance: none;
+    cursor: pointer;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--housing-honey);
+    background: var(--housing-honey-soft);
+    border: 1px solid var(--housing-honey-border);
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .housing-tour-mobilebar-invite:hover {
+    background: var(--housing-honey-medium);
+  }
+  .housing-tour-mobilebar-invite:active {
+    transform: scale(0.94);
+  }
+  .housing-tour-mobilebar-invite:focus-visible {
+    outline: 2px solid var(--housing-honey);
+    outline-offset: 2px;
+  }
+}

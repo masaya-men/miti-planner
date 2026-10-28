@@ -1,0 +1,51 @@
+/* HousingDeleteConfirm の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 削除確認カード */
+.housing-delete-confirm-card {
+    background: var(--housing-popover-bg);
+    border: 1px solid var(--housing-panel-border-strong);
+    border-radius: var(--housing-panel-radius);
+    padding: calc(24px * var(--housing-scale)) calc(28px * var(--housing-scale));
+    max-width: calc(420px * var(--housing-scale));
+    width: calc(100% - calc(32px * var(--housing-scale)));
+    color: var(--housing-text);
+    font-size: var(--housing-text-base);
+    box-shadow: var(--housing-popover-shadow);
+}
+.housing-delete-confirm-title {
+    font-size: var(--housing-text-xl);
+    font-weight: 600;
+    margin: 0 0 calc(12px * var(--housing-scale));
+    color: var(--housing-danger);
+}
+.housing-delete-confirm-target {
+    margin: 0 0 calc(16px * var(--housing-scale));
+    color: var(--housing-text-dim);
+}
+.housing-delete-confirm-body {
+    list-style: disc inside;
+    margin: 0 0 calc(24px * var(--housing-scale));
+    padding: 0;
+    color: var(--housing-text-dim);
+    line-height: 1.6;
+}
+.housing-delete-confirm-actions {
+    display: flex;
+    gap: calc(8px * var(--housing-scale));
+    justify-content: flex-end;
+}
+.housing-delete-confirm-actions button {
+    padding: calc(8px * var(--housing-scale)) calc(16px * var(--housing-scale));
+    border-radius: calc(10px * var(--housing-scale));
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    font-size: var(--housing-text-base);
+}
+.housing-delete-confirm-actions button:hover:not(:disabled) {
+    background: var(--housing-chip-bg-hover);
+}
+.housing-delete-confirm-actions button:disabled {
+    opacity: var(--housing-disabled-opacity);
+    cursor: not-allowed;
+}

@@ -1,5 +1,5 @@
 // CSS を「規則の並び」として読む共通部品。 ハウジング CSS の置き場所を移す道具と、 その前後比較・見張りテストが使う。
-// 「順番頼りの組」= 同じ @media・同じ詳細度・対象 class が共通・同じ性質を宣言する 2 規則(後に書いた方が勝つので並びが結果を決める)。
+// 「順番頼りの組」= 同時に効きうる @media・同じ詳細度・対象 class が共通・同じ性質を宣言する 2 規則(後に書いた方が勝つので並びが結果を決める)。
 import postcss from 'postcss';
 
 /** 括弧と引用符の外にある sep の位置で切る */
@@ -145,8 +145,48 @@ export function parseRules(cssText, file) {
   return out;
 }
 
-/** 並び順で A が先の「順番頼りの組」 [A, B, 性質] を返す */
-export function findOrderPairs(rules) {
+/** @media の幅の範囲 [下限, 上限](px)。 幅以外の条件は「効きうる」とみなす */
+function widthRange(media) {
+  let lo = -Infinity;
+  let hi = Infinity;
+  for (const m of media.matchAll(/(min|max)-width:\s*([\d.]+)px/g)) {
+    if (m[1] === 'min') lo = Math.max(lo, Number(m[2]));
+    else hi = Math.min(hi, Number(m[2]));
+  }
+  return [lo, hi];
+}
+
+/** 2 つの @media 条件が同時に成り立ちうるか(幅の範囲が重ならない時だけ false) */
+export function mediaCanOverlap(a, b) {
+  const [alo, ahi] = widthRange(a);
+  const [blo, bhi] = widthRange(b);
+  return Math.max(alo, blo) <= Math.min(ahi, bhi);
+}
+
+// 名前の前半一致で分からない、 まとめ書き → 個別書き
+const SHORTHAND_EXTRA = {
+  inset: ['top', 'right', 'bottom', 'left'],
+  gap: ['row-gap', 'column-gap'],
+  font: ['line-height'],
+  'border-radius': ['border-top-left-radius', 'border-top-right-radius', 'border-bottom-left-radius', 'border-bottom-right-radius'],
+  'place-items': ['align-items', 'justify-items'],
+  'place-content': ['align-content', 'justify-content'],
+  'place-self': ['align-self', 'justify-self'],
+  grid: ['grid-template', 'grid-template-rows', 'grid-template-columns', 'grid-template-areas', 'grid-auto-flow', 'grid-auto-rows', 'grid-auto-columns'],
+  'grid-area': ['grid-row', 'grid-column', 'grid-row-start', 'grid-row-end', 'grid-column-start', 'grid-column-end'],
+  'text-decoration': ['text-decoration-line', 'text-decoration-color', 'text-decoration-style', 'text-decoration-thickness'],
+};
+
+/** 同じ見た目の値を取り合う性質か(同名・まとめ書きと個別書き) */
+export function propsOverlap(p, q) {
+  if (p === q) return true;
+  if (p.startsWith('--') || q.startsWith('--')) return false;
+  if (q.startsWith(`${p}-`) || p.startsWith(`${q}-`)) return true;
+  return (SHORTHAND_EXTRA[p] ?? []).some((x) => q === x || q.startsWith(`${x}-`)) || (SHORTHAND_EXTRA[q] ?? []).some((x) => p === x || p.startsWith(`${x}-`));
+}
+
+/** 並び順で A が先の「順番頼りの組」 [A, B, 性質] を返す。 related = 別名の class が同じ要素に付きうるか(classGroups.mjs) */
+export function findOrderPairs(rules, related = (a, b) => a === b) {
   const entries = [];
   rules.forEach((r, i) => {
     if (r.kind !== 'rule') return;
@@ -157,15 +197,13 @@ export function findOrderPairs(rules) {
       entries.push({ i, r, props, spec: specificity(sel).join(','), subj });
     }
   });
-  // media+詳細度+対象 class で束ねてから組を探す(全組の総当たりを避ける)
+  // 詳細度で束ねてから組を探す。 @media は条件なし・スマホ用などが同時に効くので束ねる鍵にしない(幅が重ならない組だけ外す)
   const buckets = new Map();
   for (const e of entries) {
-    for (const c of e.subj) {
-      const key = `${e.r.media}|${e.spec}|${c}`;
-      if (!buckets.has(key)) buckets.set(key, []);
-      buckets.get(key).push(e);
-    }
+    if (!buckets.has(e.spec)) buckets.set(e.spec, []);
+    buckets.get(e.spec).push(e);
   }
+  const sameTarget = (x, y) => x.subj.some((a) => y.subj.some((b) => a === b || related(a, b)));
   const seen = new Set();
   const pairs = [];
   for (const list of buckets.values()) {
@@ -175,7 +213,9 @@ export function findOrderPairs(rules) {
         if (x.i === y.i) continue;
         const key = `${x.i}-${y.i}`;
         if (seen.has(key)) continue;
-        const prop = [...x.props].find((p) => y.props.has(p));
+        if (!sameTarget(x, y)) continue;
+        if (!mediaCanOverlap(x.r.media, y.r.media)) continue;
+        const prop = [...x.props].find((p) => [...y.props].some((q) => propsOverlap(p, q)));
         if (!prop) continue;
         seen.add(key);
         pairs.push([x.r, y.r, prop]);

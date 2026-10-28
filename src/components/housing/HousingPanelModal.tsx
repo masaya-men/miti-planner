@@ -5,6 +5,7 @@ import { X } from 'lucide-react';
 import { LiquidGlassPanel } from './workspace/LiquidGlassPanel';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
 import { backdropClose, type BackdropCloseOptions } from '../../utils/backdropClose';
+import './HousingPanelModal.css';
 
 export interface HousingPanelModalProps {
   open: boolean;

@@ -1,0 +1,143 @@
+/* BrowsePage の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-reveal-kids .housing-listing-grid-toolbar-start > :not(.housing-view-toggle-anchor):not(.housing-browse-clear-filter) {
+  animation: housing-reveal 450ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: calc(var(--housing-reveal-i, 0) * 45ms);
+  animation-play-state: var(--housing-reveal-play, running);
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-reveal-kids .housing-listing-grid-toolbar-start > :not(.housing-view-toggle-anchor):not(.housing-browse-clear-filter) { animation: none; }
+}
+/* 一覧上の「見出し+並び替え」行の居場所 (実物の高さ 30px を実測・届いた時にカードが下へずれないように) */
+.housing-skel-toolbar-reserve { min-height: calc(30px * var(--housing-scale)); }
+@media (max-width: 767px) {
+/* スマホの探す画面は見出し行が 2 段組みで 39px (実測) */
+  .housing-browse-col-center .housing-skel-toolbar-reserve { min-height: 39px; }
+}
+
+/* ===== 探すページ (3カラム) ===== */
+.housing-browse {
+  display: grid;
+  grid-template-columns: var(--housing-left-w) 1fr var(--housing-right-w);
+  gap: var(--housing-main-gap);
+  padding: var(--housing-main-padding);
+  min-height: 0;
+  height: 100%;
+}
+/* フラットパネル (液体ガラスの外側湾曲/屈折は不採用=ユーザー確定 2026-07-01)。
+   落ち着いた濃紺の面 + 1px 枠 + 控えめな影のみ。開閉しない固定パネル。 */
+.housing-browse-panel {
+  position: relative;
+  display: flex; flex-direction: column;
+  min-height: 0; height: 100%;
+  background: var(--housing-panel-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: var(--housing-panel-radius);
+  box-shadow: var(--housing-panel-shadow);
+  overflow: hidden;
+}
+.housing-browse-col {
+  display: flex; flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  /* 内側余白 = 文字がガラス枠にぶつかって見切れるのを防ぐ。 */
+  padding: calc(14px * var(--housing-scale)) calc(16px * var(--housing-scale));
+}
+/* 中央カラムだけ下側の内側余白を0に(2026-08-14ユーザー指定=フェード演出をパネル下端まで
+   使い切りたいので、いったん詰めてみる)。左右カラム(FilterPanel/TourTray)は元のまま。 */
+.housing-browse-col-center { overflow: hidden; padding-bottom: 0; }
+/* 探すページ中央だけ: 見出し→カードの二重余白(toolbar padding + wrap gap)を詰めて 8 枚を見切れなく収める
+   という元の狙いは維持しつつ、区切り線とカードの間にも最低限の余白を持たせる。 */
+.housing-browse-col-center .housing-listing-grid-wrap { gap: calc(10px * var(--housing-scale)); }
+/* パネルの高さが行の高さの整数倍にならない画面(実機1489x679等)では、最後の行がタイトル/ボタン
+   無しで画像だけ中途半端に見切れる(2026-08-14ユーザー実機指摘=カード表示エリアの下端がおかしい)。
+   カードを大きくして埋めるのではなく、下端をソフトフェードにして「まだ続きがある」と読める
+   見え方にする(スクロール位置に関わらず常時、下端40pxをグラデーションで透過)。
+   マスクは実際にスクロールする .housing-listing-grid 本体ではなく、その親(スクロールしない
+   .housing-listing-grid-wrap)に掛ける。wrap は toolbar(flex:0 0 auto)+ grid(flex:1 1 auto)の
+   縦積みで、grid が残り全部を埋めるため wrap の下端 = grid の下端(見た目は変わらない)。
+   スクロールする要素自身に mask-image を掛けると、スクロール中にマスクの再合成が毎フレーム
+   走り体感が重くなる(iOS Safari実機で顕著)ため、この分離で回避する
+   (2026-08-14ユーザー実機報告「スマホでスクロールが重い」の根本原因・修正)。 */
+.housing-browse-col-center .housing-listing-grid-wrap {
+  mask-image: linear-gradient(to bottom, black calc(100% - calc(40px * var(--housing-scale))), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - calc(40px * var(--housing-scale))), transparent 100%);
+}
+
+/* 中央グリッド。縦の並び (見出し→タブ→一括バー→グリッド) は wrap の gap で一定リズムに揃える
+   (要素ごとの padding-bottom で間隔を作ると一括バー→カードが 0px になり密着するため)。 */
+.housing-listing-grid-wrap {
+  display: flex; flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+  min-height: 0; height: 100%;
+}
+/* トグル(あれば) + 見出しの左側グループ。並び替え等の右側グループと space-between で分かれる。 */
+.housing-listing-grid-toolbar-start {
+  display: flex; align-items: center;
+  gap: calc(12px * var(--housing-scale));
+  min-width: 0;
+}
+
+/* 中央の表示切替「一覧 | 地図」 (spec 3.1)。.housing-sort-trigger と同系の控えめなセグメント。 */
+/* f: 中央ツールバー = 一覧/マップ トグル + (絞り込み中のみ) フィルター解除ボタン。 */
+.housing-browse-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(12px * var(--housing-scale));
+  flex: 0 0 auto;
+  padding: 0 0 calc(6px * var(--housing-scale));
+}
+.housing-browse-clear-filter {
+  appearance: none;
+  cursor: pointer;
+  height: calc(24px * var(--housing-scale));
+  padding: 0 calc(12px * var(--housing-scale));
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-mute);
+  background: transparent;
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(7px * var(--housing-scale));
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.housing-browse-clear-filter:hover,
+.housing-browse-clear-filter:focus-visible {
+  color: var(--housing-text);
+  border-color: var(--housing-aether-border);
+}
+.housing-center-error {
+  display: flex; align-items: center; justify-content: center;
+  height: 100%; color: var(--housing-text-mute); font-size: var(--housing-text-md);
+}
+@media (max-width: 767px) {
+
+  /* ----- 探す/お気に入り: 左右パネル非表示 + 中央1カラム全幅 -----
+     左=フィルターパネル (ボトムナビのフィルターシートへ移設)、
+     右=ツアートレイ/お気に入りプレビュー (別導線)。 */
+  .housing-browse {
+    grid-template-columns: 1fr;
+    /* 外側インセットを除去して中央パネルを画面いっぱいに。 */
+    padding: 0;
+  }
+  .housing-browse-panel[data-region="left"],
+  .housing-browse-panel[data-region="right"] {
+    display: none;
+  }
+  /* 中央パネルを上下左右フラッシュ: 角丸と横枠を消して全幅・全高で使う
+     (内側の .housing-browse-col padding は残すので文字は枠に当たらない)。 */
+  .housing-browse-panel[data-region="center"] {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  /* 「ハウジング一覧 N件 / 並び替え」バーの上の無駄な縦余白を詰める:
+     一覧|マップ 切替トグルはスマホ非表示 (.housing-view-toggle:none) なので上の切替バーは
+     実質空 → 余白ゼロ。中央カラムの上パディングも詰めて見出し・カードを上へ寄せる。 */
+  /* 実機FB第4弾: 右パディングを外してスクロールバーを画面右端へ (カードの内側余白は grid 側で確保)。 */
+  .housing-browse-col-center { padding-top: 6px; padding-right: 0; }
+  .housing-browse-col-center .housing-browse-toolbar { padding: 0; }
+
+}

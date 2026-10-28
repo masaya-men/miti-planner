@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDelayedFlag } from '../../../lib/housing/useDelayedFlag';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
+import './HousingSkeletons.css';
 
 /**
  * 読み込み中ダミー (スケルトン) の共通部品。

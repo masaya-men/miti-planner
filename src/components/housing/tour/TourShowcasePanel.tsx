@@ -12,6 +12,7 @@ import { saveRegisterPrefill, type RegisterPrefill } from '../../../lib/housing/
 import type { MockListing } from '../../../data/housing/mockListings';
 import { TourLivingMedia } from './TourLivingMedia';
 import { HousingerByline } from '../housinger/HousingerByline';
+import './TourShowcasePanel.css';
 
 export interface TourShowcasePanelProps {
   currentStep: TourStep | null;

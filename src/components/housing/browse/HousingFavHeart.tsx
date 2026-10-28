@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Heart } from 'lucide-react';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
+import './HousingFavHeart.css';
 
 const PARTICLE_COUNT = 14;
 const PARTICLE_RADIUS = 34; // ボタン中心から飛ぶ基準距離(px)

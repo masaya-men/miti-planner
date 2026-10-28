@@ -1,0 +1,46 @@
+/* TourTrayDetailPanel の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== ツアー計画画面: 左の固定詳細パネル (TourTrayDetailPanel・2026-08-11) ===== */
+.housing-tour-plan-detail {
+  display: flex;
+  flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+  min-height: 0;
+  height: 100%;
+}
+.housing-tour-plan-detail-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  color: var(--housing-text-mute);
+  font-size: var(--housing-text-sm);
+}
+.housing-tour-plan-detail-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+}
+/* .housing-tour-dest-title は横並び用に flex:1 を持つため、縦積みのここでは伸びて
+   名前と住所/コメントの間に大きな空きができていた (2026-10-22)。縦には伸ばさない。 */
+.housing-tour-plan-detail-body > .housing-tour-dest-title {
+  flex: 0 0 auto;
+}
+.housing-tour-plan-detail-note {
+  margin: 0; flex: 0 0 auto;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-dest-title {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

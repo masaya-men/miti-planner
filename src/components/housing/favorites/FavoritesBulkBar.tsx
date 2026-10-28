@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import './FavoritesBulkBar.css';
 
 export interface FavoritesBulkBarProps {
   total: number;

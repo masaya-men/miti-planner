@@ -23,6 +23,7 @@ import { canAddToTour } from '../../../lib/housing/tourCrossing';
 import { parseAllmarksShareUrl } from '../../../lib/housing/allmarksImport';
 import { useAllmarksImport } from '../../../lib/housing/useAllmarksImport';
 import { AllmarksImportProgress } from './AllmarksImportProgress';
+import './EphemeralAddPanel.css';
 
 export interface EphemeralAddPanelProps {
   open: boolean;

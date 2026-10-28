@@ -1,0 +1,49 @@
+/* BrowseSortSelect の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 並び替え (参考UI「並び替え: 新着順 ▼」) */
+.housing-sort {
+  position: relative;
+  display: inline-flex; align-items: center; gap: calc(8px * var(--housing-scale));
+  flex: 0 0 auto;
+}
+.housing-sort-label { font-size: var(--housing-text-sm); color: var(--housing-text-mute); }
+.housing-sort-trigger {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: calc(6px * var(--housing-scale));
+  height: calc(30px * var(--housing-scale)); padding: 0 calc(8px * var(--housing-scale)) 0 calc(12px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.housing-sort-trigger:hover { border-color: var(--housing-panel-border-strong); }
+.housing-sort[data-open="true"] .housing-sort-trigger {
+  border-color: var(--housing-honey-border); background: var(--housing-honey-soft);
+}
+.housing-sort-chevron { color: var(--housing-text-mute); transition: transform 0.15s ease; }
+.housing-sort[data-open="true"] .housing-sort-chevron { transform: rotate(180deg); }
+.housing-sort-menu {
+  position: absolute; top: calc(100% + calc(4px * var(--housing-scale))); right: 0; z-index: 20;
+  list-style: none; margin: 0; padding: calc(4px * var(--housing-scale));
+  min-width: calc(140px * var(--housing-scale));
+  display: flex; flex-direction: column; gap: calc(2px * var(--housing-scale));
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+  box-shadow: 0 calc(12px * var(--housing-scale)) calc(32px * var(--housing-scale)) rgba(0, 0, 0, 0.45);
+}
+.housing-sort-option {
+  appearance: none; cursor: pointer; width: 100%;
+  display: flex; align-items: center; gap: calc(8px * var(--housing-scale));
+  padding: calc(7px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); text-align: left;
+  color: var(--housing-text-dim);
+  background: transparent; border: 0; border-radius: calc(7px * var(--housing-scale));
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.housing-sort-option:hover { background: var(--housing-chip-bg-hover); color: var(--housing-text); }
+.housing-sort-option[data-selected="true"] { color: var(--housing-candle); }
+.housing-sort-option-check {
+  flex: 0 0 auto; width: calc(14px * var(--housing-scale)); display: inline-flex; color: var(--housing-honey);
+}

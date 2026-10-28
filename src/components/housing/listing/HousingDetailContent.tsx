@@ -31,6 +31,7 @@ import { useHousingReport } from '../report/useHousingReport';
 import { showToast } from '../../toastBus';
 import { LOPO_DISCORD_URL } from '../../../lib/systemNotifLinks';
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
+import './HousingDetailContent.css';
 
 /** 家主が通報通知から開いた時に詳細内へ出す案内 (任意) */
 export interface ReportNotice {

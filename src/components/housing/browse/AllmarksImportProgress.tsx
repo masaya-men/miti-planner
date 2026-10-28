@@ -4,6 +4,7 @@ import type { AllmarksImportProgress as AllmarksImportProgressState } from '../.
 import type { Region } from '../../../data/housing/dcServerMap';
 import { regionLabel, pickRegionLocale } from '../../../data/housing/regionMap';
 import { localeDefaultRegion } from '../../../lib/housing/localeRegionDefaults';
+import './AllmarksImportProgress.css';
 
 export interface AllmarksImportProgressProps {
   progress: AllmarksImportProgressState;

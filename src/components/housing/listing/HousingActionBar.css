@@ -1,0 +1,19 @@
+/* HousingActionBar の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ============================================================
+ * Detail (Phase 3) — モーダル / フルページ / アクションバー / ギャラリー
+ * ============================================================ */
+.housing-action-bar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(8px * var(--housing-scale));
+    /* 実機FB(ユーザー指摘2026-07-20): ♡(30px固定)/…メニュー(40px固定)/テキストボタン群
+       (パディング差で32〜35px)がバラバラだった。行内の全ボタンをこの高さに揃える。 */
+    --housing-action-bar-btn-h: calc(32px * var(--housing-scale));
+}
+.housing-action-bar-confirmed-at {
+    color: var(--housing-text-muted);
+    font-size: var(--housing-text-small);
+    align-self: center;
+}

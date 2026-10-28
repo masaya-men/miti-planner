@@ -3,6 +3,7 @@ import { useSlideshowCycle } from '../../../lib/housing/useSlideshowCycle';
 import type { SlideshowFrame } from '../../../lib/housing/slideshowFrames';
 import { slideshowWindowIndices } from '../../../lib/housing/slideshowWindow';
 import { HousingImage } from '../media/HousingImage';
+import './HousingCardAmbientSlideshow.css';
 
 export interface HousingCardAmbientSlideshowProps {
   /** 表示する静止画フレーム (resolveSlideshowFrames の戻り値)。 */

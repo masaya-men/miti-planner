@@ -8,6 +8,8 @@ import path from 'node:path';
 import postcss from 'postcss';
 import { fileURLToPath } from 'node:url';
 import { findOrderPairs, parseRules, splitSelectorList, subjectClasses } from './cssRules.mjs';
+import { reachable } from './reachable.mjs';
+import { classGroups } from './classGroups.mjs';
 
 const HOUSING = 'src/components/housing';
 const isShell = (p) => p.startsWith(`${HOUSING}/shell/`);
@@ -87,8 +89,20 @@ export function planColocation({ sources, jsx, shared, frame, overrides, selecto
     for (const c of u.rule.selector.match(/\bhousing(?:er)?-[\w-]+/g) || []) fileClasses.get(u.src).add(c);
   }
 
+  // 同じ class の持ち主は 1 つに固定する(最初に決まった持ち主を使う。 番号ファイルごとに変わると並びが割れる)
+  const classOwner = new Map();
   const ownerOfClass = (cls, src) => {
+    if (!classOwner.has(cls)) classOwner.set(cls, decideOwner(cls, src));
+    return classOwner.get(cls);
+  };
+  const decideOwner = (cls, src) => {
     if (overrides[cls]) return overrides[cls];
+    // X--修飾 は X と同じ要素に付くので、 X に持ち主があればそれに合わせる
+    const bem = cls.replace(/--[\w-]*$/, '');
+    if (bem !== cls) {
+      const o = ownerOfClass(bem, src);
+      if (o) return o;
+    }
     let hits = hitsOf(cls);
     let probe = cls;
     while (!hits.length) {
@@ -116,18 +130,50 @@ export function planColocation({ sources, jsx, shared, frame, overrides, selecto
     return null;
   };
 
-  // 1 周目: class から決まる持ち主
+  // 1 周目: class から決まる持ち主。 セレクタごとに持ち主が違う規則は、 持ち主ごとの規則に分ける
+  // (「A, B { 宣言 }」は「A { 宣言 } B { 宣言 }」と同じ意味。 分けた規則は元と同じ位置に並ぶ)
+  const selOverrides = (Array.isArray(selectorOverrides) ? selectorOverrides : Object.entries(selectorOverrides));
+  const overrideOf = (sel) => selOverrides.find(([pat]) => (pat instanceof RegExp ? pat.test(sel) : pat === sel))?.[1];
+  const expanded = [];
   for (const u of units) {
-    if (u.rule?.kind !== 'rule') continue;
-    if (selectorOverrides[u.rule.selector]) {
-      u.owner = selectorOverrides[u.rule.selector];
+    if (u.rule?.kind !== 'rule') {
+      expanded.push(u);
       continue;
     }
-    const owners = splitSelectorList(u.rule.selector).map((s) => ownerOfSelector(s, u.src));
-    u.owner = owners.find(Boolean) ?? null;
-    const distinct = [...new Set(owners.filter(Boolean))];
-    if (distinct.length > 1) ambiguous.set(`selector:${u.rule.selector}`, { cls: u.rule.selector, candidates: distinct, chosen: u.owner });
+    const whole = overrideOf(u.rule.selector);
+    if (whole) {
+      u.owner = whole;
+      expanded.push(u);
+      continue;
+    }
+    const sels = splitSelectorList(u.rule.selector);
+    const owners = sels.map((s) => overrideOf(s) ?? ownerOfSelector(s, u.src));
+    const first = owners.find(Boolean) ?? null;
+    const groups = new Map();
+    sels.forEach((s, i) => {
+      const o = owners[i] ?? first;
+      if (!groups.has(o)) groups.set(o, []);
+      groups.get(o).push(s);
+    });
+    if (groups.size === 1) {
+      u.owner = first;
+      expanded.push(u);
+      continue;
+    }
+    ambiguous.set(`selector:${u.rule.selector}`, { cls: u.rule.selector, candidates: [...groups.keys()], chosen: '(持ち主ごとに分割)' });
+    let isFirst = true;
+    for (const [o, list] of groups) {
+      const node = u.node.clone({ selector: list.join(',\n') });
+      // 元の位置の親(@media)を辿れるよう、 元の親に仮置きしてから外す
+      u.node.parent.insertBefore(u.node, node);
+      const rule = { ...u.rule, selector: list.join(', '), selectors: list, node };
+      expanded.push({ src: u.src, rule, node, comments: isFirst ? u.comments : [], owner: o });
+      isFirst = false;
+    }
+    u.node.remove();
   }
+  units.length = 0;
+  units.push(...expanded);
   // class の無い規則(:root・html[...]・#id 等): id が JSX にあればその持ち主
   for (const u of units) {
     if (u.rule?.kind !== 'rule' || u.owner || /\.housing(?:er)?-/.test(u.rule.selector)) continue;
@@ -184,13 +230,15 @@ export function planColocation({ sources, jsx, shared, frame, overrides, selecto
   const crossPairs = [];
   const sharedPairs = [];
   const destOf = new Map(units.filter((u) => u.rule).map((u) => [u.rule, u.dest]));
-  for (const [a, b, prop] of findOrderPairs(units.filter((u) => u.rule).map((u) => u.rule))) {
+  for (const [a, b, prop] of findOrderPairs(units.filter((u) => u.rule).map((u) => u.rule), classGroups(jsx.map((j) => j.text)))) {
     const da = destOf.get(a);
     const db = destOf.get(b);
     const ka = da.out ?? da.kept;
     const kb = db.out ?? db.kept;
     if (ka === kb) continue;
-    if (da.out && db.out) crossPairs.push([a, b, prop, ka, kb]);
+    // 部品同士の組だけを「またぐ順番頼り」とする。 共有フォルダ(下地・外枠・unused 等)が絡む組は並びをビルド比較で確かめる
+    const isComponent = (k) => k.startsWith(`${HOUSING}/`);
+    if (isComponent(ka) && isComponent(kb)) crossPairs.push([a, b, prop, ka, kb]);
     else sharedPairs.push([a, b, prop, ka, kb]);
   }
 
@@ -276,9 +324,19 @@ const OVERRIDES = {
   'housing-listing-grid-toolbar': `${H}/browse/ListingGrid.tsx`, // 一覧の上の道具列(各ページは流用)
   'housing-register-section': `${H}/pages/RegisterPage.tsx`, // 登録の各節の共通の見出しと枠
   'housing-register-section-title': `${H}/pages/RegisterPage.tsx`,
-  'housing-confirm-button': `${H}/register/HousingRegisterFieldBadge.tsx`, // 確定ボタンと項目の札は同じ部品の見た目
-  'housing-field-badge': `${H}/register/HousingRegisterFieldBadge.tsx`,
   'housing-card-add-btn': `${H}/browse/ListingCard.tsx`, // カードの「ツアーに追加」。 詳細の操作列は同じ詳細度で上書きするのでここに並べる
+  // 確定ボタン(今は読まれない部品だけが描く)は、 項目の札と一緒に書かれた規則と並びを保つため住所の節へ
+  'housing-confirm-button': `${H}/register/RegisterSectionAddress.tsx`,
+  // 以下は「別の部品が同じ要素の見た目を同じ詳細度で上書きする」規則。 上書きされる側の部品のファイルへ寄せて並びを保つ
+  'housing-skel': 'shared:primitives', // 骨組み表示の土台(各骨組み部品・ハウジンガーのボタンの骨組みが上書き)
+  'housing-conditional-field': 'shared:primitives', // 条件で出る項目(項目の下地の変形)
+  'housinger-page-login-shell': 'shared:page-frame', // 未ログイン時のマイページ(外枠の変形)
+  'housinger-page-login-main': 'shared:page-frame',
+  'housing-mobile-settings-legal': `${H}/workspace/StatusBar.tsx`, // 設定シートでの状態欄の並べ方
+  'housinger-page-kebab-trigger': `${H}/listing/HousingDetailKebab.tsx`, // ハウジンガーページの「…」の大きさ
+  'housing-register-col-left': `${H}/pages/RegisterPage.tsx`, // 登録の左右の列
+  'housing-register-col-right': `${H}/pages/RegisterPage.tsx`,
+  'housing-listing-card-admin-hidden': `${H}/browse/ListingCard.tsx`, // 管理者向けの非公開カード
   'housing-empty-result': `${H}/workspace/EmptyResult.tsx`, // 地図の表示は流用
   'housing-panel-head': `${H}/HousingPanelModal.tsx`, // パネルの見出し一式は窓の部品
   'housing-panel-meta': `${H}/HousingPanelModal.tsx`,
@@ -294,19 +352,17 @@ const OVERRIDES = {
   // ツアーのページの枠(案内・参加・計画・再計画が流用)
   ...Object.fromEntries(['housing-tour-page', 'housing-tour-page-panel', 'housing-tour-page-panel-solo', 'housing-tour-page-col'].map((c) => [c, `${H}/pages/TourNavPage.tsx`])),
 };
-const SELECTOR_OVERRIDES = {
+// [規則全体のセレクタ(文字列は完全一致・正規表現は一致), 持ち主]。 規則を分けずに丸ごと行き先を決める
+const SELECTOR_OVERRIDES = [
   // 多くの部品のフォーカス枠をまとめた 1 規則 → 下地
-  [[
-    'housing-card-fav', 'housing-card-add-btn', 'housing-tour-tray-remove', 'housing-tour-tray-start', 'housing-tour-progress-finish',
-    'housing-fav-strip-thumb', 'housing-fav-strip-more', 'housing-size-seg-btn', 'housing-filter-select', 'housing-filter-option',
-    'housing-sort-trigger', 'housing-sort-option', 'housing-view-toggle-btn', 'housing-dcmenu-row', 'housing-maprail-row',
-    'housing-maprail-ward', 'housing-maprail-kind', 'housing-empty-result-back',
-  ].map((c) => `.${c}:focus-visible`).join(', ')]: 'shared:primitives',
+  [/^\.housing-card-fav:focus-visible, \.housing-card-add-btn:focus-visible,/, 'shared:primitives'],
+  // 浮かぶカード・メニュー 4 種の共通の面(枠・影)→ 下地
+  [/^\.housing-tour-expose-card, \.housing-notif-dropdown, \.housing-card-visibility-menu, \.housing-bottomnav-account-menu/, 'shared:primitives'],
   // 引っ張って更新の戻りの動き(殻と表示の両方に付く class)は更新部品の見た目
-  '.housing-shell.housing-ptr-snap': `${H}/shell/HousingPullToRefresh.tsx`,
+  [/housing-ptr-snap/, `${H}/shell/HousingPullToRefresh.tsx`],
   // 出現の動きの「待機」状態(属性だけの規則)
-  '[data-reveal="hold"]': 'shared:primitives',
-};
+  ['[data-reveal="hold"]', 'shared:primitives'],
+];
 // class の無い規則(:root・html[...] 等)の行き先をファイル単位で決める
 const FILE_FALLBACK = {
   '54-theme-reveal.css': 'shared:theme-reveal', // 昼夜切替の画面全体の動き(部品でなくページ全体)
@@ -336,10 +392,13 @@ function main() {
   const args = process.argv.slice(2);
   const write = args.includes('--write');
   const only = args.find((a) => a.startsWith('--only='))?.slice(7).split(',');
-  const entry = fs.readFileSync('src/styles/housing.css', 'utf8');
+  // 作業コピーが CRLF でも LF にそろえる(下の @import 行の置き換えが改行 LF 前提のため)
+  const entry = fs.readFileSync('src/styles/housing.css', 'utf8').replace(/\r\n/g, '\n');
   const files = [...entry.matchAll(/@import\s+"\.\/(housing\/[^"]+)";/g)].map((m) => `src/styles/${m[1]}`);
   const sources = files.map((file) => ({ file, css: fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n') }));
-  const jsx = walk('src').map((file) => ({ file, text: fs.readFileSync(file, 'utf8') }));
+  // 持ち主の候補は、 入口(src/main.tsx)から import でたどれる部品だけ(読まれない部品の隣の CSS は画面に届かない)
+  const { staticFiles } = reachable('src/main.tsx', (f) => fs.readFileSync(f, 'utf8'), (f) => fs.existsSync(f) && fs.statSync(f).isFile());
+  const jsx = walk('src').filter((file) => staticFiles.has(file)).map((file) => ({ file, text: fs.readFileSync(file, 'utf8') }));
   const p = planColocation({ sources, jsx, shared: SHARED, frame: FRAME, overrides: OVERRIDES, selectorOverrides: SELECTOR_OVERRIDES, fileFallback: FILE_FALLBACK });
 
   const inScope = (out) => {

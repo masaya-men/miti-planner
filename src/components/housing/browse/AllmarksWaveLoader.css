@@ -1,0 +1,70 @@
+/* AllmarksWaveLoader の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-allmarks-wave-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: calc(12px * var(--housing-scale)) 0;
+}
+
+/* スマホ幅ではトラック (固定 ~394px) が収まらず右端の家が見切れていたため、
+   AllmarksWaveLoader.tsx が利用可能幅を採寸して transform: scale で縮小する。
+   この wrapper が縮小後の実寸を占め、外側の中央寄せ・縦レイアウトを崩さない。 */
+.housing-allmarks-wave-loader-fit {
+  position: relative;
+}
+
+.housing-allmarks-wave-loader-track {
+  position: relative;
+  height: calc(150px * var(--housing-scale));
+  display: flex;
+  align-items: flex-end;
+}
+
+.housing-allmarks-wave-bar-wrap {
+  position: relative;
+  height: calc(64px * var(--housing-scale));
+  margin-right: calc(8px * var(--housing-scale));
+  display: flex;
+  align-items: flex-end;
+}
+
+.housing-allmarks-wave-bar-wrap:last-of-type {
+  margin-right: 0;
+}
+
+.housing-allmarks-wave-bar-base {
+  width: 100%;
+  height: calc(16px * var(--housing-scale));
+  border-radius: calc(999px * var(--housing-scale));
+  background: var(--housing-divider);
+}
+
+.housing-allmarks-wave-bar-glow {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  border-radius: calc(999px * var(--housing-scale));
+  background: var(--housing-aether);
+}
+
+.housing-allmarks-wave-house {
+  position: absolute;
+  bottom: 0;
+  transform-origin: bottom center;
+  color: var(--housing-honey);
+  line-height: 0;
+}
+
+.housing-allmarks-wave-ball {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: calc(12px * var(--housing-scale));
+  height: calc(12px * var(--housing-scale));
+  border-radius: 50%;
+  background: var(--housing-honey);
+  transform-origin: bottom center;
+  box-shadow: 0 0 calc(8px * var(--housing-scale)) var(--housing-honey-glow);
+}

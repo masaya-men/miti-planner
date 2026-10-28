@@ -16,6 +16,7 @@ import { applyWheelZoom, type MapView } from '../../../lib/housing/mapZoom';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
 import existingRoutesRaw from '../../../data/housing/wardRouteOverrides.generated.json';
+import './RouteAuthoringPage.css';
 
 type Pt = [number, number];
 type RawEntry = { road?: Pt[]; jump?: Pt[] | null; segments?: RouteSegment[] };

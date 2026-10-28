@@ -1,0 +1,75 @@
+/* TourNavPage の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ============================================================
+ * ツアー中(Nav)ページ本体 (Task8・TourNavPage)
+ * 探す(housing-browse)/登録(housing-register)ページと同じ3カラム骨格。
+ * 空状態/完了状態は3カラムでなく中央1枚 (panel-solo) に寄せる。
+ * ============================================================ */
+.housing-tour-page {
+  display: grid;
+  grid-template-columns: var(--housing-left-w) 1fr var(--housing-right-w);
+  gap: var(--housing-main-gap);
+  padding: var(--housing-main-padding);
+  min-height: 0;
+  height: 100%;
+}
+/* Phase3: 本番ツアーページ (TourNavPage) のみ 左=ショーケース(広め)/右=進行状況(狭め)。
+   DEV RouteAuthoringPage が使う共有 .housing-tour-page には波及させない。 */
+.housing-tour-page--reorg {
+  grid-template-columns: var(--housing-tour-showcase-w) 1fr var(--housing-tour-progress-w);
+  position: relative; /* 完了オーバーレイ(.housing-tour-complete-overlay)の絶対配置基準 */
+}
+.housing-tour-page-panel {
+  position: relative;
+  display: flex; flex-direction: column;
+  min-height: 0; height: 100%;
+  background: var(--housing-panel-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: var(--housing-panel-radius);
+  box-shadow: var(--housing-panel-shadow);
+  overflow: hidden;
+}
+/* 空状態/完了状態: housing-register-panel-solo と同じ考え方 (3カラムでなく中央1枚)。 */
+.housing-tour-page-panel-solo {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.housing-tour-page-col {
+  display: flex; flex-direction: column;
+  gap: calc(12px * var(--housing-scale));
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  padding: calc(14px * var(--housing-scale)) calc(16px * var(--housing-scale));
+}
+.housing-dev-tourpreview .housing-tour-page { flex: 1; min-height: 0; }
+@media (max-width: 767px) {
+
+  /* ----- Task4: ツアー(TourNavPage)横持ちUI(案A) -----
+     左=ショーケース/右=進行状況パネルを隠し、中央地図パネルを全画面高にする。
+     下部に細い操作バー(TourMobileBar)を固定し、そのぶん地図パネルへ下端余白を確保する。
+     完了オーバーレイ(.housing-tour-complete-overlay)は既存のまま(触らない)。 */
+  .housing-tour-page-panel[data-region="left"],
+  .housing-tour-page-panel[data-region="right"] {
+    display: none;
+  }
+  .housing-tour-page {
+    grid-template-columns: 1fr;
+    /* 実機FB#7: 外側インセット/パネル間隔を除去して地図を画面いっぱいに (探すの全面化と同型)。 */
+    padding: 0;
+    gap: 0;
+  }
+  .housing-tour-page-panel {
+    border-radius: 0;
+    border: none;
+  }
+  .housing-tour-page-panel[data-region="center"] {
+    padding-bottom: calc(var(--housing-tour-mobilebar-h) + env(safe-area-inset-bottom, 0px));
+  }
+  /* 「順番を変える」の上段があるとき (幹事のみ) だけバーが 1 段高い。参加者には足さない。 */
+  .housing-tour-page:has(.housing-tour-mobilebar[data-has-top]) .housing-tour-page-panel[data-region="center"] {
+    padding-bottom: calc(var(--housing-tour-mobilebar-h) + var(--housing-tour-mobilebar-top-h) + env(safe-area-inset-bottom, 0px));
+  }
+
+}

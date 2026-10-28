@@ -1,0 +1,18 @@
+/* HousingCardVideoOverlay の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 2026-05-27 動画オーバーレイ (spotlight rotation の live メンバーのみ mount) */
+.housing-card-video-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--housing-card-overlay-z-video);
+  overflow: hidden;
+  border-radius: inherit;
+}
+.housing-card-video-overlay > video,
+.housing-card-video-overlay > iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+  display: block;
+}

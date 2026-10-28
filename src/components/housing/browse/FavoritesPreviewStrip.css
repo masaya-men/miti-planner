@@ -1,0 +1,58 @@
+/* FavoritesPreviewStrip の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 右カラム: お気に入りプレビュー (参考UI準拠) */
+.housing-fav-strip {
+  flex: 0 0 auto;
+  display: flex; flex-direction: column; gap: calc(10px * var(--housing-scale));
+  padding-top: calc(12px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-fav-strip-head {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.housing-fav-strip-title {
+  display: inline-flex; align-items: center; gap: calc(6px * var(--housing-scale));
+  font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-text);
+}
+.housing-fav-strip-title svg { color: var(--housing-honey); }
+.housing-fav-strip-count {
+  font-size: var(--housing-text-xs); color: var(--housing-candle);
+  background: var(--housing-honey-medium); border-radius: calc(999px * var(--housing-scale));
+  min-width: calc(20px * var(--housing-scale)); text-align: center; padding: calc(1px * var(--housing-scale)) calc(7px * var(--housing-scale));
+}
+.housing-fav-strip-title { font-size: var(--housing-text-md); }
+.housing-fav-strip-count { font-size: var(--housing-text-xs); }
+.housing-fav-strip-more {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  display: inline-flex; align-items: center; gap: calc(2px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); color: var(--housing-text-mute);
+  padding: calc(2px * var(--housing-scale)) calc(4px * var(--housing-scale)); border-radius: calc(6px * var(--housing-scale));
+  transition: color 0.15s ease;
+}
+.housing-fav-strip-more:hover { color: var(--housing-candle); }
+.housing-fav-strip-list {
+  list-style: none; margin: 0; padding: 0;
+  /* 横一列。3件超は横スクロール + 4件目の見切れ(peek)でスクロール可能を示唆 (ホイールでも横送り)。 */
+  display: flex; flex-wrap: nowrap;
+  gap: calc(6px * var(--housing-scale));
+  overflow-x: auto; overflow-y: hidden;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none; /* Firefox: バーは隠し、見切れで示唆 */
+}
+.housing-fav-strip-list::-webkit-scrollbar { display: none; }
+
+/* WebKit: 同上 */
+.housing-fav-strip-item {
+  flex: 0 0 30%; /* 3件が収まり4件目が見切れる幅。 */
+  min-width: 0;
+}
+.housing-fav-strip-thumb {
+  appearance: none; border: 1px solid var(--housing-panel-border); cursor: pointer;
+  display: block; width: 100%; aspect-ratio: 1 / 1; position: relative;
+  padding: 0; border-radius: calc(8px * var(--housing-scale)); overflow: hidden;
+  background: var(--housing-card-thumb-bg);
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+.housing-fav-strip-thumb:hover { border-color: var(--housing-honey-border); }
+.housing-fav-strip-thumb:active { transform: scale(0.96); }
+.housing-fav-strip-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }

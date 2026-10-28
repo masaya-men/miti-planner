@@ -4,6 +4,7 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useTourTrayOrdering } from '../../../lib/housing/useTourTrayOrdering';
 import { TourTrayRow } from './TourTrayRow';
+import './TourTrayList.css';
 
 export interface TourTrayListProps {
   /** トレイの生 id 配列 (追加順 or 前回の手動並び替え順)。表示順の解決は内部で行う。 */

@@ -1,0 +1,81 @@
+/* AllTagsSection の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-tagpicker-chip-avatar {
+    width: var(--housinger-avatar-size-sm);
+    height: var(--housinger-avatar-size-sm);
+}
+.housing-tagpicker-section {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+}
+.housing-tagpicker-section-header {
+  appearance: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-family: inherit;
+}
+.housing-tagpicker-section-title {
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text);
+}
+.housing-tagpicker-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(14px * var(--housing-scale));
+}
+.housing-tagpicker-kind-group {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+  padding-top: calc(12px * var(--housing-scale));
+}
+.housing-tagpicker-kind-group:first-child {
+  padding-top: 0;
+}
+.housing-tagpicker-kind-group:not(:first-child) {
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-tagpicker-kind-label {
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--housing-text-dim);
+}
+.housing-tagpicker-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(6px * var(--housing-scale));
+}
+.housing-tagpicker-chip {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(6px * var(--housing-scale));
+  height: calc(32px * var(--housing-scale));
+  padding: 0 calc(12px * var(--housing-scale));
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-dim);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.housing-tagpicker-chip:hover {
+  border-color: var(--housing-panel-border-strong);
+  color: var(--housing-text);
+}
+.housing-tagpicker-chip[data-selected="true"] {
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+}

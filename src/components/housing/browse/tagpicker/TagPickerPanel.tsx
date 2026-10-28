@@ -8,6 +8,7 @@ import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
 import { applyFilters } from '../../../../lib/housing/applyFilters';
 import { useKeywordFilteredListings } from '../../../../lib/housing/useKeywordFilteredListings';
 import { AllTagsSection } from './AllTagsSection';
+import './TagPickerPanel.css';
 
 export interface TagPickerPanelProps {
   /** 「絞り込む」で committed tags へ反映した直後に呼ばれる (PC=一覧へ遷移 / スマホ=折りたたみ)。 */

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import './RegisterAutosaveNotice.css';
 
 export const RegisterAutosaveNotice: React.FC<{ postUrl: string; onDiscard: () => void }> = ({ postUrl, onDiscard }) => {
   const { t } = useTranslation();

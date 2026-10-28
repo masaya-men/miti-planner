@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Check } from 'lucide-react';
 import { HousingPanelModal } from '../HousingPanelModal';
 import { cropAndResize, validateAvatarFile } from '../../../utils/avatarUpload';
+import './HousingAvatarCropModal.css';
 
 interface HousingAvatarCropModalProps {
   isOpen: boolean;

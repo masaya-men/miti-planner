@@ -24,6 +24,7 @@ import { FilterDropdown } from './FilterDropdown';
 import { ResultCountBadge } from './ResultCountBadge';
 import { RegisterCTA } from './RegisterCTA';
 import { PanelCloseButton } from './PanelCloseButton';
+import './FilterPanel.css';
 
 const AREAS: HousingArea[] = ['Mist', 'LavenderBeds', 'Goblet', 'Shirogane', 'Empyreum'];
 const SIZES: HousingSize[] = ['S', 'M', 'L'];

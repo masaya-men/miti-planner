@@ -1,5 +1,6 @@
 import React from 'react';
 import { computeMarqueeLoopMetrics, type MarqueeMetrics } from '../../../utils/marquee';
+import './HousingCardMarqueeLine.css';
 
 /**
  * カードキャプション用の1行ループマーキー。

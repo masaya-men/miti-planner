@@ -5,6 +5,7 @@ import { useTweetFetch, type TweetData } from '../../../lib/housing/useTweetFetc
 import { useOgpFetch, type OgpData } from '../../../lib/housing/useOgpFetch';
 import { useYoutubeFetch, type YoutubeMetaData } from '../../../lib/housing/useYoutubeFetch';
 import { classifySnsUrl } from '../../../lib/housing/snsUrlRouting';
+import './HousingRegisterSnsUrlField.css';
 
 export interface YoutubeFetchedData {
     postUrl: string;

@@ -1,0 +1,26 @@
+/* EmptyResult の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* Empty state */
+.housing-empty-result {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(10px * var(--housing-scale));
+  padding: calc(32px * var(--housing-scale));
+  text-align: center;
+  color: var(--housing-text);
+  text-shadow: var(--housing-text-shadow);
+}
+.housing-empty-result-icon {
+  opacity: 0.55;
+}
+.housing-empty-result-title {
+  font-size: var(--housing-text-lg);
+  font-weight: 500;
+}
+.housing-empty-result-hint {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-browse-map-view > .housing-empty-result { flex: 1 1 auto; }

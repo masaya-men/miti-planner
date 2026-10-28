@@ -1,0 +1,26 @@
+/* TourReplanView の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* スマホは蛇行グリッドを出さず、既存の縦一覧 (TourTrayList) + 開始ボタンの縦積み。 */
+.housing-tour-plan-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+  height: 100%;
+  min-height: 0;
+  padding: var(--housing-main-padding);
+}
+/* 並び替え画面の小見出し (見学済み / これから行く順番)。 */
+.housing-tour-replan-subtitle {
+  margin: 0; flex: 0 0 auto;
+  font-size: var(--housing-text-xs); font-weight: 600; letter-spacing: 0.04em;
+  color: var(--housing-text-mute);
+}
+@media (max-width: 767px) {
+
+  /* 最終レビュー指摘(Critical): 計画画面(スマホ)は末尾に「ツアーを開始する」ボタンが来るが、
+     固定下部ナビ (.housing-bottomnav) に隠れて押せなかった。.housing-register-col-center と
+     同型でナビ高さ+セーフエリア+余裕を下端に確保する (padding-bottom のみ上書き)。 */
+  .housing-tour-plan-mobile {
+    padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px);
+  }
+
+}

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { RegisterChecklistItem } from '../../../lib/housing/registerChecklist';
+import './RegisterSectionConfirm.css';
 
 /**
  * 確認セクションに渡す入力要約 (住所/タイトル/画像枚数/公開設定)。

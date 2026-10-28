@@ -10,6 +10,7 @@ import type { PublishedHousinger } from '../../../lib/housing/publishedHousinger
 import { stripHashedPrefix } from '../../../lib/housing/housingerProfile';
 import { representativeImage } from '../../../lib/housing/representativeImage';
 import { HousingImage } from '../media/HousingImage';
+import './BrowseHousingerView.css';
 
 export interface BrowseHousingerViewProps {
   /** 探すページで絞り込み済みの家。ここに 1 件も家を持たない人は一覧に出さない。 */

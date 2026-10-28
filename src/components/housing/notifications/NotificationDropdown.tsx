@@ -10,6 +10,7 @@
 import { useTranslation } from 'react-i18next';
 import { NotificationItem } from './NotificationItem';
 import type { HousingNotification } from '../../../types/notification';
+import './NotificationDropdown.css';
 
 export interface NotificationDropdownProps {
   items: HousingNotification[];

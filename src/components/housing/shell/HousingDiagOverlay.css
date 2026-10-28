@@ -1,0 +1,20 @@
+/* HousingDiagOverlay の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* iPhone の表示ずれ調査用の隠し表示 (HousingDiagOverlay・?diag=1 のときだけ)。原因確定後に撤去。 */
+.housing-diag-overlay {
+  position: fixed;
+  left: calc(8px * var(--housing-scale));
+  bottom: calc(8px * var(--housing-scale));
+  z-index: var(--housing-z-modal-base);
+  appearance: none;
+  margin: 0;
+  padding: calc(6px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  text-align: left;
+  white-space: pre;
+  font-family: ui-monospace, monospace;
+  font-size: var(--housing-text-xs);
+  line-height: 1.4;
+  color: var(--housing-text);
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(8px * var(--housing-scale));
+}

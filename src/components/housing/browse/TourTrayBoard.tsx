@@ -8,6 +8,7 @@ import { useTourTrayOrdering } from '../../../lib/housing/useTourTrayOrdering';
 import { computeSnakeGridPositions, buildSnakePathD } from '../../../lib/housing/computeSnakeGridPositions';
 import { isAtScrollBoundary, isSmoothScrollSupported, springStep } from '../../../lib/scroll/smoothScrollLogic';
 import { TourTrayRow } from './TourTrayRow';
+import './TourTrayBoard.css';
 
 // 軽減表側の useSmoothWheelScroll (縦専用) と同じバネ定数。横方向へ転用するのでここに複製する。
 const WHEEL_SPRING_STIFFNESS = 200;

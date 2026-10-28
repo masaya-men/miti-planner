@@ -36,6 +36,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { compressHousingImage, type CompressedImage } from '../../../lib/housing/imageCompression';
 import { HousingImage } from '../media/HousingImage';
 import { HousingDialogShell } from '../HousingDialogShell';
+import './HousingRegisterImageField.css';
 
 export interface HousingRegisterImageFieldProps {
   value: CompressedImage[];

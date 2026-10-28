@@ -1,0 +1,23 @@
+/* TourVisitedList の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 見学済みの固定リスト: 薄く・ドラッグ不可 (TourVisitedList)。 */
+.housing-tour-visited-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: calc(6px * var(--housing-scale));
+  flex: 0 1 auto; min-height: 0; max-height: 30%; overflow-y: auto;
+}
+.housing-tour-visited-item {
+  display: flex; align-items: center; gap: calc(10px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  opacity: var(--housing-visited-opacity);
+}
+.housing-tour-visited-lock { flex: 0 0 auto; color: var(--housing-text-mute); }
+.housing-tour-visited-num {
+  flex: 0 0 auto; min-width: 1.5em; text-align: center;
+  font-size: var(--housing-text-sm); font-weight: 700; color: var(--housing-text-mute);
+}
+.housing-tour-visited-tag {
+  flex: 0 0 auto; font-size: var(--housing-text-xs); color: var(--housing-text-mute);
+}

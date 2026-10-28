@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { computeSegmentFills } from '../../../lib/housing/stepperProgress';
 import { computeStepperScroll } from '../../../lib/housing/stepperScroll';
+import './RegisterStepperNav.css';
 
 export type RegisterStepState = 'idle' | 'active' | 'done';
 

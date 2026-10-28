@@ -1,0 +1,64 @@
+/* MapSpotCard の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ドラッグ由来のゴースト画像を抑止 (カード内 <img> 起点のドラッグとパンの紛れを防ぐ)。 */
+.housing-bmap-card,
+.housing-bmap-card img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* 吹き出しカード (2026-07-12 案B): フル ListingCard を常時1枚描画し、区画中央にアンカー。
+ * 通常時は面の scale で小さく (--housing-bmap-scale-collapsed)、hover/focus で面の scale を
+ * 打ち消す逆スケール (--housing-bmap-scale-inv = 1/actualScale) で画面固定サイズへ膨らむ。
+ * しっぽ (::after) と flip は廃止 (中央アンカー)。frosted glass は入れ子 transform で崩れうるため
+ * 実機で崩れたら background を --housing-panel-bg-solid へ寄せ backdrop-filter を外す (spec §3.5)。 */
+.housing-bmap-card {
+  --housing-bmap-clamp-x: 0px;
+  --housing-bmap-clamp-y: 0px;
+  --housing-bmap-scale: var(--housing-bmap-scale-collapsed);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: var(--housing-bmap-card-w);
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+  pointer-events: auto;
+  cursor: pointer;
+  border-radius: calc(14px * var(--housing-scale));
+  background: var(--housing-panel-bg);
+  --tw-backdrop-blur: blur(calc(8px * var(--housing-scale)));
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  transform-origin: 50% 50%;
+  transform: translate(
+      calc(-50% + var(--housing-bmap-clamp-x)),
+      calc(-50% + var(--housing-bmap-clamp-y))
+    )
+    scale(var(--housing-bmap-scale));
+  transition: transform 180ms ease;
+}
+/* hover/focus 中 (= 親が expandedKey に選んだスポット): 面の scale を打ち消して画面固定サイズへ。 */
+.housing-bmap-card[data-expanded="true"] {
+  --housing-bmap-scale: var(--housing-bmap-scale-inv);
+  z-index: 10;
+}
+
+/* 複数スポットの「N件を見る」導線 (パネルを開く)。AI 風ピルを避け、ヘアライン + 静かなグレー文字。 */
+.housing-bmap-card-more {
+  align-self: stretch;
+  appearance: none;
+  cursor: pointer;
+  padding: calc(5px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-panel-bg-solid);
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-xs);
+  text-align: center;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.housing-bmap-card-more:hover {
+  border-color: var(--housing-honey-border);
+  color: var(--housing-candle);
+}

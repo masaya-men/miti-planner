@@ -41,6 +41,7 @@ import { PERSONAL_TAG_ID_PREFIX } from '../../../constants/housing';
 import { useHousingTagPickerStore } from '../../../store/useHousingTagPickerStore';
 import { useHousingListOrderStore } from '../../../store/useHousingListOrderStore';
 import { shuffleWithNewPinned } from '../../../lib/housing/seededShuffle';
+import './BrowsePage.css';
 
 /**
  * 探すページ (3カラム): 左=フィルター / 中央=物件グリッド / 右=ツアートレイ。

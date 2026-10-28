@@ -8,6 +8,8 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { findOrderPairs, parseRules } from './cssRules.mjs';
+import { classGroups } from './classGroups.mjs';
+import { listTsx } from './srcFiles.mjs';
 
 const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), '.out');
 
@@ -22,9 +24,14 @@ function identities(rules) {
   });
 }
 
-export function compareCss(baseCss, nextCss) {
-  const baseRules = parseRules(baseCss, 'base.css');
-  const nextRules = parseRules(nextCss, 'next.css');
+/** 「A, B { 宣言 }」を同じ位置の「A { 宣言 }」「B { 宣言 }」に開く(移す道具が持ち主ごとに分けても同じものと見るため) */
+function perSelector(rules) {
+  return rules.flatMap((r) => (r.kind === 'rule' && r.selectors.length > 1 ? r.selectors.map((s) => ({ ...r, selector: s, selectors: [s] })) : [r]));
+}
+
+export function compareCss(baseCss, nextCss, related = (a, b) => a === b) {
+  const baseRules = perSelector(parseRules(baseCss, 'base.css'));
+  const nextRules = perSelector(parseRules(nextCss, 'next.css'));
   const baseIds = identities(baseRules);
   const nextIds = identities(nextRules);
   const nextPos = new Map(nextIds.map((id, i) => [id, i]));
@@ -33,7 +40,7 @@ export function compareCss(baseCss, nextCss) {
   const extra = nextIds.filter((id) => !baseSet.has(id));
   const idOf = new Map(baseRules.map((r, i) => [r, baseIds[i]]));
   const flipped = [];
-  for (const [a, b, prop] of findOrderPairs(baseRules)) {
+  for (const [a, b, prop] of findOrderPairs(baseRules, related)) {
     const pa = nextPos.get(idOf.get(a));
     const pb = nextPos.get(idOf.get(b));
     if (pa === undefined || pb === undefined) continue;
@@ -69,7 +76,9 @@ async function main() {
   }
   const base = fs.readFileSync(path.join(OUT, `${compare}.css`), 'utf8');
   fs.writeFileSync(path.join(OUT, 'last.css'), css);
-  const r = compareCss(base, css);
+  // 同じ要素に一緒に付く class を仲間として順番頼りを探す(JSX の className から)
+  const related = classGroups(listTsx('src').map((f) => fs.readFileSync(f, 'utf8')));
+  const r = compareCss(base, css, related);
   console.log(`欠け ${r.missing.length} / 重複 ${r.extra.length} / 順番の入れ替わり ${r.flipped.length}`);
   for (const m of r.missing.slice(0, 20)) console.log('  欠け:', m.slice(0, 200));
   for (const e of r.extra.slice(0, 20)) console.log('  重複:', e.slice(0, 200));

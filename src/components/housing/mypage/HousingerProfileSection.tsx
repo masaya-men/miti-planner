@@ -8,6 +8,7 @@ import { HOUSINGER_BIO_MAX_LENGTH, validateHousingerSnsUrl } from '../../../lib/
 import { ConfirmDialog } from '../../ConfirmDialog';
 import { showToast } from '../../toastBus';
 import type { HousingerProfile } from '../../../types/housing';
+import './HousingerProfileSection.css';
 
 /**
  * アカウントモーダル内「ハウジンガー公開」セクション (spec 2026-07-10-housinger-profile-design.md §4.1)。

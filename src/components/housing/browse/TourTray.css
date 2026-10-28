@@ -1,0 +1,65 @@
+/* TourTray の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ツアートレイ */
+.housing-tour-tray {
+  display: flex; flex-direction: column;
+  min-height: 0; flex: 1 1 auto;
+  gap: calc(12px * var(--housing-scale));
+}
+.housing-tour-tray-head {
+  display: flex; align-items: center; justify-content: space-between;
+  flex: 0 0 auto;
+}
+.housing-tour-tray-head-left { display: flex; align-items: center; gap: calc(8px * var(--housing-scale)); }
+.housing-tour-tray-count {
+  font-size: var(--housing-text-sm); color: var(--housing-candle);
+  background: var(--housing-honey-medium); border-radius: calc(999px * var(--housing-scale));
+  min-width: calc(22px * var(--housing-scale)); text-align: center; padding: calc(1px * var(--housing-scale)) calc(9px * var(--housing-scale));
+  font-variant-numeric: tabular-nums;
+}
+/* トレイを空にするボタン。.housing-tour-traybar-clear (スマホ版) と同じ控えめなアイコンボタン。 */
+.housing-tour-tray-clear {
+  appearance: none; border: 1px solid var(--housing-panel-border); background: transparent; cursor: pointer;
+  flex: 0 0 auto; width: calc(28px * var(--housing-scale)); height: calc(28px * var(--housing-scale));
+  display: flex; align-items: center; justify-content: center;
+  border-radius: calc(8px * var(--housing-scale)); color: var(--housing-text-mute);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-tour-tray-clear:hover:not(:disabled) { background: var(--housing-chip-bg-hover); color: var(--housing-text); }
+.housing-tour-tray-clear:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+.housing-tour-tray-clear:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+
+.housing-tour-tray-actions {
+  display: flex; flex-direction: column; gap: calc(8px * var(--housing-scale)); flex: 0 0 auto;
+  padding-top: calc(12px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+}
+/* 副アクション = 枠ボタン (.housing-tour-progress-action--view と同じ見た目)。 */
+.housing-tour-tray-reorder {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(8px * var(--housing-scale));
+  padding: calc(10px * var(--housing-scale)) calc(14px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border); border-radius: calc(10px * var(--housing-scale));
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-tray-reorder:hover:not(:disabled) { background: var(--housing-chip-bg-hover); }
+.housing-tour-tray-reorder:active:not(:disabled) { transform: scale(0.98); }
+.housing-tour-tray-reorder:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+.housing-tour-tray-reorder:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+
+.housing-tour-tray-start {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(8px * var(--housing-scale));
+  padding: calc(11px * var(--housing-scale)) calc(14px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-md); font-weight: 700;
+  color: var(--housing-honey-text);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  border: 0; border-radius: calc(10px * var(--housing-scale));
+  box-shadow: 0 calc(4px * var(--housing-scale)) calc(14px * var(--housing-scale)) var(--housing-honey-shadow-soft);
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-tray-start:hover:not(:disabled) { filter: brightness(1.05); }
+.housing-tour-tray-start:active:not(:disabled) { transform: scale(0.98); }
+.housing-tour-tray-start:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }

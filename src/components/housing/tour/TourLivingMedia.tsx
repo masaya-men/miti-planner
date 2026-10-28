@@ -7,6 +7,7 @@ import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlid
 import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
 import { HousingFavHeart } from '../browse/HousingFavHeart';
 import { HousingImage } from '../media/HousingImage';
+import './TourLivingMedia.css';
 
 export interface TourLivingMediaProps {
   listing: MockListing;

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import { SkeletonShell } from '../skeleton/HousingSkeletons';
+import './ListingGridSkeleton.css';
 
 export interface ListingGridSkeletonProps {
   /** true のとき実カードの「ツアーに追加」フッター分の高さも出す (探す/お気に入り)。 */

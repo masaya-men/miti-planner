@@ -1,0 +1,44 @@
+/* AllmarksImportProgress の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* Allmarksまとめてインポート (2026-08-19)。演出は AllmarksWaveLoader コンポーネント側
+   (波打つバー+跳ねるボール、ユーザー提供デザインを移植)。 バーの色変化は元コードの
+   RGB直接補間ではなく、aetherトーンの重ね(不透明度アニメ)で表現し token 経由を徹底。 */
+.housing-allmarks-import-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(14px * var(--housing-scale));
+  padding: calc(28px * var(--housing-scale)) calc(16px * var(--housing-scale)) calc(20px * var(--housing-scale));
+  text-align: center;
+}
+
+.housing-allmarks-import-status {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
+.housing-allmarks-import-tally {
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.housing-allmarks-import-summary {
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+  text-align: center;
+}
+
+.housing-allmarks-import-actions {
+  display: flex;
+  gap: calc(8px * var(--housing-scale));
+  margin-top: calc(4px * var(--housing-scale));
+}
+
+.housing-allmarks-import-region-choices {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+  width: 100%;
+}

@@ -10,6 +10,8 @@
  * `useHousingDetail` (通知バナー / peers / SNS ツイート生存確認等の重い機構) はここでは
  * 使わない。 編集ページに不要なため getDoc 直叩きに留める (brief の指示どおり)。
  */
+// ハウジング共有の CSS(トークン・外枠・下地)は部品の CSS より先に読む(同じ詳細度なら後に読んだ方が勝つため)
+import '../../../styles/housing.css';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +21,6 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import type { HousingListing } from '../../../types/housing';
 import { RegisterPage } from './RegisterPage';
 import { useResolveReport } from '../report/useResolveReport';
-import '../../../styles/housing.css';
 
 export const HousingEditPage: React.FC = () => {
   const { t } = useTranslation();

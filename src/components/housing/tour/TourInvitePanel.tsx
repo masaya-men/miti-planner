@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { UserPlus, Copy } from 'lucide-react';
 import { SHARED_TOUR_NAME_MAX_LENGTH } from '../../../types/sharedTour';
+import './TourInvitePanel.css';
 
 export interface TourInvitePanelProps {
   /** null=未発行 / 文字列=発行済み(招待リンクの token) */

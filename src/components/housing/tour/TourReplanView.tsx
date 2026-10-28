@@ -5,6 +5,7 @@ import { TourTrayBoard } from '../browse/TourTrayBoard';
 import { TourTrayList } from '../browse/TourTrayList';
 import type { MockListing } from '../../../data/housing/mockListings';
 import type { TourReplan } from './useTourReplan';
+import './TourReplanView.css';
 
 interface TourReplanViewProps {
   isMobile: boolean;

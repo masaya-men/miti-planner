@@ -1,0 +1,82 @@
+/* HousingerProfileSection の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-textarea {
+  width: 100%;
+  padding: calc(9px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  /* select の▼矢印は background-image + background-position で描くため、状態変化で使う背景は
+     必ず background-color 限定にする。background ショートハンドや transition:background だと
+     矢印の背景位置がリセット/アニメして「▼が左からしゅんっと出る」不具合になる (2026-07-12 根治)。 */
+  background-color: rgba(0, 0, 0, 0.42);
+  border: 1px solid var(--housing-panel-border);
+  color: var(--housing-text);
+  font-size: var(--housing-text-base);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+}
+.housing-textarea:focus {
+  border-color: var(--housing-honey);
+  box-shadow: 0 0 0 calc(1px * var(--housing-scale)) var(--housing-honey-inset) inset;
+  background-color: rgba(0, 0, 0, 0.55);
+}
+.housing-textarea:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.housing-textarea {
+  resize: vertical;
+  min-height: calc(80px * var(--housing-scale));
+}
+/* 「ひとこと」欄: 普段は入力欄1行分の高さに収め、フォーカスすると数行分に広がり、
+   さらに入力量が増えれば JS (HousingerProfileSection.tsx) が実高さに追従させる。
+   改行も入力できるよう resize は無効化 (手動リサイズの取っ手は出さない)。 */
+.housing-bio-textarea {
+  resize: none;
+  overflow: hidden;
+  min-height: calc(40px * var(--housing-scale));
+  line-height: 1.5;
+}
+.housing-bio-textarea:focus {
+  min-height: calc(92px * var(--housing-scale));
+}
+
+/* ===== ハウジンガー公開セクション (Task 6) ===== */
+.housing-account-housinger {
+    display: flex;
+    flex-direction: column;
+    gap: calc(10px * var(--housing-scale));
+    padding-top: calc(16px * var(--housing-scale));
+    margin-top: calc(4px * var(--housing-scale));
+    margin-bottom: calc(8px * var(--housing-scale));
+    border-top: 1px solid var(--housing-account-divider);
+}
+/* 2026-07-31: タイトル + 共有ボタン(マイページのみ)を横並びにする行。 */
+.housing-account-housinger-titlerow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(8px * var(--housing-scale));
+}
+.housing-account-housinger-title {
+    margin: 0;
+    font-size: var(--housing-text-base);
+    font-weight: 600;
+    color: var(--housing-text);
+}
+.housing-account-housinger-desc {
+    margin: 0;
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+    line-height: 1.5;
+}
+.housing-account-housinger-status {
+    margin: 0;
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    color: var(--housing-honey);
+}
+.housing-account-housinger-published {
+    display: flex;
+    flex-direction: column;
+    gap: calc(12px * var(--housing-scale));
+}

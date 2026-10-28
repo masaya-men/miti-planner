@@ -1,4 +1,5 @@
 import type { RippleInstance } from '../../lib/housing/useRipple';
+import './HousingRipple.css';
 
 export interface HousingRippleProps {
   ripples: RippleInstance[];

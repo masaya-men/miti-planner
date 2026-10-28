@@ -28,6 +28,7 @@ import { HousingLoginPrompt } from '../HousingLoginPrompt';
 import { TourMobileBar } from '../tour/TourMobileBar';
 import { TourAddressExposureDialog } from '../tour/TourAddressExposureDialog';
 import { HousingReportModal } from '../report/HousingReportModal';
+import './TourNavPage.css';
 
 /**
  * ツアー中(Nav)ページ (Task8): オーケストレーター。

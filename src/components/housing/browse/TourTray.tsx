@@ -7,6 +7,7 @@ import type { MockListing } from '../../../data/housing/mockListings';
 import { EphemeralAddPanel } from './EphemeralAddPanel';
 import { tourAnchorRegion } from '../../../lib/housing/tourCrossing';
 import { TourTrayList } from './TourTrayList';
+import './TourTray.css';
 
 export interface TourTrayProps {
   listingIds: string[];

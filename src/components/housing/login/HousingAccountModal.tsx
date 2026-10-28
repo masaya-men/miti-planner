@@ -11,6 +11,7 @@ import { DisplayNameEditor } from '../../DisplayNameEditor';
 import { HousingAvatarCropModal } from '../mypage/HousingAvatarCropModal';
 import { HousingerProfileSection } from '../mypage/HousingerProfileSection';
 import { showToast } from '../../toastBus';
+import './HousingAccountModal.css';
 
 /**
  * ハウジング画面のログイン済みユーザー向けアカウント設定モーダル。

@@ -1,0 +1,32 @@
+/* ProgressRing の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 進捗リング (ProgressRing.tsx) */
+.housing-tour-progress-ring {
+  position: relative;
+  width: var(--housing-tour-ring-size); height: var(--housing-tour-ring-size);
+  margin: 0 auto;
+  flex: 0 0 auto;
+}
+.housing-tour-progress-ring-svg { width: 100%; height: 100%; display: block; }
+.housing-tour-progress-ring-track {
+  fill: none;
+  stroke: var(--housing-divider);
+  stroke-width: var(--housing-tour-ring-stroke);
+}
+.housing-tour-progress-ring-fill {
+  fill: none;
+  stroke: var(--housing-aether);
+  stroke-width: var(--housing-tour-ring-stroke);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+.housing-tour-progress-ring-label {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 calc(10px * var(--housing-scale));
+  text-align: center;
+  font-size: var(--housing-text-sm); font-weight: 700; color: var(--housing-text);
+  font-variant-numeric: tabular-nums;
+}
+.housing-tour-progress-summary .housing-tour-progress-ring {
+  margin: 0;
+}

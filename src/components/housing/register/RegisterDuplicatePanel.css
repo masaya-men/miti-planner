@@ -1,0 +1,99 @@
+/* RegisterDuplicatePanel の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ============================================================
+ * 登録ページ右カラム: 重複チェックパネル (Task13)
+ * 非公開一致は件数のみの静かな注記 (色付き alert 箱にしない)。公開重複は
+ * HousingDuplicateWarningDialog と同じ範囲のカード表示 (id/createdAt/tags のみ)。
+ * ============================================================ */
+.housing-register-dup-panel {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+}
+.housing-register-dup-panel-title {
+  margin: 0;
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-dup-quiet-text {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-dup-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+}
+.housing-register-dup-skeleton-row {
+  height: calc(36px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  background: var(--housing-skeleton-block);
+  animation: housing-skeleton-pulse 1.4s ease-in-out infinite;
+}
+.housing-register-dup-found {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+}
+.housing-register-dup-public-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+}
+.housing-register-dup-public-card {
+  padding: calc(10px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  background: var(--housing-chip-sunken-bg);
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-register-dup-public-date {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+}
+.housing-register-dup-public-tags {
+  margin: calc(4px * var(--housing-scale)) 0 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-register-dup-private-note {
+  margin: 0;
+  padding-top: calc(10px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
+/* ============================================================
+ * 重複チェック: 「見つかった」ときは赤で強く出す
+ * 見落とすと二重登録になるため。ただし色地の alert 箱にはせず、
+ * 赤いヘアライン + 赤文字 + ⚠ アイコン で示す (housing-design.md と両立)。
+ * ============================================================ */
+.housing-register-dup-panel[data-state="found"] .housing-register-dup-panel-title {
+  color: var(--housing-danger);
+}
+.housing-register-dup-found-lead {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--housing-scale));
+  margin: 0;
+  padding-bottom: calc(10px * var(--housing-scale));
+  border-bottom: 1px solid var(--housing-danger);
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-danger);
+}
+.housing-register-dup-found-icon {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-md);
+  line-height: 1;
+}
+/* 重複カード自体も赤縁にして、一覧の中で「これが重複だ」と分かるようにする。 */
+.housing-register-dup-panel[data-state="found"] .housing-register-dup-public-card {
+  border-color: var(--housing-danger);
+  background: var(--housing-danger-soft);
+}

@@ -1,0 +1,52 @@
+/* TourPhaseZone の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* フェーズ枠 (移動中=行き方 / 見学中=タイマー・TourPhaseZone.tsx)。
+   min-height でフェーズ切替時の高さブレを抑える (中身なしの --empty も同じ枠を維持)。 */
+.housing-tour-phasezone {
+  border-top: 1px solid var(--housing-divider);
+  border-bottom: 1px solid var(--housing-divider);
+  padding: calc(10px * var(--housing-scale)) 0;
+  min-height: calc(56px * var(--housing-scale));
+}
+/* 行き方データが無い等で中身が空のときはボックスを潰し、上端の 1px 区切り線だけ残す。
+   min-height/padding/下端 border を除去した分の縦スペースをステップ一覧に回す。 */
+.housing-tour-phasezone-empty {
+  min-height: 0;
+  padding: 0;
+  border-bottom: 0;
+}
+.housing-tour-phasezone-timer {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2px * var(--housing-scale));
+}
+.housing-tour-phasezone-timer-elapsed {
+  font-size: var(--housing-text-lg);
+  font-weight: 700;
+  color: var(--housing-text);
+  font-variant-numeric: tabular-nums;
+}
+.housing-tour-phasezone-timer-started {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-phasezone-route {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--housing-scale));
+}
+.housing-tour-phasezone-route-label {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-phasezone-route-teleport {
+  margin: 0;
+  font-size: var(--housing-text-md);
+  color: var(--housing-honey);
+  font-weight: 600;
+}
+.housing-tour-phasezone-route-walk {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+  line-height: 1.5;
+}

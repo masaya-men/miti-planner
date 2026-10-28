@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TwitterXIcon, type TwitterXIconHandle } from './TwitterXIcon';
 import { canonicalPostUrl } from '../../../lib/housing/canonicalPostUrl';
+import './HousingShareButton.css';
 
 export interface HousingShareButtonProps {
   url: string;

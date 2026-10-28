@@ -1,0 +1,20 @@
+/* TabBar の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+@media (max-width: 767px) {
+  .housing-app-header .housing-tabbar {
+    display: none;
+  }
+
+}
+
+/* 上メニュー「ツアー」の件数の丸 (ツアーに入っている家の数・増えた瞬間だけ跳ねる) */
+.housing-tab-badge {
+  position: absolute; top: calc(4px * var(--housing-scale)); right: calc(-2px * var(--housing-scale)); min-width: calc(18px * var(--housing-scale)); height: calc(18px * var(--housing-scale)); padding: 0 calc(5px * var(--housing-scale));
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: calc(9px * var(--housing-scale)); background: var(--housing-honey); color: var(--housing-honey-text);
+  font-size: calc(11px * var(--housing-scale)); font-weight: 800; line-height: 1; pointer-events: none;
+}
+.housing-tab-badge.is-bump { animation: housing-tab-badge-bump 360ms cubic-bezier(.2, .7, .2, 1); }
+@keyframes housing-tab-badge-bump { 40% { transform: scale(1.25); } }
+@media (prefers-reduced-motion: reduce) {
+  .housing-tab-badge.is-bump { animation: none; }
+}

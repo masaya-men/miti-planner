@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import './RegisterGuide.css';
 
 interface GuideStep {
   num: number;

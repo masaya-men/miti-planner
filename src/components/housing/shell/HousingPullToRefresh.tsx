@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import './HousingPullToRefresh.css';
 
 /** 離したときに更新が走る引っ張り量(px・抵抗適用後)。見本 R2 の THRESH */
 const PTR_THRESHOLD = 70;

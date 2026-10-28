@@ -14,6 +14,7 @@ import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import { showToast } from '../../toastBus';
 import type { MockListing } from '../../../data/housing/mockListings';
+import './MobileTourTrayBar.css';
 
 /**
  * スマホ専用のツアートレイ小バー (実機FB#10)。

@@ -1,0 +1,59 @@
+/* FavoritesTabs の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== お気に入りタブ (FavoritesTabs) ===== */
+.housing-fav-tabs {
+  display: flex;
+  align-items: center;
+  gap: calc(2px * var(--housing-scale));
+  flex: 0 0 auto;
+}
+.housing-fav-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(6px * var(--housing-scale));
+  height: calc(32px * var(--housing-scale));
+  padding: 0 calc(12px * var(--housing-scale));
+  border: 0;
+  border-radius: calc(8px * var(--housing-scale)) calc(8px * var(--housing-scale)) 0 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-dim);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-fav-tab:hover {
+  color: var(--housing-text);
+  background: var(--housing-chip-bg-hover);
+}
+.housing-fav-tab[aria-selected="true"] {
+  color: var(--housing-candle);
+}
+.housing-fav-tab[aria-selected="true"]::after {
+  content: '';
+  position: absolute;
+  left: calc(8px * var(--housing-scale));
+  right: calc(8px * var(--housing-scale));
+  bottom: 0;
+  height: calc(2px * var(--housing-scale));
+  background: var(--housing-tab-active);
+  border-radius: calc(2px * var(--housing-scale)) calc(2px * var(--housing-scale)) 0 0;
+  box-shadow: 0 0 calc(8px * var(--housing-scale)) var(--housing-honey-glow);
+  pointer-events: none;
+}
+.housing-fav-tab:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(-2px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+}
+
+@media (max-width: 767px) {
+  .housing-fav-tabs {
+    gap: 10px;
+  }
+  .housing-fav-tab {
+    padding: 4px 8px;
+    font-size: var(--housing-text-sm);
+  }
+}

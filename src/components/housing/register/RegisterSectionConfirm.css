@@ -1,0 +1,166 @@
+/* RegisterSectionConfirm の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ============================================================
+ * 登録ページ中央カラム: 確認セクション (Task14)
+ * 入力要約 + 不足アクション + 主アクションボタン (ハニー)。
+ * エラー/不足は色付き alert 箱にせず、ヘアライン + グレー文字の静かな表示にする
+ * (housing-design.md「AI 感の払拭」)。主アクションのみ .housing-btn-primary (ハニー)。
+ * ============================================================ */
+/* 住所 = 確認セクションの主役 (2026-07-15 UI 調整・B案)。住所を 1 回だけ大きく強調し、
+   すぐ下に青の確認 CTA を置いて「確実に確認させてから押させる」。色付き alert 箱にはせず、
+   ヘアライン区切り + 住所の文字サイズ + ボタンの鮮やかさで階層を作る (housing-design.md「AI 感の払拭」)。 */
+.housing-register-confirm-address {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--housing-scale));
+  padding-bottom: calc(14px * var(--housing-scale));
+  border-bottom: 1px solid var(--housing-divider);
+}
+.housing-register-confirm-address-line {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--housing-scale));
+}
+.housing-register-confirm-address-label {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+/* 住所本体: 要約行 (sm) より一段大きく太く = 住所だけが際立つ。 */
+.housing-register-confirm-address-value {
+  font-size: var(--housing-text-lg);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--housing-text);
+  word-break: break-word;
+}
+.housing-register-confirm-gate-lead {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+/* 確認 CTA (B案): 鮮やかな青の塗りボタン + 濃紺文字。全幅で押しやすく、めちゃ目立つ。
+   ハニー (主アクション「公開する」) と色で役割が分かれる。 */
+.housing-register-confirm-gate-btn {
+  align-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(6px * var(--housing-scale));
+  padding: calc(12px * var(--housing-scale)) calc(18px * var(--housing-scale));
+  border-radius: calc(10px * var(--housing-scale));
+  border: 1px solid var(--housing-aether-cta-bg);
+  background: var(--housing-aether-cta-bg);
+  color: var(--housing-aether-cta-text);
+  font: inherit;
+  font-size: var(--housing-text-base);
+  font-weight: 700;
+  cursor: pointer;
+  appearance: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.housing-register-confirm-gate-btn:hover:not(:disabled) {
+  background: var(--housing-aether-cta-bg-hover);
+  border-color: var(--housing-aether-cta-bg-hover);
+}
+.housing-register-confirm-gate-btn:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-aether);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+/* 確認済み: 青 → 緑 (--housing-field-bg-confirmed) に切替、パルス停止。 */
+.housing-register-confirm-gate-btn[data-confirmed="true"] {
+  background: var(--housing-field-bg-confirmed);
+  border-color: var(--housing-field-border-confirmed);
+  color: var(--housing-text);
+  cursor: default;
+  box-shadow: none;
+}
+/* 住所未入力 (2026-07-15): 押せない沈んだ灰色。パルスもさせない。「先に住所を入力してください」で
+   住所欄へ誘導する。押せないので震え等のフィードバックは不要 (ユーザー判断)。 */
+.housing-register-confirm-gate-btn[data-address-missing="true"] {
+  background: var(--housing-chip-sunken-bg);
+  border-color: var(--housing-panel-border);
+  color: var(--housing-text-mute);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+/* 未確認かつ住所入力済みの間だけ青の強調パルスで「押してください」を誘導
+   (ring spread + soft glow・トークン経由)。住所未入力ではパルスしない。 */
+.housing-register-confirm-gate-btn[data-confirmed="false"]:not([data-address-missing="true"]) {
+  animation: housing-confirm-cta-pulse 1.6s ease-in-out infinite;
+}
+@keyframes housing-confirm-cta-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--housing-aether-glow-strong);
+  }
+  50% {
+    box-shadow: 0 0 0 calc(6px * var(--housing-scale)) var(--housing-aether-glow-soft), 0 0 calc(18px * var(--housing-scale)) calc(2px * var(--housing-scale)) var(--housing-aether-glow-soft);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* パルスルールと同じ詳細度 (0-3-0) にして確実に打ち消す。 */
+  .housing-register-confirm-gate-btn[data-confirmed="false"]:not([data-address-missing="true"]) { animation: none; }
+}
+
+.housing-register-confirm-summary {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+}
+.housing-register-confirm-summary-row {
+  display: flex;
+  gap: calc(12px * var(--housing-scale));
+  align-items: baseline;
+}
+.housing-register-confirm-summary-row dt {
+  flex: 0 0 auto;
+  min-width: calc(80px * var(--housing-scale));
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-confirm-summary-row dd {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+  word-break: break-word;
+}
+.housing-register-confirm-summary-empty {
+  color: var(--housing-text-mute);
+}
+/* 不足アクション: ヘアライン区切り + グレー、番号なしの静かなリスト。 */
+.housing-register-confirm-missing {
+  padding-top: calc(10px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+}
+.housing-register-confirm-missing-lead {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-confirm-missing-list {
+  margin: 0;
+  padding-left: calc(18px * var(--housing-scale));
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--housing-scale));
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-register-confirm-error {
+  margin: 0;
+  padding-top: calc(10px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-register-confirm-submit {
+  width: 100%;
+  margin-top: calc(4px * var(--housing-scale));
+  padding: calc(11px * var(--housing-scale)) calc(16px * var(--housing-scale));
+  font-size: var(--housing-text-base);
+  /* 土台 .housing-action-btn は justify-content 未指定 (= flex-start) で、全幅ボタンだと
+     ラベルが左に張り付く。主 CTA は中央寄せにする (2026-07-15 ユーザー指摘)。 */
+  justify-content: center;
+}

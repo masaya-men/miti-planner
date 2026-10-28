@@ -14,6 +14,7 @@ import type { HousingListing } from '../../../types/housing';
 import { buildTweetVideoProxyUrl } from '../../../lib/housing/tweetVideoProxy';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
 import { HousingImage } from '../media/HousingImage';
+import './HousingPhotoGallery.css';
 
 export interface HousingPhotoGalleryProps {
   listing: HousingListing;

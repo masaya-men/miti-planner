@@ -1,0 +1,181 @@
+/* TourProgressPanel の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* Tour progress base (shared cascade base for TourProgressPanel.tsx —
+ * see .housing-tour-page--reorg .housing-tour-progress override below).
+ * workspace/TourProgressList.tsx (dead, removed) used to be the only other
+ * consumer of this unscoped selector; kept because TourProgressPanel still
+ * relies on this base for properties the --reorg override doesn't set
+ * (e.g. .housing-tour-progress-head's gap). */
+.housing-tour-progress {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: calc(12px * var(--housing-scale));
+  gap: calc(10px * var(--housing-scale));
+}
+.housing-tour-progress-head {
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+  flex-shrink: 0;
+}
+
+/* ============================================================
+ * ツアー中(Nav) 左カラム: 進捗パネル (Task4・TourProgressPanel/ProgressRing)
+ * ============================================================ */
+/* Phase3 の新ツアーナビ右パネル。旧 .housing-tour-progress (workspace/TourProgressList・
+   RightPanel 経由の /housing/tour/:tourId) と同名クラスのため、--reorg でスコープして
+   旧ブロック(css:1602) の flex-direction:column / padding:12px の漏れを断つ。
+   旧ブロックは --reorg 配下に無いので無改変で維持される。 */
+.housing-tour-page--reorg .housing-tour-progress {
+  display: flex; flex-direction: column;
+  min-height: 0; flex: 1 1 auto;
+  gap: calc(16px * var(--housing-scale));
+  padding: 0;
+}
+.housing-tour-page--reorg .housing-tour-progress-head {
+  display: flex; flex-direction: row; align-items: center; justify-content: space-between;
+  flex: 0 0 auto;
+}
+.housing-tour-progress-title {
+  font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-text);
+}
+/* 進捗はヘッダー右端の N/M インジケーターのみ(ピルにしない)。リングは撤去しステップを広く。 */
+.housing-tour-progress-count {
+  font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-candle);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 進捗リング (円インジケーターのみ。到着済み/残りの箱は撤去) */
+.housing-tour-progress-summary {
+  display: flex;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+/* 下部フッター: 操作ボタン〜任意〜区切り線〜終了 を最下部に密集させる縦グループ。
+   親の gap(16px) から切り離し、内部は詰めた gap で「ツアーを終了」に限界まで寄せる。
+   margin-top:auto で下端固定 → 余ったスペースは上のステップ一覧が使う。 */
+.housing-tour-progress-foot {
+  flex: 0 0 auto;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--housing-scale));
+}
+
+/* 操作: 前へ / 見学開始(+任意 2段) / 次へ。3ボタンは同じ高さ、中央=大・左右=小。
+   ラベルは1行厳守(nowrap)。見学開始だけ 2段(見学開始 + 任意)だが高さは他と揃える。 */
+.housing-tour-progress-actions {
+  display: flex;
+  gap: calc(8px * var(--housing-scale));
+  flex: 0 0 auto;
+  align-items: stretch;
+}
+.housing-tour-progress-action {
+  appearance: none;
+  cursor: pointer;
+  min-width: 0;
+  min-height: calc(40px * var(--housing-scale));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(9px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(10px * var(--housing-scale));
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: background 0.15s ease, filter 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-progress-action--prev { flex: 1 1 0; }
+.housing-tour-progress-action--view { flex: 1.7 1 0; }
+.housing-tour-progress-action--next { flex: 1 1 0; font-weight: 700; }
+.housing-tour-progress-action:active:not(:disabled) { transform: scale(0.98); }
+.housing-tour-progress-action:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+.housing-tour-progress-action:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+
+.housing-tour-progress-action--prev,
+.housing-tour-progress-action--view {
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-tour-progress-action--prev:hover:not(:disabled),
+.housing-tour-progress-action--view:hover:not(:disabled) {
+  background: var(--housing-chip-bg-hover);
+}
+.housing-tour-progress-action-sub {
+  font-size: var(--housing-text-xs);
+  font-weight: 500;
+  color: var(--housing-text-mute);
+}
+
+/* 次へ/完了 = 主アクション (ツアーはハニーゴールドが正典) */
+.housing-tour-progress-action--next {
+  color: var(--housing-honey-text);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  border: 0;
+  box-shadow: 0 calc(4px * var(--housing-scale)) calc(14px * var(--housing-scale)) var(--housing-honey-shadow-soft);
+}
+.housing-tour-progress-action--next:hover:not(:disabled) { filter: brightness(1.05); }
+
+/* (任意) 注記: 見学開始ボタンの下(中央)。ボタン外に出してボタンの高さを揃える。 */
+.housing-tour-progress-view-note {
+  flex: 0 0 auto;
+  margin-top: 0;
+  text-align: center;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+
+/* 操作ボタン群 (+任意) と「ツアーを終了」の間の全幅区切り線。
+   終了を下端の独立要素として明確に分離し、上のステップ領域を広く見せる。 */
+.housing-tour-progress-foot-sep {
+  flex: 0 0 auto;
+  height: calc(1px * var(--housing-scale));
+  background: var(--housing-divider);
+  margin-top: calc(2px * var(--housing-scale));
+}
+
+/* ツアーを終了: ピルにせず小さな下線テキスト。最下部・ホバーでインタラクション。 */
+.housing-tour-progress-finish {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  align-self: center;
+  margin-top: 0;
+  padding: calc(3px * var(--housing-scale)) calc(6px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  background: transparent;
+  border: 0;
+  transition: color 0.15s ease;
+}
+.housing-tour-progress-finish:hover { color: var(--housing-candle); text-decoration: underline; }
+.housing-tour-progress-finish:active { transform: scale(0.98); }
+
+/* 参加者(閲覧専用)の「ツアーから出る」。finish と同じ静かな下線テキスト(装飾箱なし)。 */
+.housing-tour-progress-leave {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  align-self: center;
+  margin-top: calc(6px * var(--housing-scale));
+  padding: calc(3px * var(--housing-scale)) calc(6px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  background: transparent;
+  border: 0;
+  transition: color 0.15s ease;
+}
+.housing-tour-progress-leave:hover { color: var(--housing-candle); text-decoration: underline; }
+.housing-tour-progress-leave:active { transform: scale(0.98); }
+
+/* 参加者(閲覧専用・Task 2.4): 操作3ボタン+(任意)注記+区切り+終了ボタンの塊の代わりに出す
+   「幹事が案内中」の静かな注記。ボタンではなくテキストのみ、装飾箱なし。 */
+.housing-tour-progress-readonly-note {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: calc(10px * var(--housing-scale)) 0 calc(2px * var(--housing-scale));
+  text-align: center;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}

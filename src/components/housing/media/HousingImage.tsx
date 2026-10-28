@@ -27,6 +27,7 @@ import {
 } from '../../../lib/housing/cardImageAttrs';
 import { nextYoutubeThumbnailFallback } from '../../../lib/housing/youtubeUrl';
 import { handleYoutubeThumbnailLoad } from '../../../lib/housing/youtubeImgFallback';
+import './HousingImage.css';
 
 type HousingImageVariant = 'thumb' | 'small' | 'card' | 'gallery' | 'original';
 

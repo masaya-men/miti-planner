@@ -11,6 +11,7 @@
 import { useTranslation } from 'react-i18next';
 import { Eye } from 'lucide-react';
 import { HousingDialogShell } from '../HousingDialogShell';
+import './TourAddressExposureDialog.css';
 
 export interface TourAddressExposureDialogProps {
   open: boolean;

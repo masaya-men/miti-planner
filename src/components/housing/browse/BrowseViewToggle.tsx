@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 import type { HousingBrowseView } from '../../../store/useHousingViewStore';
+import './BrowseViewToggle.css';
 
 export interface BrowseViewToggleProps {
   value: HousingBrowseView;

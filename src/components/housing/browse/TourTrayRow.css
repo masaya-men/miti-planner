@@ -1,0 +1,116 @@
+/* TourTrayRow の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-tour-tray-title { font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-text); }
+.housing-tour-tray-item {
+  display: flex; align-items: center; gap: calc(10px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+/* ツアー順制御: ドラッグ中の行 (register の画像並び替えと同じ控えめな honey 枠) */
+.housing-tour-tray-item[data-dragging="true"] {
+  border-color: var(--housing-honey-glow);
+  box-shadow: 0 calc(4px * var(--housing-scale)) calc(12px * var(--housing-scale)) rgba(0, 0, 0, 0.4);
+  z-index: 2;
+}
+/* 左端のドラッグハンドル (行全体ではなくハンドルだけで並び替え発動) */
+.housing-tour-tray-drag {
+  appearance: none; border: 0; background: transparent; cursor: grab;
+  color: var(--housing-text-mute); padding: calc(2px * var(--housing-scale)); border-radius: calc(6px * var(--housing-scale));
+  display: inline-flex; flex: 0 0 auto;
+  touch-action: none;
+  transition: color 0.15s ease;
+}
+.housing-tour-tray-drag:hover { color: var(--housing-text); }
+.housing-tour-tray-drag:active { cursor: grabbing; }
+.housing-tour-tray-drag:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+/* 最初/最後に固定するトグルボタン。有効時はハニー色 (質感A案・2アクセント体系のハニー=主アクション系)。 */
+.housing-tour-tray-pin {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--housing-text-mute); padding: calc(4px * var(--housing-scale)); border-radius: calc(6px * var(--housing-scale));
+  display: inline-flex; flex: 0 0 auto;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-tour-tray-pin:hover { color: var(--housing-text); background: var(--housing-chip-bg-hover); }
+.housing-tour-tray-pin[data-active="true"] { color: var(--housing-honey); background: var(--housing-honey-medium); }
+.housing-tour-tray-pin:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+/* 行き先の識別用サムネ (実機FB: 住所だけでは家が見分けづらいため追加)。 */
+.housing-tour-tray-thumb {
+  flex: 0 0 auto;
+  width: calc(40px * var(--housing-scale)); height: calc(40px * var(--housing-scale)); border-radius: calc(8px * var(--housing-scale));
+  object-fit: cover;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-tour-tray-thumb-placeholder {
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--housing-text-mute);
+}
+/* サムネイル部分だけ詳細ページへのリンクにするボタン(行本体のドラッグ/ピン/削除とは独立)。
+   青 = リンク の2アクセント体系に合わせ、ホバー/フォーカスは aether トークンで示す。 */
+.housing-tour-tray-thumb-btn {
+  appearance: none; border: 0; background: transparent; padding: 0; margin: 0;
+  cursor: pointer;
+  display: inline-flex; flex: 0 0 auto;
+  border-radius: calc(8px * var(--housing-scale));
+  transition: box-shadow 0.15s ease, opacity 0.15s ease;
+}
+.housing-tour-tray-thumb-btn:hover { opacity: 0.85; }
+.housing-tour-tray-thumb-btn:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-aether); outline-offset: calc(2px * var(--housing-scale)); }
+/* 本文2行 (1行目=タイトル、2行目=住所)。 */
+.housing-tour-tray-info {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; flex-direction: column; gap: calc(2px * var(--housing-scale));
+}
+.housing-tour-tray-title {
+  font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.housing-tour-tray-remove {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--housing-text-mute); padding: calc(4px * var(--housing-scale)); border-radius: calc(6px * var(--housing-scale));
+  display: inline-flex;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-tour-tray-remove:hover { color: var(--housing-danger, #ff6b6b); background: var(--housing-chip-bg-hover); }
+.housing-tour-board-cell .housing-tour-tray-item {
+  width: 100%;
+  /* 実機指摘(2026-08-11): サイドバートレイと共有の --housing-panel-inner(白5%)は、
+     パネルに囲まれず動画背景に直接浮くこのグリッドだと透けすぎて見えたため、
+     このグリッド内のカードだけ不透明な板トークンに差し替える(サイドバー側は変更なし)。 */
+  background: var(--housing-panel-bg-solid);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+/* ホバーで軽く浮き上がる (.housing-listing-card:hover と同系のインタラクション)。
+   選択状態 (青枠) とは独立に効かせてよい (:hover はドラッグ中は dnd-kit の inline transform が
+   上書きするため無視される)。 */
+.housing-tour-board-cell .housing-tour-tray-item:hover {
+  transform: translateY(calc(-2px * var(--housing-scale)));
+  box-shadow: 0 calc(4px * var(--housing-scale)) calc(12px * var(--housing-scale)) rgba(0, 0, 0, 0.35);
+}
+/* 選択中のカード: 左の詳細パネルに出ている家がどれかを示す。
+   既存の選択表現 (.housing-register-visibility-chip[data-selected="true"]) と同じ青系トークンで揃える。
+   実際に見えている枠は cell 内の .housing-tour-tray-item なのでそちらへ当てる。 */
+.housing-tour-board-cell[data-selected="true"] .housing-tour-tray-item {
+  border-color: var(--housing-aether-border);
+  box-shadow: 0 0 0 calc(1px * var(--housing-scale)) var(--housing-aether-border) inset;
+}
+/* 「向かっている」= 青 (選択・進行の色)。装飾ピルにせず文字色のみ。 */
+.housing-tour-tray-current-tag {
+  flex: 0 0 auto; font-size: var(--housing-text-xs); font-weight: 700;
+  color: var(--housing-aether);
+}
+.housing-tour-tray-item[data-current="true"] { border-color: var(--housing-aether-border); }
+
+/* 一時 listing の「一時」バッジ (計画: 住所登録なし一時ツアー Task4)。
+   トレイ行 (TourTray) とショーケースのタイトル横 (TourShowcasePanel) で共用。
+   badge_private 系 (.housing-listing-card-mine-note) と同じ質感。 */
+.housing-ephemeral-badge {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-xs); color: var(--housing-text-dim);
+  background: var(--housing-chip-sunken-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(6px * var(--housing-scale)); padding: calc(2px * var(--housing-scale)) calc(7px * var(--housing-scale));
+  white-space: nowrap;
+}

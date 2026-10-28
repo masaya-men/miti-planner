@@ -6,6 +6,7 @@ import {
   type StaticHousingTagKind,
 } from '../../../data/housingTags';
 import { HOUSING_LIMITS } from '../../../constants/housing';
+import './HousingRegisterTagPicker.css';
 
 interface Props {
   selected: string[];

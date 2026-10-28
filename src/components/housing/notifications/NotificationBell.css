@@ -1,0 +1,39 @@
+/* NotificationBell の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ============================================================
+ * Phase 3 Group D: 通知ベル + ドロップダウン
+ * ============================================================ */
+.housing-notif-bell {
+    position: relative;
+    display: inline-block;
+}
+.housing-notif-bell-trigger {
+    width: var(--housing-notif-bell-size);
+    height: var(--housing-notif-bell-size);
+    border-radius: 50%;
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    position: relative;
+}
+.housing-notif-bell-trigger:hover {
+    background: var(--housing-chip-bg-hover);
+}
+.housing-notif-badge {
+    position: absolute;
+    top: var(--housing-notif-badge-offset);
+    right: var(--housing-notif-badge-offset);
+    min-width: var(--housing-notif-badge-size);
+    height: var(--housing-notif-badge-size);
+    padding: 0 var(--housing-notif-badge-padding-x);
+    background: var(--housing-notif-badge-bg);
+    color: var(--housing-notif-badge-color);
+    border-radius: var(--housing-notif-badge-radius);
+    font-size: var(--housing-text-xs);
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    line-height: 1;
+}

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { RegisterChecklistItem } from '../../../lib/housing/registerChecklist';
+import './RegisterCheckPanel.css';
 
 interface Props {
   items: RegisterChecklistItem[];

@@ -1,4 +1,5 @@
 import { buildTweetVideoProxyUrl } from '../../../lib/housing/tweetVideoProxy';
+import './HousingCardVideoOverlay.css';
 
 export type HousingCardVideoOverlayProps =
   | {

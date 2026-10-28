@@ -20,6 +20,10 @@ describe('compareCss', () => {
     const next = '.housing-a{color:blue} .housing-a{color:red} .housing-b{margin:0} .housing-c{padding:0}';
     expect(compareCss(BASE, next).flipped).toHaveLength(1);
   });
+  it('「A, B {}」を「A {} B {}」に分けても差なし', () => {
+    const base = '.housing-x, .housing-y{color:red}';
+    expect(compareCss(base, '.housing-x{color:red} .housing-y{color:red}')).toEqual({ missing: [], extra: [], flipped: [] });
+  });
   it('組でない規則の入れ替えは flipped にならない', () => {
     const next = '.housing-c{padding:0} .housing-a{color:red} .housing-a{color:blue} .housing-b{margin:0}';
     expect(compareCss(BASE, next)).toEqual({ missing: [], extra: [], flipped: [] });

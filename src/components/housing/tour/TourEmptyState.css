@@ -1,0 +1,77 @@
+/* TourEmptyState の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ============================================================
+ * 「+ 住所から追加」 一時の家 追加パネル (計画: 住所登録なし一時ツアー Task3)
+ * トレイ (TourTray) とツアー空状態 (TourEmptyState) の両方から使う。
+ * 質感A案: 装飾ピル/honeyグラデ/色付きalert箱は使わず、静かな面 + ヘアライン注記。
+ * ============================================================ */
+.housing-ephemeral-toggle {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(6px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px dashed var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  transition: background 0.15s ease;
+}
+.housing-ephemeral-toggle:hover { background: var(--housing-chip-bg-hover); }
+.housing-ephemeral-toggle:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+.housing-ephemeral-toggle[aria-expanded="true"] { border-style: solid; background: var(--housing-chip-bg-hover); }
+
+/* ツアー空状態内の入口 (簡易リスト + 開始ボタン込み)。中央寄せの空状態の中で左寄せに戻す。 */
+.housing-tour-empty-ephemeral {
+  width: 100%; max-width: calc(380px * var(--housing-scale));
+  margin-top: calc(12px * var(--housing-scale)); padding-top: calc(12px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  display: flex; flex-direction: column; gap: calc(10px * var(--housing-scale));
+  text-align: left;
+}
+.housing-tour-empty-ephemeral-list { overflow-y: visible; }
+
+/* ============================================================
+ * ツアー未開始の空状態 (Task7・TourEmptyState)
+ * ヘアライン注記的な静かな空状態。装飾ピル/honeyグラデ/色付きalert箱は使わない。
+ * ============================================================ */
+.housing-tour-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: calc(10px * var(--housing-scale));
+  padding: calc(32px * var(--housing-scale)) calc(16px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-tour-empty-title {
+  margin: 0;
+  font-size: var(--housing-text-base);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-tour-empty-lead {
+  margin: 0;
+  max-width: 32em;
+  font-size: var(--housing-text-sm);
+  line-height: 1.6;
+  color: var(--housing-text-mute);
+}
+.housing-tour-empty-cta {
+  appearance: none;
+  cursor: pointer;
+  margin-top: calc(6px * var(--housing-scale));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(10px * var(--housing-scale)) calc(16px * var(--housing-scale));
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-empty-cta:hover { background: var(--housing-chip-bg-hover); }
+.housing-tour-empty-cta:active { transform: scale(0.98); }
+.housing-tour-empty-cta:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }

@@ -1,0 +1,54 @@
+/* HousingFavHeart の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 探すページの HousingFavHeart を詳細の操作バー内で使う: カード角固定(absolute)を行内へ戻す。
+   実機FB(ユーザー指摘2026-07-20): カードのグリッド用サイズ(30px)のままだと行内の他ボタンと
+   高さが揃わないため、行内トークンに合わせて明示サイズを当てる。 */
+.housing-action-bar .housing-card-fav {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: var(--housing-action-bar-btn-h);
+    height: var(--housing-action-bar-btn-h);
+}
+.housing-card-fav {
+  position: absolute; top: calc(8px * var(--housing-scale)); right: calc(8px * var(--housing-scale)); z-index: 2;
+  width: calc(30px * var(--housing-scale)); height: calc(30px * var(--housing-scale)); border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--housing-panel-border);
+  color: var(--housing-text); cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.housing-card-fav:hover { background: rgba(0, 0, 0, 0.6); }
+.housing-card-fav:active { transform: scale(0.92); }
+.housing-card-fav.is-on { color: var(--housing-honey); }
+.housing-card-fav.is-on svg { fill: currentColor; }
+/* いいね押下フィードバック: ハートの pop バウンド(拡大+軽いひねりで settle) + 多方向パーティクル飛散
+   (追加時のみ)。 2026-07-20 ユーザー要望で強化: 土台の「弾んで粒が飛ぶ」仕組みは変えず、
+   スケール/ひねり/粒の量と飛距離をより派手に。 */
+.housing-card-fav.is-pop svg {
+  animation: housing-fav-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+}
+@keyframes housing-fav-pop {
+  0% { transform: scale(1) rotate(0deg); }
+  38% { transform: scale(1.5) rotate(-10deg); }
+  62% { transform: scale(1.26) rotate(6deg); }
+  82% { transform: scale(1.08) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.housing-fav-particle {
+  position: absolute; top: 50%; left: 50%;
+  width: var(--fav-size, calc(5px * var(--housing-scale))); height: var(--fav-size, calc(5px * var(--housing-scale)));
+  margin: calc(var(--fav-size, calc(5px * var(--housing-scale))) / -2) 0 0 calc(var(--fav-size, calc(5px * var(--housing-scale))) / -2);
+  border-radius: 50%; background: var(--housing-honey);
+  pointer-events: none;
+  animation: housing-fav-fly 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--fav-delay, 0ms);
+}
+@keyframes housing-fav-fly {
+  to { transform: translate(var(--fav-tx), var(--fav-ty)) scale(0); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-card-fav.is-pop svg { animation: none; }
+  .housing-fav-particle { display: none; }
+}

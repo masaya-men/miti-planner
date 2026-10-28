@@ -1,0 +1,6 @@
+/* BrowseTagView の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-tagpicker-view {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: calc(8px * var(--housing-scale)) calc(4px * var(--housing-scale)) calc(24px * var(--housing-scale));
+}

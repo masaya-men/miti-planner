@@ -11,6 +11,7 @@ import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import type { HousingNotification } from '../../../types/notification';
+import './NotificationItem.css';
 
 function formatRelativeTime(t: TFunction, ms: number): string {
   const diff = Date.now() - ms;

@@ -12,6 +12,7 @@ import { DisplayNameEditor } from '../../DisplayNameEditor';
 import { HousingAvatarCropModal } from '../mypage/HousingAvatarCropModal';
 import { HousingerAvatar } from './HousingerAvatar';
 import { showToast } from '../../toastBus';
+import './HousingerIdentity.css';
 
 interface Props {
   isSelf: boolean;

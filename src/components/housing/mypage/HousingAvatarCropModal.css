@@ -1,0 +1,75 @@
+/* HousingAvatarCropModal の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* アイコン変更モーダル (HousingAvatarCropModal.tsx)。react-easy-crop の Cropper 本体は
+   ライブラリ側の絶対配置 canvas なのでそのまま、周辺の枠だけ housing トンマナに揃える。 */
+.housing-avatar-crop {
+    display: flex;
+    flex-direction: column;
+    gap: calc(16px * var(--housing-scale));
+}
+.housing-avatar-crop-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: calc(6px * var(--housing-scale));
+    padding: calc(40px * var(--housing-scale)) calc(16px * var(--housing-scale));
+    border-radius: calc(14px * var(--housing-scale));
+    border: 1px dashed var(--housing-panel-border);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+.housing-avatar-crop-dropzone:hover {
+    border-color: var(--housing-honey-border);
+    background: var(--housing-chip-bg-hover);
+}
+.housing-avatar-crop-dropzone-label {
+    font-size: var(--housing-text-base);
+    color: var(--housing-text);
+}
+.housing-avatar-crop-dropzone-hint {
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+}
+.housing-avatar-crop-input {
+    display: none;
+}
+/* クロップ表示エリア: cropShape="round" (Cropper 側の丸ガイド) が実際に表示されるアイコン形状と
+   一致することを保証する。枠自体は正方形+角丸でクロップの土台であることを示す。 */
+.housing-avatar-crop-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: calc(12px * var(--housing-scale));
+    overflow: hidden;
+    background: #000;
+}
+.housing-avatar-crop-zoom {
+    width: 100%;
+    accent-color: var(--housing-honey);
+}
+/* 確定ボタン = 主アクション。.housinger-page-tour-btn と同じ honey CTA パターン。 */
+.housing-avatar-crop-confirm {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(8px * var(--housing-scale));
+    width: 100%;
+    padding: calc(11px * var(--housing-scale)) calc(16px * var(--housing-scale));
+    font-family: inherit;
+    font-size: var(--housing-text-md);
+    font-weight: 700;
+    color: var(--housing-honey-text);
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+    border: 0;
+    border-radius: calc(10px * var(--housing-scale));
+    box-shadow: 0 calc(4px * var(--housing-scale)) calc(14px * var(--housing-scale)) var(--housing-honey-shadow-soft);
+    transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housing-avatar-crop-confirm:hover {
+    filter: brightness(1.05);
+}
+.housing-avatar-crop-confirm:active {
+    transform: scale(0.98);
+}

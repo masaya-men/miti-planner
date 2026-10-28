@@ -12,6 +12,7 @@ import { useHousingCardPlayback } from '../../../lib/housing/housingPlaybackStat
 import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingImage } from '../media/HousingImage';
+import './FavoritesPreviewStrip.css';
 
 // 代表画像フォールバック (ListingCard と共通の規約)。
 const PLACEHOLDER = '/housing/mock-thumbs/1.svg';

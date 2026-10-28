@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { MockListing } from '../../../data/housing/mockListings';
+import './HiddenListingCard.css';
 
 /**
  * 運営非表示の家のカード (ハウジンガーページ専用)。

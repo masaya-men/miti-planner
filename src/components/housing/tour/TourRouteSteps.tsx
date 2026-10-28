@@ -4,6 +4,7 @@ import { ArrowDownUp } from 'lucide-react';
 import { stepStatus, isTourPlaceable, type TourStep } from '../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { canDisplayAddress } from '../../../lib/housing/listingPublish';
+import './TourRouteSteps.css';
 
 export interface TourRouteStepsProps {
   steps: TourStep[];

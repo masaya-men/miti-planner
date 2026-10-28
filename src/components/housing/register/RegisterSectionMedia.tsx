@@ -7,6 +7,7 @@ import { HousingRegisterSourceImageUrlsField } from './HousingRegisterSourceImag
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import type { CompressedImage } from '../../../lib/housing/imageCompression';
 import { HousingImage } from '../media/HousingImage';
+import './RegisterSectionMedia.css';
 
 interface Props {
   onTweetFetched: (

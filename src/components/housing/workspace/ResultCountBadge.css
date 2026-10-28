@@ -1,0 +1,15 @@
+/* ResultCountBadge の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* Result count badge (left-panel head meta extension) */
+.housing-result-count {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  font-variant-numeric: tabular-nums;
+}
+.housing-result-count .now {
+  color: var(--housing-text);
+  font-size: var(--housing-text-base);
+  font-weight: 500;
+}
+.housing-result-count[data-zero="true"] .now {
+  color: var(--housing-warning);
+}

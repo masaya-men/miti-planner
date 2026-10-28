@@ -8,6 +8,7 @@ import { applyWheelZoom, zoomAt, type MapView } from '../../../../lib/housing/ma
 import { plotToPlacementIn, apartToPlacementIn } from '../../../../lib/housing/wardRoute';
 import { useHousingViewStore } from '../../../../store/useHousingViewStore';
 import { MapSpotCard } from './MapSpotCard';
+import './BrowseWardMap.css';
 
 export interface BrowseWardMapProps {
   mapKey: string;

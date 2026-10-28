@@ -3,6 +3,7 @@ import { ChevronLeft } from 'lucide-react';
 import type { BrowseMapSpot } from '../../../../lib/housing/browseMapSpots';
 import { splitSpotListings } from '../../../../lib/housing/browseMapSpots';
 import { ListingCard } from '../ListingCard';
+import './RoomListPanel.css';
 
 export interface RoomListPanelProps {
   spot: BrowseMapSpot;

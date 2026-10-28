@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
+import './FilterDropdown.css';
 
 interface FilterOption {
   value: string;

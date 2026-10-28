@@ -1,0 +1,54 @@
+/* HousingLoginModal の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===========================================
+ * Login Modal
+ * =========================================== */
+.housing-login-notice {
+    color: var(--housing-text-mute);
+    font-size: var(--housing-text-sm);
+    line-height: 1.7;
+    margin-bottom: calc(24px * var(--housing-scale));
+}
+.housing-login-notice-intro {
+    margin-bottom: calc(12px * var(--housing-scale));
+}
+.housing-login-notice-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: calc(12px * var(--housing-scale));
+}
+.housing-login-notice-list li {
+    padding-left: calc(16px * var(--housing-scale));
+    position: relative;
+}
+.housing-login-notice-list li::before {
+    content: '・';
+    position: absolute;
+    left: 0;
+    color: var(--housing-honey);
+}
+.housing-login-discord-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(10px * var(--housing-scale));
+    width: 100%;
+    padding: calc(12px * var(--housing-scale)) calc(16px * var(--housing-scale));
+    border-radius: calc(12px * var(--housing-scale));
+    background: var(--housing-login-pill-bg);
+    color: var(--housing-login-pill-text);
+    font-size: var(--housing-text-base);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 180ms ease, transform 120ms ease;
+    box-shadow: var(--housing-login-pill-shadow);
+}
+.housing-login-discord-btn:hover {
+    background: var(--housing-login-pill-bg-hover);
+}
+.housing-login-discord-btn:active {
+    transform: scale(0.98);
+}

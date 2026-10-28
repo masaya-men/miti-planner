@@ -1,0 +1,142 @@
+/* FavoritesBulkBar の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-fav-bulkbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: calc(8px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(10px * var(--housing-scale));
+  flex: 0 0 auto;
+}
+.housing-fav-bulkbar-count {
+  font-size: var(--housing-text-sm);
+  font-weight: 700;
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border-radius: calc(999px * var(--housing-scale));
+  padding: calc(2px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.housing-fav-bulkbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: calc(6px * var(--housing-scale));
+  flex: 1 1 auto;
+}
+.housing-fav-bulkbar-group {
+  display: flex;
+  align-items: center;
+  gap: calc(4px * var(--housing-scale));
+}
+/* 2つのグループを左右に分ける */
+.housing-fav-bulkbar-group:first-child {
+  margin-right: auto;
+}
+.housing-fav-bulkbar-btn {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  height: calc(28px * var(--housing-scale));
+  padding: 0 calc(10px * var(--housing-scale));
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-dim);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(8px * var(--housing-scale));
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  white-space: nowrap;
+}
+.housing-fav-bulkbar-btn:hover:not(:disabled) {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+.housing-fav-bulkbar-btn:disabled {
+  opacity: var(--housing-disabled-opacity);
+  cursor: not-allowed;
+}
+/* すべてツアーに追加 = ハニー主アクション */
+.housing-fav-bulkbar-btn--primary {
+  color: var(--housing-honey-text);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  border-color: transparent;
+  box-shadow: 0 calc(2px * var(--housing-scale)) calc(8px * var(--housing-scale)) var(--housing-honey-shadow-soft);
+}
+.housing-fav-bulkbar-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  color: var(--housing-honey-text);
+}
+/* 選択だけ追加 = ハニー副アクション (弱め)。青 vs ハニーの最終色は実画面ゲートでユーザー判断待ち。 */
+.housing-fav-bulkbar-btn--accent {
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+}
+.housing-fav-bulkbar-btn--accent:hover:not(:disabled) {
+  background: var(--housing-honey-strong);
+  color: var(--housing-candle);
+}
+/* お気に入りから外す = danger */
+.housing-fav-bulkbar-btn--danger:hover:not(:disabled) {
+  color: var(--housing-danger);
+  border-color: var(--housing-danger);
+  background: var(--housing-danger-soft);
+}
+.housing-fav-bulkbar-btn:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: 1px;
+}
+@media (max-width: 767px) {
+  .housing-fav-bulkbar-btn--primary {
+    display: none;
+  }
+  .housing-fav-bulkbar {
+    padding: 5px 10px;
+  }
+  /* バー内蔵のカウントはタブ行へ移設したので出さない (行が増えるのを防ぐ)。 */
+  .housing-fav-bulkbar-count {
+    display: none;
+  }
+  .housing-fav-bulkbar-actions {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    overflow-x: auto;
+    gap: 10px;
+    scrollbar-width: none;
+  }
+  .housing-fav-bulkbar-actions::-webkit-scrollbar {
+    display: none;
+  }
+  .housing-fav-bulkbar-group {
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+  /* ボタンは文字だけ (色は各 variant の文字色をそのまま生かす)。後勝ちで chip 装飾を無効化。 */
+  .housing-fav-bulkbar-btn {
+    height: auto;
+    padding: 4px 2px;
+    font-size: var(--housing-text-xs);
+    white-space: nowrap;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  /* sticky hover 対策 (#5 の教訓): タップ後に variant の hover 背景が残って箱が復活しないように。 */
+  .housing-fav-bulkbar-btn:hover:not(:disabled) {
+    background: none;
+    box-shadow: none;
+    filter: none;
+  }
+
+}

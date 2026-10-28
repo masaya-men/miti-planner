@@ -1,0 +1,45 @@
+/* BrowseViewToggle の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-view-toggle {
+  display: inline-flex; align-items: center; gap: calc(2px * var(--housing-scale));
+  align-self: flex-start;
+  flex: 0 0 auto;
+  padding: calc(3px * var(--housing-scale));
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+}
+.housing-view-toggle-btn {
+  appearance: none; cursor: pointer;
+  height: calc(24px * var(--housing-scale)); padding: 0 calc(14px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-dim);
+  background: transparent;
+  border: 0; border-radius: calc(7px * var(--housing-scale));
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-view-toggle-btn:hover { color: var(--housing-text); }
+.housing-view-toggle-btn[data-selected="true"] {
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+}
+
+/* 表示切替 + DC メニューの基準位置。メニューを開いている間だけ地図より手前に出す。 */
+.housing-view-toggle-anchor {
+  position: relative;
+  align-self: flex-start;
+  flex: 0 0 auto;
+}
+.housing-view-toggle-anchor[data-menu-open="true"] { z-index: 30; }
+.housing-view-toggle-btn[data-view="map"] { display: inline-flex; align-items: center; white-space: nowrap; }
+.housing-view-toggle-caret { margin-left: calc(4px * var(--housing-scale)); opacity: 0.8; }
+.housing-view-toggle-dc { margin-left: calc(6px * var(--housing-scale)); color: var(--housing-candle); }
+.housing-view-toggle-btn[data-selected="true"] .housing-view-toggle-dc { color: var(--housing-text); }
+@media (max-width: 767px) {
+  /* 一覧|地図 の切替トグル。スマホは常に一覧固定 (BrowsePage.tsx の effectiveView) なので隠す。 */
+  /* スマホは地図・タグ非対応: 切替は「一覧 | ハウジンガー」の 2 つだけ出す。 */
+  .housing-view-toggle-btn[data-view="map"],
+  .housing-view-toggle-btn[data-view="tags"] {
+    display: none;
+  }
+
+}

@@ -1,6 +1,7 @@
 import { scalePx } from '../../lib/housing/housingScale';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import './HousingTourAddErrorBubble.css';
 
 export interface HousingTourAddErrorBubbleProps {
   anchorRef: React.RefObject<HTMLElement | null>;

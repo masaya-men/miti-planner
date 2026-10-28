@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { HousingDialogShell } from '../HousingDialogShell';
+import './MannerNoticeDialog.css';
 
 /**
  * ツアー開始前の「マナー注意」ダイアログ。

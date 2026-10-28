@@ -1,0 +1,93 @@
+/* HousingPullToRefresh の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== Housing Panel Modal (中央浮遊ガラスモーダル統一基盤) ===== */
+.housing-panel-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--housing-z-modal-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.72);
+  padding: calc(32px * var(--housing-scale)) calc(16px * var(--housing-scale));
+  overflow: hidden;
+  /* portal 経由で body 直下に出るため、 ハウジング基本トンマナ (font / color)
+     をここで確立しないと LoPo 既存テーマ (Rajdhani / dark text) を継承する */
+  font-family: "Inter", "Helvetica Neue", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
+  color: var(--housing-text);
+}
+.housing-panel-modal-backdrop[data-layer="confirm"] {
+  z-index: var(--housing-z-modal-stack);
+  background: rgba(0, 0, 0, 0.78);
+}
+.housing-panel-modal-backdrop[data-modal-role="register"] {
+  z-index: var(--housing-z-modal-base);
+}
+.housing-panel-modal-backdrop[data-modal-role="login"] {
+  z-index: var(--housing-z-modal-stack);
+}
+.housing-panel-modal-backdrop[data-modal-role="account"] {
+  z-index: var(--housing-z-modal-stack);
+}
+/* frost: 暗くせず、背後にごく薄いぼかしだけ (ハウジングツアーのトンマナ・2026-07-12)。
+   モーダル本体は前面なのでぼけない。css-rules の --tw-backdrop-blur パターンで書く。 */
+.housing-panel-modal-backdrop[data-backdrop="frost"] {
+  background: transparent;
+  --tw-backdrop-blur: blur(calc(3px * var(--housing-scale)));
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+}
+.housing-panel-modal-backdrop {
+    --housing-login-modal-width: calc(480px * var(--housing-scale));
+    --housing-login-pill-bg: var(--housing-honey);
+    --housing-login-pill-bg-hover: var(--housing-honey-glow);
+    --housing-login-pill-text: rgba(20, 12, 4, 0.92);
+    --housing-login-pill-shadow: 0 calc(4px * var(--housing-scale)) calc(12px * var(--housing-scale)) rgba(255, 178, 90, 0.35);
+    --housing-avatar-ring: rgba(255, 226, 179, 0.55);
+    --housing-avatar-ring-hover: rgba(255, 226, 179, 0.85);
+    --housing-account-button-bg: rgba(255, 226, 179, 0.08);
+    --housing-account-button-bg-hover: rgba(255, 226, 179, 0.16);
+    --housing-account-button-border: rgba(255, 226, 179, 0.22);
+    --housing-account-danger-text: rgba(255, 130, 130, 0.85);
+    --housing-account-danger-bg-hover: rgba(255, 130, 130, 0.12);
+    --housing-account-divider: rgba(255, 226, 179, 0.18);
+    --housing-avatar-bg: rgba(0, 0, 0, 0.2);
+    --housing-account-danger-border: rgba(255, 130, 130, 0.25);
+    --housing-account-delete-link-text: rgba(255, 226, 179, 0.5);
+}
+
+/* ============================================================
+ * 引っ張って更新 (ホーム画面アプリ専用・見本 R2)
+ * HousingPullToRefresh.tsx が transform / opacity / stroke-dasharray を直接書き換える。
+ * ============================================================ */
+.housing-ptr-ind {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: env(safe-area-inset-top, 0px);
+  height: calc(28px * var(--housing-scale));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform, opacity;
+}
+.housing-ptr-ring { width: calc(28px * var(--housing-scale)); height: calc(28px * var(--housing-scale)); }
+.housing-ptr-ring circle {
+  fill: none;
+  stroke: var(--housing-honey);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+.housing-ptr-spinning .housing-ptr-ring { animation: housing-ptr-rot 0.8s linear infinite; }
+@keyframes housing-ptr-rot { to { transform: rotate(360deg); } }
+/* 離したあと 320ms で戻る / 止まる位置へ寄る */
+.housing-shell.housing-ptr-snap { transition: transform 320ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.housing-ptr-ind.housing-ptr-snap { transition: transform 320ms cubic-bezier(0.2, 0.7, 0.2, 1), opacity 320ms; }
+@media (prefers-reduced-motion: reduce) {
+  .housing-ptr-spinning .housing-ptr-ring { animation: none; }
+  .housing-shell.housing-ptr-snap, .housing-ptr-ind.housing-ptr-snap { transition: none; }
+}

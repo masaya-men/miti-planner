@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Check } from 'lucide-react';
+import './BrowseSortSelect.css';
 
 export type BrowseSortOrder = 'random' | 'newest' | 'oldest';
 

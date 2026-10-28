@@ -1,0 +1,33 @@
+/* HousingerByline の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== Task 7: 詳細パネルの登録者行 (HousingerByline) =====
+   非公開/取得不可 (profile===null) のときは行ごと描画されない (JSX 側で null を返す) ので、
+   ここでは「出たときの見た目」だけ定義すればよい。 */
+.housing-detail-byline {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(8px * var(--housing-scale));
+    width: fit-content;
+    color: var(--housing-text-dim);
+    text-decoration: none;
+    font-size: var(--housing-text-sm);
+}
+.housing-detail-byline:hover {
+    color: var(--housing-text);
+}
+.housing-detail-byline-avatar {
+    width: var(--housinger-avatar-size-sm);
+    height: var(--housinger-avatar-size-sm);
+}
+/* HousingerByline は詳細ページの広い横幅前提(width:fit-content)なので、
+   次の目的地の細い列では長い名前が列からはみ出す。この文脈だけ縮めて省略記号にする。 */
+.housing-tour-dest-next-info .housing-detail-byline {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+.housing-tour-dest-next-info .housing-detail-byline span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

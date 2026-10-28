@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { FavTab } from './favoritesOrder';
+import './FavoritesTabs.css';
 
 export interface FavoritesTabsProps {
   tab: FavTab;

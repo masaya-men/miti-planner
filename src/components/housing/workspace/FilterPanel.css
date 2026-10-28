@@ -1,0 +1,74 @@
+/* FilterPanel の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-panel-title {
+  font-size: calc(11px * var(--housing-scale)); font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--housing-text-dim);
+}
+.housing-panel-body {
+  flex: 1; min-height: 0; overflow: auto; padding: calc(14px * var(--housing-scale)) calc(16px * var(--housing-scale));
+}
+/* フィルターパネル本文: スクロールバーを出さず上下端フェードで「続きがある」を示す
+   (useScrollFade が data-at-top/bottom をトグル → 端に達した側のフェードを消す)。 */
+.housing-filter-body {
+  scrollbar-width: none; /* Firefox */
+  --fade-top: var(--housing-filter-body-fade);
+  --fade-bottom: var(--housing-filter-body-fade);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+}
+.housing-filter-body::-webkit-scrollbar { display: none; }
+
+/* WebKit/Chrome */
+.housing-filter-body[data-at-top="true"] { --fade-top: 0px; }
+.housing-filter-body[data-at-bottom="true"] { --fade-bottom: 0px; }
+
+.housing-filter-clear-all {
+  appearance: none; cursor: pointer; width: 100%;
+  padding: calc(8px * var(--housing-scale)) calc(10px * var(--housing-scale)); margin: calc(2px * var(--housing-scale)) 0 calc(6px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-dim);
+  background: transparent;
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.housing-filter-clear-all:hover {
+  color: var(--housing-text); border-color: var(--housing-panel-border-strong);
+  background: var(--housing-chip-bg-hover);
+}
+
+/* サイズ = フルラベル同幅セグメント (参考UI準拠。1文字チップの安っぽさを解消) */
+.housing-size-seg {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(6px * var(--housing-scale));
+}
+.housing-size-seg-btn {
+  appearance: none; cursor: pointer;
+  height: calc(34px * var(--housing-scale)); padding: 0 calc(6px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-dim);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+  white-space: nowrap; text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.housing-size-seg-btn:hover { border-color: var(--housing-panel-border-strong); color: var(--housing-text); }
+.housing-size-seg-btn[data-active="true"] {
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+}
+
+.housing-filter-panel-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: calc(12px * var(--housing-scale));
+}
+.housing-panel-modal-head .housing-panel-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.housing-browse-col-left .housing-panel-body { padding-left: 0; padding-right: 0; }

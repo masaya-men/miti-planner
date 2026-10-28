@@ -5,6 +5,7 @@ import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import type { HousingerProfile } from '../../../types/housing';
+import './RegisterHousingerCta.css';
 
 /**
  * Task 9: 登録フォーム、確認セクション直前の任意ブロック (spec 2026-07-10-housinger-profile-design.md §4.1)。

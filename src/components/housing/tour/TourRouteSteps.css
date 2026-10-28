@@ -1,0 +1,134 @@
+/* TourRouteSteps の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== ナビ中の並び替え (TourNavPage replanning・2026-10-22) ===== */
+/* 「ルートのステップ」見出し行: 右に小さな枠ボタン。 */
+.housing-tour-steps-head {
+  display: flex; align-items: center; justify-content: space-between; gap: calc(8px * var(--housing-scale));
+  flex: 0 0 auto;
+}
+
+/* ルートのステップ = 縦ステッパー (TourRouteSteps.tsx)。
+   進行状況パネル(右カラム)へ移設 (Phase3)。dot + 連結線 (到着済み区間は青)。 */
+.housing-tour-steps {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+  min-height: 0;
+  flex: 1 1 auto;
+}
+.housing-tour-steps-heading {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--housing-text-mute);
+}
+.housing-tour-steps-list {
+  list-style: none;
+  margin: 0;
+  /* 到達済み/現在の dot は scale(1.18) でポップし左へ ~0.9px はみ出す。overflow-y:auto は
+     overflow-x も auto に上げるため、padding が 0 だと dot の左が切れる (#1)。左に僅かな
+     余白を確保して欠けを防ぐ (連結線・dot は item 相対なので一緒に右へずれ整合は保たれる)。 */
+  padding: 0 0 0 calc(3px * var(--housing-scale));
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox: スクロールバー非表示 */
+  /* スクロールバーの代わりに上下端フェード(マスク)でスクロール可能を示唆。
+     端に達した側は --fade-* を 0 にして、その側のフェードを消す(業界標準)。
+     mask の #000/transparent は alpha 専用でテーマ色ではない(色トークン対象外)。 */
+  --fade-top: var(--housing-tour-steps-fade);
+  --fade-bottom: var(--housing-tour-steps-fade);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+}
+.housing-tour-steps-list::-webkit-scrollbar { display: none; }
+
+/* WebKit/Chrome: スクロールバー非表示 */
+.housing-tour-steps-list[data-at-top="true"] { --fade-top: 0px; }
+.housing-tour-steps-list[data-at-bottom="true"] { --fade-bottom: 0px; }
+.housing-tour-steps-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: calc(8px * var(--housing-scale));
+  margin-bottom: calc(14px * var(--housing-scale));
+}
+.housing-tour-steps-item:last-child {
+  margin-bottom: 0;
+}
+.housing-tour-steps-dot {
+  flex: 0 0 auto;
+  width: calc(10px * var(--housing-scale));
+  height: calc(10px * var(--housing-scale));
+  margin-top: calc(3px * var(--housing-scale));
+  border-radius: 50%;
+  background: var(--housing-divider);
+  transition: transform 0.4s var(--housing-tour-step-spring), background 0.3s ease;
+}
+/* dot の中心から次の dot まで伸びる連結線(グレーのトラック)。 */
+.housing-tour-steps-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: calc(4px * var(--housing-scale));
+  top: calc(13px * var(--housing-scale));
+  bottom: calc(-17px * var(--housing-scale));
+  width: calc(2px * var(--housing-scale));
+  background: var(--housing-divider);
+}
+/* 到着済み区間の青い塗り。上→下へ scaleY で伸びる(バネのイージングでオーバーシュート)。 */
+.housing-tour-steps-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: calc(4px * var(--housing-scale));
+  top: calc(13px * var(--housing-scale));
+  bottom: calc(-17px * var(--housing-scale));
+  width: calc(2px * var(--housing-scale));
+  background: var(--housing-aether);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.5s var(--housing-tour-step-spring);
+}
+/* 到達済み区間の青い塗りを ON。ベースの `:not(:last-child)::after` は `:not()` の分だけ
+   特異度が高い (0-2-1) ため、`--arrived::after` (0-1-1) では負けて scaleY(0) のまま=線が
+   塗られなかった (#1 実バグ)。同じ `:not(:last-child)` を付けて特異度 (0-2-1) を揃え、
+   後出しで勝たせる → 進行に合わせてバネで塗り伸びる。 */
+.housing-tour-steps-item--arrived:not(:last-child)::after {
+  transform: scaleY(1);
+}
+/* 到達済み(到着+現在)の dot は青くなり、バネで 1.18 倍にポップ。 */
+.housing-tour-steps-item--arrived .housing-tour-steps-dot,
+.housing-tour-steps-item--current .housing-tour-steps-dot {
+  background: var(--housing-aether);
+  transform: scale(1.18);
+}
+.housing-tour-steps-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(2px * var(--housing-scale));
+}
+.housing-tour-steps-addr {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.housing-tour-steps-note {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-steps-status {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  white-space: nowrap;
+}
+.housing-tour-steps-item--current .housing-tour-steps-status {
+  color: var(--housing-aether-soft);
+}
+.housing-tour-steps-item--arrived .housing-tour-steps-status {
+  color: var(--housing-candle);
+}

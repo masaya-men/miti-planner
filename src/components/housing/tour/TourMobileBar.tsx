@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { ArrowDownUp, Link2, UserPlus } from 'lucide-react';
+import './TourMobileBar.css';
 
 export interface TourMobileBarProps {
   /** 現在地→目的地の行き方(1行・省略表示)。

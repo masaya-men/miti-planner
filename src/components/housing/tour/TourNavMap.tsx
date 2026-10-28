@@ -14,6 +14,7 @@ import { getAreaName } from '../../../lib/housing/areaName';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
 import type { MockListing } from '../../../data/housing/mockListings';
 import type { HousingArea } from '../../../types/housing';
+import './TourNavMap.css';
 
 export interface TourNavMapProps {
   status: 'none' | 'loading' | 'ready' | 'error';
@@ -497,9 +498,8 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
           </div>
         )}
         {/* 実機FB#4: スマホ下部バーの1行省略表示に代わり、行き方を地図下部の帯へ全文表示する。
-            実機FB第6弾#7: 1行目=最寄りエーテライト/2行目以降=行き方全文の2段構成にする
-            (連結した1本の文字列だと、テレポ文と行き方本文の境目が読み取りづらかったため)。
-            マウス向けの上のヒント(ホイールでズーム)はスマホでは housing.css 側で非表示にする。 */}
+            実機FB第6弾#7: 1行目=最寄りエーテライト/2行目以降=行き方全文の2段構成(連結した1本の文字列だと境目が読み取りづらいため)。
+            マウス向けの上のヒント(ホイールでズーム)はスマホでは TourNavMap.css 側で非表示にする。 */}
         {(footerDirections || inviteHint) && (
           <div className="housing-tour-map-directions" data-testid="tour-map-footer-directions">
             {footerDirections && (

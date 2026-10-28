@@ -1,0 +1,5 @@
+/* RouteAuthoringPage の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== DEV専用: 全住所ツアープレビュー操作バー (本番非露出) ===== */
+.housing-dev-tourpreview { display: flex; flex-direction: column; height: 100vh; }
+/* DEV 経路エディタの操作ヒント。以前は撤去した .housing-tour-map-legend を流用していたため専用化。 */
+.housing-route-editor-hint { margin: 0; color: var(--housing-text-mute); }

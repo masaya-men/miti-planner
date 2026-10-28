@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { HOUSING_TABS } from './housingTabs';
 import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { useEffect, useRef, useState } from 'react';
+import './TabBar.css';
 
 /**
  * ハウジング上部タブバー。NavLink が active 時に aria-current="page" を自動付与する。

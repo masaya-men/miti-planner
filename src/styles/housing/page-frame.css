@@ -1,0 +1,96 @@
+/* ハウジングの全画面ページ(詳細・編集・ハウジンガー・短縮リンク)に共通の外枠。 */
+/* Task 2.3/2.4: シェル子ルート化した詳細大パネル。 .housing-shell-body (overflow:hidden) の
+   中で自前スクロールする外側コンテナ (= 探す/ツアーの `.housing-browse` 等と同格、 shell 端からの
+   インセット役)。 見た目の面 (背景/枠/角丸/影) は中の .housing-detail-shell が持つ二層構造。 */
+.housing-detail-panel {
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    color: var(--housing-text);
+    padding: var(--housing-main-padding);
+    box-sizing: border-box;
+}
+/* 大パネル1枚の面 (質感A案): 探す(.housing-browse-panel)/ツアー(.housing-tour-page-panel)と
+   同じ濃紺フラット面パターンをトークン経由で流用。 中身がパネル丈より短い時も min-height:100%
+   で「1枚パネル」に見えるようにし、 長い時は自然に伸びて .housing-detail-panel 側がスクロールする。 */
+.housing-detail-shell {
+    position: relative;
+    min-height: 100%;
+    background: var(--housing-panel-bg);
+    border: 1px solid var(--housing-panel-border);
+    border-radius: var(--housing-panel-radius);
+    box-shadow: var(--housing-panel-shadow);
+    overflow: hidden;
+}
+
+.housing-detail-fullpage-header {
+    padding: calc(12px * var(--housing-scale)) calc(20px * var(--housing-scale));
+    border-bottom: 1px solid var(--housing-panel-border);
+}
+.housing-detail-back {
+    color: var(--housing-honey);
+    text-decoration: none;
+    font-size: var(--housing-text-base);
+}
+.housing-detail-back:hover {
+    text-decoration: underline;
+}
+.housing-detail-fullpage-main {
+    padding: calc(24px * var(--housing-scale));
+    max-width: var(--housing-detail-fullpage-max-w);
+    width: 100%;
+    margin: 0 auto;
+}
+/* 未ログイン時のマイページ (ログイン案内のみ): 共通シェルは左上詰めの通常コンテンツ前提の
+   ブロックレイアウトなので、このページ限定でシェルごと中央寄せに切り替える
+   (HousingDetailPage.tsx 側の見た目は変わらない・.housing-register-panel-solo と同じ考え方)。 */
+.housinger-page-login-shell {
+    display: flex;
+    flex-direction: column;
+}
+.housinger-page-login-main {
+    flex: 1 1 auto;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+@media (min-width: 769px) {
+
+/* 2026-07-09 再設計「写真ヒーロー+固定レール」: ワイド (md+) は大パネルをビューポート内に
+   フィットさせ、 縦スクロール無しで全情報を一望。 panel→shell→main→body→content を
+   flex/grid で縦に満たす。 レールは操作バーと区画マップを固定し、 テキスト一式
+   (見出し/住所/タグ/紹介文/peers) の .housing-detail-textscroll だけが内部スクロール域。 通報バナー表示時 (まれなオーナー画面) のみ
+   :has() で main を自然スクロールに切替え、 列を潰さない。 狭幅 (<=768px) は base の単一カラム。 */
+    .housing-detail-panel {
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .housing-detail-shell {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .housing-detail-fullpage-main {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    /* 通報バナー表示時のみ: 列を潰さず main を自然スクロールさせる (バナー高を吸収)。 */
+    .housing-detail-fullpage-main:has(.housing-detail-report-banner) {
+        overflow-y: auto;
+    }
+}
+@media (max-width: 767px) {
+
+/* 実機FB: スマホは .housing-detail-panel が唯一のスクロール域で、ボトムナビは fixed で
+   画面下に被さる。末尾に確保しないと最後の要素(区画マップ/他の登録)がナビに隠れたまま
+   スクロールが止まってしまう(.housing-listing-grid で先に直した実機FB#9と同型のバグ)。 */
+    .housing-detail-panel {
+        padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px);
+    }
+}

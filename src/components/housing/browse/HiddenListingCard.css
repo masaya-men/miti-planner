@@ -1,0 +1,11 @@
+/* HiddenListingCard の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-listing-card-admin-hidden-band {
+  position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+  padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  background: var(--housing-panel-bg-solid);
+  border-top: 1px solid var(--housing-divider);
+  border-bottom: 1px solid var(--housing-divider);
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm); font-weight: 600;
+  text-align: center;
+}

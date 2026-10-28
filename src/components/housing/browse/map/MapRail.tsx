@@ -10,6 +10,7 @@ import {
 } from '../../../../lib/housing/browseMapIndex';
 import type { WardMapKind } from '../../../../lib/housing/browseMapSpots';
 import { useScrollFade } from '../../../../lib/housing/useScrollFade';
+import './MapRail.css';
 
 export interface MapRailProps {
   index: MapIndexEntry[];

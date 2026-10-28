@@ -1,0 +1,293 @@
+/* HousingDetailContent の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 2026-07-09 再設計「写真ヒーロー+固定レール」。 base はモバイル優先 = 単一カラム自然スクロール
+   (banner → gallery → info → scroll → actions → map の縦積み)。 md+ は下の @media で
+   2カラム化 + ビューポート内フィット。 .housing-detail-body は banner をグリッド外へ出す flex 親。 */
+.housing-detail-body {
+    display: flex;
+    flex-direction: column;
+    gap: calc(16px * var(--housing-scale));
+    width: 100%;
+}
+.housing-detail-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: calc(20px * var(--housing-scale));
+    width: 100%;
+}
+/* 通報通知の案内バナー (家主が通報通知から開いた時に詳細内へ表示) */
+/* de-AI: 色付き alert 箱 + honey 左縦線をやめ、 静かなヘアライン帯に (バナーは
+   .housing-detail-body 直下の flex 子=グリッド外なので grid-column は不要)。 */
+.housing-detail-report-banner {
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--housing-divider);
+    border-bottom: 1px solid var(--housing-divider);
+    border-radius: 0;
+    padding: calc(12px * var(--housing-scale)) calc(2px * var(--housing-scale));
+    color: var(--housing-text);
+}
+.housing-detail-report-title { font-weight: 600; margin: 0 0 calc(6px * var(--housing-scale)); }
+.housing-detail-report-reason {
+    font-size: var(--housing-text-sm);
+    color: var(--housing-text-dim);
+    margin: 0 0 calc(8px * var(--housing-scale));
+}
+.housing-detail-report-body {
+    font-size: var(--housing-text-base);
+    line-height: 1.6;
+    margin: 0 0 calc(10px * var(--housing-scale));
+}
+.housing-detail-report-comment {
+    margin: 0 0 calc(10px * var(--housing-scale));
+    padding: calc(8px * var(--housing-scale)) calc(10px * var(--housing-scale));
+    background: var(--housing-overlay-strong);
+    border-top: 1px solid var(--housing-divider);
+    border-radius: calc(6px * var(--housing-scale));
+    color: var(--housing-text-dim);
+    font-style: italic;
+}
+.housing-detail-report-escalated {
+    font-size: var(--housing-text-sm);
+    line-height: 1.6;
+    margin: 0 0 calc(10px * var(--housing-scale));
+    padding: calc(8px * var(--housing-scale)) calc(10px * var(--housing-scale));
+    background: var(--housing-overlay-strong);
+    border-radius: var(--housing-input-radius-sm);
+    color: var(--housing-text);
+}
+.housing-detail-report-actions {
+    display: flex;
+    gap: calc(8px * var(--housing-scale));
+    flex-wrap: wrap;
+}
+.housing-detail-report-actions button,
+.housing-detail-report-actions a {
+    text-decoration: none;
+    padding: calc(8px * var(--housing-scale)) calc(14px * var(--housing-scale));
+    border-radius: var(--housing-input-radius-sm);
+    background: var(--housing-input-bg-strong);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    font-size: var(--housing-text-base);
+}
+.housing-detail-report-actions button:hover,
+.housing-detail-report-actions a:hover {
+    background: var(--housing-input-bg-hover);
+}
+/* 左列: 写真ギャラリー (ヒーロー) のみ。 地図は右レール最下部へ移動した。 */
+.housing-detail-visual {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.housing-detail-gallery {
+    height: min(60vh, calc(420px * var(--housing-scale)));           /* モバイル: 縦フローで確定高さ (stage/rail の height:100% 用) */
+    min-height: var(--housing-detail-empty-h);
+}
+.housing-detail-side {
+    display: flex;
+    flex-direction: column;
+    gap: calc(16px * var(--housing-scale));
+    min-width: 0;
+}
+.housing-detail-info {
+    display: flex;
+    flex-direction: column;
+    gap: calc(8px * var(--housing-scale));
+    color: var(--housing-text);
+}
+/* テキスト一式のスクロール枠。 wrap=非スクロールのフェード枠 / 中の textscroll がスクロール。 */
+.housing-detail-textscroll-wrap {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    /* スクロール可能を示す上下端の alpha フェード(mask)。 文字自体が端で透ける=黒で塗り潰さない。
+       端に達した側は --fade-* を 0 にしてフェードを消す(ツアーステップ一覧・フィルタ本文と同方式)。
+       mask の #000/transparent は alpha 専用でテーマ色ではない(色トークン対象外)。 */
+    --fade-top: var(--housing-detail-textscroll-fade);
+    --fade-bottom: var(--housing-detail-textscroll-fade);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+}
+.housing-detail-textscroll {
+    display: flex;
+    flex-direction: column;
+    gap: calc(12px * var(--housing-scale));
+    min-width: 0;
+    color: var(--housing-text);
+    scrollbar-width: none;            /* Firefox: スクロールバー非表示 */
+}
+.housing-detail-textscroll::-webkit-scrollbar {
+    display: none;                    /* WebKit: スクロールバー非表示 */
+}
+/* スクロール端の alpha フェード(mask)。 到達した側は --fade-* を 0 にして消す(業界標準)。 */
+.housing-detail-textscroll-wrap[data-at-top="true"] { --fade-top: 0px; }
+.housing-detail-textscroll-wrap[data-at-bottom="true"] { --fade-bottom: 0px; }
+/* unlisted で地図を出さない時の空スロット(#1): 地図と同じ高さを確保し、
+   操作バー(通報/ケバブ)が下端へ落ちてメニューが崩れるのを防ぐ。背景なし=ただの余白。 */
+.housing-detail-map-placeholder {
+    flex: 0 0 var(--housing-detail-map-h-mobile);
+    min-height: 0;
+}
+.housing-detail-title {
+    font-size: var(--housing-detail-title-size);
+    font-weight: 600;
+    margin: 0;
+}
+.housing-detail-address {
+    font-size: var(--housing-text-sm);
+    color: var(--housing-text-dim);
+    margin: 0;
+}
+/* Batch2: 複数投稿URL対応の「元の投稿を見る」トグル+ドロップダウン。
+   旧 .housing-detail-source-link (単一リンク) と同じ静かなリンク見た目を踏襲する。 */
+.housing-view-original {
+    display: flex;
+    flex-direction: column;
+    gap: calc(6px * var(--housing-scale));
+    width: fit-content;
+}
+.housing-view-original-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(4px * var(--housing-scale));
+    appearance: none;
+    cursor: pointer;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    width: fit-content;
+    color: var(--housing-text-dim);
+    font: inherit;
+    font-size: var(--housing-text-sm);
+    text-decoration: none;
+    transition: color 0.12s ease;
+}
+.housing-view-original-toggle:hover {
+    color: var(--housing-text);
+}
+.housing-view-original-toggle:focus-visible {
+    outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+    outline-offset: calc(2px * var(--housing-scale));
+    border-radius: calc(4px * var(--housing-scale));
+}
+.housing-view-original-menu {
+    display: flex;
+    flex-direction: column;
+    gap: calc(2px * var(--housing-scale));
+    margin: 0;
+    padding: calc(6px * var(--housing-scale));
+    list-style: none;
+    background: var(--housing-panel-bg-solid);
+    border: 1px solid var(--housing-panel-border);
+    border-radius: calc(9px * var(--housing-scale));
+}
+.housing-view-original-menu a {
+    display: block;
+    padding: calc(6px * var(--housing-scale)) calc(8px * var(--housing-scale));
+    border-radius: calc(6px * var(--housing-scale));
+    color: var(--housing-text-dim);
+    font-size: var(--housing-text-sm);
+    text-decoration: none;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+.housing-view-original-menu a:hover {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+}
+.housing-detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(6px * var(--housing-scale));
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.housing-detail-tags li {
+    display: flex;
+}
+/* a: タグを <button> 化 (クリックで絞り込み)。 chip 見た目は button 側で再現。 */
+.housing-detail-tag-btn {
+    appearance: none;
+    background: var(--housing-detail-tag-bg);
+    border: 1px solid var(--housing-detail-tag-border);
+    color: var(--housing-honey);
+    border-radius: calc(4px * var(--housing-scale));
+    padding: calc(2px * var(--housing-scale)) calc(8px * var(--housing-scale));
+    font-family: inherit;
+    font-size: var(--housing-text-xs);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.housing-detail-tag-btn:hover,
+.housing-detail-tag-btn:focus-visible {
+    background: var(--housing-honey-strong);
+    border-color: var(--housing-honey);
+}
+.housing-detail-description {
+    font-size: var(--housing-text-base);
+    color: var(--housing-text-dim);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin: 0;
+}
+@media (min-width: 769px) {
+    .housing-detail-body {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+    .housing-detail-report-banner {
+        flex: 0 0 auto;
+    }
+    .housing-detail-content {
+        flex: 1 1 auto;
+        min-height: 0;
+        grid-template-columns: minmax(0, 1fr) var(--housing-detail-side-w);
+        align-items: stretch;
+    }
+    .housing-detail-visual {
+        min-height: 0;
+    }
+    .housing-detail-gallery {
+        flex: 1 1 auto;
+        height: auto;
+        min-height: 0;
+    }
+    .housing-detail-side {
+        min-height: 0;
+    }
+    .housing-detail-textscroll-wrap {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+    .housing-detail-textscroll {
+        height: 100%;
+        overflow-y: auto;
+    }
+    .housing-detail-actions {
+        flex: 0 0 auto;
+    }
+    .housing-detail-map-placeholder {
+        flex: 0 0 var(--housing-detail-map-h);
+    }
+    .housing-detail-body:has(.housing-detail-report-banner) {
+        flex: 0 0 auto;
+        min-height: min-content;
+    }
+    .housing-detail-body:has(.housing-detail-report-banner) .housing-detail-content {
+        min-height: calc(480px * var(--housing-scale));
+    }
+}
+
+@media (max-width: 767px) {
+
+  /* ----- 実機FB#4: 詳細ギャラリー = 全幅ヒーロー(上) + 横スクロールサムネ(下) -----
+     ベースCSSはスマホでも「左メイン+右縦サムネ」の行flex (3053行) のため、余白だらけで
+     メイン写真が小さかった。縦積みに切り替え、横長写真を画面幅いっぱいに出す。 */
+  .housing-detail-gallery {
+    height: auto;               /* 固定 min(60vh,420px) をやめ中身の実寸で */
+    min-height: 0;
+  }
+}

@@ -15,6 +15,7 @@ import { TabBar } from './TabBar';
 import { X } from 'lucide-react';
 import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
 import { useIsMobile } from '../../../hooks/useIsMobile';
+import './AppHeader.css';
 
 export interface AppHeaderProps {
   /** 実機FB第2弾#2: スマホの探すページのみ、ヘッダー右端にフィルターボタンを出す (HousingShell がシート開閉を保持)。 */

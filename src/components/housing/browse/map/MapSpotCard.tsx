@@ -4,6 +4,7 @@ import type { BrowseMapSpot } from '../../../../lib/housing/browseMapSpots';
 import { scalePx } from '../../../../lib/housing/housingScale';
 import { CLAMP_EDGE_PADDING, clampExpandedCardOffset } from '../../../../lib/housing/mapCardClamp';
 import { ListingCard } from '../ListingCard';
+import './MapSpotCard.css';
 
 /** hover してから拡大するまでの意図確認ディレイ(ms)。地図上を高速にスイープしただけで次々に
  *  拡大しない(素通りと意図的な滞留を切り分ける)ため。click/Enter/focus はこの遅延の対象外。 */

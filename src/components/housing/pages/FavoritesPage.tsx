@@ -28,6 +28,7 @@ import { orderFavorites } from '../favorites/favoritesOrder';
 import type { FavTab } from '../favorites/favoritesOrder';
 import { resolveTourOrder } from '../../../lib/housing/resolveTourOrder';
 import { useHousingListOrderStore } from '../../../store/useHousingListOrderStore';
+import './FavoritesPage.css';
 
 /**
  * お気に入りページ (3カラム): 左=オンボ(後続タスク) / 中央=お気に入りグリッド / 右=トレイ。

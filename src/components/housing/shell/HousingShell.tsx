@@ -1,3 +1,5 @@
+// ハウジング共有の CSS(トークン・外枠・下地)は部品の CSS より先に読む(同じ詳細度なら後に読んだ方が勝つため)
+import '../../../styles/housing.css';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -24,7 +26,7 @@ import { HousingLoginModal } from '../login/HousingLoginModal';
 import { HousingAccountModal } from '../login/HousingAccountModal';
 import { HousingPlaybackProvider } from '../../../lib/housing/HousingPlaybackContext';
 import { startFavoritesSync } from '../../../lib/housing/favoritesSync';
-import '../../../styles/housing.css';
+import './HousingShell.css';
 
 /**
  * ハウジング全ページ共通のシェル (Admin の AdminLayout + Outlet パターン踏襲)。

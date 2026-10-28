@@ -7,6 +7,7 @@ import { displayDcName, displayWorldName } from '../../../lib/housing/housingTer
 import { pickRegionLocale } from '../../../data/housing/regionMap';
 import type { useHousingFieldState } from '../../../lib/housing/housingFieldState';
 import { HousingNumberStepper } from './HousingNumberStepper';
+import './RegisterSectionAddress.css';
 
 export interface RegisterAddressValues {
   dc?: string;

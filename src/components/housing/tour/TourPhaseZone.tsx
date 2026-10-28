@@ -3,6 +3,7 @@ import type { PlotDirections } from '../../../lib/housing/wardDirections';
 import { useElapsed, formatElapsed, formatClock } from '../../../lib/housing/useElapsed';
 import { termLabel } from '../../../lib/housing/housingTerms';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
+import './TourPhaseZone.css';
 
 export interface TourPhaseZoneProps {
   phase: 'moving' | 'viewing';

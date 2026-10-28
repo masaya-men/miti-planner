@@ -1,0 +1,41 @@
+/* HousingTourAddErrorBubble の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+@media (prefers-reduced-motion: reduce) {
+  .housing-tour-error-bubble {
+    animation: none;
+  }
+}
+
+/* ツアー追加失敗の吹き出し (HousingTourAddErrorBubble)。document.body 直下に portal されるため
+   ここでは housing-workspace スコープに依存しないグローバルなスタイルにする。
+   body 直下の portal は .housing-workspace の外なので --housing-* が未解決になる
+   (.housing-card-visibility-menu-portal で踏んだのと同じ問題、2026-07-24 実機バグの再発)。
+   .housing-workspace 側の共有ブロックにはページシェルレイアウト (width:100%/height:100vh 等) も
+   同居しており丸ごと加えると副作用が出るため、実際に使っている --housing-* だけをここで
+   個別に再定義する (.housing-card-visibility-menu-portal と同じやり方)。font-family も
+   .housing-workspace の外では継承されないため合わせて再定義する。 */
+.housing-tour-error-bubble {
+  --housing-panel-bg-solid: rgba(13, 18, 30, 0.74);
+  --housing-danger: #ff8a6c;
+  --housing-panel-shadow: 0 calc(16px * var(--housing-scale)) calc(40px * var(--housing-scale)) rgba(0, 0, 0, 0.4);
+  --housing-text-xs: calc(11px * var(--housing-scale));
+  font-family: "Inter", "Helvetica Neue", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
+  position: fixed;
+  transform: translate(-50%, calc(-100% - calc(8px * var(--housing-scale))));
+  max-width: calc(220px * var(--housing-scale));
+  padding: calc(6px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-danger);
+  box-shadow: var(--housing-panel-shadow);
+  color: var(--housing-danger);
+  font-size: var(--housing-text-xs);
+  line-height: 1.35;
+  text-align: center;
+  z-index: 60;
+  pointer-events: none;
+  animation: housing-tour-bubble-in 160ms ease-out;
+}
+@keyframes housing-tour-bubble-in {
+  from { opacity: 0; transform: translate(-50%, calc(-100% - calc(2px * var(--housing-scale)))); }
+  to { opacity: 1; transform: translate(-50%, calc(-100% - calc(8px * var(--housing-scale)))); }
+}

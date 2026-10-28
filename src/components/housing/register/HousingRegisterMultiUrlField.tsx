@@ -6,6 +6,7 @@ import {
   type OgpFetchedData,
 } from './HousingRegisterSnsUrlField';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
+import './HousingRegisterMultiUrlField.css';
 
 export interface HousingRegisterMultiUrlFieldProps {
   /** 現在表示する URL 入力欄の数 (1..maxSlots)。 */

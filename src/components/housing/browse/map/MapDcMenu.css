@@ -1,0 +1,61 @@
+/* MapDcMenu の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* DC メニュー (「マップ」ボタンの下)。スクロールバーは出さず上下端フェードで続きを示す。 */
+.housing-dcmenu {
+  position: absolute;
+  top: calc(100% + calc(6px * var(--housing-scale)));
+  left: 0;
+  z-index: 30;
+  width: calc(300px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) calc(4px * var(--housing-scale)) calc(8px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-panel-border-strong);
+  border-radius: calc(12px * var(--housing-scale));
+  box-shadow: var(--housing-popover-shadow);
+  -webkit-backdrop-filter: blur(calc(14px * var(--housing-scale)));
+  backdrop-filter: blur(calc(14px * var(--housing-scale)));
+  animation: housing-dcmenu-in 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes housing-dcmenu-in { from { opacity: 0; transform: translateY(calc(-6px * var(--housing-scale))); } }
+.housing-dcmenu-scroll {
+  --fade-top: var(--housing-filter-body-fade);
+  --fade-bottom: var(--housing-filter-body-fade);
+  overflow-y: auto;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+}
+.housing-dcmenu-scroll::-webkit-scrollbar { display: none; }
+.housing-dcmenu[data-at-top="true"] .housing-dcmenu-scroll { --fade-top: 0px; }
+.housing-dcmenu[data-at-bottom="true"] .housing-dcmenu-scroll { --fade-bottom: 0px; }
+/* 高さの上限は画面の高さだけ (中央パネルに余裕があれば全 DC をスクロールなしで見せる・2026-10-22 masaya 指摘)。 */
+.housing-dcmenu-scroll { max-height: calc(100dvh - calc(200px * var(--housing-scale))); padding-right: calc(4px * var(--housing-scale)); }
+.housing-dcmenu-heading {
+  margin: calc(8px * var(--housing-scale)) calc(8px * var(--housing-scale)) calc(4px * var(--housing-scale));
+  font-size: var(--housing-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--housing-text-mute);
+}
+.housing-dcmenu-group:first-child .housing-dcmenu-heading { margin-top: 0; }
+.housing-dcmenu-row {
+  appearance: none; cursor: pointer; width: 100%;
+  display: flex; align-items: center; gap: calc(10px * var(--housing-scale));
+  padding: calc(7px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-md); text-align: left;
+  color: var(--housing-text-dim);
+  background: transparent; border: 0; border-radius: calc(8px * var(--housing-scale));
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.housing-dcmenu-row:hover:not(:disabled) { background: var(--housing-honey-soft); color: var(--housing-text); }
+.housing-dcmenu-row[data-selected="true"] { background: var(--housing-honey-medium); color: var(--housing-text); }
+.housing-dcmenu-row:disabled { opacity: var(--housing-disabled-opacity); cursor: default; }
+.housing-dcmenu-name { flex: 1 1 auto; font-weight: 700; }
+.housing-dcmenu-bar {
+  flex: 0 0 auto; width: calc(70px * var(--housing-scale)); height: calc(4px * var(--housing-scale)); border-radius: calc(2px * var(--housing-scale));
+  background: var(--housing-panel-inner); overflow: hidden;
+}
+.housing-dcmenu-bar i { display: block; height: 100%; background: var(--housing-honey); }
+.housing-dcmenu-n {
+  flex: 0 0 auto; min-width: calc(40px * var(--housing-scale)); text-align: right;
+  font-size: var(--housing-text-sm); font-variant-numeric: tabular-nums;
+}

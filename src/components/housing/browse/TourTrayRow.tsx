@@ -9,6 +9,7 @@ import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { representativeImage, hasRepresentativeImage } from '../../../lib/housing/representativeImage';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { HousingImage } from '../media/HousingImage';
+import './TourTrayRow.css';
 
 export interface TourTrayRowProps {
   listing: MockListing;

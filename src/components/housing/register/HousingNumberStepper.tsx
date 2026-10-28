@@ -1,3 +1,4 @@
+import './HousingNumberStepper.css';
 export interface HousingNumberStepperProps {
   /** 外側 <label htmlFor> と結ぶための input id。 */
   id: string;

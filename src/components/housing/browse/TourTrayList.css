@@ -1,0 +1,13 @@
+/* TourTrayList の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-tour-tray-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: calc(6px * var(--housing-scale));
+  overflow-y: auto; min-height: 0; flex: 1 1 auto;
+}
+
+/* ツアー順制御: リスト + 効率順ボタンをまとめる箱 (TourTrayList のルート要素・従来 .housing-tour-tray-list の
+   flex:1 1 auto を引き継ぐ)。 */
+.housing-tour-tray-body {
+  display: flex; flex-direction: column; gap: calc(8px * var(--housing-scale));
+  min-height: 0; flex: 1 1 auto;
+}

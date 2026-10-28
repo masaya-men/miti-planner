@@ -1,0 +1,138 @@
+/* AppHeader の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===========================================
+ * TopBar 右端 ログイン / アバターボタン
+ * =========================================== */
+.housing-top-login-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(6px * var(--housing-scale));
+    padding: calc(6px * var(--housing-scale)) calc(14px * var(--housing-scale));
+    border-radius: calc(999px * var(--housing-scale));
+    background: var(--housing-login-pill-bg);
+    color: var(--housing-login-pill-text);
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 180ms ease, transform 120ms ease;
+    box-shadow: var(--housing-login-pill-shadow);
+}
+.housing-top-login-btn:hover {
+    background: var(--housing-login-pill-bg-hover);
+    transform: translateY(calc(-1px * var(--housing-scale)));
+}
+.housing-top-login-btn:active {
+    transform: scale(0.96);
+}
+
+.housing-top-avatar-btn {
+    width: calc(32px * var(--housing-scale));
+    height: calc(32px * var(--housing-scale));
+    border-radius: calc(999px * var(--housing-scale));
+    overflow: hidden;
+    border: calc(1.5px * var(--housing-scale)) solid var(--housing-avatar-ring);
+    background: var(--housing-avatar-bg);
+    cursor: pointer;
+    padding: 0;
+    transition: border-color 180ms ease, transform 120ms ease;
+}
+.housing-top-avatar-btn:hover {
+    border-color: var(--housing-avatar-ring-hover);
+}
+.housing-top-avatar-btn:active {
+    transform: scale(0.94);
+}
+.housing-top-avatar-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.housing-top-avatar-btn .housing-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: var(--housing-text-base);
+}
+
+/* 共有ツアー「ツアーに戻る」ピル (#1・案い): ヘッダー右に常駐。
+   青(aether=進行/リンク)で控えめに。参加中 && ツアーページ以外にいるときだけ AppHeader が出す。 */
+.housing-tour-return-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(2px * var(--housing-scale));
+  padding: calc(2px * var(--housing-scale));
+  border-radius: calc(10px * var(--housing-scale));
+  background: var(--housing-aether-medium);
+  border: 1px solid var(--housing-aether-border);
+}
+.housing-tour-return-back {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: calc(6px * var(--housing-scale));
+  padding: calc(4px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-xs); font-weight: 600;
+  color: var(--housing-text);
+  background: transparent; border: 0; border-radius: calc(8px * var(--housing-scale));
+  transition: background 0.15s ease;
+}
+.housing-tour-return-back:hover { background: var(--housing-chip-bg-hover); }
+.housing-tour-return-dot {
+  width: calc(7px * var(--housing-scale)); height: calc(7px * var(--housing-scale)); border-radius: 50%;
+  background: var(--housing-aether);
+  box-shadow: 0 0 0 0 var(--housing-aether-glow-soft);
+  animation: housing-tour-return-pulse 1.8s ease-out infinite;
+}
+@keyframes housing-tour-return-pulse {
+  0% { box-shadow: 0 0 0 0 var(--housing-aether-glow-soft); }
+  70% { box-shadow: 0 0 0 calc(6px * var(--housing-scale)) transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.housing-tour-return-cta { color: var(--housing-aether-soft); font-weight: 700; }
+.housing-tour-return-leave {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: calc(22px * var(--housing-scale)); height: calc(22px * var(--housing-scale));
+  color: var(--housing-text-mute);
+  background: transparent; border: 0; border-radius: calc(6px * var(--housing-scale));
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-tour-return-leave:hover { color: var(--housing-text); background: var(--housing-chip-bg-hover); }
+.housing-tour-return-back:focus-visible,
+.housing-tour-return-leave:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-aether); outline-offset: calc(2px * var(--housing-scale)); }
+@media (prefers-reduced-motion: reduce) {
+  .housing-tour-return-dot { animation: none; }
+}
+@media (max-width: 767px) {
+  /* 実機FB第4弾: 本体をナビの上で切らず、カードは透けたナビの下まで流し込む
+     (ナビ被り対策は各スクロールコンテナ側の padding-bottom が持つ)。 */
+  /* ヘッダーはブランドのみ残し、横断検索/タブ/右群 (通知・テーマ・アバター) は
+     ボトムナビ/シート側に移設したので隠す。 */
+  .housing-app-header .housing-app-search,
+.housing-app-header .housing-app-header-right {
+    display: none;
+  }
+  /* 実機FB第2弾#2: フィルターをボトムナビからヘッダーへ移設 (探すページのみ・AppHeader が isMobile ゲート)。
+     .housing-app-header-right は上で非表示なので、その外の独立要素として右寄せする
+     (ヘッダー自体が display:flex なので margin-left:auto で右端に付く)。 */
+  /* 実機FB第3弾: 囲いなしのテキストボタン「フィルター ▼」(丸チップをやめる)。 */
+  .housing-app-header-filterbtn {
+    margin-left: auto;
+    flex-shrink: 0;
+    appearance: none;
+    background: none;
+    border: none;
+    padding: 6px 4px;
+    font-family: inherit;
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    color: var(--housing-text);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .housing-app-header-filterbtn:active {
+    opacity: 0.7;
+  }
+
+}

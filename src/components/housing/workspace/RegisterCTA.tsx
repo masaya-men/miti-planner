@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 import { useRipple } from '../../../lib/housing/useRipple';
 import { HousingRipple } from '../HousingRipple';
+import './RegisterCTA.css';
 
 export interface RegisterCTAProps {
     onClick: () => void;

@@ -1,0 +1,12 @@
+/* RegisterAddressMap の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 登録/編集ページ右カラムのツアー地図プレビュー (#5・RegisterAddressMap)。
+   TourNavMap の .housing-tour-map は flex:1 1 auto で親の高さを埋めるため、
+   ward マップと同じ 470:350 比の枠で高さを与える (右カラムは #6 で縦スクロール可)。
+   flex:0 0 auto で他パネル (チェック/重複) に潰されない。 */
+.housing-register-map-preview {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 470 / 350;
+  min-height: 0;
+}

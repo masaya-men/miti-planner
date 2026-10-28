@@ -93,6 +93,20 @@ describe('planColocation', () => {
     ], { overrides: { 'housing-a': `${C}/a/A.tsx` } });
     expect(q.crossPairs).toHaveLength(0);
   });
+  it('セレクタごとに持ち主が違う規則は持ち主ごとに分ける', () => {
+    const p = plan([{ file: '05-x.css', css: '@media (max-width: 767px){ .housing-a, .housing-b { color: red } }' }]);
+    expect(norm(p.outputs.get(`${C}/a/A.css`))).toMatch(/@media \(max-width: 767px\)\s*\{\s*\.housing-a \{ color: red \}\s*\}/);
+    expect(norm(p.outputs.get(`${C}/b/B.css`))).toMatch(/@media \(max-width: 767px\)\s*\{\s*\.housing-b \{ color: red \}\s*\}/);
+  });
+  it('同じ class の持ち主は番号ファイルが違っても 1 つ', () => {
+    const jsx = [...base.jsx, { file: `${C}/b/B2.tsx`, text: '"housing-a" "housing-b"' }];
+    const p = planColocation({ ...base, jsx, sources: [
+      { file: '05-x.css', css: '.housing-a{x:1} .housing-a2{x:1}' },
+      { file: '06-y.css', css: '.housing-b{x:1} .housing-a{y:1}' },
+    ] });
+    const owners = [...p.outputs].filter(([, css]) => css.includes('.housing-a{') || css.includes('.housing-a {')).map(([k]) => k);
+    expect(owners).toHaveLength(1);
+  });
   it('override で持ち主を決められ、 割れた class は ambiguous に出る', () => {
     const jsx = [...base.jsx, { file: `${C}/b/B2.tsx`, text: '"housing-a"' }];
     const p = planColocation({ ...base, jsx, sources: [{ file: '05-x.css', css: '.housing-a{x:1}' }] });

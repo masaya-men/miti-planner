@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HousingDateTimePicker } from './HousingDateTimePicker';
+import './RegisterSectionVisibility.css';
 
 interface RegisterVisibilityValues {
   visibility: 'public' | 'unlisted' | 'private';

@@ -1,0 +1,109 @@
+/* ListingGridSkeleton の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-reveal .housing-listing-grid > *,
+.housing-reveal-kids .housing-listing-grid > * {
+  animation: housing-reveal 450ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: calc(var(--housing-reveal-i, 0) * 45ms);
+  animation-play-state: var(--housing-reveal-play, running);
+}
+.housing-listing-grid > :nth-child(2) { --housing-reveal-i: 1; }
+.housing-listing-grid > :nth-child(3) { --housing-reveal-i: 2; }
+.housing-listing-grid > :nth-child(4) { --housing-reveal-i: 3; }
+.housing-listing-grid > :nth-child(5) { --housing-reveal-i: 4; }
+.housing-listing-grid > :nth-child(6) { --housing-reveal-i: 5; }
+.housing-listing-grid > :nth-child(7) { --housing-reveal-i: 6; }
+.housing-listing-grid > :nth-child(8) { --housing-reveal-i: 7; }
+.housing-listing-grid > :nth-child(9) { --housing-reveal-i: 8; }
+.housing-listing-grid > :nth-child(10) { --housing-reveal-i: 9; }
+.housing-listing-grid > :nth-child(11) { --housing-reveal-i: 10; }
+.housing-listing-grid > :nth-child(n+12) { --housing-reveal-i: 11; }
+/* 段階描画 (ListingGrid) で後から足されるカード (37 枚目以降) は動きなしで普通に出す。
+   最初のまとまり (LISTING_INITIAL_COUNT=36 枚) にだけふわっと表示が効く。 */
+.housing-reveal .housing-listing-grid > :nth-child(n+37),
+.housing-reveal-kids .housing-listing-grid > :nth-child(n+37) { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .housing-reveal .housing-listing-grid > *,
+.housing-reveal-kids .housing-listing-grid > * { animation: none; }
+}
+/* 一覧: 外側は実グリッドの居場所 (残り高さを埋める)、内側が実グリッドと同じ .housing-listing-grid */
+.housing-listing-grid-skeleton-shell {
+  display: flex; flex-direction: column;
+  flex: 1 1 auto; min-height: 0;
+  position: relative;
+}
+.housing-listing-grid-skeleton { overflow: hidden; }
+.housing-skel-card {
+  display: flex; flex-direction: column;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(14px * var(--housing-scale));
+  overflow: hidden;
+}
+.housing-skel-card-media {
+  flex: 0 0 auto;
+  height: 0;
+  padding-top: var(--housing-listing-card-media-pad);
+}
+.housing-skel-card-footer { flex: 0 0 auto; padding: calc(8px * var(--housing-scale)) calc(10px * var(--housing-scale)) calc(10px * var(--housing-scale)); }
+.housing-skel-card-btn { height: calc(35px * var(--housing-scale)); border-radius: calc(8px * var(--housing-scale)); background: var(--housing-skeleton-block-soft); }
+
+
+.housing-listing-grid {
+  display: grid;
+  /* 参考UI準拠で密に (中央幅で4列以上)。左右パネルを狭めた分、一覧性を上げる。 */
+  grid-template-columns: repeat(auto-fill, minmax(var(--housing-listing-card-min-w), 1fr));
+  /* 行高は必ずカード実寸 (max-content) で作る。既定の grid-auto-rows:auto は、
+     カードのメディアが padding-top:75% (%パディング) で高さを作る構造だと、
+     ログイン後に自分の登録が後から読み込まれてカードが動的に増える再レイアウト時に
+     %パディングを 0 とみなして行を ~32px に潰し、フッター(ツアー追加ボタン)を
+     overflow:hidden で切り落とす (登録所有者=ログイン時のみ再現の実機バグ)。
+     max-content にすると %パディングが正しく解決され、静的/動的どちらでも実寸になる。 */
+  grid-auto-rows: max-content;
+  gap: var(--housing-main-gap);
+  overflow-y: auto;
+  min-height: 0;
+  /* カード枚数が少なくパネルより低くても、パネル下端まで枠自体は埋める
+     (2026-08-14ユーザー提案: 上のツールバー集約とセットで、下端に余白を残さない)。
+     flex-shrink は既定の 1 のまま (カードが多くて溢れる場合は従来通り縮んで内部スクロール)。 */
+  flex: 1 1 auto;
+  /* ホバーの浮き上がり (translateY(-2px)) がスクロール枠の上端で切れないよう
+     上に余白を確保し、negative margin で見た目の開始位置は変えない。 */
+  padding: calc(4px * var(--housing-scale)) calc(4px * var(--housing-scale)) calc(4px * var(--housing-scale)) 0;
+  margin-top: calc(-4px * var(--housing-scale));
+  align-content: start;
+}
+@media (max-width: 767px) {
+  /* カードグリッドは auto-fill の可変列数をやめ、2列固定にする
+     (探す/お気に入り共通の .housing-listing-grid)。 */
+  .housing-listing-grid {
+    grid-template-columns: repeat(2, 1fr);
+    /* 実機FB第4弾: カードは透けたナビの下まで流れる。末尾はナビ高さ+余裕ぶん確保して
+       最後のカードがナビに隠れたままスクロールが止まらないようにする (実機FB#9 の改訂)。
+       右12px = カードと画面端の間 (スクロールバーはこの外側=画面右端に出る)。
+       この左0/右12pxは「探す」ページが自前の左右余白をゼロにしている前提の値
+       (下の .housinger-page-listings-col 側では上書きする)。 */
+    padding: 4px 12px calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px) 0;
+  }
+  /* 2026-07-31 実機指摘: ハウジンガーページ/マイページは .housing-detail-fullpage-main が
+     既に左右24pxの均等余白を持っているため、上の「探す」専用の左0/右12pxがそのまま乗ると
+     右だけ12px広くなり全体が左に寄って見える (探す/お気に入りとは前提が違う)。
+     左右を揃えて中央に来るようにする。 */
+  .housinger-page-listings-col .housing-listing-grid {
+    padding: 4px 0 calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px) 0;
+  }
+  /* 浮かぶツアートレイがあるときは、最後のカードがトレイの裏に隠れないよう余白を足す (2026-10-22 実測)。 */
+  .housing-shell:has(.housing-tour-traybar) .housing-listing-grid {
+    padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--housing-fab-gap) + var(--housing-traybar-h) + 12px);
+  }
+  /* スクロールバー: 画面右端・太め (WebKit/Android。iOS Safari は太さ指定非対応=位置のみ改善)。 */
+  .housing-listing-grid::-webkit-scrollbar {
+    width: 8px;
+  }
+  .housing-listing-grid::-webkit-scrollbar-thumb {
+    background: var(--housing-text-dim);
+    border-radius: 8px;
+  }
+  .housing-listing-grid::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+}

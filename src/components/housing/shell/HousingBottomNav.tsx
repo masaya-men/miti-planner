@@ -6,6 +6,7 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { useHousingHomeScrollSignal } from '../../../store/useHousingHomeScrollSignal';
 import { useNotifications } from '../notifications/useNotifications';
+import './HousingBottomNav.css';
 
 export interface HousingBottomNavProps {
   /** 設定シートを開く (HousingShell がローカル state で保持) */

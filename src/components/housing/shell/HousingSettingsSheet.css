@@ -1,0 +1,13 @@
+/* HousingSettingsSheet の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ----- 設定シート (旧 StatusBar の移植先) ----- */
+.housing-mobile-settings-section + .housing-mobile-settings-section {
+  margin-top: calc(20px * var(--housing-scale));
+}
+.housing-mobile-settings-label {
+  margin: 0 0 calc(8px * var(--housing-scale));
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--housing-text-mute);
+}

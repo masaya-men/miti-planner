@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { stripHashedPrefix } from '../../../lib/housing/housingerProfile';
 import { useHousingerProfile } from './useHousingerProfile';
 import { HousingerAvatar } from './HousingerAvatar';
+import './HousingerByline.css';
 
 export interface HousingerBylineProps {
   ownerUid: string;

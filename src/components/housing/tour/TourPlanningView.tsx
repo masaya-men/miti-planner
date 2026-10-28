@@ -8,6 +8,7 @@ import { TourTrayList } from '../browse/TourTrayList';
 import { EphemeralAddPanel } from '../browse/EphemeralAddPanel';
 import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import type { TourPlanning } from './useTourPlanning';
+import './TourPlanningView.css';
 
 interface TourPlanningViewProps {
   isMobile: boolean;

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { getHousingerProfile } from '../../../lib/housing/housingerProfileService';
 import { ownerUidFromPersonalFilterId, stripHashedPrefix } from '../../../lib/housing/housingerProfile';
 import type { HousingerProfile } from '../../../types/housing';
+import './PersonalTagFilterLink.css';
 
 export interface PersonalTagFilterLinkProps {
   /** 探すページのタグフィルタのうち personal_ prefix のもの (FilterPanel/BrowsePage と同じ抽出)。 */

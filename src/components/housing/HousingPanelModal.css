@@ -1,0 +1,73 @@
+/* HousingPanelModal の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-panel-head {
+  padding: calc(14px * var(--housing-scale)) calc(16px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  display: flex; align-items: baseline; justify-content: space-between;
+  border-bottom: 1px solid var(--housing-divider);
+}
+.housing-panel-meta {
+  font-size: calc(11px * var(--housing-scale)); color: var(--housing-text-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Panel close button (reusable for left/right) */
+.housing-panel-close {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--housing-text-mute);
+  padding: calc(6px * var(--housing-scale));
+  border-radius: calc(6px * var(--housing-scale));
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-panel-close:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+.housing-panel-close:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+.housing-panel-modal-shell {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* 高さ上限: HousingPanelModal が --housing-modal-max (= maxHeightRatio*100) を注入する。
+     iOS Safari では 100vh がブラウザUI込みで実画面より大きく、モーダル下端が切れる (実機FB#5)。
+     dvh (実際に見えている高さ) を優先し、非対応ブラウザは vh 行にフォールバック。 */
+  max-height: calc(var(--housing-modal-max, 86) * 1vh);
+  max-height: calc(var(--housing-modal-max, 86) * 1dvh);
+}
+/* 入力途中の外側クリックで付く縁取り(.backdrop-nudge)を中のガラスの角丸に沿わせる */
+.housing-panel-modal-shell.backdrop-nudge {
+  border-radius: calc(18px * var(--housing-scale));
+}
+.housing-panel-modal-head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: calc(12px * var(--housing-scale));
+  padding: calc(10px * var(--housing-scale)) calc(14px * var(--housing-scale));
+  border-bottom: 1px solid var(--housing-panel-border);
+  position: relative;
+}
+.housing-panel-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--housing-scale));
+}
+.housing-panel-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: calc(16px * var(--housing-scale));
+  display: flex;
+  flex-direction: column;
+}
+/* 左フィルタは FilterPanel の head/body が縦余白を持つので、横はカラム余白に一本化 (二重余白回避)。 */
+.housing-browse-col-left .housing-panel-head { padding-left: 0; padding-right: 0; }

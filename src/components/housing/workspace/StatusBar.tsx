@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
+import './StatusBar.css';
 
 const LANGS = ['ja', 'en', 'ko', 'zh', 'zh-Hant'] as const;
 

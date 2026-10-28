@@ -1,0 +1,11 @@
+/* TourPlanningView の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== ツアー計画画面: PC全体レイアウト (2026-08-11) =====
+   ツアー未開始でトレイに行き先がある間だけ出る画面。左=選択中の家の詳細 / 右=蛇行グリッド。 */
+.housing-tour-plan {
+  display: grid;
+  grid-template-columns: var(--housing-tour-plan-detail-w) 1fr;
+  gap: var(--housing-main-gap);
+  padding: var(--housing-main-padding);
+  height: 100%;
+  min-height: 0;
+}

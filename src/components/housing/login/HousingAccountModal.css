@@ -1,0 +1,98 @@
+/* HousingAccountModal の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===========================================
+ * Account Modal
+ * =========================================== */
+.housing-account-profile {
+    display: flex;
+    align-items: center;
+    gap: calc(16px * var(--housing-scale));
+    padding: calc(16px * var(--housing-scale));
+    border-radius: calc(12px * var(--housing-scale));
+    background: var(--housing-account-button-bg);
+    border: 1px solid var(--housing-account-button-border);
+    margin-bottom: calc(20px * var(--housing-scale));
+}
+.housing-account-avatar {
+    width: calc(56px * var(--housing-scale));
+    height: calc(56px * var(--housing-scale));
+    border-radius: calc(999px * var(--housing-scale));
+    overflow: hidden;
+    border: calc(2px * var(--housing-scale)) solid var(--housing-avatar-ring);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.housing-account-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.housing-account-info {
+    flex: 1;
+    min-width: 0;
+}
+.housing-account-name-row {
+    display: flex;
+    align-items: center;
+    gap: calc(6px * var(--housing-scale));
+}
+.housing-account-name-edit-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: calc(4px * var(--housing-scale));
+    color: var(--housing-text-mute);
+}
+.housing-account-name-edit-btn:hover {
+    color: var(--housing-honey);
+}
+.housing-account-name-note {
+    margin: calc(4px * var(--housing-scale)) 0 0;
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+}
+.housing-account-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(8px * var(--housing-scale));
+    width: 100%;
+    padding: calc(10px * var(--housing-scale)) calc(14px * var(--housing-scale));
+    border-radius: calc(10px * var(--housing-scale));
+    background: var(--housing-account-button-bg);
+    color: var(--housing-text);
+    font-size: var(--housing-text-sm);
+    font-weight: 500;
+    border: 1px solid var(--housing-account-button-border);
+    cursor: pointer;
+    transition: background 180ms ease;
+    margin-bottom: calc(8px * var(--housing-scale));
+}
+.housing-account-button:hover {
+    background: var(--housing-account-button-bg-hover);
+}
+.housing-account-button-danger {
+    color: var(--housing-account-danger-text);
+    border-color: var(--housing-account-danger-border);
+}
+.housing-account-button-danger:hover {
+    background: var(--housing-account-danger-bg-hover);
+}
+.housing-account-delete-link {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: transparent;
+    border: none;
+    color: var(--housing-account-delete-link-text);
+    font-size: var(--housing-text-xs);
+    padding: calc(8px * var(--housing-scale));
+    margin-top: calc(12px * var(--housing-scale));
+    cursor: pointer;
+    transition: color 180ms ease;
+}
+.housing-account-delete-link:hover {
+    color: var(--housing-account-danger-text);
+}
+.housing-account-housinger .housing-account-button {
+    margin-bottom: 0;
+}

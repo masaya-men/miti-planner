@@ -1,0 +1,64 @@
+/* HousingRegisterMultiUrlField の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* Batch2: 複数投稿URL入力欄 (HousingRegisterMultiUrlField) */
+.housing-register-multi-url-field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+}
+.housing-register-multi-url-row {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(8px * var(--housing-scale));
+}
+.housing-register-multi-url-row > *:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.housing-register-multi-url-remove {
+  flex: 0 0 auto;
+  width: calc(32px * var(--housing-scale));
+  height: calc(32px * var(--housing-scale));
+  margin-top: calc(2px * var(--housing-scale));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  appearance: none;
+  cursor: pointer;
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text-mute);
+  font-size: var(--housing-text-sm);
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.housing-register-multi-url-remove:hover {
+  background: var(--housing-warning);
+  border-color: var(--housing-warning);
+  color: var(--housing-honey-text-strong);
+}
+.housing-register-multi-url-remove:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(2px * var(--housing-scale));
+}
+.housing-register-multi-url-add {
+  align-self: flex-start;
+  appearance: none;
+  cursor: pointer;
+  padding: calc(6px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px dashed var(--housing-aether-border);
+  background: transparent;
+  color: var(--housing-aether-soft);
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 500;
+  transition: background 0.12s ease, border-style 0.12s ease;
+}
+.housing-register-multi-url-add:hover {
+  background: var(--housing-aether-medium);
+  border-style: solid;
+}
+.housing-register-multi-url-add:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-honey);
+  outline-offset: calc(2px * var(--housing-scale));
+}

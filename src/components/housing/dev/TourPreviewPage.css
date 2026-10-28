@@ -1,0 +1,21 @@
+/* TourPreviewPage の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-dev-tourpreview-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: calc(12px * var(--housing-scale));
+  padding: calc(8px * var(--housing-scale)) var(--housing-main-padding);
+  background: var(--housing-panel-bg-solid);
+  color: var(--housing-text);
+  border-bottom: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+}
+.housing-dev-tourpreview-count { color: var(--housing-text-mute); }
+.housing-dev-tourpreview-label { font-weight: 600; }
+.housing-dev-tourpreview-badge {
+  padding: calc(2px * var(--housing-scale)) calc(8px * var(--housing-scale)); border-radius: calc(6px * var(--housing-scale)); border: 1px solid var(--housing-divider);
+}
+.housing-dev-tourpreview-badge--entrance { color: var(--housing-honey); }
+.housing-dev-tourpreview-badge--geo { color: var(--housing-text-mute); }
+.housing-dev-tourpreview-btn {
+  padding: calc(4px * var(--housing-scale)) calc(10px * var(--housing-scale)); border: 1px solid var(--housing-divider); border-radius: calc(6px * var(--housing-scale));
+  background: transparent; color: var(--housing-text); cursor: pointer;
+}
+.housing-dev-tourpreview-jump { margin-left: auto; max-width: calc(240px * var(--housing-scale)); }

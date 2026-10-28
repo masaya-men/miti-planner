@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useHousingModalStore } from '../../store/useHousingModalStore';
+import './HousingLoginPrompt.css';
 
 interface Props {
   context: 'register' | 'tour' | 'favorite' | 'mypage';

@@ -1,0 +1,134 @@
+/* MobileTourTrayBar の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+@media (max-width: 767px) {
+
+  /* ----- MobileTourTrayBar: トレイに積んだら出る小バー (実機FB#10) -----
+     ボトムナビの上・FAB の左に浮く。件数確認 + 開始 + クリアだけの最小トレイ。 */
+  .housing-tour-traybar {
+    position: fixed;
+    left: 12px;
+    right: 12px /* トレイがある間は + ボタンを出さないので右端まで */;
+    bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--housing-fab-gap));
+    z-index: var(--housing-z-mobile-chrome);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--housing-panel-bg-solid);
+    border: 1px solid var(--housing-honey-border);
+    border-radius: 12px;
+    box-shadow: var(--housing-panel-shadow);
+  }
+  .housing-tour-traybar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .housing-tour-traybar-actions > button {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+  .housing-tour-traybar-icon {
+    flex: 0 0 auto;
+    color: var(--housing-honey);
+  }
+  .housing-tour-traybar-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: var(--housing-text-xs);
+    font-weight: 600;
+    color: var(--housing-text);
+  }
+  .housing-tour-traybar-count {
+    font-size: var(--housing-text-sm);
+    font-weight: 700;
+    color: var(--housing-honey);
+    font-variant-numeric: tabular-nums;
+  }
+  .housing-tour-traybar-start {
+    appearance: none;
+    cursor: pointer;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 32px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: var(--housing-text-xs);
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--housing-honey-text);
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .housing-tour-traybar-start:hover {
+    filter: brightness(1.05);
+  }
+  .housing-tour-traybar-start:active {
+    transform: scale(0.96);
+  }
+  .housing-tour-traybar-start:focus-visible {
+    outline: 2px solid var(--housing-honey);
+    outline-offset: 2px;
+  }
+  /* 並べ替えボタン (ツアー順制御): クリアボタンと同じ小さいアイコンボタンの見た目。 */
+  .housing-tour-traybar-reorder {
+    appearance: none;
+    cursor: pointer;
+    flex: 0 0 auto;
+    min-height: 32px;
+    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: inherit;
+    font-size: var(--housing-text-xs);
+    font-weight: 600;
+    white-space: nowrap;
+    border-radius: 8px;
+    color: var(--housing-text-mute);
+    background: transparent;
+    border: 1px solid var(--housing-panel-border);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .housing-tour-traybar-reorder:hover {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+  }
+  .housing-tour-traybar-reorder:focus-visible {
+    outline: 2px solid var(--housing-honey);
+    outline-offset: 2px;
+  }
+  .housing-tour-traybar-clear {
+    appearance: none;
+    cursor: pointer;
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    color: var(--housing-text-mute);
+    background: transparent;
+    border: 1px solid var(--housing-panel-border);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .housing-tour-traybar-clear:hover {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+  }
+  .housing-tour-traybar-clear:focus-visible {
+    outline: 2px solid var(--housing-honey);
+    outline-offset: 2px;
+  }
+}

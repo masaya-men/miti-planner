@@ -6,6 +6,7 @@ import { formatFullHousingAddress, formatHousingAddress } from '../../../lib/hou
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { TourLivingMedia } from './TourLivingMedia';
 import { HousingerByline } from '../housinger/HousingerByline';
+import './TourTrayDetailPanel.css';
 
 export interface TourTrayDetailPanelProps {
   /** グリッドで選択中の家。トレイが空の一瞬だけ null。 */

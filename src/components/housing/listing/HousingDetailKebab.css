@@ -1,0 +1,78 @@
+/* HousingDetailKebab の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* Kebab (︙) メニュー */
+.housing-kebab {
+    position: relative;
+    display: inline-block;
+}
+.housing-kebab-trigger {
+    width: calc(40px * var(--housing-scale));
+    height: calc(40px * var(--housing-scale));
+    border-radius: 50%;
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+.housing-kebab-trigger:hover {
+    background: var(--housing-chip-bg-hover);
+}
+.housing-kebab-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + calc(4px * var(--housing-scale)));
+    min-width: calc(160px * var(--housing-scale));
+    border-radius: calc(12px * var(--housing-scale));
+    padding: calc(6px * var(--housing-scale));
+    /* 共通ガラス面ルールから外し、濃紺ほぼ不透明の面にする (本文が透けない) */
+    background: var(--housing-menu-bg-opaque);
+    border: 1px solid var(--housing-panel-border);
+    box-shadow: var(--housing-popover-shadow-glass);
+    display: flex;
+    flex-direction: column;
+    gap: calc(2px * var(--housing-scale));
+    z-index: var(--housing-popover-z-stack);
+}
+.housing-kebab-menu button {
+    background: transparent;
+    border: none;
+    color: var(--housing-text);
+    font-size: var(--housing-text-base);
+    text-align: left;
+    padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+    cursor: pointer;
+    border-radius: calc(8px * var(--housing-scale));
+    white-space: nowrap;
+}
+.housing-kebab-menu button:hover {
+    background: var(--housing-honey-medium);
+}
+.housing-kebab-item-danger {
+    color: var(--housing-danger) !important;
+}
+.housing-kebab-item-danger:hover {
+    background: var(--housing-danger-soft) !important;
+}
+/* 家主専用「…」メニュー(HousingDetailKebab)は既定 40px 固定だが、行内の他ボタンと揃える。
+   .housing-kebab-trigger はハウジンガーページの別文脈でも使うため、ここでは操作バー内だけに
+   scope した override に留める(共有クラスの既定値は変えない)。 */
+.housing-action-bar .housing-kebab-trigger {
+    width: var(--housing-action-bar-btn-h);
+    height: var(--housing-action-bar-btn-h);
+}
+/* Task9 の「…」メニュー(通報)をこの行に合流させたぶんの override。共有 .housing-kebab-trigger
+   の既定 (40px 固定円形 + 塗り背景) はここでは使わず、隣の Xシェアアイコンボタン
+   (.housing-action-btn.is-icon) とサイズ・見た目を揃える。 */
+.housinger-page-kebab-trigger {
+    width: auto;
+    height: auto;
+    padding: calc(6px * var(--housing-scale));
+    border-radius: calc(8px * var(--housing-scale));
+    background: transparent;
+    color: var(--housing-text-dim);
+}
+.housinger-page-kebab-trigger:hover {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+}

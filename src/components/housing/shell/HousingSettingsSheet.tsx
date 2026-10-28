@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { MobileBottomSheet } from '../../MobileBottomSheet';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
+import './HousingSettingsSheet.css';
 
 export interface HousingSettingsSheetProps {
   isOpen: boolean;

@@ -1,0 +1,30 @@
+/* HousingCardMarqueeLine の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== カード内 1行ループマーキー (HousingCardMarqueeLine) =====
+   見切れたタイトルだけ、カードホバー中に「あいうえお　　あいうえお　　…」と
+   ゆっくり左へ流れ続ける (往復型 lopo-name-marquee とは別の静かなティッカー)。
+   距離/時間は ResizeObserver 計測で --marquee-distance / --marquee-duration に注入。 */
+.housing-marquee-clip {
+  display: block; min-width: 0;
+  overflow: hidden; white-space: nowrap;
+}
+.housing-marquee-track {
+  display: inline-flex;
+}
+.housing-marquee-copy {
+  display: inline-flex; align-items: center; gap: calc(5px * var(--housing-scale));
+  white-space: nowrap;
+  line-height: 1.35;
+  /* コピー間の間隔 (ループの「余白」)。offsetWidth に含めて1周距離の計測を単純化する */
+  padding-right: var(--housing-marquee-gap);
+}
+@keyframes housing-marquee-loop {
+  from { transform: translateX(0); }
+  to   { transform: translateX(var(--marquee-distance, 0)); }
+}
+.housing-listing-card:hover .housing-marquee-clip[data-clipped] .housing-marquee-track,
+.housing-listing-card:focus-within .housing-marquee-clip[data-clipped] .housing-marquee-track {
+  animation: housing-marquee-loop var(--marquee-duration, 10s) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-listing-card .housing-marquee-track { animation: none !important; }
+}

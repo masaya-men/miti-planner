@@ -9,6 +9,7 @@ import { useHousingListOrderStore, type HousingListKey } from '../../../store/us
 import { useHousingHomeScrollSignal } from '../../../store/useHousingHomeScrollSignal';
 import { useListScrollRestore } from '../../../lib/housing/useListScrollRestore';
 import { useSmoothWheelScroll } from '../../../lib/scroll/useSmoothWheelScroll';
+import './ListingGrid.css';
 
 /** 最初に描く枚数と、見張りが見えるたびに足す枚数 (段階描画)。ふわっと表示の CSS (.housing-reveal の nth-child(n+37)) と揃える。 */
 export const LISTING_INITIAL_COUNT = 36;

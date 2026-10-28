@@ -1,0 +1,30 @@
+/* RegisterHousingerCta の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ハウジンガー公開 CTA (Task9): 確認セクション直前の任意ブロック。何も要求しない導線なので
+   `.housing-register-section` の青アクセント見出し (= 必須ステップ扱い) は使わず、
+   ヘアライン区切り + 静かな見出しに留める (housing-design.md 「AI 感の払拭」原則)。 */
+.housing-register-housinger-cta {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--housing-scale));
+  padding-top: calc(16px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-register-housinger-cta-title {
+  margin: 0;
+  font-size: var(--housing-text-base);
+  font-weight: 600;
+  color: var(--housing-text);
+}
+.housing-register-housinger-cta-desc {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+  line-height: 1.5;
+}
+.housing-register-housinger-cta-published {
+  margin: 0;
+  padding-top: calc(16px * var(--housing-scale));
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}

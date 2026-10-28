@@ -1,0 +1,22 @@
+/* HousingRipple の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== クリックリップル (useRipple 共有フック・2026-07-10) =====
+   位置/直径はクリック座標由来のためインライン CSS カスタムプロパティで渡す
+   (--housing-longpress-progress と同じ既存パターン踏襲。色/尺は token 経由)。 */
+.housing-ripple {
+  position: absolute;
+  left: var(--ripple-x);
+  top: var(--ripple-y);
+  width: var(--ripple-size);
+  height: var(--ripple-size);
+  border-radius: 50%;
+  background: var(--housing-ripple);
+  transform: scale(0);
+  animation: housing-ripple-spread 0.6s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes housing-ripple-spread {
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
+}

@@ -1,0 +1,53 @@
+/* RegisterAutosaveNotice の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ============================================================
+ * 登録ページ: オートセーブ復元通知 (Task14)
+ * 「入力途中を復元しました」+ SNS 再取得注記 + 破棄ボタン。色付き箱にせず、
+ * ヘアライン枠 + グレー文字の静かな帯にする。
+ * ============================================================ */
+.housing-register-autosave-notice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(12px * var(--housing-scale));
+  padding: calc(10px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border: 1px solid var(--housing-divider);
+  border-radius: calc(8px * var(--housing-scale));
+  background: var(--housing-chip-sunken-bg);
+}
+.housing-register-autosave-notice-body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--housing-scale));
+  min-width: 0;
+}
+.housing-register-autosave-notice-text {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-register-autosave-notice-hint {
+  margin: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-register-autosave-discard {
+  flex: 0 0 auto;
+  padding: calc(6px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(8px * var(--housing-scale));
+  background: transparent;
+  color: var(--housing-text-dim);
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.housing-register-autosave-discard:hover {
+  background: var(--housing-chip-bg-hover);
+  border-color: var(--housing-panel-border-strong);
+  color: var(--housing-text);
+}
+.housing-register-autosave-discard:focus-visible {
+  outline: calc(2px * var(--housing-scale)) solid var(--housing-aether);
+  outline-offset: calc(2px * var(--housing-scale));
+}

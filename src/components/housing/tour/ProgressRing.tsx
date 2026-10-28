@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import './ProgressRing.css';
 
 export interface ProgressRingProps {
   /** 0-100 の進捗率。範囲外の値は clamp する。 */

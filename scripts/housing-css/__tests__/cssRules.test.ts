@@ -59,11 +59,22 @@ describe('findOrderPairs', () => {
     expect(p).toHaveLength(1);
     expect(p[0][2]).toBe('color');
   });
-  it('片方だけ @media なら組にならない', () => {
-    expect(pairs('.housing-a{color:red} @media (max-width:767px){.housing-a{color:blue}}')).toHaveLength(0);
+  it('片方だけ @media でも、 両方が同時に効きうるので組', () => {
+    expect(pairs('.housing-a{color:red} @media (max-width:767px){.housing-a{color:blue}}')).toHaveLength(1);
+  });
+  it('幅の条件が重ならない @media 同士は組にならない', () => {
+    expect(pairs('@media (min-width: 768px){.housing-a{color:red}} @media (max-width: 767px){.housing-a{color:blue}}')).toHaveLength(0);
   });
   it('同じ要素に当たりうる同詳細度は組', () => {
     expect(pairs('.x .housing-a{color:red} .y .housing-a{color:blue}')).toHaveLength(1);
+  });
+  it('まとめ書きと個別書き(padding と padding-bottom 等)は同じ性質として組', () => {
+    expect(pairs('.housing-a{padding:0} .housing-a{padding-bottom:4px}')).toHaveLength(1);
+    expect(pairs('.housing-a{inset:0} .housing-a{bottom:4px}')).toHaveLength(1);
+    expect(pairs('.housing-a{border-radius:2px} .housing-a{border-top-left-radius:4px}')).toHaveLength(1);
+    expect(pairs('.housing-a{gap:2px} .housing-a{row-gap:4px}')).toHaveLength(1);
+    expect(pairs('.housing-a{font:12px a} .housing-a{line-height:2}')).toHaveLength(1);
+    expect(pairs('.housing-a{place-items:center} .housing-a{align-items:start}')).toHaveLength(1);
   });
   it('性質が違えば組にならない', () => {
     expect(pairs('.housing-a{color:red} .housing-a{margin:0}')).toHaveLength(0);

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
+import './HousingRegisterFab.css';
 
 /**
  * スマホ用「登録する」FAB (Task1: モバイルシェル基盤)。右下固定。

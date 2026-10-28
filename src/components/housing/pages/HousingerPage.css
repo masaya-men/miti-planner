@@ -1,0 +1,163 @@
+/* HousingerPage の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== Task 7: ハウジンガーページ (HousingerPage) =====
+   .housing-detail-panel/-shell/-fullpage-header/-fullpage-main (詳細と共通のシェル) の中身。 */
+/* Task9: 共通ヘッダー (.housing-detail-fullpage-header) に「…」メニューを追加するための行化。
+   このページだけに付与する追加クラスなので、HousingDetailPage.tsx 側の見た目は変わらない。 */
+.housinger-page-headerbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+/* 2026-07-24 レイアウト刷新: 他ページ共通の 1200px max-width は使わず、パネル幅いっぱいを使う。 */
+.housinger-page-main {
+    max-width: none;
+}
+.housinger-page-body {
+    display: flex;
+    align-items: flex-start;
+    gap: calc(24px * var(--housing-scale));
+}
+/* 左列 = プロフィール一式。固定幅、スクロールしても画面内に留まる (position: sticky)。
+   sticky の基準は .housing-detail-panel (overflow-y: auto の唯一のスクロールコンテナ)。 */
+.housinger-page-profile-col {
+    flex: 0 0 var(--housinger-page-profile-col-w);
+    display: flex;
+    flex-direction: column;
+    gap: calc(12px * var(--housing-scale));
+    min-width: 0;
+    position: sticky;
+    top: calc(24px * var(--housing-scale));
+}
+/* 自己紹介文は常に同じ高さの枠 (文字が少なくても余白のまま・長大でもこの枠内だけでスクロール)。
+   これにより下の「まとめてツアー」ボタンが文章量でガタつかず常に同じ位置に来る
+   (シェア/X/通報は 2026-07-31 に紹介文の上へ移動済み)。 */
+.housinger-page-bio {
+    margin: 0;
+    height: var(--housinger-page-bio-max-h);
+    overflow-y: auto;
+    font-size: var(--housing-text-base);
+    color: var(--housing-text-dim);
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+/* 2026-07-31: SNS リンクとシェア/通報ボタンを同じ行に横並びさせる行 (他人閲覧時のみ)。
+   SNS リンクが無いときは actions だけが行に残る。 */
+.housinger-page-sns-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(8px * var(--housing-scale));
+}
+.housinger-page-sns {
+    width: fit-content;
+    font-size: var(--housing-text-sm);
+    color: var(--housing-honey);
+    text-decoration: none;
+}
+.housinger-page-sns:hover {
+    text-decoration: underline;
+}
+/* シェア + 「…」メニュー(通報)の並び。 */
+.housinger-page-profile-actions {
+    display: flex;
+    align-items: center;
+    gap: calc(8px * var(--housing-scale));
+}
+/* まとめてツアー = 主アクション (ハニー系 CTA)。 .housing-tour-tray-start と同じ見た目パターン。
+   左列では横幅いっぱいのボタンにする (手書きレイアウト案どおり)。 */
+.housinger-page-tour-btn {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(8px * var(--housing-scale));
+    width: 100%;
+    padding: calc(11px * var(--housing-scale)) calc(16px * var(--housing-scale));
+    font-family: inherit;
+    font-size: var(--housing-text-md);
+    font-weight: 700;
+    color: var(--housing-honey-text);
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+    border: 0;
+    border-radius: calc(10px * var(--housing-scale));
+    box-shadow: 0 calc(4px * var(--housing-scale)) calc(14px * var(--housing-scale)) var(--housing-honey-shadow-soft);
+    transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housinger-page-tour-btn:hover {
+    filter: brightness(1.05);
+}
+.housinger-page-tour-btn:active {
+    transform: scale(0.98);
+}
+/* 一覧取得中のダミー: 実ボタンと同じ寸法 (文字は透明で高さだけ使う)。 200ms 未満は居場所のみ。 */
+.housinger-page-tour-btn.housinger-page-tour-btn-skel {
+    cursor: default;
+    pointer-events: none;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    background: var(--housing-skeleton-block);
+    box-shadow: none;
+}
+/* 右列 = 一覧グリッド。残り幅いっぱい (左右いっぱいに広げたぶん、カード標準サイズのままで 5 列が収まる)。 */
+.housinger-page-listings-col {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.housinger-page-empty {
+    margin: 0;
+    padding: calc(24px * var(--housing-scale)) 0;
+    color: var(--housing-text-mute);
+    font-size: var(--housing-text-base);
+}
+@media (min-width: 769px) {
+    /* ハウジンガーページ/マイページ (.housinger-page-main): このページだけは「左列固定 (プロフィール) +
+       右列だけ内部スクロール (一覧)」という設計 (詳細ページの「一列だけ内部スクロール」と同じ考え方を
+       2カラムに適用)。panel 自体は overflow:hidden のまま (上記 override を維持) で、
+       .housinger-page-body を main の残り高さいっぱいに広げ、右列 (.housinger-page-listings-col) だけに
+       overflow-y:auto を持たせる。旧実装は panel 全体をスクロールに戻していたため、左列 (プロフィール一式)
+       までスクロールで流れてしまっていた (2026-07-24 実機指摘で発覚、右列だけスクロールが正しい仕様)。 */
+    .housinger-page-body {
+        flex: 1 1 auto;
+        min-height: 0;
+        align-items: stretch;
+    }
+    .housinger-page-profile-col {
+        /* sticky は右列だけが内部スクロールする構成では不要かつ、この列自体が
+           overflow-y:auto を持つと sticky の挙動が不安定になるため static に戻す。
+           align-items:stretch (上記) で高さは右列と揃うため、画面内固定は結果的に成立する。 */
+        position: static;
+        overflow-y: auto;
+        /* スクロールバーがテキスト/ボタンに直接くっつかないよう内側に余白を確保。 */
+        padding-right: calc(10px * var(--housing-scale));
+    }
+    /* スクロールバーの見た目はカスタマイズせずブラウザ標準のまま
+       (2026-07-24 ユーザー確認: 独自の色を作るより標準表示でよい)。 */
+    /* overflow-y はここではなく中の .housing-listing-grid だけに持たせる (探す/お気に入りと同じ
+       「ツールバー固定+グリッドだけ内部スクロール」構成)。ここに overflow-y:auto を足すと
+       「ハウジング一覧 N件/並び替え」ツールバーごと流れてしまう (2026-07-24 実機指摘)。
+       min-height:0 だけ与えて .housing-listing-grid-wrap の height:100% を機能させる。 */
+    .housinger-page-listings-col {
+        min-height: 0;
+    }
+}
+@media (max-width: 767px) {
+
+/* ハウジンガーページ: 狭幅では左右 2 カラムが成立しないので縦積みに戻す。
+   プロフィール列の固定幅・sticky は PC 専用の挙動なので解除する。
+   2026-07-31 実機指摘で判明: 縦積み (flex-direction:column) にすると align-items の効く軸が
+   縦→横に入れ替わるため、base の align-items:flex-start (PC ではプロフィール列の高さ揃え用) が
+   横方向では「内容サイズで左詰め」に変わってしまい、子要素が幅いっぱいに広がらず左に寄る。
+   プロフィール列だけ width:100% で個別に応急処置されていたが、一覧列 (housinger-page-listings-col)
+   側は漏れていた。stretch に戻せば両方まとめて正しく幅いっぱいになる。 */
+    .housinger-page-body {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .housinger-page-profile-col {
+        flex: 1 1 auto;
+        width: 100%;
+        position: static;
+    }
+}

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { DuplicateEntry } from '../../../lib/housingApiClient';
 import { getTagById } from '../../../data/housingTags';
+import './RegisterDuplicatePanel.css';
 
 export type RegisterDuplicateState = 'idle' | 'checking' | 'clear' | 'found';
 

@@ -1,0 +1,23 @@
+/* HousingRegisterFab の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ----- 登録 FAB ----- */
+.housing-mobile-fab {
+  position: fixed;
+  right: var(--housing-fab-offset);
+  bottom: calc(var(--housing-bottomnav-h) + var(--housing-fab-gap) + env(safe-area-inset-bottom, 0px));
+  z-index: var(--housing-z-mobile-chrome);
+  width: var(--housing-fab-size);
+  height: var(--housing-fab-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: var(--housing-honey);
+  color: var(--housing-honey-text-strong);
+  box-shadow: var(--housing-panel-shadow);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.housing-mobile-fab:active {
+  transform: scale(0.94);
+}

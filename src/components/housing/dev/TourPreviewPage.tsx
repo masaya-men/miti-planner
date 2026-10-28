@@ -6,6 +6,7 @@ import { useHousingListingsStore } from '../../../store/useHousingListingsStore'
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { getPlotEntrance } from '../../../lib/housing/plotEntrance';
 import { TourNavPage } from '../pages/TourNavPage';
+import './TourPreviewPage.css';
 
 /**
  * DEV専用: 全住所ツアープレビュー。本番 TourNavPage を無改変で再利用し、

@@ -1,0 +1,96 @@
+/* ListingGrid の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.housing-reveal-kids .housing-listing-grid-toolbar-actions,
+.housing-reveal .housing-listing-grid-toolbar {
+  animation: housing-reveal 450ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: calc(var(--housing-reveal-i, 0) * 45ms);
+  animation-play-state: var(--housing-reveal-play, running);
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-reveal-kids .housing-listing-grid-toolbar-actions,
+.housing-reveal .housing-listing-grid-toolbar { animation: none; }
+}
+/* 探すページだけ: 「一覧|マップ|タグ」+「件数・並び替え」を1段に集約した分、ツールバーと
+   カードの境目が曖昧にならないよう常時区切り線を出す(2026-08-14ユーザー指定)。
+   他ページ(ハウジンガー等)のListingGrid再利用箇所には影響させない。
+   padding-bottom = 文字と線の間の余白、wrap側のgapが線とカードの間の余白を担う。 */
+.housing-browse-col-center .housing-listing-grid-toolbar {
+  padding: 0 0 calc(8px * var(--housing-scale)) 0;
+  border-bottom: 1px solid var(--housing-divider);
+}
+.housing-listing-grid-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: calc(12px * var(--housing-scale));
+  padding: 0 calc(4px * var(--housing-scale)) 0 0;
+  flex: 0 0 auto;
+}
+/* 「ハウジング一覧 N件」見出し */
+.housing-listing-grid-heading {
+  display: inline-flex; align-items: baseline; gap: calc(8px * var(--housing-scale));
+  margin: 0;
+  font-size: var(--housing-text-md); font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-listing-grid-count {
+  font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+/* マイページのみ: OGP代表作選択の説明(箱・pill化せず静かな注記に留める。feedback_housing_no_ai_pills)。 */
+.housing-listing-grid-og-hint {
+  font-size: var(--housing-text-sm); font-weight: 400;
+  color: var(--housing-text-mute);
+}
+
+/* ツールバー右側: シャッフルボタン + 並び替えセレクトのグループ (space-between の子を2つに保つ)。 */
+.housing-listing-grid-toolbar-actions {
+  display: inline-flex; align-items: center; gap: calc(8px * var(--housing-scale));
+  flex: 0 0 auto;
+}
+@media (max-width: 767px) {
+
+/* 実機FB (2026-07-31): マイページで見出し (タイトル+件数+OGP代表作ヒント文) が「並び替え」と
+   横並びのまま幅を奪い合い、見出し側に min-width の下限が無い (flexアイテムの既定
+   min-width:auto は CJK テキストだと1文字まで縮む) ため、日本語が1文字ずつ縦積みに潰れて
+   読めなくなっていた。狭幅では見出しを常に単独の行いっぱいに確保し (flex-basis:100%)、
+   その中で「タイトル+件数」と「ヒント文」を別行に分けて自然に折り返す。 並び替えは
+   見出しの次の行へ回り、margin-left:auto で従来通り右寄せを維持する。 */
+  .housing-listing-grid-toolbar {
+    flex-wrap: wrap;
+  }
+  .housing-listing-grid-heading {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+  .housing-listing-grid-toolbar-actions {
+    margin-left: auto;
+  }
+}
+/* シャッフルボタン (ランダム表示中のみ表示・.housing-sort-trigger と同系の控えめな意匠)。 */
+.housing-shuffle-btn {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: calc(30px * var(--housing-scale)); height: calc(30px * var(--housing-scale));
+  color: var(--housing-text-dim);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(9px * var(--housing-scale));
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.housing-shuffle-btn:hover,
+.housing-shuffle-btn:focus-visible {
+  color: var(--housing-text);
+  border-color: var(--housing-honey-border);
+  background: var(--housing-honey-soft);
+}
+.housing-shuffle-btn:active { transform: scale(0.95); }
+@media (max-width: 767px) {
+  /* 「ハウジング一覧 N件 / 並び替え」バーはグリッド(cards)の外にあるため、上の
+     .housing-browse-col-center { padding-right: 0 } の影響をそのまま受けて右端に張り付いて
+     しまう(区切り線も同様)。padding だとボックス自体は画面端まで伸びたままで区切り線
+     (border-bottom)は右端に残るため、margin でボックス自体を右に狭める。
+     カード側の右12px(.housing-listing-gridのpadding)と揃える
+     (2026-08-14ユーザー実機指摘=並び替えボタンと線が右端にくっついて見える)。 */
+  .housing-browse-col-center .housing-listing-grid-toolbar { margin-right: 12px; }
+
+}

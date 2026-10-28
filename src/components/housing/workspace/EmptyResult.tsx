@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { SearchX } from 'lucide-react';
+import './EmptyResult.css';
 
 export const EmptyResult: React.FC = () => {
     const { t } = useTranslation();

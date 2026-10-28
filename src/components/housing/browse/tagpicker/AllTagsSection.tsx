@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { STATIC_HOUSING_TAG_KINDS, getTagsByKind } from '../../../../data/housingTags';
+import './AllTagsSection.css';
 
 export interface AllTagsSectionProps {
   selected: string[];

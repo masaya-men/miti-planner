@@ -2,6 +2,7 @@ import { RegisterStepperNav, type RegisterStep } from '../RegisterStepperNav';
 import { registrationTicketsRemaining } from '../../../../utils/housingQuota';
 import { REGISTRATION_INITIAL_BONUS, REGISTRATION_DAILY_QUOTA } from '../../../../constants/housing';
 import { useTranslation } from 'react-i18next';
+import './RegisterLeftColumn.css';
 
 export const RegisterLeftColumn: React.FC<{ steps: RegisterStep[]; onJump: (id: number) => void; progress: number; isAdmin: boolean; remaining: number | null; registrationCount: number | null }> = ({ steps, onJump, progress, isAdmin, remaining, registrationCount }) => {
   const { t } = useTranslation();

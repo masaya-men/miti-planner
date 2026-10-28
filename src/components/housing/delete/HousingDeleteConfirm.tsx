@@ -7,6 +7,7 @@
  */
 import { useTranslation } from 'react-i18next';
 import { HousingDialogShell } from '../HousingDialogShell';
+import './HousingDeleteConfirm.css';
 
 export interface HousingDeleteConfirmProps {
   open: boolean;

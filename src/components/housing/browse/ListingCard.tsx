@@ -23,6 +23,7 @@ import { useTourAddFeedback } from '../../../lib/housing/useTourAddFeedback';
 import { HousingTourAddErrorBubble } from '../HousingTourAddErrorBubble';
 import { HousingImage } from '../media/HousingImage';
 import { staggerDelayMs } from './listingCardUtils';
+import './ListingCard.css';
 
 export interface ListingCardProps {
   listing: MockListing;

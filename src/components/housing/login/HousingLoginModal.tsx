@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { HousingPanelModal } from '../HousingPanelModal';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
+import './HousingLoginModal.css';
 
 /**
  * ハウジング画面の未ログインユーザー向けログイン誘導モーダル。

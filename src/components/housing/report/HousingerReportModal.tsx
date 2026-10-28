@@ -16,6 +16,7 @@ import { HOUSINGER_REPORT_REASONS, type HousingerReportReason } from '../../../l
 import { useHousingerReport } from './useHousingerReport';
 import { showToast } from '../../toastBus';
 import { HousingPanelModal } from '../HousingPanelModal';
+import './HousingerReportModal.css';
 
 export interface HousingerReportModalProps {
   open: boolean;

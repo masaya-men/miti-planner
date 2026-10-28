@@ -1,0 +1,51 @@
+/* HousingShell の見た目(ハウジング)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===========================================
+ * Login / Account / TopBar ボタン用 token
+ * =========================================== */
+.housing-workspace {
+    --housing-login-modal-width: calc(480px * var(--housing-scale));
+    --housing-login-pill-bg: var(--housing-honey);
+    --housing-login-pill-bg-hover: var(--housing-honey-glow);
+    --housing-login-pill-text: rgba(20, 12, 4, 0.92);
+    --housing-login-pill-shadow: 0 calc(4px * var(--housing-scale)) calc(12px * var(--housing-scale)) rgba(255, 178, 90, 0.35);
+    --housing-avatar-ring: rgba(255, 226, 179, 0.55);
+    --housing-avatar-ring-hover: rgba(255, 226, 179, 0.85);
+    --housing-account-button-bg: rgba(255, 226, 179, 0.08);
+    --housing-account-button-bg-hover: rgba(255, 226, 179, 0.16);
+    --housing-account-button-border: rgba(255, 226, 179, 0.22);
+    --housing-account-danger-text: rgba(255, 130, 130, 0.85);
+    --housing-account-danger-bg-hover: rgba(255, 130, 130, 0.12);
+    --housing-account-divider: rgba(255, 226, 179, 0.18);
+    --housing-avatar-bg: rgba(0, 0, 0, 0.2);
+    --housing-account-danger-border: rgba(255, 130, 130, 0.25);
+    --housing-account-delete-link-text: rgba(255, 226, 179, 0.5);
+}
+
+/* シェル外の単体 workspace ページ (例: EntranceAuthoringPage 等 dev 専用ツール) 用ラッパー:
+   トークン (--housing-*) は継承しつつ、workspace 既定の固定ビューポート
+   (height:100vh + overflow:hidden) を解除して通常の縦フロー (body スクロール) にする。
+   Task 2.3: 詳細ページ (HousingDetailPage) はシェル子ルート化に伴いこのクラスを使わなくなった
+   (シェル内スクロールに一本化。 .housing-detail-panel 参照)。 body 側の解禁が要る場合は
+   利用側コンポーネントが StrategyBoardPastePage /stgy と同パターンの useEffect で行う。 */
+.housing-workspace.housing-workspace-flow {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+}
+@media (max-width: 767px) {/* ----- モバイル (<=767px) レイアウト調整 ----- */
+  /* StatusBar 行は設定シートへ統合したので、シェルの grid から丸ごと外す
+     (行を残すと --housing-status-h ぶんの空白が下端に残ってしまう)。 */
+  .housing-shell {
+    grid-template-rows: calc(var(--housing-header-h) + env(safe-area-inset-top, 0px)) 1fr;
+    /* 実機FB#9: iOS Safari の 100vh はブラウザUI込みの大きい viewport を指し、下端(ボトムナビ余白ごと)が
+       画面外に沈んでカードがナビの裏に隠れる。dvh (実際に見えている高さ) で追随させる。
+       非対応ブラウザは 1 行目の 100vh へフォールバック。 */
+    height: 100vh;
+    height: 100dvh;
+  }
+  /* ヘッダーを約 2/3 に (60px→40px)。浮いた縦スペースを中央パネルに回す。 */
+  .housing-workspace {
+    --housing-header-h: 40px;
+  }
+
+}
