@@ -12,6 +12,7 @@ import { useCollabSessionStore } from '../store/useCollabSessionStore';
 import { reconcileCollabForPlan } from '../lib/collab/collabLifecycle';
 import { shouldRestoreMitigationFromPlan, shouldRelabelLoadedPlanId } from '../lib/bootstrapMitigation';
 import { persistWorkingStore } from '../lib/persistWorkingStore';
+import { markUnsavedWorking, clearUnsavedWorking, recoverUnsavedWorkingOnBoot } from '../lib/unsavedWorkingMarker';
 import { Sidebar } from './Sidebar';
 import { LocalDataSafetyAutoPrompt } from './LocalDataSafetyAutoPrompt';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
@@ -230,6 +231,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             if (shouldRelabelLoadedPlanId({ currentPlanId, loadedPlanId: useMitigationStore.getState()._loadedPlanId })) {
                 useMitigationStore.getState().setLoadedPlanId(currentPlanId);
             }
+            // 前回 0.5 秒待ちの保存が走らずに終わっていたら(固まって閉じた等)、作業ストアを表へ書き戻す (2026-10-28 消失・経路 3)
+            const mitiStore = useMitigationStore.getState();
+            recoverUnsavedWorkingOnBoot(currentPlanId, mitiStore._loadedPlanId, () => persistWorkingStore({
+                loadedPlanId: mitiStore._loadedPlanId, getSnapshot: () => mitiStore.getSnapshot(),
+                updatePlan: (id, patch) => usePlanStore.getState().updatePlan(id, patch),
+            }));
         }
     }, []);
 
@@ -282,6 +289,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 getSnapshot: () => mitiStore.getSnapshot(),
                 updatePlan: (id, patch) => usePlanStore.getState().updatePlan(id, patch),
             });
+            clearUnsavedWorking(mitiStore._loadedPlanId);
         };
 
         /** Firestoreへの同期（ログイン中 + dirtyがある場合のみ）
@@ -341,6 +349,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             // プランが選択されていなければスキップ
             const planIdAtChange = usePlanStore.getState().currentPlanId;
             if (!planIdAtChange) return;
+            // 表への保存(0.5 秒後)が走らずに終わっても次の起動で書き戻せるよう、先に印を残す
+            markUnsavedWorking(useMitigationStore.getState()._loadedPlanId);
 
             // インジケーター: 「保存中...」
             usePlanStore.getState().setSaveStatus('saving');
