@@ -11,6 +11,7 @@ export default [
   { component: 'JoinTourPage', stage: 2, reason: '/housing/tour/:tourToken を撮ると「接続中/見つからない」の 1 枚メッセージだけ(housing-tour-empty-title)が出る。viewing/ended の本体は shared_tours の Firestore getDoc と onSnapshot が必須で、遮断中は出せない。' },
   { component: 'HousingCardVideoOverlay', stage: 2, reason: '動画つきカード(vr-l05)にホバーしても 15 秒待ってオーバーレイ(.housing-card-video-overlay)が出なかった。再生対象はビューポート内のスポットライト回転(useSpotlightRotation)で決まり、時間依存。再生を決める値の固定手順が要る。' },
   { component: 'RoomListPanel', stage: 2, reason: '同じ建物(スポット)に 2 件以上の家がある時だけ開く。見本の家は 1 スポット 1 件なので開けない。同一アパートに複数件の見本を足せば撮れる。' },
+  { component: 'ListingCardOwnerControls', stage: 2, reason: 'マイページ(ログイン必須)の家カードにだけ出る公開状態バッジとそのメニュー(Task 17 で ListingCard から分けた)。カード本体は housing/browse-list で撮影済み。ログイン状態の見本が要る。' },
   { component: 'TourInvitePanel', stage: 2, reason: 'ログイン済みの時だけ描画される(未ログインは HousingLoginPrompt に切り替わる)。ログイン状態の見本が要る。' },
   { component: 'HousingDiagOverlay', stage: 3, reason: '診断用の隠し表示・撮影対象外(?diag=1)。' },
   { component: 'AvatarCropModal', stage: 2, reason: 'LoginModal 内の窓。ログイン済みユーザーのアバター変更でしか開かない。ログイン状態の見本が要る。' },
