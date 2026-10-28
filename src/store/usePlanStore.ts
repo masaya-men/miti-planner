@@ -18,7 +18,9 @@ import { setLastOpened } from '../utils/lastOpenedStore';
 import { partializePlanState, mergePersistedPlanState } from './planPersist';
 import { isEmptyPlanData } from '../lib/isEmptyPlanData';
 import { dirtyIdsAfterSync } from '../lib/dirtyAfterSync';
-import { markWorkingStore, workingStoreEditedSince, keepPlansEditedDuring } from '../lib/keepLocalEditsOnRemoteLoad';
+import { markWorkingStore, workingStoreEditedSince, resolveRemoteLoad } from '../lib/keepLocalEditsOnRemoteLoad';
+import { addConflictCopies } from '../lib/conflictCopy';
+import { takeRecoveredBases } from '../lib/recoveredPlanBases';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -303,12 +305,13 @@ export const usePlanStore = create<PlanState>()(
                     );
                     keptLocalEdits = workingStoreEditedSince(workingMark, useMitigationStore.getState());
                     if (changed) {
-                        const kept = keepPlansEditedDuring(merged, state.plans, get().plans);
-                        set({ plans: kept.plans });
+                        const r = resolveRemoteLoad({ merged, inputPlans: state.plans, currentPlans: get().plans, currentPlanId: get().currentPlanId, workingMark, working: useMitigationStore.getState() });
+                        set({ plans: r.plans });
+                        addConflictCopies(r.conflicts, get().addPlan);
+                        keptLocalEdits = r.keepWorking;
                         const currentPlanId = get().currentPlanId;
                         if (currentPlanId) {
-                            if (kept.editedIds.has(currentPlanId)) keptLocalEdits = true;
-                            const updatedPlan = kept.plans.find(p => p.id === currentPlanId);
+                            const updatedPlan = r.plans.find(p => p.id === currentPlanId);
                             if (!updatedPlan) {
                                 // 現在のプランがリモートで削除された → 無選択状態に戻す
                                 const lastActive = get().lastActivePlanId;
@@ -660,7 +663,8 @@ export const usePlanStore = create<PlanState>()(
                 // 取り込みの間に手元でした編集を、終わった時に古い内容で上書きしないための印 (2026-10-28 消失)
                 const startPlans = get().plans;
                 const workingMark = markWorkingStore(useMitigationStore.getState());
-                let keptCurrentPlan = false;
+                const bases = takeRecoveredBases(); // 起動時に書き戻した表の「もと」の版 (レビュー Important 2)
+                let keepWorking: boolean | null = null;
                 try {
                     const { merged, dirtyIds } = await planService.migrateLocalPlansToFirestore(
                         startPlans,
@@ -668,22 +672,23 @@ export const usePlanStore = create<PlanState>()(
                         pendingDeleted,
                     );
                     const now = get();
-                    const kept = keepPlansEditedDuring(merged, startPlans, now.plans);
-                    keptCurrentPlan = !!now.currentPlanId && kept.editedIds.has(now.currentPlanId);
+                    const r = resolveRemoteLoad({ merged, inputPlans: startPlans, currentPlans: now.plans, currentPlanId: now.currentPlanId, workingMark, working: useMitigationStore.getState(), bases });
+                    keepWorking = r.keepWorking;
                     set({
-                        plans: kept.plans,
-                        // 書き戻せなかったプラン + 取り込み中に手元で保存したプランはdirtyとして残す（次回syncで送る）
-                        _dirtyPlanIds: new Set<string>([...dirtyIds, ...now._dirtyPlanIds]),
+                        plans: r.plans,
+                        // 書き戻せなかったプラン + 手元の物を残したプランはdirtyとして残す（次回syncで送る）
+                        _dirtyPlanIds: new Set<string>([...dirtyIds, ...r.keptIds]),
                         // 未同期の削除は保持 (墓標未書き込みの削除が復活しないように)。次回 sync で墓標化される。
                         _deletedPlanIds: new Set<string>([...pendingDeleted, ...now._deletedPlanIds]),
                         _lastSyncAt: Date.now(),
                     });
+                    addConflictCopies(r.conflicts, get().addPlan);
                 } catch (err) {
                     console.error('マイグレーションエラー:', err);
                 } finally {
                     set({ _isSyncing: false });
                 }
-                return keptCurrentPlan || workingStoreEditedSince(workingMark, useMitigationStore.getState());
+                return keepWorking ?? workingStoreEditedSince(workingMark, useMitigationStore.getState());
             },
 
             // ダイアログ取り込み候補。 `_createdLoggedIn === true` は自動同期されるので除外。
@@ -895,19 +900,19 @@ export const usePlanStore = create<PlanState>()(
                         pushState._deletedPlanIds,
                     );
                     // 取り直しの間に手元でした編集は古い内容で上書きしない (2026-10-28 消失)
-                    const editedLocally = workingStoreEditedSince(workingMark, useMitigationStore.getState());
                     if (changed) {
-                        const kept = keepPlansEditedDuring(merged, currentPlans, get().plans);
-                        set({ plans: kept.plans });
+                        const r = resolveRemoteLoad({ merged, inputPlans: currentPlans, currentPlans: get().plans, currentPlanId: get().currentPlanId, workingMark, working: useMitigationStore.getState() });
+                        set({ plans: r.plans });
+                        addConflictCopies(r.conflicts, get().addPlan);
                         const currentPlanId = get().currentPlanId;
                         if (currentPlanId) {
-                            const updatedPlan = kept.plans.find(p => p.id === currentPlanId);
+                            const updatedPlan = r.plans.find(p => p.id === currentPlanId);
                             if (!updatedPlan) {
                                 // 現在のプランがリモートで削除された → 無選択状態に戻す
                                 const lastActive = get().lastActivePlanId;
                                 set({ currentPlanId: null, lastActivePlanId: lastActive === currentPlanId ? null : lastActive });
                                 useMitigationStore.getState().resetForTutorial();
-                            } else if (updatedPlan.data && !editedLocally && !kept.editedIds.has(currentPlanId)) {
+                            } else if (updatedPlan.data && !r.keepWorking) {
                                 const localPlan = currentPlans.find(p => p.id === currentPlanId);
                                 if (localPlan && updatedPlan.updatedAt > localPlan.updatedAt) {
                                     // 根治(I-2): 現在プランを再ロード → 持ち主IDも明示して不変条件を保つ

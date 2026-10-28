@@ -12,7 +12,7 @@ import { useCollabSessionStore } from '../store/useCollabSessionStore';
 import { reconcileCollabForPlan } from '../lib/collab/collabLifecycle';
 import { shouldRestoreMitigationFromPlan, shouldRelabelLoadedPlanId } from '../lib/bootstrapMitigation';
 import { persistWorkingStore } from '../lib/persistWorkingStore';
-import { markUnsavedWorking, clearUnsavedWorking, recoverUnsavedWorkingOnBoot } from '../lib/unsavedWorkingMarker';
+import { markUnsavedWorking, clearUnsavedWorking, discardUnsavedWorking, recoverUnsavedWorkingOnBoot } from '../lib/unsavedWorkingMarker';
 import { Sidebar } from './Sidebar';
 import { LocalDataSafetyAutoPrompt } from './LocalDataSafetyAutoPrompt';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
@@ -223,6 +223,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             isRemoteLoadingRef.current = true;
             useMitigationStore.getState().loadSnapshot(plan.data, currentPlanId!);
             isRemoteLoadingRef.current = false;
+            discardUnsavedWorking(); // 作業ストアを表から読み直した = 書き戻す物は無い
         } else if (currentPlanId) {
             // 通常起動: 作業ストア(persist 復元済)は currentPlanId を表している → 持ち主を記録。
             // これが無いと初回保存で _loadedPlanId=null となり保存がスキップされる。
@@ -233,10 +234,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             }
             // 前回 0.5 秒待ちの保存が走らずに終わっていたら(固まって閉じた等)、作業ストアを表へ書き戻す (2026-10-28 消失・経路 3)
             const mitiStore = useMitigationStore.getState();
-            recoverUnsavedWorkingOnBoot(currentPlanId, mitiStore._loadedPlanId, () => persistWorkingStore({
-                loadedPlanId: mitiStore._loadedPlanId, getSnapshot: () => mitiStore.getSnapshot(),
-                updatePlan: (id, patch) => usePlanStore.getState().updatePlan(id, patch),
-            }));
+            // updatedAt は起動した時刻ではなく編集した時刻 (レビュー Important 2)
+            recoverUnsavedWorkingOnBoot({ currentPlanId, loadedPlanId: mitiStore._loadedPlanId, plans, writeBack: (id, editedAt) => {
+                usePlanStore.getState().updatePlan(id, { data: mitiStore.getSnapshot() });
+                usePlanStore.setState((s) => ({ plans: s.plans.map((p) => (p.id === id ? { ...p, updatedAt: editedAt } : p)) }));
+            } });
         }
     }, []);
 
@@ -350,7 +352,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             const planIdAtChange = usePlanStore.getState().currentPlanId;
             if (!planIdAtChange) return;
             // 表への保存(0.5 秒後)が走らずに終わっても次の起動で書き戻せるよう、先に印を残す
-            markUnsavedWorking(useMitigationStore.getState()._loadedPlanId);
+            markUnsavedWorking(state._loadedPlanId, usePlanStore.getState().plans, state._collabActive);
 
             // インジケーター: 「保存中...」
             usePlanStore.getState().setSaveStatus('saving');
