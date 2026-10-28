@@ -6,7 +6,7 @@
  *   2. GET: Discordからのコールバック → トークン交換 → Firebase Custom Token生成
  */
 
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { initAdmin } from '../../src/lib/adminAuth.js';
 import { getAuth } from 'firebase-admin/auth';
 import * as crypto from 'crypto';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
@@ -14,22 +14,6 @@ import { hashUid } from '../_lib/hashUid.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const DISCORD_API = 'https://discord.com/api/v10';
-
-function initAdmin() {
-    if (!getApps().length) {
-        let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
-        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch { // 意図的に無視: JSON でなければそのまま使う
-        } }
-        pk = pk.replace(/\\n/g, '\n');
-        initializeApp({
-            credential: cert({
-                projectId: process.env.FIREBASE_PROJECT_ID!,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
-                privateKey: pk,
-            }),
-        });
-    }
-}
 
 /** Cookieヘッダーをパースしてオブジェクトに変換 */
 function parseCookies(cookieHeader: string): Record<string, string> {

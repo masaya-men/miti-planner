@@ -16,7 +16,7 @@
  * 注意: このエンドポイントは Node runtime（firebase-admin が必要）。/api/og は edge runtime で別。
  */
 
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { initAdmin } from '../../src/lib/adminAuth.js';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import sharp from 'sharp';
@@ -58,22 +58,6 @@ async function toJpegOgCard(pngBuffer: Buffer): Promise<{ buffer: Buffer; conten
     } catch (err) {
         console.warn('OG card JPEG conversion failed (serving PNG):', err);
         return { buffer: pngBuffer, contentType: 'image/png' };
-    }
-}
-
-function initAdmin() {
-    if (!getApps().length) {
-        let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
-        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch { // 意図的に無視: JSON でなければそのまま使う
-        } }
-        pk = pk.replace(/\\n/g, '\n');
-        initializeApp({
-            credential: cert({
-                projectId: process.env.FIREBASE_PROJECT_ID!,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
-                privateKey: pk,
-            }),
-        });
     }
 }
 

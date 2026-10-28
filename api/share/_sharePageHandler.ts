@@ -7,29 +7,13 @@
  * - 共有が存在しない (期限切れ/削除済み/不正ID) 場合は真の404を返す (ソフト404対策)。
  */
 
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { initAdmin } from '../../src/lib/adminAuth.js';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getContentName, buildOgImageUrl, type OgpLang } from '../../src/lib/ogpHelpers.js';
 import { escapeHtml, metaContent, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 
 const COLLECTION = 'shared_plans';
-
-function initAdmin() {
-    if (!getApps().length) {
-        let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
-        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch { // 意図的に無視: JSON でなければそのまま使う
-        } }
-        pk = pk.replace(/\\n/g, '\n');
-        initializeApp({
-            credential: cert({
-                projectId: process.env.FIREBASE_PROJECT_ID!,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
-                privateKey: pk,
-            }),
-        });
-    }
-}
 
 /** 共有プランページのSEOスナップショット (Googlebot向けに<div id="root">へ埋め込む可視テキスト)。 */
 export function buildSharePageSeoSnapshotHtml(ogTitle: string, ogDescription: string): string {

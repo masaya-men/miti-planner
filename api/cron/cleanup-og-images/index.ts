@@ -20,7 +20,7 @@
  *   残りは翌週の実行に持ち越す（削除対象なら次回判定も通るため問題なし）。
  */
 
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { initAdmin } from '../../../src/lib/adminAuth.js';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import type { ApiRequest, ApiResponse } from '../../_apiTypes.js';
@@ -30,22 +30,6 @@ const OG_IMAGE_META_COLLECTION = 'og_image_meta';
 const STALE_DAYS = 30;
 // 1回の実行で処理するファイル数の上限（関数タイムアウト防止）
 const MAX_PROCESS = 500;
-
-function initAdmin() {
-    if (!getApps().length) {
-        let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
-        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch { // 意図的に無視: JSON でなければそのまま使う
-        } }
-        pk = pk.replace(/\\n/g, '\n');
-        initializeApp({
-            credential: cert({
-                projectId: process.env.FIREBASE_PROJECT_ID!,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
-                privateKey: pk,
-            }),
-        });
-    }
-}
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
     // Vercel Cron 認証（CRON_SECRET を Vercel ダッシュボードで設定済みであることが前提）

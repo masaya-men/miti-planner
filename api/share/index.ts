@@ -16,7 +16,7 @@ import housingerPageHandler from './_housingerPageHandler.js';
 import tourInvitePageHandler from './_tourInvitePageHandler.js';
 import listingPageHandler from './_listingPageHandler.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
-import { initAdmin } from './_shareFirebaseAdmin.js';
+import { initAdmin } from '../../src/lib/adminAuth.js';
 import { createShare } from './_createShare.js';
 import { updateShareLogo } from './_updateShareLogo.js';
 import { getShare } from './_getShare.js';
