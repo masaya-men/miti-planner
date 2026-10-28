@@ -19,7 +19,7 @@ vi.mock('firebase-admin/firestore', () => ({
   })),
 }));
 
-vi.mock('../../src/lib/ogpHelpers.js', () => ({
+vi.mock('../../src/lib/ogpContentMeta.js', () => ({
   getContentName: vi.fn(() => null),
   buildOgImageUrl: vi.fn(() => '/api/og'),
 }));

@@ -14,7 +14,7 @@ import { ImageResponse } from '@vercel/og';
 
 /** ImageResponse が受ける要素型(satori 用の素のオブジェクトを渡すためのキャスト先) */
 type ImageResponseElement = ConstructorParameters<typeof ImageResponse>[0];
-import { getCategoryTag, getContentName, trySeriesSummary, type OgpLang } from '../../src/lib/ogpHelpers.js';
+import { getCategoryTag, getContentName, trySeriesSummary, type OgpLang } from '../../src/lib/ogpContentMeta.js';
 import { FAVICON_BASE64 } from './_faviconBase64.js';
 import { applyRateLimitWeb } from '../../src/lib/rateLimit.js';
 import { rejectIfPublicApiDisabledWeb } from '../../src/lib/publicApiGuard.js';

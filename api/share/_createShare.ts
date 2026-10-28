@@ -4,7 +4,7 @@ import { getStorage } from 'firebase-admin/storage';
 import { nanoid } from 'nanoid';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { createHash } from 'crypto';
-import { getContentName, type OgpLang } from '../../src/lib/ogpHelpers.js';
+import { getContentName, type OgpLang } from '../../src/lib/ogpContentMeta.js';
 import { computeImageHash } from '../../src/lib/ogpImageHash.js';
 import { stripSharedPersonalData } from '../../src/lib/sharePrivacy.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';

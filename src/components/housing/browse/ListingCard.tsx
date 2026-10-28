@@ -22,7 +22,7 @@ import { HousingRipple } from '../HousingRipple';
 import { useTourAddFeedback } from '../../../lib/housing/useTourAddFeedback';
 import { HousingTourAddErrorBubble } from '../HousingTourAddErrorBubble';
 import { HousingImage } from '../media/HousingImage';
-import { staggerDelayMs } from './listingCardUtils';
+import { staggerDelayMs } from './newShineStagger';
 import './ListingCard.css';
 import './ListingCardOwner.css';
 import './ListingCardMarks.css';

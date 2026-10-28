@@ -1,4 +1,4 @@
-// src/lib/__tests__/ogpHelpers.test.ts
+// src/lib/__tests__/ogpContentMeta.test.ts
 import {
     CONTENT_META,
     getContentName,
@@ -6,7 +6,7 @@ import {
     parseTier,
     trySeriesSummary,
     buildOgImageUrl,
-} from '../ogpHelpers';
+} from '../ogpContentMeta';
 
 // ========================================
 // CONTENT_META の網羅性テスト

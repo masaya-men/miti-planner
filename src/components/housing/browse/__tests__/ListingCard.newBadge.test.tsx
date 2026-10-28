@@ -17,7 +17,7 @@ vi.mock('thumbhash', async (orig) => ({
   thumbHashToDataURL: () => 'data:image/png;base64,BLURMOCK',
 }));
 
-import { staggerDelayMs } from '../listingCardUtils';
+import { staggerDelayMs } from '../newShineStagger';
 
 
 import { mockListing, renderCard, setupListingCardEnv, resetIntersection, fireIntersection } from './listingCardTestSetup';

@@ -9,7 +9,7 @@
 
 import { initAdmin } from '../../src/lib/adminAuth.js';
 import { getFirestore } from 'firebase-admin/firestore';
-import { getContentName, buildOgImageUrl, type OgpLang } from '../../src/lib/ogpHelpers.js';
+import { getContentName, buildOgImageUrl, type OgpLang } from '../../src/lib/ogpContentMeta.js';
 import { escapeHtml, metaContent, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 

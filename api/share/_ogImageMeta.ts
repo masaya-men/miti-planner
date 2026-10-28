@@ -1,4 +1,4 @@
-import type { OgpLang } from '../../src/lib/ogpHelpers.js';
+import type { OgpLang } from '../../src/lib/ogpContentMeta.js';
 
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
 

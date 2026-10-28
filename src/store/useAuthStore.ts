@@ -19,7 +19,7 @@ import { doc, collection, getDocs, getDoc, query, where, writeBatch, setDoc } fr
 import { COLLECTIONS } from '../types/firebase';
 import { usePlanStore } from './usePlanStore';
 import { useMitigationStore } from './useMitigationStore';
-import { ensureUserDocument } from '../utils/userDocHelper';
+import { ensureUserDocument } from '../utils/ensureUserDocument';
 import { deleteTeamLogo } from '../utils/logoUpload';
 import { deleteAvatar } from '../utils/avatarUpload';
 import { apiFetch } from '../lib/apiClient';

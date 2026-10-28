@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { uploadAvatar as uploadAvatarUtil, deleteAvatar as deleteAvatarUtil } from '../../utils/avatarUpload';
 import { syncHousingerProfileBestEffort } from '../../lib/housing/housingerProfileService';
-import { ensureUserDocument } from '../../utils/userDocHelper';
+import { ensureUserDocument } from '../../utils/ensureUserDocument';
 import { auth } from '../../lib/firebase';
 
 /**

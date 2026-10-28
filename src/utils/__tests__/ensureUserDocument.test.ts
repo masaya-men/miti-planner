@@ -15,7 +15,7 @@ vi.mock('firebase/firestore', () => ({
 
 vi.mock('../../lib/firebase', () => ({ db: {} }));
 
-import { ensureUserDocument } from '../userDocHelper';
+import { ensureUserDocument } from '../ensureUserDocument';
 
 function makeUser(overrides: Record<string, unknown> = {}) {
     return {

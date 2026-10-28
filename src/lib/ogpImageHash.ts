@@ -9,7 +9,7 @@
  */
 
 import { createHash } from 'crypto';
-import type { OgpLang } from './ogpHelpers.js';
+import type { OgpLang } from './ogpContentMeta.js';
 
 export interface ImageHashInput {
     contentName: string;

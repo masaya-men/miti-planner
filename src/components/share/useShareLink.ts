@@ -6,7 +6,7 @@ import { showToast } from '../toastBus';
 import { apiFetch } from '../../lib/apiClient';
 import { stripSharedPersonalData } from '../../lib/sharePrivacy';
 import type { SavedPlan } from '../../types';
-import { buildOgImageUrl, type OgpLang } from '../../lib/ogpHelpers';
+import { buildOgImageUrl, type OgpLang } from '../../lib/ogpContentMeta';
 
 interface UseShareLinkArgs {
     isOpen: boolean;
