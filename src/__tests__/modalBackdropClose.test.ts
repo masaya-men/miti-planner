@@ -30,7 +30,7 @@ const ALLOWED: Record<string, string> = {
   'components/layout/LayoutOverlays.tsx': 'スマホのカンペ全画面表示(窓ではない)',
   'components/MobileFab.tsx': '窓ではない(浮遊ボタン)',
   'components/MobileGuide.tsx': 'ガイド表示(別方式)',
-  'components/PipView.tsx': 'ピクチャーインピクチャー表示',
+  'components/pip/PipEditMenu.tsx': 'ピクチャーインピクチャー表示',
   'components/RenderPendingIndicator.tsx': '窓ではない(描画待ちの表示)',
   'components/landing/LandingPage.tsx': 'ランディングページ',
   'components/military/MilspecLayout.tsx': 'アプリ全体のレイアウト',

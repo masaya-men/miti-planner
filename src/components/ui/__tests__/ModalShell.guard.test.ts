@@ -16,9 +16,8 @@ const LEGACY: Record<string, 'window' | 'not-window'> = {
     'LimitResolutionSheet.tsx': 'window',
     'ShareImportSheet.tsx': 'window',
     // 窓ではない(スマホのメニュー・案内・チュートリアル・表の中の覆い等)
-    'MobileFab.tsx': 'not-window',
     'MobileGuide.tsx': 'not-window',
-    'PipView.tsx': 'not-window',
+    'pip/PipEditMenu.tsx': 'not-window',
     'Sidebar.tsx': 'not-window',
     'timeline/TimelinePopovers.tsx': 'not-window',
     'WelcomeSetup.tsx': 'not-window',
