@@ -13,6 +13,7 @@ export function readCssBundle(entryPath: string): string {
   let out = '';
   let last = 0;
   for (const m of entry.matchAll(importRe)) {
+    if (!m[1].startsWith('.')) continue; // @import "tailwindcss" のようなパッケージ指定は展開しない
     out += entry.slice(last, m.index);
     out += readCssBundle(resolve(dir, m[1]));
     last = (m.index ?? 0) + m[0].length;

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { militaryCssText } from './militaryCssText';
+import { readCssBundle } from './readCssBundle';
 
 // ダークとライトで定義しているトークン(--*)の名前が揃っているかを見る(2026-10-26 設計監査で新設)。
 // 片側にしか無いトークンは、もう片方で var() が無効値になり見た目が静かに崩れる
@@ -53,6 +54,7 @@ const CASES = [
     {
         label: '標準テーマ (src/index.css)',
         file: 'index.css',
+        text: () => readCssBundle(resolve(__dirname, '../../index.css')),
         shared: [':root'],
         dark: ['.theme-dark'],
         light: ['.theme-light'],

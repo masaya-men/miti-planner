@@ -68,7 +68,6 @@
     "src/components/TimelineRow.tsx": 686,
     "src/data/mockData.ts": 827,
     "src/hooks/useTemplateEditor.ts": 527,
-    "src/index.css": 1478,
     "src/lib/__tests__/executeShareImport.test.ts": 521,
     "src/lib/collab/collabProvider.ts": 518,
     "src/lib/planService.ts": 561,

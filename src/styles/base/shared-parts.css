@@ -1,0 +1,26 @@
+@keyframes conflict-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.9); }
+}
+.animate-conflict-pulse {
+  animation: conflict-pulse 1s ease-in-out infinite;
+}
+
+/* サイドバー項目 — ホバー時に左からアンダーラインが伸びる */
+.sidebar-item {
+  position: relative;
+}
+.sidebar-item::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 0;
+  background-color: var(--color-app-text);
+  opacity: 0.4;
+  transition: width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.sidebar-item:hover::after {
+  width: 100%;
+}

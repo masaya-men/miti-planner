@@ -1,0 +1,220 @@
+@layer base {
+  :root,
+  .theme-dark {
+    font-family: 'Rajdhani', 'M PLUS 1', system-ui, sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    /* ブラウザ内 font 設定 (chrome://settings) の影響を無効化するための保険 */
+    font-size: 16px;
+
+    /* === 共通基盤 (全プロジェクト共通の sizing 思想) === */
+    --container-max: 1489px;         /* 開発者画面幅 = 上限、 大画面で余白確保 */
+    --text-scale-multiplier: 1;      /* アプリ内 text size 設定の倍率 (将来 UI 追加用) */
+
+    /* Font size tokens */
+    --font-size-3xs: 6px;
+    --font-size-2xs: 7px;
+    --font-size-xs: 8px;
+    --font-size-sm: 9px;
+    --font-size-base: 10px;
+    --font-size-md: 11px;
+    --font-size-lg: 12px;
+    --font-size-xl: 13px;
+    --font-size-2xl: 14px;
+    --font-size-2xl-plus: 16px;
+    --font-size-3xl: 18px;
+    --font-size-4xl: 20px;
+    --font-size-4xl-plus: 24px;
+    --font-size-5xl: 26px;
+    --font-size-6xl: 36px;
+
+    /* === タイムライン列幅トークン — モバイル既定値 (768px 未満はこの px がそのまま使われる) === */
+    --col-phase-w: 24px;
+    --col-label-w: 24px;
+    --col-time-w: 36px;
+    --col-mechanic-w: 100%;  /* モバイルは flex-1 相当 */
+    --col-counter-w: 50px;   /* RAW / TAKEN 共通 */
+    --col-th-w: 0px;         /* モバイルではパーティ列を非表示 */
+    --col-dps-w: 0px;
+    --col-member-start: 0px; /* メンバー列の開始 left */
+    --col-phase-collapsed-w: 16px;
+    --col-label-collapsed-w: 16px;
+    --col-header-chunk-w: 30px;  /* モバイル既定値 (PHASE+LABEL+TIME 合計) */
+
+    line-height: 1.6;
+    color-scheme: dark;
+
+    --color-bg-primary: #0F0F10;
+    --color-bg-secondary: #0F0F10;
+    --color-bg-tertiary: #161618;
+
+    --color-accent-primary: #ffffff;
+    --app-accent-rgb: 255, 255, 255;
+    --color-accent-secondary: #ffffff;
+    --color-accent-dim: rgba(255, 255, 255, 0.08);
+
+    --color-text-primary: #F0F0F0;
+    --color-text-secondary: #d4d4d8;
+    --color-text-muted: #a1a1aa;
+    --color-text-on-accent: #000000;
+
+    --color-toggle-bg: #F0F0F0;
+    --color-toggle-text: #0F0F10;
+
+    --color-border: rgba(255, 255, 255, 0.10);
+    --color-border-accent: rgba(255, 255, 255, 0.3);
+
+    /* ── spring easing（CSS linear() — ICS Media記事準拠） ── */
+
+    /* default: 穏やかな収束。モーダル・シート・ドロワー・ヘッダー開閉 */
+    --ease-spring: linear(
+      0, 0.0107, 0.0398, 0.0834, 0.138, 0.2003, 0.2677, 0.3379,
+      0.4089, 0.4791, 0.5471, 0.612, 0.6731, 0.7297, 0.7815, 0.8283,
+      0.87, 0.9068, 0.9388, 0.9662, 0.9892, 1.0083, 1.0237, 1.0357,
+      1.0449, 1.0514, 1.0556, 1.058, 1.0587, 1.0581, 1.0563, 1.0538,
+      1.0506, 1.0469, 1.043, 1.0388, 1.0347, 1.0306, 1.0266, 1.0228,
+      1.0192, 1.0159, 1.0128, 1.0101, 1.0076, 1.0055, 1.0036, 1.002,
+      1.0006, 0.9995, 0.9986, 0.9979, 0.9974, 0.997, 0.9967, 0.9966,
+      0.9966, 0.9966, 0.9967, 0.9968, 0.997, 0.9972, 0.9975, 0.9977,
+      0.998, 0.9982, 0.9984, 0.9987, 0.9989, 0.9991, 0.9992, 0.9994,
+      0.9996, 0.9997, 0.9998, 0.9999, 1, 1, 1.0001, 1.0001, 1.0002,
+      1.0002, 1.0002, 1.0002, 1.0002, 1.0002, 1.0002, 1.0002, 1.0002,
+      1.0002, 1.0001, 1.0001, 1.0001, 1.0001, 1.0001, 1.0001, 1.0001,
+      1.0001, 1, 1, 1
+    );
+
+    /* bouncy: 行きすぎ→戻り。トースト・ポップオーバー・ボタンモーフィング */
+    --ease-spring-bouncy: linear(
+      0, 0.0222, 0.0833, 0.1743, 0.2867, 0.4123, 0.5436, 0.6739,
+      0.7978, 0.911, 1.0102, 1.0934, 1.1594, 1.2082, 1.2403, 1.2569,
+      1.2599, 1.2511, 1.2328, 1.2074, 1.177, 1.1437, 1.1095, 1.0759,
+      1.0443, 1.0157, 0.991, 0.9705, 0.9546, 0.9431, 0.9359, 0.9326,
+      0.9327, 0.9357, 0.941, 0.9481, 0.9562, 0.965, 0.9739, 0.9826,
+      0.9906, 0.9978, 1.0039, 1.0089, 1.0128, 1.0154, 1.017, 1.0176,
+      1.0174, 1.0164, 1.0149, 1.013, 1.0108, 1.0085, 1.0062, 1.0039,
+      1.0019, 1.0001, 0.9986, 0.9974, 0.9965, 0.9958, 0.9955, 0.9954,
+      0.9955, 0.9958, 0.9963, 0.9968, 0.9974, 0.998, 0.9986, 0.9991,
+      0.9996, 1.0001, 1.0005, 1.0008, 1.001, 1.0011, 1.0012, 1.0012,
+      1.0011, 1.0011, 1.0009, 1.0008, 1.0006, 1.0005, 1.0003, 1.0002,
+      1.0001, 0.9999, 0.9999, 0.9998, 0.9997, 0.9997, 0.9997, 0.9997,
+      0.9997, 0.9997, 0.9998, 0.9998, 1
+    );
+
+    /* snappy: 素早く収束。ボタンpress・ホバー・小さなUI変化 */
+    --ease-spring-snappy: linear(
+      0, 0.0088, 0.0327, 0.068, 0.1117, 0.1614, 0.2149, 0.2706,
+      0.327, 0.3831, 0.4379, 0.4907, 0.5412, 0.5889, 0.6336, 0.6751,
+      0.7135, 0.7487, 0.7809, 0.81, 0.8362, 0.8597, 0.8807, 0.8994,
+      0.9158, 0.9302, 0.9428, 0.9537, 0.9632, 0.9712, 0.9781, 0.9839,
+      0.9888, 0.9928, 0.9961, 0.9988, 1.001, 1.0026, 1.0039, 1.0049,
+      1.0055, 1.006, 1.0062, 1.0063, 1.0062, 1.0061, 1.0059, 1.0056,
+      1.0053, 1.005, 1.0046, 1.0043, 1.0039, 1.0036, 1.0032, 1.0029,
+      1.0026, 1.0023, 1.0021, 1.0018, 1.0016, 1.0014, 1.0012, 1.0011,
+      1.0009, 1.0008, 1.0006, 1.0005, 1.0005, 1.0004, 1.0003, 1.0002,
+      1.0002, 1.0001, 1.0001, 1.0001, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    );
+
+    /* ── row hover line（タイムライン行ホバー時の下線アニメーション） ── */
+    --row-hover-line-color: rgba(255, 255, 255, 0.2);
+    --row-hover-line-height: 1px;
+    --row-hover-line-duration: 800ms;
+    --row-hover-line-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* ── duration ── */
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-modal: 300ms;
+    --duration-sheet: 1s;
+    --duration-toast: 1.1s;
+
+    /* ── scale ── */
+    --scale-press: 0.96;
+    --scale-hover: 1.04;
+
+    /* アクセントカラー */
+    --color-blue: #3b82f6;
+    --color-blue-hover: #2563eb;
+    --color-blue-dim: rgba(59, 130, 246, 0.10);
+    --color-blue-border: rgba(59, 130, 246, 0.25);
+
+    /* 進捗記録トースト（ホログラム）— dark 既定: 濃紺ハロー + 淡シアン文字 */
+    --progress-toast-color: #dff4ff;
+    --progress-toast-num: #bfe9ff;
+    --progress-toast-bg: radial-gradient(ellipse at center, rgba(8,14,28,0.74) 0%, rgba(8,14,28,0.35) 60%, rgba(8,14,28,0) 100%);
+    --progress-toast-shadow: 0 0 10px rgba(150,230,255,.6), 0 1px 2px rgba(0,0,0,.9);
+    --progress-toast-num-glow: 0 0 14px rgba(160,230,255,.95);       /* カウントアップ中 */
+    --progress-toast-num-glow-rest: 0 0 8px rgba(150,230,255,.6);     /* 確定後 */
+
+    --color-red: #ef4444;
+    --color-red-hover: #dc2626;
+    --color-red-dim: rgba(239, 68, 68, 0.10);
+    --color-red-border: rgba(239, 68, 68, 0.25);
+
+    --color-amber: #f59e0b;
+    --color-amber-hover: #d97706;
+    --color-amber-dim: rgba(245, 158, 11, 0.10);
+    --color-amber-border: rgba(245, 158, 11, 0.25);
+
+    /* 緑 = チュートリアル/パーティ自動入力の成功表示 (#22c55e)。ダーク/ライト同値 */
+    --color-green: #22c55e;
+    --color-green-hover: #16a34a;
+    --color-green-dim: rgba(34, 197, 94, 0.10);
+    --color-green-border: rgba(34, 197, 94, 0.25);
+
+    /* ロール色: Tailwind の *-400 と同値 (旧 dark:text-*-400)。MT=cyan-400 / ST=amber-400 */
+    --color-role-tank: oklch(70.7% 0.165 254.624);
+    --color-role-healer: oklch(79.2% 0.209 151.711);
+    --color-role-dps: oklch(70.4% 0.191 22.216);
+    --color-role-mt: oklch(78.9% 0.154 211.53);
+    --color-role-mt-dim: oklch(78.9% 0.154 211.53 / 0.10);
+    --color-role-st: oklch(82.8% 0.189 84.429);
+    --color-role-st-dim: oklch(82.8% 0.189 84.429 / 0.10);
+
+    --glass-tier3-bg: transparent;
+    --share-modal-bg: transparent;
+    --glass-tier3-blur: 12px; /* 2px→12px: モーダル等のブラーを強化 */
+    --glass-tier3-border: rgba(255, 255, 255, 0.18);
+    --glass-tier3-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+    --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+    --glass-tier2-bg: rgba(255, 255, 255, 0.08);
+    --glass-tier2-blur: 28px;
+    --glass-tier2-border: rgba(255, 255, 255, 0.12);
+    --glass-tier2-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    --glass-tier1-bg: rgba(255, 255, 255, 0.03);
+    --glass-tier1-blur: 16px;
+    --glass-tier1-border: rgba(255, 255, 255, 0.08);
+
+    /* 旧glass変数（元の値に復元） */
+    --glass-bg-header: transparent;
+    --glass-bg-panel: transparent;
+    --glass-bg-card: transparent;
+    --glass-border: rgba(255, 255, 255, 0.10);
+    --glass-hover: rgba(255, 255, 255, 0.12);
+    --glass-active: rgba(255, 255, 255, 0.1);
+    --glass-shadow: none;
+
+    /* glass-panel（タイムライン枠） */
+    --glass-panel-border: rgba(255, 255, 255, 0.12);
+    --glass-panel-inset: none;
+    --glass-panel-shadow: 0 0 12px rgba(255, 255, 255, 0.08), 0 0 3px rgba(255, 255, 255, 0.15);
+
+    /* モバイルUI用 */
+    --color-sheet-bg: #1c1c1e;
+    --color-nav-bg: rgba(20, 20, 20, 0.10);
+    --color-nav-border: rgba(255, 255, 255, 0.08);
+    --color-overlay: rgba(0, 0, 0, 0.4);
+    /* FAB メニューは項目が見やすいよう通常オーバーレイより濃く(約2倍) */
+    --color-fab-overlay: rgba(0, 0, 0, 0.7);
+    --color-fab-bg: rgba(255, 255, 255, 0.18);
+    --color-fab-border: rgba(255, 255, 255, 0.3);
+
+    /* === LP === */
+    --color-lp-bg: #0e0e0e;
+    --color-lp-text: #e8e8e8;
+    --color-lp-text-muted: #666666;
+    --color-lp-grid: rgba(255, 255, 255, 0.06);
+  }
+}

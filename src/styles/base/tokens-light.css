@@ -1,0 +1,149 @@
+@layer base {
+  .theme-light {
+    color-scheme: light;
+    /* ブラウザ内 font 設定 (chrome://settings) の影響を無効化するための保険 */
+    font-size: 16px;
+
+    /* === 共通基盤 (全プロジェクト共通の sizing 思想) === */
+    --container-max: 1489px;
+    --text-scale-multiplier: 1;
+
+    /* Font size tokens */
+    --font-size-3xs: 6px;
+    --font-size-2xs: 7px;
+    --font-size-xs: 8px;
+    --font-size-sm: 9px;
+    --font-size-base: 10px;
+    --font-size-md: 11px;
+    --font-size-lg: 12px;
+    --font-size-xl: 13px;
+    --font-size-2xl: 14px;
+    --font-size-2xl-plus: 16px;
+    --font-size-3xl: 18px;
+    --font-size-4xl: 20px;
+    --font-size-4xl-plus: 24px;
+    --font-size-5xl: 26px;
+    --font-size-6xl: 36px;
+
+    /* === タイムライン列幅トークン — モバイル既定値 (768px 未満はこの px がそのまま使われる) === */
+    --col-phase-w: 24px;
+    --col-label-w: 24px;
+    --col-time-w: 36px;
+    --col-mechanic-w: 100%;  /* モバイルは flex-1 相当 */
+    --col-counter-w: 50px;   /* RAW / TAKEN 共通 */
+    --col-th-w: 0px;         /* モバイルではパーティ列を非表示 */
+    --col-dps-w: 0px;
+    --col-member-start: 0px; /* メンバー列の開始 left */
+    --col-phase-collapsed-w: 16px;
+    --col-label-collapsed-w: 16px;
+    --col-header-chunk-w: 30px;  /* モバイル既定値 (PHASE+LABEL+TIME 合計) */
+
+    --row-hover-line-color: rgba(0, 0, 0, 0.15);
+
+    --color-bg-primary: #FAFAFA;
+    --color-bg-secondary: #FAFAFA;
+    --color-bg-tertiary: #ffffff;
+
+    --color-accent-primary: #000000;
+    --app-accent-rgb: 0, 0, 0;
+    --color-accent-secondary: #000000;
+    --color-accent-dim: rgba(0, 0, 0, 0.05);
+
+    --color-text-primary: #171717;
+    --color-text-secondary: #27272a;
+    --color-text-muted: #52525b;
+    --color-text-on-accent: #ffffff;
+
+    --color-toggle-bg: #404040;
+    --color-toggle-text: #ffffff;
+
+    --color-border: rgba(0, 0, 0, 0.10);
+    --color-border-accent: rgba(0, 0, 0, 0.3);
+
+    /* アクセントカラー */
+    --color-blue: #2563eb;
+    --color-blue-hover: #1d4ed8;
+    --color-blue-dim: rgba(37, 99, 235, 0.08);
+    --color-blue-border: rgba(37, 99, 235, 0.20);
+
+    /* 進捗記録トースト（ホログラム）— light 上書き: 控えめな白ハロー + 落ち着いた青みグレー文字
+       （青の主張を抑える。数字だけ淡いブルーで僅かにアクセント。2026-06-19 ユーザー判断）。 */
+    --progress-toast-color: #41506b;
+    --progress-toast-num: #2f6ab0;
+    --progress-toast-bg: radial-gradient(ellipse at center, rgba(255,255,255,0.85) 0%, rgba(244,248,253,0.5) 55%, rgba(255,255,255,0) 100%);
+    --progress-toast-shadow: 0 0 8px rgba(150,175,205,.28), 0 1px 1px rgba(255,255,255,.9);
+    --progress-toast-num-glow: 0 0 9px rgba(120,165,225,.4);
+    --progress-toast-num-glow-rest: 0 0 5px rgba(120,165,225,.2);
+
+    --color-red: #dc2626;
+    --color-red-hover: #b91c1c;
+    --color-red-dim: rgba(220, 38, 38, 0.08);
+    --color-red-border: rgba(220, 38, 38, 0.20);
+
+    --color-amber: #d97706;
+    --color-amber-hover: #b45309;
+    --color-amber-dim: rgba(217, 119, 6, 0.08);
+    --color-amber-border: rgba(217, 119, 6, 0.20);
+
+    /* 緑 = チュートリアル/パーティ自動入力の成功表示 (#22c55e)。ダーク/ライト同値 */
+    --color-green: #22c55e;
+    --color-green-hover: #16a34a;
+    --color-green-dim: rgba(34, 197, 94, 0.10);
+    --color-green-border: rgba(34, 197, 94, 0.25);
+
+    /* ロール色: Tailwind の *-500 と同値 (旧 text-*-500)。MT/ST は従来ライトでも *-400 のまま */
+    --color-role-tank: oklch(62.3% 0.214 259.815);
+    --color-role-healer: oklch(72.3% 0.219 149.579);
+    --color-role-dps: oklch(63.7% 0.237 25.331);
+    --color-role-mt: oklch(78.9% 0.154 211.53);
+    --color-role-mt-dim: oklch(78.9% 0.154 211.53 / 0.10);
+    --color-role-st: oklch(82.8% 0.189 84.429);
+    --color-role-st-dim: oklch(82.8% 0.189 84.429 / 0.10);
+
+    /* モバイルUI用 */
+    --color-sheet-bg: #ffffff;
+    --color-nav-bg: rgba(249, 249, 249, 0.10);
+    --color-nav-border: rgba(0, 0, 0, 0.12);
+    --color-overlay: rgba(0, 0, 0, 0.2);
+    /* FAB メニューは項目が見やすいよう通常オーバーレイより濃く(約2倍) */
+    --color-fab-overlay: rgba(0, 0, 0, 0.45);
+    --color-fab-bg: rgba(255, 255, 255, 0.95);
+    --color-fab-border: rgba(0, 0, 0, 0.16);
+
+    /* === LP ライトモード === */
+    --color-lp-bg: #f2efe9;
+    --color-lp-text: #1a1a1a;
+    --color-lp-text-muted: #999999;
+    --color-lp-grid: rgba(0, 0, 0, 0.06);
+
+    --glass-tier3-bg: rgba(255, 255, 255, 0.15);
+    --share-modal-bg: #ffffff;
+    --glass-tier3-blur: 12px; /* 元の値: 2px — サイドバー・ヘッダーに問題があれば戻す */
+    --glass-tier3-border: rgba(0, 0, 0, 0.08);
+    --glass-tier3-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+    --glass-tier2-bg: rgba(255, 255, 255, 0.60);
+    --glass-tier2-blur: 28px;
+    --glass-tier2-border: rgba(0, 0, 0, 0.06);
+    --glass-tier2-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+
+    --glass-tier1-bg: rgba(255, 255, 255, 0.45);
+    --glass-tier1-blur: 16px;
+    --glass-tier1-border: rgba(0, 0, 0, 0.05);
+
+    /* 旧glass変数（元の値に復元） */
+    --glass-bg-header: transparent;
+    --glass-bg-panel: transparent;
+    --glass-bg-card: transparent;
+    --glass-border: rgba(0, 0, 0, 0.10);
+    --glass-hover: rgba(0, 0, 0, 0.08);
+    --glass-active: rgba(0, 0, 0, 0.08);
+    --glass-shadow: none;
+
+    /* glass-panel（タイムライン枠） */
+    --glass-panel-border: rgba(0, 0, 0, 0.08);
+    --glass-panel-inset: none;
+    --glass-panel-shadow: 0 0 8px rgba(0, 0, 0, 0.06), 0 0 2px rgba(0, 0, 0, 0.1);
+  }
+}
