@@ -11,7 +11,7 @@ vi.mock('../../store/useMitigationStore', () => ({
   useMitigationStore: (sel: any) => sel({ updateEvent }),
 }));
 
-import { PcTypeToggle } from '../TimelineRow';
+import { PcTypeToggle } from '../timeline/TimelineRowPcControls';
 import type { TimelineEvent } from '../../types';
 
 const baseEvent = {

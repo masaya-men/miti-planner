@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMitigations } from '../../hooks/useSkillsData';
 import type { TimelineEvent, AppliedMitigation, PartyMember, Phase } from '../../types';
-import type { RowLabels } from '../TimelineRow';
+import type { RowLabels } from './timelineRowTypes';
 import { findSameSkillCdConflicts } from '../../utils/resourceTracker';
 import { isMitigationBlockedByEvent } from '../../utils/damageTypeLogic';
 import { buildEffectiveTargetMap } from '../../utils/effectiveTarget';

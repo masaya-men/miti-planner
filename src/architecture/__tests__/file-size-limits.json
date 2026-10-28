@@ -60,7 +60,6 @@
     "src/components/PartySettingsModal.tsx": 787,
     "src/components/PipView.tsx": 515,
     "src/components/timeline/useTimelineEditing.ts": 555,
-    "src/components/TimelineRow.tsx": 686,
     "src/data/mockData.ts": 827,
     "src/hooks/useTemplateEditor.ts": 527,
     "src/lib/__tests__/executeShareImport.test.ts": 521,
