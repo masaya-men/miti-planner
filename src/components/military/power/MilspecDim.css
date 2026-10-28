@@ -1,0 +1,5 @@
+/* MilspecDim の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* MIL-SPEC の電源 off の見た目(見本 css:16, 140-141, 180, 333, 612-617)。属性は power.ts が <html data-ms-power> に書く */
+.theme-military .milspec-dim { position: absolute; inset: 0; z-index: 30; background: #000; opacity: 0; pointer-events: none; }
+html.theme-military[data-ms-power="off"] .milspec-dim { opacity: 0.55; }
+.theme-military .milspec-blackout { position: fixed; inset: 0; z-index: 60; background: #000; opacity: 0; pointer-events: none; }

@@ -1,5 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { PLAN_CORE, planCoreSVG } from './armor/pcb';
+import './MilspecPlanCore.css';
 
 /**
  * サイドバー中段の黒い床(基板 PLAN CORE)。幅は 249.2 固定、高さは自分の親要素の実高に追従する。

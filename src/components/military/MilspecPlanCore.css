@@ -1,0 +1,8 @@
+/* MilspecPlanCore の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ---- サイドバーの基板 PLAN CORE(見本 css:358-369, 593-598)。SVG 内の部品 class は .milspec-pcb 配下に閉じる ---- */
+.theme-military .milspec-plan-core { position: absolute; left: 0; top: 0; pointer-events: none; overflow: hidden; }
+/* PLAN CORE だけ基板の線・金具をはっきり暗く(元の約半分。暗い床で光の粒が不意にキラッと見えるように・masaya 2026-10-22 で 2 段階目)。
+   光(.milspec-fx の粒・.milspec-core-glow)はこのトークンを使わないので明るさそのまま */
+.theme-military .milspec-plan-core {
+  --ma-cu: #152c24; --ma-cu-dim: #0e1e18; --ma-gold: #544729; --ma-pcb-silk: #36433c;
+}

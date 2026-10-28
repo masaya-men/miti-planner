@@ -4,6 +4,7 @@ import { useVideoLoadRecovery } from '../housing/workspace/useVideoLoadRecovery'
 import wallWebm from '../../assets/milspec/wall.webm';
 import wallMp4 from '../../assets/milspec/wall.mp4';
 import wallPoster from '../../assets/milspec/wall-poster.webp';
+import './MilspecBackdropVideo.css';
 
 /** MIL-SPEC の最奥レイヤー: パネルの隙間から覗く機械の壁動画(spec 2026-09-25 §1 L1 / §5)。
  *  MilspecLayout(= military かつ PC のときだけ描画)の中にだけ置くので、標準テーマとスマホでは

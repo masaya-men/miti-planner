@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { barcodeRects } from './milspecDecorGeometry';
+import './MilspecDecor.css';
 
 // MIL-SPEC v11 の小さな飾り部品(見本 milspec-v11.js の lampH / idH / barH / lgH と css の .scr .rv .mp)。
 // 位置は親が style(left/top/width)で渡す。見た目は military.css の「v11 飾り」節。すべて装飾なので aria-hidden。

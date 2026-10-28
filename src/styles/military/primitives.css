@@ -10,8 +10,12 @@
  * ============================================================ */
 
 /* ---------- フォントユーティリティ (mockup 318-319) ---------- */
-.theme-military .milspec-mono { font-family: var(--ms-font-mono); }        /* Task 1.4: 直書き → トークン */
-.theme-military .milspec-disp { font-family: var(--ms-font-display); }     /* Task 1.4: 直書き → トークン */
+.theme-military .milspec-mono { font-family: var(--ms-font-mono); }
+
+/* Task 1.4: 直書き → トークン */
+.theme-military .milspec-disp { font-family: var(--ms-font-display); }
+
+/* Task 1.4: 直書き → トークン */
 
 /* ---------- HP — ハードサーフェス装甲プレート語彙 (mockup 356-435) ----------
    立体感の本体 = 太い4色ボーダー(= C面/面取りの斜面。角は 45° で留め継がれる)。 */
@@ -318,7 +322,6 @@
 
 /* ハザードストライプ / デカール文字 (mockup 727-728) */
 .theme-military .milspec-hazard { background-image: repeating-linear-gradient(-45deg, var(--ms-yellow) 0 7px, #14181c 7px 14px); }
-.theme-military .milspec-decal { font: 400 7px/1 'Share Tech Mono', monospace; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ms-text-muted); white-space: nowrap; }
 
 /* 銘板(ネームプレート) — 両端を留めネジで固定した金属プレート (mockup 732-749) */
 .theme-military .milspec-nameplate {
@@ -374,4 +377,3 @@
 .theme-military .milspec-lamp.amber { --ms-lp-hi:#ffe1a6; --ms-lp-mid:#d1912f; --ms-lp-lo:#3a2810; --ms-lp-glow: rgba(246,162,62,0.45); }
 .theme-military .milspec-lamp.green { --ms-lp-hi:#c8f4d6; --ms-lp-mid:#45a768; --ms-lp-lo:#123021; --ms-lp-glow: rgba(89,208,137,0.45); }
 .theme-military.theme-light .milspec-lamp { background: radial-gradient(circle at 40% 34%, #c2ccd4, #9aa6b0 60%, #7f8b95); }
-

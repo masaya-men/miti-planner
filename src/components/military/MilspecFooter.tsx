@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { MilspecArmor } from './MilspecArmor';
 import { MilspecStencil } from './MilspecDecor';
 import type { PlacedPanel, StretchFrame } from './armor/types';
-import './footer/milspecFooter.css';
 // 副作用 import: i18next の初期化(useTranslation は初期化済みインスタンスが無いとキー文字列を返す)
 import '../../i18n';
+import './MilspecFooter.css';
 
 /** 見本 v11 js:985 のフッター装甲。区画の基準幅 MW=1189・高さ 22。横は x>MW/2 の点が動く */
 const MW = 1189;

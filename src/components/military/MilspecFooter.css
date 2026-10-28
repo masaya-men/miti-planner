@@ -1,9 +1,7 @@
+/* MilspecFooter の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
 /* フッター(見本 v11 css:549-562, 565-566)。22px の帯・法的情報の一覧・リンクの信号線の下線。 */
 .theme-military .milspec-ftr { position: relative; height: 100%; width: 100%; }
 .theme-military .milspec-ftr > * { position: absolute; }
-/* 骨組み(暗い台座)の上の刻印は明るい灰色(見本 css:565-566) */
-.theme-military .milspec-ftr .milspec-stencil { color: #7f878d !important; }
-.theme-military .milspec-ftr .milspec-stencil.is-hi { color: #a4abb0 !important; }
 
 .theme-military .milspec-ftr-right { right: 16px; top: 7.5px; display: flex; gap: 16px; align-items: center; z-index: 2; }
 .theme-military .milspec-ftr-legalwrap { position: relative; display: flex; }

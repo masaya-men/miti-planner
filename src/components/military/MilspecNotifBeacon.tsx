@@ -6,7 +6,7 @@ import { normalizeLang } from '../systemNotificationLang';
 import { resolveLocalized } from '../../lib/localizedText';
 import { MilspecLed, MilspecStencil } from './MilspecDecor';
 import { SB_NOTIF, sbY } from './sidebarGeometry';
-import './milspecNotifBeacon.css';
+import './MilspecNotifBeacon.css';
 
 const OUTLINE = SB_NOTIF.pts.map((p) => p.join(',')).join(' ');
 

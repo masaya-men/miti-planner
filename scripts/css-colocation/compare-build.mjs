@@ -59,6 +59,8 @@ export function compareBuilds(base, next, related = (a, b) => a === b, prefixRe 
     const pa = nextPos.get(idOf.get(a));
     const pb = nextPos.get(idOf.get(b));
     if (pa === undefined || pb === undefined) continue;
+    // 基準でも別々の後読みファイルにあった組は、 元々並びが決まっていない(開いた順)ので守る並びが無い
+    if (a.place && b.place && a.place !== b.place) continue;
     const qa = nextRules[pa].place;
     const qb = nextRules[pb].place;
     if (qa && qb && qa !== qb) {

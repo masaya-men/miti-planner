@@ -65,8 +65,12 @@ function componentCssImporters() {
   return map;
 }
 
+// 部品の隣にあった古い名前の CSS の、 移行前のビルド(後読みの MilspecLayout の CSS)での並び。 同じ行き先に集まった時にこの順で並べる
+// (パス順だと notif → ftr → vent の勝ち負けが逆になる)。 milspecDeck.css は別の後読み(MilspecControlDeck)なので並びは決まっていない
+const BUILD_ORDER = ['milspecH4.css', 'milspecCrt.css', 'milspecNotifBeacon.css', 'milspecTable.css', 'milspecFooter.css', 'milspecVent.css', 'milspecRail.css', 'milspecPower.css', 'milspecDeck.css', 'milspecJack.css'];
+
 /**
- * 入口の @import 順の共有ファイル → 部品の隣の CSS(パス順)。 部品の隣の CSS は今は後読みなので、 起動時に読む共有より後ろに並べる
+ * 入口の @import 順の共有ファイル → 部品の隣の CSS(移行前のビルドでの並び)。 部品の隣の CSS は今は後読みなので、 起動時に読む共有より後ろに並べる
  * (同じ行き先に集まった時、 元の勝ち負け「military.css が先」を保つ)。 importers = その CSS を読んでいる部品(空になったら import を消す)。
  */
 export function sources() {
@@ -74,8 +78,12 @@ export function sources() {
   if (!files.some((f) => /\/pending-\d\.css$/.test(f))) throw new Error('移す待ち(src/styles/military/pending-*.css)が入口に無い=移行済み');
   const importers = componentCssImporters();
   const shared = files.map((file) => ({ file, css: readLf(file), role: ROLE[path.posix.basename(file)] ?? 'pending' }));
+  const rank = (f) => {
+    const i = BUILD_ORDER.indexOf(path.posix.basename(f));
+    return i < 0 ? BUILD_ORDER.length : i;
+  };
   const comp = walk(componentsDir, (n) => n.endsWith('.css'))
-    .sort()
+    .sort((a, b) => rank(a) - rank(b) || a.localeCompare(b))
     .map((file) => ({ file, css: readLf(file), role: 'pending', importers: importers.get(file) ?? [] }));
   return [...shared, ...comp];
 }

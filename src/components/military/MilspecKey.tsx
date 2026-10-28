@@ -7,6 +7,7 @@ import { useHtmlClassTick } from './armor/useHtmlClassTick';
 import { ensureDefs } from './armor/defs';
 import { useReducedMotion } from '../../lib/housing/useReducedMotion';
 import type { CapSpec, Pt } from './armor/types';
+import './MilspecKey.css';
 
 // 押下の形(見本 js:681-720 の値。アニメは transform のみ = 明るさ変化は載せない)
 const KP = { rest: 'translateY(0px) scale(1, 1)', bottom: 'translateY(1.45px) scale(0.962, 0.955)', latch: 'translateY(0.9px) scale(0.985, 0.925)' };

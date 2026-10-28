@@ -7,6 +7,7 @@ import { ventChannelSVG } from './armor/pcb';
 import { CARRIAGE_W, mwFor, ventCarriageX, ventLayout, ventRailRange } from './headerGeometry';
 import { useMilspecHeaderScale } from './headerScaleContext';
 import './header/milspecVent.css';
+import './MilspecVent.css';
 
 export interface MilspecVentProps {
   isHeaderCollapsed: boolean;

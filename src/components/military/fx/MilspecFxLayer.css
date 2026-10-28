@@ -1,0 +1,17 @@
+/* MilspecFxLayer の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ---- 光の粒(見本 css:371-376, 599-602)。経路 = 装甲の継ぎ目 / 骨組みに露出した極細の信号線 ---- */
+.theme-military .milspec-fx { position: absolute; inset: 0; overflow: visible; pointer-events: none; z-index: 1; }
+.theme-military .milspec-trc { fill: none; stroke: none; }
+.theme-military .milspec-pz-g { fill: none; stroke: rgba(var(--ma-sig-rgb), 0.8); stroke-width: 1.1; stroke-linecap: round; filter: url(#milspec-fxglow); }
+.theme-military .milspec-pz-c { fill: none; stroke: var(--ma-sig-hot); stroke-width: 0.42; stroke-linecap: round; }
+.theme-military .milspec-pz-g.seam { stroke-width: 2.2; filter: url(#milspec-fxglow2); }
+.theme-military .milspec-pz-c.seam { stroke-width: 0.75; }
+.theme-military .milspec-pz-g.faint { stroke: rgba(var(--ma-sig-rgb), 0.3); }
+.theme-military .milspec-pz-c.faint { stroke: rgba(196,255,230,0.5); }
+.theme-military .milspec-pz-g.warn { stroke: rgba(var(--ma-warn-rgb), 0.8); }
+.theme-military .milspec-pz-c.warn { stroke: var(--ma-warn-hot); }
+.theme-military .milspec-tdot-f { fill: var(--ma-sig-hot); filter: url(#milspec-fxglow2); transform-box: fill-box; transform-origin: center; }
+/* 漏れ光: パネルの下を通る光が、合わせ目・継ぎ目からにじむ */
+.theme-military .milspec-pz-g.leak { stroke: rgba(var(--ma-sig-rgb), 0.3); stroke-width: 3.4; filter: url(#milspec-fxglow3); }
+.theme-military .milspec-pz-c.leak { stroke: rgba(200,255,232,0.55); stroke-width: 0.6; }
+.theme-military .milspec-deck-o > .milspec-fx { z-index: 1; }

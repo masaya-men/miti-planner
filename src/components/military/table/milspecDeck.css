@@ -7,9 +7,3 @@
   overflow: visible; /* 装甲の影・キーの浮きを切らない */
 }
 .theme-military .milspec-app #timeline-controls-inner { position: relative; background: none; box-shadow: none; }
-.theme-military .milspec-deck-o > .milspec-fx { z-index: 1; }
-.theme-military .milspec-deck-kc > .milspec-key { position: absolute; }
-.theme-military .milspec-hr:hover + .milspec-led:not(.is-on) .milspec-led-src { opacity: 0.2; }
-.theme-military .milspec-hs .milspec-led-lens { inset: 0.8px; }
-.theme-military .milspec-hs[aria-checked="true"] .milspec-led-src { opacity: 1; transition-delay: .5s; }
-.theme-military .milspec-hs[aria-checked="true"] .milspec-led-lens { background: radial-gradient(circle at 50% 55%, rgba(var(--ma-on-rgb),0.9), var(--ma-on-deep) 90%); transition: background 0s .5s; }

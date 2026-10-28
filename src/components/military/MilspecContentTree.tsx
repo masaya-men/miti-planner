@@ -26,6 +26,7 @@ import { MsIcon } from './milspecIcons';
 import { energy } from './fx/engine';
 import '../../i18n';
 import type { MilspecTreeTab } from './milspecContentTreeModel';
+import './MilspecContentTree.css';
 
 type Tab = MilspecTreeTab;
 

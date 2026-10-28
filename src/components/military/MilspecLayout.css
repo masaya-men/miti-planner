@@ -1,0 +1,174 @@
+/* MilspecLayout の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ============================================================
+ * SP1: 構造リビルド — レイアウトシェル (2026-09-08)
+ * 正典 = docs/.private/theme-refs/milspec-mockup.html
+ * すべて .theme-military 前置 or .milspec-* クラス経由。
+ * ============================================================ */
+
+.theme-military .milspec-app {
+  position: relative;
+  display: grid;
+  width: 100%;
+  max-width: var(--container-max, 1489px);
+  margin: 0 auto;
+  height: 100dvh;
+  overflow: hidden;
+  /* mockup .app: columns 285 / 22 / 1fr。SP1 は subtoolbar 行を持たない 3 行構成。
+     2026-09-14 masaya 確定その1: header 行の高さ(clamp 76-90px)は据え置きのまま、その中に
+     MilspecHeader(上段・少し薄く)と MilspecToolbar(下段・薄い帯)を縦積みする。
+     2026-09-14 masaya 確定その2: サイドバーは標準 Layout.tsx(data-app-shell = display:flex)と
+     同じく画面の最上段から最下段まで独立した1列として通す(標準は Sidebar がヘッダーの左に
+     並ぶ flex 兄弟・ヘッダーはサイドバーの右側だけを占める)。旧: header 行がサイドバー列も
+     跨いで最上段を占めていた(標準とズレていた・masaya 指摘で訂正)。 */
+  grid-template-columns: 274px 22px 1fr;
+  column-gap: 2px; /* 区画の隙間から背景動画が見える */
+  /* 見本 v11: ヘッダー 102 / 隙間 2 / 通気口 19 / 隙間 4 / workspace / footer。
+     ヘッダーと通気口は --ms-hs(縮小率・MilspecLayout が区画幅から入れる)で縮む。
+     ヘッダーを閉じると --ms-hrow が 0 になり、通気口は y=2 に来る。 */
+  --ms-hrow: calc(102px * var(--ms-hs, 1));
+  grid-template-rows:
+    var(--ms-hrow)                 /* header */
+    2px
+    calc(19px * var(--ms-hs, 1))   /* vent */
+    4px
+    1fr                            /* workspace */
+    3px                            /* 表とフッターのすき間(見本 yF−3) */
+    22px;                          /* footer(見本 v11: 22px の帯) */
+  grid-template-areas:
+    "sidebar rail header"
+    "sidebar rail ."
+    "sidebar rail vent"
+    "sidebar rail ."
+    "sidebar rail workspace"
+    "sidebar rail ."
+    "sidebar rail footer";
+  background: var(--ms-bg, #141b23);
+  color: var(--ms-text);
+  font-family: var(--ms-font-ui, system-ui, sans-serif);
+}
+/* header ゾーン = MilspecHeaderV11(見本の H1-H5 を区画幅いっぱいに組んだ装甲ヘッダー)。 */
+.theme-military .milspec-zone-header    { grid-area: header;    position: relative; overflow: visible; }
+
+/* 装甲の影・H5 の突起が区画の外へ出る */
+.theme-military .milspec-zone-vent      { grid-area: vent;      position: relative; overflow: visible; }
+/* 縮小用の内箱: 区画幅 MW が 1189 未満のとき中身を --ms-hs で縮める(幅は逆数で広げて 1189 を保つ) */
+.theme-military .milspec-hs-box {
+  display: flex; flex-direction: column;
+  transform: scale(var(--ms-hs, 1)); transform-origin: 0 0;
+  width: calc(100% / var(--ms-hs, 1)); height: calc(100% / var(--ms-hs, 1));
+}
+/* 閉じたヘッダー: 行が 0 になり、中身は見えず触れない。閉じる動きの残像は複製(.milspec-ghost)が担う */
+.theme-military .milspec-app:has(.milspec-zone-header[data-collapsed]) { --ms-hrow: 0px; }
+.theme-military .milspec-zone-header[data-collapsed] { visibility: hidden; pointer-events: none; }
+.theme-military .milspec-ghost { z-index: 20; pointer-events: none !important; }
+.theme-military .milspec-ghost * { pointer-events: none !important; }
+.theme-military .milspec-zone-sidebar   { grid-area: sidebar;   position: relative; overflow: visible; }
+
+/* 漏れ光 lk:s2rail が区画の右 1px 外を通る */
+.theme-military .milspec-zone-rail      { grid-area: rail;      position: relative; }
+.theme-military .milspec-zone-workspace { grid-area: workspace; position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+.theme-military .milspec-zone-footer    { grid-area: footer;    position: relative; }
+
+/* サイドバー畳み: サイドバー列を 0 に。開閉の取っ手は rail 列(22px)に移したので復元手段は残る。
+ * 閉じたサイドバーの中身は visibility:hidden でタブ移動・クリックの対象から外す。 */
+.theme-military .milspec-app:has(.milspec-zone-sidebar:not([data-open])) {
+  grid-template-columns: 22px 1fr; /* 見本の閉じ状態: レールが x=0(レール 22 + 隙間 2 = 24 で本体) */
+  grid-template-areas:
+    "rail header"
+    "rail ."
+    "rail vent"
+    "rail ."
+    "rail workspace"
+    "rail ."
+    "rail footer";
+}
+.theme-military .milspec-zone-sidebar:not([data-open]) { display: none; }
+
+/* レール: 見た目は rail/milspecRail.css(見本 v11 の基板レール) */
+
+/* 区画に重ねる装甲パネル(MilspecArmor)。親は position:relative 前提。
+   積み順の規則: 各ゾーンは isolation:isolate で独立した積み層になる。装甲は z-index:-1 で
+   「そのゾーン自身の背景の上・位置指定なしの中身の下」に描かれる(z-index:0 だと
+   position 指定のない中身より手前に出て、中身を覆ってしまう)。 */
+.theme-military .milspec-zone-header,
+.theme-military .milspec-zone-sidebar,
+.theme-military .milspec-zone-workspace,
+.theme-military .milspec-zone-vent,
+.theme-military .milspec-zone-footer,
+.theme-military [data-ms-zone="rail"] { isolation: isolate; }
+
+/* ---------- Task 8: 計器スクロールバー — 表 + サイドバー共有
+   正典: mockup .tbody::-webkit-scrollbar / .ws-screen::-webkit-scrollbar / .gauge-cap /
+     .phases::-webkit-scrollbar(CSS 1200-1275)。
+   masaya 2026-09-05「スクロールバーもSF軍事っぽい細かいディテールと数字やデカールが施されたメーターに」。
+   実 DOM(Step 1 実測・軍事 PC):
+     .timeline-scroll-container … 縦横スクロールの実体(overflow-y:auto / md:overflow-x:auto)。
+       src/index.css:1629 が「::-webkit-scrollbar:vertical { width:0; display:none }」で縦バーを
+       全モードで隠している(paddingRight 補正だけ残す設計)。
+       → 軍事 PC(.theme-military .milspec-app・詳細度 0-4-1 vs 0-2-1)だけ上書きして 14px 可視化。
+       ⚠ src/index.css:1629 は変更しない。標準モードの width:0 はそのまま生かす。
+     div:has(> #timeline-header-inner)
+       … 非スクロール域の外枠(overflow:hidden・幅=コンテナ幅・syncPadding が paddingRight=バー幅 を当てる)。
+         右端 14px はスクロールバー溝の真上 → そこに track と同じ目盛りを ::after で貼り「ヘッダーから
+         表まで貫通する1本の計器」に見せる(mockup .gauge-cap)。::after は Task 4/Task 7 とも未使用。
+   ⚠ 目盛りピッチ(6px minor / 24px major)は track と cap で厳密一致が要件 →
+     --ms-gauge-ticks(縦 180deg 版)を「縦 track + ヘッダー cap + 帯 cap」の3箇所で共有し drift 不能にする。
+     ピッチ位相(高さ 40 / 38 は 6 の倍数でない)の連続は SP2 後の実機微調整(Task 10)。
+   ⚠ headless Chromium は overlay 型で ::-webkit-scrollbar を幅0で返す(Step 1 実測: 現状 vDiff=0)。
+     可視の意匠確認は headed 実 Chrome / 実機のみ(military-smoke は幅0を WARN スキップ)。
+   スコープは .theme-military .milspec-app(Task 3-7 と同じ・モバイル軍事= SP3 へ漏らさない)。 ---------- */
+.theme-military .milspec-app {
+  --ms-gauge-tick-minor: rgba(130,204,223,0.22);
+  --ms-gauge-tick-major: rgba(130,204,223,0.42);
+  /* 縦 track とヘッダー/帯の静的キャップが共有する目盛りレイヤー(ここ1箇所定義でピッチ一致を保証)。 */
+  --ms-gauge-ticks:
+    repeating-linear-gradient(180deg, var(--ms-gauge-tick-minor) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(180deg, var(--ms-gauge-tick-major) 0 1.5px, transparent 1.5px 24px);
+  --ms-gauge-track-fill: linear-gradient(90deg, #1b232a, #10161b);
+  --ms-gauge-thumb-fill: linear-gradient(90deg, #232b33, #4b5763 45%, #5c6975 50%, #4b5763 55%, #232b33);
+}
+
+/* light: dark 固定 hex(track/thumb グラデ + 目盛りの青)を淡い金属色へ。
+   最終調整は SP2 後(Task 3-7 と同じ作法・「破綻しない」レベル)。 */
+.theme-military.theme-light .milspec-app {
+  --ms-gauge-tick-minor: rgba(40,80,120,0.20);
+  --ms-gauge-tick-major: rgba(40,80,120,0.34);
+  --ms-gauge-track-fill: linear-gradient(90deg, #d7dfe6, #c3cdd6);
+  --ms-gauge-thumb-fill: linear-gradient(90deg, #cfd8e0, #9aa7b3 45%, #8996a3 50%, #9aa7b3 55%, #cfd8e0);
+}
+
+/* ---------- Task 10 (A2 / A1 / A3): 表フレーム層 + 縦パネルライン + thead メンバー列面
+   plan §1.1 の coverage table が落としていた「モックの DOM にしか instance が無い装飾」3 件
+   (whole-branch レビュー A1/A2/A3)。全て CSS のみ・製品コード不変。
+
+   A2 = mockup .table(1076): ws-screen(沈み黒) と thead/本文の間の中トーン鋼 + 全体 1px inset フレーム。
+     アンカー実測 = [data-timeline-root] > .glass-panel (Timeline.tsx:2714・DOM 上 1 個・
+     rect が .milspec-ws-screen と完全一致・background/box-shadow/疑似要素とも未使用)。
+     直下に コントロールバー / ヘッダー外枠 / リキャスト帯 / .timeline-scroll-container を束ねる
+     = mockup .table と同じ役割。(mockup は .subtoolbar が .workspace の兄弟なのでバーを含まない —
+     Task 2/3/5 と同じ既知の構造差。)
+   A1 = mockup .pl.v(2172・left:142 = 機工列開始) と .pl.bead.v(2134 thead / 2173 tbody・left:530 =
+     TAKEN|メンバー境界)。表を「時刻・機工 / ダメージ数値 / メンバーグリッド」の 3 ゾーンへ割る構造線。
+     アンカーは Task 10 C1 実測の ruling どおり **静的 col 変数** (--col-header-chunk-w / --col-member-start)
+     = 軽減バー / チップ / リキャスト帯と同じ「静的 x 陣営」。列折りたたみ時に collapse-aware な
+     表セルとはズレるが、それは SP2 以前からある既存分裂 (notes.md Task 10 §C1)。
+     primitive .milspec-pl(571-583) は bare .theme-military なので使わず、background 式だけ流用する。
+   A3 = Task 7 でリキャストを帯へ出した結果、thead の右 ≈40%(x > --col-member-start) が
+     外枠の素の raised プレートのまま露出している問題。メンバー列の識別情報 (ジョブアイコン +
+     ロール) は**このアプリではコントロールバーのジョブチップ .cj が担っている** (セッション 18 で
+     ヘッダーからチップへ移設済) ため、mockup .th-mem のアイコン/ロールタグを thead に再現すると
+     チップと二重になる → 再現せず「計器の空きベイ」に見せる方針 (コントローラー ruling)。
+     ⚠ 列ティック(仕切り線)は**引かない**: メンバー列幅は実測で不均一
+       (tank/healer = --col-th-w 151 + pad 5.8 = 156.8px / dps = --col-dps-w 53 + 5.8 = 58.8px)
+       かつ並び順は partySortOrder 依存なので、repeating-linear-gradient の一定ピッチでは
+       必ずズレて「間違った列線」になる。詳細は notes.md Task 10 §A3。
+   ---------- */
+.theme-military .milspec-app {
+  /* A2: mockup .table の #212a33 → #1d252d。上辺は同値の --ms-panel-lo(#222b34) を流用。 */
+  --ms-table-frame:      linear-gradient(180deg, var(--ms-panel-lo), #1d252d);
+  --ms-table-frame-edge: rgba(0,0,0,0.45);
+}
+.theme-military.theme-light .milspec-app {
+  --ms-table-frame:      linear-gradient(180deg, #e6ecf2, #d5dee7);
+  --ms-table-frame-edge: rgba(40,80,120,0.26);
+}

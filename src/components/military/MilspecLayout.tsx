@@ -31,6 +31,7 @@ import { LocalDataSafetyAutoPrompt } from '../LocalDataSafetyAutoPrompt';
 import { LimitResolutionSheet } from '../LimitResolutionSheet';
 import { WelcomeSetup } from '../WelcomeSetup';
 import type { MilspecLayoutProps } from './milspecLayoutTypes';
+import './MilspecLayout.css';
 
 /** themeStyle==='military' && PC のときだけ Layout が返す専用シェル。
  *  実行時ホスト(自動保存/collab/データ復旧)は Layout が分岐前に持つ。ここは見た目 + 配線のみ。 */

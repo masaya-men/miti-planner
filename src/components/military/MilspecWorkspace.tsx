@@ -3,6 +3,7 @@ import { MilspecArmor } from './MilspecArmor';
 import { MilspecMark } from './MilspecDecor';
 import type { PlacedPanel, StretchFrame } from './armor/types';
 import './table/milspecTable.css';
+import './MilspecWorkspace.css';
 
 /** 見本 v11 js:965-967 の表の装甲。区画の基準幅 tw=1189・高さ th=483(=657-3-171)。
  *  横は x>600 の点・縦は y>300 の点が動く(右下の切り欠きと下辺が区画の実寸に追従する)。 */

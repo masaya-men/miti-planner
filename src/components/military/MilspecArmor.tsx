@@ -6,6 +6,7 @@ import { readPalette } from './armor/palette';
 import { stretchPlaced } from './armor/stretch';
 import { useHtmlClassTick } from './armor/useHtmlClassTick';
 import type { PlacedPanel, StretchFrame } from './armor/types';
+import './MilspecArmor.css';
 
 
 interface Props { id: string; frame: StretchFrame; panels: PlacedPanel[]; className?: string }

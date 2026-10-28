@@ -45,6 +45,11 @@ describe('compareBuilds(起動時の CSS+後読みの CSS)', () => {
     expect(r.lazyCross).toBe(1);
     expect(r.missing).toHaveLength(0);
   });
+  it('基準で既に別々の後読みファイルにあった組は、 同じファイルに集めて並びが変わっても flipped にしない', () => {
+    const base = { eager: '', lazy: [{ file: 'A.css', css: '.milspec-a{color:red}' }, { file: 'B.css', css: '.milspec-a{color:blue}' }] };
+    const next = { eager: '', lazy: [{ file: 'K.css', css: '.milspec-a{color:blue} .milspec-a{color:red}' }] };
+    expect(compareBuilds(base, next, undefined, M).flipped).toHaveLength(0);
+  });
   it('起動時の中で組が逆になったら flipped', () => {
     const base = { eager: '.milspec-a{color:red} .milspec-a{color:blue}', lazy: [] };
     const next = { eager: '.milspec-a{color:blue} .milspec-a{color:red}', lazy: [] };

@@ -1,0 +1,19 @@
+/* MilspecSidebar の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ============================================================
+ * v11 サイドバー S1〜S3 の組み立て(MilspecSidebar)。
+ * 見本の層: 装甲 0 / 基板・光 1 / それ以外 2。区画は isolation:isolate なので、
+ * 装甲(z-index:-1)・基板と光(1)・中身(.milspec-sbx-top = 2)の順に積む。
+ * ============================================================ */
+.theme-military .milspec-sbx { position: absolute; inset: 0; pointer-events: none; }
+.theme-military .milspec-sb-core { position: absolute; z-index: 1; pointer-events: none; }
+.theme-military .milspec-sbx-top { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+/* キー列: 見本の .kc(幅高さ 0・列の原点に置く)。中のキーは bbox の位置に absolute */
+.theme-military .milspec-sb-kc { position: absolute; width: 0; height: 0; }
+/* ツリー箱: 自分でスクロール(スクロールバーは .milspec-tr 側で非表示) */
+.theme-military .milspec-sb-treebox { position: absolute; display: flex; flex-direction: column; pointer-events: auto; overflow: hidden; }
+.theme-military .milspec-sb-treebody { flex: none; min-height: 0; }
+/* 選択の帯(見本に無い。S2 の基板と同じ質感の黒い床に、Doto の件数とキー 2 つ) */
+.theme-military .milspec-sb-selbar { position: relative; flex: none; box-sizing: border-box; background: linear-gradient(180deg, #0b0e0f, #060808); box-shadow: inset 0 0 0 0.6px rgba(var(--ma-on-rgb), 0.28), inset 0 -1px 0 rgba(0,0,0,0.7); border-radius: 2px; }
+.theme-military .milspec-sb-selbar[data-mode="delete"] { box-shadow: inset 0 0 0 0.6px rgba(var(--ma-dng-rgb), 0.4), inset 0 -1px 0 rgba(0,0,0,0.7); }
+.theme-military .milspec-sb-selcount { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font: 900 8px/1 'Doto', monospace; letter-spacing: 0.04em; color: var(--ma-ink-3); white-space: nowrap; }
+.theme-military .milspec-sb-sellimit { opacity: 0.6; }

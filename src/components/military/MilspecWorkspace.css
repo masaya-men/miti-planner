@@ -1,0 +1,30 @@
+/* MilspecWorkspace の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 表の区画(見本 v11 js:963-984 / css:543-546)。全規則 .theme-military 前置。
+   区画 = 上から 操作列 40px + すき間 4px + 表。装甲は 44px より下に敷く(MilspecWorkspace)。 */
+
+/* 装甲・印・刻印の置き場(区画の 44px 下〜下端。装甲自身は z-index:-1 で中身の下) */
+.theme-military .milspec-tbl-armor { position: absolute; left: 0; right: 0; bottom: 0; top: 44px; pointer-events: none; }
+
+/* 子(Timeline)の器。区画いっぱい・はみ出しは隠す(スクロールは Timeline 自身が持つ) */
+.theme-military .milspec-tbl-wrap {
+  position: relative; display: flex; flex-direction: column;
+  flex: 1; min-width: 0; min-height: 0; overflow: hidden;
+}
+
+/* 画面の縁の暗がり(見本 css:545-546) */
+.theme-military .milspec-vig {
+  position: absolute; left: 10px; right: 10px; top: 10px; bottom: 10px; z-index: 61;
+  pointer-events: none; border-radius: 2px; box-shadow: inset 0 0 26px rgba(0,0,0,0.55);
+}
+.theme-military.theme-light .milspec-vig { box-shadow: inset 0 0 22px rgba(40,50,60,0.10); }
+/* 四隅の印(見本 css:544・js:975) */
+.theme-military .milspec-scr-mark {
+  position: absolute; z-index: 61; width: 9px; height: 9px; border: 0 solid var(--ma-ink-3);
+  opacity: 0.55; pointer-events: none;
+}
+.theme-military .milspec-scr-mark.tl { left: 12px; top: 12px; border-width: 1px 0 0 1px; }
+.theme-military .milspec-scr-mark.tr { right: 12px; top: 12px; border-width: 1px 1px 0 0; }
+.theme-military .milspec-scr-mark.bl { left: 12px; bottom: 16px; border-width: 0 0 1px 1px; }
+/* 刻印 T-DISP / SCOPE 1 · TL-FEED(見本 js:976) */
+.theme-military .milspec-tbl-id { position: absolute; left: 24px; bottom: 13px; z-index: 61; display: flex; gap: 6px; align-items: baseline; pointer-events: none; }
+.theme-military .milspec-dc { font: 400 4.4px/1 'Michroma', sans-serif; letter-spacing: 0.14em; color: var(--ma-leg); white-space: nowrap; text-transform: uppercase; }

@@ -1,0 +1,17 @@
+/* MilspecArmor の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.theme-military .milspec-armor { position: absolute; inset: 0; pointer-events: none; z-index: -1; }
+.theme-military .milspec-armor-panel { position: absolute; overflow: visible; }
+
+/* ---- 使い込まれた質感(見本 css:584-591)。armor/weather.ts / svg.ts が出す SVG の class。
+ *  --chip 等 → --ma-chip 等。url(#wx-stk) / url(#wash) は armorDefsSVG の同名 id(svg.ts:90,92)。 */
+.theme-military .wx-chip { fill: var(--ma-chip); }
+.theme-military .wx-chip-sh { fill: var(--ma-chip-sh); }
+.theme-military .wx-scr { fill: none; stroke: var(--ma-scratch); stroke-width: 0.32; stroke-linecap: round; }
+.theme-military .wx-scr-sh { fill: none; stroke: var(--ma-scratch-sh); stroke-width: 0.32; stroke-linecap: round; }
+.theme-military .wx-stk { fill: url(#wx-stk); }
+.theme-military .wx-rim { fill: none; stroke: var(--ma-grime); stroke-width: 1.8; filter: url(#wash); }
+.theme-military .wash { fill: none; stroke: var(--ma-wash); stroke-width: 2.6; filter: url(#wash); }
+
+/* 下の板の奥の基板の光。電源 off で消える */
+.milspec-drw-glow { transition: opacity 300ms; }
+html.theme-military[data-ms-power="off"] .milspec-drw-glow { opacity: 0; }

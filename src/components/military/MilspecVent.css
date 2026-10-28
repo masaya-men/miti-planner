@@ -1,0 +1,50 @@
+/* MilspecVent の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 通気口: パンチング板(見本 .perf)と信号線の彫り込み(見本 .chan。既存の .milspec-chan = ゾーン外周とは別物なので vent- を付ける) */
+.theme-military .milspec-vent-perf { background:
+  radial-gradient(circle at 50% 60%, rgba(255,255,255,0.07) 0 0.6px, transparent 1px) 0 0.5px / 4px 4px,
+  radial-gradient(circle, rgba(0,0,0,0.6) 0 0.9px, transparent 1.2px) 0 0 / 4px 4px,
+  linear-gradient(180deg, var(--ma-frame-hi), var(--ma-frame)); }
+.theme-military.theme-light .milspec-vent-perf { background:
+  radial-gradient(circle at 50% 60%, rgba(255,255,255,0.12) 0 0.6px, transparent 1px) 0 0.5px / 4px 4px,
+  radial-gradient(circle, rgba(0,0,0,0.55) 0 0.9px, transparent 1.2px) 0 0 / 4px 4px,
+  linear-gradient(180deg, var(--ma-frame-hi), var(--ma-frame)); }
+.theme-military .milspec-vent-chan { position: absolute; border-radius: 1.5px; background: var(--ma-pcb); box-shadow: inset 0 1.2px 1.6px #000, inset 0 -0.6px 0 rgba(255,255,255,0.06), 0 0.6px 0 rgba(255,255,255,0.08); }
+
+/* 通気口(ヘッダー下の細い区画)。見本 v11 の css:277-282(光の玉のランプ列)・335-343(取っ手)・565-566(刻印色)。
+   パンチング板・溝の彫り込み・ハザードは military.css 側の .milspec-vent-perf / .milspec-vent-chan / .milspec-hz を使う。 */
+.theme-military .milspec-vent { position: relative; flex: 1 1 auto; width: 100%; min-height: 0; }
+.theme-military .milspec-vent > * { position: absolute; }
+
+/* レールと台車(見本 v3.html の .rail-track / .carriage)。台車の transform は Task 6 の動きが使うので CSS では触らない */
+.theme-military .milspec-vent .milspec-carriage > * { position: absolute; }
+.theme-military .milspec-vent-rail { border-radius: 3px; background: linear-gradient(180deg, #050607, #14171a); box-shadow: inset 0 1px 2px #000, 0 0.6px 0 rgba(255,255,255,0.1); pointer-events: none; }
+.theme-military .milspec-vent-rail::before { content: ""; position: absolute; inset: 1.5px 6px; background: repeating-linear-gradient(90deg, #5d666d 0 1px, transparent 1px 6px); opacity: .55; }
+.theme-military .milspec-carriage { border-radius: 3px; background: linear-gradient(180deg, var(--ma-pit-hi), var(--ma-pit-lo)); border: 1px solid #000; box-sizing: border-box; box-shadow: 0 2px 3px rgba(0,0,0,.6), inset 0 .6px 0 rgba(255,255,255,.15); will-change: transform; }
+.theme-military .milspec-carriage-wheel { bottom: -3px; width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle, #111 0 1.2px, #7c858c 1.3px 2.6px, #2a2f33 2.7px); }
+.theme-military .milspec-carriage-led { right: 4px; top: 3px; width: 4px; height: 4px; border-radius: 50%; background: #1a1c1d; }
+.theme-military .milspec-carriage.is-moving .milspec-carriage-led { background: var(--ma-warn); box-shadow: 0 0 4px var(--ma-warn); }
+.theme-military .milspec-carriage.is-moving .milspec-carriage-wheel { animation: milspec-wheel-spin .25s linear infinite; }
+@keyframes milspec-wheel-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .theme-military .milspec-carriage.is-moving .milspec-carriage-wheel { animation: none; } }
+
+/* 光の玉のランプ列(遊び) */
+.theme-military .milspec-lb-row { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
+/* 取っ手(押すと引く動き → 260ms 後にヘッダーが開閉する) */
+.theme-military .milspec-pull { position: absolute; padding: 0; border: 0; cursor: pointer; border-radius: 2px; background: linear-gradient(180deg, var(--ma-pit-hi), var(--ma-pit-lo)); box-shadow: inset 0 1px 2px #000, 0 0.6px 0 rgba(255,255,255,0.1); }
+.theme-military .milspec-pull::before { content: ""; position: absolute; left: 4px; right: 4px; top: 50%; height: 5px; margin-top: -3px; border-radius: 2px; transition: transform 200ms cubic-bezier(.3,1.7,.5,1), box-shadow 200ms, filter 160ms;
+  background: linear-gradient(180deg, #dce1e6, #7c848c 55%, #3b4147); box-shadow: 0 1.6px 0 rgba(0,0,0,0.5), 0 2.6px 2.6px rgba(0,0,0,0.35), inset 0 0.8px 0 rgba(255,255,255,0.8); }
+.theme-military .milspec-pull:hover::before { transform: translateY(0.8px); filter: brightness(1.12); box-shadow: 0 2.4px 0 rgba(0,0,0,0.5), 0 3.6px 3.4px rgba(0,0,0,0.45), inset 0 0.8px 0 rgba(255,255,255,0.9); }
+.theme-military .milspec-pull.tug::before { animation: milspec-tug 0.5s linear; }
+@keyframes milspec-tug { 0% { transform: none; animation-timing-function: cubic-bezier(.5,0,.8,.4); } 22% { transform: translateY(-0.6px); animation-timing-function: cubic-bezier(.3,0,.2,1); } 48% { transform: translateY(3.6px); animation-timing-function: cubic-bezier(.4,0,.6,1); } 70% { transform: translateY(2.4px); } 100% { transform: none; } }
+
+/* 進捗記録パネルが探す下端アンカー */
+.theme-military .milspec-vent-anchor { left: 0; right: 0; bottom: 0; height: 1px; pointer-events: none; }
+
+/* 縦の取っ手(見本 .pull.v css:338, 340, 341, 343) */
+.theme-military .milspec-pull.is-v::before { left: 50%; right: auto; top: 4px; bottom: 4px; width: 5px; height: auto; margin: 0 0 0 -3px; background: linear-gradient(90deg, #dce1e6, #7c848c 55%, #3b4147); }
+.theme-military .milspec-pull.is-v:hover::before { transform: translateX(-0.8px); }
+.theme-military .milspec-pull.is-v.tug::before { animation: milspec-tugv 0.5s linear; }
+@keyframes milspec-tugv { 0% { transform: none; animation-timing-function: cubic-bezier(.5,0,.8,.4); } 22% { transform: translateX(0.6px); animation-timing-function: cubic-bezier(.3,0,.2,1); } 48% { transform: translateX(-3.6px); animation-timing-function: cubic-bezier(.4,0,.6,1); } 70% { transform: translateX(-2.4px); } 100% { transform: none; } }
+
+/* 骨組み(暗い台座)の上の刻印は明るい灰色(見本 css:565)。レールの刻印は基板のシルク(SIG-A / PULL)で、色は基板側 */

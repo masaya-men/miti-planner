@@ -1,3 +1,4 @@
+import './MilspecFxLayer.css';
 /**
  * 区画全面の光の経路層。経路は fill/stroke なしで置くだけ(光はエンジンが複製を足して走らせる)。
  * 経路の座標は区画の左上基準の px(見本の fxLayer と同じ)。
