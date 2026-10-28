@@ -1,29 +1,28 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
-import { CheckCircle2, AlertTriangle, CloudUpload, X as IconX } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { CloudUpload } from 'lucide-react';
+import { motion } from 'framer-motion';
 import type { SavedPlan } from '../types';
 import { useJobs } from '../hooks/useSkillsData';
 import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import i18n from '../i18n';
 import { parsePlanLimitError, type ParsedPlanLimit } from '../utils/planLimitError';
-import { SweepOverlay } from './SweepOverlay';
 import { ModalShell } from './ui/ModalShell';
 import { ModalHeader, ModalFooter, ModalButton } from './ui/ModalParts';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 
-/** 1 件あたりに見せる sweep アニメーション秒数 (実 Firestore が早く返ってもこの時間以上はかける) */
-const PER_PLAN_MS = 1200;
+import { PER_PLAN_MS, type PlanProgressStatus } from './localImport/progress';
+import { LocalImportPlanRow } from './localImport/LocalImportPlanRow';
+import { LocalImportSummaryBar } from './localImport/LocalImportSummaryBar';
+
 /**
  * 最後の行の sweep 完了からサマリーパネルを表示するまでの間。
  * ✓/✗ アイコンの drop-in (約 360ms) をユーザーがしっかり視認できる時間を確保。
  */
 const SWEEP_TO_SUMMARY_MS = 1000;
 
-/** 各プランの取り込み進捗状態 */
-type PlanProgressStatus = 'pending' | 'uploading' | 'success' | 'failed';
 
 interface LocalImportDialogProps {
     isOpen: boolean;
@@ -291,44 +290,6 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
 
     const feedbackItems = buildFeedbackItems();
 
-    const renderStatusIcon = (status: PlanProgressStatus | undefined) => {
-        if (!status || status === 'pending') {
-            return (
-                <span
-                    className="w-4 h-4 rounded-full border-2 border-app-text-muted/40 shrink-0"
-                    style={{ borderStyle: 'dashed' }}
-                />
-            );
-        }
-        if (status === 'uploading') {
-            return (
-                <span className="w-4 h-4 rounded-full border-2 border-app-blue/60 bg-app-blue/15 shrink-0 animate-pulse" />
-            );
-        }
-        if (status === 'success') {
-            return (
-                <motion.span
-                    initial={{ scale: 0.4, opacity: 0, y: -4 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    transition={{ duration: 0.36, ease: [0.34, 1.56, 0.64, 1] }}
-                    className="shrink-0"
-                >
-                    <CheckCircle2 size={18} className="text-app-blue" />
-                </motion.span>
-            );
-        }
-        return (
-            <motion.span
-                initial={{ scale: 0.4, opacity: 0, y: -4 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                transition={{ duration: 0.36, ease: [0.34, 1.56, 0.64, 1] }}
-                className="shrink-0"
-            >
-                <IconX size={18} className="text-app-red" strokeWidth={3} />
-            </motion.span>
-        );
-    };
-
     /** ヘッダー直下のサブタイトル文言 (done フェーズ以降はサマリーが本体なので空) */
     const renderSubtitle = () => {
         if (phase === 'idle') return t('local_import.subtitle');
@@ -384,95 +345,18 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                                 const status = progressMap.get(plan.id);
                                 const contentLabel = getContentLabel(plan);
                                 const jobIcons = getMemberJobIcons(plan);
-                                const isInProgress = phase !== 'idle';
-                                // チェック外したプランも常時表示し、isOutOfImport で薄く見せる
-                                // (行数が変動しないことでウィンドウのガタつきを完全に抑える)
-                                const isOutOfImport = isInProgress && status === undefined;
-
                                 return (
-                                    <motion.li
+                                    <LocalImportPlanRow
                                         key={plan.id}
-                                        data-row-id={plan.id}
-                                        initial={{ opacity: 0, x: -12 }}
-                                        animate={{ opacity: isOutOfImport ? 0.35 : 1, x: 0 }}
-                                        transition={{
-                                            delay: phase === 'idle' ? 0.4 + idx * 0.08 : 0,
-                                            duration: 0.3,
-                                        }}
-                                    >
-                                        <label
-                                            className={clsx(
-                                                "relative flex items-center gap-3 p-2.5 rounded-lg select-none border transition-colors overflow-hidden",
-                                                isInProgress ? "cursor-default" : "cursor-pointer",
-                                                !isInProgress && checked && "bg-app-blue/10 border-app-blue/30",
-                                                !isInProgress && !checked && "bg-app-surface2/30 border-app-border",
-                                                !isInProgress && checked && "hover:bg-app-blue/15",
-                                                !isInProgress && !checked && "hover:bg-app-surface2/50",
-                                                isInProgress && status === 'success' && "border-app-blue/30",
-                                                isInProgress && status === 'failed' && "border-app-red/30",
-                                                isInProgress && (status === 'pending' || status === 'uploading') && "border-app-border",
-                                                isOutOfImport && "bg-app-surface2/20 border-app-border",
-                                            )}
-                                        >
-                                            {/* B2 sweep オーバーレイ (uploading 中の演出) */}
-                                            {isInProgress && !isOutOfImport && (
-                                                <SweepOverlay
-                                                    status={
-                                                        status === 'pending' || !status
-                                                            ? 'idle'
-                                                            : status === 'uploading'
-                                                                ? 'active'
-                                                                : status  // 'success' | 'failed'
-                                                    }
-                                                    color="blue"
-                                                    durationMs={PER_PLAN_MS}
-                                                />
-                                            )}
-
-                                            <span className="relative z-[1] shrink-0 flex items-center justify-center w-[18px] h-[18px]">
-                                                {isInProgress ? (
-                                                    isOutOfImport ? (
-                                                        // 取り込み対象外: チェックマークなしの空チェックボックス風表示
-                                                        <span className="w-4 h-4 rounded border border-app-text-muted/40" />
-                                                    ) : (
-                                                        renderStatusIcon(status)
-                                                    )
-                                                ) : (
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={checked}
-                                                        onChange={() => toggle(plan.id)}
-                                                        className="w-4 h-4 cursor-pointer accent-app-blue shrink-0"
-                                                    />
-                                                )}
-                                            </span>
-                                            <div className="relative z-[1] flex-1 min-w-0">
-                                                <div className="flex items-baseline gap-2">
-                                                    {contentLabel && (
-                                                        <span className="text-app-base font-bold text-app-text-muted shrink-0">
-                                                            [{contentLabel}]
-                                                        </span>
-                                                    )}
-                                                    <span className="text-app-md font-medium text-app-text truncate">
-                                                        {plan.title || '—'}
-                                                    </span>
-                                                </div>
-                                                {jobIcons.length > 0 && (
-                                                    <div className="flex items-center gap-0.5 mt-1">
-                                                        {jobIcons.slice(0, 8).map(j => (
-                                                            <img
-                                                                key={j.id}
-                                                                src={j.icon}
-                                                                alt={j.jobName}
-                                                                title={j.jobName}
-                                                                className="w-5 h-5 object-contain opacity-80"
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </label>
-                                    </motion.li>
+                                        plan={plan}
+                                        idx={idx}
+                                        checked={checked}
+                                        status={status}
+                                        contentLabel={contentLabel}
+                                        jobIcons={jobIcons}
+                                        phase={phase}
+                                        toggle={toggle}
+                                    />
                                 );
                             })}
                         </ul>
@@ -498,78 +382,13 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
 
             {/* P3 帯: body の外、 footer の前に flex children として配置。
                 body のスクロールから完全独立し、フッター直上の境界線にぴったり吸着して動かない */}
-            <AnimatePresence initial={false}>
-                {phase === 'done' && summaryKind && (
-                    <motion.div
-                        key="summary-bar"
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.35, ease: [0.34, 1.56, 0.64, 1] }}
-                        className="shrink-0 overflow-hidden"
-                    >
-                        {/* フィードバック箱 (失敗時のみ、帯の上に積み重なる) */}
-                        {feedbackItems.length > 0 && (
-                            <div className="border-t border-app-border bg-app-amber/10 px-6 py-3 text-left">
-                                <p className="text-app-md font-bold tracking-wide text-app-amber mb-1">
-                                    {t('local_import.feedback_box_title')}
-                                </p>
-                                <ul className="list-disc pl-5 text-app-base text-app-text-sec leading-[1.7]">
-                                    {feedbackItems.map((item, idx) => (
-                                        <li key={idx}>{item}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-                        {/* 帯本体: アイコン (左) + タイトル (右) 横並び、完全不透明、左右壁ぴったり */}
-                        <div
-                            className="border-t border-app-border flex items-center gap-3 px-6 py-3 shadow-[0_-6px_18px_rgba(0,0,0,0.18)]"
-                            style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
-                        >
-                            <motion.div
-                                initial={{ scale: 0.5, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1], delay: 0.1 }}
-                                className={clsx(
-                                    "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                                    summaryKind === 'success' && 'bg-app-blue/15 text-app-blue',
-                                    summaryKind === 'partial' && 'bg-app-amber/15 text-app-amber',
-                                    summaryKind === 'failed' && 'bg-app-red/15 text-app-red',
-                                )}
-                            >
-                                {summaryKind === 'success'
-                                    ? <CheckCircle2 size={22} />
-                                    : <AlertTriangle size={22} />}
-                            </motion.div>
-                            <div className="flex-1 min-w-0 text-left">
-                                <h3 className="text-app-2xl font-black tracking-wide text-app-text leading-tight">
-                                    {summaryKind === 'success' && t('local_import.summary_success_title', { count: successCount })}
-                                    {summaryKind === 'partial' && t('local_import.summary_partial_title')}
-                                    {summaryKind === 'failed' && t('local_import.summary_all_failed_title')}
-                                </h3>
-                                {summaryKind === 'partial' && (
-                                    <div className="flex items-center gap-2 mt-0.5 text-app-md font-bold">
-                                        <span className="text-app-blue">
-                                            {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[0]}
-                                        </span>
-                                        <span className="opacity-40">/</span>
-                                        <span className="text-app-red">
-                                            {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[1] ?? ''}
-                                        </span>
-                                    </div>
-                                )}
-                                {(summaryKind === 'partial' || summaryKind === 'failed') && (
-                                    <p className="text-app-base text-app-text-muted mt-0.5 leading-snug">
-                                        {summaryKind === 'failed'
-                                            ? t('local_import.summary_all_failed_detail', { count: failedCount })
-                                            : t('local_import.summary_partial_detail')}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <LocalImportSummaryBar
+                phase={phase}
+                summaryKind={summaryKind}
+                feedbackItems={feedbackItems}
+                successCount={successCount}
+                failedCount={failedCount}
+            />
 
             {/* Footer */}
             <motion.div
