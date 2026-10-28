@@ -42,7 +42,7 @@ export function destOfOwner(owner, sharedDir = HOUSING_DIRS.sharedDir) {
  *  templatePrefixes   → `milspec-x-${…}` の接頭辞で始まる class も、 その文字列を含むファイルが使っている扱い
  *  tieOwner           → 3 つ以上の候補が同じ点数で割れた時の行き先(例 'shared:primitives')
  *  classify(owner)    → 決まった持ち主の読み替え(起動時の部品 → boot-parts 等)。 overrides と shared: は読み替えない
- *  ruleOwner(sel)     → class より先にセレクタ全体で決まる持ち主(標準の部品を描き変える規則 → standard-parts 等)。 null なら通常の判定
+ *  ruleOwner(sel)     → class より先にセレクタ全体で決まる持ち主(標準の部品を描き変える規則 → standard-table 等)。 null なら通常の判定
  * index.css 用の追加(scopes/index.mjs):
  *  keepAt             → class を書く部品がこの数以上なら動かさず元のファイルに残す(共通部品)。 既定は無効
  *  trimName           → false なら class が見つからない時に末尾の -xxx を削って探さない(対象を一覧で決める時は名前の切り詰めが意味を持たない)

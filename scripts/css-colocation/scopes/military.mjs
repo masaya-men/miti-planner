@@ -111,6 +111,12 @@ const renders = (texts, a, b) => new RegExp(`['"]\\.{1,2}/(?:[^'"]*/)?${path.pos
  * MIL-SPEC の持ち主判定の追加(planColocation の引数)。
  *  staticFiles = 起動時に読まれるファイル / importersOf(ts) = その .ts を(.ts 経由も含め)import している .tsx / jsx = 候補 { file, text }
  */
+/**
+ * 標準の部品を描き変える規則の行き先の既定。 旧 standard-parts.css は 10-28 に standard-job-chip / -recast / -scrollbar / -table / -effects の 5 本に分けた。
+ * 移行は済んでいて、 道具が自動で選ぶのは一番広い standard-table だけ。 recast・ジョブチップ等は、 道具で動かした後に人が合う 1 本へ移す。
+ */
+const STANDARD_DEST = 'shared:standard-table';
+
 export function militaryPlanOptions({ staticFiles, importersOf, jsx, reaches = undefined }) {
   const texts = new Map(jsx.map((j) => [j.file, j.text]));
   const draws = reaches ?? ((a, b) => renders(texts, a, b));
@@ -127,7 +133,7 @@ export function militaryPlanOptions({ staticFiles, importersOf, jsx, reaches = u
     tieOwner: 'shared:primitives',
     classify: (owner) => {
       if (staticFiles.has(tsxOf(owner))) return 'shared:boot-parts';
-      if (!tsxOf(owner).startsWith(`${componentsDir}/`)) return 'shared:standard-parts';
+      if (!tsxOf(owner).startsWith(`${componentsDir}/`)) return STANDARD_DEST;
       return owner;
     },
     keepInFrame: (owner) => !owner || owner.startsWith('shared:'),
@@ -146,7 +152,7 @@ export function militaryPlanOptions({ staticFiles, importersOf, jsx, reaches = u
           if (std && !mil) standard = true;
           // 両方が書く名前(flex 等の汎用 class)・どこも書かない名前は決め手にしない
         }
-        if (standard) return 'shared:standard-parts';
+        if (standard) return STANDARD_DEST;
       }
       return null;
     },
@@ -214,7 +220,6 @@ export function planOptions(reach, jsx) {
 
 export const sharedHeader = {
   'boot-parts': '/* 起動時から読まれる MIL-SPEC 部品(src/main.tsx から静的 import で届く部品)の見た目。 部品の隣(後読み)に置くと共有との勝ち負けが逆転しうるため共有に置く。 */',
-  'standard-parts': '/* 標準の部品を MIL-SPEC(.theme-military)で描き変える規則。 標準の部品は MIL-SPEC の後読みより先に画面に出るため共有に置く。 */',
   primitives: '/* 3 つ以上の MIL-SPEC 部品が使う共通部品(装甲板・押下フィードバック等)。 */',
   unused: '/* JSX/TS に見つからない規則(v11 移植で使われなくなった等)。 消さずに集めてある。 確かめてから削除する別タスク。 */',
 };

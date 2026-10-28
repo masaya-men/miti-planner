@@ -37,21 +37,21 @@ describe('planColocation(MIL-SPEC)', () => {
     const p = plan('.theme-military .milspec-toggle{color:red}', { staticFiles: [`${M}/MilspecStyleToggle.tsx`] });
     expect([...p.outputs.keys()]).toEqual([`${S}/boot-parts.css`]);
   });
-  it('標準の部品が持ち主なら standard-parts へ', () => {
+  it('標準の部品が持ち主なら standard-table へ(旧 standard-parts を 5 本に分けた後の既定)', () => {
     const p = plan('.theme-military .recast-row .milspec-x{color:red}', {
       jsx: [...jsxBase, { file: 'src/components/RecastRow.tsx', text: '<div className="recast-row milspec-x" />' }],
     });
-    expect([...p.outputs.keys()]).toEqual([`${S}/standard-parts.css`]);
+    expect([...p.outputs.keys()]).toEqual([`${S}/standard-table.css`]);
   });
-  it('標準の部品の要素を .milspec-* の下で描き変える規則は standard-parts へ', () => {
+  it('標準の部品の要素を .milspec-* の下で描き変える規則は standard-table へ', () => {
     const jsx = [...jsxBase, { file: 'src/components/Timeline.tsx', text: '<div data-time-row={t} id="timeline-header-inner" />' }];
     const p = plan('.theme-military .milspec-hdr [data-time-row] > *{color:red} .theme-military .milspec-hdr #timeline-header-inner{color:blue}', { jsx });
-    expect([...p.outputs.keys()]).toEqual([`${S}/standard-parts.css`]);
+    expect([...p.outputs.keys()]).toEqual([`${S}/standard-table.css`]);
   });
   it('値なしの JSX 属性(data-x だけの行)も「書いている」に数える', () => {
     const jsx = [...jsxBase, { file: 'src/components/Bands.tsx', text: '<div\n  data-phase-overlay\n  className="x"\n/>' }];
     const p = plan('.theme-military .milspec-hdr [data-phase-overlay] span{color:red}', { jsx });
-    expect([...p.outputs.keys()]).toEqual([`${S}/standard-parts.css`]);
+    expect([...p.outputs.keys()]).toEqual([`${S}/standard-table.css`]);
   });
   it('セレクタ文字列で探しているだけの部品は「書いている」に数えない', () => {
     const jsx = [
@@ -60,7 +60,7 @@ describe('planColocation(MIL-SPEC)', () => {
       { file: `${M}/table/Reticle.tsx`, text: "t.closest('[data-time-row]'); row.getAttribute('data-time-row')" },
     ];
     const p = plan('.theme-military .milspec-hdr [data-time-row]{color:red}', { jsx });
-    expect([...p.outputs.keys()]).toEqual([`${S}/standard-parts.css`]);
+    expect([...p.outputs.keys()]).toEqual([`${S}/standard-table.css`]);
   });
   it('MIL-SPEC の部品が描く要素なら .milspec-* が無くてもその部品へ', () => {
     const jsx = [...jsxBase, { file: `${M}/header/MilspecLogo.tsx`, text: '<div className="milspec-logo"><i className="brd" /></div>' }];
