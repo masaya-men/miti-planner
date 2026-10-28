@@ -131,7 +131,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
     // ②：背景クリック(外側を押す)の検知。移行確認の窓(portal で外に出る)が開いている間は検知しない
     // (窓の中を押して click が止められると確認ボタンが効かなくなる)
-    useDismissOnOutside(isOpen && !migrationBatch, handleAttemptClose, [popoverRef], { allowDuringTutorial: true });
+    useDismissOnOutside(isOpen && !migrationBatch, handleAttemptClose, [popoverRef]);
 
     // ②：Enter / Escapeキーの検知
     React.useEffect(() => {

@@ -5,7 +5,7 @@
       "pattern": "(document|window)\\.addEventListener\\(\\s*['\"](mousedown|pointerdown|click)['\"]",
       "files": "^src/.*\\.tsx?$",
       "sharedHome": "^src/hooks/useDismissOnOutside\\.ts$|/__tests__/|^src/components/ui/Tooltip\\.tsx$|^src/components/military/MilspecTitleTooltip\\.tsx$|^src/components/military/MilspecKey\\.tsx$|^src/components/progress/ProgressRecordPanel\\.tsx$|^src/components/timeline/useTimelineWindowEvents\\.ts$",
-      "why": "外側を押した時の動きは useDismissOnOutside だけが書く(外側=閉じるだけ・下に届けない)。例外 Tooltip.tsx / MilspecTitleTooltip.tsx / MilspecKey.tsx は「押したら隠す・ボタン自身の操作」で外側で閉じる物ではないため sharedHome に含める。ProgressRecordPanel.tsx は外側(タイムラインのマス)を押した click が「記録を確定する」本来の操作なので、click を止める共通フックに乗せると記録が壊れる。useTimelineWindowEvents.ts の全消去メニューは「どこを押しても(内側でも)閉じる」物で外側検知ではない"
+      "why": "外側を押した時の動きは useDismissOnOutside だけが書く(外側=閉じるだけ・下に届けない)。例外 Tooltip.tsx / MilspecTitleTooltip.tsx / MilspecKey.tsx は「押したら隠す・ボタン自身の操作」で外側で閉じる物ではないため sharedHome に含める。ProgressRecordPanel.tsx の記録モード中だけは、外側(タイムラインのマス)を押した click が「記録を確定する」本来の操作なので、click を止める共通フックに乗せられず手書きのまま残す(記録モードでない時の外側押下はフックに乗せ替え済み)。useTimelineWindowEvents.ts の全消去メニューは「どこを押しても(内側でも)閉じる」物で外側検知ではない"
     }
   ],
   "frozen": {

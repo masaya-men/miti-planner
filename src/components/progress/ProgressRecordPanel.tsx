@@ -5,6 +5,7 @@ import { X } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useProgressRecording } from './useProgressRecording';
+import { useDismissOnOutside } from '../../hooks/useDismissOnOutside';
 import { MobileBottomSheet } from '../MobileBottomSheet';
 import { Tooltip } from '../ui/Tooltip';
 import { useMitigationStore } from '../../store/useMitigationStore';
@@ -214,16 +215,21 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         if (pendingClose) requestClose();
     }, [pendingClose, requestClose]);
 
-    // 外側クリックで閉じる。ドロワー外をクリックしたら閉じる（記録モード中でも閉じる）。
-    // タイムラインのセルは click で commitReachedPos が走り記録＋閉じになる（その場合もここで閉じ演出に入るが
-    // closingRef で二重化しない / 記録自体は click 時点で recordMode=true のため成立する）。
+    // 外側を押したら閉じる。
+    // 記録モードでない時: 共通フック(押した click は下に届けない)。
+    const recordMode = useProgressRecording(s => s.recordMode);
+    useDismissOnOutside(!recordMode, requestClose, [drawerRef]);
+    // 記録モード中: タイムラインのマスの click が commitReachedPos(記録の確定)になるので、click を止める
+    // 共通フックには乗せられない。押下で閉じ演出に入るが closingRef で二重化しない / 記録自体は click 時点で
+    // recordMode=true のため成立する。
     useEffect(() => {
+        if (!recordMode) return;
         const handler = (e: MouseEvent) => {
             if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) requestClose();
         };
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
-    }, [requestClose]);
+    }, [recordMode, requestClose]);
 
     // Escape 閉じ
     useEffect(() => {

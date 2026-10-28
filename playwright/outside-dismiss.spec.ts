@@ -62,17 +62,17 @@ test.describe('外側を押した時の動き(共通フック)', () => {
         await expect(page.locator('div.fixed.float-surface:has-text("FF Logs")')).toHaveCount(0);
     });
 
-    test('言語切替: 外を押すと閉じ、下のボタンは反応しない', async ({ page }) => {
+    // 言語切替は画面全体を覆う透明な幕(fixed inset-0)が下のボタンを隠すので、「下に届かない」はフックが無くても
+    // 成り立ってしまい測れない。ここでは「外を押すと閉じる」だけを確かめる。
+    test('言語切替: 外を押すと閉じる', async ({ page }) => {
         await openMiti(page);
         await page.locator('button:has(svg.lucide-globe)').first().click();
         const menu = page.locator('div.fixed.float-surface:has-text("English")');
         await expect(menu).toBeVisible();
 
-        await countClicks(page, MITI_TARGET);
         await pressAt(page, MITI_TARGET);
 
         await expect(menu).toHaveCount(0);
-        expect(await readClicks(page)).toBe(0);
     });
 
     test('パルス設定(メニュー): 外を押すと閉じ、下のボタンは反応しない', async ({ page }) => {
