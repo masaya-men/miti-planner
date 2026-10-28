@@ -189,7 +189,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
             <motion.div
                 ref={popoverRef}
                 className={clsx(
-                    "glass-tier3 flex flex-col overflow-y-auto",
+                    "float-surface flex flex-col overflow-y-auto",
                     "md:absolute md:top-0 md:left-0 md:h-full md:w-[450px] md:max-w-full md:border-r",
                     "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:max-h-[65vh] max-md:rounded-t-2xl max-md:border-t max-md:pb-20",
                 )}
@@ -201,8 +201,6 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                         : { y: '100%' }
                 }
                 transition={SPRING.gentle}
-                // PC の左パネルは窓と同じ地(ライトで白)にする。スマホの下シートはそのまま
-                style={window.innerWidth >= 768 ? ({ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties) : undefined}
             >
                 {/* Mobile drag handle */}
                 <div

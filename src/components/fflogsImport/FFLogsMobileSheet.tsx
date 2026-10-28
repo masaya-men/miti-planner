@@ -58,8 +58,7 @@ export const FFLogsMobileSheet: React.FC<FFLogsMobileSheetProps> = ({
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="glass-tier3 rounded-t-2xl shadow-sm flex flex-col max-h-[65vh]"
-                        style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
+                        className="float-surface glass-border-b-0 rounded-t-[20px] flex flex-col max-h-[65vh]"
                     >
                         {/* Drag handle */}
                         <div

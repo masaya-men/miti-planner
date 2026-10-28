@@ -305,17 +305,15 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 data-lenis-prevent
                 onClick={e => e.stopPropagation()} // 中身のクリックで閉じないように
                 className={clsx(
-                    "pointer-events-auto shadow-sm p-2 flex flex-col glass-tier3",
+                    "pointer-events-auto p-2 flex flex-col float-surface",
                     isMobile && !isCentered
-                        ? "fixed bottom-0 left-0 right-0 w-full rounded-t-2xl rounded-b-none border-b-0 translate-y-0"
+                        ? "fixed bottom-0 left-0 right-0 w-full rounded-t-[20px] rounded-b-none glass-border-b-0 translate-y-0"
                         : "rounded-xl w-64",
                     !isCentered && !isMobile ? "fixed" : "relative"
                 )}
                 style={isMobile && !isCentered
                     ? { maxHeight: '75vh' }
-                    // PC は他の窓と同じ地(ライトで白)
                     : {
-                        ...({ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties),
                         ...(!isCentered ? { left: adjustedPos.x || position.x, top: adjustedPos.y || position.y, maxHeight: '50vh' } : { maxHeight: '60vh' }),
                     }}
             >

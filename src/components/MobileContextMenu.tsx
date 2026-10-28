@@ -96,12 +96,11 @@ export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
                             key="context-sheet"
                             className={clsx(
                                 "absolute left-0 right-0",
-                                "flex flex-col overflow-hidden",
+                                "flex flex-col overflow-hidden float-surface glass-border-b-0",
                                 "pointer-events-auto",
                             )}
                             style={{
                                 bottom: MOBILE_SHEET_BOTTOM_OFFSET_CSS,
-                                backgroundColor: 'var(--color-sheet-bg)',
                                 borderTopLeftRadius: MOBILE_TOKENS.sheet.radius,
                                 borderTopRightRadius: MOBILE_TOKENS.sheet.radius,
                             }}

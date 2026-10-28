@@ -33,7 +33,6 @@
     "components/pip/PipToolbar.tsx": [0,7,0],
     "components/progress/PhaseRoad.tsx": [0,1,0],
     "components/progress/ProgressCelebration.tsx": [0,1,0],
-    "components/progress/ProgressRecordPanel.tsx": [0,1,0],
     "components/sidebar/ContentTreeItem.tsx": [0,0,1],
     "components/sidebar/FreePlanSection.tsx": [0,0,1],
     "components/sidebar/useSidebarSelectionBar.ts": [0,1,0],

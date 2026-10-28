@@ -246,8 +246,7 @@ export function LimitResolutionSheet() {
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="limit-resolution-title"
-                className="glass-tier3 fixed bottom-0 left-0 right-0 z-[99993] rounded-t-[20px] rounded-b-none flex flex-col h-[80vh] border-t border-app-red/30"
-                style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
+                className="float-surface glass-border-b-0 fixed bottom-0 left-0 right-0 z-[99993] rounded-t-[20px] rounded-b-none flex flex-col h-[80vh]"
                 layout
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}

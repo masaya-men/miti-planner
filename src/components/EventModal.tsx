@@ -92,18 +92,15 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 data-lenis-prevent
                 onClick={(e) => e.stopPropagation()}
                 className={clsx(
-                    "flex flex-col overflow-hidden shadow-sm ring-1 ring-inset pointer-events-auto",
-                    !isMobile && "glass-tier3",
-                    "ring-black/[0.02] dark:ring-white/5",
+                    "flex flex-col overflow-hidden pointer-events-auto float-surface",
                     isMobile
-                        ? "fixed bottom-14 left-0 right-0 z-[9999] w-full max-h-[75vh] border-b-0"
+                        ? "fixed bottom-14 left-0 right-0 z-[9999] w-full max-h-[75vh] glass-border-b-0"
                         : "absolute w-[500px] rounded-2xl"
                 )}
                 style={isMobile ? {
-                    backgroundColor: 'var(--color-sheet-bg)',
                     borderTopLeftRadius: MOBILE_TOKENS.sheet.radius,
                     borderTopRightRadius: MOBILE_TOKENS.sheet.radius,
-                } : ({ ...desktopStyle, '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties)}
+                } : desktopStyle}
             >
                 {/* Mobile Drag Handle Indicator */}
                 {isMobile && (

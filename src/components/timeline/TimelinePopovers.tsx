@@ -58,7 +58,7 @@ export const TimelinePopovers: React.FC<TimelinePopoversProps> = ({
                 >
                     <div
                         className={clsx(
-                            "min-w-[200px] rounded-xl py-1.5 glass-tier3 glass-panel",
+                            "min-w-[200px] rounded-xl py-1.5 float-surface glass-panel",
                             "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]",
                             "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)]",
                             "md:static md:absolute md:left-auto md:top-auto md:translate-x-0 md:translate-y-0 md:w-auto"
@@ -119,7 +119,7 @@ export const TimelinePopovers: React.FC<TimelinePopoversProps> = ({
                 >
                     <div
                         className={clsx(
-                            "min-w-[200px] rounded-xl py-1.5 glass-tier3 glass-panel",
+                            "min-w-[200px] rounded-xl py-1.5 float-surface glass-panel",
                             "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]",
                             "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)]",
                             "md:static md:absolute md:left-auto md:top-auto md:translate-x-0 md:translate-y-0 md:w-auto"
@@ -180,7 +180,7 @@ export const TimelinePopovers: React.FC<TimelinePopoversProps> = ({
                 >
                     <div
                         className={clsx(
-                            "min-w-[200px] rounded-xl py-1.5 glass-tier3 glass-panel",
+                            "min-w-[200px] rounded-xl py-1.5 float-surface glass-panel",
                             "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]",
                             // モバイル: 画面中央、PC: クリック位置
                             "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)]",

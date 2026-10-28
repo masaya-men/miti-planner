@@ -333,7 +333,7 @@ export const PulseSettings: React.FC = () => {
             {isOpen && createPortal(
                 <div
                     ref={panelRef}
-                    className="glass-tier3 rounded-xl p-3 w-[240px] z-[99999] max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain"
+                    className="float-surface rounded-xl p-3 w-[240px] z-[99999] max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain"
                     style={panelStyle}
                 >
                     {/* ヘッダー */}

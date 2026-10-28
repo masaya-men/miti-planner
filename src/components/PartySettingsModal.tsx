@@ -240,7 +240,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 onMouseMove={handlePaletteDragMove}
                 onMouseUp={drag.endDrag}
                 className={clsx(
-                    "relative flex flex-col glass-tier3 shadow-sm",
+                    "relative flex flex-col float-surface",
                     "md:h-full md:w-[450px] md:max-w-full md:border-r",
                     "max-md:fixed max-md:left-0 max-md:right-0 max-md:max-h-[70vh] max-md:rounded-t-2xl max-md:border-t",
                 )}
@@ -254,8 +254,6 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 transition={SPRING.gentle}
                 style={{
                     bottom: window.innerWidth < 768 ? 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' : undefined,
-                    // PC の左パネルは窓と同じ地(ライトで白)にする。スマホの下シートはそのまま
-                    ...(window.innerWidth >= 768 ? { '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties : {}),
                 }}
             >
                 {/* Mobile drag handle */}

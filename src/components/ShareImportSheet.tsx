@@ -228,10 +228,9 @@ export function ShareImportSheet() {
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="share-import-title"
-                        // MitigationSheet (みんなの軽減表) と統一: h-[80vh] / rounded-t-[20px] / share-modal-bg
+                        // 下から出るシート: h-[80vh] / rounded-t-[20px] / 素材 float-surface(2026-10-28 統一)
                         // 読み込み中は cursor-not-allowed で操作不能であることを明示 (呼吸アニメは維持)
-                        className={`glass-tier3 fixed bottom-0 left-0 right-0 z-[99991] rounded-t-[20px] rounded-b-none flex flex-col h-[80vh] border-t border-app-border ${isLoadingPhase ? 'cursor-not-allowed' : ''}`}
-                        style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
+                        className={`float-surface glass-border-b-0 fixed bottom-0 left-0 right-0 z-[99991] rounded-t-[20px] rounded-b-none flex flex-col h-[80vh] ${isLoadingPhase ? 'cursor-not-allowed' : ''}`}
                         layout
                         initial={{ y: '100%' }}
                         animate={

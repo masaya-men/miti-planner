@@ -135,7 +135,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                         exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 10 }}
                         transition={{ duration: 0.1 }}
                         onClick={(e) => e.stopPropagation()}
-                        className={`absolute shadow-sm overflow-hidden ring-1 ring-app-border glass-tier3 pointer-events-auto flex flex-col ${isMobile ? 'w-full rounded-t-2xl rounded-b-none border-b-0' : 'w-[400px] rounded-xl'}`}
+                        className={`absolute overflow-hidden float-surface pointer-events-auto flex flex-col ${isMobile ? 'w-full rounded-t-[20px] rounded-b-none glass-border-b-0' : 'w-[400px] rounded-xl'}`}
                         style={style}
                     >
                         {isMobile && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mt-3 shrink-0" />}

@@ -97,7 +97,7 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
     <ModalShell
       isOpen
       onClose={onClose}
-      className="glass-tier3 rounded-2xl w-[600px] max-w-[94vw] max-h-[90vh]"
+      className="w-[600px] max-w-[94vw] max-h-[90vh]"
     >
       <ModalHeader title={t('collab.panel_title')} onClose={onClose} closeLabel={t('common.close')} />
 

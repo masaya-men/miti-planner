@@ -1,6 +1,6 @@
 // スプシ表示: 対象指定の技(インターベンション等)・展開戦術をマスに置くとき、その場に出す小窓。
 // 材料は MitigationSelector の対象選択 / 鼓舞選択サブビュー(MitigationSelector.tsx:456-600)と同じ。
-// 器は PartyVisibilityMenu と同じ glass-tier3(light は --share-modal-bg で白基調)。
+// 器は浮かぶものの素材 float-surface(2026-10-28 統一)。
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
@@ -86,9 +86,8 @@ export const SheetTargetPopover: React.FC<Props> = ({ state, onPick, onClose }) 
         <div
             ref={panelRef}
             data-sheet-popover={state.kind}
-            className="glass-tier3 fixed z-[99999] rounded-2xl p-2 flex flex-col gap-1.5"
+            className="float-surface fixed z-[99999] rounded-xl p-2 flex flex-col gap-1.5"
             style={{
-                '--glass-tier3-bg': 'var(--share-modal-bg)',
                 left: pos?.left ?? state.x,
                 top: pos?.top ?? state.y + GAP,
                 visibility: pos ? undefined : 'hidden',

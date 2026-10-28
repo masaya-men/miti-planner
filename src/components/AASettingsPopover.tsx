@@ -80,7 +80,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
         <div
             ref={popoverRef}
             className={clsx(
-                "fixed w-[280px] glass-tier3 rounded-lg z-[9999] overflow-hidden animate-in fade-in zoom-in-95 duration-200 shadow-sm transition-opacity",
+                "fixed w-[280px] float-surface rounded-xl z-[9999] overflow-hidden animate-in fade-in zoom-in-95 duration-200 transition-opacity",
                 !isPositioned ? "opacity-0" : "opacity-100"
             )}
             style={{

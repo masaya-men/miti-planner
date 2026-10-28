@@ -1,5 +1,5 @@
 // スプシ表示: ジョブ欄の「+(隠した数)」を押したときに出す小窓。隠した技を選んで再表示する。
-// 器・位置・閉じ方は SheetTargetPopover と同じ(glass-tier3・外側クリック/Escape で閉じる・画面内にクランプ)。
+// 器・位置・閉じ方は SheetTargetPopover と同じ(float-surface・外側クリック/Escape で閉じる・画面内にクランプ)。
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -54,9 +54,8 @@ export const SheetHiddenPopover: React.FC<Props> = ({ state, columns, onShow, on
         <div
             ref={ref}
             data-sheet-hidden-popover=""
-            className="glass-tier3 fixed z-[99999] rounded-2xl p-2 flex flex-col gap-1 w-60"
+            className="float-surface fixed z-[99999] rounded-xl p-2 flex flex-col gap-1 w-60"
             style={{
-                '--glass-tier3-bg': 'var(--share-modal-bg)',
                 left: pos?.left ?? state.x,
                 top: pos?.top ?? state.y + GAP,
                 visibility: pos ? undefined : 'hidden',
