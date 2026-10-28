@@ -5,6 +5,8 @@ import { basename, dirname, join, relative, resolve } from 'node:path';
 import { findOrderPairs, parseRules } from '../../../../scripts/housing-css/cssRules.mjs';
 // @ts-expect-error mjs の共通部品(型定義なし)
 import { classGroups } from '../../../../scripts/housing-css/classGroups.mjs';
+// @ts-expect-error mjs の共通部品(型定義なし)
+import { cssImportOrder } from '../../../../scripts/housing-css/reachable.mjs';
 
 // ハウジングの CSS は「部品の隣に <部品名>.css を置き、部品が import する」(2026-10-28 移行・設計書
 // docs/superpowers/specs/2026-10-28-housing-css-colocation-design.md)。共有は src/styles/housing/ の許可したものだけ。
@@ -66,6 +68,19 @@ describe('ハウジング CSS の置き場所', () => {
     const unused = readdirSync(join(SHARED_DIR, 'unused'));
     const added = unused.filter((n) => !UNUSED_ALLOW.includes(n));
     expect(added, 'unused/ は減らすだけ').toEqual([]);
+  });
+
+  it('共有の入口は部品の CSS より先に読まれ、部品の CSS は全部アプリから読まれる', () => {
+    // 部品は共有(下地・外枠)を同じ詳細度で上書きしているので、入口 housing.css が先に読まれることが前提。
+    // ハウジングの部品を入口の 4 部品より先に他所から import すると崩れる → ここで止める。
+    const exists = (p: string) => { try { return statSync(join(SRC, '..', p)).isFile(); } catch { return false; } };
+    const order: string[] = cssImportOrder('src/main.tsx', (p: string) => readFileSync(join(SRC, '..', p), 'utf8'), exists);
+    const entry = order.indexOf('src/styles/housing.css');
+    const firstComponent = order.findIndex((p) => p.startsWith('src/components/housing/'));
+    expect(entry, 'housing.css が読まれていない').toBeGreaterThanOrEqual(0);
+    expect(entry, 'housing.css より先に部品の CSS が読まれている(入口を読む部品で housing.css の import を先頭に)').toBeLessThan(firstComponent);
+    const unread = componentCss.map(rel).map((p) => `src/${p}`).filter((p) => !order.includes(p));
+    expect(unread, 'アプリから読まれない部品の CSS(その部品がどこからも import されていない)').toEqual([]);
   });
 
   it('部品の CSS 同士で順番頼りが無い', () => {
