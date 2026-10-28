@@ -17,13 +17,26 @@ import { isSharedPlanContentEqual } from './planContentEqual';
  * - 手元で何も変えていない表は、今まで通り読み直しの結果(新しい方)を採る。
  */
 
-/** 保存される中身が同じか(updatedAt・表示だけの状態は見ない)。圧縮された表は中身を比べられないので同じとみなす。 */
+/** 中身を手元で比べられない表(アーカイブ・起動時の黙った圧縮で data が外れた表)。 */
+function contentUnreadable(p: SavedPlan): boolean {
+  return !!p.archived || (!p.data && !!p.compressedData);
+}
+
+/** 表ごとの表示設定(共同編集の部屋には載らないが、表と一緒に保存される)が同じか。 */
+function sameViewSettings(a?: PlanData, b?: PlanData): boolean {
+  return (a?.myMemberId ?? null) === (b?.myMemberId ?? null)
+    && JSON.stringify(a?.hiddenPartyMemberIds ?? []) === JSON.stringify(b?.hiddenPartyMemberIds ?? [])
+    && (a?.timelineSortOrder ?? 'light_party') === (b?.timelineSortOrder ?? 'light_party');
+}
+
+/** 保存される中身が同じか(updatedAt は見ない)。圧縮された表は中身を比べられないので同じとみなす。 */
 export function samePlanContent(a: SavedPlan, b: SavedPlan): boolean {
-  if (a.archived || b.archived) return true;
+  if (contentUnreadable(a) || contentUnreadable(b)) return true;
   return (a.title ?? '') === (b.title ?? '')
     && (a.contentId ?? null) === (b.contentId ?? null)
     && (a.isPublic ?? false) === (b.isPublic ?? false)
-    && isSharedPlanContentEqual(a.data, b.data);
+    && isSharedPlanContentEqual(a.data, b.data)
+    && sameViewSettings(a.data, b.data);
 }
 
 /** 作業ストアのうち、ここで使う物(持ち主の札と、保存される中身を取り出す関数)。 */
@@ -92,6 +105,8 @@ export function resolveRemoteLoad(args: {
     const r = mergedMap.get(id);
     const base = baseOf(id);
     if (!r || !base || r === inputMap.get(id)) return false; // 手元の版が採られた
+    // 中身を比べられない時は、サーバーの版が新しく保存されていれば変わったとみなす(手元の編集を競合コピーに残す側へ倒す)
+    if (contentUnreadable(r) || contentUnreadable(base)) return r.updatedAt > base.updatedAt;
     return !samePlanContent(r, base);
   };
   const workingIsCurrent = !!currentPlanId && working._loadedPlanId === currentPlanId;
