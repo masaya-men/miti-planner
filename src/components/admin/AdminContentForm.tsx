@@ -5,6 +5,10 @@
  */
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SavageSettingsSection } from './contentForm/SavageSettingsSection';
+import { AdvancedSettingsSection } from './contentForm/AdvancedSettingsSection';
+import { extractEncounterIdFromUrl, emptyContent } from './contentForm/contentFormHelpers';
+import { CATEGORIES, LEVELS, inputClass, selectClass, labelClass, exampleClass } from './contentForm/contentFormOptions';
 import { CONTENT_SERIES } from '../../data/contentRegistry';
 
 /** コンテンツデータの型 */
@@ -26,67 +30,6 @@ export interface ContentData {
   hasCheckpoint: boolean;
 }
 
-/** カテゴリ定義 */
-const CATEGORIES = [
-  { value: 'savage', ja: '零式', en: 'Savage' },
-  { value: 'ultimate', ja: '絶', en: 'Ultimate' },
-  { value: 'dungeon', ja: 'ダンジョン', en: 'Dungeon' },
-  { value: 'raid', ja: 'レイド', en: 'Raid' },
-  { value: 'custom', ja: 'その他', en: 'Misc' },
-] as const;
-
-const LEVELS = [
-  { value: 100, ja: 'Lv100（黄金）', en: 'Lv100 (Dawntrail)' },
-  { value: 90, ja: 'Lv90（暁月）', en: 'Lv90 (Endwalker)' },
-  { value: 80, ja: 'Lv80（漆黒）', en: 'Lv80 (Shadowbringers)' },
-  { value: 70, ja: 'Lv70（紅蓮）', en: 'Lv70 (Stormblood)' },
-] as const;
-
-// KNOWN_SERIES は廃止。 contentRegistry.ts の CONTENT_SERIES (= contents.json から自動生成) を動的に使う。
-// これで「ドロップダウンの ID」 と「実体の ID」 が必ず一致する。
-
-/** 零式の層選択 */
-const SAVAGE_TIERS = [
-  { value: 1, ja: '1層', en: 'Floor 1' },
-  { value: 2, ja: '2層', en: 'Floor 2' },
-  { value: 3, ja: '3層', en: 'Floor 3' },
-  { value: 4, ja: '4層（通し）', en: 'Floor 4' },
-  { value: 5, ja: '4層 前半', en: 'Floor 4 Phase 1' },
-  { value: 6, ja: '4層 後半', en: 'Floor 4 Phase 2' },
-] as const;
-
-/**
- * FFLogs URL から encounter ID を抽出する。
- * 対応パターン:
- *   https://www.fflogs.com/zone/rankings/65#encounter=1079
- *   https://www.fflogs.com/zone/statistics/encounter/1079/...
- *   https://www.fflogs.com/encounter/1079
- */
-function extractEncounterIdFromUrl(input: string): number | null {
-  const match = input.match(/encounter[=/](\d+)/);
-  return match ? Number(match[1]) : null;
-}
-
-/** 空のフォームデータ */
-function emptyContent(): ContentData {
-  return {
-    id: '',
-    nameJa: '',
-    nameEn: '',
-    nameZh: '',
-    nameZhHant: '',
-    nameKo: '',
-    shortNameJa: '',
-    shortNameEn: '',
-    category: 'savage',
-    level: 100,
-    patch: '',
-    seriesId: '',
-    order: 1,
-    fflogsEncounterId: null,
-    hasCheckpoint: false,
-  };
-}
 
 /** 新規シリーズも併せて作成する場合に onSave に渡されるオブジェクト */
 export interface NewSeriesPayload {
@@ -194,12 +137,6 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
     onSave(finalForm, newSeriesPayload);
   };
 
-  const inputClass =
-    'w-full px-2 py-1.5 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text';
-  const selectClass =
-    'w-full px-2 py-1.5 text-app-lg bg-app-bg border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text [&>option]:bg-app-bg [&>option]:text-app-text';
-  const labelClass = 'block text-app-base font-bold text-app-text-muted mb-0.5';
-  const exampleClass = 'text-app-sm text-app-text-muted/50';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -347,103 +284,20 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
 
       {/* ── 零式専用：シリーズ・層 ── */}
       {isSavage && (
-        <div className="space-y-3">
-          <div className="text-app-base font-bold text-app-text-muted border-b border-app-text/10 pb-1">
-            零式の設定
-          </div>
-
-          {/* シリーズ */}
-          <div>
-            <label className={labelClass}>シリーズ</label>
-            {!newSeriesMode ? (
-              <div className="flex gap-2 items-center">
-                <select
-                  className={selectClass}
-                  value={form.seriesId}
-                  onChange={(e) => {
-                    if (e.target.value === '__new__') {
-                      setNewSeriesMode(true);
-                    } else {
-                      set('seriesId', e.target.value);
-                    }
-                  }}
-                >
-                  <option value="">（選択してください）</option>
-                  {availableSeries.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {(isJa ? s.name.ja : s.name.en) || s.id}
-                    </option>
-                  ))}
-                  <option value="__new__">＋ 新しいシリーズを追加...</option>
-                </select>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div>
-                  <label className={`${labelClass} mt-1`}>シリーズ ID</label>
-                  <input
-                    className={inputClass}
-                    value={newSeriesId}
-                    onChange={(e) => setNewSeriesId(e.target.value)}
-                    placeholder="例: aac_heavy（英数字+アンダースコア）"
-                    autoFocus
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className={labelClass}>シリーズ名（日本語）</label>
-                    <input
-                      className={inputClass}
-                      value={newSeriesNameJa}
-                      onChange={(e) => setNewSeriesNameJa(e.target.value)}
-                      placeholder="例: ヘビー級"
-                    />
-                  </div>
-                  <div>
-                    <label className={labelClass}>シリーズ名（英語）</label>
-                    <input
-                      className={inputClass}
-                      value={newSeriesNameEn}
-                      onChange={(e) => setNewSeriesNameEn(e.target.value)}
-                      placeholder="例: Heavyweight"
-                    />
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setNewSeriesMode(false);
-                    setNewSeriesId('');
-                    setNewSeriesNameJa('');
-                    setNewSeriesNameEn('');
-                  }}
-                  className="text-app-base text-app-text-muted hover:text-app-text"
-                >
-                  ← 既存シリーズから選ぶ
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* 層 */}
-          <div>
-            <label className={labelClass}>層</label>
-            <select
-              className={selectClass}
-              value={form.order}
-              onChange={(e) => set('order', Number(e.target.value))}
-            >
-              {SAVAGE_TIERS.map((tier) => (
-                <option key={tier.value} value={tier.value}>
-                  {isJa ? tier.ja : tier.en}
-                </option>
-              ))}
-            </select>
-            <p className="text-app-sm text-app-text-muted/40 mt-0.5">
-              前半/後半がある場合は別々のコンテンツとして追加してください
-            </p>
-          </div>
-        </div>
+        <SavageSettingsSection
+          form={form}
+          set={set}
+          isJa={isJa}
+          availableSeries={availableSeries}
+          newSeriesMode={newSeriesMode}
+          setNewSeriesMode={setNewSeriesMode}
+          newSeriesId={newSeriesId}
+          setNewSeriesId={setNewSeriesId}
+          newSeriesNameJa={newSeriesNameJa}
+          setNewSeriesNameJa={setNewSeriesNameJa}
+          newSeriesNameEn={newSeriesNameEn}
+          setNewSeriesNameEn={setNewSeriesNameEn}
+        />
       )}
 
       {/* ── 絶 (ultimate) 専用: シリーズは自動 ── */}
@@ -471,78 +325,15 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
       )}
 
       {/* ── 上級者設定（折りたたみ） ── */}
-      <div>
-        <button
-          type="button"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="text-app-base text-app-text-muted hover:text-app-text transition-colors"
-        >
-          {showAdvanced ? '▼' : '▶'} 上級者設定（通常は不要）
-        </button>
-
-        {showAdvanced && (
-          <div className="mt-2 p-3 border border-app-text/10 rounded space-y-3">
-            {/* FFLogs エンカウンターID */}
-            <div>
-              <label className={labelClass}>
-                FFLogs URL を貼り付け（ID を自動抽出）
-                <span className={`${exampleClass} ml-2 font-normal`}>例: https://www.fflogs.com/zone/rankings/65#encounter=1079</span>
-              </label>
-              <input
-                className={inputClass}
-                type="text"
-                placeholder="FFLogs の URL を貼り付けると下の ID 欄が自動で埋まります"
-                value={fflogsUrlInput}
-                onChange={(e) => handleFflogsUrlInput(e.target.value)}
-              />
-              {fflogsUrlStatus === 'success' && (
-                <p className="mt-1 text-app-sm text-app-blue">
-                  ID を取得しました: {form.fflogsEncounterId}
-                </p>
-              )}
-              {fflogsUrlStatus === 'error' && (
-                <p className="mt-1 text-app-sm text-app-amber">
-                  この URL から ID を抽出できませんでした。FFLogs のランキングページ等の URL（encounter=数字 を含むもの）を貼り付けてください
-                </p>
-              )}
-            </div>
-            <div>
-              <label className={labelClass}>
-                FFLogs エンカウンターID
-                <span className={`${exampleClass} ml-2 font-normal`}>わからなければ空欄でOK（上の URL 貼付で自動入力されます）</span>
-              </label>
-              <input
-                className={inputClass}
-                type="number"
-                value={form.fflogsEncounterId ?? ''}
-                onChange={(e) =>
-                  set('fflogsEncounterId', e.target.value ? Number(e.target.value) : null)
-                }
-              />
-            </div>
-
-            {/* 略称の手動上書き */}
-            <div>
-              <label className={labelClass}>
-                略称の上書き（任意）
-                <span className={`${exampleClass} ml-2 font-normal`}>空欄ならコンテンツIDの大文字（例: M9S）が自動で使われます</span>
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  className={inputClass}
-                  value={form.shortNameJa}
-                  onChange={(e) => set('shortNameJa', e.target.value)}
-                />
-                <input
-                  className={inputClass}
-                  value={form.shortNameEn}
-                  onChange={(e) => set('shortNameEn', e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      <AdvancedSettingsSection
+        form={form}
+        set={set}
+        showAdvanced={showAdvanced}
+        onToggleAdvanced={() => setShowAdvanced(!showAdvanced)}
+        fflogsUrlInput={fflogsUrlInput}
+        fflogsUrlStatus={fflogsUrlStatus}
+        onFflogsUrlInput={handleFflogsUrlInput}
+      />
 
       {/* ── ボタン ── */}
       <div className="flex gap-2 pt-2">
