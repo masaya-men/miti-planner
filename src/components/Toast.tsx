@@ -35,7 +35,7 @@ export const ToastContainer: React.FC = () => {
                 <div
                     key={toast.id}
                     className={clsx(
-                        "flex items-center gap-2 px-4 py-2.5 rounded-xl glass-tier3",
+                        "flex items-center gap-2 px-4 py-2.5 rounded-xl float-surface",
                         "animate-toast-in",
                         "pointer-events-auto"
                     )}

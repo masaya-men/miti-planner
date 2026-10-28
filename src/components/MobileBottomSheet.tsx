@@ -26,6 +26,11 @@ interface MobileBottomSheetProps {
      */
     className?: string;
     /**
+     * true で浮かぶものの素材 float-surface を付けず、シート独自の背景色(--color-sheet-bg)で描く。
+     * 独自の世界観で背景を描く呼び出し側(ハウジング)用。未指定なら素材を付ける(2026-10-28)。
+     */
+    bare?: boolean;
+    /**
      * 下スワイプで閉じるジェスチャの受け付け範囲。既定 'sheet' = シート全面 (従来挙動)。
      * 'handle' = 上部のつまみ(ドラッグハンドル)だけ。中身を縦スクロールするシート
      * (housing のフィルター等) は全面スワイプだとスクロールで誤って閉じて不安定なため handle を使う。
@@ -34,7 +39,7 @@ interface MobileBottomSheetProps {
 }
 
 export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
-    isOpen, onClose, title, children, height = '65vh', fillContent = false, headerAction, className,
+    isOpen, onClose, title, children, height = '65vh', fillContent = false, headerAction, className, bare = false,
     swipeArea = 'sheet'
 }) => {
     const { sheetRef, handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeToDismiss<HTMLDivElement>(onClose);
@@ -71,12 +76,12 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                         {...(swipeArea === 'sheet'
                             ? { onTouchStart: handleTouchStart, onTouchMove: handleTouchMove, onTouchEnd: handleTouchEnd }
                             : {})}
-                        className={`md:hidden fixed left-0 right-0 z-[301] flex flex-col overflow-hidden shadow-lg${className ? ` ${className}` : ''}`}
+                        className={`md:hidden fixed left-0 right-0 z-[301] flex flex-col overflow-hidden ${bare ? 'shadow-lg' : 'float-surface glass-border-b-0'}${className ? ` ${className}` : ''}`}
                         style={{
                             // fillContent 時は高さを確定値にして、子の h-full / flex チェーンを解決させる
                             ...(fillContent ? { height } : { maxHeight: height }),
                             bottom: MOBILE_SHEET_BOTTOM_OFFSET_CSS,
-                            backgroundColor: 'var(--color-sheet-bg)',
+                            ...(bare ? { backgroundColor: 'var(--color-sheet-bg)' } : {}),
                             borderTopLeftRadius: MOBILE_TOKENS.sheet.radius,
                             borderTopRightRadius: MOBILE_TOKENS.sheet.radius,
                         }}

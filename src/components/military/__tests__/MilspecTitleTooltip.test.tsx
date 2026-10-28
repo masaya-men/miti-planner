@@ -29,7 +29,7 @@ describe('MilspecTitleTooltip', () => {
     expect(btn.hasAttribute('title')).toBe(false);
     act(() => { vi.advanceTimersByTime(150); });
     expect(bubble()?.textContent).toBe('元に戻す');
-    expect(bubble()?.className).toContain('glass-tier3');
+    expect(bubble()?.className).toContain('float-surface');
   });
 
   it('離れるとツールチップを消して title を元に戻す', () => {

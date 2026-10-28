@@ -21,7 +21,7 @@ interface TooltipProps {
 }
 
 /** 箱の見た目(標準のツールチップ)。MilspecTitleTooltip も同じクラスを使う */
-export const TOOLTIP_BOX_CLASS = "glass-tier3 whitespace-nowrap px-2.5 py-1.5 rounded-lg text-app-md font-semibold tracking-tight text-app-text";
+export const TOOLTIP_BOX_CLASS = "float-surface whitespace-nowrap px-2.5 py-1.5 rounded-lg text-app-md font-semibold tracking-tight text-app-text";
 
 export const Tooltip: React.FC<TooltipProps> = ({
     content,

@@ -38,6 +38,7 @@ export const HousingFilterSheet: React.FC<HousingFilterSheetProps> = ({ isOpen, 
       onClose={onClose}
       height="80vh"
       className="housing-mobile-sheet"
+      bare
       // 実機FB第3弾: 中身の縦スクロールが全面スワイプ閉じと衝突して不安定 → つまみだけで閉じる。
       swipeArea="handle"
     >

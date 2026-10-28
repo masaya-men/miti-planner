@@ -5,18 +5,17 @@ import { ModalShell } from '../ModalShell';
 import { ModalHeader, ModalButton, CloseButton } from '../ModalParts';
 
 describe('ModalShell の枠', () => {
-    it('既定でガラス・角丸 2xl・ライトで白地の枠を付ける', () => {
+    it('既定で浮かぶものの素材(float-surface)・角丸 2xl の枠を付ける(2026-10-28 統一)', () => {
         render(<ModalShell isOpen onClose={() => {}} className="w-[400px]"><p /></ModalShell>);
         const d = screen.getByRole('dialog');
-        expect(d.className).toContain('glass-tier3');
+        expect(d.className).toContain('float-surface');
         expect(d.className).toContain('rounded-2xl');
         expect(d.className).toContain('w-[400px]');
-        expect(d.style.getPropertyValue('--glass-tier3-bg')).toBe('var(--share-modal-bg)');
     });
 
     it('frame={false} なら枠を付けない', () => {
         render(<ModalShell isOpen onClose={() => {}} frame={false}><p /></ModalShell>);
-        expect(screen.getByRole('dialog').className).not.toContain('glass-tier3');
+        expect(screen.getByRole('dialog').className).not.toContain('float-surface');
     });
 });
 

@@ -38,9 +38,6 @@ const EXEMPT: Record<string, string> = {
 
 /** まだ載せ替えていない浮かぶもの。載せ替えたら消す(消し忘れも下で落ちる)。 */
 const PENDING: Record<string, string> = {
-    'ui/ModalShell.tsx': 'Task 3',
-    'Toast.tsx': 'Task 3',
-    'ui/Tooltip.tsx': 'Task 3',
     'AASettingsPopover.tsx': 'Task 4',
     'BoundaryEditModal.tsx': 'Task 4',
     'ClearMitigationsPopover.tsx': 'Task 4',

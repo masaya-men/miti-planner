@@ -25,7 +25,7 @@ export const HousingSettingsSheet: React.FC<HousingSettingsSheetProps> = ({ isOp
 
   // 実機FB#3: フィルターシートと同じく housing トンマナ化 (自前ヘッダー + className)。
   return (
-    <MobileBottomSheet isOpen={isOpen} onClose={onClose} className="housing-mobile-sheet">
+    <MobileBottomSheet isOpen={isOpen} onClose={onClose} className="housing-mobile-sheet" bare>
       <div className="housing-sheet-head">
         <span className="housing-sheet-title">{t('housing.mobile.settings_title')}</span>
         <button
