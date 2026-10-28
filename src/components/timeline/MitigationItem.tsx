@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { useThemeStore } from '../../store/useThemeStore';
@@ -7,12 +7,14 @@ import { getPhaseName } from '../../types';
 import { useJobs, useMitigations } from '../../hooks/useSkillsData';
 import clsx from 'clsx';
 import { Tooltip } from '../ui/Tooltip';
-import { validateMitigationPlacement } from '../../utils/resourceTracker';
 import { PlacementToast } from './sheet/PlacementToast';
 import { useSortSlide } from '../military/table/useSortSlide';
 import { MITI_ICON_PX, mitiIconOffset } from './rowLayout';
 import type { RowLayout } from './rowLayout';
 import { getMitigationColorClasses } from './mitigationItemColors';
+import { useMitigationDrag } from './useMitigationDrag';
+import { getEffectiveIcon } from './mitigationEffectiveIcon';
+import { MitigationTargetBadge } from './MitigationTargetBadge';
 
 export interface MitigationItemProps {
     mitigation: AppliedMitigation;
@@ -59,15 +61,11 @@ export const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) 
         onCellClick, slideOnSort, iconPx = MITI_ICON_PX, onIconTap
     } = props;
 
-    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { t } = useTranslation();
 
     const { contentLanguage } = useThemeStore();
     const MITIGATIONS = useMitigations();
     const JOBS = useJobs();
-    const dragStartRef = useRef<{ pointerX: number; pointerY: number; scrollTop: number } | null>(null);
-    const autoScrollRef = useRef<number | null>(null);
-    const lastPointerYRef = useRef<number>(0);
     const containerRef = useRef<HTMLDivElement>(null);
     // 軍事テーマ: 並び替えで列が動いたら効果アイコンが滑る(標準では何もしない)
     useSortSlide(containerRef, { left, sortOrder: partySortOrder ?? 'role', enabled: !!slideOnSort, delay: 40 + (Math.round(top / 25) % 16) * 25 });
@@ -91,9 +89,6 @@ export const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) 
     // 縦位置はすべて rowLayout(行の配置係)から得る。
     // アイコンは行の最上段(1 つ目の攻撃の段)の縦中央に置く。
     const iconOffset = mitiIconOffset(rowLayout.unitPx, iconPx);
-    // ドラッグ中の「行の上端」Y から、アイコンの中央がある行の秒を求める
-    // (均一な行では旧実装の「最も近い行の上端」と同じ動き。背の高い行でもアイコンの下の行に落ちる)
-    const timeAtDraggedTop = (rowTopY: number): number => rowLayout.timeAtY(rowTopY + rowLayout.unitPx / 2);
 
     // エフェクト棒クリック → 下のマス目に配置クリックしたのと同じ扱いに転送する(2026-08-26)。
     // 棒はホバーでツールチップを出すためpointer-events-autoが要るが、そのままだと今まで
@@ -110,231 +105,20 @@ export const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) 
         onCellClick(mitigation.ownerId, time, e);
     };
 
-    const updateDragPosition = (dy: number, animateSnap: boolean = false) => {
-        if (!containerRef.current) return;
-
-        if (animateSnap) {
-            containerRef.current.style.transition = 'top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-        } else {
-            containerRef.current.style.transition = 'none';
-        }
-
-        const currentY = top + dy;
-        containerRef.current.style.top = `${currentY + iconOffset}px`;
-        containerRef.current.style.zIndex = '50';
-        containerRef.current.style.opacity = '0.9';
-
-        // スナップ先 = アイコンの中央がある行の秒。その行の上端 Y は rowLayout から
-        const snappedTime = timeAtDraggedTop(currentY);
-        const snappedY = rowLayout.topOf(snappedTime);
-        const relativeY = snappedY - currentY; // containerRefからの相対位置
-
-        if (indicatorRef.current) {
-            indicatorRef.current.style.display = 'block';
-            indicatorRef.current.style.top = `${relativeY}px`;
-        }
-        if (timeLabelRef.current) {
-            timeLabelRef.current.style.display = 'block';
-            timeLabelRef.current.style.top = `${relativeY - 8}px`;
-            const min = Math.floor(Math.abs(snappedTime) / 60);
-            const sec = Math.abs(snappedTime) % 60;
-            const sign = snappedTime < 0 ? '-' : '';
-            timeLabelRef.current.textContent = `${sign}${min}:${sec.toString().padStart(2, '0')} `;
-        }
-    };
-
-    const resetDragPosition = (animate: boolean = false) => {
-        if (!containerRef.current) return;
-
-        if (animate) {
-            containerRef.current.style.transition = 'top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-        } else {
-            containerRef.current.style.transition = 'none';
-        }
-
-        containerRef.current.style.top = `${top + iconOffset}px`;
-
-        if (animate) {
-            setTimeout(() => {
-                if (containerRef.current) {
-                    containerRef.current.style.zIndex = '';
-                    containerRef.current.style.opacity = '';
-                    containerRef.current.style.transition = '';
-                }
-            }, 300);
-        } else {
-            containerRef.current.style.zIndex = '';
-            containerRef.current.style.opacity = '';
-        }
-
-        if (indicatorRef.current) indicatorRef.current.style.display = 'none';
-        if (timeLabelRef.current) timeLabelRef.current.style.display = 'none';
-    };
-
-    const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (toastMessage) {
-            const timer = setTimeout(() => setToastMessage(null), 2500);
-            return () => clearTimeout(timer);
-        }
-    }, [toastMessage]);
-
-    const handleContextMenu = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        // スプシ表示(アイコンが標準より小さい)は置く・消すとも左クリックだけ。右クリックでは消さない
-        // (ブラウザ標準のメニューはレーン表示と同じく preventDefault で出さない)
-        if (iconPx < MITI_ICON_PX) return;
-        if (dragStartRef.current || isVirtual) return;
-        onRemove(mitigation.id);
-    };
-
-    const handleTouchStart = () => {
-        if (iconPx < MITI_ICON_PX) return; // スプシ表示は長押しでも消さない(左クリック=タップだけ)
-        timerRef.current = setTimeout(() => {
-            if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
-            onRemove(mitigation.id);
-        }, 600);
-    };
-
-    const handleTouchEnd = () => {
-        if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
-    };
-
-    const handleTouchMove = () => {
-        if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
-    };
-
-    const EDGE_ZONE = 60;
-    const MAX_SCROLL_SPEED = 15;
-
-    const stopAutoScroll = () => {
-        if (autoScrollRef.current !== null) {
-            cancelAnimationFrame(autoScrollRef.current);
-            autoScrollRef.current = null;
-        }
-    };
-
-    const startAutoScroll = () => {
-        const tick = () => {
-            const container = scrollContainerRef.current;
-            if (!container || !dragStartRef.current) { stopAutoScroll(); return; }
-
-            const rect = container.getBoundingClientRect();
-            const pointerY = lastPointerYRef.current;
-            const distFromTop = pointerY - rect.top;
-            const distFromBottom = rect.bottom - pointerY;
-
-            let scrollDelta = 0;
-            if (distFromTop < EDGE_ZONE && distFromTop >= 0) {
-                scrollDelta = -MAX_SCROLL_SPEED * (1 - distFromTop / EDGE_ZONE);
-            } else if (distFromBottom < EDGE_ZONE && distFromBottom >= 0) {
-                scrollDelta = MAX_SCROLL_SPEED * (1 - distFromBottom / EDGE_ZONE);
-            }
-
-            if (scrollDelta !== 0) {
-                container.scrollTop += scrollDelta;
-                const scrollTop = container.scrollTop;
-                const totalScrollDelta = scrollTop - dragStartRef.current.scrollTop;
-                const dy = pointerY - dragStartRef.current.pointerY + totalScrollDelta;
-                updateDragPosition(dy);
-            }
-
-            autoScrollRef.current = requestAnimationFrame(tick);
-        };
-        stopAutoScroll();
-        autoScrollRef.current = requestAnimationFrame(tick);
-    };
-
-    const handlePointerDown = (e: React.PointerEvent) => {
-        if (e.button !== 0 || isVirtual) return;
-        e.preventDefault();
-        e.stopPropagation();
-        (e.target as HTMLElement).setPointerCapture(e.pointerId);
-        const scrollTop = scrollContainerRef.current?.scrollTop ?? 0;
-        dragStartRef.current = { pointerX: e.clientX, pointerY: e.clientY, scrollTop };
-        lastPointerYRef.current = e.clientY;
-        updateDragPosition(0);
-        startAutoScroll();
-        if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
-    };
-
-    const handlePointerMove = (e: React.PointerEvent) => {
-        if (!dragStartRef.current) return;
-        lastPointerYRef.current = e.clientY;
-        const scrollTop = scrollContainerRef.current?.scrollTop ?? 0;
-        const scrollDelta = scrollTop - dragStartRef.current.scrollTop;
-        const dy = e.clientY - dragStartRef.current.pointerY + scrollDelta;
-        updateDragPosition(dy);
-    };
-
-    const handlePointerUp = (e: React.PointerEvent) => {
-        if (!dragStartRef.current) return;
-        stopAutoScroll();
-        (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-        const scrollTop = scrollContainerRef.current?.scrollTop ?? 0;
-        const scrollDelta = scrollTop - dragStartRef.current.scrollTop;
-        const dy = e.clientY - dragStartRef.current.pointerY + scrollDelta;
-
-        // 👇 修正：指を離した最終的なY座標から、スナップ先の時間を計算する
-        const finalY = top + dy;
-        const newTime = timeAtDraggedTop(finalY);
-
-        const dragStartX = dragStartRef.current.pointerX;
-        dragStartRef.current = null;
-
-        if (newTime !== mitigation.time && def) {
-            const status = validateMitigationPlacement(def, newTime, activeMitigations, t, mitigation.id);
-
-            if (status.available) {
-                resetDragPosition(false);
-                onUpdateTime(mitigation.id, newTime);
-            } else {
-                setToastMessage(t('timeline.cannot_place_here'));
-                resetDragPosition(true);
-            }
-        } else {
-            resetDragPosition(false);
-            // スプシ表示: ほぼ動かさずに離した = アイコンのマスをもう一度押した扱い
-            if (onIconTap && Math.abs(dy) < 4 && Math.abs(e.clientX - dragStartX) < 4) onIconTap(mitigation.ownerId, mitigation.time, e);
-        }
-    };
+    const {
+        toastMessage,
+        handleContextMenu, handleTouchStart, handleTouchEnd, handleTouchMove,
+        handlePointerDown, handlePointerMove, handlePointerUp,
+    } = useMitigationDrag({
+        mitigation, def, rowLayout, top, iconOffset, iconPx, isVirtual,
+        onRemove, onUpdateTime, onIconTap, scrollContainerRef, activeMitigations, t,
+        containerRef, indicatorRef, timeLabelRef,
+    });
 
     // スプシ表示(アイコンが標準より小さい)か。対象バッジを自分の列に収めるために使う
     const isSheetIcon = iconPx < MITI_ICON_PX;
 
-    const getEffectiveIcon = () => {
-        if (iconOverride) return iconOverride;
-        if (!def) return "/icons/Placeholder.png";
-
-        // アーサリースターの動的変化判定 (設置後10秒で変化)
-        if (def.id === 'earthly_star') {
-            // タイムライン上の表示位置（selectedTimeではない、個別のアイテム位置）
-            // ここでは簡易的に現在の配置時間からの経過で判定するロジックを想定
-            // シミュレーターとして「10秒後の位置」を特定するのは描画ロジックに依存するため
-            // 配置されたオブジェクト自体は1つのため、アイコン1つを表示する
-            // ユーザー要望: 10秒後に巨星へ。表示を分ける場合は別ロジックだが
-            // ここでは「配置したスターが10s経過位置にあるか」ではなく「スター自体」を表示
-        }
-
-        // 学者: サモン・セラフィム中のアイコン置換
-        const isSeraphActive = activeMitigations.some(am =>
-            am.mitigationId === 'summon_seraph' &&
-            am.ownerId === mitigation.ownerId &&
-            mitigation.time >= am.time &&
-            mitigation.time < am.time + am.duration
-        );
-
-        if (isSeraphActive) {
-            if (def.id === 'whispering_dawn') return "/icons/Angel's_Whisper.png";
-            if (def.id === 'fey_illumination') return "/icons/Seraphic_Illumination.png";
-        }
-
-        return def.icon;
-    };
-
-    const iconUrl = getEffectiveIcon();
+    const iconUrl = getEffectiveIcon(iconOverride, def, activeMitigations, mitigation);
     const nameStr = def ? getPhaseName(def.name, contentLanguage) : '';
 
     return (
@@ -409,22 +193,9 @@ export const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) 
                         </div>
                     </Tooltip>
 
-                    {!isVirtual && mitigation.targetId && (() => {
-                        const members = useMitigationStore.getState().partyMembers;
-                        const targetMember = members.find((m: import('../../types').PartyMember) => m.id === mitigation.targetId);
-                        const targetJob = targetMember?.jobId ? JOBS.find(j => j.id === targetMember.jobId) : null;
-                        return (
-                            <div className={clsx("absolute z-30 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,1)]", isSheetIcon ? "-bottom-[3px] -right-[4px]" : "-bottom-2 -right-2")}>
-                                {targetJob ? (
-                                    <img src={targetJob.icon} alt={getPhaseName(targetJob.name, contentLanguage)} className={clsx("object-contain rounded-sm", isSheetIcon ? "w-[10px] h-[10px]" : "w-[20px] h-[20px]")} />
-                                ) : (
-                                    <div className={clsx("bg-black/90 rounded px-1 py-0.5 text-app-xs font-black text-slate-800 dark:text-white ring-1 ring-white/20 origin-bottom-right", isSheetIcon && "scale-[.6]")}>
-                                        {mitigation.targetId}
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })()}
+                    {!isVirtual && mitigation.targetId && (
+                        <MitigationTargetBadge mitigation={mitigation} JOBS={JOBS} contentLanguage={contentLanguage} isSheetIcon={isSheetIcon} />
+                    )}
                 </div>
 
                 {/* エフェクト棒: duration≤1秒（瞬発スキル）は非表示。展開戦術(copiesShield)は
