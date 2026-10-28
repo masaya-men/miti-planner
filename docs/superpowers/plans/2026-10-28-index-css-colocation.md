@@ -49,10 +49,23 @@ MIL-SPEC 計画の「用語」と同じ(規則の鍵・対象 class・詳細度�
 - [ ] **Step 4: 実証 (b)** — `.btn-tactile`(778–790 行)を `@layer components { }` ごと `src/components/PartySettingsModal.css` へ移し、 `PartySettingsModal.tsx` に `import './PartySettingsModal.css';` → compare-build で missing/extra 0、 かつビルド CSS で `.btn-tactile` が `@layer components` の中にあること(`grep` で確認)。 外れたら止めて報告
 - [ ] **Step 5:** `git checkout -- src` で戻す。 台帳をコミット
 
+**Task 1 の結果(10-28 済)**: 見た目の基準 322 一致+1 件は単独撮り直しで一致(並行撮影のぶれ)。 (a) `@theme` を `@import` 先へ移すと 349 規則が消える → **`@theme`+keyframes `ripple`・`gearSpin` は入口に残す**。 (b) `@layer components` は移し先でも保たれる。 ただし部品の隣の CSS は Tailwind の後処理(Lightning CSS)を通らず書き方が変わる(`0.3s`/`.3s`)→ Task 1.5 を追加。
+
+### Task 1.5: compare-build に値の書き方の正規化を足す
+
+**Files:** Modify `scripts/css-colocation/compare-build.mjs`(と必要なら `cssRules.mjs`)・Test `scripts/css-colocation/__tests__/compareBuild.test.ts`(既存があれば足す)
+
+**Interfaces:** Produces `normalizeValue(prop: string, value: string): string` — `lightningcss` の `transform({ minify: true })` を対象ブラウザ指定なしで `a{prop:value}` に掛けた結果の値。 比較の鍵(`@layer|selector|prop:value`)の値部分にこれを使う。 `--raw` で今までどおりの比較
+
+- [ ] **Step 1: 失敗するテスト** — `書き方だけの違いは同じ鍵`: `transition: transform 0.3s x, color 150ms ease` と `transition:transform .3s x, color .15s ease` の鍵が一致 / `中身の違いは別の鍵`: `backdrop-filter: blur(12px)` と `backdrop-filter: var(--tw-backdrop-blur,)` が不一致 / `段が違えば別の鍵`: 同じ宣言で `@layer components` の有無が違えば不一致
+- [ ] **Step 2:** FAIL を確認 → 実装 → PASS
+- [ ] **Step 3:** `--compare=pre-index`(src 無変更)が 0/0/0 のまま。 housing・military の見張りテストが通る
+- [ ] **Step 4:** コミット
+
 ### Task 2: 土台を `src/styles/base/` へ切る(部品へはまだ移さない)
 
 **Files:**
-- Create: `src/styles/base/` の意味ファイル(例: `theme.css`・`tokens-scale.css`・`tokens-dark.css`・`tokens-light.css`・`tokens-columns.css`・`global.css`・`glass.css`・`motion.css`)と `src/styles/base/to-move.css`(移す待ち)。 線引きは作る人。 各 500 行以下
+- Create: `src/styles/base/` の意味ファイル(例: `tokens-scale.css`・`tokens-dark.css`・`tokens-light.css`・`tokens-columns.css`・`global.css`・`glass.css`・`motion.css`)と `src/styles/base/to-move.css`(移す待ち)。 線引きは作る人。 各 500 行以下
 - Modify: `src/index.css`(入口だけに)・`src/architecture/__tests__/file-size-limits.json`(`src/index.css` を `frozen` から外す)
 - Modify: `src/styles/__tests__/themeTokenParity.test.ts:54-55`(`readCssBundle('src/index.css')` で連結を読む)・`scripts/css-colocation/__tests__/reachable.test.ts`・`scripts/milspec-sp2/military-smoke/steps-c.mjs`(index.css を文字で読む所)
 
