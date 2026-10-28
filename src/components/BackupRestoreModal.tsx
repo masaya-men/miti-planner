@@ -6,7 +6,7 @@ import { Upload, FileUp, Loader, AlertTriangle } from 'lucide-react';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
-import { parseBackupJson, mergePlans } from '../utils/backupService';
+import { parseBackupJson, mergeBackupPlans } from '../utils/backupService';
 import { showToast } from './toastBus';
 
 interface Props {
@@ -67,7 +67,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
       const displayName = useAuthStore.getState().profileDisplayName || 'User';
 
       // マージ実行
-      const merged = mergePlans(planStore.plans, backup.plans, ownerId, displayName);
+      const merged = mergeBackupPlans(planStore.plans, backup.plans, ownerId, displayName);
 
       // Zustand store更新
       planStore.setPlans(merged);

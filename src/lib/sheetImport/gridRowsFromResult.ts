@@ -1,3 +1,4 @@
+import { formatTimeKeepFraction } from '../../utils/timeFormat';
 import type { SheetImportResult } from './buildPlanFromSheets';
 import type { GridTable, GridColumn } from './gridTypes';
 import type { Mitigation, Job } from '../../types/index';
@@ -23,15 +24,6 @@ function localizeDamageType(damageType: string, lang: Lang): string {
 function localize(name: { ja: string; en?: string; ko?: string; zh?: string; 'zh-Hant'?: string } | undefined, lang: Lang): string {
   if (!name) return '';
   return name[lang] ?? name.ja ?? '';
-}
-
-/** 秒数を M:SS 形式に変換(負数対応)。 */
-function formatTime(sec: number): string {
-  const neg = sec < 0;
-  const abs = Math.abs(sec);
-  const m = Math.floor(abs / 60);
-  const s = String(abs % 60).padStart(2, '0');
-  return `${neg ? '-' : ''}${m}:${s}`;
 }
 
 /** result を表示用 GridTable に変換(読み取り専用プレビュー)。create には使わない。 */
@@ -85,7 +77,7 @@ export function gridRowsFromResult(
     prevLabelId = labelId;
 
     // time
-    const timeCell = formatTime(event.time);
+    const timeCell = formatTimeKeepFraction(event.time);
 
     // action
     const actionCell = localize(event.name, lang);

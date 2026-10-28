@@ -3,13 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import clsx from 'clsx';
 import type { AppliedMitigation, TimelineEvent, Mitigation } from '../../types';
-
-/** 時間(秒)を mm:ss 形式に変換 */
-function formatTime(seconds: number): string {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return `${m}:${s.toString().padStart(2, '0')}`;
-}
+import { formatTime } from '../../utils/templateConversions';
 
 interface PipCueListProps {
     isFs: boolean;

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import type { TimelineEvent, Phase } from '../types';
 import { getPhaseName as getPhaseNameStr } from '../types';
+import { formatTimeKeepFraction } from '../utils/timeFormat';
 import { useThemeStore } from '../store/useThemeStore';
 
 import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
@@ -29,14 +30,7 @@ interface HeaderMechanicSearchProps {
     triggerRef: React.RefObject<HTMLElement | null>;
 }
 
-function formatTime(seconds: number): string {
-    const m = Math.floor(Math.abs(seconds) / 60);
-    const s = Math.abs(seconds) % 60;
-    const sign = seconds < 0 ? '-' : '';
-    return `${sign}${m}:${s.toString().padStart(2, '0')}`;
-}
-
-function getPhaseName(time: number, phases: Phase[]): string {
+function phaseNameAtTime(time: number, phases: Phase[]): string {
     const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
     for (let i = sorted.length - 1; i >= 0; i--) {
         if (time >= sorted[i].startTime) {
@@ -115,8 +109,8 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
                 if (!map.has(name)) map.set(name, []);
                 map.get(name)!.push({
                     time: ev.time,
-                    phaseName: getPhaseName(ev.time, phases),
-                    formattedTime: formatTime(ev.time),
+                    phaseName: phaseNameAtTime(ev.time, phases),
+                    formattedTime: formatTimeKeepFraction(ev.time),
                 });
             });
 

@@ -70,7 +70,7 @@ export function parseBackupJson(json: string): BackupData | null {
  *
  * ownerIdは現在のユーザーのuidに書き換える。
  */
-export function mergePlans(
+export function mergeBackupPlans(
   existingPlans: SavedPlan[],
   backupPlans: SavedPlan[],
   currentOwnerId: string,

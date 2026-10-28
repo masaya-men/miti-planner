@@ -1,16 +1,8 @@
+import { mmssToSec } from './time';
 import type { ParsedSheet, SheetColumn, SheetRow } from './types';
 
 /** スプシが即死/全滅(時間切れ)を表す番兵値。実ダメージではなく enrage マーカーとして扱う */
 const WIPE_DAMAGE_SENTINEL = 9999999;
-
-/** MM:SS（負値対応）→ 秒数。パースできなければ null */
-function mmssToSec(v: string | undefined): number | null {
-  if (v == null) return null;
-  const m = v.trim().match(/^(-?)(\d+):([0-5]?\d)$/);
-  if (!m) return null;
-  const sign = m[1] === '-' ? -1 : 1;
-  return sign * (parseInt(m[2], 10) * 60 + parseInt(m[3], 10));
-}
 
 /** ジョブ行検出用セット（タンク/LB3 等も含む） */
 const JOB_JA_NAMES = new Set([
