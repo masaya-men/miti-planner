@@ -17,8 +17,9 @@
   border-radius: var(--housing-mapctl-areas-radius);
   clip-path: inset(0 round var(--housing-mapctl-areas-radius));
   border: 1px solid var(--housing-panel-border);
-  -webkit-backdrop-filter: blur(calc(8px * var(--housing-scale)));
-  backdrop-filter: blur(calc(8px * var(--housing-scale)));
+  --tw-backdrop-blur: blur(calc(8px * var(--housing-scale)));
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   animation: housing-bmap-roompanel-in 190ms ease;
 }
 @keyframes housing-bmap-roompanel-in {

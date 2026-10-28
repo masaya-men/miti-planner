@@ -27,8 +27,9 @@
   cursor: pointer;
   border-radius: calc(14px * var(--housing-scale));
   background: var(--housing-panel-bg);
-  -webkit-backdrop-filter: blur(calc(8px * var(--housing-scale)));
-  backdrop-filter: blur(calc(8px * var(--housing-scale)));
+  --tw-backdrop-blur: blur(calc(8px * var(--housing-scale)));
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   transform-origin: 50% 50%;
   transform: translate(
       calc(-50% + var(--housing-bmap-clamp-x)),
