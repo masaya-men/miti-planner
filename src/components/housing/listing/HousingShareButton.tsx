@@ -3,7 +3,7 @@
  *
  * - スマホ/対応ブラウザ: Web Share API (`navigator.share`) を直接呼ぶ
  * - 非対応環境: リンクコピー / X (Twitter intent) を含むドロップダウンを開く
- * - スタイルは housing.css の token 経由
+ * - スタイルは ハウジングの token(src/styles/housing/tokens.css)経由
  */
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';

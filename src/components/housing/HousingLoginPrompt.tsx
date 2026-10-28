@@ -21,7 +21,7 @@ interface Props {
  * ハウジング独自トンマナへ揃えた (housing-design.md)。青ボタンは世界観から浮くため、
  * ログイン = このページの主アクションとして **ハニーゴールド** (`.housing-btn-primary`) にする。
  * 版面は `TourEmptyState` と同じ「タイトル + リード + CTA の静かな中央寄せ空状態」パターン。
- * パネル中央への配置は housing.css 側 (`.housing-register-panel-solo`) が担う。
+ * パネル中央への配置は page-frame.css / RegisterPage.css 側 (`.housing-register-panel-solo`) が担う。
  */
 export const HousingLoginPrompt: React.FC<Props> = ({ context, registerFlag = true }) => {
   const { t } = useTranslation();

@@ -9,7 +9,7 @@ export interface HousingRippleProps {
  * useRipple() の状態を描画するだけの共有コンポーネント。
  * 呼び出し側は `position: relative; overflow: hidden` なボタンの中に置く。
  * 座標/直径はクリック位置由来の実行時値のため、CSS カスタムプロパティで渡す
- * (housing.css の .housing-ripple / --ripple-* / --housing-ripple token を参照)。
+ * (HousingRipple.css の .housing-ripple / --ripple-* / --housing-ripple token を参照)。
  */
 export const HousingRipple: React.FC<HousingRippleProps> = ({ ripples }) => (
   <>

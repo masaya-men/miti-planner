@@ -7,7 +7,7 @@ import './TabBar.css';
 
 /**
  * ハウジング上部タブバー。NavLink が active 時に aria-current="page" を自動付与する。
- * アクティブの下線などの見た目は housing.css の `.housing-tab.is-active`。
+ * アクティブの下線などの見た目は src/styles/housing/shell-header.css の `.housing-tab.is-active`。
  */
 export const TabBar: React.FC = () => {
   const { t } = useTranslation();

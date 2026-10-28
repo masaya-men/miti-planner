@@ -68,7 +68,7 @@ export const HousingShell: React.FC = () => {
   // (2026-10-22 masaya: ツアーをしようとしている時には要らない)。空いた分トレイの小バーを右端まで広げる。
   const hasTray = useTourTrayStore((s) => s.trayIds.length > 0);
 
-  // html に印を付ける: body 直下へ portal される要素の SVG アイコン寸法の倍率 (housing.css) を /housing 配下だけに効かせる。
+  // html に印を付ける: body 直下へ portal される要素の SVG アイコン寸法の倍率 (src/styles/housing/scale-svg-icons.css) を /housing 配下だけに効かせる。
   useEffect(() => {
     document.documentElement.setAttribute('data-housing', '');
     return () => document.documentElement.removeAttribute('data-housing');

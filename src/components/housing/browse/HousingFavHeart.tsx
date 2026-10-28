@@ -7,7 +7,7 @@ import './HousingFavHeart.css';
 
 const PARTICLE_COUNT = 14;
 const PARTICLE_RADIUS = 34; // ボタン中心から飛ぶ基準距離(px)
-const POP_MS = 420; // housing-fav-pop の再生時間と一致させる (housing.css)
+const POP_MS = 420; // housing-fav-pop の再生時間と一致させる (HousingFavHeart.css)
 const PARTICLE_MAX_DELAY_MS = 40;
 const PARTICLE_LIFETIME_MS = 650; // housing-fav-fly の再生時間と一致させる
 

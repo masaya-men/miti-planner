@@ -15,7 +15,7 @@ const LANGS = ['ja', 'en', 'ko', 'zh', 'zh-Hant'] as const;
 /**
  * スマホ用設定シート (Task1: モバイルシェル基盤)。
  * 旧フッター (StatusBar.tsx) の中身を移植: テーマ切替 / 言語スイッチャー / 法的リンク。
- * StatusBar 自体は housing.css の @media (max-width:767px) で非表示にし、ここに一本化する。
+ * StatusBar 自体は StatusBar.css の @media (max-width:767px) で非表示にし、ここに一本化する。
  * (AppHeader の switchTheme にある View Transitions 演出はここでは省略・簡易切替でよい方針)
  */
 export const HousingSettingsSheet: React.FC<HousingSettingsSheetProps> = ({ isOpen, onClose }) => {

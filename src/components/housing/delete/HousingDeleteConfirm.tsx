@@ -3,7 +3,7 @@
  *
  * - 削除は soft delete (`deletedAt = Date.now()`) のため、 文言では「30 日後に完全削除」 と明記
  * - 確認・キャンセル両方の disable 状態を loading prop で同期
- * - スタイルは housing.css の token 経由 (`--housing-*`) で記述
+ * - スタイルは ハウジングの token(src/styles/housing/tokens.css)経由 (`--housing-*`) で記述
  */
 import { useTranslation } from 'react-i18next';
 import { HousingDialogShell } from '../HousingDialogShell';

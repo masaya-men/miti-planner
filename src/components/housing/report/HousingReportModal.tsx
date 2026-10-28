@@ -4,7 +4,7 @@
  * - reason 選択 (radio) + 任意コメント (other は必須)
  * - 送信成功で toast + onClose、 重複・失敗は toast でフィードバック
  * - i18n キー: housing.report.*
- * - スタイルは housing.css の token 経由
+ * - スタイルは ハウジングの token と HousingerReportModal.css のクラス経由
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';

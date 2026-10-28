@@ -8,7 +8,7 @@ import './HousingCardMarqueeLine.css';
  * 「あいうえお\u3000\u3000あいうえお\u3000\u3000…」とゆっくり左へ流れ続ける (静かなティッカー)。
  * 計測は ResizeObserver で行い、hover 時は CSS 変数参照のみ
  * (onMouseEnter での scrollWidth 読みは forced reflow になるため禁止・perf #59 と同じ方針)。
- * アニメーション発火はカード側の :hover セレクタ (housing.css) が担う。
+ * アニメーション発火はカード側の :hover セレクタ (HousingCardMarqueeLine.css) が担う。
  */
 export const HousingCardMarqueeLine: React.FC<{
   children: React.ReactNode;

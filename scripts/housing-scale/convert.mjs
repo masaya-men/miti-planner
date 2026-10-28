@@ -1,4 +1,4 @@
-// housing.css の長さ(px)を calc(Npx * var(--housing-scale)) に一括変換するスクリプト。
+// ハウジングの CSS の長さ(px)を calc(Npx * var(--housing-scale)) に一括変換するスクリプト。
 // 使い方: node scripts/housing-scale/convert.mjs [--dry]   (冪等: 既に変換済みの px は触らない)
 // 規則:
 //  (a) @media の max-width 条件(スマホ専用)ブロックの中は変換しない
@@ -7,15 +7,15 @@
 //  (d) 0px は変換しない / 既に var(--housing-scale) を掛けた px は二重変換しない
 //  (e) それ以外(トークン定義・calc/clamp/min/max 内・transform・keyframes 内)は全て変換
 import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { listHousingCss } from '../housing-css/listHousingCss.mjs';
 
-// housing.css は入口。変換するのは入口の @import に並ぶ分割ファイル (src/styles/housing/*.css) を 1 本ずつ。
-// (center-tokens は center-tokens.mjs が生成するファイルなので対象外。分割の切れ目はルールの外なので 1 本ずつでも結果は同じ)
-const DIR = new URL('../../src/styles/', import.meta.url);
-const entry = fs.readFileSync(new URL('housing.css', DIR), 'utf8');
-const FILES = [...entry.matchAll(/@import\s+"\.\/(housing\/[^"]+)";/g)]
-  .map((m) => m[1])
+// 変換するのはハウジングの CSS 全部(入口が読む共有+部品の隣の CSS)を 1 本ずつ。
+// (center-tokens は center-tokens.mjs が生成するファイルなので対象外。ファイルの切れ目はルールの外なので 1 本ずつでも結果は同じ)
+const ROOT = new URL('../../', import.meta.url);
+const FILES = listHousingCss(fileURLToPath(ROOT))
   .filter((f) => !f.endsWith('/center-tokens.css'))
-  .map((f) => new URL(f, DIR));
+  .map((f) => new URL(f, ROOT));
 const dry = process.argv.includes('--dry');
 for (const FILE of FILES) {
 const src = fs.readFileSync(FILE, 'utf8');

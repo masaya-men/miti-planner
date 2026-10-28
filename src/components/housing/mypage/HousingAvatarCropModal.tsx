@@ -15,7 +15,7 @@ interface HousingAvatarCropModalProps {
 
 /**
  * ハウジング用アイコン変更モーダル。ロジックは共通の AvatarCropModal.tsx (LoPo 既存 UI 版) と
- * 同じだが、見た目は HousingPanelModal + housing.css トークンでハウジングトンマナに統一する
+ * 同じだが、見た目は HousingPanelModal + ハウジングのトークンでハウジングトンマナに統一する
  * (旧: LoPo 版をそのまま流用しており白黒トーンが浮いていた・2026-07-24 実機指摘)。
  */
 export const HousingAvatarCropModal: React.FC<HousingAvatarCropModalProps> = ({

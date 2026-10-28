@@ -10,7 +10,7 @@
  *   不具合を構造的に根治
  * - 家主が通報通知から開いた場合は、 グリッドの上に「通報の案内バナー」を表示
  *   (別モーダルを重ねるとスタッキングが破綻するため、 詳細の中に出す方針)
- * - レイアウトは housing.css (.housing-detail-body / -content / -side) で制御
+ * - レイアウトは HousingDetailContent.css (.housing-detail-body / -content / -side) で制御
  */
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';

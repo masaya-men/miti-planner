@@ -61,9 +61,9 @@ UI 修正時は必ずモックアップを開いて該当箇所の CSS/HTML を�
 
 ### 新規 token の追加場所
 
-トークンは `src/styles/housing/00-tokens.css` の `.housing-workspace` ブロックに集約。 個別コンポーネントの `<style>` や `style={{}}` で**新規定義しない**。 必要になったらそこに追加 → token 経由で参照。
+トークンは `src/styles/housing/tokens.css` の `.housing-workspace` ブロックに集約。 個別コンポーネントの `<style>` や `style={{}}` で**新規定義しない**。 必要になったらそこに追加 → token 経由で参照。
 
-**ハウジングの CSS の置き場所**: `src/styles/housing.css` は入口で `@import` の並びだけ(ここに直接書かない)。 見た目は `src/styles/housing/` の該当画面のファイルに書く。 該当が無い・500 行を超えそうなら新しいファイルを作り、 入口の正しい順番(後に書いたものが勝つ)に `@import` を足す。 1 ファイル 500 行以下(`src/architecture/__tests__/file-size.test.ts` が見張る)。
+**ハウジングの CSS の置き場所(2026-10-28〜)**: 部品の見た目は部品の隣に `<部品名>.css` で置き、 部品の .tsx が `import './<部品名>.css';` する。 新しい部品を作ったら CSS も隣に作る。 `src/styles/housing/` は共有だけ(トークン・外枠・下地 primitives・全画面ページの外枠・地図の土台・昼夜切替・倍率。 足す時は見張りの許可一覧に理由を書く)。 **他の部品の見た目を同じ詳細度で上書きしない**(同じ要素の同じ性質を 2 つの部品の CSS に書くと、 読み込み順で勝ち負けが変わる)。 変えたいなら上書きされる側の部品の CSS に、 親 class などの条件付きで書く。 スマホ用の上書き `@media (max-width: 767px)` はその部品の CSS の末尾へ。 見張り=`src/components/housing/__tests__/housingCssColocation.guard.test.ts`(置き去り・共有の増加・部品同士の順番頼り)。 1 ファイル 500 行以下(`src/architecture/__tests__/file-size.test.ts`)。 CSS を動かしたら `node scripts/housing-css/compare-build.mjs --compare=<名前>` で規則の欠け・重複・順番の入れ替わりを確かめる(基準は作業前に `--save-as=<名前>`)。
 
 ### 実装時の自己レビュー手順
 
@@ -71,7 +71,7 @@ UI 修正時は必ずモックアップを開いて該当箇所の CSS/HTML を�
 ```
 rgb\(   /   rgba\(   /   #[0-9a-f]{3,8}   /   px;
 ```
-これらが当該ファイルに残っていたら token 化を必ず検討。 残してよいのは `src/styles/housing/` の CSS の中だけ。
+これらが当該ファイルに残っていたら token 化を必ず検討。 残してよいのはハウジングの CSS(部品の隣の .css と `src/styles/housing/`)の中だけ。
 
 ## 既存共通ルール (引き続き適用)
 

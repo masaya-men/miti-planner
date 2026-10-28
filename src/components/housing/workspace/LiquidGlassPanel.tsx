@@ -27,7 +27,7 @@ export interface LiquidGlassPanelProps extends Omit<React.HTMLAttributes<HTMLDiv
  * Liquid Glass panel — wraps content in a `.housing-panel.is-liquid` shell
  * with a per-panel SVG `<feDisplacementMap>` refraction filter and the
  * mockup chrome (gradient ring border + horizontal sheen + 4 corner
- * highlights + top sheen line — all defined in `housing.css`).
+ * highlights + top sheen line — all defined in `LiquidGlassPanel.css` and `src/styles/housing/shell-frame.css`).
  *
  * Displacement map is regenerated on resize via ResizeObserver.
  * Pure-displacement filter (no color split, no blur) — the

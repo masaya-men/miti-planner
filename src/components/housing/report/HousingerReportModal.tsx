@@ -8,7 +8,7 @@
  *   とは別ネームスペース)。
  * - 送信は POST action=report-housinger (useHousingerReport)。 成功/duplicate/error のトースト
  *   文言は listing 通報 (housing.report.success/duplicate/error) をそのまま流用する (brief 指定)。
- * - スタイルは housing.report.* と同じ housing.css クラス (フォーム部品 .housing-report-* 等) を再利用し、 外枠は HousingPanelModal (対象が違うだけで見た目は同一のため新規 CSS 不要)。
+ * - スタイルは housing.report.* と同じ HousingerReportModal.css のクラス (フォーム部品 .housing-report-* 等) を再利用し、 外枠は HousingPanelModal (対象が違うだけで見た目は同一のため新規 CSS 不要)。
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
