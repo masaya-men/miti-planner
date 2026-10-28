@@ -13,13 +13,6 @@ import ko from '../ko.json';
 // 参照箇所が無い ja 専用キー(死にキー候補)
 const UNUSED_JA_ONLY = ['party.composition', 'mitigation.fairy_dismissed_during_effect'];
 
-// 管理画面の注目軽減表(ja/en 以外は未翻訳)
-const ADMIN_FEATURED = [
-    'title', 'description', 'url_placeholder', 'search', 'current_content', 'plan_title',
-    'copy_count', 'created', 'status_on', 'status_off', 'set_button', 'unset_button',
-    'set_success', 'unset_success', 'not_found', 'confirm_set', 'confirm_unset',
-].map((k) => `admin.featured_${k}`);
-
 // 管理画面の翻訳表(ja/en のみ)
 const ADMIN_TRANSLATIONS = [
     'admin.translations',
@@ -33,10 +26,10 @@ const ADMIN_TRANSLATIONS = [
 ];
 
 const KNOWN_MISSING: Record<string, readonly string[]> = {
-    en: [...UNUSED_JA_ONLY, ...ADMIN_FEATURED],
-    zh: [...UNUSED_JA_ONLY, ...ADMIN_FEATURED, ...ADMIN_TRANSLATIONS],
-    'zh-Hant': [...UNUSED_JA_ONLY, ...ADMIN_FEATURED, ...ADMIN_TRANSLATIONS],
-    ko: [...UNUSED_JA_ONLY, ...ADMIN_FEATURED, ...ADMIN_TRANSLATIONS],
+    en: [...UNUSED_JA_ONLY],
+    zh: [...UNUSED_JA_ONLY, ...ADMIN_TRANSLATIONS],
+    'zh-Hant': [...UNUSED_JA_ONLY, ...ADMIN_TRANSLATIONS],
+    ko: [...UNUSED_JA_ONLY, ...ADMIN_TRANSLATIONS],
 };
 
 function collectLeafPaths(obj: Record<string, unknown>, prefix = ''): string[] {

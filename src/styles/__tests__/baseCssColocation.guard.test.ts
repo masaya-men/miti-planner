@@ -108,8 +108,8 @@ describe('標準の CSS の置き場所(index.css 移行後)', () => {
     expect(orphans.map(rel), '同じフォルダの部品から import されていない CSS').toEqual([]);
   });
 
-  // 2026-10-28 追加: MitigationSheetPreview が自分の見た目を持たず、隣の MitigationSheet.css に頼っていた
-  // (MitigationSheet を消すと上限整理・共有取り込みのプレビューが崩れる)。同じ形を新しく作らせない。
+  // 2026-10-28 追加: MitigationSheetPreview が自分の見た目を持たず、隣の旧 MitigationSheet.css(今は MitigationSheetPreview.css)に頼っていた
+  // (隣の CSS を消すと MitigationSheetPreview の上限整理・共有取り込みのプレビューが崩れる)。同じ形を新しく作らせない。
   it('部品の CSS の class を書く部品は、その CSS を読む部品と必ず一緒に描かれる(他の部品の CSS に頼らない)', () => {
     const graph = buildImportGraph(SRC);
     // 部品の class(- か _ を含む名前)。テーマの印は対象外
