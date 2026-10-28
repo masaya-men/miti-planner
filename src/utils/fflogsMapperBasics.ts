@@ -1,3 +1,4 @@
+import { genId as genIdBase } from './genId';
 import type { FFLogsRawEvent } from '../api/fflogsTypes';
 
 // ─────────────────────────────────────────────
@@ -26,10 +27,7 @@ export function getRawDamage(ev: FFLogsRawEvent): number {
     return Math.floor(visible / Math.max(ev.multiplier || 1, 0.01));
 }
 
-export function genId(): string {
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-    return 'ffl_' + Math.random().toString(36).slice(2, 11) + Date.now().toString(36);
-}
+export const genId = (): string => genIdBase('ffl_', true);
 
 export function dedupe(events: FFLogsRawEvent[]): FFLogsRawEvent[] {
     const m = new Map<string, FFLogsRawEvent>();

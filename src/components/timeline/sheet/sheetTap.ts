@@ -1,3 +1,4 @@
+import { genId } from '../../../utils/genId';
 import type { Mitigation, AppliedMitigation } from '../../../types';
 import { validateMitigationPlacement } from '../../../utils/resourceTracker';
 import { resolveMitigationTap } from '../../../utils/mitigationTapResolver';
@@ -10,10 +11,6 @@ export type SheetTapResult =
   | { kind: 'selectTarget' }
   | { kind: 'selectShield'; shields: AppliedMitigation[] };
 
-function genId(): string {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-  return 'id_' + Math.random().toString(36).substring(2, 9);
-}
 
 /**
  * クリック → 消す / 弾く / 対象選択 / 鼓舞選択 / 置く(警告つき含む)の判定。

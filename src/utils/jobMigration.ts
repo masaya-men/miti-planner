@@ -1,12 +1,10 @@
+import { genId as genIdBase } from './genId';
 import type { AppliedMitigation } from '../types';
 import { getMitigationsFromStore, getMitigationPriority } from '../hooks/useSkillsData';
 
 export type MigrationMode = 'inherit' | 'common_only' | 'reset';
 
-function genId(): string {
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-    return 'evt_' + Math.random().toString(36).substring(2, 9);
-}
+const genId = (): string => genIdBase('evt_');
 
 /**
  * Migrates a set of mitigations from an old job to a new job based on the family attribute.

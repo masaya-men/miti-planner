@@ -1,3 +1,4 @@
+import { genId as genIdBase } from './genId';
 import type { AppliedMitigation, TimelineEvent } from '../types';
 import { DEFAULT_FIGHT_DURATION_SEC } from '../constants/timeline';
 
@@ -18,11 +19,7 @@ const AETHERFLOW_INTERVAL = 60;
 const AETHERFLOW_RECAST = 60;
 const DISSIPATION_RECAST = 120;
 
-function genId(): string {
-    return (typeof crypto !== 'undefined' && crypto.randomUUID)
-        ? crypto.randomUUID()
-        : 'evt_' + Math.random().toString(36).substring(2, 9);
-}
+const genId = (): string => genIdBase('evt_');
 
 /**
  * 該当 SCH メンバーが既にエーテルフローを 1 つでも持っているか。

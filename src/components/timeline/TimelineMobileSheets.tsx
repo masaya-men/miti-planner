@@ -11,7 +11,7 @@ import { calculateLinkedShieldValue } from '../../utils/calculator';
 import { resolveMitigationTap } from '../../utils/mitigationTapResolver';
 import { resolveSeraphismMitigation } from '../../utils/scholarShieldRules';
 import { useMitigationStore } from '../../store/useMitigationStore';
-import { genId } from './genId';
+import { genId } from '../../utils/genId';
 import type { useTimelineDialogs } from './useTimelineDialogs';
 import type { useTimelinePartyOrder } from './useTimelineLayout';
 

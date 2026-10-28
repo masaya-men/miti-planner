@@ -1,3 +1,4 @@
+import { genId as genIdBase } from './genId';
 import type { AppliedMitigation, TimelineEvent } from '../types';
 import { DEFAULT_FIGHT_DURATION_SEC } from '../constants/timeline';
 
@@ -16,11 +17,7 @@ const FIRST_UMBRAL_TIME = 9;
 const SECOND_ASTRAL_TIME = 65;
 const DRAW_INTERVAL = 60;
 
-function genId(): string {
-    return (typeof crypto !== 'undefined' && crypto.randomUUID)
-        ? crypto.randomUUID()
-        : 'ast_' + Math.random().toString(36).substring(2, 9);
-}
+const genId = (): string => genIdBase('ast_');
 
 /**
  * 該当 AST メンバーが既にドロー (astral_draw or umbral_draw) を 1 つでも持っているか。
