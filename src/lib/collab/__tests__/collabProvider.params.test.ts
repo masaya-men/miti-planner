@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildCollabParams } from "../collabProvider";
+import { buildCollabParams } from "../collabServerConnection";
 
 describe("buildCollabParams (provider params)", () => {
   it("ログイン時 → token を含む", async () => {
