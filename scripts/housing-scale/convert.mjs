@@ -14,7 +14,7 @@ const DIR = new URL('../../src/styles/', import.meta.url);
 const entry = fs.readFileSync(new URL('housing.css', DIR), 'utf8');
 const FILES = [...entry.matchAll(/@import\s+"\.\/(housing\/[^"]+)";/g)]
   .map((m) => m[1])
-  .filter((f) => !f.endsWith('-center-tokens.css'))
+  .filter((f) => !f.endsWith('/center-tokens.css'))
   .map((f) => new URL(f, DIR));
 const dry = process.argv.includes('--dry');
 for (const FILE of FILES) {

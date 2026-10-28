@@ -5,12 +5,12 @@
 import fs from 'node:fs';
 
 // housing.css は入口(@import の並び)だけ。トークン定義は src/styles/housing/ の分割ファイルにあるので、
-// 入口の @import 順に連結して読み、生成ブロックは専用ファイル (*-center-tokens.css) へ丸ごと書く。
+// 入口の @import 順に連結して読み、生成ブロックは専用ファイル (center-tokens.css) へ丸ごと書く。
 const DIR = new URL('../../src/styles/', import.meta.url);
 const entry = fs.readFileSync(new URL('housing.css', DIR), 'utf8');
 const files = [...entry.matchAll(/@import\s+"\.\/(housing\/[^"]+)";/g)].map((m) => m[1]);
-const OUT_REL = files.find((f) => f.endsWith('-center-tokens.css'));
-if (!OUT_REL) throw new Error('center-tokens ファイルが housing.css の @import に見当たらない');
+const OUT_REL = files.find((f) => f.endsWith('/center-tokens.css'));
+if (!OUT_REL) throw new Error('center-tokens.css が housing.css の @import に見当たらない');
 const FILE = new URL(OUT_REL, DIR);
 // 作業コピーが CRLF でも読み取りは LF にそろえる (下の indexOf が改行 LF 前提のため)
 let css = files

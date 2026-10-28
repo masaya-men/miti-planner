@@ -395,6 +395,10 @@ function main() {
   // 作業コピーが CRLF でも LF にそろえる(下の @import 行の置き換えが改行 LF 前提のため)
   const entry = fs.readFileSync('src/styles/housing.css', 'utf8').replace(/\r\n/g, '\n');
   const files = [...entry.matchAll(/@import\s+"\.\/(housing\/[^"]+)";/g)].map((m) => `src/styles/${m[1]}`);
+  // 2026-10-28 に移行済み(番号ファイルは残っていない)。 移行後の共有ファイルを誤って動かさないよう止める
+  if (!files.some((f) => /^src\/styles\/housing\/\d\d-[^/]+\.css$/.test(f))) {
+    throw new Error('番号ファイル(src/styles/housing/NN-*.css)が入口に無い=移行済み。 他の CSS に使う時は SHARED/FRAME/OVERRIDES を作り直す');
+  }
   const sources = files.map((file) => ({ file, css: fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n') }));
   // 持ち主の候補は、 入口(src/main.tsx)から import でたどれる部品だけ(読まれない部品の隣の CSS は画面に届かない)
   const { staticFiles } = reachable('src/main.tsx', (f) => fs.readFileSync(f, 'utf8'), (f) => fs.existsSync(f) && fs.statSync(f).isFile());

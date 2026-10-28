@@ -1,10 +1,20 @@
-/* ハウジング画面のスタイル入口。中身は src/styles/housing/ に番号順(= 元の並び順)で分けてある。
- * CSS は後に書いたものが勝つので、番号の順番を入れ替えない。 */
-@import "./housing/00-tokens.css";
-@import "./housing/01-shell-frame.css";
-@import "./housing/unused/02-filter-panel.css";
+/* ハウジング画面の共有 CSS の入口。 部品の見た目は部品の隣の <部品名>.css(部品が自分で import する)。
+ * ここに並べるのは共有だけ: トークン・外枠・下地・全画面ページの外枠・地図の土台・昼夜切替・倍率。
+ * 入口を読む部品(HousingShell 等)はこのファイルを最初に import する(部品の CSS より先に読むため)。
+ * CSS は後に書いたものが勝つので、 この並びは入れ替えない。 */
+@import "./housing/tokens.css";
+@import "./housing/shell-frame.css";
 @import "./housing/primitives.css";
 @import "./housing/ward-map.css";
+@import "./housing/page-frame.css";
+@import "./housing/theme-reveal.css";
+@import "./housing/shell-header.css";
+@import "./housing/scale-pc.css";
+@import "./housing/scale-svg-icons.css";
+@import "./housing/center-tokens.css";
+
+/* JSX に見つからない規則(部品が消えた等)。 元のファイル名のまま残してある。 確かめてから削除する別タスク。 */
+@import "./housing/unused/02-filter-panel.css";
 @import "./housing/unused/04-register-ward-minimap.css";
 @import "./housing/unused/05-favorites-modal.css";
 @import "./housing/unused/06-manner-dialog.css";
@@ -17,17 +27,11 @@
 @import "./housing/unused/16-register-confirm-summary.css";
 @import "./housing/unused/17-login-account.css";
 @import "./housing/unused/19-detail.css";
-@import "./housing/page-frame.css";
 @import "./housing/unused/24-report-guide-modal.css";
 @import "./housing/unused/29-register-page-layout.css";
 @import "./housing/unused/39-browse-housinger-view.css";
 @import "./housing/unused/42-card-marquee.css";
 @import "./housing/unused/47-tour-add-temp-house.css";
 @import "./housing/unused/53-tour-invite.css";
-@import "./housing/theme-reveal.css";
 @import "./housing/unused/54-theme-reveal.css";
 @import "./housing/unused/62-mobile-layout.css";
-@import "./housing/27-rebuild-shell.css";
-@import "./housing/68-scale-pc.css";
-@import "./housing/69-scale-svg-icons.css";
-@import "./housing/70-center-tokens.css";
