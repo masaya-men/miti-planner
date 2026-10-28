@@ -36,6 +36,8 @@ export const overrides = {
   'mobile-row-dim-text': `${componentsDir}/MobileTimelineRow.tsx`,
   // Tailwind の animate-[floatingCountBounce_...] でだけ使う keyframes は、 その class を書く部品へ
   '@keyframes floatingCountBounce': `${componentsDir}/sidebar/SidebarFloatingBar.tsx`,
+  // 兄弟の 2 部品(LocalDataSafetyBar・SystemNotificationBar)が使う流れる文字は、 2 つを並べて描く外側の部品へ(片方を消しても他方の見た目が残る)
+  'system-notif-marquee': `${componentsDir}/sidebar/SidebarFooterBars.tsx`,
 };
 // [規則全体のセレクタ(文字列は完全一致・正規表現は一致), 持ち主]
 export const selectorOverrides = [
