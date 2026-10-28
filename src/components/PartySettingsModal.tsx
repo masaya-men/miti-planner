@@ -10,17 +10,13 @@ import { ModalHeader, CloseButton } from './ui/ModalParts';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { JobMigrationModal } from './JobMigrationModal';
-import { migrateMitigations } from '../utils/jobMigration';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { SPRING } from '../tokens/motionTokens';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { MigrationMode } from '../utils/jobMigration';
 import { useThemeStore } from '../store/useThemeStore';
-import type { Job, PartyMember, AppliedMitigation } from '../types';
 import './PartySettingsModal.css';
-import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
-import { SlotItem } from './party/PartySlotItem';
-import { mtGroupIndices, stGroupIndices } from './party/partyJobGroups';
+import { PartySlotGroups } from './party/PartySlotGroups';
+import { usePartyDraftMigration } from './party/usePartyDraftMigration';
 import { createPartyJobSelectHandler } from './party/createPartyJobSelectHandler';
 import { PartyJobPalette } from './party/PartyJobPalette';
 import { PartyMobileJobPicker } from './party/PartyMobileJobPicker';
@@ -60,96 +56,11 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         return () => setMounted(false);
     }, []);
 
-    // Draft state for party members
-    const [draftMembers, setDraftMembers] = useState<PartyMember[]>([]);
-
-    // Batch Migration State
-    const [migrationBatch, setMigrationBatch] = useState<{
-        memberName: string;
-        oldJob: Job | null;
-        newJob: Job;
-        memberId: string;
-    }[] | null>(null);
-
-    // Set draft members when the modal opens
-    React.useEffect(() => {
-        if (isOpen) {
-            setDraftMembers(JSON.parse(JSON.stringify(partyMembers))); // Simple deep copy for draft
-        }
-    }, [isOpen, partyMembers]);
-
-    const handleAttemptClose = React.useCallback(() => {
-        // チュートリアル中はTutorialBlockerがクリック制御するため、ここでは閉じを許可
-        // （completeEvent('party:closed')で進行通知）
-
-        if (migrationBatch) return;
-
-        const pendingMigrations: { memberName: string; oldJob: Job | null; newJob: Job; memberId: string }[] = [];
-        const safeChanges: { memberId: string; jobId: string | null }[] = [];
-
-        draftMembers.forEach(draftMember => {
-            const originalMember = partyMembers.find(m => m.id === draftMember.id);
-            if (!originalMember) return;
-
-            if (originalMember.jobId !== draftMember.jobId) {
-                const hasMitigations = timelineMitigations.some(m => m.ownerId === draftMember.id);
-                if (hasMitigations && originalMember.jobId && draftMember.jobId) {
-                    const oldJob = JOBS.find(j => j.id === originalMember.jobId) || null;
-                    const newJob = JOBS.find(j => j.id === draftMember.jobId)!;
-                    pendingMigrations.push({
-                        memberName: draftMember.id,
-                        memberId: draftMember.id,
-                        oldJob,
-                        newJob
-                    });
-                } else {
-                    safeChanges.push({ memberId: draftMember.id, jobId: draftMember.jobId });
-                }
-            }
-        });
-
-        // Apply safe changes immediately if there are no pending migrations
-        if (pendingMigrations.length === 0) {
-            if (safeChanges.length > 0) {
-                updatePartyBulk(safeChanges.map(c => ({ memberId: c.memberId, jobId: c.jobId! })));
-            }
-            // ── Tutorial: Complete Step 5 ──
-            useTutorialStore.getState().completeEvent('party:closed');
-            onClose();
-        } else {
-            // Unsafe changes
-            setMigrationBatch(pendingMigrations);
-        }
-    }, [JOBS, partyMembers, draftMembers, timelineMitigations, migrationBatch, onClose, updatePartyBulk]);
-
-    // ①：画面が完全に閉じた時だけ、状態をリセットする（点滅バグの防止）
-    React.useEffect(() => {
-        if (!isOpen) {
-            setFocusedSlot(null);
-            setMigrationBatch(null);
-        }
-    }, [isOpen]);
+    const { draftMembers, setDraftMembers, migrationBatch, handleAttemptClose, handleBatchMigrationConfirm, handleBatchMigrationCancel } = usePartyDraftMigration({
+        isOpen, onClose, JOBS, partyMembers, timelineMitigations, updatePartyBulk, popoverRef, setFocusedSlot,
+    });
 
 
-    // ②：背景クリック(外側を押す)の検知。移行確認の窓(portal で外に出る)が開いている間は検知しない
-    // (窓の中を押して click が止められると確認ボタンが効かなくなる)
-    useDismissOnOutside(isOpen && !migrationBatch, handleAttemptClose, [popoverRef]);
-
-    // ②：Enter / Escapeキーの検知
-    React.useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Enter' || event.key === 'Escape') {
-                handleAttemptClose();
-            }
-        };
-
-        if (isOpen) {
-            document.addEventListener('keydown', handleKeyDown);
-        }
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [isOpen, handleAttemptClose]);
 
 
     // Memoized Callbacks for SlotItem
@@ -163,7 +74,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         setFocusedSlot(null);
         // ── Tutorial: ジョブ削除イベント ──
         useTutorialStore.getState().completeEvent('party:job-removed');
-    }, []);
+    }, [setDraftMembers]);
 
     const handleMyJobToggle = React.useCallback((memberId: string, isMyJob: boolean) => {
         setMyMemberId(isMyJob ? null : memberId);
@@ -174,36 +85,6 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
     const handleJobSelect = createPartyJobSelectHandler({ JOBS, focusedSlot, draftMembers, setDraftMembers, setFocusedSlot, lastMeleeSlotRef });
 
-    // Protected Migration Handlers for Batch Process
-    const handleBatchMigrationConfirm = (mode: MigrationMode) => {
-        if (!migrationBatch) return;
-
-        const bulkUpdates: { memberId: string, jobId: string | null, mitigations?: AppliedMitigation[] }[] = [];
-
-        // Add any safe changes first
-        draftMembers.forEach(draftMember => {
-            const originalMember = partyMembers.find(m => m.id === draftMember.id);
-            if (originalMember && originalMember.jobId !== draftMember.jobId && !migrationBatch.some(b => b.memberId === draftMember.id)) {
-                bulkUpdates.push({ memberId: draftMember.id, jobId: draftMember.jobId });
-            }
-        });
-
-        // Add migrated changes
-        migrationBatch.forEach(({ memberId, oldJob, newJob }) => {
-            const memberMitis = useMitigationStore.getState().timelineMitigations.filter(m => m.ownerId === memberId);
-            const newMitis = migrateMitigations(oldJob?.id || '', newJob.id, memberId, memberMitis, mode);
-            bulkUpdates.push({ memberId, jobId: newJob.id, mitigations: newMitis });
-        });
-
-        updatePartyBulk(bulkUpdates);
-
-        setMigrationBatch(null);
-        onClose();
-    };
-
-    const handleBatchMigrationCancel = () => {
-        setMigrationBatch(null);
-    };
 
 
     const renderJobPalette = () => (
@@ -307,73 +188,19 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             />
                         )}
 
-                        {/* MTグループ */}
-                        <div>
-                            <div className="flex items-center justify-between mb-2 pl-1 pr-2">
-                                <div className="flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-app-text"></span>
-                                    <h3 className="text-app-text text-app-md font-black tracking-widest uppercase dark:drop-shadow-[0_1px_3px_rgba(0,0,0,1)]">MT Group</h3>
-                                </div>
-                                <span className="text-app-sm text-app-text font-bold hidden md:inline-block dark:drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-                                    {t('party.my_job_instruction_new')}
-                                </span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                {mtGroupIndices.map(index => {
-                                    const member = draftMembers[index];
-                                    if (!member) return null;
-                                    return (
-                                        <div key={member.id} ref={(el) => { if (el) slotDropRefs.current.set(index, el); }}>
-                                            <SlotItem
-                                                index={index}
-                                                member={member}
-                                                isFocused={focusedSlot === index}
-                                                isMyJob={myMemberId === member.id}
-                                                isDropTarget={drag.isDragging && drag.activeTargetId === String(index)}
-                                                theme={theme}
-                                                jobs={JOBS}
-                                                contentLanguage={contentLanguage}
-                                                onFocusToggle={handleFocusToggle}
-                                                onRemoveJob={handleRemoveJob}
-                                                onMyJobToggle={handleMyJobToggle}
-                                                {...(index === mtGroupIndices[1] ? { dataTutorial: 'party-healer-slot' } : {})}
-                                            />
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        {/* STグループ */}
-                        <div>
-                            <div className="flex items-center gap-2 mb-2 pl-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-app-text"></span>
-                                <h3 className="text-app-text text-app-md font-black tracking-widest uppercase dark:drop-shadow-[0_1px_3px_rgba(0,0,0,1)]">ST Group</h3>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                {stGroupIndices.map(index => {
-                                    const member = draftMembers[index];
-                                    if (!member) return null;
-                                    return (
-                                        <div key={member.id} ref={(el) => { if (el) slotDropRefs.current.set(index, el); }}>
-                                            <SlotItem
-                                                index={index}
-                                                member={member}
-                                                isFocused={focusedSlot === index}
-                                                isMyJob={myMemberId === member.id}
-                                                isDropTarget={drag.isDragging && drag.activeTargetId === String(index)}
-                                                theme={theme}
-                                                jobs={JOBS}
-                                                contentLanguage={contentLanguage}
-                                                onFocusToggle={handleFocusToggle}
-                                                onRemoveJob={handleRemoveJob}
-                                                onMyJobToggle={handleMyJobToggle}
-                                            />
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
+                        <PartySlotGroups
+                            draftMembers={draftMembers}
+                            slotDropRefs={slotDropRefs}
+                            focusedSlot={focusedSlot}
+                            myMemberId={myMemberId}
+                            drag={drag}
+                            theme={theme}
+                            JOBS={JOBS}
+                            contentLanguage={contentLanguage}
+                            handleFocusToggle={handleFocusToggle}
+                            handleRemoveJob={handleRemoveJob}
+                            handleMyJobToggle={handleMyJobToggle}
+                        />
                     </div>
 
                     {/* ── Tutorial Banner removed to use unified TutorialOverlay ── */}
