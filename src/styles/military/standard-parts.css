@@ -2,23 +2,23 @@
 /* ============================================================
  * SP2: TIMELINE TABLE — タイムライン表の軍事化
  * 正典: docs/.private/theme-refs/milspec-v11.css(v11)。表の行・見出し・効果アイコン・照準は
- *   components/military/table/milspecTable.css、操作列は milspecDeck.css、差込口は milspecJack.css へ移した。
- *   ここに残るのはジョブチップ .cj・リキャスト帯・計器スクロールバー(旧 mockup 準拠)。
+ *   components/military/table/ の各部品の CSS(MilspecReticle.css 等)、操作列は MilspecControlDeck.css・MilspecSwitches.css、
+ *   差込口は MilspecJackRow.css。標準の部品(表の行・見出し・効果棒・ジョブチップ .cj・リキャスト帯・スクロールバー)の描き変えはこのファイル。
  * 全ルール .theme-military 前置。モックの --raised-hi 等は --ms-raised-hi へ読み替え。
  * ============================================================ */
 
-/* 表の行・見出し・致死の段・同時刻・フェーズの見た目は components/military/table/milspecTable.css(見本 v11 css:455-507)。 */
+/* 表の行・見出し・致死の段・同時刻・フェーズの描き変えもこのファイル(見本 v11 css:455-507)。 */
 
 /* ---------- Task 5: コントロールバー — v11 の操作列(MilspecControlDeck)に置き換え済み。
    旧 .subtoolbar 意匠(ロッカートグル・キートップ・仕切り・プレート)はここから撤去した。
-   新しい操作列の CSS は components/military/table/milspecDeck.css。 ---------- */
+   新しい操作列の CSS は components/military/table/MilspecControlDeck.css・MilspecSwitches.css。 ---------- */
 
 /* ---------- ジョブチップ .cj(旧 mockup .cj 1023-1032)
    ⚠ JobPickerRow の外側 [data-member-id] は useMeasuredMemberLayout が offsetLeft/offsetWidth/
      paddingLeft を実測して全軽減バーの列 x を決める → 幅・padding・border 幅を変えない。意匠は
      内側の .cursor-pointer div(box-sizing:border-box・w-full h-full)に載せ、外側の border-r は
      色だけ recolor(幅不変)。
-   効果棒([data-mit-bar])・効果アイコンは milspecTable.css。
+   効果棒([data-mit-bar])・効果アイコンもこのファイル。
    スコープは .theme-military .milspec-app。 ---------- */
 
 
@@ -47,7 +47,7 @@
    RecastRow はメンバー列(見出し #timeline-header-inner の直下の .recast-cell)に出る。
    ⚠ .recast-cell の padding-left / justify-content(index.css)は触らない(本文の軽減バーと x を揃える実測値)。
    ⚠ --cd-display / --cd-order / --cd-angle は RecastRow.update() が書く動作契約。ここでは色・形だけ skin する。
-   セルの罫線は幅を保ったまま透明に落とす。待機表示(線 + 略号)の規則は milspecTable.css。 ---------- */
+   セルの罫線は幅を保ったまま透明に落とす。待機表示(線 + 略号)の規則もこのファイル。 ---------- */
 .theme-military .milspec-app #timeline-header-inner > .recast-cell {
   background: transparent;
   border-right-color: transparent;

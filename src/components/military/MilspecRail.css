@@ -1,7 +1,7 @@
 /* MilspecRail の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
 /* 左のレール(見本 v11 css:335-353 の縦の取っ手・パンチング板・彫り込み)。全規則 .theme-military 前置。
    基板の部品(.milspec-pcb 配下)・リベット(.milspec-rivet)・彫り込み(.milspec-vent-chan)は military.css 側を共用する。
-   取っ手の土台は header/milspecVent.css の .milspec-pull(横向き)。ここは縦向き(.is-v)の差分だけ。 */
+   取っ手の土台は MilspecVent.css の .milspec-pull(横向き)。ここは縦向き(.is-v)の差分だけ。 */
 .theme-military .milspec-rail { position: absolute; inset: 0; }
 .theme-military .milspec-rail > * { position: absolute; }
 

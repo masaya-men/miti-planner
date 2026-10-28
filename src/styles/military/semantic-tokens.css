@@ -2,7 +2,7 @@
 /* ============================================================
  * Phase 1.2 — 本番の意味トークンを MIL-SPEC パレットへリマップ
  * ------------------------------------------------------------
- * 本番の意味トークン (--color-* / --glass-* / --radius-*) を military.css 32-216 の
+ * 本番の意味トークン (--color-* / --glass-* / --radius-*) を palette.css の
  * --ms-* へ差し替える。これで --color-app-* 経由の Tailwind ユーティリティ
  * (bg-app-bg / text-app-text / border-app-border / bg-app-toggle / text-app-blue …)
  * と .glass-tier1/2/3 が MIL-SPEC パレットに全自動追従し、「半 themed で取り残される

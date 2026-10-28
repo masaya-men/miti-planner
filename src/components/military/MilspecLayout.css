@@ -84,7 +84,7 @@
 }
 .theme-military .milspec-zone-sidebar:not([data-open]) { display: none; }
 
-/* レール: 見た目は rail/milspecRail.css(見本 v11 の基板レール) */
+/* レール: 見た目は MilspecRail.css(見本 v11 の基板レール) */
 
 /* 区画に重ねる装甲パネル(MilspecArmor)。親は position:relative 前提。
    積み順の規則: 各ゾーンは isolation:isolate で独立した積み層になる。装甲は z-index:-1 で

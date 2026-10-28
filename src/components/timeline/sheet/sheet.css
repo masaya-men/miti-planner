@@ -31,7 +31,7 @@
 }
 
 /* MIL-SPEC: 罫線は表と同じ --ma-cell-line(列)/ --ma-row-line(ジョブの境目)。
-   milspecTable.css の `[data-time-row] > *` が background:none と左線(box-shadow)を当てるので、
+   src/styles/military/standard-parts.css の `[data-time-row] > *` が background:none と左線(box-shadow)を当てるので、
    同じ強さ以上で縦罫線(background-image)を重ねる。 */
 .theme-military .milspec-app [data-time-row] > [data-sheet-cols] {
   background-image: repeating-linear-gradient(
