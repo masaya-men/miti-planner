@@ -12,8 +12,6 @@ export function AdminConfig() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
 
-  const [threshold, setThreshold] = useState(20);
-  const [multiplier, setMultiplier] = useState(2);
   const [newListingWindowDays, setNewListingWindowDays] = useState(7);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -24,8 +22,6 @@ export function AdminConfig() {
       const res = await apiFetch('/api/admin?resource=templates&type=config');
       if (res.ok) {
         const data = await res.json();
-        if (data.promotionThreshold !== undefined) setThreshold(data.promotionThreshold);
-        if (data.promotionMultiplier !== undefined) setMultiplier(data.promotionMultiplier);
         if (data.newListingWindowDays !== undefined) setNewListingWindowDays(data.newListingWindowDays);
       }
     } catch {
@@ -48,8 +44,6 @@ export function AdminConfig() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'config',
-          promotionThreshold: threshold,
-          promotionMultiplier: multiplier,
           newListingWindowDays,
         }),
       });
@@ -72,33 +66,6 @@ export function AdminConfig() {
       )}
 
       {!loading && <div className="p-4 border border-app-text/10 rounded space-y-4 max-w-md">
-        <div>
-          <label className="block text-app-lg text-app-text-muted mb-1">
-            {t('admin.promotion_threshold')}
-          </label>
-          <input
-            type="number"
-            className={inputClass}
-            value={threshold}
-            onChange={(e) => setThreshold(Number(e.target.value))}
-            min={1}
-          />
-        </div>
-
-        <div>
-          <label className="block text-app-lg text-app-text-muted mb-1">
-            {t('admin.promotion_multiplier')}
-          </label>
-          <input
-            type="number"
-            className={inputClass}
-            value={multiplier}
-            onChange={(e) => setMultiplier(Number(e.target.value))}
-            min={1}
-            step={0.1}
-          />
-        </div>
-
         <div>
           <label className="block text-app-lg text-app-text-muted mb-1">
             {t('admin.new_listing_window_days')}

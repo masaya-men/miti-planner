@@ -25,7 +25,7 @@ const COLLECTION = 'housing_listings';
 const PUBLIC_VISIBILITY = ['public', 'unlisted'];
 
 // 射影で使いうる全フィールドを .select() して Firestore→関数の転送量を削減する
-// (planData 級の大フィールドは無いが、方針を api/popular と揃える)。
+// (planData 級の大フィールドは無いが、大きな doc を読む他の公開 API と方針を揃える)。
 const SELECT_FIELDS = [
   'ownerUid', 'visibility', 'isHidden', 'deletedAt', 'createdAt', 'publishUntil', 'pinnedNewUntil',
   'dc', 'server', 'area', 'ward', 'plot', 'size', 'apartmentBuilding', 'roomNumber', 'addressKey',

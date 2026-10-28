@@ -50,8 +50,8 @@ describe('localStorage 見本', () => {
     expect(s['theme-storage'].state.contentLanguage).toBe('en');
     expect(s['theme-storage'].state.timelineView).toBe('sheet');
   });
-  it('baseStorage は初回窓の抑止 4 キー', () => {
-    expect(Object.keys(baseStorage()).sort()).toEqual(['housing-onboarding-seen', 'lopo.popularDisplayConsent', 'lopo_mobile_guide_completed', 'tutorial-storage']);
+  it('baseStorage は初回窓の抑止 3 キー', () => {
+    expect(Object.keys(baseStorage()).sort()).toEqual(['housing-onboarding-seen', 'lopo_mobile_guide_completed', 'tutorial-storage']);
   });
   it('housingStorage は favorites と theme を持つ', () => {
     const s = housingStorage({ theme: { mode: 'light', style: 'standard' }, favorites: ['vr-l01'] });

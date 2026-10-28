@@ -200,7 +200,6 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
                         planData: stripSharedPersonalData(p.planData),
                     })),
                     imageHash,
-                    copyCount: 0,
                     viewCount: 0,
                     createdAt: Date.now(),
                 };
@@ -244,7 +243,6 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
                 // 共有に個人状態(progress/memos)を載せない（Layer1: 保存時に除去）
                 planData: stripSharedPersonalData(planData),
                 imageHash,
-                copyCount: 0,
                 viewCount: 0,
                 createdAt: Date.now(),
             };

@@ -17,14 +17,6 @@ export interface TemplateRow {
   lastUpdatedAt: string;
 }
 
-/** 昇格候補 */
-export interface PromotionCandidate {
-  shareId: string;
-  contentId: string;
-  title: string;
-  copyCount: number;
-}
-
 /** スプレッドシート詳細（GET ?resource=templates&id=◯◯ のレスポンス形） */
 export interface TemplateDetail {
   timelineEvents: TimelineEvent[];
@@ -58,15 +50,6 @@ export function makeTemplateRows(n: number): TemplateRow[] {
     phaseCount: 3 + (i % 5),
     lockedAt: i % 4 === 0 ? isoDate(i) : null,
     lastUpdatedAt: isoDate(i),
-  }));
-}
-
-export function makeCandidates(n: number): PromotionCandidate[] {
-  return Array.from({ length: n }, (_, i) => ({
-    shareId: `share-${String(i + 1).padStart(3, '0')}`,
-    contentId: contentId(i),
-    title: `みんなの軽減表 候補 ${i + 1}`,
-    copyCount: 50 - i * 3,
   }));
 }
 

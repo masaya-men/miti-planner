@@ -22,9 +22,8 @@ import { resolveTemplatePhaseAppend } from '../../utils/templateImportPhases';
 import { AdminPage } from './AdminPage';
 import type { TimelineEvent } from '../../types';
 import type { TemplateData } from '../../types/template';
-import type { TemplateItem, ContentItem, PromotionCandidate } from './templates/adminTemplateTypes';
+import type { TemplateItem, ContentItem } from './templates/adminTemplateTypes';
 import { TemplateListTable } from './templates/TemplateListTable';
-import { PromotionCandidatesSection } from './templates/PromotionCandidatesSection';
 
 
 export function AdminTemplates() {
@@ -33,7 +32,6 @@ export function AdminTemplates() {
 
   const [templates, setTemplates] = useState<TemplateItem[]>([]);
   const [contents, setContents] = useState<ContentItem[]>([]);
-  const [candidates, setCandidates] = useState<PromotionCandidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -96,23 +94,10 @@ export function AdminTemplates() {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- user が変わった時にコールバックを作り直し、呼び出し側の effect で再取得させる
   }, [user, t]);
 
-  /** 昇格候補を取得 */
-  const fetchCandidates = useCallback(async () => {
-    try {
-      const res = await apiFetch('/api/template?action=promote&candidates=true');
-      if (res.ok) {
-        const data = await res.json();
-        setCandidates(data.candidates ?? []);
-      }
-    } catch { /* 昇格候補取得失敗は致命的でない */ }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- user が変わった時にコールバックを作り直し、呼び出し側の effect で再取得させる
-  }, [user]);
-
   useEffect(() => {
     fetchTemplates();
     fetchContents();
-    fetchCandidates();
-  }, [fetchTemplates, fetchContents, fetchCandidates]);
+  }, [fetchTemplates, fetchContents]);
 
   /** コンテンツを選択してテンプレートをロード */
   const handleContentChange = useCallback(async (contentId: string) => {
@@ -214,26 +199,6 @@ export function AdminTemplates() {
         body: JSON.stringify({ contentId: item.contentId, lock: newLock }),
       });
       if (!res.ok) throw new Error(res.statusText);
-      await fetchTemplates();
-    } catch {
-      showToast(t('admin.error_save'), 'error');
-    }
-  };
-
-  /** 昇格候補の承認/却下 */
-  const handlePromotion = async (candidate: PromotionCandidate, action: 'approve' | 'reject') => {
-    try {
-      const res = await apiFetch('/api/template?action=promote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          shareId: candidate.shareId,
-          contentId: candidate.contentId,
-          action,
-        }),
-      });
-      if (!res.ok) throw new Error(res.statusText);
-      await fetchCandidates();
       await fetchTemplates();
     } catch {
       showToast(t('admin.error_save'), 'error');
@@ -435,7 +400,6 @@ export function AdminTemplates() {
       )}
 
       {/* 昇格候補セクション */}
-      <PromotionCandidatesSection candidates={candidates} onPromotion={handlePromotion} />
 
       {/* モーダル群 */}
       <PlanToTemplateModal

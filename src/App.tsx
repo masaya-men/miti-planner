@@ -45,7 +45,6 @@ import { AdminBackups } from './components/admin/AdminBackups';
 import { AdminSystemNotifications } from './components/admin/AdminSystemNotifications';
 import { AdminLogs } from './components/admin/AdminLogs';
 import { AdminUgc } from './components/admin/AdminUgc';
-import { AdminFeatured } from './components/admin/AdminFeatured';
 import { AdminHousingReports } from './components/admin/AdminHousingReports';
 import { AdminHousingerReports } from './components/admin/AdminHousingerReports';
 import { AdminHousingNewBadge } from './components/admin/AdminHousingNewBadge';
@@ -159,7 +158,6 @@ function AppRoutes() {
         <Route path="backups" element={<AdminBackups />} />
         <Route path="logs" element={<AdminLogs />} />
         <Route path="ugc" element={<AdminUgc />} />
-        <Route path="featured" element={<AdminFeatured />} />
         <Route path="notifications" element={<AdminSystemNotifications />} />
         <Route path="housing-reports" element={<AdminHousingReports />} />
         <Route path="housinger-reports" element={<AdminHousingerReports />} />

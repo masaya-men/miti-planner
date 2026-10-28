@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -7,19 +7,17 @@ import { apiFetch } from '../../lib/apiClient';
 import { stripSharedPersonalData } from '../../lib/sharePrivacy';
 import type { SavedPlan } from '../../types';
 import { buildOgImageUrl, type OgpLang } from '../../lib/ogpHelpers';
-import { hasPopularConsent, setPopularConsent } from '../../lib/popularConsent';
 
 interface UseShareLinkArgs {
     isOpen: boolean;
-    onClose: () => void;
     currentPlan: SavedPlan | undefined;
     /** バンドル共有用：複数プランのデータ */
     bundlePlans?: { contentId: string | null; title: string; planData: unknown }[];
     showLogo: boolean;
 }
 
-/** 共有 URL と OGP 画像の生成・ロゴ差し替え(PUT)・掲載同意の確認 */
-export function useShareLink({ isOpen, onClose, currentPlan, bundlePlans, showLogo }: UseShareLinkArgs) {
+/** 共有 URL と OGP 画像の生成・ロゴ差し替え(PUT) */
+export function useShareLink({ isOpen, currentPlan, bundlePlans, showLogo }: UseShareLinkArgs) {
     const { t, i18n } = useTranslation();
     const [shareUrl, setShareUrl] = useState<string | null>(null);
     const [ogImageUrl, setOgImageUrl] = useState<string | null>(null);
@@ -31,8 +29,6 @@ export function useShareLink({ isOpen, onClose, currentPlan, bundlePlans, showLo
     // 永続 state は持たず、レスポンスごとに最新値を直接使うことで参照ズレを排除。
 
     const { user, teamLogoUrl } = useAuthStore();
-    const [consentOpen, setConsentOpen] = useState(false);
-    const pendingPostRef = useRef<(() => void) | null>(null);
 
     const isBundle = bundlePlans && bundlePlans.length > 0;
 
@@ -67,12 +63,7 @@ export function useShareLink({ isOpen, onClose, currentPlan, bundlePlans, showLo
         setOgImageUrl(null);
         setImageLoaded(false);
 
-        if (hasPopularConsent()) {
-            generateShareUrl();
-        } else {
-            pendingPostRef.current = generateShareUrl;
-            setConsentOpen(true);
-        }
+        generateShareUrl();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- モーダルが開いた時だけ共有 URL を生成する(generateShareUrl は毎回作り直される関数。依存に入れると毎描画で再生成してしまう)
     }, [isOpen]);
 
@@ -170,22 +161,7 @@ export function useShareLink({ isOpen, onClose, currentPlan, bundlePlans, showLo
         }
     };
 
-    const handleConsentAccept = () => {
-        setPopularConsent();
-        setConsentOpen(false);
-        const fn = pendingPostRef.current;
-        pendingPostRef.current = null;
-        if (fn) fn();
-    };
-
-    const handleConsentCancel = () => {
-        setConsentOpen(false);
-        pendingPostRef.current = null;
-        onClose(); // モーダル全体を閉じる（共有を中止）
-    };
-
     return {
         isBundle, shareUrl, ogImageUrl, imageLoaded, setImageLoaded, updateShareLogo,
-        consentOpen, handleConsentAccept, handleConsentCancel,
     };
 }

@@ -3,7 +3,7 @@
  *
  * 探すページのNEWリボンは通常「投稿から7日以内 (管理画面で日数変更可)」で自動表示されるが、
  * 管理者が任意のお気に入り物件を選んで期限付きで固定表示させたい場合に使う。
- * AdminFeatured.tsx の検索UIパターン (URL/ID入力→検索→操作) を踏襲。
+ * AdminUgc.tsx と同じ検索UIパターン (URL/ID入力→検索→操作)。
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -218,7 +218,7 @@ export function AdminHousingNewBadge() {
                           <span className="text-app-text-muted">{t('admin.housing_new_badge.status_off')}</span>
                         )}
                         {listing.isHidden && (
-                          <span className="text-app-red">{t('admin.popular_hidden_badge')}</span>
+                          <span className="text-app-red">{t('admin.hidden_badge')}</span>
                         )}
                         {listing.deletedAt && (
                           <span className="text-app-red">{t('admin.housing_new_badge.status_deleted')}</span>

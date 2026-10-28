@@ -21,7 +21,6 @@ const NAV_ITEMS = [
   { path: '/admin/backups', labelKey: 'admin.backups_title', end: false },
   { path: '/admin/logs', labelKey: 'admin.logs_title', end: false },
   { path: '/admin/ugc', labelKey: 'admin.ugc_title', end: false },
-  { path: '/admin/featured', labelKey: 'admin.featured_title', end: false },
   { path: '/admin/notifications', labelKey: 'system_notif.admin.tab_label', end: false },
   { path: '/admin/housing-reports', labelKey: 'admin.housing_reports.title', end: false },
   { path: '/admin/housinger-reports', labelKey: 'admin.housinger_reports.title', end: false },

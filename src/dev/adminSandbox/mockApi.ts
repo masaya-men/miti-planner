@@ -55,16 +55,5 @@ export async function mockApiFetch(
     }
   }
 
-  // /api/template?action=promote
-  if (path === '/api/template' && params.get('action') === 'promote') {
-    if (method === 'GET' && params.get('candidates') === 'true') {
-      return json({ candidates: sandboxStore.listCandidates() });
-    }
-    if (method === 'POST') {
-      sandboxStore.resolveCandidate(String(readBody().shareId));
-      return json({ ok: true });
-    }
-  }
-
   return null; // 未対応 → 本物へフォールバック
 }

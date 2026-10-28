@@ -11,12 +11,11 @@ export function serializeStorage(entries) {
   return Object.fromEntries(Object.entries(entries).map(([k, v]) => [k, typeof v === 'string' ? v : JSON.stringify(v)]));
 }
 
-/** 初回の案内窓(チュートリアル・モバイルガイド・人気表示の同意・ハウジング初回案内)を出さない 4 キー */
+/** 初回の案内窓(チュートリアル・モバイルガイド・ハウジング初回案内)を出さない 3 キー */
 export function baseStorage() {
   return {
     'tutorial-storage': { state: { hasCompleted: true, hasVisitedShare: true, isActive: false }, version: 0 },
     'lopo_mobile_guide_completed': 'true',
-    'lopo.popularDisplayConsent': '1',
     'housing-onboarding-seen': '1',
   };
 }

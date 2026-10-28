@@ -14,10 +14,3 @@ export interface ContentItem {
   nameJa?: string;
   name?: { ja?: string; en?: string };
 }
-
-export interface PromotionCandidate {
-  shareId: string;
-  contentId: string;
-  title: string;
-  copyCount: number;
-}

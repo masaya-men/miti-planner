@@ -69,22 +69,6 @@
       ]
     },
     {
-      "collectionGroup": "shared_plans",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "contentId", "order": "ASCENDING" },
-        { "fieldPath": "viewCount", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "shared_plans",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "contentId", "order": "ASCENDING" },
-        { "fieldPath": "copyCount", "order": "DESCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "housing_profiles",
       "queryScope": "COLLECTION",
       "fields": [

@@ -1,24 +1,20 @@
 import {
   makeContents,
   makeTemplateRows,
-  makeCandidates,
   makeTimelineDetail,
   type ContentItem,
   type TemplateRow,
-  type PromotionCandidate,
   type TemplateDetail,
 } from './fixtures/templates';
 
 let contents: ContentItem[];
 let templates: TemplateRow[];
-let candidates: PromotionCandidate[];
 let detailCache: Map<string, TemplateDetail>;
 
 /** 初期データを再シードする（テストの beforeEach でも使用） */
 export function resetSandboxStore(): void {
   contents = makeContents(60);
   templates = makeTemplateRows(60);
-  candidates = makeCandidates(8);
   detailCache = new Map();
 }
 
@@ -35,7 +31,6 @@ interface SaveBody {
 export const sandboxStore = {
   listContents: (): ContentItem[] => contents,
   listTemplates: (): TemplateRow[] => templates,
-  listCandidates: (): PromotionCandidate[] => candidates,
 
   /** 詳細は初回アクセス時に生成してキャッシュ（同じ表は同じ中身を返す） */
   getTemplateDetail(id: string): TemplateDetail {
@@ -78,9 +73,5 @@ export const sandboxStore = {
   deleteTemplate(contentId: string): void {
     templates = templates.filter((t) => t.contentId !== contentId);
     detailCache.delete(contentId);
-  },
-
-  resolveCandidate(shareId: string): void {
-    candidates = candidates.filter((c) => c.shareId !== shareId);
   },
 };

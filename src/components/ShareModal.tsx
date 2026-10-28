@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/useAuthStore';
 import { LoginModal } from './LoginModal';
 import type { SavedPlan } from '../types';
-import { PopularConsentDialog } from './PopularConsentDialog';
 import { ModalShell } from './ui/ModalShell';
 import { ModalHeader } from './ui/ModalParts';
 import { useShareLink } from './share/useShareLink';
@@ -32,8 +31,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 
     const {
         isBundle, shareUrl, ogImageUrl, imageLoaded, setImageLoaded, updateShareLogo,
-        consentOpen, handleConsentAccept, handleConsentCancel,
-    } = useShareLink({ isOpen, onClose, currentPlan, bundlePlans, showLogo });
+    } = useShareLink({ isOpen, currentPlan, bundlePlans, showLogo });
     const {
         uploading, fileInputRef, handleToggleLogo, processLogoFile, handleLogoUpload, handleLogoDelete,
     } = useTeamLogo({ showLogo, setShowLogo, updateShareLogo });
@@ -80,21 +78,10 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                     />
                 )}
 
-                {/* 野良主流掲載に関する常駐通知 */}
-                <div className="px-5 pb-3 flex items-start gap-1.5 text-app-xs text-app-text-muted leading-relaxed">
-                    <span className="shrink-0 mt-px">ⓘ</span>
-                    <p>{t('app.popular_display_notice')}</p>
-                </div>
-
                 {/* アクションボタン */}
                 <ShareActions shareUrl={shareUrl} imageLoaded={imageLoaded} contentLabel={contentLabel} />
                 </div>
         </ModalShell>
         <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
-        <PopularConsentDialog
-            isOpen={consentOpen}
-            onAccept={handleConsentAccept}
-            onCancel={handleConsentCancel}
-        />
     </>);
 };

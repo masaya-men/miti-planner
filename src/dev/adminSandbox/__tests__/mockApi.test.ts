@@ -47,17 +47,6 @@ describe('mockApiFetch', () => {
     expect(row.lockedAt).not.toBeNull();
   });
 
-  it('GET 昇格候補は candidates を返し、POST で1件消える', async () => {
-    const before = await (await mockApiFetch('/api/template?action=promote&candidates=true'))!.json();
-    expect(before.candidates.length).toBe(8);
-    await mockApiFetch('/api/template?action=promote', {
-      method: 'POST',
-      body: JSON.stringify({ shareId: before.candidates[0].shareId, action: 'approve' }),
-    });
-    const after = await (await mockApiFetch('/api/template?action=promote&candidates=true'))!.json();
-    expect(after.candidates.length).toBe(7);
-  });
-
   it('未対応の URL は null を返す(本物へフォールバック)', async () => {
     const res = await mockApiFetch('/api/auth?provider=discord', { method: 'POST' });
     expect(res).toBeNull();

@@ -6,7 +6,6 @@
  * ?resource=sync                 → データ同期 (POST)
  * ?resource=dashboard            → ダッシュボード統計 (GET)
  * ?resource=ugc                  → UGC管理 (GET/DELETE)
- * ?resource=popular              → 野良主流ランキング (GET)
  * ?resource=system_notifications → 運営通知 (POST/PATCH/DELETE)
  * ?resource=housing_reports      → ハウジング通報管理 (GET/PATCH)
  * ?resource=housinger_reports    → ハウジンガープロフィール通報管理 (GET/PATCH)
@@ -18,7 +17,6 @@ import templatesHandler from './_templatesHandler.js';
 import syncHandler from './_syncHandler.js';
 import dashboardHandler from './_dashboardHandler.js';
 import ugcHandler from './_ugcHandler.js';
-import popularHandler from './_popularHandler.js';
 import systemNotificationsHandler from './_systemNotificationsHandler.js';
 import housingReportsHandler from './_housingReportsHandler.js';
 import housingerReportsHandler from './_housingerReportsHandler.js';
@@ -43,8 +41,6 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       return dashboardHandler(req, res);
     case 'ugc':
       return ugcHandler(req, res);
-    case 'popular':
-      return popularHandler(req, res);
     case 'system_notifications':
       return systemNotificationsHandler(req, res);
     case 'housing_reports':
@@ -54,6 +50,6 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     case 'housing_new_badge':
       return housingNewBadgeHandler(req, res);
     default:
-      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync|dashboard|ugc|popular|system_notifications|housing_reports|housinger_reports|housing_new_badge' });
+      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync|dashboard|ugc|system_notifications|housing_reports|housinger_reports|housing_new_badge' });
   }
 }

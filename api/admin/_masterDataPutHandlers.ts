@@ -22,7 +22,7 @@ export async function handleConfigPut(
 ) {
   const configRef = db.doc('master/config');
   const updates = req.body;
-  const allowed = ['promotionThreshold', 'promotionMultiplier', 'featureFlags', 'newListingWindowDays'];
+  const allowed = ['featureFlags', 'newListingWindowDays'];
   const filtered: Record<string, unknown> = {};
   for (const key of allowed) {
     if (updates[key] !== undefined) filtered[key] = updates[key];
