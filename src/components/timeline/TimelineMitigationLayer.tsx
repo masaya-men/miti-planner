@@ -13,7 +13,7 @@ import { SheetCooldownLines } from './sheet/SheetCooldownLines';
 import type { useTimelineRowLayout, useTimelineMemberXMap } from './useTimelineLayout';
 import type { useTimelineDamage } from './useTimelineDamage';
 import type { useTimelineSheetColumns } from './useTimelineSheetView';
-import type { useTimelineMitigationEditing } from './useTimelineEditing';
+import type { useTimelineMitigationEditing } from './useTimelineMitigationEditing';
 /** 描画用の 1 アイコン。実データの AppliedMitigation か、ホロスコープ等の子として差し込む仮想アイコン */type DisplayItem = AppliedMitigation & { isVirtual: boolean; parentId: string | null; iconOverride?: string; grayscale?: boolean };
 
 type DamageResult = ReturnType<typeof useTimelineDamage>;

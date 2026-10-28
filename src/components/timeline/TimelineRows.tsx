@@ -4,7 +4,7 @@ import { TimelineRow } from '../TimelineRow';
 import { MobileTimelineRow } from '../MobileTimelineRow';
 import type { useTimelineRowLayout, useTimelineSheetWidth, useTimelinePartyOrder } from './useTimelineLayout';
 import type { useTimelineDamage } from './useTimelineDamage';
-import type { useTimelineMitigationEditing } from './useTimelineEditing';
+import type { useTimelineMitigationEditing } from './useTimelineMitigationEditing';
 import type { useTimelineSheetColumns } from './useTimelineSheetView';
 
 type RowProps = React.ComponentProps<typeof TimelineRow>;
