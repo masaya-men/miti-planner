@@ -2,7 +2,7 @@
 /* ===== 空パネル（プラン未選択時）— Liquid Glass + 呼吸する光 ===== */
 
 /* Liquid Glass オーバーレイ（Timeline内に配置）— デフォルト非表示、.no-planで表示 */
-.empty-liquid-glass {
+.empty-plan-scrim {
   position: absolute; inset: 0; z-index: 60;
   background: rgba(0,0,0,0.35);
   --tw-backdrop-blur: blur(1.5px);
@@ -16,7 +16,7 @@
     inset 0 -1px 1px rgba(255,255,255,0.04);
   border-radius: inherit;
 }
-.empty-liquid-glass::before {
+.empty-plan-scrim::before {
   content: '';
   position: absolute; inset: 0;
   padding: 1.5px;
@@ -32,7 +32,7 @@
   mask-composite: exclude;
   pointer-events: none;
 }
-.empty-liquid-glass::after {
+.empty-plan-scrim::after {
   content: '';
   position: absolute; inset: 0;
   padding: 1.5px;
@@ -49,10 +49,10 @@
 }
 
 /* .no-plan のとき表示 */
-.no-plan .empty-liquid-glass { display: block; }
+.no-plan .empty-plan-scrim { display: block; }
 
 /* ライトテーマ — 白いすりガラス + 繊細な黒の縁 */
-.theme-light .empty-liquid-glass {
+.theme-light .empty-plan-scrim {
   background: rgba(255,255,255,0.55);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.8),
@@ -60,14 +60,14 @@
     0 0 0 1px rgba(0,0,0,0.08),
     0 2px 8px rgba(0,0,0,0.04);
 }
-.theme-light .empty-liquid-glass::before {
+.theme-light .empty-plan-scrim::before {
   background: linear-gradient(180deg,
     rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.04) 15%,
     transparent 35%, transparent 65%,
     rgba(0,0,0,0.03) 85%, rgba(0,0,0,0.06) 100%
   );
 }
-.theme-light .empty-liquid-glass::after {
+.theme-light .empty-plan-scrim::after {
   background: linear-gradient(90deg,
     rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.03) 10%,
     transparent 25%, transparent 75%,

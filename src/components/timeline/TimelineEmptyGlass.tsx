@@ -2,7 +2,7 @@ import React from 'react';
 
 /** プラン未選択時 — Liquid Glass オーバーレイ（CSSクラス .no-plan で表示制御） */
 export const TimelineEmptyGlass: React.FC = () => (
-    <div className="empty-liquid-glass">
+    <div className="empty-plan-scrim">
         <div className="empty-glass-corner empty-glass-corner-tl" />
         <div className="empty-glass-corner empty-glass-corner-tr" />
         <div className="empty-glass-corner empty-glass-corner-bl" />
