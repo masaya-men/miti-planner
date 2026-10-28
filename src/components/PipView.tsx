@@ -7,8 +7,6 @@ import { useThemeStore } from '../store/useThemeStore';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { usePipNotes } from '../hooks/usePipNotes';
 import { useShallow } from 'zustand/react/shallow';
-import { X, Pencil } from 'lucide-react';
-import clsx from 'clsx';
 import type { AppliedMitigation } from '../types';
 import {
     computeCueItems,
@@ -17,13 +15,9 @@ import {
     isBgLight,
 } from '../utils/pipViewLogic';
 import { filterCheatSheetMitigations } from '../utils/cheatSheetFilters';
-
-/** 時間(秒)を mm:ss 形式に変換 */
-function formatTime(seconds: number): string {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return `${m}:${s.toString().padStart(2, '0')}`;
-}
+import { PipToolbar } from './pip/PipToolbar';
+import { PipCueList } from './pip/PipCueList';
+import { PipEditMenu } from './pip/PipEditMenu';
 
 interface PipViewProps {
     /** 'pip'=PC別ウィンドウ, 'fullscreen'=スマホ全画面（X 閉じボタン表示） */
@@ -32,7 +26,7 @@ interface PipViewProps {
 }
 
 const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
-    const { t, i18n } = useTranslation();
+    const { i18n } = useTranslation();
     const JOBS = useJobs();
     const MITIGATIONS = useMitigations();
     const theme = useThemeStore(s => s.theme);
@@ -175,339 +169,57 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
             style={{ background: bgColor, color: fgColor }}
         >
             {/* ── ツールバー（1 段構成） ── */}
-            <div className={clsx(
-                "shrink-0 border-b border-current/10 flex items-center",
-                isFs ? "gap-2 px-2 py-1.5" : "gap-1 px-1.5 py-1",
-            )}>
-                {/* ALL ボタン */}
-                <button
-                    onClick={onAllClick}
-                    className={clsx(
-                        "rounded font-bold tracking-wider cursor-pointer transition-colors shrink-0",
-                        isFs ? "h-8 px-3 text-xs" : "h-5 px-1.5 text-app-sm",
-                        allSelected
-                            ? "bg-current/30 text-current"
-                            : "bg-current/10 text-current/60 hover:bg-current/20 hover:text-current/90"
-                    )}
-                >
-                    ALL
-                </button>
-
-                {/* ジョブアイコン横並び（横スクロール可、スクロールバー非表示、右端フェード） */}
-                <div
-                    className="flex items-center min-w-0 overflow-x-auto [&::-webkit-scrollbar]:hidden"
-                    style={{
-                        scrollbarWidth: 'none',
-                        ...(isFs && {
-                            WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 50px), transparent)',
-                            maskImage: 'linear-gradient(to right, black calc(100% - 50px), transparent)',
-                        }),
-                    }}
-                >
-                    {activeMembers.map(m => (
-                        <button
-                            key={m.id}
-                            onClick={() => toggleMemberSelection(m.id)}
-                            className={clsx(
-                                "flex items-center justify-center cursor-pointer shrink-0",
-                                isFs ? "w-9 h-9" : "w-5 h-5",
-                            )}
-                            title={m.id}
-                        >
-                            {m.job && (
-                                <img
-                                    src={m.job.icon}
-                                    className={clsx(
-                                        "object-contain transition-opacity",
-                                        isFs ? "w-[28px] h-[28px]" : "w-[18px] h-[18px]",
-                                        selectedMemberIds.has(m.id) ? "opacity-100" : "opacity-30 hover:opacity-60",
-                                    )}
-                                    alt=""
-                                />
-                            )}
-                        </button>
-                    ))}
-                </div>
-
-                {/* スペーサー */}
-                <div className="flex-1 min-w-0" />
-
-                {/* カラーピッカー & デフォルト色スウォッチ: PC のみ（iOS Safari で input type="color" が動かないためスマホ非表示） */}
-                {!isFs && (
-                    <>
-                        <button
-                            onClick={() => colorInputRef.current?.click()}
-                            className="relative rounded-full cursor-pointer hover:scale-110 transition-transform shrink-0 w-5 h-5"
-                            style={{
-                                background: 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
-                            }}
-                            title={t('timeline.pip_bg_color')}
-                        >
-                            <span
-                                className="absolute rounded-full block inset-[2px]"
-                                style={{ background: bgColor }}
-                            />
-                        </button>
-                        <input
-                            ref={colorInputRef}
-                            type="color"
-                            value={bgColor}
-                            onChange={e => handleBgColorChange(e.target.value)}
-                            className="absolute opacity-0 w-0 h-0 pointer-events-none"
-                            tabIndex={-1}
-                            aria-hidden
-                        />
-                        {(() => {
-                            const defaultColor = getDefaultBgColor(theme, null);
-                            const isAtDefault = bgColor.toLowerCase() === defaultColor.toLowerCase();
-                            return (
-                                <button
-                                    onClick={resetBgColor}
-                                    disabled={isAtDefault}
-                                    className={clsx(
-                                        "rounded-full border border-current/30 transition-opacity shrink-0 w-5 h-5",
-                                        isAtDefault
-                                            ? "opacity-30 cursor-default"
-                                            : "opacity-90 hover:opacity-100 hover:border-current/60 cursor-pointer"
-                                    )}
-                                    style={{ background: defaultColor }}
-                                    title={t('timeline.pip_reset_color')}
-                                />
-                            );
-                        })()}
-                    </>
-                )}
-
-                {/* 閉じるボタン（fullscreen のみ。PC PiP は Chrome ネイティブ閉じるに任せる） */}
-                {mode === 'fullscreen' && (
-                    <button
-                        onClick={onClose}
-                        className="w-8 h-8 rounded flex items-center justify-center cursor-pointer text-current/40 hover:text-current hover:bg-current/10 transition-colors shrink-0"
-                        title={t('timeline.pip_close')}
-                    >
-                        <X size={18} />
-                    </button>
-                )}
-            </div>
+            <PipToolbar
+                mode={mode}
+                isFs={isFs}
+                onClose={onClose}
+                theme={theme}
+                allSelected={allSelected}
+                onAllClick={onAllClick}
+                activeMembers={activeMembers}
+                selectedMemberIds={selectedMemberIds}
+                toggleMemberSelection={toggleMemberSelection}
+                bgColor={bgColor}
+                colorInputRef={colorInputRef}
+                handleBgColorChange={handleBgColorChange}
+                resetBgColor={resetBgColor}
+            />
 
             {/* ── カンペリスト（スクロールバー非表示） ── */}
-            <div
-                className={clsx(
-                    "flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden",
-                    isFs ? "px-2 py-1" : "px-1.5 py-1",
-                )}
-                style={{
-                    scrollbarWidth: 'none',
-                    ...(isFs && {
-                        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0, black 24px, black calc(100% - 24px), transparent)',
-                        maskImage: 'linear-gradient(to bottom, transparent 0, black 24px, black calc(100% - 24px), transparent)',
-                    }),
-                }}
-            >
-                {cueGroups.length === 0 ? (
-                    <p className={clsx(
-                        "text-current/40 text-center",
-                        isFs ? "text-base mt-8" : "text-app-base mt-4",
-                    )}>
-                        {t('timeline.pip_no_events')}
-                    </p>
-                ) : (
-                    <div className="flex flex-col">
-                        {cueGroups.map(({ time, events, mitigations }, i) => {
-                            const hasEvent = events.length > 0;
-                            const idx = hasEvent ? (eventIndexByTime[time] ?? 0) % events.length : 0;
-                            const event = hasEvent ? events[idx] : null;
-                            const hasExtra = events.length > 1;
-                            return (
-                                <div
-                                    key={time}
-                                    className={clsx(
-                                        "flex items-center",
-                                        isFs ? "gap-2 py-2 px-2" : "gap-1 py-0.5 px-1",
-                                        i % 2 === 0 && "bg-current/[0.03]"
-                                    )}
-                                >
-                                    {/* 時間 */}
-                                    <span className={clsx(
-                                        "text-current/40 font-mono shrink-0 text-right",
-                                        isFs ? "text-[15px] w-11" : "text-app-base w-8",
-                                    )}>
-                                        {formatTime(time)}
-                                    </span>
-
-                                    {/* 攻撃名 + 切替バッジ（ダブルクリックで編集） */}
-                                    <div className={clsx(
-                                        "flex-1 min-w-0 flex items-center",
-                                        isFs ? "gap-1.5" : "gap-1",
-                                    )}>
-                                        {event && (<>
-                                            {!isFs && editingEventId === event.id ? (
-                                                <input
-                                                    ref={editInputRef}
-                                                    defaultValue={notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
-                                                    onBlur={(e) => handleEditConfirm(event.id, e.target.value)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') handleEditConfirm(event.id, (e.target as HTMLInputElement).value);
-                                                        if (e.key === 'Escape') setEditingEventId(null);
-                                                    }}
-                                                    className="flex-1 min-w-0 bg-current/10 border border-current/30 rounded outline-none text-app-base px-1 py-0"
-                                                    style={{ color: fgColor }}
-                                                />
-                                            ) : (
-                                                <>
-                                                    <span
-                                                        onDoubleClick={!isFs ? () => handleDoubleClick(event.id) : undefined}
-                                                        onClick={isFs ? () => setMenuTime(time) : undefined}
-                                                        className={clsx(
-                                                            "min-w-0 truncate leading-tight text-current/80",
-                                                            isFs ? "text-[17px] font-bold cursor-pointer" : "text-app-base cursor-text",
-                                                        )}
-                                                        title={t('timeline.pip_edit_hint')}
-                                                    >
-                                                        {notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
-                                                    </span>
-                                                    {/* メモあり時のリセットボタン（× クリックで元の名前に戻る） */}
-                                                    {notes[event.id] && (
-                                                        <button
-                                                            onClick={() => updateNote(event.id, '')}
-                                                            className={clsx(
-                                                                "shrink-0 rounded opacity-50 hover:opacity-100 hover:bg-current/10 text-current/70 transition-opacity cursor-pointer",
-                                                                isFs ? "p-1" : "p-0.5",
-                                                            )}
-                                                            title={t('timeline.pip_reset_note')}
-                                                            aria-label={t('timeline.pip_reset_note')}
-                                                        >
-                                                            <X size={isFs ? 14 : 10} />
-                                                        </button>
-                                                    )}
-                                                </>
-                                            )}
-
-                                            {/* +N 切替バッジ（イベント名のおしり、同時刻に他のイベントがあるとき） */}
-                                            {hasExtra && (
-                                                <button
-                                                    onClick={() => cycleEventAtTime(time, events.length)}
-                                                    className={clsx(
-                                                        "shrink-0 rounded bg-current/10 hover:bg-current/25 text-current/60 hover:text-current font-mono cursor-pointer transition-colors",
-                                                        isFs ? "px-1.5 py-0.5 text-xs" : "px-1 text-app-xs",
-                                                    )}
-                                                    title={t('timeline.pip_switch_event')}
-                                                >
-                                                    +{events.length - 1}
-                                                </button>
-                                            )}
-                                        </>)}
-                                    </div>
-
-                                    {/* 軽減スキルアイコン */}
-                                    <div className="flex items-center shrink-0">
-                                        {mitigations.map(({ applied, definition }) => (
-                                            <img
-                                                key={applied.id}
-                                                src={definition.icon}
-                                                className={clsx(
-                                                    "object-contain shrink-0",
-                                                    isFs ? "w-[26px] h-[26px]" : "w-4 h-4",
-                                                )}
-                                                title={definition.name[lang] || definition.name.ja || definition.name.en || ''}
-                                                alt=""
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
+            <PipCueList
+                isFs={isFs}
+                lang={lang}
+                fgColor={fgColor}
+                cueGroups={cueGroups}
+                eventIndexByTime={eventIndexByTime}
+                cycleEventAtTime={cycleEventAtTime}
+                notes={notes}
+                updateNote={updateNote}
+                editingEventId={editingEventId}
+                setEditingEventId={setEditingEventId}
+                editInputRef={editInputRef}
+                handleEditConfirm={handleEditConfirm}
+                handleDoubleClick={handleDoubleClick}
+                setMenuTime={setMenuTime}
+            />
 
             {/* スマホ全画面: 編集モーダル */}
-            {isFs && menuTime !== null && (() => {
-                const group = cueGroups.find(g => g.time === menuTime);
-                if (!group) return null;
-                return (
-                    <div
-                        className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 px-4"
-                        onClick={closeMenu}
-                    >
-                        <div
-                            className="relative glass-tier3 rounded-xl shadow-2xl w-full max-w-[360px] py-4 px-3"
-                            onClick={e => e.stopPropagation()}
-                            style={{ color: fgColor }}
-                        >
-                            <button
-                                onClick={closeMenu}
-                                className="absolute top-2 right-2 w-8 h-8 rounded flex items-center justify-center cursor-pointer text-current/40 hover:text-current hover:bg-current/10 transition-colors"
-                                title={t('timeline.pip_close')}
-                                aria-label={t('timeline.pip_close')}
-                            >
-                                <X size={18} />
-                            </button>
-                            <div className="flex flex-col gap-1 mt-2 pr-8">
-                                {group.events.map((ev, evIdx) => {
-                                    const displayName = notes[ev.id] || ev.name[lang] || ev.name.ja || ev.name.en || '';
-                                    const isCurrentlyShown = evIdx === ((eventIndexByTime[group.time] ?? 0) % group.events.length);
-                                    return (
-                                        <div
-                                            key={ev.id}
-                                            className={clsx(
-                                                "flex items-center gap-2 rounded-lg px-3 py-2 min-h-[44px]",
-                                                isCurrentlyShown ? "bg-current/10" : "hover:bg-current/5",
-                                            )}
-                                        >
-                                            {editingEventId === ev.id ? (
-                                                <input
-                                                    ref={editInputRef}
-                                                    defaultValue={displayName}
-                                                    onBlur={(e) => {
-                                                        handleEditConfirm(ev.id, e.target.value);
-                                                        closeMenu();
-                                                    }}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            handleEditConfirm(ev.id, (e.target as HTMLInputElement).value);
-                                                            closeMenu();
-                                                        }
-                                                        if (e.key === 'Escape') {
-                                                            e.stopPropagation();
-                                                            setEditingEventId(null);
-                                                        }
-                                                    }}
-                                                    className="flex-1 min-w-0 bg-current/10 border border-current/30 rounded px-2 py-1 text-[17px] outline-none"
-                                                    style={{ color: fgColor }}
-                                                />
-                                            ) : (
-                                                <>
-                                                    <button
-                                                        onClick={() => {
-                                                            if (!isCurrentlyShown) {
-                                                                setEventIndexByTime(prev => ({ ...prev, [group.time]: evIdx }));
-                                                            }
-                                                            closeMenu();
-                                                        }}
-                                                        className="flex-1 min-w-0 text-left text-[17px] font-bold text-current/90 truncate cursor-pointer"
-                                                        title={isCurrentlyShown ? t('timeline.pip_already_shown', '表示中') : t('timeline.pip_switch_to', 'この攻撃に切替')}
-                                                    >
-                                                        {displayName}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setEditingEventId(ev.id)}
-                                                        className="shrink-0 w-9 h-9 rounded flex items-center justify-center cursor-pointer text-current/60 hover:text-current hover:bg-current/10 transition-colors"
-                                                        title={t('timeline.pip_edit_hint')}
-                                                        aria-label={t('timeline.pip_edit_hint')}
-                                                    >
-                                                        <Pencil size={16} />
-                                                    </button>
-                                                </>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div>
-                );
-            })()}
+            {isFs && menuTime !== null && (
+                <PipEditMenu
+                    menuTime={menuTime}
+                    lang={lang}
+                    fgColor={fgColor}
+                    cueGroups={cueGroups}
+                    eventIndexByTime={eventIndexByTime}
+                    setEventIndexByTime={setEventIndexByTime}
+                    notes={notes}
+                    editingEventId={editingEventId}
+                    setEditingEventId={setEditingEventId}
+                    editInputRef={editInputRef}
+                    handleEditConfirm={handleEditConfirm}
+                    closeMenu={closeMenu}
+                />
+            )}
         </div>
     );
 };
