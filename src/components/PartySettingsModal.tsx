@@ -17,6 +17,7 @@ import type { MigrationMode } from '../utils/jobMigration';
 import { useThemeStore } from '../store/useThemeStore';
 import type { Job, PartyMember, AppliedMitigation } from '../types';
 import './PartySettingsModal.css';
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 import { SlotItem } from './party/PartySlotItem';
 import { mtGroupIndices, stGroupIndices } from './party/partyJobGroups';
 import { createPartyJobSelectHandler } from './party/createPartyJobSelectHandler';
@@ -128,13 +129,12 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     }, [isOpen]);
 
 
-    // ②：背景クリックとEscapeキーの検知
+    // ②：背景クリック(外側を押す)の検知。移行確認の窓(portal で外に出る)が開いている間は検知しない
+    // (窓の中を押して click が止められると確認ボタンが効かなくなる)
+    useDismissOnOutside(isOpen && !migrationBatch, handleAttemptClose, [popoverRef], { allowDuringTutorial: true });
+
+    // ②：Enter / Escapeキーの検知
     React.useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-                handleAttemptClose();
-            }
-        };
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Enter' || event.key === 'Escape') {
                 handleAttemptClose();
@@ -142,11 +142,9 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         };
 
         if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
             document.addEventListener('keydown', handleKeyDown);
         }
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('keydown', handleKeyDown);
         };
     }, [isOpen, handleAttemptClose]);

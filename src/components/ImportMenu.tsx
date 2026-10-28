@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Download, FileSpreadsheet } from 'lucide-react';
 import { Tooltip } from './ui/Tooltip';
 
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 interface ImportMenuProps {
     /** アイコンボタン共通クラス（計算済み: iconBtnBase + 状態。空タイムライン時の点滅もここに含む） */
     btnClassName: string;
@@ -37,20 +38,7 @@ export function ImportMenu({ btnClassName, onImportLogs, readOnly, children }: I
         setPos({ top: r.bottom + 4, left: r.left });
     }, [open]);
 
-    // 外側クリックで閉じる
-    useEffect(() => {
-        if (!open) return;
-        const handleClick = (e: MouseEvent) => {
-            if (
-                menuRef.current && !menuRef.current.contains(e.target as Node) &&
-                btnRef.current && !btnRef.current.contains(e.target as Node)
-            ) {
-                setOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClick);
-        return () => document.removeEventListener('mousedown', handleClick);
-    }, [open]);
+    useDismissOnOutside(open, () => setOpen(false), [menuRef]);
 
     const itemClass = 'w-full flex items-center gap-2 px-3 py-2 text-app-lg text-left transition-colors cursor-pointer hover:bg-app-text/5 text-app-text';
 

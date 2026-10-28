@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 
+import { useDismissOnOutside } from '../../hooks/useDismissOnOutside';
 interface ContextMenuItem {
     label: string;
     icon?: React.ReactNode;
@@ -20,22 +21,14 @@ interface ContextMenuProps {
 export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }) => {
     const menuRef = useRef<HTMLDivElement>(null);
 
-    // メニュー外クリック or Escapeでクローズ
+    useDismissOnOutside(true, onClose, [menuRef]);
+
     useEffect(() => {
-        const handleClick = (e: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-                onClose();
-            }
-        };
         const handleEsc = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
         };
-        document.addEventListener('mousedown', handleClick);
         document.addEventListener('keydown', handleEsc);
-        return () => {
-            document.removeEventListener('mousedown', handleClick);
-            document.removeEventListener('keydown', handleEsc);
-        };
+        return () => document.removeEventListener('keydown', handleEsc);
     }, [onClose]);
 
     // 画面端からはみ出さないよう位置調整

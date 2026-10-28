@@ -7,6 +7,7 @@ import { Globe } from 'lucide-react';
 import { useTransitionOverlay } from './ui/transitionOverlayContext';
 import { Tooltip } from './ui/Tooltip';
 
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 const LANGUAGES: { code: ContentLanguage; label: string }[] = [
     { code: 'ja', label: '日本語' },
     { code: 'en', label: 'English' },
@@ -29,6 +30,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ btnClassName
     const currentLang = i18n.language as ContentLanguage;
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
     const globeRef = useRef<HTMLButtonElement>(null);
     const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
 
@@ -51,15 +53,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ btnClassName
         });
     }, [open]);
 
-    // クリック外で閉じる
-    useEffect(() => {
-        if (!open) return;
-        const handleClick = (e: MouseEvent) => {
-            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-        };
-        document.addEventListener('click', handleClick);
-        return () => document.removeEventListener('click', handleClick);
-    }, [open]);
+    useDismissOnOutside(open, () => setOpen(false), [dropdownRef]);
 
     return (
         <div ref={ref} data-tutorial-always className="relative select-none">
@@ -77,6 +71,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ btnClassName
                 <>
                     <div className="fixed inset-0 z-[9998]" onClick={() => setOpen(false)} />
                     <div
+                        ref={dropdownRef}
                         className="fixed z-[9999] float-surface rounded-[10px] py-1 min-w-[130px]"
                         style={{ top: dropdownPos.top, right: dropdownPos.right }}
                     >

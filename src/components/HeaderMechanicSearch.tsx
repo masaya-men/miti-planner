@@ -8,6 +8,7 @@ import type { TimelineEvent, Phase } from '../types';
 import { getPhaseName as getPhaseNameStr } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 interface MechanicOccurrence {
     time: number;
     phaseName: string;
@@ -66,18 +67,7 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
         }
     }, [isOpen]);
 
-    // クリック外閉じ
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleClickOutside = (event: MouseEvent) => {
-            if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-                if (triggerRef?.current && triggerRef.current.contains(event.target as Node)) return;
-                onClose();
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isOpen, onClose, triggerRef]);
+    useDismissOnOutside(isOpen, onClose, [popoverRef]);
 
     // 位置計算
     const [position, setPosition] = useState({ top: 0, left: 0 });

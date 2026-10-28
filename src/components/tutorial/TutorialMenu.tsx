@@ -7,6 +7,7 @@ import { useTutorialStore } from '../../store/useTutorialStore';
 import { TUTORIALS, TUTORIAL_IDS } from '../../data/tutorialDefinitions';
 import clsx from 'clsx';
 
+import { useDismissOnOutside } from '../../hooks/useDismissOnOutside';
 interface TutorialMenuProps {
   btnClassName: string;
   /** 指定時はボタンの中身を差し替える(デフォルトのアイコン+文言の代わり)。
@@ -34,20 +35,7 @@ export function TutorialMenu({ btnClassName, children }: TutorialMenuProps) {
     setPos({ top: r.bottom + 4, right: window.innerWidth - r.right });
   }, [open]);
 
-  // 外側クリックで閉じる
-  useEffect(() => {
-    if (!open) return;
-    const handleClick = (e: MouseEvent) => {
-      if (
-        menuRef.current && !menuRef.current.contains(e.target as Node) &&
-        btnRef.current && !btnRef.current.contains(e.target as Node)
-      ) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [open]);
+  useDismissOnOutside(open, () => setOpen(false), [menuRef], { allowDuringTutorial: true });
 
   return (
     <>

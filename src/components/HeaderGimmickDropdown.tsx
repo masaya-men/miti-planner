@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import clsx from 'clsx';
@@ -8,6 +8,7 @@ import { useThemeStore } from '../store/useThemeStore';
 import type { Label } from '../types';
 import { getPhaseName } from '../types';
 
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 interface HeaderGimmickDropdownProps {
     isOpen: boolean;
     onClose: () => void;
@@ -26,17 +27,7 @@ export const HeaderGimmickDropdown: React.FC<HeaderGimmickDropdownProps> = ({
     const { contentLanguage } = useThemeStore();
     useEscapeClose(isOpen, onClose);
 
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleClickOutside = (event: MouseEvent) => {
-            if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-                if (triggerRef?.current && triggerRef.current.contains(event.target as Node)) return;
-                onClose();
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isOpen, onClose, triggerRef]);
+    useDismissOnOutside(isOpen, onClose, [popoverRef]);
 
     const [position, setPosition] = useState({ top: 0, left: 0 });
     const [isPositioned, setIsPositioned] = useState(false);

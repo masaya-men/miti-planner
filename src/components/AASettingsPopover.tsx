@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Settings, X } from 'lucide-react';
 import clsx from 'clsx';
@@ -7,6 +7,7 @@ import { NumericInput } from './ui/NumericInput';
 import type { AASettings } from '../store/useMitigationStore';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 
 interface AASettingsPopoverProps {
     isOpen: boolean;
@@ -31,25 +32,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
     const { t } = useTranslation();
     useEscapeClose(isOpen, onClose);
 
-    // Close on click outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-                // If triggerRef exists and the click is inside the trigger, do nothing (let the trigger handle the toggle)
-                if (triggerRef?.current && triggerRef.current.contains(event.target as Node)) {
-                    return;
-                }
-                onClose();
-            }
-        };
-
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isOpen, onClose, triggerRef]);
+    useDismissOnOutside(isOpen, onClose, [popoverRef]);
 
     const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
     const [isPositioned, setIsPositioned] = useState(false);

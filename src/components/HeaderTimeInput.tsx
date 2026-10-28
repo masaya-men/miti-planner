@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 interface HeaderTimeInputProps {
     isOpen: boolean;
     onClose: () => void;
@@ -51,18 +52,7 @@ export const HeaderTimeInput: React.FC<HeaderTimeInputProps> = ({
         }
     }, [isOpen]);
 
-    // クリック外閉じ
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleClickOutside = (event: MouseEvent) => {
-            if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-                if (triggerRef?.current && triggerRef.current.contains(event.target as Node)) return;
-                onClose();
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isOpen, onClose, triggerRef]);
+    useDismissOnOutside(isOpen, onClose, [popoverRef]);
 
     // 位置計算
     const [position, setPosition] = useState({ top: 0, left: 0 });

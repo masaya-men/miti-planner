@@ -1,9 +1,10 @@
-import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Trash2, X, Pencil } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
 import { useJobs } from '../hooks/useSkillsData';
@@ -63,24 +64,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
         });
     };
 
-    // Close on click outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-                if (triggerRef?.current && triggerRef.current.contains(event.target as Node)) {
-                    return;
-                }
-                onClose();
-            }
-        };
-
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isOpen, onClose, triggerRef]);
+    useDismissOnOutside(isOpen, onClose, [popoverRef]);
 
     useLayoutEffect(() => {
         if (isOpen && triggerRef?.current) {

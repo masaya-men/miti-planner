@@ -1,11 +1,12 @@
 // src/components/tutorial/TutorialCard.tsx
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
 import { useThemeStore } from '../../store/useThemeStore';
 import type { ContentLanguage } from '../../store/useThemeStore';
 
+import { useDismissOnOutside } from '../../hooks/useDismissOnOutside';
 const LANGUAGES: { code: ContentLanguage; label: string }[] = [
   { code: 'ja', label: '日本語' },
   { code: 'en', label: 'English' },
@@ -51,15 +52,7 @@ export function TutorialCard({
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
 
-  // クリック外で閉じる
-  useEffect(() => {
-    if (!langOpen) return;
-    const handleClick = (e: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
-    };
-    document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
-  }, [langOpen]);
+  useDismissOnOutside(langOpen, () => setLangOpen(false), [langRef], { allowDuringTutorial: true });
 
   if (!visible) return null;
 

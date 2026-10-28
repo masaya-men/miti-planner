@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { MEMO_LIMITS } from '../../types/firebase';
 
+import { useDismissOnOutside } from '../../hooks/useDismissOnOutside';
 // 画面端からの最小マージン (ContextMenu.tsx と同じ考え方)
 const VIEWPORT_PADDING = 8;
 
@@ -32,16 +33,7 @@ export const MemoInputBox: React.FC<MemoInputBoxProps> = ({
         textareaRef.current?.focus();
     }, []);
 
-    useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (boxRef.current && !boxRef.current.contains(e.target as Node)) {
-                onCancel();
-            }
-        };
-        // mousedown を使う (scroll では発火しないので、 スクロール中に閉じない)
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [onCancel]);
+    useDismissOnOutside(true, onCancel, [boxRef]);
 
     // 画面端からはみ出さないよう位置調整 (ContextMenu.tsx と同じパターン)
     useEffect(() => {

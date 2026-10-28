@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { pulseConfig, gridConfig, pulseVisualConfig, PULSE_COLOR_PRESETS, savePulseSettings, notifyGridConfigChange } from './gridOverlayConfig';
 
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 // --- 色変換ユーティリティ ---
 function hslToRgb(h: number, s: number, l: number): [number, number, number] {
     const c = (1 - Math.abs(2 * l - 1)) * s;
@@ -240,17 +241,7 @@ export const PulseSettings: React.FC = () => {
     const panelRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleClick = (e: MouseEvent) => {
-            if (panelRef.current && !panelRef.current.contains(e.target as Node) &&
-                buttonRef.current && !buttonRef.current.contains(e.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClick);
-        return () => document.removeEventListener('mousedown', handleClick);
-    }, [isOpen]);
+    useDismissOnOutside(isOpen, () => setIsOpen(false), [panelRef]);
 
     // カスタム色のRGB文字列を計算
     const customRgb = (() => {

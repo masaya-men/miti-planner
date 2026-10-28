@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import clsx from 'clsx';
@@ -8,6 +8,7 @@ import type { Phase } from '../types';
 import { getPhaseName } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 interface HeaderPhaseDropdownProps {
     isOpen: boolean;
     onClose: () => void;
@@ -26,18 +27,7 @@ export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
     const { contentLanguage } = useThemeStore();
     useEscapeClose(isOpen, onClose);
 
-    // クリック外閉じ
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleClickOutside = (event: MouseEvent) => {
-            if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-                if (triggerRef?.current && triggerRef.current.contains(event.target as Node)) return;
-                onClose();
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isOpen, onClose, triggerRef]);
+    useDismissOnOutside(isOpen, onClose, [popoverRef]);
 
     // 位置計算
     const [position, setPosition] = useState({ top: 0, left: 0 });

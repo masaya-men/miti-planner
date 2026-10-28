@@ -9,6 +9,7 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { useProgressBarVisibility } from '../store/useProgressBarVisibility';
 import { Tooltip } from './ui/Tooltip';
 
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 interface HeaderToolsMenuProps {
     /** アイコンボタン共通クラス (ConsolidatedHeader の iconBtnBase/iconBtnDefault) */
     btnClassName: string;
@@ -50,20 +51,7 @@ export function HeaderToolsMenu({ btnClassName, onAutoPlan, readOnly, children }
         setPos({ top: r.bottom + 4, left: r.left });
     }, [open]);
 
-    // 外側クリックで閉じる
-    useEffect(() => {
-        if (!open) return;
-        const handleClick = (e: MouseEvent) => {
-            if (
-                menuRef.current && !menuRef.current.contains(e.target as Node) &&
-                btnRef.current && !btnRef.current.contains(e.target as Node)
-            ) {
-                setOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClick);
-        return () => document.removeEventListener('mousedown', handleClick);
-    }, [open]);
+    useDismissOnOutside(open, () => setOpen(false), [menuRef]);
 
     const itemClass = 'w-full flex items-center gap-2 px-3 py-2 text-app-lg text-left transition-colors cursor-pointer hover:bg-app-text/5 text-app-text disabled:opacity-40 disabled:cursor-not-allowed';
 

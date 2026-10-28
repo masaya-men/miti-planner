@@ -15,9 +15,9 @@ import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SPRING } from '../tokens/motionTokens';
 import { NumericInput } from './ui/NumericInput';
-import { useTutorialStore } from '../store/useTutorialStore';
 import { Tooltip } from './ui/Tooltip';
 
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 interface PartyStatusPopoverProps {
     isOpen: boolean;
     onClose: () => void;
@@ -48,24 +48,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
         }
     }, [isOpen]);
 
-    // Close on click outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            // Tutorial: block closing the popover during the tutorial
-            if (useTutorialStore.getState().isActive) return;
-
-            if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-                onClose();
-            }
-        };
-
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isOpen, onClose]);
+    useDismissOnOutside(isOpen, onClose, [popoverRef]);
 
     // Swipe-to-dismiss for mobile bottom sheet
     const dragStartY = useRef(0);

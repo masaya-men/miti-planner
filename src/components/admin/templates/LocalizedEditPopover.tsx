@@ -1,10 +1,11 @@
 /**
  * テンプレートエディター — 5言語編集ポップオーバー
  */
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { LocalizedString } from '../../../types';
 
+import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 interface LocalizedEditPopoverProps {
   title: string;
   initial: LocalizedString;
@@ -23,15 +24,7 @@ export function LocalizedEditPopover({ title, initial, labels, position, onApply
   const [ko, setKo] = useState(initial.ko ?? '');
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
-        onCancel();
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [onCancel]);
+  useDismissOnOutside(true, onCancel, [popoverRef]);
 
   function handleApply() {
     onApply({
