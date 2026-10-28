@@ -8,7 +8,7 @@
 //  (e) それ以外(トークン定義・calc/clamp/min/max 内・transform・keyframes 内)は全て変換
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { listHousingCss } from '../housing-css/listHousingCss.mjs';
+import { listHousingCss } from '../css-colocation/listHousingCss.mjs';
 
 // 変換するのはハウジングの CSS 全部(入口が読む共有+部品の隣の CSS)を 1 本ずつ。
 // (center-tokens は center-tokens.mjs が生成するファイルなので対象外。ファイルの切れ目はルールの外なので 1 本ずつでも結果は同じ)

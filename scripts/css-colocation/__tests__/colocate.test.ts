@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error mjs の共通部品(型定義なし)
-import { addCssImport, planColocation } from '../colocate.mjs';
+import { addCssImport, planColocation } from '../planColocation.mjs';
 
 const C = 'src/components/housing';
 const base = {

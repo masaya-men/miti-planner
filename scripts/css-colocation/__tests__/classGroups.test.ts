@@ -5,6 +5,11 @@ import { classGroups } from '../classGroups.mjs';
 import { findOrderPairs, parseRules } from '../cssRules.mjs';
 
 describe('classGroups', () => {
+  it('接頭辞を渡すとその class 同士を仲間にする', () => {
+    const jsx = ['<div className="milspec-a milspec-b" />'];
+    expect(classGroups(jsx, /^milspec-/)('milspec-a', 'milspec-b')).toBe(true);
+    expect(classGroups(jsx)('milspec-a', 'milspec-b')).toBe(false);
+  });
   it('同じ className に並ぶ class は同じ要素の仲間', () => {
     expect(classGroups(['<div className="housing-a housing-b" />'])('housing-a', 'housing-b')).toBe(true);
   });

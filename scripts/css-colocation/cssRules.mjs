@@ -1,4 +1,4 @@
-// CSS を「規則の並び」として読む共通部品。 ハウジング CSS の置き場所を移す道具と、 その前後比較・見張りテストが使う。
+// CSS を「規則の並び」として読む共通部品。 CSS を部品の隣へ移す道具(ハウジング・MIL-SPEC)と、 その前後比較・見張りテストが使う。
 // 「順番頼りの組」= 同時に効きうる @media・同じ詳細度・対象 class が共通・同じ性質を宣言する 2 規則(後に書いた方が勝つので並びが結果を決める)。
 import postcss from 'postcss';
 
@@ -96,14 +96,17 @@ export function specificity(selector) {
   return total;
 }
 
-const housingClassesOf = (text) => (stripPseudoFns(text).rest.match(/\.housing(?:er)?-[\w-]+/g) || []).map((s) => s.slice(1));
+/** 対象の class の接頭辞(既定はハウジング)。 MIL-SPEC などは scopes/<名前>.mjs の prefixRe を渡す */
+export const HOUSING_PREFIX = /^housing(?:er)?-/;
 
-/** 規則が見た目を決める相手の housing class(右端の複合セレクタ。 無ければ全体で最後の 1 つ) */
-export function subjectClasses(selector) {
+const classesOf = (text, prefixRe) => (stripPseudoFns(text).rest.match(/\.[\w-]+/g) || []).map((s) => s.slice(1)).filter((c) => prefixRe.test(c));
+
+/** 規則が見た目を決める相手の対象 class(右端の複合セレクタ。 無ければ全体で最後の 1 つ) */
+export function subjectClasses(selector, prefixRe = HOUSING_PREFIX) {
   const cs = compounds(selector);
-  const last = housingClassesOf(cs[cs.length - 1] ?? '');
+  const last = classesOf(cs[cs.length - 1] ?? '', prefixRe);
   if (last.length) return [...new Set(last)];
-  const all = cs.flatMap(housingClassesOf);
+  const all = cs.flatMap((c) => classesOf(c, prefixRe));
   return all.length ? [all[all.length - 1]] : [];
 }
 
@@ -186,13 +189,13 @@ export function propsOverlap(p, q) {
 }
 
 /** 並び順で A が先の「順番頼りの組」 [A, B, 性質] を返す。 related = 別名の class が同じ要素に付きうるか(classGroups.mjs) */
-export function findOrderPairs(rules, related = (a, b) => a === b) {
+export function findOrderPairs(rules, related = (a, b) => a === b, prefixRe = HOUSING_PREFIX) {
   const entries = [];
   rules.forEach((r, i) => {
     if (r.kind !== 'rule') return;
     const props = new Set(r.props);
     for (const sel of r.selectors) {
-      const subj = subjectClasses(sel);
+      const subj = subjectClasses(sel, prefixRe);
       if (!subj.length) continue;
       entries.push({ i, r, props, spec: specificity(sel).join(','), subj });
     }

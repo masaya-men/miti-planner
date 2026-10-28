@@ -34,6 +34,12 @@ describe('subjectClasses', () => {
   it(':not の中は数えない', () => {
     expect(subjectClasses('.housing-a:not(.housing-b)')).toEqual(['housing-a']);
   });
+  it('接頭辞を渡すとその class が対象(MIL-SPEC)', () => {
+    expect(subjectClasses('.theme-military .milspec-a .milspec-b', /^milspec-/)).toEqual(['milspec-b']);
+  });
+  it('接頭辞を渡すと他の接頭辞の class は対象外', () => {
+    expect(subjectClasses('.milspec-a .housing-b', /^milspec-/)).toEqual(['milspec-a']);
+  });
 });
 
 describe('parseRules', () => {
@@ -75,6 +81,11 @@ describe('findOrderPairs', () => {
     expect(pairs('.housing-a{gap:2px} .housing-a{row-gap:4px}')).toHaveLength(1);
     expect(pairs('.housing-a{font:12px a} .housing-a{line-height:2}')).toHaveLength(1);
     expect(pairs('.housing-a{place-items:center} .housing-a{align-items:start}')).toHaveLength(1);
+  });
+  it('接頭辞を渡すとその class 同士で組を探す', () => {
+    const rules = parseRules('.milspec-a{color:red} .milspec-a{color:blue}', 'x.css');
+    expect(findOrderPairs(rules, undefined, /^milspec-/)).toHaveLength(1);
+    expect(findOrderPairs(rules)).toHaveLength(0);
   });
   it('性質が違えば組にならない', () => {
     expect(pairs('.housing-a{color:red} .housing-a{margin:0}')).toHaveLength(0);

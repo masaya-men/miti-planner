@@ -2,11 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 // @ts-expect-error mjs の共通部品(型定義なし)
-import { findOrderPairs, parseRules } from '../../../../scripts/housing-css/cssRules.mjs';
+import { findOrderPairs, parseRules } from '../../../../scripts/css-colocation/cssRules.mjs';
 // @ts-expect-error mjs の共通部品(型定義なし)
-import { classGroups } from '../../../../scripts/housing-css/classGroups.mjs';
+import { classGroups } from '../../../../scripts/css-colocation/classGroups.mjs';
 // @ts-expect-error mjs の共通部品(型定義なし)
-import { cssImportOrder } from '../../../../scripts/housing-css/reachable.mjs';
+import { cssImportOrder } from '../../../../scripts/css-colocation/reachable.mjs';
 
 // ハウジングの CSS は「部品の隣に <部品名>.css を置き、部品が import する」(2026-10-28 移行・設計書
 // docs/superpowers/specs/2026-10-28-housing-css-colocation-design.md)。共有は src/styles/housing/ の許可したものだけ。
