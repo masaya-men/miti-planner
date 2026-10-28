@@ -45,10 +45,7 @@
   ],
   "frozen": {
     "outside-dismiss-handwritten": {},
-    "menu-radius-handwritten": {
-      "src/components/AppFooter.tsx": 1,
-      "src/components/HeaderMechanicSearch.tsx": 1
-    },
+    "menu-radius-handwritten": {},
     "sheet-radius-handwritten": {},
     "primary-button-handwritten": {
       "src/components/ShareImportSheet.tsx": 1,
@@ -57,10 +54,7 @@
       "src/components/fflogsImport/FFLogsMobileSheet.tsx": 2,
       "src/components/sidebar/SidebarFloatingBar.tsx": 1
     },
-    "mobile-width-handwritten": {
-      "src/components/HeaderMechanicSearch.tsx": 2,
-      "src/components/progress/ProgressRecordPanel.tsx": 3
-    },
+    "mobile-width-handwritten": {},
     "glass-tier-legacy": {
       "src/components/AppFooter.tsx": 1,
       "src/components/CollabJoinerPage.tsx": 1,
