@@ -60,7 +60,7 @@ export const HeaderGimmickDropdown: React.FC<HeaderGimmickDropdownProps> = ({
         <div
             ref={popoverRef}
             className={clsx(
-                "fixed w-[220px] float-surface rounded-[10px] z-[9999] overflow-hidden animate-in fade-in zoom-in-95 duration-200 transition-opacity",
+                "fixed w-[220px] float-surface rounded-menu z-[9999] overflow-hidden animate-in fade-in zoom-in-95 duration-200 transition-opacity",
                 !isPositioned ? "opacity-0" : "opacity-100"
             )}
             style={{ top: `${position.top}px`, left: `${position.left}px` }}

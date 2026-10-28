@@ -97,7 +97,7 @@ export function TutorialCard({
                     <span className="text-app-sm font-bold uppercase">{i18n.language}</span>
                   </button>
                   {langOpen && (
-                    <div className="absolute right-0 top-full mt-1 float-surface rounded-[10px] py-1 min-w-[110px] z-[10010]">
+                    <div className="absolute right-0 top-full mt-1 float-surface rounded-menu py-1 min-w-[110px] z-[10010]">
                       {LANGUAGES.map(({ code, label }) => (
                         <button
                           key={code}
