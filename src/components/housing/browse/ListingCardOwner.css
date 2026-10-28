@@ -1,0 +1,136 @@
+/* マイページ専用: 画像タイル右上に重ねる公開状態バッジ (HousingFavHeart と排他・同じ位置)。
+   旧: 画像の下に専用フッター行を作っていたためカードが縦に長く、一度に見える件数が
+   少なかった (2026-07-24 実機指摘・画像上のオーバーレイに統合して行数を稼ぐ)。 */
+.housing-card-visibility-badge-overlay {
+  position: absolute;
+  top: calc(8px * var(--housing-scale));
+  right: calc(8px * var(--housing-scale));
+  z-index: 2;
+  max-width: calc(100% - calc(16px * var(--housing-scale)));
+  border-color: var(--housing-panel-border);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--housing-text);
+}
+.housing-card-visibility-badge-overlay:hover {
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--housing-text);
+}
+/* カード (.housing-listing-card) が overflow:hidden を持つため、メニューは
+   createPortal で document.body 直下に出す (ListingCard.tsx)。カード内の相対配置ではなく
+   画面座標の position:fixed で、ボタンの位置を基準に top/right を inline style で指定する
+   (2026-07-24 実機指摘: カード内に収めようとして表示が崩れていた)。
+   .housing-card-visibility-menu (下方定義、position:absolute) より詳細度を上げて確実に勝たせる
+   ため複合セレクタにする (単純にファイル内の定義順で上書きすると将来の並べ替えで壊れやすい)。 */
+.housing-card-visibility-menu.housing-card-visibility-menu-portal {
+  position: fixed;
+  left: auto;
+  bottom: auto;
+}
+/* body 直下の portal は .housing-workspace の外なので --housing-* が未解決になる
+   (2026-07-24 実機バグ)。ただし .housing-workspace 側の共有ブロックには token 定義に加えて
+   ページ全体のシェルレイアウト (width:100%/height:100vh/position:relative 等) も同居しており、
+   丸ごと同じセレクタに加えるとメニューがそのシェルサイズ(画面いっぱい)に引き伸ばされてしまう
+   (実機で幅819px×高さ673pxの巨大な板になる不具合を確認済み)。他の3クラス
+   (.housing-panel-modal-backdrop 等) は自前で position:fixed/inset:0 を上書きしているため
+   実害が出ていなかっただけで、この menu には無関係な副作用だった。そのため共有ブロックには
+   加えず、実際に使っている --housing-* だけをここで個別に再定義する
+   (.housing-panel-modal-backdrop が font-family/color を自前で持つのと同じやり方)。 */
+.housing-card-visibility-menu-portal {
+  --housing-popover-z-stack: 90;
+  --housing-panel-bg-solid: rgba(13, 18, 30, 0.74);
+  --housing-panel-border: rgba(255, 255, 255, 0.16);
+  --housing-popover-shadow-glass:
+    0 calc(20px * var(--housing-scale)) calc(56px * var(--housing-scale)) rgba(0, 0, 0, 0.5),
+    inset 0 calc(1.5px * var(--housing-scale)) calc(1px * var(--housing-scale)) rgba(255, 255, 255, 0.14),
+    inset 0 calc(-1.5px * var(--housing-scale)) calc(2px * var(--housing-scale)) rgba(255, 255, 255, 0.05),
+    inset 0 0 calc(22px * var(--housing-scale)) rgba(255, 255, 255, 0.03);
+  --housing-text: #ffffff;
+  --housing-text-base: calc(14px * var(--housing-scale));
+  --housing-honey-medium: rgba(255, 201, 135, 0.14);
+  --housing-disabled-opacity: 0.35;
+}
+.housing-card-visibility-badge {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: calc(6px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text-dim);
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.housing-card-visibility-badge:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+.housing-card-visibility-menu {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + calc(4px * var(--housing-scale)));
+  min-width: calc(140px * var(--housing-scale));
+  border-radius: calc(12px * var(--housing-scale));
+  padding: calc(6px * var(--housing-scale));
+  display: flex;
+  flex-direction: column;
+  gap: calc(2px * var(--housing-scale));
+  z-index: var(--housing-popover-z-stack);
+}
+.housing-card-visibility-menu button {
+  background: transparent;
+  border: none;
+  color: var(--housing-text);
+  font-size: var(--housing-text-base);
+  text-align: left;
+  padding: calc(8px * var(--housing-scale)) calc(12px * var(--housing-scale));
+  cursor: pointer;
+  border-radius: calc(8px * var(--housing-scale));
+}
+.housing-card-visibility-menu button:hover:not(:disabled) {
+  background: var(--housing-honey-medium);
+}
+.housing-card-visibility-menu button:disabled {
+  opacity: var(--housing-disabled-opacity);
+  cursor: not-allowed;
+}
+.housing-card-edit-btn {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: calc(6px * var(--housing-scale));
+  border-radius: calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text-dim);
+}
+.housing-card-edit-btn:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+/* マイページ専用: 画像タイル右下に重ねる編集ボタン。.housing-card-fav (右上) と同じ
+   丸背景トーンに揃える。 */
+.housing-card-edit-btn-overlay {
+  position: absolute;
+  bottom: calc(8px * var(--housing-scale));
+  right: calc(8px * var(--housing-scale));
+  z-index: 2;
+  width: calc(30px * var(--housing-scale));
+  height: calc(30px * var(--housing-scale));
+  border-radius: 50%;
+  border-color: var(--housing-panel-border);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--housing-text);
+}
+.housing-card-edit-btn-overlay:hover {
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--housing-text);
+}

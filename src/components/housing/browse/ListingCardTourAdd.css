@@ -1,0 +1,132 @@
+.housing-card-add-btn {
+  position: relative;
+  overflow: hidden;
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(6px * var(--housing-scale));
+  margin-top: calc(4px * var(--housing-scale)); padding: calc(7px * var(--housing-scale)) calc(10px * var(--housing-scale));
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border: 1px solid var(--housing-honey-border);
+  border-radius: calc(8px * var(--housing-scale));
+  transition: background 0.15s ease;
+}
+.housing-card-add-btn:hover { background: var(--housing-honey-strong); }
+.housing-card-add-btn:active { transform: scale(0.97); }
+.housing-card-add-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ===== ツアー追加ボタンのフィードバック演出 (2026-08-10) =====
+   成功: チェック描画ライクなフラーリッシュ (housing-check-bounce/ripple を流用、色はエーテライトの
+   青に統一。ハウジングの2アクセント体系(honey=主アクション/aether=選択・進行)に合わせ、
+   「追加済み」は選択状態として扱うため aether を使う)。
+   失敗: ボタン単体のシェイク(danger色)。 */
+.housing-card-add-btn[data-tour-anim="success"] {
+  overflow: visible;
+  animation: housing-tour-add-glow 300ms ease-in-out;
+}
+.housing-card-add-btn[data-tour-anim="success"] svg {
+  animation: housing-check-bounce 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.housing-card-add-btn[data-tour-anim="success"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: calc(2px * var(--housing-scale)) solid var(--housing-aether);
+  animation: housing-check-ripple 600ms ease-out;
+  pointer-events: none;
+}
+@keyframes housing-tour-add-glow {
+  0% { box-shadow: 0 0 0 rgba(0, 191, 255, 0); }
+  40% { box-shadow: 0 0 calc(20px * var(--housing-scale)) var(--housing-aether-glow-strong); }
+  100% { box-shadow: 0 0 0 rgba(0, 191, 255, 0); }
+}
+
+/* 追加済み(トレイに入っている間ずっと維持する状態)。honey=主アクションの土台色から、
+   aether=選択状態の塗りへ切り替える(housing-card-select.is-selected と同じ意味付け)。 */
+.housing-card-add-btn.is-added {
+  background: var(--housing-aether-cta-bg);
+  border-color: var(--housing-aether-cta-bg);
+  color: var(--housing-aether-cta-text);
+}
+.housing-card-add-btn.is-added:hover {
+  background: var(--housing-aether-cta-bg-hover);
+  border-color: var(--housing-aether-cta-bg-hover);
+}
+
+.housing-card-add-btn[data-tour-anim="error"] {
+  animation: housing-shake 320ms ease-in-out;
+  border-color: var(--housing-danger);
+  color: var(--housing-danger);
+}
+@keyframes housing-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(calc(-4px * var(--housing-scale))); }
+  40% { transform: translateX(calc(4px * var(--housing-scale))); }
+  60% { transform: translateX(calc(-3px * var(--housing-scale))); }
+  80% { transform: translateX(calc(3px * var(--housing-scale))); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .housing-card-add-btn[data-tour-anim="success"],
+.housing-card-add-btn[data-tour-anim="success"] svg,
+.housing-card-add-btn[data-tour-anim="success"]::after,
+.housing-card-add-btn[data-tour-anim="error"] {
+    animation: none;
+  }
+}
+
+/* ===== ハウジンガーページ(他人視点)のカード上「ツアーに追加」 (2026-10-22・見本どおり) =====
+   ボタンは 1 個。既定 = タッチ端末の M1 (右下 30px の丸＋を常時表示)。
+   マウス端末 (hover:hover かつ pointer:fine) では A (下端いっぱい 40px の帯・ホバー/フォーカスで出る) に切替える。 */
+.housing-card-add-overlay {
+  position: absolute; right: calc(6px * var(--housing-scale)); bottom: calc(6px * var(--housing-scale)); z-index: calc(var(--housing-card-overlay-z-content) + 1);
+  width: calc(30px * var(--housing-scale)); height: calc(30px * var(--housing-scale)); padding: 0; overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: center; gap: calc(6px * var(--housing-scale));
+  appearance: none; cursor: pointer; font-family: inherit;
+  font-size: var(--housing-text-sm); font-weight: 700; color: var(--housing-text);
+  background: var(--housing-card-add-glass);
+  border: 1px solid var(--housing-panel-border-strong); border-radius: 50%;
+}
+.housing-card-add-overlay.is-added {
+  color: var(--housing-honey-text); background: var(--housing-honey); border-color: var(--housing-honey);
+}
+.housing-card-add-overlay:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+/* 文字ラベルは視覚的に隠す (読み上げ・aria-label 用に残す) */
+.housing-card-add-overlay-label {
+  position: absolute; width: calc(1px * var(--housing-scale)); height: calc(1px * var(--housing-scale)); margin: calc(-1px * var(--housing-scale)); padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+/* 追加済みの印 (左上): ホバー不要で常時。タッチ端末では＋が✓に変わるので出さない。 */
+.housing-listing-card-added-mark {
+  position: absolute; left: calc(8px * var(--housing-scale)); top: calc(8px * var(--housing-scale)); z-index: 2; display: none; align-items: center; gap: calc(4px * var(--housing-scale));
+  font-size: calc(11px * var(--housing-scale)); font-weight: 800; color: var(--housing-honey-text); background: var(--housing-honey);
+  padding: calc(3px * var(--housing-scale)) calc(8px * var(--housing-scale)); border-radius: calc(6px * var(--housing-scale)); pointer-events: none;
+}
+/* タッチ端末: タイトルの右端を ＋ の分だけ空ける */
+.housing-listing-card-media:has(.housing-card-add-overlay) .housing-listing-card-caption { padding-right: calc(42px * var(--housing-scale)); }
+@media (hover: hover) and (pointer: fine) {
+  .housing-listing-card-added-mark { display: inline-flex; }
+  .housing-card-add-overlay {
+    left: 0; right: 0; bottom: 0; width: auto; height: calc(40px * var(--housing-scale)); border-radius: 0;
+    border: 0; border-top: 1px solid var(--housing-panel-border);
+    transform: translateY(100%); transition: transform 220ms cubic-bezier(.2, .7, .2, 1), background 150ms;
+  }
+  .housing-card-add-overlay.is-added { color: var(--housing-honey); background: var(--housing-card-add-glass); }
+  .housing-card-add-overlay-label {
+    position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto;
+  }
+  .housing-listing-card:hover .housing-card-add-overlay,
+  .housing-listing-card:focus-within .housing-card-add-overlay { transform: translateY(0); }
+  .housing-card-add-overlay:hover { background: var(--housing-card-add-glass-hover); }
+  .housing-listing-card-media:has(.housing-card-add-overlay) .housing-listing-card-caption {
+    padding-right: calc(12px * var(--housing-scale)); transition: transform 260ms cubic-bezier(.2, .7, .2, 1);
+  }
+  .housing-listing-card:hover .housing-listing-card-media:has(.housing-card-add-overlay) .housing-listing-card-caption,
+  .housing-listing-card:focus-within .housing-listing-card-media:has(.housing-card-add-overlay) .housing-listing-card-caption {
+    transform: translateY(calc(-40px * var(--housing-scale)));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-card-add-overlay, .housing-listing-card-media:has(.housing-card-add-overlay) .housing-listing-card-caption { transition: none; }
+}

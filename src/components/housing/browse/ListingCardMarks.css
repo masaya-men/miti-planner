@@ -1,0 +1,71 @@
+/* 左上の常時表示列: 選択チェック + 非公開/期限切れ印 */
+.housing-listing-card-topleft {
+  position: absolute; top: calc(8px * var(--housing-scale)); left: calc(8px * var(--housing-scale)); z-index: 2;
+  display: flex; align-items: center; gap: calc(6px * var(--housing-scale));
+}
+/* 下端の常時キャプション (タイトル1行・グラデーションで画像を邪魔しない)。
+   タグ・住所・サイズは出さない (2026-07-03 ユーザー合意: 情報は詳細ページ/フィルタが担い、
+   カードは「静かな画像タイル + タイトル」だけにする)。 */
+.housing-listing-card-caption {
+  /* z-content(3) で動画オーバーレイ(video=2)より前面に。これが無いと動画再生中に
+     タイトルが動画に覆われて消える (静止カードは出るのに動画カードだけ消えるバグ)。 */
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: var(--housing-card-overlay-z-content);
+  padding: calc(20px * var(--housing-scale)) calc(12px * var(--housing-scale)) calc(8px * var(--housing-scale));
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0));
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm); font-weight: 600;
+  pointer-events: none;
+}
+
+/* 選択チェック(お気に入りページのタグ選択・マイページのOGP代表作選択で共用)。topleft 列の中に置く */
+.housing-card-select {
+  flex: 0 0 auto;
+  width: calc(26px * var(--housing-scale)); height: calc(26px * var(--housing-scale)); border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--housing-bubble-bg);
+  border: calc(2px * var(--housing-scale)) solid var(--housing-panel-border-strong);
+  color: var(--housing-text-mute); cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.housing-card-select:hover {
+  border-color: var(--housing-aether);
+  color: var(--housing-aether);
+}
+.housing-card-select:active { transform: scale(0.92); }
+.housing-card-select.is-selected {
+  background: var(--housing-aether);
+  border-color: var(--housing-aether);
+  color: var(--housing-panel-bg-solid);
+}
+/* 「背景にも使う」トグル(代表作選択済みのカードにのみ表示)。既存の選択チェック(青=選択)とは
+   あえて別アクセント(ハニーゴールド)にする(2026-08-03ユーザー指示: 同じ青だと2つのトグルの
+   意味が見分けられないため)。塗り/文字色は housing.css 既存の honey 塗りボタン(例:
+   .housing-filter-option[data-selected="true"] .housing-filter-option-check)と同じトークンの
+   組み合わせ(--housing-honey / --housing-honey-border / --housing-honey-text)を使う。 */
+.housing-card-background-select {
+  flex: 0 0 auto;
+  width: calc(22px * var(--housing-scale)); height: calc(22px * var(--housing-scale)); border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--housing-bubble-bg);
+  border: calc(2px * var(--housing-scale)) solid var(--housing-panel-border-strong);
+  color: var(--housing-text-mute); cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.housing-card-background-select:hover {
+  border-color: var(--housing-honey);
+  color: var(--housing-honey);
+}
+.housing-card-background-select:active { transform: scale(0.92); }
+.housing-card-background-select.is-selected {
+  background: var(--housing-honey);
+  border-color: var(--housing-honey-border);
+  color: var(--housing-honey-text);
+}
+/* 自分の登録の非公開/期限切れ印 (本人にのみ・画像の上に常時乗るので沈んだ地色のチップ) */
+.housing-listing-card-mine-note {
+  font-size: var(--housing-text-xs); color: var(--housing-text-dim);
+  background: var(--housing-chip-sunken-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: calc(6px * var(--housing-scale)); padding: calc(2px * var(--housing-scale)) calc(7px * var(--housing-scale));
+  white-space: nowrap;
+}
