@@ -5,7 +5,7 @@ import { Undo2 } from 'lucide-react';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { useThemeStore } from '../../store/useThemeStore';
 import { getPhaseName, type ProgressPoint } from '../../types';
-import { phaseAtTime, formatClock } from '../../lib/progressLogic';
+import { phaseAtTime, formatSecondsMmSs } from '../../lib/progressLogic';
 import { ConfirmDialog } from '../ConfirmDialog';
 import ProgressHistoryRow from './ProgressHistoryRow';
 import './ProgressDetailPanel.css';
@@ -31,7 +31,7 @@ const ProgressDetailPanel: React.FC<{ open: boolean }> = ({ open }) => {
 
     const labelFor = (p: ProgressPoint): string => {
         const ph = phaseAtTime(phases, p.reachedPos);
-        return ph ? getPhaseName(ph.name, contentLanguage) : `${formatClock(p.reachedPos)} ${t('progress.reach_at_suffix', '地点')}`;
+        return ph ? getPhaseName(ph.name, contentLanguage) : `${formatSecondsMmSs(p.reachedPos)} ${t('progress.reach_at_suffix', '地点')}`;
     };
 
     const handleDelete = (index: number) => {

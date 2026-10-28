@@ -19,6 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { showToast } from '../../toastBus';
 import { HousingImage } from '../media/HousingImage';
+import { toSortableItems, type SortableItem } from '../../../lib/housing/sortableUrlItems';
 
 export interface HousingEditImageGridProps {
   images: string[];
@@ -27,15 +28,6 @@ export interface HousingEditImageGridProps {
   onReorder: (newOrder: string[]) => Promise<string[]>;
   /** これ以下の枚数では削除ボタンを disabled にする (既定 1 = 最後の1枚は消せない)。 */
   minImages?: number;
-}
-
-interface SortableItem {
-  id: string;
-  url: string;
-}
-
-function toItems(urls: string[]): SortableItem[] {
-  return urls.map((url, i) => ({ id: `${i}-${url}`, url }));
 }
 
 function SortableEditTile({
@@ -118,7 +110,7 @@ export function HousingEditImageGrid({
   const { t } = useTranslation();
   const [pendingIndex, setPendingIndex] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
-  const items = toItems(images);
+  const items = toSortableItems(images);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),

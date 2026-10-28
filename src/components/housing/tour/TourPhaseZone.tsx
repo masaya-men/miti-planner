@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { PlotDirections } from '../../../lib/housing/wardDirections';
-import { useElapsed, formatElapsed, formatClock } from '../../../lib/housing/useElapsed';
+import { useElapsed, formatElapsed, formatWallClock } from '../../../lib/housing/useElapsed';
 import { termLabel } from '../../../lib/housing/housingTerms';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
 import './TourPhaseZone.css';
@@ -32,7 +32,7 @@ export const TourPhaseZone: React.FC<TourPhaseZoneProps> = ({
     return (
       <div className="housing-tour-phasezone housing-tour-phasezone-timer" data-testid="tour-phase-timer">
         <span className="housing-tour-phasezone-timer-started">
-          {t('housing.tour.nav.viewing.started_at', { time: formatClock(viewStartAt) })}
+          {t('housing.tour.nav.viewing.started_at', { time: formatWallClock(viewStartAt) })}
         </span>
         <span className="housing-tour-phasezone-timer-elapsed">
           {t('housing.tour.nav.viewing.elapsed', { elapsed: formatElapsed(elapsed) })}

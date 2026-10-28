@@ -9,6 +9,7 @@
  * - 物理削除 cron / BAN / 異議申し立てアプリ内 UI は公開後対応 (Phase 3 残)
  */
 import { useCallback, useEffect, useState } from 'react';
+import { realListingImageUrl } from '../../lib/housing/representativeImage';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { apiFetch } from '../../lib/apiClient';
@@ -47,12 +48,6 @@ interface ReportedListing {
   adminHiddenScope?: 'listing' | 'owner' | null;
   reportCount: number;
   reports: ReportRecord[];
-}
-
-function resolveImageSource(l: ReportedListing): string | null {
-  if (l.imageMode === 'thumbnail' && l.thumbnailPath) return l.thumbnailPath;
-  if (l.imageMode === 'sns' && l.ogImageUrl) return l.ogImageUrl;
-  return null;
 }
 
 export function AdminHousingReports() {
@@ -175,7 +170,7 @@ export function AdminHousingReports() {
       {!loading && listings && listings.length > 0 && (
         <div className="flex flex-col gap-3">
           {listings.map((l) => {
-            const imgSrc = resolveImageSource(l);
+            const imgSrc = realListingImageUrl(l);
             return (
               <div
                 key={l.id}

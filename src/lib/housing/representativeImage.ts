@@ -34,3 +34,15 @@ export function hasRepresentativeImage(listing: MockListing): boolean {
     (listing.imageMode === 'sns' && Boolean(listing.ogImageUrl))
   );
 }
+
+/**
+ * 実画像の URL だけを返す(無ければ null)。representativeImage と違い、
+ * プレースホルダへは落とさない。管理画面の一覧サムネ用。
+ */
+export function realListingImageUrl(
+  l: { imageMode?: string; ogImageUrl?: string; thumbnailPath?: string },
+): string | null {
+  if (l.imageMode === 'thumbnail' && l.thumbnailPath) return l.thumbnailPath;
+  if (l.imageMode === 'sns' && l.ogImageUrl) return l.ogImageUrl;
+  return null;
+}

@@ -1,12 +1,11 @@
 import type { MockListing } from '../../data/housing/mockListings';
-import { HOUSING_AREAS } from '../../types/housing';
+import { areaIndex } from './areaIndex';
 import { ALL_REGIONS } from '../../data/housing/dcServerMap';
 
 type OrderableListing = Pick<MockListing,
   'id' | 'region' | 'dc' | 'server' | 'area' | 'ward' | 'buildingType' | 'plot' | 'apartmentBuilding' | 'roomNumber' | 'addressKey' | 'lastConfirmedAt' | 'createdAt'>;
 
 function regionIndex(r: string): number { const i = ALL_REGIONS.indexOf(r as typeof ALL_REGIONS[number]); return i === -1 ? ALL_REGIONS.length : i; }
-function areaIndex(a: string): number { const i = HOUSING_AREAS.indexOf(a as typeof HOUSING_AREAS[number]); return i === -1 ? HOUSING_AREAS.length : i; }
 
 // unlisted は region/dc/server/area/ward が undefined (住所非公開)。空文字/0 扱いで比較しても
 // クラッシュせず、既存の実データ (常に値あり) の並び順は一切変わらない。

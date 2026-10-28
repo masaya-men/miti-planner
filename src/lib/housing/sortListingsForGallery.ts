@@ -1,5 +1,5 @@
 import type { MockListing } from '../../data/housing/mockListings';
-import { HOUSING_AREAS } from '../../types/housing';
+import { areaIndex } from './areaIndex';
 
 /**
  * 一覧表示用の sort:
@@ -29,11 +29,6 @@ type SortableListing = Pick<
     | 'apartmentBuilding'
     | 'roomNumber'
 >;
-
-function areaIndex(area: string): number {
-    const idx = HOUSING_AREAS.indexOf(area as typeof HOUSING_AREAS[number]);
-    return idx === -1 ? HOUSING_AREAS.length : idx;
-}
 
 function compareByAddress(a: SortableListing, b: SortableListing): number {
     // unlisted は area/dc/server/ward が undefined (住所非公開)。areaIndex('') は「未知のエリア」扱いで

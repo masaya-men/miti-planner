@@ -24,7 +24,7 @@ export function formatElapsed(seconds: number): string {
 }
 
 /** epoch ms → 24時間表記 H:MM（ローカル時刻）。 */
-export function formatClock(epochMs: number): string {
+export function formatWallClock(epochMs: number): string {
   const d = new Date(epochMs);
   return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
 }

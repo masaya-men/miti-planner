@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useElapsed, formatElapsed, formatClock } from '../useElapsed';
+import { useElapsed, formatElapsed, formatWallClock } from '../useElapsed';
 
 describe('formatElapsed', () => {
   it('分:秒 (ゼロ詰め秒)', () => {
@@ -15,10 +15,10 @@ describe('formatElapsed', () => {
   });
 });
 
-describe('formatClock', () => {
+describe('formatWallClock', () => {
   it('24時間 H:MM', () => {
-    expect(formatClock(new Date('2026-07-08T14:32:00').getTime())).toBe('14:32');
-    expect(formatClock(new Date('2026-07-08T09:05:00').getTime())).toBe('9:05');
+    expect(formatWallClock(new Date('2026-07-08T14:32:00').getTime())).toBe('14:32');
+    expect(formatWallClock(new Date('2026-07-08T09:05:00').getTime())).toBe('9:05');
   });
 });
 

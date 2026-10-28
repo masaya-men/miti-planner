@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   makeDayKey, appendProgressPoint, removeProgressPoint, computeProgressPercent, isEmptyProgress,
   insertProgressPoint, phaseAtTime, pointPercent,
-  formatClock, formatTimeOfDay, formatMonthDay, dayBucket,
+  formatSecondsMmSs, formatTimeOfDay, formatMonthDay, dayBucket,
   makeProgressPointId, removeProgressPointById, setProgressPointNoteById, normalizeProgress,
   newlyAddedRemotePoint,
 } from '../progressLogic';
@@ -164,11 +164,11 @@ describe('pointPercent', () => {
   });
 });
 
-describe('formatClock', () => {
+describe('formatSecondsMmSs', () => {
   it('m:ss に整形', () => {
-    expect(formatClock(0)).toBe('0:00');
-    expect(formatClock(59)).toBe('0:59');
-    expect(formatClock(225)).toBe('3:45');
+    expect(formatSecondsMmSs(0)).toBe('0:00');
+    expect(formatSecondsMmSs(59)).toBe('0:59');
+    expect(formatSecondsMmSs(225)).toBe('3:45');
   });
 });
 

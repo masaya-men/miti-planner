@@ -6,6 +6,7 @@
  * AdminUgc.tsx と同じ検索UIパターン (URL/ID入力→検索→操作)。
  */
 import { useState } from 'react';
+import { realListingImageUrl } from '../../lib/housing/representativeImage';
 import { useTranslation } from 'react-i18next';
 import { Search, Sparkles, Loader2 } from 'lucide-react';
 import { apiFetch } from '../../lib/apiClient';
@@ -33,12 +34,6 @@ interface ListingInfo {
   deletedAt: number | null;
   isHidden: boolean;
   pinnedNewUntil: number | null;
-}
-
-function resolveImageSource(l: ListingInfo): string | null {
-  if (l.imageMode === 'thumbnail' && l.thumbnailPath) return l.thumbnailPath;
-  if (l.imageMode === 'sns' && l.ogImageUrl) return l.ogImageUrl;
-  return null;
 }
 
 export function AdminHousingNewBadge() {
@@ -176,9 +171,9 @@ export function AdminHousingNewBadge() {
         {listing && (
           <div className="border border-app-border rounded-lg p-4">
             <div className="flex gap-4 mb-4">
-              {resolveImageSource(listing) ? (
+              {realListingImageUrl(listing) ? (
                 <img
-                  src={resolveImageSource(listing)!}
+                  src={realListingImageUrl(listing)!}
                   alt=""
                   className="w-32 h-32 rounded-lg border border-app-border bg-app-surface2 object-cover shrink-0"
                 />

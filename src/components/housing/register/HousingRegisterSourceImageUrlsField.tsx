@@ -32,6 +32,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { HousingImage } from '../media/HousingImage';
+import { toSortableItems, type SortableItem } from '../../../lib/housing/sortableUrlItems';
 
 export interface HousingRegisterSourceImageUrlsFieldProps {
   value: string[];
@@ -41,16 +42,6 @@ export interface HousingRegisterSourceImageUrlsFieldProps {
 }
 
 const DEFAULT_MAX_IMAGES = 10;
-
-interface SortableItem {
-  /** dnd-kit が要求する安定 ID。 url が重複しないので url 自体を ID にする */
-  id: string;
-  url: string;
-}
-
-function toItems(urls: string[]): SortableItem[] {
-  return urls.map((url, i) => ({ id: `${i}-${url}`, url }));
-}
 
 /** 1 枚分のサムネタイル (sortable wrapper)。 */
 function SortableUrlTile({
@@ -134,7 +125,7 @@ export function HousingRegisterSourceImageUrlsField({
   maxImages = DEFAULT_MAX_IMAGES,
 }: HousingRegisterSourceImageUrlsFieldProps) {
   const { t } = useTranslation();
-  const items = toItems(value);
+  const items = toSortableItems(value);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),

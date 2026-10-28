@@ -165,7 +165,7 @@ export function pointPercent(reachedPos: number, totalSec: number): number {
 }
 
 /** 秒 → "m:ss"（フェーズ未定義時の到達点ラベル用） */
-export function formatClock(sec: number): string {
+export function formatSecondsMmSs(sec: number): string {
     const s = Math.max(0, Math.round(sec));
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
