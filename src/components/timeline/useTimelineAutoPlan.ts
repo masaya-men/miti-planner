@@ -8,6 +8,7 @@ import { showToast } from '../toastBus';
 import type { SheetImportResult } from '../../lib/sheetImport/buildPlanFromSheets';
 import { importWithLimitCheck } from '../../lib/sheetImport/importWithLimitCheck';
 import type { ContentSelectionDefault } from '../../lib/contentSelection';
+import { matchesMobile } from '../../hooks/useIsMobile';
 
 type ConfirmDialogState = {
     title: string;
@@ -41,7 +42,7 @@ export function useTimelineAutoPlan({
             useMitigationStore.getState().applyAutoPlan(result);
         };
 
-        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+        if (matchesMobile(window)) {
             setTimeout(() => {
                 const isConfirmed = window.confirm(
                     t('timeline.auto_plan_confirm_mobile', "オートプランを実行しますか？\n\n※現在の軽減の配置はすべて削除され、新しく上書きされます。")

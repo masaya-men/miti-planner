@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import type { Dispatch, RefObject, SetStateAction } from 'react';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import type { TimelineEvent } from '../../types';
+import { matchesMobile } from '../../hooks/useIsMobile';
 
 /*
  * キー操作の effect。Timeline 本体から移したもの。
@@ -64,7 +65,7 @@ export function useTimelineShortcutKeys({
             }
             // 単独キーショートカット（PCのみ、Shiftは許可）
             if (e.ctrlKey || e.metaKey || e.altKey) return;
-            if (typeof window !== 'undefined' && window.innerWidth < 768) return;
+            if (matchesMobile(window)) return;
             if (key === 'p' && e.shiftKey) {
                 // Shift+P: フェーズ列の表示/非表示
                 e.preventDefault();

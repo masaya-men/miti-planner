@@ -45,6 +45,7 @@ import { useCollabPresenceStore } from '../store/useCollabPresenceStore';
 import { useTimelineMemo, useTimelineCursorSend } from './timeline/useTimelineMemoCursor';
 import { useTimelineSheetViewState, useTimelineSheetTap, useTimelineSheetColumns, useTimelineSheetHover } from './timeline/useTimelineSheetView';
 import { resolveContentId, isJoinerReadonly } from './timelineJoinerState';
+import { matchesMobile } from '../hooks/useIsMobile';
 
 const Timeline: React.FC = () => {
     const { contentLanguage, mobileEffectBarMode } = useThemeStore();
@@ -177,7 +178,7 @@ const Timeline: React.FC = () => {
     // パーティ設定: PC用のローカルstate + モバイル用のContext
     const [partySettingsOpenLocal, setPartySettingsOpenLocal] = useState(false);
     // モバイルではContext経由、PCではローカルstate
-    const isMobileView = typeof window !== 'undefined' && window.innerWidth < 768;
+    const isMobileView = matchesMobile(window);
     const partySettingsOpen = isMobileView ? mobilePartyOpen : partySettingsOpenLocal;
     const setPartySettingsOpen = isMobileView ? setMobilePartyOpen : setPartySettingsOpenLocal;
 

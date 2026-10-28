@@ -17,6 +17,7 @@ import { MobileTargetBadge, MobileMitiIcons } from './TimelineRowMobileParts';
 import { PcTypeToggle, PcTargetToggle, PcCopyButton, PcAddEventButton } from './TimelineRowPcControls';
 import { DamageTakenCell } from './TimelineRowDamageTaken';
 import { isEventLethal } from './isEventLethal';
+import { matchesMobile } from '../../hooks/useIsMobile';
 
 // TimelineRowContent(中身): 列のセル群。top/height は受け取らない(使わない)。
 export const TimelineRowContent = memo(({
@@ -51,7 +52,7 @@ export const TimelineRowContent = memo(({
     const orConnector = labels.orConnector;
     const getEventName = (ev: TimelineEvent) => formatEventName(ev, contentLanguage, orConnector);
 
-    const isMobileRow = typeof window !== 'undefined' && window.innerWidth < 768;
+    const isMobileRow = matchesMobile(window);
     const formatDmg = (val: number) => {
         if (!isMobileRow) return val.toLocaleString();
         if (val >= 1000000) return (val / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -61,7 +62,7 @@ export const TimelineRowContent = memo(({
 
     // スマホ: どこをタップしても軽減追加を開く
     const handleMobileTap = (e: React.MouseEvent) => {
-        if (window.innerWidth < 768 && onMobileDamageClick && events.length > 0) {
+        if (matchesMobile(window) && onMobileDamageClick && events.length > 0) {
             onMobileDamageClick(time, e);
         }
     };
@@ -88,7 +89,7 @@ export const TimelineRowContent = memo(({
                             onTimelineSelect?.(time);
                             return;
                         }
-                        if (window.innerWidth < 768) {
+                        if (matchesMobile(window)) {
                             handleMobileTap(e);
                         } else {
                             onPhaseAdd(time, e);
@@ -125,7 +126,7 @@ export const TimelineRowContent = memo(({
                             onTimelineSelect?.(time);
                             return;
                         }
-                        if (window.innerWidth < 768) {
+                        if (matchesMobile(window)) {
                             handleMobileTap(e);
                         } else {
                             onLabelAdd?.(time, e);
@@ -196,7 +197,7 @@ export const TimelineRowContent = memo(({
                             <div
                                 className="w-full h-full flex items-center px-2 gap-1 md:gap-2 cursor-pointer hover:bg-app-surface2"
                                 onClick={(e) => {
-                                    if (window.innerWidth < 768) {
+                                    if (matchesMobile(window)) {
                                         handleMobileTap(e);
                                     } else {
                                         onEventClick(event, e);
@@ -245,7 +246,7 @@ export const TimelineRowContent = memo(({
                     "border-app-border text-app-text-sec"
                 )}
                 onClick={(e) => {
-                    if (window.innerWidth < 768 && onMobileDamageClick) {
+                    if (matchesMobile(window) && onMobileDamageClick) {
                         onMobileDamageClick(time, e);
                     }
                 }}
@@ -269,7 +270,7 @@ export const TimelineRowContent = memo(({
                     "border-app-border text-app-text"
                 )}
                 onClick={(e) => {
-                    if (window.innerWidth < 768 && onMobileDamageClick) {
+                    if (matchesMobile(window) && onMobileDamageClick) {
                         onMobileDamageClick(time, e);
                     }
                 }}

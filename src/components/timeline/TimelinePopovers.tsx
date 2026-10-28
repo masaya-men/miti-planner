@@ -7,6 +7,7 @@ import { backdropClose } from '../../utils/backdropClose';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import type { useTimelineDialogs } from './useTimelineDialogs';
 import type { useTimelineEditing } from './useTimelineEditing';
+import { matchesMobile } from '../../hooks/useIsMobile';
 
 type Dialogs = ReturnType<typeof useTimelineDialogs>;
 type Editing = ReturnType<typeof useTimelineEditing>;
@@ -64,7 +65,7 @@ export const TimelinePopovers: React.FC<TimelinePopoversProps> = ({
                             "md:static md:absolute md:left-auto md:top-auto md:translate-x-0 md:translate-y-0 md:w-auto"
                         )}
                         style={{
-                            ...(window.innerWidth >= 768 ? {
+                            ...(!matchesMobile(window) ? {
                                 left: Math.min(phasePopover.position.x, window.innerWidth - 220),
                                 top: Math.min(phasePopover.position.y, window.innerHeight - 200),
                                 transform: 'none',
@@ -125,7 +126,7 @@ export const TimelinePopovers: React.FC<TimelinePopoversProps> = ({
                             "md:static md:absolute md:left-auto md:top-auto md:translate-x-0 md:translate-y-0 md:w-auto"
                         )}
                         style={{
-                            ...(window.innerWidth >= 768 ? {
+                            ...(!matchesMobile(window) ? {
                                 left: Math.min(labelPopover.position.x, window.innerWidth - 220),
                                 top: Math.min(labelPopover.position.y, window.innerHeight - 200),
                                 transform: 'none',
@@ -188,7 +189,7 @@ export const TimelinePopovers: React.FC<TimelinePopoversProps> = ({
                         )}
                         style={{
                             // PCのみ位置を適用
-                            ...(window.innerWidth >= 768 ? {
+                            ...(!matchesMobile(window) ? {
                                 left: Math.min(eventPopover.position.x, window.innerWidth - 220),
                                 top: Math.min(eventPopover.position.y, window.innerHeight - 160),
                                 transform: 'none',
@@ -218,7 +219,7 @@ export const TimelinePopovers: React.FC<TimelinePopoversProps> = ({
                             <span>{t('timeline.event_add_here')}</span>
                         </button>
                         {/* モバイルのみ: 軽減追加ショートカット */}
-                        {typeof window !== 'undefined' && window.innerWidth < 768 && (
+                        {matchesMobile(window) && (
                             <button
                                 onClick={() => {
                                     const time = eventPopover.event.time;

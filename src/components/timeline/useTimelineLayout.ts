@@ -14,6 +14,7 @@ import type { RowLayout } from './rowLayout';
 import type { SheetColumn } from './sheet/sheetColumns';
 import { lanesBands, sheetBands, convertMemberX, lanesSheetWidth, readLanesColumnVars } from './sheet/memberX';
 import type { HoverGeom } from './sheet/TableHoverHighlight';
+import { matchesMobile } from '../../hooks/useIsMobile';
 
 /*
  * 列と行の位置計算。Timeline 本体から移したもの。
@@ -24,7 +25,7 @@ import type { HoverGeom } from './sheet/TableHoverHighlight';
 
 /** ① 画面の種類と 1 段の高さ。isMobileTimeline は描画中に window.innerWidth を読むだけ(state 化しない) */
 export function useTimelineViewMode() {
-    const isMobileTimeline = typeof window !== 'undefined' && window.innerWidth < 768;
+    const isMobileTimeline = matchesMobile(window);
     // PC 軍事モードのときだけ true。標準では常に false = 従来 DOM のまま (標準モード不変)。
     const themeStyle = useEffectiveThemeStyle();
     const isMilspecTable = themeStyle === 'military' && !isMobileTimeline;

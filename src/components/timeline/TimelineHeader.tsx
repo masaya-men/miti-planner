@@ -8,6 +8,7 @@ import { RecastRow, type RecastRowHandle } from '../RecastRow';
 import { SheetColumnHeader } from './sheet/SheetColumnHeader';
 import type { SheetColumn } from './sheet/sheetColumns';
 import type { useMitigations } from '../../hooks/useSkillsData';
+import { matchesMobile } from '../../hooks/useIsMobile';
 
 interface TimelineHeaderProps {
     headerRef: React.RefObject<HTMLDivElement | null>;
@@ -70,7 +71,7 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
                                 <div
                                     ref={phaseHeaderRef}
                                     className={`${mobileLabelInPhaseSlot ? 'hidden md:flex' : 'flex'} w-[24px] min-w-[24px] md:w-[var(--col-phase-w)] md:min-w-[var(--col-phase-w)] md:max-w-[var(--col-phase-w)] flex-none border-r border-app-border h-full items-center justify-center text-app-text-muted font-black bg-transparent text-app-xs md:text-app-md md:cursor-pointer md:hover:text-app-text transition-colors`}
-                                    onClick={() => { if (window.innerWidth >= 768) setPhaseDropdownOpen(!phaseDropdownOpen); }}
+                                    onClick={() => { if (!matchesMobile(window)) setPhaseDropdownOpen(!phaseDropdownOpen); }}
                                 >
                                     <span className="md:hidden">{t('timeline.header_phase_short')}</span>
                                     <span className="hidden md:inline md:items-center md:gap-1">
@@ -132,7 +133,7 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
                 <div
                     ref={timeHeaderRef}
                     className="w-[36px] min-w-[36px] md:w-[var(--col-time-w)] md:min-w-[var(--col-time-w)] md:max-w-[var(--col-time-w)] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-app-xs md:text-app-base md:cursor-pointer md:hover:text-app-text transition-colors"
-                    onClick={() => { if (window.innerWidth >= 768) setTimeInputOpen(!timeInputOpen); }}
+                    onClick={() => { if (!matchesMobile(window)) setTimeInputOpen(!timeInputOpen); }}
                 >
                     <span className="md:hidden">{t('timeline.header_time')}</span>
                     <span className="hidden md:inline md:items-center md:gap-0.5">
