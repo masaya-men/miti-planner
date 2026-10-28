@@ -39,7 +39,7 @@ export const withPlan = (/** @type {{ theme: string, lang: string }} */ cond, /*
 
 const THEMES = ['standard-dark', 'standard-light'];
 const pageAx = { vp: ['1489', '1920'], theme: THEMES, lang: ['ja', 'en'] };
-const POP = 'div.fixed.float-surface[class*="rounded-[10px]"]';
+const POP = 'div.fixed.float-surface[class*="rounded-menu"]';
 const winAx = { vp: ['1489'], theme: THEMES, lang: ['ja'] };
 // 時間削減(設計書 §10 の削り順 1)=窓の en 軸は外した(15 分に収まらなかったため)。戻すときは lang に 'en' を足す
 const winAxEn = { vp: ['1489'], theme: THEMES, lang: ['ja'] };

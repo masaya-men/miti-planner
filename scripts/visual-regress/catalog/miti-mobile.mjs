@@ -23,7 +23,7 @@ const fabItem = (/** @type {string} */ icon) => async (/** @type {import('playwr
   await page.click(`${FAB} button:has(svg.lucide-${icon})`);
 };
 
-const POP = 'div.fixed.float-surface[class*="rounded-[10px]"]';
+const POP = 'div.fixed.float-surface[class*="rounded-menu"]';
 const fireEvent = (/** @type {string} */ name) => async (/** @type {import('playwright').Page} */ page) => {
   await page.waitForSelector(ROW);
   await page.evaluate((n) => window.dispatchEvent(new Event(n)), name);
