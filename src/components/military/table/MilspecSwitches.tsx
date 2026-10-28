@@ -2,6 +2,7 @@ import React from 'react';
 import type { Ref } from 'react';
 import { MilspecLed } from '../MilspecDecor';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
+import './MilspecSwitches.css';
 
 // 表の操作列のスイッチ(見本 v11 css:182-214 の横ロッカー / css:245-258 の横スライド)。
 // どちらも「押された状態」は呼び出し側(ストア)が持つ。ここは見た目・動き・ARIA だけ。

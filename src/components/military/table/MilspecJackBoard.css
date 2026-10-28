@@ -1,0 +1,8 @@
+/* MilspecJackBoard の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 基板(差込口の背面)。controlBar の内側に敷く = 横スクロールで一緒に動く。
+   左端 = 副装甲(.milspec-deck-bp)の左端 + 4px(見本 JX+4)、右端 = 右から 5px(pw = bw - 9) */
+.theme-military .milspec-jackboard {
+  position: absolute; top: 4px; height: 32px; z-index: -1; pointer-events: none;
+  left: calc(var(--col-member-start) - 2px); right: 5px;
+}
+.theme-military .milspec-jackboard > svg { position: absolute; left: 0; top: 0; overflow: visible; }

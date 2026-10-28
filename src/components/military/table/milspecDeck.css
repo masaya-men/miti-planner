@@ -7,84 +7,9 @@
   overflow: visible; /* 装甲の影・キーの浮きを切らない */
 }
 .theme-military .milspec-app #timeline-controls-inner { position: relative; background: none; box-shadow: none; }
-
-/* 左の 6 列ぶん(PHASE+LABEL+TIME+機工+RAW+TAKEN)= 見本の 570px。ジョブ行はこの右から始まる */
-.theme-military .milspec-deck { position: relative; flex: none; width: var(--col-member-start); height: 100%; }
-/* 見本の区画の原点 = 表の左端より 10px 左(操作列の外枠が左右へ 10px 広がっているため) */
-.theme-military .milspec-deck-o { position: absolute; left: -10px; top: 0; transform-origin: 0 0; z-index: 0; }
 .theme-military .milspec-deck-o > .milspec-fx { z-index: 1; }
-.theme-military .milspec-deck-at, .theme-military .milspec-grp, .theme-military .milspec-acc { position: absolute; }
-/* 副装甲: ジョブ行の下に敷く(見本 bp は JX=574 = 内側の 570 より 6px 左) */
-.theme-military .milspec-deck-bp { position: absolute; left: calc(var(--col-member-start) - 6px); right: 0; top: 0; bottom: 0; z-index: -1; pointer-events: none; }
-
-/* ---- 括弧見出し(css:106-108) ---- */
-.theme-military .milspec-grp { display: flex; align-items: center; gap: 5px; }
-.theme-military .milspec-grp::before, .theme-military .milspec-grp::after { content: ""; flex: 1; height: 3.5px; border-top: 1px solid var(--ma-ink-2); opacity: 0.55; }
-.theme-military .milspec-grp::before { border-left: 1px solid var(--ma-ink-2); }
-.theme-military .milspec-grp::after { border-right: 1px solid var(--ma-ink-2); }
-
-/* ---- キー列(見本 .kc)。中のキーは bbox の位置に absolute ---- */
-.theme-military .milspec-deck-kc { position: absolute; width: 0; height: 0; }
 .theme-military .milspec-deck-kc > .milspec-key { position: absolute; }
-/* 赤い差し色(css:610 .acc.dng) */
-.theme-military .milspec-acc { border-radius: 0.5px; background: var(--ma-dng); opacity: 0.85; }
-
-/* ---- 銘(スイッチの上の小さな名札。css:102) ---- */
-.theme-military .milspec-lbl { font: 500 6.6px/1 'IBM Plex Sans JP'; color: var(--ma-ink-2); white-space: nowrap; letter-spacing: 0.06em; }
-.theme-military .milspec-hr-u { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
-.theme-military .milspec-hr-u:hover .milspec-lbl { color: var(--ma-ink); }
-.theme-military .milspec-hr-row { display: flex; align-items: center; gap: 4px; }
-
-/* ---------------------------------------------------------------------
-   横ロッカー(O | I)。押した側が平ら、反対側が起き上がり端面が見える。横に表示灯(css:182-214)
-   --------------------------------------------------------------------- */
-.theme-military .milspec-hr { position: relative; width: 32px; height: 17px; padding: 0; border: 0; background: none; cursor: pointer; flex: none; }
-.theme-military .milspec-hr:focus-visible, .theme-military .milspec-hs:focus-visible { outline: 1.2px solid var(--ma-on); outline-offset: 2px; }
-.theme-military .milspec-hr-bz { position: absolute; inset: 0; border-radius: 3px;
-  background: radial-gradient(90% 120% at 50% 0%, rgba(255,255,255,0.10), transparent 60%), linear-gradient(180deg, var(--ma-bz-hi), var(--ma-bz) 45%, var(--ma-bz-lo));
-  box-shadow: 0 1px 0 rgba(0,0,0,0.55), 0 2px 2.5px rgba(0,0,0,0.5), inset 0 0.6px 0 rgba(255,255,255,0.22), inset 0 -0.6px 0 rgba(0,0,0,0.4); }
-.theme-military .milspec-hr-well { position: absolute; left: 2.5px; right: 2.5px; top: 2.5px; bottom: 2.5px; border-radius: 1.5px; background: #020203;
-  box-shadow: inset 0 1.2px 1.6px #000, inset 0 -0.6px 0 rgba(255,255,255,0.12); perspective: 40px; perspective-origin: 50% 30%; }
-.theme-military .milspec-hr-k { position: absolute; top: 0.5px; bottom: 0.5px; width: calc(50% - 0.5px); transform-style: preserve-3d; transition: transform 300ms cubic-bezier(.68,-0.45,.3,1.45); }
-.theme-military .milspec-hr-k.is-l { left: 0.5px; transform-origin: 100% 50%; }
-.theme-military .milspec-hr-k.is-r { right: 0.5px; transform-origin: 0 50%; }
-.theme-military .milspec-hr-face { position: absolute; inset: 0; border-radius: 1px; display: grid; place-items: center;
-  background: linear-gradient(180deg, var(--ma-pl-hi), var(--ma-pl) 50%, var(--ma-pl-lo)); box-shadow: inset 0 0.6px 0 var(--ma-pl-spec), inset 0 -0.6px 0 rgba(0,0,0,0.3); transition: background 135ms, filter 160ms; }
-.theme-military .milspec-hr-face svg { width: 5.5px; height: 5.5px; fill: none; stroke: var(--ma-glyph); stroke-width: 1.4; }
-.theme-military .milspec-hr-end { position: absolute; top: 0; bottom: 0; width: 6px; }
-.theme-military .milspec-hr-k.is-l .milspec-hr-end { left: 0; transform-origin: 0 50%; transform: rotateY(90deg); background: var(--ma-pl-end-hi); }
-.theme-military .milspec-hr-k.is-r .milspec-hr-end { right: 0; transform-origin: 100% 50%; transform: rotateY(-90deg); background: var(--ma-pl-end-lo); }
-.theme-military .milspec-hr-top { position: absolute; left: 0; right: 0; top: 0; height: 6px; transform-origin: 50% 0; transform: rotateX(-90deg); background: var(--ma-pl-end-hi); }
-.theme-military .milspec-hr[aria-checked="false"] .milspec-hr-k.is-r { transform: rotateY(-34deg); }
-.theme-military .milspec-hr[aria-checked="false"] .milspec-hr-k.is-r .milspec-hr-face { background: var(--ma-pl-up); }
-.theme-military .milspec-hr[aria-checked="false"] .milspec-hr-k.is-l .milspec-hr-face { box-shadow: inset -2.5px 0 2px -1px rgba(0,0,0,0.5); }
-.theme-military .milspec-hr[aria-checked="true"] .milspec-hr-k.is-l { transform: rotateY(34deg); }
-.theme-military .milspec-hr[aria-checked="true"] .milspec-hr-k.is-l .milspec-hr-face { background: var(--ma-pl-up); }
-.theme-military .milspec-hr[aria-checked="true"] .milspec-hr-k.is-r .milspec-hr-face { box-shadow: inset 2.5px 0 2px -1px rgba(0,0,0,0.5), inset 0 0.6px 0 var(--ma-pl-spec); }
-/* ホバー: 起き上がっている側が指の方へわずかに傾き、表示灯が予熱 */
-.theme-military .milspec-hr:hover .milspec-hr-face { filter: brightness(1.12); }
-.theme-military .milspec-hr[aria-checked="false"]:hover .milspec-hr-k.is-r { transform: rotateY(-30deg); }
-.theme-military .milspec-hr[aria-checked="true"]:hover .milspec-hr-k.is-l { transform: rotateY(30deg); }
 .theme-military .milspec-hr:hover + .milspec-led:not(.is-on) .milspec-led-src { opacity: 0.2; }
-
-/* ---------------------------------------------------------------------
-   横スライド(表を展開)。溝は光らない。光るのはつまみのランプ穴だけ(css:245-258)
-   --------------------------------------------------------------------- */
-.theme-military .milspec-hs { position: relative; padding: 0; border: 0; background: none; cursor: pointer; }
-.theme-military .milspec-hs-ch { position: relative; display: block; width: 44px; height: 17px; border-radius: 4px; overflow: hidden; background: linear-gradient(180deg, var(--ma-pit-hi), var(--ma-pit-lo));
-  box-shadow: inset 0 1.6px 2px #000, inset 0 -0.6px 0 rgba(255,255,255,0.12), 0 0.6px 0 rgba(255,255,255,0.10), 0 -0.6px 0 rgba(0,0,0,0.45); }
-.theme-military .milspec-hs-kn { position: absolute; left: 2px; top: 2px; bottom: 2px; width: 23px; border-radius: 2.5px; display: flex; align-items: center; justify-content: space-between; padding: 0 2.5px;
-  background: radial-gradient(110% 80% at 50% 0%, rgba(255,255,255,0.10), transparent 60%), linear-gradient(180deg, var(--ma-pl-hi), var(--ma-pl) 50%, var(--ma-pl-lo));
-  box-shadow: inset 0 0.6px 0 var(--ma-pl-spec), inset 0.6px 0 0 rgba(255,255,255,0.06), inset -0.6px 0 0 rgba(0,0,0,0.3), inset 0 -0.8px 0 rgba(0,0,0,0.45), 0 1.6px 1.4px rgba(0,0,0,0.9), 0 0 0 0.5px rgba(0,0,0,0.55);
-  transition: filter 160ms; }
-.theme-military .milspec-hs[aria-checked="true"] .milspec-hs-kn { transform: translateX(17px); }
-.theme-military .milspec-hs:hover .milspec-hs-kn { filter: brightness(1.1); }
-.theme-military .milspec-hs-ribs { display: flex; gap: 1.5px; height: 60%; }
-.theme-military .milspec-hs-ribs i { width: 1.1px; height: 100%; border-radius: 1px; background: rgba(0,0,0,0.5); box-shadow: 0.6px 0.4px 0 rgba(255,255,255,0.14); }
 .theme-military .milspec-hs .milspec-led-lens { inset: 0.8px; }
 .theme-military .milspec-hs[aria-checked="true"] .milspec-led-src { opacity: 1; transition-delay: .5s; }
 .theme-military .milspec-hs[aria-checked="true"] .milspec-led-lens { background: radial-gradient(circle at 50% 55%, rgba(var(--ma-on-rgb),0.9), var(--ma-on-deep) 90%); transition: background 0s .5s; }
-
-@media (prefers-reduced-motion: reduce) {
-  .theme-military .milspec-hr-k, .theme-military .milspec-hr-face, .theme-military .milspec-hs-kn { transition: none; }
-}

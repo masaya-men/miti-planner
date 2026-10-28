@@ -1,3 +1,4 @@
+/* MilspecJackRow の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
 /* ジョブの差込口(見本 v11 css:379-392)。D-sub の金属シェル + 六角スタンドオフ。全規則 .theme-military 前置。
    MilspecJackRow からだけ import する。 */
 
@@ -25,11 +26,3 @@
 .theme-military .milspec-jack:hover img { filter: brightness(1.18) saturate(1.1); }
 .theme-military .milspec-jack:hover .rimh { stroke: rgba(255,255,255,0.45); }
 .theme-military .milspec-jack:active { transform: translateY(0.8px) scale(0.96); transition: transform 70ms cubic-bezier(.7,0,1,.6); }
-
-/* 基板(差込口の背面)。controlBar の内側に敷く = 横スクロールで一緒に動く。
-   左端 = 副装甲(.milspec-deck-bp)の左端 + 4px(見本 JX+4)、右端 = 右から 5px(pw = bw - 9) */
-.theme-military .milspec-jackboard {
-  position: absolute; top: 4px; height: 32px; z-index: -1; pointer-events: none;
-  left: calc(var(--col-member-start) - 2px); right: 5px;
-}
-.theme-military .milspec-jackboard > svg { position: absolute; left: 0; top: 0; overflow: visible; }

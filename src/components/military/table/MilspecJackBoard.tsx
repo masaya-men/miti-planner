@@ -1,8 +1,8 @@
 import React from 'react';
 import type { PartyMember } from '../../../types';
 import { BACKPLANE_H, backplaneSVG } from './backplane';
-import './milspecJack.css';
 import { lightPartyGap } from './milspecJackBoardModel';
+import './MilspecJackBoard.css';
 
 // ジョブの差込口の土台の基板(見本 v11 js:431-466)。controlBar の内側(#timeline-controls-inner)に敷くので、
 // 表と一緒に横スクロールする。列の中心は Timeline が実測した memberLayout(left + width / 2)。

@@ -1,0 +1,58 @@
+/* MilspecReticle の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ---------- 照準(MilspecReticle)。四隅 + 十字 + タグ。位置は器基準の transform ---------- */
+.theme-military .milspec-ret {
+  position: absolute; left: 0; top: 0; width: 10px; height: 10px; pointer-events: none; z-index: 60; opacity: 0;
+  --ret-c: var(--ma-sig);
+  transition: transform 190ms cubic-bezier(.2,.9,.25,1), width 190ms cubic-bezier(.2,.9,.25,1), height 190ms cubic-bezier(.2,.9,.25,1), opacity 140ms;
+}
+.theme-military.theme-light .milspec-ret { --ret-c: #0e8f55; }
+/* 見出しの中に置く枠(見出しの子への一括規則 > * に負けない) */
+.theme-military .milspec-app #timeline-header-inner > .milspec-ret { position: absolute; align-self: auto; }
+/* 見出しの「孫」への一括規則(余白・色・字・縁の透明化)が枠の部品に効かないよう戻す */
+.theme-military .milspec-app #timeline-header-inner > .milspec-ret > * { padding: 0; justify-content: normal; }
+.theme-military .milspec-app #timeline-header-inner > .milspec-ret > i { border-color: var(--ret-c); }
+.theme-military .milspec-app #timeline-header-inner > .milspec-ret > .milspec-ret-tag {
+  padding: 2px 4px 2px 3px; font: 400 6.4px/1 'Share Tech Mono', monospace; letter-spacing: 0.08em; color: var(--ret-c);
+}
+.theme-military.theme-light .milspec-app #timeline-header-inner > .milspec-ret > .milspec-ret-tag { color: #0b7a47; }
+.theme-military .milspec-ret.on { opacity: 1; }
+.theme-military .milspec-ret i { position: absolute; width: 7px; height: 7px; border: 0 solid var(--ret-c); }
+.theme-military .milspec-ret i:nth-child(1) { left: 0; top: 0; border-width: 1.2px 0 0 1.2px; }
+.theme-military .milspec-ret i:nth-child(2) { right: 0; top: 0; border-width: 1.2px 1.2px 0 0; }
+.theme-military .milspec-ret i:nth-child(3) { right: 0; bottom: 0; border-width: 0 1.2px 1.2px 0; }
+.theme-military .milspec-ret i:nth-child(4) { left: 0; bottom: 0; border-width: 0 0 1.2px 1.2px; }
+.theme-military .milspec-ret u { position: absolute; background: var(--ret-c); opacity: 0.7; }
+.theme-military .milspec-ret u:nth-of-type(1) { left: -5px; top: 50%; width: 3px; height: 1px; }
+.theme-military .milspec-ret u:nth-of-type(2) { right: -5px; top: 50%; width: 3px; height: 1px; }
+.theme-military .milspec-ret u:nth-of-type(3) { top: -5px; left: 50%; width: 1px; height: 3px; }
+.theme-military .milspec-ret u:nth-of-type(4) { bottom: -5px; left: 50%; width: 1px; height: 3px; }
+.theme-military .milspec-ret-tag {
+  position: absolute; left: calc(100% + 7px); top: -1px; padding: 2px 4px 2px 3px; border-radius: 1px; white-space: nowrap;
+  font: 400 6.4px/1 'Share Tech Mono', monospace; letter-spacing: 0.08em; color: var(--ret-c);
+  background: rgba(3,8,6,0.82); box-shadow: inset 1.5px 0 0 var(--ret-c);
+}
+.theme-military.theme-light .milspec-ret-tag { color: #0b7a47; background: rgba(255,255,255,0.92); box-shadow: inset 1.5px 0 0 #0e8f55, 0 1px 2px rgba(0,0,0,0.15); }
+.theme-military .milspec-ret.flip .milspec-ret-tag { left: auto; right: calc(100% + 7px); }
+/* 狙いを定めた瞬間: 四隅が外から寄る・タグが左から開く */
+.theme-military .milspec-ret.lock i:nth-child(1) { animation: milspec-rl1 .26s cubic-bezier(.2,.9,.25,1.3); }
+.theme-military .milspec-ret.lock i:nth-child(2) { animation: milspec-rl2 .26s cubic-bezier(.2,.9,.25,1.3); }
+.theme-military .milspec-ret.lock i:nth-child(3) { animation: milspec-rl3 .26s cubic-bezier(.2,.9,.25,1.3); }
+.theme-military .milspec-ret.lock i:nth-child(4) { animation: milspec-rl4 .26s cubic-bezier(.2,.9,.25,1.3); }
+.theme-military .milspec-ret.lock .milspec-ret-tag { animation: milspec-tagin .32s steps(8, end); }
+@keyframes milspec-rl1 { from { transform: translate(-7px,-7px); opacity: 0; } }
+@keyframes milspec-rl2 { from { transform: translate(7px,-7px); opacity: 0; } }
+@keyframes milspec-rl3 { from { transform: translate(7px,7px); opacity: 0; } }
+@keyframes milspec-rl4 { from { transform: translate(-7px,7px); opacity: 0; } }
+@keyframes milspec-tagin { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .theme-military .milspec-ret { transition: none; }
+  .theme-military .milspec-ret.lock i, .theme-military .milspec-ret.lock .milspec-ret-tag { animation: none; }
+}
+.theme-military .milspec-ret[data-reduced] { transition: none; }
+/* 見出しの照準: 枠を見出しの内側に収め、タグも見出しの中(上端に切れない位置)へ */
+.theme-military .milspec-ret[data-head] .milspec-ret-tag { top: 3px; }
+/* 見出しの十字の目盛り: 見出しの上端・端で切れないよう、上下左右とも枠の内側へ(表の中身の照準は外側のまま) */
+.theme-military .milspec-ret[data-head] u:nth-of-type(1) { left: 1px; }
+.theme-military .milspec-ret[data-head] u:nth-of-type(2) { right: 1px; }
+.theme-military .milspec-ret[data-head] u:nth-of-type(3) { top: 1px; }
+.theme-military .milspec-ret[data-head] u:nth-of-type(4) { bottom: 1px; }

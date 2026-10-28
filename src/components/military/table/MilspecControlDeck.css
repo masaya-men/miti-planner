@@ -1,0 +1,19 @@
+/* MilspecControlDeck の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 左の 6 列ぶん(PHASE+LABEL+TIME+機工+RAW+TAKEN)= 見本の 570px。ジョブ行はこの右から始まる */
+.theme-military .milspec-deck { position: relative; flex: none; width: var(--col-member-start); height: 100%; }
+/* 見本の区画の原点 = 表の左端より 10px 左(操作列の外枠が左右へ 10px 広がっているため) */
+.theme-military .milspec-deck-o { position: absolute; left: -10px; top: 0; transform-origin: 0 0; z-index: 0; }
+.theme-military .milspec-deck-at, .theme-military .milspec-grp, .theme-military .milspec-acc { position: absolute; }
+/* 副装甲: ジョブ行の下に敷く(見本 bp は JX=574 = 内側の 570 より 6px 左) */
+.theme-military .milspec-deck-bp { position: absolute; left: calc(var(--col-member-start) - 6px); right: 0; top: 0; bottom: 0; z-index: -1; pointer-events: none; }
+
+/* ---- 括弧見出し(css:106-108) ---- */
+.theme-military .milspec-grp { display: flex; align-items: center; gap: 5px; }
+.theme-military .milspec-grp::before, .theme-military .milspec-grp::after { content: ""; flex: 1; height: 3.5px; border-top: 1px solid var(--ma-ink-2); opacity: 0.55; }
+.theme-military .milspec-grp::before { border-left: 1px solid var(--ma-ink-2); }
+.theme-military .milspec-grp::after { border-right: 1px solid var(--ma-ink-2); }
+
+/* ---- キー列(見本 .kc)。中のキーは bbox の位置に absolute ---- */
+.theme-military .milspec-deck-kc { position: absolute; width: 0; height: 0; }
+/* 赤い差し色(css:610 .acc.dng) */
+.theme-military .milspec-acc { border-radius: 0.5px; background: var(--ma-dng); opacity: 0.85; }

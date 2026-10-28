@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import { useMitigationStore } from '../../../store/useMitigationStore';
+import './MilspecReticle.css';
 
 // 表の照準(見本 v11 js:1027-1053 / css:518-539)。
 // 表のどこでも、指した所(効果アイコン・攻撃の段・時刻セル・見出しボタン)に四隅の枠が吸い付き、横に小さく情報を出す。

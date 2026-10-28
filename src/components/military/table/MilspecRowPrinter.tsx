@@ -3,6 +3,7 @@ import type { RefObject } from 'react';
 import { usePlanStore } from '../../../store/usePlanStore';
 import { onPower } from '../power/power';
 import { printRows, cancelPrintRows } from './printRows';
+import './MilspecRowPrinter.css';
 
 // 表の行の描き込みのきっかけ(見本 v11 js:1019 / 1106 / 1172)。
 // プランの切替 = 200ms・コンテンツの切替 = 160ms・電源投入 = 620ms。何も描かない(null)。

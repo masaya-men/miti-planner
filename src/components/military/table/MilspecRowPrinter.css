@@ -1,0 +1,4 @@
+/* MilspecRowPrinter の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 起動時・切替時: 行が上から順に描き込まれる(見本 css:540-542) */
+.theme-military .milspec-app [data-time-row].milspec-pr { animation: milspec-printin 300ms cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--d, 0ms); }
+@keyframes milspec-printin { from { opacity: 0; transform: translateX(-8px); filter: brightness(2.2); } 60% { filter: brightness(1.3); } }

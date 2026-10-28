@@ -10,7 +10,7 @@ import { burst } from '../fx/engine';
 import { circ, P } from '../armor/geom';
 import { playJackSlide } from './slideMotion';
 import type { JobPickerRowProps } from '../../jobPickerRowTypes';
-import './milspecJack.css';
+import './MilspecJackRow.css';
 
 // 軍事テーマのジョブ欄(見本 v11 js:451-466 の差込口 + css:379-392)。
 // 外側の div(ref・data 属性・幅)とクリック/右クリックは標準の JobPickerRow と同じ。
