@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { militaryCssText } from '../../../styles/__tests__/militaryCssText';
 
-const css = readFileSync(resolve(__dirname, '../../../styles/military.css'), 'utf8');
+const css = militaryCssText();
 
 // ブロックを「セレクタ { から次の }」まで簡易に切り出す(先頭の定義ブロック)
 const block = (selector: string): string => {

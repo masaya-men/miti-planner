@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { militaryCssText } from './militaryCssText';
 
 // ダークとライトで定義しているトークン(--*)の名前が揃っているかを見る(2026-10-26 設計監査で新設)。
 // 片側にしか無いトークンは、もう片方で var() が無効値になり見た目が静かに崩れる
@@ -59,8 +60,9 @@ const CASES = [
         knownLightOnly: [] as string[],
     },
     {
-        label: 'MIL-SPEC (src/styles/military.css)',
+        label: 'MIL-SPEC (src/styles/military.css+部品の隣の CSS)',
         file: 'styles/military.css',
+        text: militaryCssText,
         shared: ['.theme-military', '.theme-military:root'],
         dark: ['.theme-military.theme-dark'],
         light: ['.theme-military.theme-light'],
@@ -77,7 +79,7 @@ const CASES = [
 
 describe('テーマのトークンがダーク/ライトで揃っている', () => {
     for (const c of CASES) {
-        const rules = collectRules(read(c.file));
+        const rules = collectRules(c.text ? c.text() : read(c.file));
         const dark = namesFor(rules, [...c.shared, ...c.dark]);
         const light = namesFor(rules, [...c.shared, ...c.light]);
 

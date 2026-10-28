@@ -1,11 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import fs from 'node:fs';
-import path from 'node:path';
+import { militaryCssText } from './militaryCssText';
 
 // 案 B(2026-10-22): MIL-SPEC の意味トークン差し替えは .milspec-app の中だけ。ボードの中に直接描かれる
 // 上に出る窓(.glass-tier3)は --std-* で標準に掛け戻す。差し替える名前と掛け戻す名前がずれると、
 // 窓の一部だけ MIL-SPEC 色が残る(masaya 指摘の「中途半端に残る」)ので、名前の集合を突き合わせる。
-const css = fs.readFileSync(path.resolve(__dirname, '../military.css'), 'utf-8').replace(/\r\n/g, '\n');
+const css = militaryCssText();
 
 const blockOf = (selector: string) => {
   const i = css.indexOf(`${selector} {\n`);
