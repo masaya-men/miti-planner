@@ -5,39 +5,11 @@ import { X } from 'lucide-react';
 import { pulseConfig, gridConfig, pulseVisualConfig, PULSE_COLOR_PRESETS, savePulseSettings, notifyGridConfigChange } from './gridOverlayConfig';
 
 import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
-// --- 色変換ユーティリティ ---
-function hslToRgb(h: number, s: number, l: number): [number, number, number] {
-    const c = (1 - Math.abs(2 * l - 1)) * s;
-    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
-    const m = l - c / 2;
-    let r = 0, g = 0, b = 0;
-    if (h < 60) { r = c; g = x; }
-    else if (h < 120) { r = x; g = c; }
-    else if (h < 180) { g = c; b = x; }
-    else if (h < 240) { g = x; b = c; }
-    else if (h < 300) { r = x; b = c; }
-    else { r = c; b = x; }
-    return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
-}
-
-function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
-    r /= 255; g /= 255; b /= 255;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    const l = (max + min) / 2;
-    if (max === min) return [0, 0, l];
-    const d = max - min;
-    const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    let h = 0;
-    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
-    else if (max === g) h = ((b - r) / d + 2) * 60;
-    else h = ((r - g) / d + 4) * 60;
-    return [h, s, l];
-}
-
-function rgbStringToHsl(rgb: string): [number, number, number] {
-    const parts = rgb.split(',').map(s => parseInt(s.trim(), 10));
-    return rgbToHsl(parts[0] || 255, parts[1] || 255, parts[2] || 255);
-}
+import { hslToRgb, rgbStringToHsl } from './pulseSettings/colorConversion';
+import { GradientSlider } from './pulseSettings/GradientSlider';
+import { SnapSlider } from './pulseSettings/SnapSlider';
+import { PillSelect } from './pulseSettings/PillSelect';
+import { SectionHeader } from './pulseSettings/SectionHeader';
 
 // デフォルト値
 const DEFAULTS = {
@@ -51,173 +23,13 @@ const DEFAULTS = {
     gridLineWidth: 1,
 };
 
-const PULSE_MIN = 1;
-const PULSE_MAX = 5;
+
 const GRID_MIN = 0;
 const GRID_MAX = 7;
 const PULSE_WIDTH_MIN = 1;
 const PULSE_WIDTH_MAX = 10;
 const GLOW_MIN = 0;
 const GLOW_MAX = 5;
-
-// 連続値スライダー（色相・明度用）
-const GradientSlider: React.FC<{
-    value: number;
-    onChange: (v: number) => void;
-    min: number;
-    max: number;
-    gradient: string;
-    thumbColor: string;
-    disabled?: boolean;
-}> = ({ value, onChange, min, max, gradient, thumbColor, disabled }) => {
-    const trackRef = useRef<HTMLDivElement>(null);
-    const [dragging, setDragging] = useState(false);
-
-    const thumbW = 14; // w-3.5 = 14px
-    const getValueFromX = useCallback((clientX: number) => {
-        if (!trackRef.current) return value;
-        const rect = trackRef.current.getBoundingClientRect();
-        // サム幅を考慮: 有効トラック範囲は (thumbW/2) 〜 (width - thumbW/2)
-        const ratio = Math.max(0, Math.min(1, (clientX - rect.left - thumbW / 2) / (rect.width - thumbW)));
-        return ratio * (max - min) + min;
-    }, [value, min, max]);
-
-    const handlePointerDown = (e: React.PointerEvent) => {
-        if (disabled) return;
-        e.preventDefault();
-        setDragging(true);
-        (e.target as HTMLElement).setPointerCapture(e.pointerId);
-        onChange(getValueFromX(e.clientX));
-    };
-
-    const handlePointerMove = (e: React.PointerEvent) => {
-        if (!dragging || disabled) return;
-        onChange(getValueFromX(e.clientX));
-    };
-
-    const handlePointerUp = () => setDragging(false);
-
-    const percent = ((value - min) / (max - min)) * 100;
-
-    return (
-        <div
-            ref={trackRef}
-            className="relative h-5 flex items-center cursor-pointer rounded-full"
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-        >
-            <div
-                className="absolute left-0 right-0 h-[6px] rounded-full border border-app-border/50 overflow-hidden"
-                style={{ background: gradient }}
-            />
-            {/* サムの幅(14px)を考慮し、端でもはみ出さないようにclamp */}
-            <div
-                className="absolute w-3.5 h-3.5 rounded-full border-2 border-app-bg shadow-sm transition-[left] duration-75"
-                style={{ left: `calc(${percent / 100} * (100% - 14px))`, backgroundColor: thumbColor }}
-            />
-        </div>
-    );
-};
-
-// 吸着スライダー
-const SnapSlider: React.FC<{
-    value: number;
-    onChange: (v: number) => void;
-    leftLabel: string;
-    rightLabel: string;
-    disabled?: boolean;
-    min?: number;
-    max?: number;
-}> = ({ value, onChange, leftLabel, rightLabel, disabled, min = PULSE_MIN, max = PULSE_MAX }) => {
-    const trackRef = useRef<HTMLDivElement>(null);
-    const [dragging, setDragging] = useState(false);
-
-    const getValueFromX = useCallback((clientX: number) => {
-        if (!trackRef.current) return value;
-        const rect = trackRef.current.getBoundingClientRect();
-        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-        return Math.round(ratio * (max - min) + min);
-    }, [value, min, max]);
-
-    const handlePointerDown = (e: React.PointerEvent) => {
-        if (disabled) return;
-        e.preventDefault();
-        setDragging(true);
-        (e.target as HTMLElement).setPointerCapture(e.pointerId);
-        onChange(getValueFromX(e.clientX));
-    };
-
-    const handlePointerMove = (e: React.PointerEvent) => {
-        if (!dragging || disabled) return;
-        onChange(getValueFromX(e.clientX));
-    };
-
-    const handlePointerUp = () => setDragging(false);
-
-    const percent = ((value - min) / (max - min)) * 100;
-
-    return (
-        <div className="flex items-center gap-2">
-            <span className="text-app-xs text-app-text-muted min-w-4 whitespace-nowrap text-right shrink-0">{leftLabel}</span>
-            <div
-                ref={trackRef}
-                className="relative flex-1 h-5 flex items-center cursor-pointer"
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-            >
-                <div className="absolute left-0 right-0 h-[2px] bg-app-border rounded-full" />
-                <div className="absolute left-0 h-[2px] bg-app-text/40 rounded-full" style={{ width: `${percent}%` }} />
-                {Array.from({ length: max - min + 1 }, (_, i) => min + i).map(step => (
-                    <div
-                        key={step}
-                        className={`absolute w-1 h-1 rounded-full -translate-x-1/2 ${step <= value ? 'bg-app-text/60' : 'bg-app-border'}`}
-                        style={{ left: `${((step - min) / (max - min)) * 100}%` }}
-                    />
-                ))}
-                <div
-                    className="absolute w-3 h-3 rounded-full bg-app-text border-2 border-app-bg -translate-x-1/2 transition-[left] duration-75 shadow-sm"
-                    style={{ left: `${percent}%` }}
-                />
-            </div>
-            <span className="text-app-xs text-app-text-muted min-w-4 whitespace-nowrap shrink-0">{rightLabel}</span>
-        </div>
-    );
-};
-
-// ピル型選択ボタン
-const PillSelect: React.FC<{
-    options: { id: string; label: string }[];
-    value: string;
-    onChange: (id: string) => void;
-    disabled?: boolean;
-}> = ({ options, value, onChange, disabled }) => (
-    <div className="flex gap-1.5 flex-wrap">
-        {options.map(opt => (
-            <button
-                key={opt.id}
-                onClick={() => !disabled && onChange(opt.id)}
-                className={`px-2.5 py-1 rounded-full text-app-sm font-bold tracking-wider transition-all cursor-pointer ${
-                    value === opt.id
-                        ? 'bg-app-toggle text-app-toggle-text'
-                        : 'bg-app-surface2 text-app-text-muted border border-app-border hover:border-app-text-muted'
-                } ${disabled ? 'opacity-30 pointer-events-none' : ''}`}
-            >
-                {opt.label}
-            </button>
-        ))}
-    </div>
-);
-
-// セクション区切り
-const SectionHeader: React.FC<{ label: string; right?: React.ReactNode }> = ({ label, right }) => (
-    <div className="flex items-center gap-2 mb-2 mt-1">
-        <span className="text-app-sm font-bold text-app-text uppercase tracking-widest">{label}</span>
-        <div className="flex-1 h-px bg-app-border" />
-        {right}
-    </div>
-);
 
 export const PulseSettings: React.FC = () => {
     const { t } = useTranslation();
