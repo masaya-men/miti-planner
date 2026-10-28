@@ -111,7 +111,14 @@ async function main() {
       fs.writeFileSync(out, `${fs.readFileSync(out, 'utf8').replace(/\s*$/, '\n\n')}${css}`);
       continue;
     }
-    if (fs.existsSync(out)) throw new Error(`${out} が既にある(部品の隣の CSS への追記はこの道具ではしない)`);
+    // 部品の隣に同名の CSS が既にあれば末尾に足す(部品はもう import している。 addCssImport は二重に足さない)
+    if (!out.startsWith(`${sc.sharedDir}/`) && fs.existsSync(out)) {
+      fs.writeFileSync(out, `${fs.readFileSync(out, 'utf8').replace(/\s*$/, '\n\n')}${css}`);
+      const tsx = importerOf.get(out);
+      fs.writeFileSync(tsx, addCssImport(fs.readFileSync(tsx, 'utf8'), `${name}.css`));
+      continue;
+    }
+    if (fs.existsSync(out)) throw new Error(`${out} が既にある`);
     // 大文字小文字だけ違う古いファイルを消した場合、 git(大文字小文字を区別しない設定)の索引に古い名前が残るので外す
     const caseTwin = removed.find((f) => f !== out && f.toLowerCase() === out.toLowerCase());
     if (caseTwin) execFileSync('git', ['rm', '--cached', '-q', caseTwin]);

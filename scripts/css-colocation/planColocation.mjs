@@ -11,6 +11,8 @@ export const HOUSING_DIRS = { componentsDir: 'src/components/housing', sharedDir
 
 /** class の接頭辞を外した残りが 1 語(housing-register 等)= 汎用名 */
 const isGenericName = (name, prefixRe) => !prefixRe.test(name) || !name.replace(prefixRe, '').includes('-');
+/** 持ち主が「共有に残す」と決まった印(3 部品以上が使う class。 keepAt) */
+const KEEP = 'keep';
 /** セレクタの中の対象 class(. か # の後) */
 const targetNames = (selector, mark, prefixRe) => [...selector.matchAll(new RegExp(`\\${mark}([\\w-]+)`, 'g'))].map((m) => m[1]).filter((c) => prefixRe.test(c));
 
@@ -41,6 +43,9 @@ export function destOfOwner(owner, sharedDir = HOUSING_DIRS.sharedDir) {
  *  tieOwner           → 3 つ以上の候補が同じ点数で割れた時の行き先(例 'shared:primitives')
  *  classify(owner)    → 決まった持ち主の読み替え(起動時の部品 → boot-parts 等)。 overrides と shared: は読み替えない
  *  ruleOwner(sel)     → class より先にセレクタ全体で決まる持ち主(標準の部品を描き変える規則 → standard-parts 等)。 null なら通常の判定
+ * index.css 用の追加(scopes/index.mjs):
+ *  keepAt             → class を書く部品がこの数以上なら動かさず元のファイルに残す(共通部品)。 既定は無効
+ *  trimName           → false なら class が見つからない時に末尾の -xxx を削って探さない(対象を一覧で決める時は名前の切り詰めが意味を持たない)
  */
 export function planColocation({
   sources,
@@ -60,6 +65,8 @@ export function planColocation({
   tieOwner = null,
   classify = (owner) => owner,
   ruleOwner = () => null,
+  keepAt = Infinity,
+  trimName = true,
 }) {
   const isDev = (p) => p.startsWith(`${componentsDir}/dev/`);
   const prefixesOf = new Map(
@@ -134,7 +141,7 @@ export function planColocation({
     }
     let hits = hitsOf(cls);
     let probe = cls;
-    while (!hits.length) {
+    while (!hits.length && trimName) {
       const cut = probe.replace(/(--|-)[a-z0-9]+$/, '');
       // 2 語の汎用名(housing-register 等)までは削らない。 ただし BEM の --修飾 を外した結果なら可
       const generic = isGenericName(cut, prefixRe);
@@ -143,6 +150,8 @@ export function planColocation({
       if (overrides[probe]) return overrides[probe];
       hits = hitsOf(probe);
     }
+    if (!hits.length) return null;
+    if (hits.length >= keepAt) return KEEP;
     if (hits.length === 1) return hits[0];
     const mine = fileClasses.get(src) ?? new Set();
     const score = (f) => [...mine].filter((c) => hitsOf(c).includes(f)).length;
@@ -223,9 +232,15 @@ export function planColocation({
     if (u.rule?.kind !== 'atrule') continue;
     const name = u.rule.params.trim();
     const re = new RegExp(`(^|[\\s,])${name.replace(/[-]/g, '\\-')}([\\s,]|$)`);
-    const uses = (v) => v.rule?.kind === 'rule' && v.owner && v.node.nodes.some((d) => d.type === 'decl' && /^(-webkit-)?animation(-name)?$/.test(d.prop) && re.test(d.value));
+    // @property は、 その変数を宣言か var() で使う規則の持ち主へ(keyframes は animation で名前を使う規則)
+    const isProp = u.rule.name === 'property';
+    const useRe = new RegExp(`${name.replace(/[-]/g, '\\-')}(?![\\w-])`);
+    const uses = (v) =>
+      v.rule?.kind === 'rule' && v.owner && v.owner !== KEEP &&
+      v.node.nodes.some((d) => d.type === 'decl' && (isProp ? useRe.test(d.prop) || useRe.test(d.value) : /^(-webkit-)?animation(-name)?$/.test(d.prop) && re.test(d.value)));
     const user = units.find((v) => v.src === u.src && uses(v)) ?? units.find(uses);
-    u.owner = user?.owner ?? null;
+    // overrides['@keyframes 名前'] = JSX/TS の文字列(Tailwind の animate-[名前_...])でだけ使う keyframes の持ち主
+    u.owner = overrides[`@${u.rule.name} ${u.rule.params.trim()}`] ?? user?.owner ?? null;
     // 使う規則が無い(または使う規則が使われていない候補)の keyframes は、 ファイル単位の指定があればそこ・無ければ候補へ
     u.orphanKeyframes = !u.owner;
   }
@@ -233,7 +248,7 @@ export function planColocation({
   const dominant = new Map();
   for (const src of sources) {
     const tally = new Map();
-    for (const u of units) if (u.src === src.file && u.owner) tally.set(u.owner, (tally.get(u.owner) ?? 0) + 1);
+    for (const u of units) if (u.src === src.file && u.owner && u.owner !== KEEP) tally.set(u.owner, (tally.get(u.owner) ?? 0) + 1);
     const best = [...tally].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];
     dominant.set(src.file, best?.[0] ?? null);
   }
@@ -246,7 +261,7 @@ export function planColocation({
       u.fallback = true;
     }
     const b = base(u.src);
-    if (shared.includes(b)) u.dest = { kept: u.src };
+    if (shared.includes(b) || u.owner === KEEP) u.dest = { kept: u.src };
     else if (frame.includes(b) && keepInFrame(classified(u.owner))) u.dest = { kept: u.src };
     else {
       // class が JSX に見つからない規則は、 消さずに「使われていない候補」へ集める。
