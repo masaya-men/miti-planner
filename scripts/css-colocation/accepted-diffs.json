@@ -6,5 +6,9 @@
   {
     "rule": ".empty-liquid-glass:after",
     "reason": "同上(::after 側)"
+  },
+  {
+    "rule": ".collab-joiner-shell",
+    "reason": "2026-10-28 index.css → CollabJoinerPage.css。 元の CSS は height:100vh; height:100dvh(古いブラウザ向けの予備の行つき)。 Tailwind の後処理は対象ブラウザ(safari 16.4・chrome 111・firefox 128)が全部 dvh に対応するので予備の行を消していた。 部品の隣では予備の行が残るが、 対象ブラウザでは後ろの 100dvh が効くので同じ"
   }
 ]

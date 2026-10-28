@@ -76,7 +76,7 @@ const cmp = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
 export function specificity(selector) {
   let total = [0, 0, 0];
   for (const c of compounds(selector)) {
-    const { fns, rest } = stripPseudoFns(c);
+    const { fns, rest: raw } = stripPseudoFns(c);
     for (const fn of fns) {
       if (fn.name === 'where') continue;
       if (fn.name === 'is' || fn.name === 'not' || fn.name === 'has' || fn.name === 'matches') {
@@ -86,6 +86,8 @@ export function specificity(selector) {
         total = add(total, [0, 0, 1]);
       } else total = add(total, [0, 1, 0]); // :nth-child() など
     }
+    // 古い書き方の :before / :after 等(Tailwind の後処理を通った CSS はこちら)も擬似要素として数える
+    const rest = raw.replace(/(^|[^:]):(before|after|first-line|first-letter)(?![\w-])/g, '$1::$2');
     const ids = (rest.match(/#[\w-]+/g) || []).length;
     const cls = (rest.match(/\.[\w-]+/g) || []).length + (rest.match(/\[\]/g) || []).length;
     const pseudoEls = (rest.match(/::[\w-]+/g) || []).length;

@@ -9,6 +9,7 @@
 @import "./styles/base/unused/index-unused.css";
 @import "./styles/base/properties.css";
 @source not "../docs/**";
+@source not "../scripts/**";
 @custom-variant dark (&:where(.theme-dark, .theme-dark *));
 
 @theme {

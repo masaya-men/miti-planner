@@ -20,15 +20,36 @@ export const ORDER_PREFIX = new RegExp(`^(housing(?:er)?|milspec)-|${INDEX_CLASS
 // 確認済みの差(後処理の二重書きなど、 効き方が同じと人が確かめたもの)。 規則ごとに理由を書く
 const ACCEPTED = path.join(path.dirname(fileURLToPath(import.meta.url)), 'accepted-diffs.json');
 
-/** 同一性の一覧を、 確認済みの規則(セレクタ完全一致)とそれ以外に分ける。 accepted = [{ rule, reason }] */
-export function splitAccepted(ids, accepted) {
+/**
+ * 確認済みの規則(セレクタ完全一致)の欠けと重複を、 同じ条件・セレクタで 1 対 1 に対になる分だけ外す。
+ * 片方だけ(規則が消えた・増えた)は外さない。 accepted = [{ rule, reason }]。 返す accepted = 外した対の数
+ */
+export function splitAccepted(missing, extra, accepted) {
   const rules = new Set(accepted.map((a) => a.rule));
-  const isAccepted = (id) => rules.has(id.slice(id.indexOf('|') + 1).split('{')[0]);
-  return { kept: ids.filter((id) => !isAccepted(id)), accepted: ids.filter(isAccepted) };
+  const keyOf = (id) => {
+    const bar = id.indexOf('|');
+    const sel = id.slice(bar + 1).split('{')[0];
+    return rules.has(sel) ? `${id.slice(0, bar)}|${sel}` : null;
+  };
+  const pool = new Map();
+  for (const id of extra) {
+    const k = keyOf(id);
+    if (k) pool.set(k, [...(pool.get(k) ?? []), id]);
+  }
+  const used = new Set();
+  const keptMissing = missing.filter((id) => {
+    const k = keyOf(id);
+    const mate = k && pool.get(k)?.find((e) => !used.has(e));
+    if (!mate) return true;
+    used.add(mate);
+    return false;
+  });
+  return { missing: keptMissing, extra: extra.filter((id) => !used.has(id)), accepted: used.size };
 }
 
 // Tailwind の後処理(Lightning CSS)は @import 等を含むファイル(index.css とその @import 先)だけに掛かり、 部品の隣の CSS は素通りする。
-// 移すと書き方だけ変わる(0.3s → .3s)ので、 両側を対象ブラウザ指定なしの minify でそろえて比べる。 対象ブラウザ由来の書き換え・削除は差として残る
+// 移すと書き方だけ変わる(0.3s → .3s)ので、 対象ブラウザ指定なしの minify でそろえて比べる。 規則まるごと minify すると予備の行や接頭辞
+// (height:100vh;height:100dvh・-webkit-backdrop-filter)を 1 つに畳んで本当の差が消えるので、 宣言は 1 つずつ・セレクタは別にそろえる
 const minified = new Map();
 function minify(css) {
   if (!minified.has(css)) {
@@ -43,12 +64,68 @@ function minify(css) {
   return minified.get(css);
 }
 
+const inBraces = (css) => css.slice(css.indexOf('{') + 1, css.lastIndexOf('}'));
+// 並びが効き方を変えうる性質の仲間(一括指定と個別指定・接頭辞違い)。 名前の頭が違う一括指定はここで寄せる。
+// 仲間を広く取るほど判定は厳しくなる(偽の合格にはならない)ので、 迷ったら寄せる
+const FAMILY = { top: 'inset', right: 'inset', bottom: 'inset', left: 'inset', place: 'align', justify: 'align', columns: 'column', gap: 'gap', row: 'gap', line: 'font', white: 'text' };
+const familyOf = (prop) => {
+  if (prop === 'column-gap' || prop === 'row-gap') return 'gap';
+  const head = prop.replace(/^-\w+-/, '').split('-')[0];
+  return FAMILY[head] ?? head;
+};
+// 名前の頭が違う一括指定 → 上書きする個別指定
+const CROSS = {
+  inset: ['top', 'right', 'bottom', 'left'],
+  'place-items': ['align-items', 'justify-items'],
+  'place-content': ['align-content', 'justify-content'],
+  'place-self': ['align-self', 'justify-self'],
+  font: ['line-height'],
+  gap: ['row-gap', 'column-gap'],
+  columns: ['column-width', 'column-count'],
+  'white-space': ['text-wrap', 'text-wrap-mode', 'white-space-collapse'],
+};
+// 論理指定などで名前の包含では上書き関係が分からない仲間は、 個別指定どうしでも並びを保つ
+const KEEP_ORDER = new Set(['border', 'grid', 'margin', 'padding', 'scroll', 'overflow', 'mask', 'inset-group']);
+// 名前の頭が同じでも、 頭の性質の一括指定に含まれない(互いに上書きしない)性質
+const NOT_LONGHAND = new Set(['transform-origin', 'transform-style', 'transform-box']);
+const bare = (p) => p.replace(/^-\w+-/, '');
+const crosses = (p, q) => (CROSS[p] ?? []).includes(q) || p.startsWith('inset');
+const contains = (short, long) => long.startsWith(`${short}-`) && !NOT_LONGHAND.has(long);
+/** 2 つの宣言の並びが効き方を変えうるか(同じ性質・一括指定と個別指定) */
+const ordered = (p, q) => {
+  const a = bare(p);
+  const b = bare(q);
+  return a === b || contains(a, b) || contains(b, a) || crosses(a, b) || crosses(b, a);
+};
+/**
+ * セレクタ{宣言;宣言} を書き方をそろえて作る。 宣言は 1 つずつそろえる(予備の行を畳まない)。
+ * 後処理は効き方が同じ範囲で宣言を並べ替えるので、 仲間ごとにまとめて仲間の名前順に並べる。 仲間の中は、
+ * 並びが効き方を変えうる組が 1 つでもあれば元の並びのまま、 無ければ性質の名前順(同じ名前は元の並び)
+ */
+function ruleKey(r) {
+  const sel = minify(`${r.selector}{z-index:0}`).split('{')[0];
+  const groups = new Map();
+  for (const d of r.node.nodes) {
+    if (d.type !== 'decl') continue;
+    const prop = d.prop.toLowerCase();
+    const fam = familyOf(prop);
+    groups.set(fam, [...(groups.get(fam) ?? []), { prop, text: inBraces(minify(`a{${d.prop}:${d.value}${d.important ? '!important' : ''}}`)) }]);
+  }
+  const decls = [...groups]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .flatMap(([fam, ds]) => {
+      const keep = KEEP_ORDER.has(fam) || ds.some((x, i) => ds.some((y, j) => i < j && x.prop !== y.prop && ordered(x.prop, y.prop)));
+      return (keep ? ds : [...ds].sort((x, y) => x.prop.localeCompare(y.prop))).map((x) => x.text);
+    });
+  return `${sel}{${decls.join(';')}}`;
+}
+
 /** 規則の同一性 = 条件+セレクタ+宣言(どれも書き方をそろえたもの)+「同じものの何個目か」 */
 function identities(rules) {
   const count = new Map();
   return rules.map((r) => {
     const media = r.media.replace(/\s+/g, '');
-    const base = r.kind === 'rule' ? `${media}|${minify(`${r.selector}{${r.decls}}`)}` : `${media}|${minify(r.node.toString())}`;
+    const base = r.kind === 'rule' ? `${media}|${ruleKey(r)}` : `${media}|${minify(r.node.toString())}`;
     const n = count.get(base) ?? 0;
     count.set(base, n + 1);
     return `${base}#${n}`;
@@ -166,11 +243,10 @@ async function main() {
   const related = classGroups(listTsx('src').map((f) => fs.readFileSync(f, 'utf8')), ORDER_PREFIX);
   const r = compareBuilds(base, built, related, ORDER_PREFIX);
   const accepted = fs.existsSync(ACCEPTED) ? JSON.parse(fs.readFileSync(ACCEPTED, 'utf8')) : [];
-  const m = splitAccepted(r.missing, accepted);
-  const x = splitAccepted(r.extra, accepted);
-  r.missing = m.kept;
-  r.extra = x.kept;
-  if (m.accepted.length || x.accepted.length) console.log(`確認済みの差(accepted-diffs.json) 欠け ${m.accepted.length} / 重複 ${x.accepted.length}`);
+  const a = splitAccepted(r.missing, r.extra, accepted);
+  r.missing = a.missing;
+  r.extra = a.extra;
+  if (a.accepted) console.log(`確認済みの差(accepted-diffs.json) ${a.accepted} 対`);
   console.log(`欠け ${r.missing.length} / 重複 ${r.extra.length} / 順番の入れ替わり ${r.flipped.length} / 後読み同士に分かれた組 ${r.lazyCross}(表示のみ)`);
   console.log(`起動時 ${parseRules(built.eager, 'x').length} 規則・${Buffer.byteLength(built.eager)} バイト / 後読み ${built.lazy.length} 本`);
   for (const m of r.missing.slice(0, 20)) console.log('  欠け:', m.slice(0, 200));

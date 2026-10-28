@@ -3,6 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { findOrderPairs, parseRules, specificity, subjectClasses } from '../cssRules.mjs';
 
 describe('specificity', () => {
+  it('古い書き方の :before / :after も擬似要素として数える(Tailwind の後処理を通った CSS と生の CSS で同じ)', () => {
+    expect(specificity('.x:after')).toEqual(specificity('.x::after'));
+    expect(specificity('.a .b:before')).toEqual([0, 2, 1]);
+  });
   it('class と疑似クラスを数える', () => {
     expect(specificity('.a .b:hover')).toEqual([0, 3, 0]);
   });
