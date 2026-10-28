@@ -10,25 +10,23 @@
 //   - sheet 本体: z=99991
 //   - LimitResolutionSheet (Task 6) は内部で z=99992/99993 を使い、 本シートの上に重ねる。
 import { backdropClose } from '../utils/backdropClose';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useShareImportFlow } from '../store/useShareImportFlow';
 import { useAuthStore } from '../store/useAuthStore';
 import { MitigationSheetPreview } from './MitigationSheetPreview';
-import { SharePlanCard } from './SharePlanCard';
 import { ImportProgressOverlay } from './ImportProgressOverlay';
 import { executeShareImport } from '../lib/executeShareImport';
 import { useEscapeClose } from '../hooks/useEscapeClose';
-import { getContentById } from '../data/contentRegistry';
-import { getPhaseName } from '../types';
-import { getImportItemFraction, isImportItemTerminal, resolveItemSweepStatus } from './shareImport/shareImportProgress';
-import { LoadingDots } from './shareImport/LoadingDots';
-
-// done 状態に遷移してからシートを閉じるまでの遅延 (ms)。
-// ユーザーが「完了表示」 を視認する時間を確保するための定数。
-const CLOSE_DELAY_AFTER_DONE_MS = 1200;
+import { ShareImportItemList } from './shareImport/ShareImportItemList';
+import { ShareImportFooter } from './shareImport/ShareImportFooter';
+import { ShareImportLoadingOverlay } from './shareImport/ShareImportLoadingOverlay';
+import { useActiveImportItem } from './shareImport/useActiveImportItem';
+import { useCloseAfterDone } from './shareImport/useCloseAfterDone';
+import { useLoadingBreathing } from './shareImport/useLoadingBreathing';
+import { computeOverlayMetrics } from './shareImport/overlayMetrics';
 
 export function ShareImportSheet() {
     const { t, i18n } = useTranslation();
@@ -49,26 +47,9 @@ export function ShareImportSheet() {
 
     const authUser = useAuthStore((s) => s.user);
 
-    // 左カラムのアイテム選択 (= プレビュー対象)。 importItems の最初のアイテムを初期値にする。
-    const [activeItemId, setActiveItemId] = useState<string | null>(null);
+    const { activeItemId, setActiveItemId } = useActiveImportItem(importItems);
 
-    useEffect(() => {
-        if (importItems.length === 0) return;
-        const ids = new Set(
-            importItems.map((i) => i.sourcePlanId ?? i.sourceShareId),
-        );
-        if (!activeItemId || !ids.has(activeItemId)) {
-            const firstId =
-                importItems[0].sourcePlanId ?? importItems[0].sourceShareId;
-            setActiveItemId(firstId);
-        }
-    }, [importItems, activeItemId]);
-
-    useEffect(() => {
-        if (status !== 'done') return;
-        const id = setTimeout(() => close(), CLOSE_DELAY_AFTER_DONE_MS);
-        return () => clearTimeout(id);
-    }, [status, close]);
+    useCloseAfterDone(status, close);
 
     const isBundle = importItems.length > 1;
     const selectedCount = selectedItemIds.size;
@@ -77,27 +58,8 @@ export function ShareImportSheet() {
             (i) => (i.sourcePlanId ?? i.sourceShareId) === activeItemId,
         ) ?? importItems[0];
 
-    // 中央オーバーレイ用の集計 (importing / done 中のみ意味あり)
-    const overlayMetrics = (() => {
-        if (importItems.length === 0) {
-            return { percent: 0, completedCount: 0, totalCount: 0 };
-        }
-        let totalFraction = 0;
-        let completedCount = 0;
-        for (const item of importItems) {
-            const planId = item.sourcePlanId ?? item.sourceShareId;
-            const events = Array.from(progressMap.values()).filter(
-                (e) => e.planId === planId,
-            );
-            totalFraction += getImportItemFraction(events);
-            if (isImportItemTerminal(events)) completedCount += 1;
-        }
-        return {
-            percent: (totalFraction / importItems.length) * 100,
-            completedCount,
-            totalCount: importItems.length,
-        };
-    })();
+    const overlayMetrics = computeOverlayMetrics(importItems, progressMap);
+
 
     const handleBackdropClick = () => {
         // loading 中も backdrop クリックは無視 (シートを誤って閉じさせない、 操作不能演出)
@@ -110,23 +72,8 @@ export function ShareImportSheet() {
     // 読み込み中の演出フラグ。
     const isLoadingPhase = status === 'loading';
 
-    // Rev 4: 2 段階アニメ。
-    //   Phase A: slide-in (y 100% → 0) with bouncy spring → ~700ms 後に hasSettled=true
-    //   Phase B: hasSettled=true → 呼吸ループ (y: 0 ↔ -12px) を framer-motion で発火
-    //   loading → preview 遷移時は、 呼吸の現在値から y=0 へ smooth tween で戻し、
-    //   layout (height growth) も smooth tween で同時進行 → 「同じシートが伸びる」 演出。
-    const [hasSettled, setHasSettled] = useState(false);
-    useEffect(() => {
-        if (isLoadingPhase) {
-            // 初期 slide-in (~700ms) が終わってから呼吸モードに切替
-            const tid = window.setTimeout(() => setHasSettled(true), 700);
-            return () => {
-                window.clearTimeout(tid);
-            };
-        }
-        // loading を抜けたら次回開示用にリセット
-        setHasSettled(false);
-    }, [isLoadingPhase]);
+    const hasSettled = useLoadingBreathing(isLoadingPhase);
+
 
     const handleImport = async () => {
         const itemsToImport = importItems.filter((i) =>
@@ -223,29 +170,7 @@ export function ShareImportSheet() {
                               - シート全体は同じ motion.div のまま (= 別シートに見えない)
                               - layout (高さ) は smooth tween で「上に伸びる」 演出
                             これにより「読み込んでいるシートそのものが上にせり上がる」 印象になる。 */}
-                        <AnimatePresence>
-                            {isLoadingPhase && (
-                                <motion.div
-                                    key="loading-overlay"
-                                    className="absolute inset-0 z-[1] flex flex-col items-center justify-center gap-6 px-6 py-12 bg-app-surface/95 rounded-t-sheet-sm"
-                                    initial={{ opacity: 1 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.55, ease: 'easeOut' }}
-                                >
-                                    <h2
-                                        id="share-import-title"
-                                        className="text-app-4xl font-black text-app-text tracking-wide text-center"
-                                    >
-                                        {t('share_import.loading')}
-                                    </h2>
-                                    <LoadingDots />
-                                    <p className="text-app-md text-app-text-muted text-center">
-                                        {t('share_import.loading_sub')}
-                                    </p>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        <ShareImportLoadingOverlay isLoadingPhase={isLoadingPhase} />
 
                         {!isLoadingPhase && (
                             <motion.div
@@ -281,49 +206,19 @@ export function ShareImportSheet() {
                             <>
                                 <div className="flex-1 overflow-hidden flex flex-row min-h-0">
                                     {/* Left list (#1: 単一でも常に描画) */}
-                                    <div ref={leftListRef} className="flex-shrink-0 w-[140px] md:w-[280px] border-r border-app-border p-3 overflow-y-auto bg-app-surface2/30 flex flex-col gap-2">
-                                        <LayoutGroup>
-                                            {importItems.map((item) => {
-                                                const itemPlanId = item.sourcePlanId ?? item.sourceShareId;
-                                                const isActive = activeItemId === itemPlanId;
-                                                const itemEvents = Array.from(progressMap.values()).filter(
-                                                    (e) => e.planId === itemPlanId,
-                                                );
-                                                const isChecked = selectedItemIds.has(itemPlanId);
-                                                const isRedFlagged = redFlaggedPlanIds.has(itemPlanId);
-                                                // #2: コンテンツ名を主タイトル、 プラン名を副タイトル
-                                                const contentDef = item.contentId
-                                                    ? getContentById(item.contentId)
-                                                    : null;
-                                                const contentLabel = contentDef
-                                                    ? getPhaseName(contentDef.name, lang)
-                                                    : '';
-                                                // sweep は importing / done 時のみ表示。
-                                                // done のときも継続表示するのは、 CLOSE_DELAY_AFTER_DONE_MS の
-                                                // 1.2 秒間に success 状態の青チェックアイコンを視認させるため。
-                                                const sweepStatus = (status === 'importing' || status === 'done')
-                                                    ? resolveItemSweepStatus(itemEvents)
-                                                    : undefined;
-                                                return (
-                                                    <SharePlanCard
-                                                        key={itemPlanId}
-                                                        title={contentLabel || item.title}
-                                                        subtitle={contentLabel ? item.title : undefined}
-                                                        isActive={isActive}
-                                                        // 単一プランでは checkbox を出さない: 外しても取り込みボタンが
-                                                        // disabled になるだけで UX 矛盾になる (キャンセル/取り込みの 2 択で十分)。
-                                                        showCheckbox={isBundle && status === 'preview'}
-                                                        isChecked={isChecked}
-                                                        onToggleCheck={() => toggleSelect(itemPlanId)}
-                                                        onClickRow={() => setActiveItemId(itemPlanId)}
-                                                        isRedFlagged={isRedFlagged}
-                                                        sweepStatus={sweepStatus}
-                                                        sweepColor="blue"
-                                                    />
-                                                );
-                                            })}
-                                        </LayoutGroup>
-                                    </div>
+                                    <ShareImportItemList
+                                        leftListRef={leftListRef}
+                                        importItems={importItems}
+                                        activeItemId={activeItemId}
+                                        progressMap={progressMap}
+                                        selectedItemIds={selectedItemIds}
+                                        redFlaggedPlanIds={redFlaggedPlanIds}
+                                        status={status}
+                                        isBundle={isBundle}
+                                        lang={lang}
+                                        toggleSelect={toggleSelect}
+                                        setActiveItemId={setActiveItemId}
+                                    />
 
                                     {/* Right preview */}
                                     <div ref={rightPreviewRef} className="flex-1 min-w-0 overflow-y-auto p-3">
@@ -352,41 +247,13 @@ export function ShareImportSheet() {
                                 />
 
                                 {/* Footer (キャンセルボタン追加) */}
-                                <div className="px-5 py-3 shrink-0 border-t border-app-border flex items-center justify-between gap-3 bg-app-surface/40">
-                                    {isBundle ? (
-                                        <span className="text-app-sm text-app-text-muted">
-                                            {t('limit_resolution.selection_count', { count: selectedCount })}
-                                        </span>
-                                    ) : (
-                                        <span />
-                                    )}
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={close}
-                                            disabled={status !== 'preview'}
-                                            aria-label={t('share_import.button_cancel')}
-                                            className="px-4 py-2 rounded-md text-app-text border border-app-border hover:bg-app-surface2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                        >
-                                            {t('share_import.button_cancel')}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            disabled={selectedCount === 0 || status !== 'preview'}
-                                            onClick={handleImport}
-                                            aria-label={
-                                                isBundle
-                                                    ? t('share_import.button_import_count', { count: selectedCount })
-                                                    : t('share_import.button_import_single')
-                                            }
-                                            className="px-5 py-2 rounded-md bg-app-blue text-white font-semibold uppercase hover:bg-app-blue-hover disabled:bg-app-text-muted/30 disabled:text-app-text-muted disabled:cursor-not-allowed active:scale-95 transition-all"
-                                        >
-                                            {isBundle
-                                                ? t('share_import.button_import_count', { count: selectedCount })
-                                                : t('share_import.button_import_single')}
-                                        </button>
-                                    </div>
-                                </div>
+                                <ShareImportFooter
+                                    isBundle={isBundle}
+                                    selectedCount={selectedCount}
+                                    status={status}
+                                    close={close}
+                                    handleImport={handleImport}
+                                />
                             </>
                         )}
                             </motion.div>
