@@ -1,156 +1,31 @@
 import { backdropClose } from '../utils/backdropClose';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useJobs } from '../hooks/useSkillsData';
-import { User, Trash2, Star } from 'lucide-react';
+import { User } from 'lucide-react';
 import { ModalHeader, CloseButton } from './ui/ModalParts';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
-import { Ripple } from './Ripple';
 import { useTutorialStore } from '../store/useTutorialStore';
-import { useDragAndDrop } from '../hooks/useDragAndDrop';
-import { SCALE, SPRING } from '../tokens/motionTokens';
+import { SPRING } from '../tokens/motionTokens';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { MigrationMode } from '../utils/jobMigration';
 import { useThemeStore } from '../store/useThemeStore';
-import { getPhaseName, type Job, type PartyMember, type AppliedMitigation } from '../types';
-import { Tooltip } from './ui/Tooltip';
+import type { Job, PartyMember, AppliedMitigation } from '../types';
 import './PartySettingsModal.css';
+import { SlotItem } from './party/PartySlotItem';
+import { mtGroupIndices, stGroupIndices } from './party/partyJobGroups';
+import { createPartyJobSelectHandler } from './party/createPartyJobSelectHandler';
+import { PartyJobPalette } from './party/PartyJobPalette';
+import { PartyMobileJobPicker } from './party/PartyMobileJobPicker';
+import { PartyDragGhost } from './party/PartyDragGhost';
+import { usePartySheetSwipe } from './party/usePartySheetSwipe';
+import { usePartySlotDrag } from './party/usePartySlotDrag';
 
-interface SlotItemProps {
-    index: number;
-    member: PartyMember;
-    isFocused: boolean;
-    isMyJob: boolean;
-    isDropTarget?: boolean;
-    theme: string;
-    jobs: Job[];
-    contentLanguage: string;
-    onFocusToggle: (index: number) => void;
-    onRemoveJob: (memberId: string) => void;
-    onMyJobToggle: (memberId: string, isMyJob: boolean) => void;
-    dataTutorial?: string;
-}
-
-const SlotItem = React.memo<SlotItemProps>(({
-    index, member, isFocused, isMyJob, isDropTarget, theme, jobs, contentLanguage,
-    onFocusToggle, onRemoveJob, onMyJobToggle, dataTutorial
-}) => {
-    const { t } = useTranslation();
-    if (!member) return null;
-    const job = jobs.find(j => j.id === member.jobId);
-
-    const getSlotColor = () => {
-        if (job) return job.role === 'tank' ? 'blue' : job.role === 'healer' ? 'green' : 'red';
-        return member.role === 'tank' ? 'blue' : member.role === 'healer' ? 'green' : 'red';
-    };
-    const activeColor = getSlotColor();
-
-    return (
-        <div
-            id={`party-slot-${index}`}
-            {...(dataTutorial ? { 'data-tutorial': dataTutorial } : {})}
-            onClick={() => {
-                onFocusToggle(index);
-            }}
-            className={clsx(
-                "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot overflow-hidden transition-transform",
-                isDropTarget && "ring-2 ring-blue-400 scale-[1.03]",
-                isFocused
-                    ? activeColor === 'blue'
-                        ? "bg-blue-500/[0.12] border-[1.5px] border-blue-300/80"
-                        : activeColor === 'green'
-                            ? "bg-emerald-500/[0.12] border-[1.5px] border-emerald-300/80"
-                            : "bg-rose-500/[0.12] border-[1.5px] border-rose-300/80"
-                    : job
-                        ? activeColor === 'blue'
-                            ? "bg-blue-500/[0.06] border-[1.5px] border-blue-300/50 hover:bg-blue-500/[0.10] hover:border-blue-300/70"
-                            : activeColor === 'green'
-                                ? "bg-emerald-500/[0.06] border-[1.5px] border-emerald-300/50 hover:bg-emerald-500/[0.10] hover:border-emerald-300/70"
-                                : "bg-rose-500/[0.06] border-[1.5px] border-rose-300/50 hover:bg-rose-500/[0.10] hover:border-rose-300/70"
-                        : activeColor === 'blue'
-                            ? "bg-blue-500/[0.03] border-[1.5px] border-blue-300/25 hover:bg-blue-500/[0.06] border-dashed"
-                            : activeColor === 'green'
-                                ? "bg-emerald-500/[0.03] border-[1.5px] border-emerald-300/25 hover:bg-emerald-500/[0.06] border-dashed"
-                                : "bg-rose-500/[0.03] border-[1.5px] border-rose-300/25 hover:bg-rose-500/[0.06] border-dashed"
-            )}
-        >
-            <Ripple />
-
-            {/* Left side: Tag and Icon */}
-            <div className="flex items-center gap-3 z-10 pointer-events-none">
-                <div className={clsx(
-                    "text-app-base font-black tracking-tighter w-6 z-10",
-                    theme === 'dark'
-                        ? activeColor === 'blue'
-                            ? "text-blue-200"
-                            : activeColor === 'green'
-                                ? "text-emerald-200"
-                                : "text-rose-200"
-                        : activeColor === 'blue'
-                            ? "text-blue-800"
-                            : activeColor === 'green'
-                                ? "text-emerald-800"
-                                : "text-rose-800"
-                )}>
-                    {member.id}
-                </div>
-                {job ? (
-                    <img
-                        src={job.icon}
-                        alt={getPhaseName(job.name, contentLanguage)}
-                        className="w-8 h-8 object-contain"
-                    />
-                ) : (
-                    <div className="w-8 h-8 rounded-full border border-app-border bg-app-surface2 flex flex-col items-center justify-center">
-                        <span className="text-app-xs text-app-text-muted font-black uppercase tracking-widest">Select</span>
-                    </div>
-                )}
-            </div>
-
-            {/* Right side: Actions */}
-            <div className="flex items-center gap-2 z-20">
-                {job && (
-                    <>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onMyJobToggle(member.id, isMyJob);
-                            }}
-                            className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
-                                isMyJob
-                                    ? "bg-app-amber-border border-app-amber text-app-amber scale-110"
-                                    : "bg-app-surface2 text-app-text/30 border-app-border hover:bg-app-surface2 hover:text-app-text/80"
-                            )}
-                        >
-                            <Tooltip content={t('party.my_job')}>
-                                <Star size={16} className={clsx("transition-all duration-300",
-                                    isMyJob
-                                        ? "fill-app-amber text-app-amber"
-                                        : "group-hover/star:scale-110"
-                                )} />
-                            </Tooltip>
-                        </button>
-                        <button
-                            data-tutorial-remove={member.id}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onRemoveJob(member.id);
-                            }}
-                            className="p-2 rounded-lg text-app-red/40 hover:text-app-red hover:bg-app-red-dim transition-colors border border-transparent hover:border-app-red-border cursor-pointer"
-                        >
-                            <Trash2 size={16} />
-                        </button>
-                    </>
-                )}
-            </div>
-        </div>
-    );
-});
 
 interface PartySettingsModalProps {
     isOpen: boolean;
@@ -174,8 +49,6 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     const [mounted, setMounted] = useState(false);
 
     // Absolute Rules - DO NOT MODIFY
-    const mtGroupIndices = [0, 2, 4, 6];
-    const stGroupIndices = [1, 3, 5, 7];
 
     const lastMeleeSlotRef = useRef<number>(0);
 
@@ -254,33 +127,6 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         }
     }, [isOpen]);
 
-    // Swipe-to-dismiss refs for mobile bottom sheet
-    const dragStartY = useRef(0);
-    const isDragging = useRef(false);
-
-    const handleSheetTouchStart = (e: React.TouchEvent) => {
-        dragStartY.current = e.touches[0].clientY;
-        isDragging.current = true;
-    };
-    const handleSheetTouchMove = (e: React.TouchEvent) => {
-        if (!isDragging.current || !popoverRef.current) return;
-        const dy = e.touches[0].clientY - dragStartY.current;
-        if (dy > 0) {
-            popoverRef.current.style.transform = `translateY(${dy}px)`;
-            popoverRef.current.style.transition = 'none';
-        }
-    };
-    const handleSheetTouchEnd = () => {
-        if (!isDragging.current || !popoverRef.current) return;
-        isDragging.current = false;
-        const dy = parseInt(popoverRef.current.style.transform.replace(/[^-?\d]/g, '') || '0');
-        if (dy > 100) {
-            handleAttemptClose();
-        } else {
-            popoverRef.current.style.transform = '';
-            popoverRef.current.style.transition = 'all 0.3s cubic-bezier(0.2,0.8,0.2,1)';
-        }
-    };
 
     // ②：背景クリックとEscapeキーの検知
     React.useEffect(() => {
@@ -323,159 +169,10 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         setMyMemberId(isMyJob ? null : memberId);
     }, [setMyMemberId]);
 
-    // ── PC用 D&D: ジョブパレットからスロットへドラッグ ──
-    const slotDropRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+    const { drag, handlePaletteDragMove, slotDropRefs } = usePartySlotDrag(setDraftMembers, setFocusedSlot);
+    const { handleSheetTouchStart, handleSheetTouchMove, handleSheetTouchEnd } = usePartySheetSwipe(popoverRef, handleAttemptClose);
 
-    const handleDragDrop = useCallback((job: Job, targetId: string) => {
-        const targetIndex = parseInt(targetId, 10);
-        if (isNaN(targetIndex)) return;
-        setDraftMembers(prev => prev.map((m, i) => i === targetIndex ? { ...m, jobId: job.id } : m));
-        setFocusedSlot(null);
-        useTutorialStore.getState().completeEvent('party:job-set');
-    }, []);
-
-    const drag = useDragAndDrop<Job>({ holdDelay: 0, onDrop: handleDragDrop });
-
-    const handlePaletteDragMove = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-        drag.moveDrag(e);
-        if (!drag.isDragging) return;
-        const pos = 'touches' in e
-            ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
-            : { x: e.clientX, y: e.clientY };
-        let found: string | null = null;
-        slotDropRefs.current.forEach((el, idx) => {
-            const rect = el.getBoundingClientRect();
-            if (pos.x >= rect.left && pos.x <= rect.right && pos.y >= rect.top && pos.y <= rect.bottom) {
-                found = String(idx);
-            }
-        });
-        drag.setActiveTarget(found);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- drag は毎回作り直されるオブジェクト。ドラッグ中フラグと移動・対象設定の関数が変わった時だけ作り直す
-    }, [drag.isDragging, drag.moveDrag, drag.setActiveTarget]);
-
-    const MELEE_IDS = ['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'];
-    const PHYS_RANGED_IDS = ['brd', 'mch', 'dnc'];
-
-    // Core Hybrid Assignment Logic
-    const handleJobSelect = (jobId: string) => {
-        const job = JOBS.find(j => j.id === jobId);
-        if (!job) return;
-
-        let targetIndex: number | undefined = undefined;
-
-        // Mode A: Manual Focus Override
-        if (focusedSlot !== null && focusedSlot >= 0 && focusedSlot < 8) {
-            targetIndex = focusedSlot;
-            setDraftMembers(prev => prev.map((m, i) => i === targetIndex ? { ...m, jobId } : m));
-        }
-        // Mode B: Smart Auto Assign
-        else {
-            let preferredIndices: number[] = [];
-            let swapData: { mtIdx: number, stIdx: number, newMtJob: string, newStJob: string } | null = null;
-
-            if (job.role === 'tank') {
-                // MT優先度: 暗黒(4) > 戦士(3) > ナイト(2) > ガンブレ(1)。ST優先度はその逆。
-                const mtScore: Record<string, number> = { drk: 4, war: 3, pld: 2, gnb: 1 };
-                const mtIdx = mtGroupIndices[0];
-                const stIdx = stGroupIndices[0];
-                const currentMtJob = draftMembers[mtIdx].jobId;
-                const currentStJob = draftMembers[stIdx].jobId;
-
-                const isMtPreferred = mtScore[jobId] >= 3; // 暗黒、戦士はMT希望
-
-                if (!currentMtJob && !currentStJob) {
-                    preferredIndices = isMtPreferred ? [mtIdx, stIdx] : [stIdx, mtIdx];
-                } else if (currentMtJob && !currentStJob) {
-                    if (mtScore[jobId] > mtScore[currentMtJob]) {
-                        swapData = { mtIdx, stIdx, newMtJob: jobId, newStJob: currentMtJob };
-                        targetIndex = mtIdx;
-                    } else {
-                        preferredIndices = [stIdx];
-                    }
-                } else if (!currentMtJob && currentStJob) {
-                    if (mtScore[jobId] < mtScore[currentStJob]) {
-                        swapData = { mtIdx, stIdx, newMtJob: currentStJob, newStJob: jobId };
-                        targetIndex = stIdx;
-                    } else {
-                        preferredIndices = [mtIdx];
-                    }
-                } else {
-                    preferredIndices = isMtPreferred ? [mtIdx] : [stIdx];
-                }
-            } else if (job.role === 'healer') {
-                // PH(白,占)はH1、BH(学,賢)はH2
-                if (['whm', 'ast'].includes(jobId)) {
-                    preferredIndices = [mtGroupIndices[1], stGroupIndices[1]];
-                } else {
-                    preferredIndices = [stGroupIndices[1], mtGroupIndices[1]];
-                }
-            } else if (MELEE_IDS.includes(jobId)) {
-                const d1 = mtGroupIndices[2];
-                const d2 = stGroupIndices[2];
-                const d1Occupied = !!draftMembers[d1].jobId;
-                const d2Occupied = !!draftMembers[d2].jobId;
-                if (!d1Occupied && !d2Occupied) {
-                    preferredIndices = [d1, d2];
-                } else if (!d1Occupied) {
-                    preferredIndices = [d1];
-                } else if (!d2Occupied) {
-                    preferredIndices = [d2];
-                } else {
-                    const last = lastMeleeSlotRef.current;
-                    targetIndex = last === d1 ? d2 : d1;
-                    lastMeleeSlotRef.current = targetIndex;
-                    setDraftMembers(prev => prev.map((m, i) => i === targetIndex ? { ...m, jobId } : m));
-                }
-            } else if (PHYS_RANGED_IDS.includes(jobId)) {
-                preferredIndices = [mtGroupIndices[3], stGroupIndices[3]]; // D3 -> D4
-            } else {
-                preferredIndices = [stGroupIndices[3], mtGroupIndices[3]]; // D4 -> D3
-            }
-
-            if (swapData) {
-                setDraftMembers(prev => {
-                    const next = [...prev];
-                    next[swapData!.mtIdx] = { ...next[swapData!.mtIdx], jobId: swapData!.newMtJob };
-                    next[swapData!.stIdx] = { ...next[swapData!.stIdx], jobId: swapData!.newStJob };
-                    return next;
-                });
-            } else {
-                targetIndex = preferredIndices.find(idx => !draftMembers[idx].jobId);
-                if (targetIndex === undefined) targetIndex = preferredIndices[0];
-                setDraftMembers(prev => prev.map((m, i) => i === targetIndex ? { ...m, jobId } : m));
-                if (MELEE_IDS.includes(jobId) && targetIndex !== undefined) {
-                    lastMeleeSlotRef.current = targetIndex;
-                }
-            }
-        }
-
-        // オートスクロール（配置されたスロットへ滑らかに移動）
-        if (targetIndex !== undefined) {
-            setTimeout(() => {
-                const el = document.getElementById(`party-slot-${targetIndex}`);
-                if (el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }, 50);
-        }
-
-        // ── Tutorial: ジョブ配置イベント ──
-        useTutorialStore.getState().completeEvent('party:job-set');
-
-        // ジョブ配置後、配置済みジョブ数が2以上なら party:two-set を発火
-        // NOTE: setDraftMembers は非同期なので、直前の変更を含めてカウントする
-        setDraftMembers(prev => {
-            const filledCount = prev.filter(m => m.jobId).length;
-            if (filledCount >= 2) {
-                useTutorialStore.getState().completeEvent('party:two-set');
-            }
-            return prev; // 状態は変更しない（カウントのみ）
-        });
-
-        // Always unfocus after a selection attempt
-        setFocusedSlot(null);
-
-    };
+    const handleJobSelect = createPartyJobSelectHandler({ JOBS, focusedSlot, draftMembers, setDraftMembers, setFocusedSlot, lastMeleeSlotRef });
 
     // Protected Migration Handlers for Batch Process
     const handleBatchMigrationConfirm = (mode: MigrationMode) => {
@@ -509,53 +206,9 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     };
 
 
-    const renderJobPalette = () => {
-        const categories = [
-            { id: 'tank', name: 'Tank', jobs: JOBS.filter(j => j.role === 'tank'), color: 'hover:border-blue-500 hover:bg-blue-500/20' },
-            { id: 'healer', name: 'Healer', jobs: JOBS.filter(j => j.role === 'healer'), color: 'hover:border-green-500 hover:bg-green-500/20' },
-            { id: 'melee', name: 'Melee', jobs: JOBS.filter(j => MELEE_IDS.includes(j.id)), color: 'hover:border-red-500 hover:bg-red-500/20' },
-            { id: 'ranged', name: 'Ranged', jobs: JOBS.filter(j => ['brd', 'mch', 'dnc'].includes(j.id)), color: 'hover:border-red-500 hover:bg-red-500/20' },
-            { id: 'caster', name: 'Caster', jobs: JOBS.filter(j => ['blm', 'smn', 'rdm', 'pct'].includes(j.id)), color: 'hover:border-red-500 hover:bg-red-500/20' },
-        ];
-
-        return (
-            // 👇 スマホ時にパレット全体がスクロールできるようにする
-            <div data-tutorial="party-palette-pick" className="flex flex-col gap-0.5 overflow-y-auto custom-scrollbar pr-1 pt-2 pb-2">
-                {categories.map((cat, idx) => (
-                    <React.Fragment key={cat.id}>
-                        {idx !== 0 && <hr className="border-t border-app-border w-full m-0" />}
-                        <div className="flex items-center gap-3">
-                            <div className="w-12 text-right text-app-sm font-black text-app-text uppercase tracking-wider shrink-0 dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-                                {cat.name}
-                            </div>
-                            <div className="flex flex-wrap gap-1.5">
-                                {cat.jobs.map(job => {
-                                    return (
-                                        <button
-                                            key={job.id}
-                                            data-job-id={job.id}
-                                            onClick={() => handleJobSelect(job.id)}
-                                            onMouseDown={(e) => drag.startDrag(job, e)}
-                                            className={clsx(
-                                                "btn-tactile w-9 h-9 rounded-lg border flex items-center justify-center relative group/btn cursor-pointer",
-                                                "bg-transparent border-transparent hover:bg-app-surface2",
-                                                cat.color
-                                            )}
-                                        >
-                                            <Ripple />
-                                            <Tooltip content={getPhaseName(job.name, contentLanguage)}>
-                                                <img src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-8 h-8 object-contain transition-transform group-hover/btn:scale-110 relative z-10 pointer-events-none" />
-                                            </Tooltip>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </React.Fragment>
-                ))}
-            </div>
-        );
-    };
+    const renderJobPalette = () => (
+        <PartyJobPalette JOBS={JOBS} contentLanguage={contentLanguage} handleJobSelect={handleJobSelect} drag={drag} />
+    );
 
     if (!mounted) return null;
 
@@ -646,33 +299,14 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
                         {/* モバイル用インラインジョブ選択 */}
                         {focusedSlot !== null && typeof window !== 'undefined' && window.innerWidth < 768 && (
-                            <div className="md:hidden bg-app-surface2/50 rounded-xl p-3 border border-app-border animate-in slide-in-from-bottom-2 duration-200">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-app-base font-black text-app-text-muted uppercase tracking-wider">
-                                        {draftMembers[focusedSlot]?.id} — {t('party.select_job', 'ジョブを選択')}
-                                    </span>
-                                    <CloseButton onClick={() => setFocusedSlot(null)} label={t('common.close')} />
-                                </div>
-                                <div className="grid grid-cols-6 gap-1.5">
-                                    {JOBS.map(job => (
-                                        <button
-                                            key={job.id}
-                                            onClick={() => {
-                                                handleJobSelect(job.id);
-                                                setFocusedSlot(null);
-                                            }}
-                                            className={clsx(
-                                                "w-10 h-10 rounded-lg border flex items-center justify-center cursor-pointer active:scale-90 transition-all",
-                                                draftMembers[focusedSlot]?.jobId === job.id
-                                                    ? "bg-app-text/20 border-app-text"
-                                                    : "bg-app-surface2 border-app-border"
-                                            )}
-                                        >
-                                            <img src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-7 h-7 object-contain" />
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                            <PartyMobileJobPicker
+                                focusedSlot={focusedSlot}
+                                draftMembers={draftMembers}
+                                JOBS={JOBS}
+                                contentLanguage={contentLanguage}
+                                handleJobSelect={handleJobSelect}
+                                setFocusedSlot={setFocusedSlot}
+                            />
                         )}
 
                         {/* MTグループ */}
@@ -754,20 +388,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             </motion.div>
 
             {/* ドラッグゴースト */}
-            {drag.isDragging && drag.item && (
-                <div
-                    className="fixed pointer-events-none z-[10001]"
-                    style={{
-                        left: drag.position.x - 20,
-                        top: drag.position.y - 20,
-                        transform: `scale(${SCALE.drag})`,
-                    }}
-                >
-                    <div className="w-10 h-10 rounded-xl bg-app-surface2 border border-app-text/30 flex items-center justify-center shadow-lg shadow-black/40">
-                        <img src={drag.item.icon} className="w-8 h-8 object-contain" />
-                    </div>
-                </div>
-            )}
+            <PartyDragGhost drag={drag} />
 
             {/* Render Migration Confirmation over everything else */}
             {migrationBatch && (
