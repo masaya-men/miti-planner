@@ -26,7 +26,9 @@ import { AllmarksAnimationPreviewPage } from './components/housing/dev/AllmarksA
 import { isAppRoute, rememberAppRoute } from './lib/lastAppRoute';
 import { requestPersistentStorage } from './lib/requestPersistentStorage';
 
-import { PrivacyPolicyPage, TermsPage, AboutPage } from './components/LegalPage';
+import { PrivacyPolicyPage } from './components/legal/PrivacyPolicyPage';
+import { TermsPage } from './components/legal/TermsPage';
+import { AboutPage } from './components/legal/AboutPage';
 import { AdminGuard } from './components/admin/AdminGuard';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { AdminDashboard } from './components/admin/AdminDashboard';
