@@ -11,13 +11,12 @@ paths:
 
 - **部品の見た目は部品の隣**に、部品と同じ名前の `.css` で置き、その部品の `.tsx` が `import './<部品名>.css';` する(例: `header/ModeLever.tsx` の隣に `header/ModeLever.css`)。部品を消せば一緒に消える。
 - 1 部品の CSS が 500 行を超えたら、その部品の中の意味のまとまりで分け、同じフォルダに置く(部品が import する)。
-- **共有に置けるのは次の 7 種と `unused/` だけ**(`src/styles/military/`。入口 `src/styles/military.css` は `@import` だけで、起動時に全員分読む):
+- **共有に置けるのは次の 6 種と `unused/` だけ**(`src/styles/military/`。入口 `src/styles/military.css` は `@import` だけで、起動時に全員分読む):
   - `palette.css` — 色の決まり(`--ms-*` / `--ma-*`)
   - `semantic-tokens.css` — 本番の意味トークン(`--color-*` 等)を MIL-SPEC へ付け替える
   - `standard-revert.css` — ボードの中に描く窓(`.glass-tier3`)を標準の見た目へ掛け戻す
   - `backdrop.css` — 画面全体の背景・走査線・フォント
   - `standard-job-chip.css` / `standard-recast.css` / `standard-scrollbar.css` / `standard-table.css` / `standard-effects.css` — **標準の部品を `.theme-military` で描き変える規則**(ジョブチップ・リキャスト・スクロールバー・表の行と見出し・効果アイコン)。標準の部品の隣には置かない
-  - `boot-parts.css` — 起動時から読まれる MIL-SPEC 部品(`src/main.tsx` から静的 import で届く部品)の見た目
   - `primitives.css` / `press-feedback.css` / `lamp.css` / `sr-only.css` / `pcb.css` — 3 つ以上の MIL-SPEC 部品が使う共通部品(装甲板 / 押下フィードバック / インジケータ球 / 読み上げ専用 / 基板)
   - `unused/` — JSX/TS に見つからない規則(消さずに集めた。確かめて消すのは別の作業。増やさない)
 - **他の部品の見た目を同じ詳細度で上書きしない**。部品の CSS はほぼ遅延読み込みで、後読みの CSS 同士の並びは開いた順で変わるため、上書きは開き方次第で効いたり効かなかったりする。上書きが要るなら上書きされる側の部品の CSS に書く。

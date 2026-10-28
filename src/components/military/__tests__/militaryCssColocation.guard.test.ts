@@ -27,7 +27,6 @@ const SHARED_ALLOW: Record<string, string> = {
   'standard-scrollbar.css': '標準の表のスクロールバーを .theme-military で描き変える。標準の部品は MIL-SPEC の後読みより先に画面に出る',
   'standard-table.css': '標準の表の枠・見出し・行を .theme-military で描き変える。標準の部品は MIL-SPEC の後読みより先に画面に出る',
   'standard-effects.css': '標準の効果アイコン・効果帯を .theme-military で描き変える。標準の部品は MIL-SPEC の後読みより先に画面に出る',
-  'boot-parts.css': '起動時から読まれる MIL-SPEC 部品(src/main.tsx から静的 import で届く)の見た目。後読みに置くと共有との勝ち負けが逆転しうる',
   'primitives.css': '3 つ以上の MIL-SPEC 部品が使う共通部品(装甲板・面取り・ビス等)',
   'press-feedback.css': '全ボタン共通の押下フィードバック',
   'lamp.css': '3 つ以上の部品が使うインジケータ球',
@@ -67,10 +66,10 @@ describe('MIL-SPEC CSS の置き場所', () => {
 
   it('起動時(src/main.tsx の静的 import)で届く部品は、隣の CSS を持たない', () => {
     // 起動時に読まれる部品の CSS は、後読みの共有(標準の部品の描き変え等)との勝ち負けが逆転しうる。
-    // 起動時の MIL-SPEC 部品の見た目は共有 boot-parts.css に置く(動的 import / React.lazy で届く部品は対象外)
+    // 起動時の MIL-SPEC 部品は今 1 つも隣の CSS を持たない(boot-parts.css は 10-28 に空になり廃止)。動的 import / React.lazy で届く部品は対象外
     const { css } = bootReach('main.tsx', fsBootIO(SRC));
     const bootWithCss = [...css].filter(([f]) => f.startsWith('components/military/')).map(([f, c]) => `${f} → ${c.join(', ')}`);
-    expect(bootWithCss, '起動時から読まれる MIL-SPEC 部品が隣の CSS を import している。見た目は共有 boot-parts.css へ').toEqual([]);
+    expect(bootWithCss, '起動時から読まれる部品が隣の CSS を import している。後読みの共有との勝ち負けが逆転しうるので、標準の部品を描き変える規則は standard-*.css・それ以外は設計から相談').toEqual([]);
   });
 
   it('bootReach は動的 import・型だけの import をたどらず、静的 import の CSS を拾う', () => {

@@ -221,4 +221,8 @@
 .theme-military .milspec-app .recast-idle[data-role="tank"] { --ma-rc: var(--ma-role-tank); }
 .theme-military .milspec-app .recast-idle[data-role="healer"] { --ma-rc: var(--ma-role-healer); }
 .theme-military .milspec-app .recast-idle[data-role="dps"] { --ma-rc: var(--ma-role-dps); }
-
+/* 見出しの「ロール色の短い線」(Timeline の renderMilspecIdle が .recast-idle の中に描く <i>)。 リキャスト中のアイコンが無い列の見出し */
+.theme-military .milspec-app .milspec-mh-rl {
+  display: block; width: 14px; height: 2px; border-radius: 1px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.35);
+  background: var(--ma-rc, var(--ma-ink-3));
+}

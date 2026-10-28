@@ -1,5 +1,0 @@
-/* 起動時から読まれる MIL-SPEC 部品(src/main.tsx から静的 import で届く部品)の見た目。 部品の隣(後読み)に置くと共有との勝ち負けが逆転しうるため共有に置く。 */
-.theme-military .milspec-app .milspec-mh-rl {
-  display: block; width: 14px; height: 2px; border-radius: 1px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.35);
-  background: var(--ma-rc, var(--ma-ink-3));
-}
