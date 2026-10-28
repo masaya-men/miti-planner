@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { fromFirestore } from '../planService';
+import { fromFirestore } from '../planFirestoreMapping';
 
 describe('fromFirestore: activeCollabRoomToken', () => {
   it('Firestore に token があれば SavedPlan に乗せる', () => {

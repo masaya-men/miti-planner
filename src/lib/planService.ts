@@ -8,19 +8,12 @@
  * - dirty flag で変更があった場合のみ書き込み
  * - 未ログインユーザーは Firestore 書き込みゼロ
  */
-
 import {
   doc,
-  collection,
-  getDocs,
   getDoc,
-  getDocsFromServer,
   getDocFromServer,
   setDoc,
   writeBatch,
-  query,
-  where,
-  orderBy,
   serverTimestamp,
   increment,
   Timestamp,
@@ -28,214 +21,18 @@ import {
 import { db } from './firebase';
 import { mergePlans } from './mergePlans';
 import { isSharedPlanContentEqual } from './planContentEqual';
-import { COLLECTIONS, PLAN_LIMITS } from '../types/firebase';
-import type { FirestorePlan, FirestoreUserPlanCounts } from '../types/firebase';
+import { toFirestoreCreate, toFirestoreUpdate } from './planFirestoreMapping';
+import { fetchPlansAndTombstones, fetchUserPlans } from './planFetch';
+import { ensurePlanCounts, repairPlanCounts, checkPlanLimits } from './planCounts';
+import { COLLECTIONS } from '../types/firebase';
+import type { FirestorePlan } from '../types/firebase';
 import type { SavedPlan } from '../types';
 
-// ========================================
-// 型変換ヘルパー
-// ========================================
-
-/** SavedPlan → Firestore書き込み用オブジェクト（新規作成） */
-function toFirestoreCreate(
-  plan: SavedPlan,
-  uid: string,
-  displayName: string,
-): Record<string, unknown> {
-  // undefinedを全て除去してからFirestoreに送信（Firestoreはundefinedを拒否する）
-  const cleaned = JSON.parse(JSON.stringify({
-    ownerId: uid,
-    ownerDisplayName: displayName,
-    title: plan.title || '',
-    contentId: plan.contentId ?? '',
-    category: plan.category ?? null,
-    isPublic: plan.isPublic ?? false,
-    shareId: null,
-    copyCount: plan.copyCount ?? 0,
-    useCount: plan.useCount ?? 0,
-    data: plan.data,
-    version: 1,
-    archivedAt: null,
-  }));
-  // serverTimestamp()はJSON.stringifyで消えるので後付け
-  cleaned.createdAt = serverTimestamp();
-  cleaned.updatedAt = serverTimestamp();
-  return cleaned;
-}
-
-/** SavedPlan → Firestore書き込み用オブジェクト（更新） */
-function toFirestoreUpdate(
-  plan: SavedPlan,
-  currentVersion: number,
-) {
-  // undefinedを全て除去（Firestoreはundefinedを拒否する）
-  const cleaned = JSON.parse(JSON.stringify({
-    title: plan.title || '',
-    contentId: plan.contentId ?? '',
-    category: plan.category ?? null,
-    isPublic: plan.isPublic ?? false,
-    data: plan.data,
-    version: currentVersion + 1,
-  }));
-  cleaned.updatedAt = serverTimestamp();
-  return cleaned;
-}
-
-/** Firestoreドキュメント → SavedPlan (マッピングをテストするため export) */
-export function fromFirestore(docId: string, data: FirestorePlan): SavedPlan {
-  return {
-    id: docId,
-    ownerId: data.ownerId,
-    ownerDisplayName: data.ownerDisplayName,
-    title: data.title,
-    contentId: data.contentId || null,
-    category: (data as FirestorePlan & { category?: SavedPlan['category'] }).category ?? undefined,
-    isPublic: data.isPublic,
-    copyCount: data.copyCount,
-    useCount: data.useCount,
-    data: data.data,
-    createdAt: data.createdAt instanceof Timestamp
-      ? data.createdAt.toMillis()
-      : Date.now(),
-    updatedAt: data.updatedAt instanceof Timestamp
-      ? data.updatedAt.toMillis()
-      : Date.now(),
-    // 墓標フラグ (true のときのみ持たせる。live プランには付けない)
-    ...(data.deleted === true ? { deleted: true as const } : {}),
-    // 共同編集 ON のルームトークン (ある時のみ。ON/OFF バッジ・自動接続の判定に使う)
-    ...(data.activeCollabRoomToken ? { activeCollabRoomToken: data.activeCollabRoomToken } : {}),
-    // #6: 部屋の現在の入れる人数 (ある時のみ。リロード/再接続後に既定 8 でなく実値を出す)
-    ...(typeof data.collabMaxParticipants === 'number' ? { collabMaxParticipants: data.collabMaxParticipants } : {}),
-  };
-}
-
-// ========================================
-// ユーザープランカウンター
-// ========================================
-
-/** カウンタードキュメントを初期化（未作成の場合のみ） */
-async function ensurePlanCounts(uid: string): Promise<void> {
-  const ref = doc(db, COLLECTIONS.USER_PLAN_COUNTS, uid);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) {
-    await setDoc(ref, {
-      total: 0,
-      byContent: {},
-      updatedAt: serverTimestamp(),
-    });
-  }
-}
-
-/**
- * カウンターをFirestoreの実データから再計算して修復する
- * 過去の同期失敗でカウンターが実態と乖離した場合のリカバリ用
- */
-async function repairPlanCounts(uid: string): Promise<void> {
-  const plans = await fetchUserPlans(uid);
-  const total = plans.length;
-  const byContent: Record<string, number> = {};
-  for (const plan of plans) {
-    const cid = plan.contentId || '';
-    if (cid) {
-      byContent[cid] = (byContent[cid] || 0) + 1;
-    }
-  }
-  await ensurePlanCounts(uid);
-  const ref = doc(db, COLLECTIONS.USER_PLAN_COUNTS, uid);
-  await setDoc(ref, {
-    total,
-    byContent,
-    updatedAt: serverTimestamp(),
-  });
-}
-
-/**
- * プラン上限チェック（クライアント側の事前チェック）
- *
- * 上限到達時は reason / current / max を返し、UI 側で具体的件数を表示できるようにする。
- * createPlan 内では `PLAN_LIMIT_${reason}|current=${n}|max=${m}` 形式の Error メッセージで
- * 投げるので、`parsePlanLimitError` でパースして表示文言を組み立てる。
- */
-async function checkPlanLimits(
-  uid: string,
-  contentId: string,
-): Promise<
-  | { allowed: true }
-  | { allowed: false; reason: 'max_total' | 'max_per_content'; current: number; max: number }
-> {
-  const ref = doc(db, COLLECTIONS.USER_PLAN_COUNTS, uid);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) {
-    return { allowed: true };
-  }
-  const counts = snap.data() as FirestoreUserPlanCounts;
-  if (counts.total >= PLAN_LIMITS.MAX_TOTAL_PLANS) {
-    return {
-      allowed: false,
-      reason: 'max_total',
-      current: counts.total,
-      max: PLAN_LIMITS.MAX_TOTAL_PLANS,
-    };
-  }
-  if (contentId && (counts.byContent[contentId] ?? 0) >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT) {
-    return {
-      allowed: false,
-      reason: 'max_per_content',
-      current: counts.byContent[contentId] ?? 0,
-      max: PLAN_LIMITS.MAX_PLANS_PER_CONTENT,
-    };
-  }
-  return { allowed: true };
-}
 
 // ========================================
 // CRUD 操作
 // ========================================
 
-/**
- * ユーザーの全プラン doc を取得 (live + 墓標)。マージ用の低レベル取得。
- * - live: deleted でないプラン (表示・カウント対象)
- * - tombstoneIds: deleted:true のプラン ID (= 削除済みの明示シグナル)
- *
- * 注意: クエリ自体は ownerId==uid の単一 where + updatedAt orderBy のまま
- * (= 既存の複合インデックスで動く)。墓標の除外はクライアント側で行うので
- * 新しい複合インデックスは不要。
- */
-async function fetchPlansAndTombstones(
-  uid: string,
-): Promise<{ live: SavedPlan[]; tombstoneIds: Set<string> }> {
-  const q = query(
-    collection(db, COLLECTIONS.PLANS),
-    where('ownerId', '==', uid),
-    orderBy('updatedAt', 'desc'),
-  );
-  let snap;
-  try {
-    snap = await getDocsFromServer(q);
-  } catch {
-    // オフライン時はキャッシュにフォールバック
-    snap = await getDocs(q);
-  }
-  const all = snap.docs.map((d) => fromFirestore(d.id, d.data() as FirestorePlan));
-  const live: SavedPlan[] = [];
-  const tombstoneIds = new Set<string>();
-  for (const p of all) {
-    if (p.deleted) tombstoneIds.add(p.id);
-    else live.push(p);
-  }
-  return { live, tombstoneIds };
-}
-
-/** ユーザーの live プランを取得（墓標は除外。サーバー優先、オフライン時のみキャッシュ） */
-async function fetchUserPlans(uid: string): Promise<SavedPlan[]> {
-  const { live } = await fetchPlansAndTombstones(uid);
-  return live;
-}
-
-/**
- * プランを Firestore に新規作成（バッチ書き込み: プラン + カウンター）
- * planId は SavedPlan.id をそのまま使う（localStorageと一致させるため）
- */
 async function createPlan(
   plan: SavedPlan,
   uid: string,
