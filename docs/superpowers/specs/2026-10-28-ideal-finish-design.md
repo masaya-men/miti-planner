@@ -53,10 +53,17 @@ masaya 10-28「本当に全体を妥協なく」。アプリの見た目や動�
 - 見張り: `src/**`(テストとフックを除く)で document/window に `mousedown|pointerdown|click` を足して外側を判定する書き方を禁止する(今の数で凍らせて 0 にする)。
 - 動きのテスト: フック単体(外で閉じる・下に届かない・中で押して外で離すと閉じない・重なりは手前だけ)+実ブラウザ(Playwright)で代表 5 か所(ヘッダーのツールメニュー・言語切替・ハウジングの並び替え・通知のベル・右クリックメニュー)。
 
+## ⑤ これまでの宿題の回収(masaya 10-28「全体を妥協なく」で追加)
+TODO.md に残った小物を全部片付ける: (a) MIL-SPEC の見張りが「起動時の MIL-SPEC 部品に隣の CSS」を止めない (b) `.milspec-mh-rl` が boot-parts にある(本来 standard-parts) (c) `src/__tests__` を noCircularImports と同時に回すと止まる (d) 属性だけ・要素だけの規則が順番の見張り(cssRules.mjs findOrderPairs)に掛からない (e) colocate.mjs が途中で throw すると書き換えが半端に残る(書く前に全部の行き先を検査) (f) 全体実行の時だけまれに落ちるテストの根因 (g) plans の copyCount/useCount(firestore.rules を先に緩めて deploy→コードから消す。rules の deploy は masaya に確認してから)。
+
+## ⑥ CSS のテーマ指定を部品から抜く(スキル project-hygiene「CSS とフォルダの理想の形」)
+今は部品の CSS 約 50 本にテーマの指定(`[data-theme]` 等)が書かれている。理想は「テーマは決まりの名前(CSS 変数)に値を入れるだけ・部品は var() を読むだけ」「強さの順番は @layer で 1 か所に宣言」「定義の無い var() を見張る」。書き換えを伴うので、まず測って(本数・種類)から別の設計書に起こし、1 部品ずつ visual-regress で一致を確かめて進める。見張り=部品の CSS のテーマ指定の数を凍らせて減らすだけ。
+
 ## 並行の順番
 - **波 1(同時に)**: ② の pre-commit 部分・③ の棚卸し(読むだけ)・④ の共通フックとテスト・① の組 A, B, D, F, G。
 - **波 2**: ④ の 33 か所の乗せ替え(① の組 C, E と重なる PulseSettings・PartySettingsModal・ListingCard を含むので、組 C, E は乗せ替えの後に行う)。② の共通の見た目の見張り(③ の結果を使う)。
-- **波 3**: ③ の修正・組 C, E の分割・最終ゲート(test:gate・build・visual-regress 全体・compare-build)。
+- **波 3**: ③ の修正・組 C, E の分割・⑤ の宿題(波 1 から並行可。ファイルが重ならない物から)
+- **波 4**: ⑥ テーマ指定の抜き出し(① の分割が終わってから。分割と同じ CSS を触るため)→ 最終ゲート(test:gate・build・visual-regress 全体・compare-build)。
 - 担当(Sonnet)は別 worktree で作業し、commit はしない。親が検収して cherry-pick・commit する(memory: 並行稼働中に親が commit すると混入するので、検収は担当が終わってから)。
 
 ## 合格(最後に 1 回)

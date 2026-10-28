@@ -134,6 +134,20 @@ export function useDismissOnOutside(
 - [ ] **Step 2:** `npx tsc -b` 0・`npm run knip` 0・対象テスト PASS
 - [ ] **Step 3:** 種類ごとに commit(共通化 / 改名 / 古い記録)
 
+### Task 15: これまでの宿題の回収(設計書 ⑤ の a〜g)
+
+- [ ] **Step 1:** (a)(d) は「わざと壊して見張りが気づかない」再現テストを先に書いて FAIL を確かめ、見張りを直して PASS にする。(e) は「行き先に書けない物が 1 つあると、何も書き換えない」テストを先に書く。
+- [ ] **Step 2:** (b) は standard-parts.css へ一字一句移し、compare-build 欠け 0・visual-regress の military 一致を確かめる。
+- [ ] **Step 3:** (c)(f) は systematic-debugging で根因を特定してから直す(推測で設定を変えない)。
+- [ ] **Step 4:** (g) は firestore.rules の変更と deploy を masaya に確認してから行う(本番の保存の決まりなので)。
+- [ ] **Step 5:** 1 件ごとに commit
+
+### Task 16: CSS のテーマ指定を部品から抜く(設計書 ⑥・Task 5〜11 の後)
+
+- [ ] **Step 1:** 測る: 部品の CSS にあるテーマ指定の本数と種類を一覧にし、@layer の今の使い方(base の 5 本・PartySettingsModal.css)を確かめる。
+- [ ] **Step 2:** brainstorming→writing-plans で別の設計書・計画に起こす(1 部品ずつ・visual-regress 一致・見張りで数を凍らせる)。
+- [ ] **Step 3:** その計画どおりに実行する。
+
 ### Task 14: 最終ゲート
 
 - [ ] **Step 1:** `npm run test:gate` 失敗 0・`npm run build` 0・`npm run lint` 0・`npm run knip` 0
