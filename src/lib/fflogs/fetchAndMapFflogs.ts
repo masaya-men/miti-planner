@@ -5,7 +5,7 @@ import {
   fetchCastEvents,
   fetchPlayerDetails,
 } from '../../api/fflogs';
-import type { FFLogsFight, FFLogsRawEvent } from '../../api/fflogs';
+import type { FFLogsFight, FFLogsRawEvent } from '../../api/fflogsTypes';
 import { mapFFLogsToTimeline } from '../../utils/fflogsMapper';
 import type { MapperResult } from '../../utils/fflogsMapper';
 

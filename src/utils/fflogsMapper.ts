@@ -10,7 +10,7 @@
  *  - playerDetails API / AoEタンク除外 / max×1.05 等のV5.0改善は維持
  */
 
-import type { FFLogsRawEvent, FFLogsFight, DeathEvent, PlayerDetails } from '../api/fflogs';
+import type { FFLogsRawEvent, FFLogsFight, DeathEvent, PlayerDetails } from '../api/fflogsTypes';
 import type { TimelineEvent, LocalizedString, Label } from '../types';
 import { roundDamageCeil } from './damageRounding';
 import { migrateLabels } from './labelMigration';

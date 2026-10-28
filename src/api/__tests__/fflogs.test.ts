@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { selectFight } from '../fflogs';
-import type { FFLogsFight } from '../fflogs';
+import type { FFLogsFight } from '../fflogsTypes';
 
 /** テスト用の最小 fight を作る。 */
 function fight(id: number, kill: boolean): FFLogsFight {

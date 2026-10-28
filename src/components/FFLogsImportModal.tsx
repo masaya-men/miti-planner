@@ -10,7 +10,7 @@ import { ModalHeader, ModalFooter, ModalButton, INPUT_CLASS } from './ui/ModalPa
 import { CloudDownload, AlertCircle, Link, Loader2, CheckCircle2, LogIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
-import type { FFLogsRawEvent, FFLogsFight } from '../api/fflogs';
+import type { FFLogsRawEvent, FFLogsFight } from '../api/fflogsTypes';
 import type { MapperResult } from '../utils/fflogsMapper';
 import { fetchAndMapFflogs } from '../lib/fflogs/fetchAndMapFflogs';
 import { useMitigationStore } from '../store/useMitigationStore';
