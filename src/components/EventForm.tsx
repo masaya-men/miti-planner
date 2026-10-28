@@ -8,6 +8,7 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { useMitigations, useJobs } from '../hooks/useSkillsData';
 import { useThemeStore } from '../store/useThemeStore';
 import { clsx } from 'clsx';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { SegmentButton } from './ui/SegmentButton';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
@@ -66,13 +67,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
     const [visibleMitigations, setVisibleMitigations] = useState<Set<string>>(new Set());
 
     // Mobile Detection
-    const [isMobile, setIsMobile] = useState(false);
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+    const isMobile = useIsMobile();
 
     // pip variant / mobile はコンパクト表示にする
     const compact = variant === 'pip' || isMobile;

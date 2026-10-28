@@ -17,6 +17,7 @@ import clsx from 'clsx';
 import { MobileHeader } from './MobileHeader';
 import { GridOverlay } from './GridOverlay';
 import { useIOSViewportFix } from '../hooks/useIOSViewportFix';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { useSidebarOpenState } from './layout/useSidebarOpenState';
 import { useMobileSheets } from './layout/useMobileSheets';
 import { useLayoutShortcuts } from './layout/useLayoutShortcuts';
@@ -46,14 +47,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const { isSidebarOpen, setIsSidebarOpen, handleToggleSidebar, setSidebarPersisted, closeSidebar } = useSidebarOpenState();
 
     // モバイル判定（md: 768px）
-    const [isMobile, setIsMobile] = React.useState(() =>
-        typeof window !== 'undefined' ? window.innerWidth < 768 : false
-    );
-    React.useEffect(() => {
-        const onResize = () => setIsMobile(window.innerWidth < 768);
-        window.addEventListener('resize', onResize);
-        return () => window.removeEventListener('resize', onResize);
-    }, []);
+    const isMobile = useIsMobile();
 
     const { timelineSortOrder, setTimelineSortOrder } = useMitigationStore(
         useShallow(s => ({ timelineSortOrder: s.timelineSortOrder, setTimelineSortOrder: s.setTimelineSortOrder }))

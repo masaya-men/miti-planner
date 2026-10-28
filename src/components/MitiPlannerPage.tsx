@@ -9,6 +9,7 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import { usePlanStore } from '../store/usePlanStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
+import { matchesMobile } from '../hooks/useIsMobile';
 import { MobileGuide } from './MobileGuide';
 
 const MOBILE_GUIDE_KEY = 'lopo_mobile_guide_completed';
@@ -39,7 +40,7 @@ export const MitiPlannerPage: React.FC = () => {
         // ログイン中だがマイグレーション未完了 → まだチェックしない
         if (authUser && !migrationDone) return;
 
-        const isMobile = window.innerWidth < 768;
+        const isMobile = matchesMobile(window);
         const { isActive, hasCompleted, hasVisitedShare } = useTutorialStore.getState();
         const mitiState = useMitigationStore.getState();
         let { timelineEvents } = mitiState;

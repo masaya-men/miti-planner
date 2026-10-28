@@ -1,8 +1,9 @@
 
 import { backdropClose } from '../utils/backdropClose';
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { clampToViewport } from '../utils/clampToViewport';
 import { useTranslation } from 'react-i18next';
 import type { TimelineEvent } from '../types';
@@ -28,13 +29,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const isTutorialActive = useTutorialStore(s => s.isActive);
 
     // Mobile Detection (positioning / chrome 用)
-    const [isMobile, setIsMobile] = useState(false);
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+    const isMobile = useIsMobile();
 
     // PC: モーダルの実寸を測って画面内にクランプ(固定値での概算高さをやめる)。
     // useLayoutEffect は描画後・ペイント前に走るので、初回中央 → 補正後の位置に切り替わってもちらつかない。

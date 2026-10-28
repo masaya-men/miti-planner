@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { placeTooltipPopup } from './tooltipPlacement';
+import { matchesMobile } from '../../hooks/useIsMobile';
 
 interface TooltipProps {
     content: string | React.ReactNode;
@@ -33,7 +34,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     below = false,
 }) => {
     const [isVisible, setIsVisible] = useState(false);
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const isMobile = matchesMobile(window);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);

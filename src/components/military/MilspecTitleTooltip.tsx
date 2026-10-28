@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { TOOLTIP_BOX_CLASS } from '../ui/Tooltip';
 import { placeTooltipPopup } from '../ui/tooltipPlacement';
+import { matchesMobile } from '../../hooks/useIsMobile';
 
 // ボード(.milspec-app)の中の title 属性はブラウザの灰色の箱になる。標準テーマはアプリのツールチップ(ui/Tooltip)なので、
 // MIL-SPEC でも同じ箱で出す(masaya 2026-10-22)。部品ごとに書き換えると取りこぼすので、ボードの根元で 1 つだけ委譲して拾う。
@@ -19,7 +20,7 @@ export function MilspecTitleTooltip({ rootRef }: { rootRef: RefObject<HTMLElemen
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root || window.innerWidth < 768) return; // スマホは ui/Tooltip と同じく出さない
+    if (!root || matchesMobile(window)) return; // スマホは ui/Tooltip と同じく出さない
 
     let cur: HTMLElement | null = null;
     let label = '';
