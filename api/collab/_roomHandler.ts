@@ -13,26 +13,13 @@ import { parseRoomManageRequest, resolveRoomOwner, type RoomOwnerDoc } from './_
 import { clampMaxParticipants, isCollabDisabled } from './_roomLogic.js';
 import { destroyRoomBinary, liveUpdateRoomMax } from './_roomDestroy.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
+import { setCors } from '../_lib/setCors.js';
 
 /** plans/{planId} のうちこのハンドラが必要とするフィールドだけの型。 */
 interface PlanOwnerDoc {
   ownerId?: string;
   deleted?: boolean;
   activeCollabRoomToken?: string;
-}
-
-function setCors(req: ApiRequest, res: ApiResponse) {
-  const origin = req.headers?.origin || '';
-  const allowed = [
-    'https://lopoly.app',
-    'https://lopo-miti.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:4173',
-  ];
-  const ok = allowed.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
-  res.setHeader('Access-Control-Allow-Origin', ok ? origin : allowed[0]);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
 /** 推測不能な room トークン(≒144bit)。bearer URL の鍵になるため share の 8 文字より長く。 */

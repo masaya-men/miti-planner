@@ -13,21 +13,7 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { sendDiscordNotification } from '../../src/lib/discordWebhook.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
-
-/** CORS設定 */
-function setCors(req: ApiRequest, res: ApiResponse) {
-  const origin = req.headers?.origin || '';
-  const allowedOrigins = [
-    'https://lopoly.app',
-    'https://lopo-miti.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:4173',
-  ];
-  const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
-  res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, PATCH, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
-}
+import { setCors } from '../_lib/setCors.js';
 
 /** LocalizedText のバリデーション (ja/en 必須、 ko/zh は string なら OK) */
 function isValidLocalizedText(obj: { ja?: unknown; en?: unknown; ko?: unknown; zh?: unknown } | null | undefined): boolean {
@@ -49,7 +35,7 @@ function pruneOptional(obj: Record<string, unknown>) {
 }
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
-  setCors(req, res);
+  setCors(req, res, { methods: 'POST, PATCH, DELETE, OPTIONS' });
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   if (!(await verifyAppCheck(req, res))) return;

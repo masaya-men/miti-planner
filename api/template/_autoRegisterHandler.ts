@@ -11,6 +11,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { CONTENT_ID_RE } from './_publicTemplateHandler.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
+import { setCors } from '../_lib/setCors.js';
 
 // 品質チェックの閾値
 const MIN_EVENT_COUNT: Record<string, number> = {
@@ -30,20 +31,6 @@ interface AutoRegisterBody {
   kill: boolean;
   deathCount: number;
   sourceReport: string;
-}
-
-function setCors(req: ApiRequest, res: ApiResponse) {
-  const origin = req.headers?.origin || '';
-  const allowedOrigins = [
-    'https://lopoly.app',
-    'https://lopo-miti.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:4173',
-  ];
-  const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
-  res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {

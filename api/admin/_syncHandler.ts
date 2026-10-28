@@ -19,24 +19,10 @@ import {
 } from '../../src/data/defaultStats.js';
 import { LEVEL_MODIFIERS } from '../../src/data/levelModifiers.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
-
-/** CORS設定 */
-function setCors(req: ApiRequest, res: ApiResponse) {
-  const origin = req.headers?.origin || '';
-  const allowedOrigins = [
-    'https://lopoly.app',
-    'https://lopo-miti.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:4173',
-  ];
-  const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/lopo-miti(-[a-z0-9]+)?\.vercel\.app$/.test(origin);
-  res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
-}
+import { setCors } from '../_lib/setCors.js';
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
-  setCors(req, res);
+  setCors(req, res, { preview: 'lopo-miti' });
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   if (req.method !== 'POST') {

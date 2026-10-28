@@ -22,26 +22,13 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { REPORT_AUTO_HIDE_THRESHOLD } from '../../src/constants/housing.js';
 import { bumpPublicVersionDirect, bumpPublicVersionTx } from '../housing/_publicVersion.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
+import { setCors } from '../_lib/setCors.js';
 
 const COLLECTION = 'housing_listings';
 const LIST_LIMIT = 50;
 
-function setCors(req: ApiRequest, res: ApiResponse) {
-  const origin = req.headers?.origin || '';
-  const allowedOrigins = [
-    'https://lopoly.app',
-    'https://lopo-miti.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:4173',
-  ];
-  const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
-  res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
-}
-
 export default async function handler(req: ApiRequest, res: ApiResponse) {
-  setCors(req, res);
+  setCors(req, res, { methods: 'GET, PATCH, OPTIONS' });
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   if (!(await verifyAppCheck(req, res))) return;

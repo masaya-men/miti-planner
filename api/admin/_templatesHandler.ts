@@ -11,12 +11,13 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { FieldValue } from 'firebase-admin/firestore';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
-import { setCors, createBackup, bumpDataVersion } from './_templatesShared.js';
+import { setCors } from '../_lib/setCors.js';
+import { createBackup, bumpDataVersion } from './_templatesShared.js';
 import { handleRestore } from './_masterRestoreHandler.js';
 import { handleConfigPut, handleSkillsPut, handleServersPut, handleStatsPut } from './_masterDataPutHandlers.js';
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
-  setCors(req, res);
+  setCors(req, res, { methods: 'GET, POST, PUT, DELETE, OPTIONS', preview: 'lopo-miti' });
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // App Check検証

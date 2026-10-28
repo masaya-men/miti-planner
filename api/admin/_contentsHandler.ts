@@ -12,27 +12,14 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { sendDiscordNotification } from '../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
+import { setCors } from '../_lib/setCors.js';
+import { bumpDataVersion } from './_templatesShared.js';
 
 /** コンテンツ/シリーズ項目のうち、このハンドラが読み書きする項目だけの型 */
 interface ContentLike {
   id?: string;
   name?: Record<string, unknown>;
   shortName?: Record<string, unknown>;
-}
-
-/** CORS設定 */
-function setCors(req: ApiRequest, res: ApiResponse) {
-  const origin = req.headers?.origin || '';
-  const allowedOrigins = [
-    'https://lopoly.app',
-    'https://lopo-miti.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:4173',
-  ];
-  const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
-  res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
 /** /master/contentsのバックアップを作成 */
@@ -43,12 +30,6 @@ async function createBackup(db: FirebaseFirestore.Firestore, data: unknown) {
     data,
     createdAt: FieldValue.serverTimestamp(),
   });
-}
-
-/** /master/config の dataVersion を+1する */
-async function bumpDataVersion(db: FirebaseFirestore.Firestore) {
-  const configRef = db.doc('master/config');
-  await configRef.set({ dataVersion: FieldValue.increment(1) }, { merge: true });
 }
 
 /** コンテンツアイテムの必須フィールド検証 */
@@ -65,7 +46,7 @@ function validateItem(
 }
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
-  setCors(req, res);
+  setCors(req, res, { methods: 'GET, POST, PUT, DELETE, OPTIONS' });
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // App Check検証

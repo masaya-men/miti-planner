@@ -22,6 +22,7 @@ import {
 } from '../../src/lib/housing/housingerProfile.js';
 import { normalizeDisplayNameForSearch } from '../../src/data/personalTags.js';
 import type { HousingReq, HousingRes } from './_httpTypes.js';
+import { setCors } from '../_lib/setCors.js';
 
 export function validateUpsertBody(body: unknown):
   | {
@@ -76,20 +77,6 @@ export function validateUpsertBody(body: unknown):
     }
   }
   return { ok: true, isPublished, bio, snsUrl, ogRepresentativeListingIds, ogBackgroundListingId };
-}
-
-function setCors(req: HousingReq, res: HousingRes) {
-  const origin = req.headers?.origin || '';
-  const allowed = [
-    'https://lopoly.app',
-    'https://lopo-miti.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:4173',
-  ];
-  const ok = allowed.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
-  res.setHeader('Access-Control-Allow-Origin', ok ? origin : allowed[0]);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
 export default async function handler(req: HousingReq, res: HousingRes) {

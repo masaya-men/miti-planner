@@ -10,23 +10,10 @@ import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { rejectIfPublicApiDisabled } from '../../src/lib/publicApiGuard.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
-
-function setCors(req: ApiRequest, res: ApiResponse) {
-  const origin = req.headers?.origin || '';
-  const allowedOrigins = [
-    'https://lopoly.app',
-    'https://lopo-miti.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:4173',
-  ];
-  const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
-  res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
-}
+import { setCors } from '../_lib/setCors.js';
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
-  setCors(req, res);
+  setCors(req, res, { methods: 'GET, OPTIONS', headers: 'Content-Type, X-Firebase-AppCheck' });
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
