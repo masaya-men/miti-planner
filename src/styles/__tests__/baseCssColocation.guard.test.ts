@@ -26,6 +26,7 @@ const SHARED_ALLOW: Record<string, string> = {
   'tokens-columns.css': 'タイムラインの列幅トークン(--col-*)。複数部品と計算が読む',
   'global.css': 'html・body・* など全体に効く規則',
   'glass.css': '3 部品以上が使う共通部品(.glass-* の面)',
+  'float-surface.css': '浮かぶもの(窓・シート・通知・帯・メニュー・ツールチップ)が共通で使う素材 .float-surface(2026-10-28)',
   'shared-parts.css': '3 部品以上が使う共通部品(サイドバー項目・スクロールバー等)',
   'properties.css': '@property。部品の隣へ移すと Tailwind が作る未対応ブラウザ向けの初期値が消えるため共有',
 };

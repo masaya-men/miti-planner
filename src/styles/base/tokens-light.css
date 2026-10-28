@@ -123,6 +123,13 @@
     --glass-tier3-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
     --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.5);
 
+    /* 浮かぶもの(窓・シート・通知・帯・メニュー・ツールチップ)の素材 .float-surface(2026-10-28・案 C) */
+    --float-bg: rgba(255, 255, 255, 0.55);
+    --float-blur: 20px;
+    --float-border: rgba(0, 0, 0, 0.08);
+    --float-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --float-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
     --glass-tier2-bg: rgba(255, 255, 255, 0.60);
     --glass-tier2-blur: 28px;
     --glass-tier2-border: rgba(0, 0, 0, 0.06);

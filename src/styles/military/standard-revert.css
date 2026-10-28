@@ -67,7 +67,8 @@
   --std-row-hover-line-color: var(--row-hover-line-color);
   --std-share-modal-bg: var(--share-modal-bg);
 }
-.theme-military .milspec-app .glass-tier3 {
+.theme-military .milspec-app .glass-tier3,
+.theme-military .milspec-app .float-surface {
   --app-accent-rgb: var(--std-app-accent-rgb);
   --color-accent-dim: var(--std-color-accent-dim);
   --color-accent-primary: var(--std-color-accent-primary);
@@ -166,7 +167,7 @@
 }
 /* 文字色・書体もボード(.milspec-app の --ms-text / --ms-font-ui)ではなく標準に戻す(書体は Tailwind preflight の html と同じ式)。
    :where() で詳細度 0 = 窓が自分で付けた text-* / font-* の指定は上書きしない */
-:where(.theme-military .milspec-app .glass-tier3) {
+:where(.theme-military .milspec-app .glass-tier3, .theme-military .milspec-app .float-surface) {
   color: var(--color-app-text);
   font-family: var(--default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
 }

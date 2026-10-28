@@ -1,0 +1,19 @@
+/* 浮かぶもの(窓・シート・通知・帯・メニュー・ツールチップ・押した所に出る窓)の素材(2026-10-28・見本の案 C)。
+   背景・ぼかし・縁・影・文字色だけを持つ。角丸・余白・位置は各部品が持つ。値は tokens-dark/light の --float-*。
+   設計書 = docs/superpowers/specs/2026-10-28-floating-surface-unify-design.md
+   !important は .glass-tier3 と同じ理由(部品に残った bg-* などの Tailwind ユーティリティより必ず勝たせる)。
+   MIL-SPEC のボードの中では standard-revert.css が意味トークンを標準へ掛け戻す。 */
+.float-surface {
+  --tw-backdrop-blur: blur(var(--float-blur));
+  background: var(--float-bg) !important;
+  border: 1px solid var(--float-border) !important;
+  box-shadow: var(--float-shadow), var(--float-inset) !important;
+  color: var(--color-app-text);
+}
+/* backdrop-filter は Tailwind の変数経由で掛ける(Lightning CSS がカスタム CSS の直書きを削除するため) */
+.float-surface,
+.float-surface::before,
+.float-surface::after {
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+}

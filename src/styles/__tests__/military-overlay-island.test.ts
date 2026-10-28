@@ -6,10 +6,12 @@ import { militaryCssText } from './militaryCssText';
 // 窓の一部だけ MIL-SPEC 色が残る(masaya 指摘の「中途半端に残る」)ので、名前の集合を突き合わせる。
 const css = militaryCssText();
 
+// 選択子の並び(「A,\nB {」)のどこかに selector がある節を取る(2026-10-28: 掛け戻しの節に .float-surface を並べた)
 const blockOf = (selector: string) => {
-  const i = css.indexOf(`${selector} {\n`);
+  const i = css.split('\n').findIndex((line) => line === `${selector} {` || line === `${selector},`);
   expect(i, `${selector} の節が無い`).toBeGreaterThanOrEqual(0);
-  return css.slice(i, css.indexOf('\n}', i));
+  const start = css.split('\n').slice(0, i).join('\n').length;
+  return css.slice(start, css.indexOf('\n}', start));
 };
 const names = (block: string) => new Set([...block.matchAll(/^\s*(--[a-z0-9-]+):/gm)].map((m) => m[1]));
 
