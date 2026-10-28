@@ -152,3 +152,48 @@ describe('0.5 秒待ちの保存が走らないまま閉じた後の次の起動
         expect(usePlanStore.getState().plans.find((p) => p.id === 'p1')).toBe(before);
     });
 });
+
+describe('落ちた後の書き戻しで、別端末の編集を上書きしない(レビュー Important 2)', () => {
+    it('落ちた後に別端末で編集された表は、次の起動で古い内容で上書きしない(両方が残る)', async () => {
+        const first = render(<MemoryRouter><Layout><div /></Layout></MemoryRouter>);
+        placeMitigation('m-new');
+        first.unmount();
+
+        // 落ちた後、別端末で p1 が編集された(サーバーの方が新しい)
+        vi.setSystemTime(Date.now() + 3 * 24 * 60 * 60 * 1000);
+        const remote = { ...startPlan, data: { ...startPlan.data, timelineMitigations: [{ id: 'm-remote' } as never] }, updatedAt: Date.now() - 1000 } as SavedPlan;
+        const migrate = deferred<void>();
+        vi.mocked(planService.migrateLocalPlansToFirestore).mockImplementation((local) => migrate.promise.then(() => ({
+            merged: local.map((p) => (remote.updatedAt > p.updatedAt ? remote : p)), dirtyIds: [],
+        })));
+        render(<MemoryRouter><Layout><div /></Layout></MemoryRouter>);
+        login();
+        migrate.resolve();
+        await flush();
+        act(() => { vi.advanceTimersByTime(1000); });
+        await flush();
+
+        // 取り込みに渡した手元の p1 は、起動した時刻ではなく編集した時刻(=別端末より古い)
+        const sentLocal = vi.mocked(planService.migrateLocalPlansToFirestore).mock.calls[0][0].find((p) => p.id === 'p1')!;
+        expect(sentLocal.updatedAt).toBeLessThan(remote.updatedAt);
+        // 別端末の編集は表に、落ちる前の編集は競合コピーに残る
+        expect(planIds()).toEqual(['m-remote']);
+        expect(workingIds()).toEqual(['m-remote']);
+        const copies = usePlanStore.getState().plans.filter((p) => p.id.endsWith('_conflict'));
+        expect(copies).toHaveLength(1);
+        expect(copies[0].data.timelineMitigations.map((m) => m.id)).toEqual(['m-new']);
+        expect(localStorage.getItem('lopo-unsaved-working-plan')).toBeNull();
+    });
+
+    it('共同編集の表は落ちた後の書き戻しの対象外', () => {
+        usePlanStore.setState({ plans: [{ ...startPlan, activeCollabRoomToken: 'room-token' }] } as never);
+        const first = render(<MemoryRouter><Layout><div /></Layout></MemoryRouter>);
+        placeMitigation('m-new');
+        first.unmount();
+        const before = usePlanStore.getState().plans.find((p) => p.id === 'p1');
+
+        render(<MemoryRouter><Layout><div /></Layout></MemoryRouter>);
+        expect(usePlanStore.getState().plans.find((p) => p.id === 'p1')).toBe(before);
+        expect(localStorage.getItem('lopo-unsaved-working-plan')).toBeNull();
+    });
+});
