@@ -69,7 +69,6 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ btnClassName
 
             {open && createPortal(
                 <>
-                    <div className="fixed inset-0 z-[9998]" onClick={() => setOpen(false)} />
                     <div
                         ref={dropdownRef}
                         className="fixed z-[9999] float-surface rounded-menu py-1 min-w-[130px]"
