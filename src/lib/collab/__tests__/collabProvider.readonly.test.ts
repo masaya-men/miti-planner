@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as Y from "yjs";
 import { useMitigationStore } from "../../../store/useMitigationStore";
 import { usePlanStore } from "../../../store/usePlanStore";
-import { applyRoomToStore } from "../collabProvider";
+import { applyRoomToStore } from "../collabRoomApply";
 import { setMetaField, META_CONTENT_ID, META_OWNER_LABEL, MITIGATIONS_KEY, PARTY_MEMBERS_KEY } from "../yjsPlanData";
 import type { AppliedMitigation, PartyMember } from "../../../types";
 

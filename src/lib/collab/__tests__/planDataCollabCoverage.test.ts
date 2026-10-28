@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { useMitigationStore } from "../../../store/useMitigationStore";
 import { usePlanStore } from "../../../store/usePlanStore";
-import { applyRoomToStore } from "../collabProvider";
+import { applyRoomToStore } from "../collabRoomApply";
 import { PLAN_DATA_COLLAB, PLAN_META_KEY, buildArrByKey, metaKeyForField, applyInsertAt, recordToYMap, type CollabSyncTarget } from "../yjsPlanData";
 import { decideLoadFull, type PlanDocSnapshotFull } from "../../../../api/collab/_logic";
 import type { PlanData } from "../../../types";
