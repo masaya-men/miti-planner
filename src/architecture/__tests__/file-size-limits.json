@@ -31,22 +31,10 @@
     }
   ],
   "frozen": {
-    "api/admin/_templatesHandler.ts": 521,
-    "api/og/_housingerCard.ts": 518,
-    "src/__tests__/housing/HousingerPage.test.tsx": 665,
-    "src/__tests__/housing/housingValidation.test.ts": 851,
-    "src/components/admin/AdminContentForm.tsx": 566,
-    "src/components/admin/AdminServers.tsx": 513,
-    "src/components/admin/AdminTemplates.tsx": 570,
-    "src/components/admin/SkillFormModal.tsx": 535,
-    "src/components/admin/TemplateEditor.tsx": 810,
     "src/components/EventForm.tsx": 981,
-    "src/components/housing/browse/__tests__/ListingCard.test.tsx": 647,
     "src/components/MitigationSelector.tsx": 623,
     "src/components/timeline/useTimelineEditing.ts": 555,
-    "src/hooks/useTemplateEditor.ts": 527,
     "src/utils/autoPlanner.ts": 709,
-    "src/utils/housingValidation.ts": 603,
     "src/utils/resourceTracker.ts": 735
   },
   "exceptions": {
