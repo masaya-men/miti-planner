@@ -114,7 +114,7 @@
   );
 }
 
-/* 縦バー可視化 + 計器意匠(mockup .tbody::-webkit-scrollbar 1220-1237) */
+/* 計器スクロールバー(横バーだけ見せる・色の変数は MilspecLayout.css の Task 8) */
 .theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar { width: 14px; height: 14px; }
 .theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
 /* 縦バーは出さない(スクロールはできる・2026-10-23 masaya)。ヘッダー右端の目盛りキャップも外した。横バーはそのまま */

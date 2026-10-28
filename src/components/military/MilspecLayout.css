@@ -97,30 +97,19 @@
 .theme-military .milspec-zone-footer,
 .theme-military [data-ms-zone="rail"] { isolation: isolate; }
 
-/* ---------- Task 8: 計器スクロールバー — 表 + サイドバー共有
-   正典: mockup .tbody::-webkit-scrollbar / .ws-screen::-webkit-scrollbar / .gauge-cap /
-     .phases::-webkit-scrollbar(CSS 1200-1275)。
+/* ---------- Task 8: 計器スクロールバー(表の横バーだけ)
+   正典: mockup .ws-screen::-webkit-scrollbar(CSS 1240-1253)。
    masaya 2026-09-05「スクロールバーもSF軍事っぽい細かいディテールと数字やデカールが施されたメーターに」。
-   実 DOM(Step 1 実測・軍事 PC):
-     .timeline-scroll-container … 縦横スクロールの実体(overflow-y:auto / md:overflow-x:auto)。
-       src/index.css:1629 が「::-webkit-scrollbar:vertical { width:0; display:none }」で縦バーを
-       全モードで隠している(paddingRight 補正だけ残す設計)。
-       → 軍事 PC(.theme-military .milspec-app・詳細度 0-4-1 vs 0-2-1)だけ上書きして 14px 可視化。
-       ⚠ src/index.css:1629 は変更しない。標準モードの width:0 はそのまま生かす。
-     div:has(> #timeline-header-inner)
-       … 非スクロール域の外枠(overflow:hidden・幅=コンテナ幅・syncPadding が paddingRight=バー幅 を当てる)。
-         右端 14px はスクロールバー溝の真上 → そこに track と同じ目盛りを ::after で貼り「ヘッダーから
-         表まで貫通する1本の計器」に見せる(mockup .gauge-cap)。::after は Task 4/Task 7 とも未使用。
-   ⚠ 目盛りピッチ(6px minor / 24px major)は track と cap で厳密一致が要件 →
-     --ms-gauge-ticks(縦 180deg 版)を「縦 track + ヘッダー cap + 帯 cap」の3箇所で共有し drift 不能にする。
-     ピッチ位相(高さ 40 / 38 は 6 の倍数でない)の連続は SP2 後の実機微調整(Task 10)。
-   ⚠ headless Chromium は overlay 型で ::-webkit-scrollbar を幅0で返す(Step 1 実測: 現状 vDiff=0)。
-     可視の意匠確認は headed 実 Chrome / 実機のみ(military-smoke は幅0を WARN スキップ)。
-   スコープは .theme-military .milspec-app(Task 3-7 と同じ・モバイル軍事= SP3 へ漏らさない)。 ---------- */
+   2026-10-23 masaya: 縦バーは出さない(スクロールはできる)。ヘッダー右端の目盛りキャップ(mockup .gauge-cap)も外した。
+   → 今は .timeline-scroll-container の横バーだけを計器の見た目にする。規則本体は
+     src/styles/military/standard-parts.css の「計器スクロールバー」。ここは色の変数だけを持つ。
+   ⚠ headless Chromium は overlay 型で ::-webkit-scrollbar を幅0で返す。
+     可視の意匠確認は headed 実 Chrome / 実機のみ。
+   スコープは .theme-military .milspec-app(モバイル軍事= SP3 へ漏らさない)。 ---------- */
 .theme-military .milspec-app {
   --ms-gauge-tick-minor: rgba(130,204,223,0.22);
   --ms-gauge-tick-major: rgba(130,204,223,0.42);
-  /* 縦 track とヘッダー/帯の静的キャップが共有する目盛りレイヤー(ここ1箇所定義でピッチ一致を保証)。 */
+  /* 縦向きの目盛り(縦バーは非表示のため、今は track の既定の背景としてだけ残る)。 */
   --ms-gauge-ticks:
     repeating-linear-gradient(180deg, var(--ms-gauge-tick-minor) 0 1px, transparent 1px 6px),
     repeating-linear-gradient(180deg, var(--ms-gauge-tick-major) 0 1.5px, transparent 1.5px 24px);
