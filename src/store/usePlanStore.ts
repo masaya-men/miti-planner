@@ -17,6 +17,7 @@ import { ensureAppCheck, auth } from '../lib/firebase';
 import { setLastOpened } from '../utils/lastOpenedStore';
 import { partializePlanState, mergePersistedPlanState } from './planPersist';
 import { isEmptyPlanData } from '../lib/isEmptyPlanData';
+import { markWorkingStore, workingStoreEditedSince, keepPlansEditedDuring } from '../lib/keepLocalEditsOnRemoteLoad';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -48,11 +49,13 @@ interface PlanState {
     // Firestore同期アクション
     markDirty: (planId: string) => void;
     syncToFirestore: (uid: string, displayName: string, force?: boolean, onlyPlanIds?: string[]) => Promise<void>;
-    /** Firestoreから最新データを取得してローカルとマージ（PULL操作） */
-    pullFromFirestore: (uid: string) => Promise<void>;
+    /** Firestoreから最新データを取得してローカルとマージ（PULL操作）。
+     *  true = 取り直しの間に手元で編集があり、画面を読み直さずに残した(呼び出し側で保存し直す) */
+    pullFromFirestore: (uid: string) => Promise<boolean>;
     /** ログアウト前にdirtyプランを強制同期（_isSyncingチェックをバイパス） */
     forceSyncAll: (uid: string, displayName: string) => Promise<void>;
-    migrateOnLogin: (uid: string, displayName: string) => Promise<void>;
+    /** true = 取り込みの間に手元で編集があり残した(呼び出し側は画面を読み直さない) */
+    migrateOnLogin: (uid: string, displayName: string) => Promise<boolean>;
     /**
      * B-1 Revision 3: ローカルプラン (`ownerId='local'`) の ID 配列を返す。
      * Firestore への書き込みはここでは行わない（取り込み実行は `executeLocalImport`）。
@@ -279,8 +282,11 @@ export const usePlanStore = create<PlanState>()(
             pullFromFirestore: async (uid) => {
                 const state = get();
                 if (state._isSyncing) {
-                    return;
+                    return false;
                 }
+                // 取り直しの間に手元でした編集を、終わった時に古い内容で上書きしないための印 (2026-10-28 消失)
+                const workingMark = markWorkingStore(useMitigationStore.getState());
+                let keptLocalEdits = false;
 
                 // PULL 開始時点の状態を捕捉。 PULL 失敗時はここに復元する (= ユーザーが見ていた
                 // 「同期済」 等の正しい状態を、 読み取り失敗だけで 'error' に上書きしないため)。
@@ -294,17 +300,20 @@ export const usePlanStore = create<PlanState>()(
                         // 端末側で削除済みと分かっている ID は復活させない (墓標伝播前のちらつき防止)
                         state._deletedPlanIds,
                     );
+                    keptLocalEdits = workingStoreEditedSince(workingMark, useMitigationStore.getState());
                     if (changed) {
-                        set({ plans: merged });
+                        const kept = keepPlansEditedDuring(merged, state.plans, get().plans);
+                        set({ plans: kept.plans });
                         const currentPlanId = get().currentPlanId;
                         if (currentPlanId) {
-                            const updatedPlan = merged.find(p => p.id === currentPlanId);
+                            if (kept.editedIds.has(currentPlanId)) keptLocalEdits = true;
+                            const updatedPlan = kept.plans.find(p => p.id === currentPlanId);
                             if (!updatedPlan) {
                                 // 現在のプランがリモートで削除された → 無選択状態に戻す
                                 const lastActive = get().lastActivePlanId;
                                 set({ currentPlanId: null, lastActivePlanId: lastActive === currentPlanId ? null : lastActive });
                                 useMitigationStore.getState().resetForTutorial();
-                            } else if (updatedPlan.data) {
+                            } else if (updatedPlan.data && !keptLocalEdits) {
                                 const localPlan = state.plans.find(p => p.id === currentPlanId);
                                 // リモートの方が新しい場合のみMitigationStoreを更新
                                 if (localPlan && updatedPlan.updatedAt > localPlan.updatedAt) {
@@ -322,6 +331,7 @@ export const usePlanStore = create<PlanState>()(
                         useMitigationStore.getState().resetForTutorial();
                     }
                     set({ _isSyncing: false, _cloudStatus: 'synced' });
+                    return keptLocalEdits;
                 } catch (err) {
                     console.error('Firestore PULL エラー:', err);
                     // PULL は読み取り操作 (= ユーザーデータには影響なし) なので、 失敗しても
@@ -333,6 +343,7 @@ export const usePlanStore = create<PlanState>()(
                         _isSyncing: false,
                         _cloudStatus: prevStatus === 'synced' ? 'synced' : 'idle',
                     });
+                    return workingStoreEditedSince(workingMark, useMitigationStore.getState());
                 }
             },
 
@@ -643,18 +654,25 @@ export const usePlanStore = create<PlanState>()(
                 // - _dirtyPlanIds をクリアして、ログアウト中の dirty キューが
                 //   migrateLocalPlansToFirestore と同じ ID を再 upload するのを防ぐ
                 set({ _isSyncing: true, _dirtyPlanIds: new Set<string>() });
+                // 取り込みの間に手元でした編集を、終わった時に古い内容で上書きしないための印 (2026-10-28 消失)
+                const startPlans = get().plans;
+                const workingMark = markWorkingStore(useMitigationStore.getState());
+                let keptCurrentPlan = false;
                 try {
                     const { merged, dirtyIds } = await planService.migrateLocalPlansToFirestore(
-                        get().plans,
+                        startPlans,
                         uid,
                         pendingDeleted,
                     );
+                    const now = get();
+                    const kept = keepPlansEditedDuring(merged, startPlans, now.plans);
+                    keptCurrentPlan = !!now.currentPlanId && kept.editedIds.has(now.currentPlanId);
                     set({
-                        plans: merged,
-                        // Firestoreに書き戻せなかったプランはdirtyとして残す（次回syncで再試行）
-                        _dirtyPlanIds: new Set<string>(dirtyIds),
+                        plans: kept.plans,
+                        // 書き戻せなかったプラン + 取り込み中に手元で保存したプランはdirtyとして残す（次回syncで送る）
+                        _dirtyPlanIds: new Set<string>([...dirtyIds, ...now._dirtyPlanIds]),
                         // 未同期の削除は保持 (墓標未書き込みの削除が復活しないように)。次回 sync で墓標化される。
-                        _deletedPlanIds: pendingDeleted,
+                        _deletedPlanIds: new Set<string>([...pendingDeleted, ...now._deletedPlanIds]),
                         _lastSyncAt: Date.now(),
                     });
                 } catch (err) {
@@ -662,6 +680,7 @@ export const usePlanStore = create<PlanState>()(
                 } finally {
                     set({ _isSyncing: false });
                 }
+                return keptCurrentPlan || workingStoreEditedSince(workingMark, useMitigationStore.getState());
             },
 
             // ダイアログ取り込み候補。 `_createdLoggedIn === true` は自動同期されるので除外。
@@ -863,23 +882,27 @@ export const usePlanStore = create<PlanState>()(
 
                     // PULL: Firestoreから最新を取得
                     const currentPlans = get().plans;
+                    const workingMark = markWorkingStore(useMitigationStore.getState());
                     const { merged, changed } = await planService.fetchAndMerge(
                         currentPlans,
                         uid,
                         // PUSH 前に削除済みだった ID も復活させない (墓標が読めるまでの保険)
                         pushState._deletedPlanIds,
                     );
+                    // 取り直しの間に手元でした編集は古い内容で上書きしない (2026-10-28 消失)
+                    const editedLocally = workingStoreEditedSince(workingMark, useMitigationStore.getState());
                     if (changed) {
-                        set({ plans: merged });
+                        const kept = keepPlansEditedDuring(merged, currentPlans, get().plans);
+                        set({ plans: kept.plans });
                         const currentPlanId = get().currentPlanId;
                         if (currentPlanId) {
-                            const updatedPlan = merged.find(p => p.id === currentPlanId);
+                            const updatedPlan = kept.plans.find(p => p.id === currentPlanId);
                             if (!updatedPlan) {
                                 // 現在のプランがリモートで削除された → 無選択状態に戻す
                                 const lastActive = get().lastActivePlanId;
                                 set({ currentPlanId: null, lastActivePlanId: lastActive === currentPlanId ? null : lastActive });
                                 useMitigationStore.getState().resetForTutorial();
-                            } else if (updatedPlan.data) {
+                            } else if (updatedPlan.data && !editedLocally && !kept.editedIds.has(currentPlanId)) {
                                 const localPlan = currentPlans.find(p => p.id === currentPlanId);
                                 if (localPlan && updatedPlan.updatedAt > localPlan.updatedAt) {
                                     // 根治(I-2): 現在プランを再ロード → 持ち主IDも明示して不変条件を保つ

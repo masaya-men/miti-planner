@@ -314,8 +314,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 isRemoteLoadingRef.current = true;
                 usePlanStore.getState().pullFromFirestore(
                     authState.user.uid,
-                ).then(() => {
+                ).then((keptLocalEdits) => {
                     if (notifyUser) showToast(t('app.sync_pull_success'), 'info');
+                    // 取り直しの間の編集は上の監視が飛ばしている → 残した編集をここで保存し直す (2026-10-28 消失)
+                    if (keptLocalEdits) { saveSilently(); syncToCloud(); }
                 }).catch((err) => {
                     console.error('[LoPo] Firestore PULL エラー:', err);
                     if (notifyUser) showToast(t('app.sync_pull_error'), 'error');
@@ -498,7 +500,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         planStore.migrateOnLogin(
             authUser.uid,
             profileName,
-        ).then(() => {
+        ).then((keptLocalEdits) => {
+            // 取り込みの間に置いた軽減等は、古い内容で読み直さず手元を残す (2026-10-28 消失)
+            if (keptLocalEdits) return;
             // マイグレーション後: Firestoreからマージした最新データをMitigationStoreに反映
             const { currentPlanId, plans } = usePlanStore.getState();
             if (currentPlanId) {
