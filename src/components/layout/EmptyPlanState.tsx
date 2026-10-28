@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import './EmptyPlanState.css';
 
 /** プラン未選択時 — 抽象イラスト + テキスト（ガラスはTimeline内に配置済み） */
 export const EmptyPlanState: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {

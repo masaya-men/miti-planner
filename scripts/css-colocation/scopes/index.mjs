@@ -34,8 +34,11 @@ export const overrides = {
   // 本文に名前が出るだけで要素に付けていない部品(コメント)は持ち主にしない。 要素に付けているのは MobileTimelineRow だけ
   'mobile-miti-icons': `${componentsDir}/MobileTimelineRow.tsx`,
   'mobile-row-dim-text': `${componentsDir}/MobileTimelineRow.tsx`,
-  // Tailwind の animate-[floatingCountBounce_...] でだけ使う keyframes は、 その class を書く部品へ
+  // Tailwind の任意値のアニメーション class(角かっこで名前を書く形)でだけ使う keyframes は、 その class を書く部品へ。
+  // (ここに class の文字をそのまま書くと Tailwind が scripts/ も読んで余計な規則を作るので書かない)
   '@keyframes floatingCountBounce': `${componentsDir}/sidebar/SidebarFloatingBar.tsx`,
+  // @property は Tailwind の後処理を通る所に置くと、 未対応ブラウザ向けの初期値(@layer properties)も作られる。 部品の隣へ移すと消えるので共有に残す
+  '@property --mobile-effect-bar-progress': 'shared:properties',
   // 兄弟の 2 部品(LocalDataSafetyBar・SystemNotificationBar)が使う流れる文字は、 2 つを並べて描く外側の部品へ(片方を消しても他方の見た目が残る)
   'system-notif-marquee': `${componentsDir}/sidebar/SidebarFooterBars.tsx`,
 };

@@ -1,0 +1,5 @@
+/* Toast の見た目。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* Toast springアニメーション */
+.animate-toast-in {
+  animation: toastIn var(--duration-toast) var(--ease-spring-bouncy) forwards;
+}

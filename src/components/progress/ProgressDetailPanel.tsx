@@ -8,6 +8,7 @@ import { getPhaseName, type ProgressPoint } from '../../types';
 import { phaseAtTime, formatClock } from '../../lib/progressLogic';
 import { ConfirmDialog } from '../ConfirmDialog';
 import ProgressHistoryRow from './ProgressHistoryRow';
+import './ProgressDetailPanel.css';
 
 const ProgressDetailPanel: React.FC<{ open: boolean }> = ({ open }) => {
     const { t } = useTranslation();

@@ -1,0 +1,15 @@
+/* ConflictOffscreenArrows の見た目。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 画面外ガイド矢印専用のゆったり脈動 (スキルアイコンの conflict-pulse より穏やか・遅い)。
+   中央寄せ(translateX)は外側ラッパが担うため、ここは scale のみ。 */
+@keyframes conflict-arrow-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.72; transform: scale(0.92); }
+}
+.animate-conflict-arrow-pulse {
+  animation: conflict-arrow-pulse 1.8s ease-in-out infinite;
+}
+
+/* 競合ガイド矢印のシェブロン。dark は暗背景に映えるよう amber グロー、
+   light は白背景で滲まないよう薄い黒シャドウで輪郭だけ締める(色のコントラストで視認)。 */
+.conflict-chevron { filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.7)); }
+.theme-light .conflict-chevron { filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.25)); }

@@ -2,6 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { Tooltip } from './ui/Tooltip';
 import { computeMarqueeMetrics, type MarqueeMetrics } from '../utils/marquee';
+import './EventNameSpan.css';
 
 /** 攻撃名スパン。
  *  - 見切れ時のみ: 行(group)ホバーで内側テキストが1往復マーキー / 名前ホバーでツールチップ(排他)。

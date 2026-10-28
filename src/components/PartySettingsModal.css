@@ -1,0 +1,14 @@
+/* PartySettingsModal の見た目。 他の部品の見た目は同じ詳細度で上書きしない。 */
+@layer components {
+  /* ボタンのタクタイルフィードバック — spring */
+  .btn-tactile {
+    transition: transform 0.3s var(--ease-spring-snappy),
+                color 150ms ease,
+                background-color 150ms ease,
+                border-color 150ms ease,
+                opacity 150ms ease;
+  }
+  .btn-tactile:active {
+    transform: scale(var(--scale-press));
+  }
+}

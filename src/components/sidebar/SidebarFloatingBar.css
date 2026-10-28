@@ -1,0 +1,7 @@
+/* SidebarFloatingBar の見た目。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ── フローティングアクションバー: カウンターバウンス ── */
+@keyframes floatingCountBounce {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}

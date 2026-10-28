@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { MultiSelectState } from '../../types/sidebarTypes';
 import { Share2, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
+import './SidebarFloatingBar.css';
 
 interface SidebarFloatingBarProps {
     multiSelect: MultiSelectState;

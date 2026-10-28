@@ -1,0 +1,263 @@
+/* Timeline の見た目。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ===== 空パネル（プラン未選択時）— Liquid Glass + 呼吸する光 ===== */
+
+/* Liquid Glass オーバーレイ（Timeline内に配置）— デフォルト非表示、.no-planで表示 */
+.empty-liquid-glass {
+  position: absolute; inset: 0; z-index: 60;
+  background: rgba(0,0,0,0.35);
+  --tw-backdrop-blur: blur(1.5px);
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  overflow: hidden;
+  pointer-events: auto;
+  display: none;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.08),
+    inset 0 -1px 1px rgba(255,255,255,0.04);
+  border-radius: inherit;
+}
+.empty-liquid-glass::before {
+  content: '';
+  position: absolute; inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 15%,
+    rgba(255,255,255,0.04) 30%, transparent 45%,
+    transparent 55%, rgba(255,255,255,0.04) 70%,
+    rgba(255,255,255,0.1) 85%, rgba(255,255,255,0.2) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.empty-liquid-glass::after {
+  content: '';
+  position: absolute; inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.06) 10%,
+    transparent 25%, transparent 75%,
+    rgba(255,255,255,0.06) 90%, rgba(255,255,255,0.15) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* .no-plan のとき表示 */
+.no-plan .empty-liquid-glass { display: block; }
+
+/* ライトテーマ — 白いすりガラス + 繊細な黒の縁 */
+.theme-light .empty-liquid-glass {
+  background: rgba(255,255,255,0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    inset 0 -1px 0 rgba(0,0,0,0.05),
+    0 0 0 1px rgba(0,0,0,0.08),
+    0 2px 8px rgba(0,0,0,0.04);
+}
+.theme-light .empty-liquid-glass::before {
+  background: linear-gradient(180deg,
+    rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.04) 15%,
+    transparent 35%, transparent 65%,
+    rgba(0,0,0,0.03) 85%, rgba(0,0,0,0.06) 100%
+  );
+}
+.theme-light .empty-liquid-glass::after {
+  background: linear-gradient(90deg,
+    rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.03) 10%,
+    transparent 25%, transparent 75%,
+    rgba(0,0,0,0.02) 90%, rgba(0,0,0,0.05) 100%
+  );
+}
+
+/* コーナーハイライト */
+.empty-glass-corner {
+  position: absolute;
+  width: 40px; height: 40px;
+  z-index: 3; pointer-events: none;
+}
+.empty-glass-corner-tl { top:0;left:0; background:radial-gradient(ellipse at 0% 0%,rgba(255,255,255,0.12) 0%,transparent 70%); }
+.empty-glass-corner-tr { top:0;right:0; background:radial-gradient(ellipse at 100% 0%,rgba(255,255,255,0.08) 0%,transparent 70%); }
+.empty-glass-corner-bl { bottom:0;left:0; background:radial-gradient(ellipse at 0% 100%,rgba(255,255,255,0.08) 0%,transparent 70%); }
+.empty-glass-corner-br { bottom:0;right:0; background:radial-gradient(ellipse at 100% 100%,rgba(255,255,255,0.06) 0%,transparent 70%); }
+/* ライトテーマのコーナー */
+.theme-light .empty-glass-corner-tl { background:radial-gradient(ellipse at 0% 0%,rgba(255,255,255,0.5) 0%,transparent 70%); }
+.theme-light .empty-glass-corner-tr { background:radial-gradient(ellipse at 100% 0%,rgba(255,255,255,0.4) 0%,transparent 70%); }
+.theme-light .empty-glass-corner-bl { background:radial-gradient(ellipse at 0% 100%,rgba(255,255,255,0.4) 0%,transparent 70%); }
+.theme-light .empty-glass-corner-br { background:radial-gradient(ellipse at 100% 100%,rgba(255,255,255,0.3) 0%,transparent 70%); }
+
+/* 上辺シーンライン */
+.empty-glass-sheen {
+  position: absolute;
+  top:0; left:10%; right:10%;
+  height:1px; z-index:3; pointer-events:none;
+  background: linear-gradient(to right,
+    transparent, rgba(255,255,255,0.15) 20%,
+    rgba(255,255,255,0.25) 50%,
+    rgba(255,255,255,0.15) 80%, transparent
+  );
+}
+.theme-light .empty-glass-sheen {
+  background: linear-gradient(to right,
+    transparent, rgba(255,255,255,0.5) 20%,
+    rgba(255,255,255,0.8) 50%,
+    rgba(255,255,255,0.5) 80%, transparent
+  );
+}
+
+/* 呼吸アニメーション */
+@keyframes emptyBreathe {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+/* PC: 左端の呼吸する光 — 最大強化 */
+.empty-glow-left {
+  position:absolute; left:-3px; top:10%; bottom:10%;
+  width:12px; z-index:4;
+  background: radial-gradient(
+    ellipse 100% 35% at 0% 50%,
+    rgba(255,255,255,1) 0%,
+    rgba(255,255,255,0.7) 25%,
+    rgba(255,255,255,0.3) 50%,
+    transparent 100%
+  );
+  border-radius: 0 50% 50% 0;
+  animation: emptyBreathe 3s ease-in-out infinite;
+  will-change: opacity;
+}
+.empty-glow-left-spread {
+  position:absolute; left:-8px; top:5%; bottom:5%;
+  width:100px; z-index:3;
+  background: radial-gradient(
+    ellipse 100% 35% at 0% 50%,
+    rgba(255,255,255,0.3) 0%,
+    rgba(255,255,255,0.12) 35%,
+    rgba(255,255,255,0.03) 60%,
+    transparent 100%
+  );
+  filter: blur(12px);
+  animation: emptyBreathe 3s ease-in-out infinite;
+  will-change: opacity;
+}
+
+/* スマホ: 左下L字の呼吸する光 */
+.empty-glow-bl-h {
+  position:absolute; left:0; bottom:0;
+  width:80px; height:3px; z-index:4;
+  background: linear-gradient(to right, rgba(255,255,255,0.8), rgba(255,255,255,0.3) 50%, transparent);
+  animation: emptyBreathe 3s ease-in-out infinite;
+  will-change: opacity;
+}
+.empty-glow-bl-v {
+  position:absolute; left:0; bottom:0;
+  width:3px; height:80px; z-index:4;
+  background: linear-gradient(to top, rgba(255,255,255,0.8), rgba(255,255,255,0.3) 50%, transparent);
+  animation: emptyBreathe 3s ease-in-out infinite;
+  will-change: opacity;
+}
+.empty-glow-bl-spread {
+  position:absolute; left:-15px; bottom:-15px;
+  width:110px; height:110px; z-index:3;
+  background: radial-gradient(ellipse at 0% 100%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 35%, transparent 65%);
+  filter: blur(8px);
+  animation: emptyBreathe 3s ease-in-out infinite;
+  will-change: opacity;
+}
+
+/* ライトテーマ: グローを黒ベースに — 強化 */
+.theme-light .empty-glow-left {
+  background: radial-gradient(
+    ellipse 100% 35% at 0% 50%,
+    rgba(0,0,0,0.5) 0%,
+    rgba(0,0,0,0.3) 25%,
+    rgba(0,0,0,0.1) 50%,
+    transparent 100%
+  );
+}
+.theme-light .empty-glow-left-spread {
+  background: radial-gradient(
+    ellipse 100% 35% at 0% 50%,
+    rgba(0,0,0,0.12) 0%,
+    rgba(0,0,0,0.05) 35%,
+    transparent 100%
+  );
+}
+.theme-light .empty-glow-bl-h {
+  background: linear-gradient(to right, rgba(0,0,0,0.5), rgba(0,0,0,0.15) 50%, transparent);
+}
+.theme-light .empty-glow-bl-v {
+  background: linear-gradient(to top, rgba(0,0,0,0.5), rgba(0,0,0,0.15) 50%, transparent);
+}
+.theme-light .empty-glow-bl-spread {
+  background: radial-gradient(ellipse at 0% 100%, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.04) 35%, transparent 65%);
+}
+
+/* MYジョブハイライト — CSS 駆動の薄暗く表示。
+   親 .timeline-scroll-container[data-myjob-highlight="1"] を1回切り替えるだけで、
+   「自分以外」(data-myjob-dim) の要素を薄暗くする。各アイコンが myJobHighlight を購読して
+   一斉に React 再描画されるのを防ぐ（トグルが重い問題の根治）。
+   ※ grayscale は大量の画像で塗りが重いので不使用。opacity のみでかなり薄く＝実質モノクロ的に見え、
+     かつ opacity 変更は合成のみで激安（トグルがサクサク）。薄さは下の値で調整可。 */
+.timeline-scroll-container[data-myjob-highlight="1"] [data-myjob-dim] {
+    opacity: 0.2;
+}
+
+/* 進捗記録モード — 行のどこをクリックしても打点できることを示す。
+   親 .timeline-scroll-container[data-record-mode="1"] を1回切り替えるだけ（各行は購読しない）。 */
+.timeline-scroll-container[data-record-mode="1"] [data-time-row] {
+    cursor: crosshair;
+}
+/* セル個別のホバー/クリック反応を行へ集約。これで「フェーズ/イベント/メンバー」など
+   反応のある列の独自ハイライトが competing せず、ハイライトは行で1つに統一される。
+   (クリックも行の onClickCapture に集約され、打点に回る) */
+.timeline-scroll-container[data-record-mode="1"] [data-time-row] > * {
+    pointer-events: none;
+}
+/* ホバー行の強調は「フェーズ/ラベル時間指定」(Timeline.tsx の overlayRef) と同一スタイル＝
+   border-2 border-app-blue + bg-app-blue/10 + rounded-sm。
+   行レイアウトを動かさないよう border は inset box-shadow(2px)で表現。 */
+.timeline-scroll-container[data-record-mode="1"] [data-time-row]:hover {
+    background-color: rgba(59, 130, 246, 0.1);          /* bg-app-blue/10 相当 */
+    box-shadow: inset 0 0 0 2px var(--color-app-blue);   /* border-2 border-app-blue 相当 */
+    border-radius: 2px;                                  /* rounded-sm 相当 */
+}
+/* 進捗記録モード中はフェーズ/ラベル区間オーバーレイの不透明背景を透かし、
+   行ハイライト(青枠+bg)がフェーズ列/ラベル列でも途切れないようにする。
+   記録モード限定セレクタなので通常表示・select-mode の見た目は不変。 */
+.timeline-scroll-container[data-record-mode="1"] [data-phase-overlay],
+.timeline-scroll-container[data-record-mode="1"] [data-label-overlay] {
+    background-color: transparent;
+}
+
+/* タイムライン選択プレビュー — DOM直接操作でクラスを付与 */
+/* デスクトップ: フェーズ/ラベル列を個別にハイライト */
+.phase-select-preview .preview-highlight [data-phase-col] {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+.label-select-preview .preview-highlight [data-label-col] {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+@media (max-width: 767px) {
+/* モバイル: カード全体をハイライト */
+    .phase-select-preview .preview-highlight[data-time-row],
+    .label-select-preview .preview-highlight[data-time-row] {
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+}
+
+/* === タイムラインの縦スクロールバーのみ非表示 (セッション 17 → セッション 20 修正) ===
+   軽減表のタイムラインは縦スクロール可能なのが UX 上明白でかつ視覚的にスッキリさせたい。
+   旧実装はグローバル `*` ワイルドカードで全要素の縦バーを消していたため、 モーダル
+   (EventModal / 軽減セレクタ / ジャンプドロップダウン等) でも「スクロール可能」が
+   視覚的に伝わらず UX 上の不具合となっていた。 Timeline scroll container に限定する。
+   横バーは残す (通常モード時に「あえて溢れさせる」 UX サイドバー閉じる導線)。 */
+.timeline-scroll-container::-webkit-scrollbar:vertical {
+    width: 0;
+    display: none;
+}

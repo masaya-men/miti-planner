@@ -5,6 +5,7 @@ import {
   MOBILE_EFFECT_BAR_SLOT_PITCH,
   MOBILE_EFFECT_BAR_ROW_INSET,
 } from '../utils/mobileEffectBar';
+import './MobileEffectBarLayer.css';
 
 interface MobileEffectBarLayerProps {
   bars: MobileEffectBarItem[];

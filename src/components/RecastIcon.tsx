@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import type { CSSProperties } from 'react';
+import './RecastIcon.css';
 
 interface RecastIconProps {
     iconUrl: string;

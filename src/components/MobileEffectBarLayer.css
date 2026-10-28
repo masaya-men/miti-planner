@@ -1,0 +1,70 @@
+/* MobileEffectBarLayer の見た目。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.mobile-effect-bar-item,
+.mobile-effect-bar-fill,
+.mobile-effect-bar-icon {
+  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* 指でスクロール中(data-mobile-scrolling="1")はtransitionを完全に切る。以前はここに
+   80〜400msの「追いつき」transitionを掛けていたが、進み具合(--mobile-effect-bar-progress)が
+   約16〜20msおきに書き換わり続ける一方でtransitionはそれより長いため、常に「前の目標を
+   追いきる前に次の目標へ切り替わる」状態になり、処理の重さとは別に見た目のガクつきの
+   原因になっていた(2026-08-14ユーザー実機報告「連動アニメだけFPSが低い感じ」)。
+   スクロール中は指の位置(=実際の進み具合)へ遅延なく直結させ、指を離した後の「戻る」
+   演出だけ上のベースルール(400ms cubic-bezier)のゆったりしたイージングに任せる、
+   王道のスクロールスクラブ方式に変更。 */
+.timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-item,
+.timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-fill,
+.timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-icon {
+  transition: none;
+}
+.mobile-effect-bar-item {
+  /* 複数同時発生時、自分のスロット位置(--mobile-effect-bar-slot-x)へ変身と同時に横スライドする。
+     progress=0では常にスロット0(=静止時アイコンの位置)にいる。
+     opacityはここには付けない(棒とアイコンで別々の濃さにするため、fill/iconそれぞれで持つ)。
+     ここに付けると子要素(アイコン)まで一緒に薄くなってしまう
+     (2026-08-13実機FB=アイコンは通常の明るさのまま、薄く/暗くするのは棒だけでいい、との指摘)。
+     2026-08-14: 一時的にscaleY/scaleの変身演出を廃止していたが、初動の重さの主因が
+     .mobile-row-dim-textの属性セレクタ切替だったと判明・そちらを修正したため、
+     ユーザー判断で変身演出を復活。 */
+  transform: translateX(calc(-1 * var(--mobile-effect-bar-slot-x, 0px) * var(--mobile-effect-bar-progress, 0)));
+}
+.mobile-effect-bar-fill {
+  transform-origin: top;
+  transform: scaleY(var(--mobile-effect-bar-progress, 0));
+  /* 0.55はJS側 MOBILE_EFFECT_BAR_MAX_OPACITY と同じ数値(主張を抑えた見た目・2026-08-12実機FB)。
+     棒(帯そのもの)だけを薄くする。アイコンは別途 .mobile-effect-bar-icon 側で通常の濃さにする。 */
+  opacity: calc(0.55 * var(--mobile-effect-bar-progress, 0));
+}
+.mobile-effect-bar-icon {
+  /* 22px = MobileTimelineRow.tsx の専用行アイコン(w-[22px])と同じ基準サイズ。
+     15px = エフェクト棒側の完了時サイズ(MOBILE_EFFECT_BAR_ICON_SIZE)。
+     widthではなくscaleで縮めるのはレイアウト再計算(reflow)を避けるため。
+     0.9は専用行アイコン(MitiIcons)側のopacity-90と同じ数値=変身し終えても明るさが変わらない。
+     静止時(progress=0)は0にして、変身し切るまで見えないようにする
+     (0にしないと変身前から右端にうっすら見えるバグになる。2026-08-13実機FB)。
+     中央寄せは transform:translateX(-50%) ではなく margin-left:-11px(22pxの半分)で行う。
+     transformのtranslateXとscaleを併記すると一部環境で0%扱いになり中央寄せが効かず
+     アイコンが右にはみ出す不具合が実機FBで発覚(2026-08-14)したため、位置決めと
+     scaleの責務を分離した。 */
+  opacity: calc(0.9 * var(--mobile-effect-bar-progress, 0));
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+  transform-origin: top center;
+  transform: scale(calc((22 - 7 * var(--mobile-effect-bar-progress, 0)) / 22));
+}
+/* 競合中(.animate-conflict-pulseを付ける)アイコンの中央寄せ専用ラッパー。22px固定のスロットを
+   用意し、実際の見た目(進み具合連動のopacity/scale)は中の.mobile-effect-bar-icon(img)に
+   任せる。ラッパー自身に脈動アニメを付けることで、進み具合側のopacity/scaleと脈動側の
+   opacity/scaleが別要素として掛け算合成され、静止時(progress=0)は従来通り完全に不可視になる
+   (MobileEffectBarLayer.tsx のコメント参照)。 */
+.mobile-effect-bar-icon-slot {
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+}
+.mobile-effect-bar-icon-slot .mobile-effect-bar-icon {
+  width: 100%;
+  height: 100%;
+  margin-left: 0;
+}

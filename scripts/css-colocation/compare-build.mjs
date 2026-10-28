@@ -12,10 +12,20 @@ import { transform } from 'lightningcss';
 import { findOrderPairs, parseRules } from './cssRules.mjs';
 import { classGroups } from './classGroups.mjs';
 import { listTsx } from './srcFiles.mjs';
+import { prefixRe as INDEX_CLASSES } from './scopes/index.mjs';
 
 const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), '.out');
-// 順番頼りを探す対象の class(ハウジングと MIL-SPEC。 道具の対象を足したらここにも足す)
-const ALL_PREFIX = /^(housing(?:er)?|milspec)-/;
+// 順番頼りを探す対象の class(ハウジング・MIL-SPEC の接頭辞と、 index.css から移した class の一覧。 道具の対象を足したらここにも足す)
+export const ORDER_PREFIX = new RegExp(`^(housing(?:er)?|milspec)-|${INDEX_CLASSES.source}`);
+// 確認済みの差(後処理の二重書きなど、 効き方が同じと人が確かめたもの)。 規則ごとに理由を書く
+const ACCEPTED = path.join(path.dirname(fileURLToPath(import.meta.url)), 'accepted-diffs.json');
+
+/** 同一性の一覧を、 確認済みの規則(セレクタ完全一致)とそれ以外に分ける。 accepted = [{ rule, reason }] */
+export function splitAccepted(ids, accepted) {
+  const rules = new Set(accepted.map((a) => a.rule));
+  const isAccepted = (id) => rules.has(id.slice(id.indexOf('|') + 1).split('{')[0]);
+  return { kept: ids.filter((id) => !isAccepted(id)), accepted: ids.filter(isAccepted) };
+}
 
 // Tailwind の後処理(Lightning CSS)は @import 等を含むファイル(index.css とその @import 先)だけに掛かり、 部品の隣の CSS は素通りする。
 // 移すと書き方だけ変わる(0.3s → .3s)ので、 両側を対象ブラウザ指定なしの minify でそろえて比べる。 対象ブラウザ由来の書き換え・削除は差として残る
@@ -33,11 +43,12 @@ function minify(css) {
   return minified.get(css);
 }
 
-/** 規則の同一性 = 条件+セレクタ+宣言(書き方をそろえたもの)+「同じものの何個目か」 */
+/** 規則の同一性 = 条件+セレクタ+宣言(どれも書き方をそろえたもの)+「同じものの何個目か」 */
 function identities(rules) {
   const count = new Map();
   return rules.map((r) => {
-    const base = r.kind === 'rule' ? `${r.media}|${r.selector}|${minify(`a{${r.decls}}`)}` : `${r.media}|@${r.name} ${r.params}|${minify(r.node.toString())}`;
+    const media = r.media.replace(/\s+/g, '');
+    const base = r.kind === 'rule' ? `${media}|${minify(`${r.selector}{${r.decls}}`)}` : `${media}|${minify(r.node.toString())}`;
     const n = count.get(base) ?? 0;
     count.set(base, n + 1);
     return `${base}#${n}`;
@@ -152,8 +163,14 @@ async function main() {
   const base = JSON.parse(fs.readFileSync(path.join(OUT, `${compare}.json`), 'utf8'));
   fs.writeFileSync(path.join(OUT, 'last.json'), JSON.stringify(built));
   // 同じ要素に一緒に付く class を仲間として順番頼りを探す(JSX の className から)
-  const related = classGroups(listTsx('src').map((f) => fs.readFileSync(f, 'utf8')), ALL_PREFIX);
-  const r = compareBuilds(base, built, related, ALL_PREFIX);
+  const related = classGroups(listTsx('src').map((f) => fs.readFileSync(f, 'utf8')), ORDER_PREFIX);
+  const r = compareBuilds(base, built, related, ORDER_PREFIX);
+  const accepted = fs.existsSync(ACCEPTED) ? JSON.parse(fs.readFileSync(ACCEPTED, 'utf8')) : [];
+  const m = splitAccepted(r.missing, accepted);
+  const x = splitAccepted(r.extra, accepted);
+  r.missing = m.kept;
+  r.extra = x.kept;
+  if (m.accepted.length || x.accepted.length) console.log(`確認済みの差(accepted-diffs.json) 欠け ${m.accepted.length} / 重複 ${x.accepted.length}`);
   console.log(`欠け ${r.missing.length} / 重複 ${r.extra.length} / 順番の入れ替わり ${r.flipped.length} / 後読み同士に分かれた組 ${r.lazyCross}(表示のみ)`);
   console.log(`起動時 ${parseRules(built.eager, 'x').length} 規則・${Buffer.byteLength(built.eager)} バイト / 後読み ${built.lazy.length} 本`);
   for (const m of r.missing.slice(0, 20)) console.log('  欠け:', m.slice(0, 200));

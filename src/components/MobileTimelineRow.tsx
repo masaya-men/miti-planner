@@ -14,6 +14,7 @@ import { getEffectiveTarget } from '../utils/effectiveTarget';
 import { PARTY_MEMBER_IDS } from '../constants/party';
 import { rowPropsEqual } from './timeline/rowPropsEqual';
 import { groupAndCapMitigations } from './mobileTimelineRowModel';
+import './MobileTimelineRow.css';
 
 interface DamageInfo {
     unmitigated: number;

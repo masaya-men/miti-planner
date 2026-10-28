@@ -1,0 +1,22 @@
+/* TimelineRow の見た目。 他の部品の見た目は同じ詳細度で上書きしない。 */
+@media (min-width: 768px) {/* ── タイムライン行ホバーライン ── */
+/* PC専用: 行ホバー時に下辺を左→右にスッと引く */
+/* 行は既にposition:absoluteなので::afterの基準になる — relativeの追加は不要 */
+  [data-time-row]::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: var(--hover-line-left, 0px);
+    width: var(--hover-line-width, 100%);
+    height: var(--row-hover-line-height);
+    background: var(--row-hover-line-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--row-hover-line-duration) var(--row-hover-line-ease);
+    pointer-events: none;
+  }
+  [data-time-row]:hover::after {
+    transform: scaleX(1);
+    will-change: transform;
+  }
+}

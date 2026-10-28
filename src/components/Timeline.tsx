@@ -20,8 +20,7 @@ import clsx from 'clsx';
 import { DEFAULT_FIGHT_DURATION_SEC } from '../constants/timeline';
 import { ConflictOffscreenArrows } from './timeline/ConflictOffscreenArrows';
 import type { ConflictPoint } from './timeline/conflictArrows';
-import { EMPTY_ROW_LAYOUT } from './timeline/rowLayout';
-import type { RowLayout } from './timeline/rowLayout';
+import { EMPTY_ROW_LAYOUT, type RowLayout } from './timeline/rowLayout';
 import { useTimelineMobileScrollChrome } from './timeline/useTimelineMobileScrollChrome';
 import { useTimelineAaEscape, useTimelineShortcutKeys, useTimelineEscapeKeys } from './timeline/useTimelineKeyboard';
 import { useTimelineEditing, useTimelineMitigationEditing } from './timeline/useTimelineEditing';
@@ -48,6 +47,7 @@ import { TimelinePopovers } from './timeline/TimelinePopovers';
 import { TimelineDialogs, TimelineDialogsLower } from './timeline/TimelineDialogs';
 import { TimelineMobileSheets, TimelineMobileTools } from './timeline/TimelineMobileSheets';
 import { TimelineModeBars } from './timeline/TimelineModeBars';
+import './Timeline.css';
 
 // 軍事専用部品は標準テーマに配信しないよう遅延読み込み(useSortSlide は軽い hook なので静的のまま)
 const MilspecReticle = React.lazy(() => import('./military/table/MilspecReticle').then(m => ({ default: m.MilspecReticle })));

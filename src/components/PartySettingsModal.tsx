@@ -17,9 +17,9 @@ import { SCALE, SPRING } from '../tokens/motionTokens';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { MigrationMode } from '../utils/jobMigration';
 import { useThemeStore } from '../store/useThemeStore';
-import type { Job, PartyMember, AppliedMitigation } from '../types';
-import { getPhaseName } from '../types';
+import { getPhaseName, type Job, type PartyMember, type AppliedMitigation } from '../types';
 import { Tooltip } from './ui/Tooltip';
+import './PartySettingsModal.css';
 
 interface SlotItemProps {
     index: number;

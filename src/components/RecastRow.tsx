@@ -4,6 +4,7 @@ import { RecastIcon } from './RecastIcon';
 import { getActiveRecasts, selectVisibleByLimit, calculateAngle, EXCLUDED_FROM_RECAST_ROW } from '../utils/recastRow';
 import { getColumnCssVar } from '../utils/calculator';
 import { Tooltip } from './ui/Tooltip';
+import './RecastRow.css';
 
 export interface RecastRowHandle {
     /**

@@ -6,8 +6,8 @@
 @import "./styles/base/global.css";
 @import "./styles/base/glass.css";
 @import "./styles/base/shared-parts.css";
-@import "./styles/base/to-move-1.css";
-@import "./styles/base/to-move-2.css";
+@import "./styles/base/unused/to-move-1.css";
+@import "./styles/base/properties.css";
 @source not "../docs/**";
 @custom-variant dark (&:where(.theme-dark, .theme-dark *));
 

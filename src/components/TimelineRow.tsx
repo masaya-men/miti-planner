@@ -2,8 +2,7 @@ import React, { memo } from 'react';
 import { Plus, Copy } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import type { PartyMember, TimelineEvent, AppliedMitigation, Phase } from '../types';
-import { getPhaseName } from '../types';
+import { getPhaseName, type PartyMember, type TimelineEvent, type AppliedMitigation, type Phase } from '../types';
 import { formatEventName } from '../utils/eventName';
 import { getColumnCssVar } from '../utils/calculator';
 import { getEffectiveTarget } from '../utils/effectiveTarget';
@@ -19,6 +18,7 @@ import { nextDamageType } from '../utils/damageTypeLogic';
 import { EventNameSpan } from './EventNameSpan';
 import { rowPropsEqual } from './timeline/rowPropsEqual';
 import { sheetMemberStyle } from './timeline/sheet/sheetStyle';
+import './TimelineRow.css';
 
 interface DamageInfo {
     unmitigated: number;

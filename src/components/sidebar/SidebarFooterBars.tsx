@@ -4,6 +4,7 @@ import type { MultiSelectState } from '../../types/sidebarTypes';
 import { HardDrive, Download } from 'lucide-react';
 import { SystemNotificationBar } from '../SystemNotificationBar';
 import { LocalDataSafetyBar } from '../LocalDataSafetyBar';
+import './SidebarFooterBars.css';
 
 interface SidebarFooterBarsProps {
     multiSelect: MultiSelectState;

@@ -1,0 +1,35 @@
+/* EmptyPlanState の見た目。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* PC: ハンバーガー線が左からシュッとスライドインして揃う（ループ） */
+.empty-burger-left-1 { will-change:transform,opacity; animation: burgerFromLeft 4s cubic-bezier(0.25,1,0.5,1) infinite; }
+.empty-burger-left-2 { will-change:transform,opacity; animation: burgerFromLeft 4s cubic-bezier(0.25,1,0.5,1) 0.15s infinite; }
+.empty-burger-left-3 { will-change:transform,opacity; animation: burgerFromLeft 4s cubic-bezier(0.25,1,0.5,1) 0.3s infinite; }
+@keyframes burgerFromLeft {
+  0%   { transform: translateX(-16px); opacity: 0; }
+  15%  { transform: translateX(0); opacity: 0.5; }
+  70%  { transform: translateX(0); opacity: 0.5; }
+  85%  { transform: translateX(-16px); opacity: 0; }
+  100% { transform: translateX(-16px); opacity: 0; }
+}
+
+/* スマホ: ハンバーガー線が上からシュッとスライドインして揃う（ループ） */
+.empty-burger-top-1 { will-change:transform,opacity; animation: burgerFromTop 4s cubic-bezier(0.25,1,0.5,1) infinite; }
+.empty-burger-top-2 { will-change:transform,opacity; animation: burgerFromTop 4s cubic-bezier(0.25,1,0.5,1) 0.15s infinite; }
+.empty-burger-top-3 { will-change:transform,opacity; animation: burgerFromTop 4s cubic-bezier(0.25,1,0.5,1) 0.3s infinite; }
+@keyframes burgerFromTop {
+  0%   { transform: translateY(-12px); opacity: 0; }
+  15%  { transform: translateY(0); opacity: 0.5; }
+  70%  { transform: translateY(0); opacity: 0.5; }
+  85%  { transform: translateY(-12px); opacity: 0; }
+  100% { transform: translateY(-12px); opacity: 0; }
+}
+
+/* テキスト — 初回フェードインのみ */
+.empty-text-in {
+  opacity: 0;
+  will-change: opacity, transform;
+  animation: emptyTextIn 1s cubic-bezier(0.25, 1, 0.5, 1) both 0.5s;
+}
+@keyframes emptyTextIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

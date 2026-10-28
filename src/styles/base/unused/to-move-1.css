@@ -1,0 +1,18 @@
+/* JSX/TS に見つからない規則(使われなくなった等)。 消さずに集めてある。 確かめてから削除する別タスク。 */
+.glass-tier1 {
+  --tw-backdrop-blur: blur(var(--glass-tier1-blur));
+  background: var(--glass-tier1-bg) !important;
+  border: 1px solid var(--glass-tier1-border) !important;
+}
+.glass-tier1 {
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+}
+
+/* water-drop — シンプル化 */
+.water-drop {
+  @apply border border-[var(--color-border)] transition-colors duration-150;
+}
+.water-drop:hover {
+  background-color: var(--glass-hover);
+}

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { CheckCircle, XCircle, Info } from 'lucide-react';
 import clsx from 'clsx';
 import { registerToastHandler } from './toastBus';
+import './Toast.css';
 
 interface ToastItem {
     id: number;

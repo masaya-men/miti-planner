@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error mjs の共通部品(型定義なし)
-import { compareBuilds, compareCss } from '../compare-build.mjs';
+import { ORDER_PREFIX, compareBuilds, compareCss, splitAccepted } from '../compare-build.mjs';
 
 const BASE = '.housing-a{color:red} .housing-a{color:blue} .housing-b{margin:0} .housing-c{padding:0}';
 
@@ -87,5 +87,30 @@ describe('値の書き方の正規化(Tailwind の後処理を通る index.css �
   it('段が違えば別の規則のまま', () => {
     const r = compareCss('@layer components{.a{color:red}}', '.a{color:red}');
     expect(r.missing).toHaveLength(1);
+  });
+});
+
+describe('セレクタと条件の書き方の正規化', () => {
+  it('::before と :before・> の空白・属性値の引用符・@media の空白は同じとみなす', () => {
+    const base = '@media (max-width:767px){.a:before,.b>.c[data-open=true]{color:red}}';
+    const next = '@media (max-width: 767px) { .a::before, .b > .c[data-open="true"] { color: red } }';
+    expect(compareCss(base, next)).toEqual({ missing: [], extra: [], flipped: [] });
+  });
+});
+
+describe('順番頼りを探す対象(全部の対象の class)', () => {
+  it('housing・milspec に加えて index.css から移した class も対象', () => {
+    for (const c of ['housing-a', 'housinger-a', 'milspec-a', 'recast-icon', 'empty-liquid-glass']) expect(ORDER_PREFIX.test(c)).toBe(true);
+    expect(ORDER_PREFIX.test('text-red-500')).toBe(false);
+  });
+});
+
+describe('確認済みの差(accepted-diffs.json)', () => {
+  const ids = ['|.a:before{x:1}#0', '(max-width:767px)|.b{y:2}#0'];
+  it('一覧の規則(セレクタ一致)は accepted へ分け、 残りはそのまま', () => {
+    expect(splitAccepted(ids, [{ rule: '.a:before', reason: 'r' }])).toEqual({ kept: ['(max-width:767px)|.b{y:2}#0'], accepted: ['|.a:before{x:1}#0'] });
+  });
+  it('セレクタの前方一致では拾わない(.a:before は .a:before-x に効かない)', () => {
+    expect(splitAccepted(['|.a:before-x{x:1}#0'], [{ rule: '.a:before', reason: 'r' }]).accepted).toEqual([]);
   });
 });

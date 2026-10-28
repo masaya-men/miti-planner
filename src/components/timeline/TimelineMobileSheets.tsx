@@ -17,6 +17,7 @@ import { genId } from './genId';
 import type { useTimelineDialogs } from './useTimelineDialogs';
 import type { useTimelinePartyOrder } from './useTimelineLayout';
 import type { useTimelineMobileScrollChrome } from './useTimelineMobileScrollChrome';
+import './TimelineMobileSheets.css';
 
 type Dialogs = ReturnType<typeof useTimelineDialogs>;
 type MitigationState = ReturnType<typeof useMitigationStore.getState>;

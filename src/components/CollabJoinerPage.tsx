@@ -24,6 +24,7 @@ import { usePlanStore } from "../store/usePlanStore";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useIOSViewportFix } from "../hooks/useIOSViewportFix";
 import { joinerView, computeCanEdit, shouldRedirectToOwnerEditor, canOpenOwnerEditor, rehydrateThenClearReadonly } from "./collabJoinerPageModel";
+import './CollabJoinerPage.css';
 
 /** sync が来ない場合に invalid 扱いへ倒すまでの猶予(リンク無効/サーバ停止の最終フォールバック)。 */
 const SYNC_TIMEOUT_MS = 15000;

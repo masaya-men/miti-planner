@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from '../ui/Tooltip';
 import { computeConflictArrows, type ConflictPoint, type ArrowDescriptor } from './conflictArrows';
+import './ConflictOffscreenArrows.css';
 
 interface Props {
     /** 競合中インスタンスの位置情報(親が timelineMitigations + conflictingIds + レイアウトから算出) */

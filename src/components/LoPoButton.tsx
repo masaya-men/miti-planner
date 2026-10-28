@@ -4,6 +4,7 @@
  */
 import React, { useRef, useState, useEffect } from 'react';
 import { useThemeStore } from '../store/useThemeStore';
+import './LoPoButton.css';
 
 export const LoPoButton: React.FC<{
     size?: 'sm' | 'lg';
