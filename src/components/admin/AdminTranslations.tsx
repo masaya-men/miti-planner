@@ -8,10 +8,12 @@ import {
   loadSkillTranslations, loadContentTranslations,
   loadAttackTranslations, loadPhaseTranslations,
   loadOtherTranslations, loadTemplateList,
+} from '../../lib/translationDataLoaders';
+import {
   saveSkillTranslations, saveContentTranslations,
   saveAttackTranslations, savePhaseTranslations,
   saveOtherTranslations,
-} from '../../lib/translationDataLoaders';
+} from '../../lib/translationDataSavers';
 
 const CATEGORIES: { key: TranslationCategory; labelKey: string }[] = [
   { key: 'skills', labelKey: 'admin.translations_category_skills' },
