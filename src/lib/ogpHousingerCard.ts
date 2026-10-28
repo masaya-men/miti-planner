@@ -20,6 +20,8 @@
  * ビルド側・検証側の両方で同じ手順 (URLSearchParams 経由) を踏む限り一致する。
  */
 
+import { hmacSha256Hex, timingSafeEqualHex } from './ogpSign.js';
+
 const SIG_PARAM = 'sig';
 /**
  * v4: ユーザー作成モックアップ2案(グリッド+オーバーレイ / 縦書きサイドバー)への全面刷新
@@ -73,34 +75,6 @@ export function buildHousingerOgCardParams(input: HousingerOgCardInput): URLSear
     .slice(0, MAX_CARD_IMAGES);
   for (const url of imgs) params.append('img', url);
   return params;
-}
-
-/** UTF-8 文字列 → hex 文字列（Web Crypto の ArrayBuffer 結果を可読な hex に変換）。 */
-function bufferToHex(buf: ArrayBuffer): string {
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function hmacSha256Hex(secret: string, message: string): Promise<string> {
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    'raw',
-    enc.encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign'],
-  );
-  const sigBuf = await crypto.subtle.sign('HMAC', key, enc.encode(message));
-  return bufferToHex(sigBuf);
-}
-
-/** 定数時間比較（タイミング攻撃対策。長さが違う時点で即 false = 長さ情報のみ漏れるが hex 固定長なので実害なし）。 */
-function timingSafeEqualHex(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) {
-    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-  return diff === 0;
 }
 
 /** `sig` を除いたパラメータから署名 (hex {@link SIG_HEX_LENGTH} 桁) を計算する。 */

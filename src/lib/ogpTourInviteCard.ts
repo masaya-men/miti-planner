@@ -4,6 +4,8 @@
  * 背景画像はビルド時埋め込み(api/og/_tourInviteBg.generated.ts)のためパラメータは name のみ。
  */
 
+import { hmacSha256Hex, timingSafeEqualHex } from './ogpSign.js';
+
 const SIG_PARAM = 'sig';
 const CARD_VERSION = '1';
 const SIG_HEX_LENGTH = 24;
@@ -19,26 +21,6 @@ export function buildTourInviteOgCardParams(input: TourInviteOgCardInput): URLSe
   params.set('ver', CARD_VERSION);
   params.set('name', input.name || '');
   return params;
-}
-
-function bufferToHex(buf: ArrayBuffer): string {
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function hmacSha256Hex(secret: string, message: string): Promise<string> {
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    'raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
-  );
-  const sigBuf = await crypto.subtle.sign('HMAC', key, enc.encode(message));
-  return bufferToHex(sigBuf);
-}
-
-function timingSafeEqualHex(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
 }
 
 async function signTourInviteOgCardParams(params: URLSearchParams, secret: string): Promise<string> {
