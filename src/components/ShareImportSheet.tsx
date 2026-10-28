@@ -23,72 +23,12 @@ import { executeShareImport } from '../lib/executeShareImport';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
-import type { ProgressEvent } from '../lib/shareImportTypes';
-
-/** 1 アイテムの進捗を 0-1 で返す (Phase B-1.5 polish 第 2 弾 #4 Revision)。
- *  ステージ重み: check 33% / local 66% / server 100%、 in_progress は手前 10/50/80%。
- *  中央オーバーレイの linear bar 充填率算出に使う。 */
-function getImportItemFraction(events: ProgressEvent[]): number {
-    if (events.length === 0) return 0;
-    const server = events.find(e => e.stage === 'server');
-    if (server) return server.status === 'in_progress' ? 0.8 : 1.0;
-    const local = events.find(e => e.stage === 'local');
-    if (local) return local.status === 'in_progress' ? 0.5 : 0.66;
-    const check = events.find(e => e.stage === 'check');
-    if (check) return check.status === 'in_progress' ? 0.1 : 0.33;
-    return 0;
-}
-
-/** アイテムが「処理終了 (success/failed/cancelled/skipped どれか)」か。 */
-function isImportItemTerminal(events: ProgressEvent[]): boolean {
-    if (events.length === 0) return false;
-    return !events.some(e => e.status === 'in_progress');
-}
-
-/** LoPo らしい控えめなローディングインジケータ。 3 点が opacity + scale で
- *  順番に脈打つ (Phase B-1.5 polish 第 2 弾 #5 Rev 3)。 業界標準の dot loader を
- *  LoPo の白黒トーンで再現。 */
-function LoadingDots() {
-    return (
-        <div className="flex items-center gap-2" aria-hidden="true">
-            {[0, 1, 2].map((i) => (
-                <motion.div
-                    key={i}
-                    className="w-2.5 h-2.5 rounded-full bg-app-text-muted"
-                    animate={{ opacity: [0.3, 1, 0.3], scale: [0.85, 1.1, 0.85] }}
-                    transition={{
-                        duration: 1.2,
-                        repeat: Infinity,
-                        delay: i * 0.18,
-                        ease: 'easeInOut',
-                    }}
-                />
-            ))}
-        </div>
-    );
-}
+import { getImportItemFraction, isImportItemTerminal, resolveItemSweepStatus } from './shareImport/shareImportProgress';
+import { LoadingDots } from './shareImport/LoadingDots';
 
 // done 状態に遷移してからシートを閉じるまでの遅延 (ms)。
 // ユーザーが「完了表示」 を視認する時間を確保するための定数。
 const CLOSE_DELAY_AFTER_DONE_MS = 1200;
-
-/** ProgressEvent[] → sweep status の解決ロジック (取り込み 3 stage を 1 本の sweep に集約)。
- *  - server stage success/skipped → success (取り込み完了)
- *  - 任意 stage failed → failed (赤 sweep 100% 維持)
- *  - それ以外で events 1 件以上 → active (sweep 走行)
- *  - events なし → idle */
-function resolveItemSweepStatus(
-    events: ProgressEvent[],
-): 'idle' | 'active' | 'success' | 'failed' {
-    if (events.length === 0) return 'idle';
-    const failed = events.find(e => e.status === 'failed');
-    if (failed) return 'failed';
-    const serverDone = events.find(
-        e => e.stage === 'server' && (e.status === 'success' || e.status === 'skipped'),
-    );
-    if (serverDone) return 'success';
-    return 'active';
-}
 
 export function ShareImportSheet() {
     const { t, i18n } = useTranslation();
