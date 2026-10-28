@@ -14,6 +14,7 @@ import { PartyOps } from './PartyOps';
 // 副作用 import: i18next の初期化(単体テストの安全網。実アプリでは起動時に初期化済み)
 import '../../../i18n';
 import { DRW_PULSE } from './milspecHeaderV11Constants';
+import './MilspecHeaderV11.css';
 
 export interface MilspecHeaderV11Props {
   theme: 'dark' | 'light';

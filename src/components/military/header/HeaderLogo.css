@@ -1,0 +1,18 @@
+/* HeaderLogo の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ============================================================
+ * v11 ヘッダー上段の左側 — H1 ロゴ・H2 銘板(パタパタ)・H3 計器(タービン・TRB・ランプ・ドラム時計)
+ * 正典: milspec-v11.css 94-108(刻印)・284-316(タービン・時計)・394-407(ロゴ・パタパタ)・567-572。
+ * 見本の --frame / --pit-* / --pl-* / --ink / --on 等 → --ma-*、#app.pc → .theme-light、#app[data-power="off"] → html[data-ms-power="off"]。
+ * 旧タービン CSS(.milspec-tb-* / .milspec-turbine)はフッターが使うので触らず、ここは .milspec-h3-* の別名。
+ * 火花・蒸気は useTurbineCluster が .milspec-tb-spark / -steam を .milspec-tpk へ足す(上の既存定義を共用)。
+ * ============================================================ */
+/* ロゴ */
+.theme-military .milspec-logo { position: absolute; border: 0; padding: 0; background: none; cursor: pointer; font: 900 17px/1 'Orbitron', sans-serif; color: var(--ma-ink); letter-spacing: 0; text-shadow: 0 0.8px 0 rgba(0,0,0,0.45);
+  transition: transform 190ms cubic-bezier(.3,1.75,.5,1), color 160ms; -webkit-background-clip: text; }
+.theme-military .milspec-logo:hover { color: var(--ma-kink-hot); transform: translateY(-0.5px); }
+.theme-military .milspec-logo:active { transform: translateY(0.6px) scale(0.97); transition-duration: 45ms; }
+.theme-military .milspec-logo-sweep { position: absolute; inset: -2px -4px; overflow: hidden; pointer-events: none; }
+.theme-military .milspec-logo-sweep::after { content: ""; position: absolute; top: 0; bottom: 0; width: 14px; left: -20px; transform: skewX(-20deg); background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent); mix-blend-mode: overlay; }
+.theme-military .milspec-logo:hover .milspec-logo-sweep::after { animation: milspec-logo-sweep 0.7s cubic-bezier(.4,0,.2,1); }
+@keyframes milspec-logo-sweep { to { left: 110%; } }
+@media (prefers-reduced-motion: reduce) { .theme-military .milspec-logo, .theme-military .milspec-logo:hover .milspec-logo-sweep::after { transition: none; animation: none; } }

@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MilspecDecal, MilspecMark } from '../MilspecDecor';
 import { headerLayout, HDR_BASE_MW } from '../headerGeometry';
+import './HeaderLogo.css';
 
 const DECOR = headerLayout(HDR_BASE_MW).decor;
 

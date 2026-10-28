@@ -4,6 +4,7 @@ import { headerLayout, HDR_BASE_MW } from '../headerGeometry';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import { flapText } from './flapText';
 import { onPower } from '../power/power';
+import './Nameplate.css';
 
 // 銘板 H2(見本 js:870-878)。座標は headerLayout の decor(銘板まわりの位置は MW に依らない)。
 const DECOR = headerLayout(HDR_BASE_MW).decor;

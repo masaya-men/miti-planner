@@ -1,0 +1,13 @@
+/* Nameplate の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 銘板(窪みの中で文字を切る。省略記号なし) */
+.theme-military .milspec-np { position: absolute; pointer-events: none; }
+.theme-military .milspec-np-clip { position: absolute; overflow: hidden; }
+.theme-military .milspec-np-clip > * { position: absolute; }
+.theme-military .milspec-np-ttl { font: 600 12.5px/1 'IBM Plex Sans JP', sans-serif; color: #e3e1d9; letter-spacing: 0.03em; white-space: nowrap; overflow: hidden; }
+.theme-military .milspec-np-sub { font: 500 8px/1 'IBM Plex Sans JP', sans-serif; color: #99a0a5; white-space: nowrap; letter-spacing: 0.04em; }
+/* パタパタ(発車標)式に 1 文字ずつめくれる */
+.theme-military .flap i { display: inline-block; font-style: normal; text-align: center; }
+.theme-military .flap i.f { animation: milspec-flap 95ms cubic-bezier(.3,0,.2,1); }
+.theme-military .flap i.s { animation: milspec-flapset 280ms cubic-bezier(.2,1.4,.35,1); }
+@keyframes milspec-flap { from { transform: perspective(30px) rotateX(-75deg); opacity: 0.35; } }
+@keyframes milspec-flapset { from { transform: perspective(30px) rotateX(-60deg); color: #fff; } 40% { color: #fff; } }

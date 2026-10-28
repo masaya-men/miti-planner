@@ -1,0 +1,7 @@
+/* MilspecHeaderV11 の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ============================================================
+ * v11 ヘッダー(MilspecHeaderV11)の組み立て。見本の層: 装甲 -1 / 光 1 / 中身 2。
+ * 中身の箱は全面でクリックを受ける(装甲と光は見た目だけで、その下に押せるものは無い)。
+ * ============================================================ */
+.theme-military .milspec-hdrx { position: absolute; inset: 0; pointer-events: none; }
+.theme-military .milspec-hdrx-top { position: absolute; inset: 0; z-index: 2; pointer-events: auto; }

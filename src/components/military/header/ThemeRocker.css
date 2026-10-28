@@ -1,0 +1,36 @@
+/* ThemeRocker の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* ---- 縦ロッカー(テーマ: 上 = 昼 / 下 = 夜) ---- */
+.theme-military .milspec-vr { position: absolute; width: 17px; height: 30px; padding: 0; border: 0; background: none; cursor: pointer; flex: none; }
+.theme-military .milspec-vr:focus-visible { outline: 1.2px solid var(--ma-on); outline-offset: 2px; }
+.theme-military .milspec-vr-bz { position: absolute; inset: 0; border-radius: 3px;
+  background: radial-gradient(120% 60% at 50% 0%, rgba(255,255,255,0.10), transparent 60%), linear-gradient(180deg, var(--ma-bz-hi), var(--ma-bz) 45%, var(--ma-bz-lo));
+  box-shadow: 0 1px 0 rgba(0,0,0,0.55), 0 2.5px 3px rgba(0,0,0,0.5), inset 0 0.6px 0 rgba(255,255,255,0.22), inset 0 -0.6px 0 rgba(0,0,0,0.4); }
+.theme-military .milspec-vr-well { position: absolute; left: 2.5px; right: 2.5px; top: 2.5px; bottom: 2.5px; border-radius: 1.5px; background: #020203;
+  box-shadow: inset 0 1.5px 2px #000, inset 0 -0.6px 0 rgba(255,255,255,0.12); perspective: 40px; perspective-origin: 50% 40%; }
+.theme-military .milspec-vr-k { position: absolute; left: 0.5px; right: 0.5px; height: calc(50% - 0.5px); transform-style: preserve-3d; transition: transform 320ms cubic-bezier(.68,-0.45,.3,1.45); }
+.theme-military .milspec-vr-k.is-t { top: 0.5px; transform-origin: 50% 100%; }
+.theme-military .milspec-vr-k.is-b { bottom: 0.5px; transform-origin: 50% 0; }
+.theme-military .milspec-vr-face { position: absolute; inset: 0; border-radius: 1px; display: grid; place-items: center;
+  background: linear-gradient(180deg, var(--ma-pl-hi), var(--ma-pl) 50%, var(--ma-pl-lo)); box-shadow: inset 0 0.6px 0 var(--ma-pl-spec), inset 0 -0.6px 0 rgba(0,0,0,0.3); transition: background 135ms, filter 160ms; }
+.theme-military .milspec-vr-face svg { width: 7px; height: 7px; fill: none; stroke: var(--ma-glyph); stroke-width: 1.3; }
+.theme-military .milspec-vr-end { position: absolute; left: 0; right: 0; height: 6px; }
+.theme-military .milspec-vr-k.is-t .milspec-vr-end { top: 0; transform-origin: 50% 0; transform: rotateX(-90deg); background: var(--ma-pl-end-hi); }
+.theme-military .milspec-vr-k.is-b .milspec-vr-end { bottom: 0; transform-origin: 50% 100%; transform: rotateX(90deg); background: var(--ma-pl-end-lo); }
+.theme-military .milspec-vr[data-v="night"] .milspec-vr-k.is-t { transform: rotateX(-34deg); }
+.theme-military .milspec-vr[data-v="night"] .milspec-vr-k.is-t .milspec-vr-face { background: var(--ma-pl-up); box-shadow: inset 0 0.8px 0 rgba(255,255,255,0.45); }
+.theme-military .milspec-vr[data-v="night"] .milspec-vr-k.is-b .milspec-vr-face { box-shadow: inset 0 3px 2.5px -1px rgba(0,0,0,0.55); }
+.theme-military .milspec-vr[data-v="day"] .milspec-vr-k.is-b { transform: rotateX(34deg); }
+.theme-military .milspec-vr[data-v="day"] .milspec-vr-k.is-b .milspec-vr-face { background: var(--ma-pl-dn); }
+.theme-military .milspec-vr[data-v="night"] .milspec-vr-k.is-b svg, .theme-military .milspec-vr[data-v="day"] .milspec-vr-k.is-t svg { stroke: var(--ma-warn); filter: drop-shadow(0 0 1.5px rgba(var(--ma-warn-rgb),0.8)); }
+.theme-military .milspec-vr:hover .milspec-vr-face { filter: brightness(1.12); }
+.theme-military .milspec-vr[data-v="night"]:hover .milspec-vr-k.is-t { transform: rotateX(-30deg); }
+.theme-military .milspec-vr[data-v="day"]:hover .milspec-vr-k.is-b { transform: rotateX(30deg); }
+
+/* ---- テーマ切替の走査線ワイプ(見本 #wipe)。body 直下に一時的に出す。画面全体なので fixed ---- */
+.theme-military .milspec-wipe { position: fixed; left: 0; right: 0; top: 0; height: 90px; z-index: 9990; pointer-events: none; opacity: 0;
+  background: linear-gradient(180deg, transparent, rgba(var(--ma-sig-rgb),0.035) 70%, rgba(255,255,255,0.28) 97%, rgba(var(--ma-sig-rgb),0.5) 98.5%, transparent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-military .milspec-vr-k,
+.theme-military .milspec-vr-face { transition: none; }
+}

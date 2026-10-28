@@ -8,8 +8,8 @@ import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import { onPower, BOOT_TIMING } from '../power/power';
 // 副作用 import: i18next の初期化(MilspecFooter.tsx と同じ理由)
 import '../../../i18n';
-import './milspecCrt.css';
 import { toCrtVertices } from './milspecCrtGeometry';
+import './MilspecCrt.css';
 
 const DRAW_MS = 1300;
 /** ディスプレイの点灯演出(線→開く→明るすぎ→落ち着く 720ms)のあと、文字の描き込みを始めるまで(ms) */

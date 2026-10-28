@@ -8,8 +8,6 @@ html.theme-military[data-ms-power="off"] .milspec-backdrop-veil { background: rg
 /* 消灯したレンズ・連動キーの下縁・CRT 画面 */
 html.theme-military[data-ms-power="off"] .milspec-led .milspec-led-lens { background: radial-gradient(circle at 50% 62%, #2f3133 0%, #18191a 55%, #0a0a0b 100%) !important; }
 html.theme-military[data-ms-power="off"] .milspec-key[data-pressed] .lip { stroke: rgba(0,0,0,0.42); filter: none; }
-html.theme-military[data-ms-power="off"] .milspec-crt .scr-in > * { opacity: 0; }
-html.theme-military[data-ms-power="off"] .milspec-crt .scr-in { background: #030404; }
 
 /* 下の板の奥の基板の光。電源 off で消える */
 .milspec-drw-glow { transition: opacity 300ms; }

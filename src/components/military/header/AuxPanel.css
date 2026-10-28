@@ -1,0 +1,25 @@
+/* AuxPanel の見た目(MIL-SPEC)。 他の部品の見た目は同じ詳細度で上書きしない。 */
+.theme-military .milspec-key-lb .milspec-key-av { width: 12px; height: 12px; border-radius: 50%; object-fit: cover; flex: none; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.5); }
+/* 標準部品のボタンをキーにする(MilspecKeyCap を中に置く)。button 側は枠・背景なし、
+   幅高さ = キーの bbox、clip-path: polygon(hitPolygon) は style で渡す。ホバーは button 基準 */
+.theme-military .milspec-keybtn { position: relative; display: block; padding: 0; margin: 0; border: 0; background: none; cursor: pointer; }
+.theme-military .milspec-keybtn:disabled { cursor: default; opacity: 0.55; }
+/* フォーカス枠は clip-path で切れるため、フォーカス中だけ clip を外し MilspecKey と同じ枠を出す */
+.theme-military .milspec-keybtn:focus-visible { outline: 1.2px solid var(--ma-on); outline-offset: 2px; clip-path: none !important; }
+.theme-military .milspec-keybtn:not(:disabled):hover .sh { transform: translate(0, 0.7px) scale(1.015); }
+.theme-military .milspec-keybtn:not(:disabled):hover .rim { opacity: 0.34; }
+.theme-military .milspec-key-na { opacity: 0.38; }
+
+/* MIL-SPEC v11 ヘッダー H4(縦ロッカー・T 字レバー・走査線ワイプ・キー列)。見本 css:182-275, 616-617 を --ma-* 読み替えで移したもの。
+   AuxPanel / ThemeRocker / ModeLever からだけ import する。全規則 .theme-military 前置・milspec- 接頭辞。 */
+
+/* ---- キー列: 見本の .kc(幅高さ 0・列の原点に置く)。中のキーは bbox の位置に absolute ---- */
+.theme-military .milspec-h4-kc { position: absolute; width: 0; height: 0; }
+.theme-military .milspec-h4-slot { position: absolute; }
+/* 標準部品(チュートリアル・言語)のボタン: 幅高さと当たり判定は slot が渡す変数から(MilspecKeyCap を中に置く) */
+.theme-military .milspec-h4-slot { width: var(--kw); height: var(--kh); }
+.theme-military .milspec-h4-slot .milspec-keybtn { width: var(--kw); height: var(--kh); clip-path: var(--kclip); }
+.theme-military .milspec-h4-slot > div { width: var(--kw); height: var(--kh); }
+
+/* 共同編集中の参加者ドット + カーソル操作(H2 銘板の窪みの右端)。右端をそろえて左へ伸ばし、暗い床で下の文字を隠す */
+.theme-military .milspec-collab-dots { position: absolute; transform: translate(-100%, -50%); display: flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 3px; background: linear-gradient(180deg, var(--ma-pit-hi), var(--ma-pit-lo)); box-shadow: inset 0 0 0 0.6px rgba(var(--ma-on-rgb), 0.28); z-index: 3; }

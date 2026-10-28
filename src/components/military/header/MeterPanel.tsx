@@ -8,6 +8,7 @@ import { usePlanStore } from '../../../store/usePlanStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { onPower } from '../power/power';
 import { syncLampState, dtgOf, type LedState } from './meterPanelModel';
+import './MeterPanel.css';
 
 // H3 計器(見本 js:880-889 の部品群)。タービン 2 基・TRB・ランプ 4 個・ドラム時計・刻印。
 // 親は「ヘッダー区画」(position:absolute の座標系)。座標は headerLayout の decor.h3。

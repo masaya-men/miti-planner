@@ -7,6 +7,7 @@ import { useCanPreviewWip } from '../../../hooks/useCanPreviewWip';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import { isPowered, powerOn, powerOff } from '../power/power';
 import './milspecH4.css';
+import './ModeLever.css';
 
 // H4 MODE T 字レバー(見本 js:1141-1157)= MIL-SPEC の電源スイッチ。位置は電源に追従(off = 上・on = 下)。
 // 開いた直後は上から始まり、700ms 後に自動で下りて電源投入(見本 js:1228)。上げると電源断(300ms)の直後に標準へ戻る。
