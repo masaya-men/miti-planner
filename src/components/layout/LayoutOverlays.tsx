@@ -7,7 +7,7 @@ import { MobileShareController } from '../collab/MobileShareController';
 import { LoginModal } from '../LoginModal';
 import { RenderPendingIndicator } from '../RenderPendingIndicator';
 import { MobileFAB } from '../MobileFab';
-import { MobileAccountMenu } from '../MobilePartySettings';
+import { MobileAccountMenu } from '../party/MobileAccountMenu';
 import { AetherflowChainPromptModal } from '../AetherflowChainPromptModal';
 import { AstrologianDrawChainPromptModal } from '../AstrologianDrawChainPromptModal';
 import { LocalImportDialog } from '../LocalImportDialog';
