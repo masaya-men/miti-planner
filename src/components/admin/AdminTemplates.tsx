@@ -22,28 +22,10 @@ import { resolveTemplatePhaseAppend } from '../../utils/templateImportPhases';
 import { AdminPage } from './AdminPage';
 import type { TimelineEvent } from '../../types';
 import type { TemplateData } from '../../types/template';
+import type { TemplateItem, ContentItem, PromotionCandidate } from './templates/adminTemplateTypes';
+import { TemplateListTable } from './templates/TemplateListTable';
+import { PromotionCandidatesSection } from './templates/PromotionCandidatesSection';
 
-interface TemplateItem {
-  contentId: string;
-  source: string;
-  eventCount: number;
-  phaseCount: number;
-  lockedAt: string | null;
-  updatedAt: string;
-}
-
-interface ContentItem {
-  id: string;
-  nameJa?: string;
-  name?: { ja?: string; en?: string };
-}
-
-interface PromotionCandidate {
-  shareId: string;
-  contentId: string;
-  title: string;
-  copyCount: number;
-}
 
 export function AdminTemplates() {
   const { t } = useTranslation();
@@ -443,97 +425,17 @@ export function AdminTemplates() {
       )}
 
       {!loading && templates.length > 0 && (
-        <div className="overflow-x-auto mb-8">
-          <table className="w-full text-app-lg">
-            <thead>
-              <tr className="border-b border-app-text/10 text-left text-app-text-muted">
-                <th className="pb-2 pr-4">{t('admin.contents_id')}</th>
-                <th className="pb-2 pr-4">{t('admin.templates_source')}</th>
-                <th className="pb-2 pr-4">{t('admin.templates_events')}</th>
-                <th className="pb-2 pr-4">{t('admin.templates_phases')}</th>
-                <th className="pb-2 pr-4">{t('admin.templates_locked')}</th>
-                <th className="pb-2 pr-4">{t('admin.templates_last_updated')}</th>
-                <th className="pb-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {templates.map((item) => (
-                <tr
-                  key={item.contentId}
-                  onClick={() => handleContentChange(item.contentId)}
-                  className={`border-b border-app-text/5 hover:bg-app-text/5 transition-colors cursor-pointer ${
-                    item.contentId === selectedContentId ? 'bg-blue-500/[0.06]' : ''
-                  }`}
-                >
-                  <td className="py-2 pr-4 font-mono">{item.contentId}</td>
-                  <td className="py-2 pr-4">{item.source}</td>
-                  <td className="py-2 pr-4">{item.eventCount}</td>
-                  <td className="py-2 pr-4">{item.phaseCount}</td>
-                  <td className="py-2 pr-4">
-                    <span className="text-app-text-muted">
-                      {item.lockedAt
-                        ? t('admin.template_locked')
-                        : t('admin.template_discovery')}
-                    </span>
-                  </td>
-                  <td className="py-2 pr-4 text-app-text-muted">
-                    {item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : '-'}
-                  </td>
-                  <td className="py-2 text-right flex items-center gap-2 justify-end">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleToggleLock(item); }}
-                      className="text-app-text-muted hover:text-app-text transition-colors"
-                    >
-                      {item.lockedAt ? t('admin.template_unlock') : t('admin.template_lock')}
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleDelete(item); }}
-                      className="text-app-text-muted hover:text-app-text transition-colors"
-                    >
-                      {t('admin.delete')}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <TemplateListTable
+          templates={templates}
+          selectedContentId={selectedContentId}
+          onSelect={handleContentChange}
+          onToggleLock={handleToggleLock}
+          onDelete={handleDelete}
+        />
       )}
 
       {/* 昇格候補セクション */}
-      <div className="mt-8">
-        <h2 className="text-app-2xl font-bold mb-3">{t('admin.promotion_candidates')}</h2>
-        {candidates.length === 0 ? (
-          <p className="text-app-lg text-app-text-muted">{t('admin.promotion_empty')}</p>
-        ) : (
-          <div className="space-y-2">
-            {candidates.map((c) => (
-              <div
-                key={c.shareId}
-                className="flex items-center gap-3 p-3 border border-app-text/10 rounded text-app-lg"
-              >
-                <span className="font-mono">{c.contentId}</span>
-                <span className="flex-1 truncate">{c.title}</span>
-                <span className="text-app-text-muted">
-                  {t('admin.promotion_copy_count')}: {c.copyCount}
-                </span>
-                <button
-                  onClick={() => handlePromotion(c, 'approve')}
-                  className="px-2 py-1 border border-app-text/30 rounded hover:bg-app-text/10 transition-colors"
-                >
-                  {t('admin.promotion_approve')}
-                </button>
-                <button
-                  onClick={() => handlePromotion(c, 'reject')}
-                  className="px-2 py-1 border border-app-text/30 rounded hover:bg-app-text/10 transition-colors"
-                >
-                  {t('admin.promotion_reject')}
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <PromotionCandidatesSection candidates={candidates} onPromotion={handlePromotion} />
 
       {/* モーダル群 */}
       <PlanToTemplateModal
