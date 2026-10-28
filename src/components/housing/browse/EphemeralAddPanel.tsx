@@ -1,14 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { HousingPanelModal } from '../HousingPanelModal';
 import { RegisterSectionAddress, type RegisterAddressValues } from '../register/RegisterSectionAddress';
 import { useHousingFieldState } from '../../../lib/housing/housingFieldState';
-import { classifySnsUrl } from '../../../lib/housing/snsUrlRouting';
-import { useTweetFetch } from '../../../lib/housing/useTweetFetch';
-import { useOgpFetch } from '../../../lib/housing/useOgpFetch';
-import { useYoutubeFetch, type YoutubeMetaData } from '../../../lib/housing/useYoutubeFetch';
-import { parseHousingFromText, type HousingExtractResult } from '../../../lib/housing/parseHousingFromText';
-import { extractHousingAddressFromPage } from '../../../lib/housing/extractHousingAddressFromPage';
 import {
   validateEphemeralInput,
   createEphemeralListing,
@@ -17,12 +11,12 @@ import {
 } from '../../../lib/housing/ephemeralListing';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import type { HousingArea } from '../../../types/housing';
-import { housingExtractResultToAddressPatch } from '../../../lib/housing/housingExtractResultToAddressPatch';
 import { regionForDC, type Region } from '../../../data/housing/dcServerMap';
 import { canAddToTour } from '../../../lib/housing/tourCrossing';
-import { parseAllmarksShareUrl } from '../../../lib/housing/allmarksImport';
 import { useAllmarksImport } from '../../../lib/housing/useAllmarksImport';
 import { AllmarksImportProgress } from './AllmarksImportProgress';
+import { EphemeralUrlField } from './EphemeralUrlField';
+import { useEphemeralUrlFetch, type SnsSource } from './useEphemeralUrlFetch';
 import './EphemeralAddPanel.css';
 
 export interface EphemeralAddPanelProps {
@@ -36,13 +30,6 @@ export interface EphemeralAddPanelProps {
    * (跨ぎは不可能なため、住所を全部埋めさせてから弾く無駄入力を避ける・早期フィードバック)。
    */
   trayRegion?: Region | null;
-}
-
-/** SNS 由来のメタデータ (登録リンク引き継ぎ + 代表画像)。URL 未使用のときは null。 */
-interface SnsSource {
-  postUrl: string;
-  ogImageUrl?: string;
-  sourceImageUrls?: string[];
 }
 
 /**
@@ -76,146 +63,15 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
   const allmarksImport = useAllmarksImport();
   const isAllmarksImporting = allmarksImport.progress.status !== 'idle';
 
-  const { status: tweetStatus, data: tweetData, fetchTweet, reset: resetTweet } = useTweetFetch();
-  const { status: ogpStatus, data: ogpData, fetchOgp, reset: resetOgp } = useOgpFetch();
-  const { status: youtubeStatus, data: youtubeData, fetchYoutubeMeta, reset: resetYoutube } = useYoutubeFetch();
+  const {
+    tweetStatus, ogpStatus, youtubeStatus,
+    resetTweet, resetOgp, resetYoutube,
+    urlRef, handleUrlChange,
+  } = useEphemeralUrlFetch({
+    fieldState, allmarksImport, trayRegion, onAdd,
+    setUrl, setAddress, setParseError, setUrlInvalid, setLimitReached, setAdded, setSource,
+  });
 
-  // fetch 結果 1 つにつき 1 回だけ適用する (SnsUrlField と同じ dispatch ガード)。
-  const dispatchedTweetRef = useRef<unknown>(null);
-  const dispatchedOgpRef = useRef<unknown>(null);
-  const dispatchedYoutubeRef = useRef<YoutubeMetaData | null>(null);
-  // YouTube fetch 成功時に postUrl/ogImageUrl を組むための route (effect から読む)。
-  const youtubeRouteRef = useRef<{ postUrl: string; ogImageUrl: string } | null>(null);
-  // fetch 完了時に postUrl を組むための最新 URL (effect から読む)。
-  const urlRef = useRef('');
-
-  /**
-   * 解釈結果を構造化フォームへ自動入力する (取れた項目だけ setAutoFilled = 🟡)。
-   * ambiguity>0 または何も取れない → parse_error 表示 (下のフォームで手選択に誘導・推測で埋めない)。
-   * 既にフォームに入っている他の項目は消さない (URL は補助・手選択が主)。
-   */
-  const applyParse = useCallback((r: HousingExtractResult | null) => {
-    setAdded(false);
-    setLimitReached(false);
-    if (!r) {
-      setParseError(false);
-      return;
-    }
-    const patch = housingExtractResultToAddressPatch(r);
-    if (!patch) {
-      setParseError(true);
-      return;
-    }
-    setParseError(false);
-    setAddress((prev) => ({ ...prev, ...patch }));
-    for (const [name, value] of Object.entries(patch)) fieldState.setAutoFilled(name, value);
-  }, [fieldState]);
-
-  // ツイート取得成功 → 本文 parse + 画像を ogImageUrl へ。
-  useEffect(() => {
-    if (tweetStatus !== 'success' || !tweetData) return;
-    if (dispatchedTweetRef.current === tweetData) return;
-    dispatchedTweetRef.current = tweetData;
-    const photos = tweetData.photos ?? [];
-    setSource({
-      postUrl: urlRef.current.trim(),
-      // 動画ツイートは photos が空 → 動画のサムネ画像をカード画像にする (RegisterPage と同じ扱い)
-      ogImageUrl: photos[0] ?? tweetData.video?.posterUrl,
-      sourceImageUrls: photos.length > 0 ? photos.slice(0, 10) : undefined,
-    });
-    const result = parseHousingFromText(tweetData.text);
-    applyParse(result);
-  }, [tweetStatus, tweetData, applyParse]);
-
-  // OGP 取得成功 → ページ内の複数テキストから最も住所らしい候補を採用。
-  useEffect(() => {
-    if (ogpStatus !== 'success' || !ogpData) return;
-    if (dispatchedOgpRef.current === ogpData) return;
-    dispatchedOgpRef.current = ogpData;
-    const images = ogpData.images ?? [];
-    const ogImageUrl = ogpData.image ?? images[0];
-    setSource({
-      postUrl: urlRef.current.trim(),
-      ogImageUrl: ogImageUrl ?? undefined,
-      sourceImageUrls:
-        images.length > 0 ? images.slice(0, 10) : ogImageUrl ? [ogImageUrl] : undefined,
-    });
-    const result = extractHousingAddressFromPage({
-      title: ogpData.title,
-      description: ogpData.description,
-      bodyText: ogpData.text,
-    });
-    applyParse(result);
-  }, [ogpStatus, ogpData, applyParse]);
-
-  // YouTube 取得成功 → 概要欄テキストを parse (tweet/ogp と同じ applyParse 経路)。
-  useEffect(() => {
-    if (youtubeStatus !== 'success' || !youtubeData) return;
-    if (dispatchedYoutubeRef.current === youtubeData) return;
-    dispatchedYoutubeRef.current = youtubeData;
-    const route = youtubeRouteRef.current;
-    if (route) {
-      setSource({ postUrl: route.postUrl, ogImageUrl: route.ogImageUrl });
-    }
-    const result = parseHousingFromText(youtubeData.description ?? '');
-    applyParse(result);
-  }, [youtubeStatus, youtubeData, applyParse]);
-
-  const handleUrlChange = (value: string) => {
-    setUrl(value);
-    urlRef.current = value;
-    setAdded(false);
-    setLimitReached(false);
-    setUrlInvalid(false);
-
-    const allmarksShareId = parseAllmarksShareUrl(value);
-    if (allmarksShareId) {
-      resetTweet();
-      resetOgp();
-      resetYoutube();
-      setSource(null);
-      setParseError(false);
-      void allmarksImport.start(allmarksShareId, trayRegion ?? null, onAdd);
-      return;
-    }
-
-    const route = classifySnsUrl(value);
-    switch (route.kind) {
-      case 'empty':
-        resetTweet();
-        resetOgp();
-        resetYoutube();
-        setSource(null);
-        setParseError(false);
-        break;
-      case 'youtube':
-        resetTweet();
-        resetOgp();
-        youtubeRouteRef.current = { postUrl: route.postUrl, ogImageUrl: route.ogImageUrl };
-        dispatchedYoutubeRef.current = null;
-        fetchYoutubeMeta(route.videoId);
-        break;
-      case 'tweet':
-        resetOgp();
-        resetYoutube();
-        dispatchedTweetRef.current = null;
-        fetchTweet(route.tweetId);
-        break;
-      case 'ogp':
-        resetTweet();
-        resetYoutube();
-        dispatchedOgpRef.current = null;
-        fetchOgp(route.postUrl);
-        break;
-      case 'invalid':
-        resetTweet();
-        resetOgp();
-        resetYoutube();
-        setSource(null);
-        setUrlInvalid(true);
-        break;
-    }
-  };
 
   // RegisterSectionAddress からの各フィールド変更 (登録ページの handleAddressChange と同型)。
   const handleAddressChange = (name: string, value: unknown) => {
@@ -344,37 +200,14 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
           />
         ) : (
           <>
-            <div className="housing-ephemeral-field">
-              <label htmlFor="housing-ephemeral-url" className="housing-label">
-                {t('housing.ephemeral.url_label')}
-              </label>
-              <input
-                id="housing-ephemeral-url"
-                type="url"
-                className="housing-input"
-                autoComplete="off"
-                placeholder={t('housing.ephemeral.url_placeholder')}
-                value={url}
-                onChange={(e) => handleUrlChange(e.target.value)}
-              />
-              {fetching && (
-                <div className="housing-fetch-indicator">
-                  <span className="housing-spinner" aria-hidden />
-                  <span>
-                    {t(
-                      tweetStatus === 'loading'
-                        ? 'housing.register.snsUrl.fetching'
-                        : youtubeStatus === 'loading'
-                          ? 'housing.register.snsUrl.youtube_fetching'
-                          : 'housing.register.snsUrl.ogp_fetching',
-                    )}
-                  </span>
-                </div>
-              )}
-              {fetchFailed && (
-                <p className="housing-error-text">{t('housing.ephemeral.fetch_error')}</p>
-              )}
-            </div>
+            <EphemeralUrlField
+              url={url}
+              handleUrlChange={handleUrlChange}
+              fetching={fetching}
+              fetchFailed={fetchFailed}
+              tweetStatus={tweetStatus}
+              youtubeStatus={youtubeStatus}
+            />
 
             {/* Allmarksまとめてインポートの導線 (2026-08-19)。この機能自体を知らない人向けの
                 控えめな案内 (発見の主経路はDiscordアップデート告知)。別タブで開き、
