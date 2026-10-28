@@ -1,5 +1,6 @@
 import React from 'react';
 import { usePlanStore } from '../../store/usePlanStore';
+import { matchesMobile } from '../../hooks/useIsMobile';
 
 /** PC サイドバーの開閉。プラン未選択なら強制オープン、それ以外は localStorage に記憶する。 */
 export function useSidebarOpenState() {
@@ -8,7 +9,7 @@ export function useSidebarOpenState() {
     // サイドバー開閉: プラン未選択なら強制オープン、それ以外はlocalStorage記憶
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(() => {
         if (typeof window === 'undefined') return true;
-        if (window.innerWidth < 768) return false;
+        if (matchesMobile(window)) return false;
         const stored = localStorage.getItem('lopo_sidebar_open');
         return stored !== null ? stored === 'true' : true;
     });

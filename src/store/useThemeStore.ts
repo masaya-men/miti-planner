@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getCanPreviewWip, useCanPreviewWip } from '../hooks/useCanPreviewWip';
 import { useTutorialStore } from './useTutorialStore';
+import { matchesMobile } from '../hooks/useIsMobile';
 
 export type Theme = 'dark' | 'light';
 /** テーマの「スタイル軸」。明るさ軸(theme)と直交。'military' = 軍事SF HUD (MIL-SPEC)。 */
@@ -122,6 +123,6 @@ export function useEffectiveTimelineView(): TimelineView {
     const saved = useThemeStore((s) => s.timelineView);
     const canPreview = useCanPreviewWip();
     const tutorialActive = useTutorialStore((s) => s.isActive);
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const isMobile = matchesMobile(window);
     return resolveTimelineView(saved, canPreview, tutorialActive, isMobile);
 }
