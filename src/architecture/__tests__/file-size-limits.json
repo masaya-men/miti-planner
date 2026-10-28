@@ -61,7 +61,6 @@
     "src/components/PartySettingsModal.tsx": 787,
     "src/components/PipView.tsx": 515,
     "src/components/ShareModal.tsx": 540,
-    "src/components/Timeline.tsx": 926,
     "src/components/timeline/useTimelineEditing.ts": 555,
     "src/components/TimelineRow.tsx": 686,
     "src/data/mockData.ts": 827,
