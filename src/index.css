@@ -10,6 +10,7 @@
 @import "./styles/base/properties.css";
 @source not "../docs/**";
 @source not "../scripts/**";
+@source not "../.claude/**";
 @custom-variant dark (&:where(.theme-dark, .theme-dark *));
 
 @theme {
