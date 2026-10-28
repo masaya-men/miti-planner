@@ -4,42 +4,11 @@
       "id": "outside-dismiss-handwritten",
       "pattern": "(document|window)\\.addEventListener\\(\\s*['\"](mousedown|pointerdown|click)['\"]",
       "files": "^src/.*\\.tsx?$",
-      "sharedHome": "^src/hooks/useDismissOnOutside\\.ts$|/__tests__/|^src/components/ui/Tooltip\\.tsx$|^src/components/military/MilspecTitleTooltip\\.tsx$|^src/components/military/MilspecKey\\.tsx$",
-      "why": "外側を押した時の動きは useDismissOnOutside だけが書く(外側=閉じるだけ・下に届けない)。例外 Tooltip.tsx / MilspecTitleTooltip.tsx / MilspecKey.tsx は「押したら隠す・ボタン自身の操作」で外側で閉じる物ではないため sharedHome に含める"
+      "sharedHome": "^src/hooks/useDismissOnOutside\\.ts$|/__tests__/|^src/components/ui/Tooltip\\.tsx$|^src/components/military/MilspecTitleTooltip\\.tsx$|^src/components/military/MilspecKey\\.tsx$|^src/components/progress/ProgressRecordPanel\\.tsx$|^src/components/timeline/useTimelineWindowEvents\\.ts$",
+      "why": "外側を押した時の動きは useDismissOnOutside だけが書く(外側=閉じるだけ・下に届けない)。例外 Tooltip.tsx / MilspecTitleTooltip.tsx / MilspecKey.tsx は「押したら隠す・ボタン自身の操作」で外側で閉じる物ではないため sharedHome に含める。ProgressRecordPanel.tsx は外側(タイムラインのマス)を押した click が「記録を確定する」本来の操作なので、click を止める共通フックに乗せると記録が壊れる。useTimelineWindowEvents.ts の全消去メニューは「どこを押しても(内側でも)閉じる」物で外側検知ではない"
     }
   ],
   "frozen": {
-    "outside-dismiss-handwritten": {
-      "src/components/AASettingsPopover.tsx": 1,
-      "src/components/ClearMitigationsPopover.tsx": 1,
-      "src/components/HeaderGimmickDropdown.tsx": 1,
-      "src/components/HeaderMechanicSearch.tsx": 1,
-      "src/components/HeaderPhaseDropdown.tsx": 1,
-      "src/components/HeaderTimeInput.tsx": 1,
-      "src/components/HeaderToolsMenu.tsx": 1,
-      "src/components/ImportMenu.tsx": 1,
-      "src/components/LanguageSwitcher.tsx": 1,
-      "src/components/Memo/MemoInputBox.tsx": 1,
-      "src/components/PartySettingsModal.tsx": 1,
-      "src/components/PartyStatusPopover.tsx": 1,
-      "src/components/PulseSettings.tsx": 1,
-      "src/components/admin/templates/LocalizedEditPopover.tsx": 1,
-      "src/components/housing/browse/BrowseSortSelect.tsx": 1,
-      "src/components/housing/browse/BrowseViewToggle.tsx": 1,
-      "src/components/housing/browse/ListingCard.tsx": 1,
-      "src/components/housing/housinger/HousingerReportMenu.tsx": 1,
-      "src/components/housing/listing/HousingDetailKebab.tsx": 1,
-      "src/components/housing/listing/HousingShareButton.tsx": 1,
-      "src/components/housing/notifications/NotificationBell.tsx": 1,
-      "src/components/housing/register/HousingDateTimePicker.tsx": 1,
-      "src/components/housing/shell/AppHeader.tsx": 1,
-      "src/components/housing/shell/HousingBottomNav.tsx": 1,
-      "src/components/housing/workspace/FilterDropdown.tsx": 1,
-      "src/components/progress/ProgressRecordPanel.tsx": 1,
-      "src/components/timeline/useTimelineWindowEvents.ts": 1,
-      "src/components/tutorial/TutorialCard.tsx": 1,
-      "src/components/tutorial/TutorialMenu.tsx": 1,
-      "src/components/ui/ContextMenu.tsx": 1
-    }
+    "outside-dismiss-handwritten": {}
   }
 }
