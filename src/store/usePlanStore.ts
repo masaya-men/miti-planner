@@ -17,6 +17,7 @@ import { ensureAppCheck, auth } from '../lib/firebase';
 import { setLastOpened } from '../utils/lastOpenedStore';
 import { partializePlanState, mergePersistedPlanState } from './planPersist';
 import { isEmptyPlanData } from '../lib/isEmptyPlanData';
+import { dirtyIdsAfterSync } from '../lib/dirtyAfterSync';
 import { markWorkingStore, workingStoreEditedSince, keepPlansEditedDuring } from '../lib/keepLocalEditsOnRemoteLoad';
 
 interface PlanState {
@@ -497,6 +498,7 @@ export const usePlanStore = create<PlanState>()(
                     syncingDeletedIds = new Set([...syncingDeletedIds].filter(id => filterSet.has(id)));
                 }
 
+                const syncStartedAt = Date.now();
                 set({ _isSyncing: true, _cloudStatus: 'syncing' });
 
                 try {
@@ -562,8 +564,8 @@ export const usePlanStore = create<PlanState>()(
 
                     // 同期完了 → 同期した分のみをdirty/deletedから除去（同期中に追加された分は残す）
                     set((current) => {
-                        const remainingDirty = new Set(current._dirtyPlanIds);
-                        for (const id of syncingDirtyIds) remainingDirty.delete(id);
+                        // 送っている間に同じ表へ来た編集の印は残す (2026-10-28 消失調査)
+                        const remainingDirty = dirtyIdsAfterSync(current._dirtyPlanIds, syncingDirtyIds, state.plans, current.plans);
                         const remainingDeleted = new Set(current._deletedPlanIds);
                         // 削除失敗したものはキューに残す（次回リトライ）
                         for (const id of syncingDeletedIds) {
@@ -572,7 +574,8 @@ export const usePlanStore = create<PlanState>()(
                         return {
                             _dirtyPlanIds: remainingDirty,
                             _deletedPlanIds: remainingDeleted,
-                            _lastSyncAt: Date.now(),
+                            // 送り始めた時刻 = 送っている間の編集を次回「新しい編集」と見なして間引かない
+                            _lastSyncAt: syncStartedAt,
                             _cloudStatus: 'synced' as const,
                         };
                     });
@@ -825,6 +828,7 @@ export const usePlanStore = create<PlanState>()(
             manualSync: async (uid, displayName) => {
                 if (get()._isSyncing) return;
 
+                const syncStartedAt = Date.now();
                 set({ _isSyncing: true, _cloudStatus: 'syncing' });
                 try {
                     // PUSH: dirtyプランがあれば送信（最新のstateを使う）
@@ -874,10 +878,11 @@ export const usePlanStore = create<PlanState>()(
                         for (const planId of deletedRemotely) {
                             get().deletePlan(planId);
                         }
-                        set({
-                            _dirtyPlanIds: new Set<string>(),
-                            _deletedPlanIds: new Set<string>(),
-                        });
+                        // 送っている間の編集・削除の印は残す (2026-10-28 消失調査)
+                        set((current) => ({
+                            _dirtyPlanIds: dirtyIdsAfterSync(current._dirtyPlanIds, pushState._dirtyPlanIds, pushState.plans, current.plans),
+                            _deletedPlanIds: new Set([...current._deletedPlanIds].filter(id => !pushState._deletedPlanIds.has(id))),
+                        }));
                     }
 
                     // PULL: Firestoreから最新を取得
@@ -919,7 +924,7 @@ export const usePlanStore = create<PlanState>()(
                         set({ currentPlanId: null, lastActivePlanId: lastActive === finalPlanId ? null : lastActive });
                         useMitigationStore.getState().resetForTutorial();
                     }
-                    set({ _isSyncing: false, _cloudStatus: 'synced', _lastSyncAt: Date.now() });
+                    set({ _isSyncing: false, _cloudStatus: 'synced', _lastSyncAt: syncStartedAt });
                 } catch (err) {
                     console.error('手動同期エラー:', err);
                     set({ _isSyncing: false, _cloudStatus: 'error' });
