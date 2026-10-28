@@ -6,9 +6,107 @@
       "files": "^src/.*\\.tsx?$",
       "sharedHome": "^src/hooks/useDismissOnOutside\\.ts$|/__tests__/|^src/components/ui/Tooltip\\.tsx$|^src/components/military/MilspecTitleTooltip\\.tsx$|^src/components/military/MilspecKey\\.tsx$|^src/components/progress/ProgressRecordPanel\\.tsx$|^src/components/timeline/useTimelineWindowEvents\\.ts$",
       "why": "外側を押した時の動きは useDismissOnOutside だけが書く(外側=閉じるだけ・下に届けない)。例外 Tooltip.tsx / MilspecTitleTooltip.tsx / MilspecKey.tsx は「押したら隠す・ボタン自身の操作」で外側で閉じる物ではないため sharedHome に含める。ProgressRecordPanel.tsx の記録モード中だけは、外側(タイムラインのマス)を押した click が「記録を確定する」本来の操作なので、click を止める共通フックに乗せられず手書きのまま残す(記録モードでない時の外側押下はフックに乗せ替え済み)。useTimelineWindowEvents.ts の全消去メニューは「どこを押しても(内側でも)閉じる」物で外側検知ではない"
+    },
+    {
+      "id": "menu-radius-handwritten",
+      "pattern": "rounded-\\[10px\\]",
+      "files": "^src/(?!components/housing/|styles/housing|components/admin/).*\\.tsx$",
+      "sharedHome": "^$",
+      "why": "メニュー・ポップオーバーの角は共通のトークン/部品が書く(今は共通の置き場が無く全部が手書き)。Task 13 で共通のトークン/部品へ寄せる。増やさず、減らすだけ"
+    },
+    {
+      "id": "sheet-radius-handwritten",
+      "pattern": "rounded-t-\\[20px\\]",
+      "files": "^src/(?!components/housing/|styles/housing|components/admin/).*\\.tsx$",
+      "sharedHome": "^src/components/MobileBottomSheet\\.tsx$|/__tests__/",
+      "why": "ボトムシートの角は MobileBottomSheet が書く。Task 13 で MobileBottomSheet か共通のトークンへ寄せる"
+    },
+    {
+      "id": "primary-button-handwritten",
+      "pattern": "hover:bg-app-blue-hover",
+      "files": "^src/(?!components/housing/|styles/housing|components/admin/).*\\.tsx$",
+      "sharedHome": "^src/components/ui/ModalParts\\.tsx$|/__tests__/",
+      "why": "青い決定ボタンは ModalButton(ui/ModalParts.tsx)が書く。手書きの bg-app-blue + hover:bg-app-blue-hover を増やさない。Task 13 で ModalButton(size=lg 追加)へ寄せる"
+    },
+    {
+      "id": "mobile-width-handwritten",
+      "pattern": "window\\.innerWidth\\s*<\\s*768",
+      "files": "^src/.*\\.tsx?$",
+      "sharedHome": "^src/hooks/useIsMobile\\.ts$|/__tests__/",
+      "why": "画面幅 768 未満の判定は hooks/useIsMobile.ts だけが書く。Task 13 でフックへ寄せる(イベント内の一回判定は別途検討)"
+    },
+    {
+      "id": "glass-tier-legacy",
+      "pattern": "glass-tier[23]\\b",
+      "files": "^src/.*\\.tsx$",
+      "sharedHome": "^src/styles/base/glass\\.css$|/__tests__/",
+      "why": "古い浮かぶ面のクラス。浮かぶ面は float-surface に統一する。Task 13 で寄せて、最後に glass.css の定義を消す"
     }
   ],
   "frozen": {
-    "outside-dismiss-handwritten": {}
+    "outside-dismiss-handwritten": {},
+    "menu-radius-handwritten": {
+      "src/components/AppFooter.tsx": 1,
+      "src/components/ClearMitigationsPopover.tsx": 1,
+      "src/components/HeaderGimmickDropdown.tsx": 1,
+      "src/components/HeaderMechanicSearch.tsx": 1,
+      "src/components/HeaderPhaseDropdown.tsx": 1,
+      "src/components/HeaderTimeInput.tsx": 1,
+      "src/components/HeaderToolsMenu.tsx": 1,
+      "src/components/ImportMenu.tsx": 1,
+      "src/components/LanguageSwitcher.tsx": 1,
+      "src/components/tutorial/TutorialCard.tsx": 1,
+      "src/components/tutorial/TutorialMenu.tsx": 1,
+      "src/components/ui/ContextMenu.tsx": 1
+    },
+    "sheet-radius-handwritten": {
+      "src/components/BoundaryEditModal.tsx": 1,
+      "src/components/LimitResolutionSheet.tsx": 1,
+      "src/components/MitigationSelector.tsx": 1,
+      "src/components/ShareImportSheet.tsx": 2,
+      "src/components/fflogsImport/FFLogsMobileSheet.tsx": 1
+    },
+    "primary-button-handwritten": {
+      "src/components/ShareImportSheet.tsx": 1,
+      "src/components/VideoRecorderModal.tsx": 2,
+      "src/components/eventForm/EventFormActions.tsx": 1,
+      "src/components/fflogsImport/FFLogsMobileSheet.tsx": 2,
+      "src/components/sidebar/SidebarFloatingBar.tsx": 1
+    },
+    "mobile-width-handwritten": {
+      "src/components/BoundaryEditModal.tsx": 1,
+      "src/components/EventForm.tsx": 1,
+      "src/components/EventModal.tsx": 1,
+      "src/components/HeaderMechanicSearch.tsx": 2,
+      "src/components/Layout.tsx": 2,
+      "src/components/MitiPlannerPage.tsx": 1,
+      "src/components/MitigationSelector.tsx": 1,
+      "src/components/PartySettingsModal.tsx": 2,
+      "src/components/Timeline.tsx": 1,
+      "src/components/layout/useSidebarOpenState.ts": 1,
+      "src/components/military/MilspecTitleTooltip.tsx": 1,
+      "src/components/progress/ProgressRecordPanel.tsx": 3,
+      "src/components/timeline/TimelinePopovers.tsx": 1,
+      "src/components/timeline/TimelineRowContent.tsx": 7,
+      "src/components/timeline/useTimelineAutoPlan.ts": 1,
+      "src/components/timeline/useTimelineKeyboard.ts": 1,
+      "src/components/timeline/useTimelineLayout.ts": 1,
+      "src/components/ui/Tooltip.tsx": 1,
+      "src/store/useThemeStore.ts": 1
+    },
+    "glass-tier-legacy": {
+      "src/components/AppFooter.tsx": 1,
+      "src/components/CollabJoinerPage.tsx": 1,
+      "src/components/ConsolidatedHeader.tsx": 1,
+      "src/components/Sidebar.tsx": 1,
+      "src/components/WelcomeSetup.tsx": 1,
+      "src/components/admin/CsvImportModal.tsx": 1,
+      "src/components/admin/FflogsTranslationModal.tsx": 1,
+      "src/components/collab/CollabViewerCluster.tsx": 1,
+      "src/components/header/HeaderCollapseHandle.tsx": 1,
+      "src/components/layout/FocusModeRail.tsx": 1,
+      "src/components/sidebar/SidebarHandle.tsx": 1,
+      "src/components/timeline/TimelinePipLayer.tsx": 1
+    }
   }
 }

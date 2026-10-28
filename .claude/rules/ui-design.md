@@ -37,3 +37,8 @@ onMouseMoveの高頻度イベント + state更新のパフォーマンスコス�
 ## デザイン変更の承認フロー
 UIの見た目に影響する変更は、勝手に適用せず必ずユーザーに確認してから。
 (1) 現状確認 → (2) 変更案のプレビュー/説明 → (3) ユーザー承認 → (4) 実装
+
+## 共通の部品を使う
+- 新しい UI を書く前に、共通の部品(ui/ModalParts・MobileBottomSheet・float-surface・useIsMobile など)を探す。似た物を書き足さない。
+- `src/architecture/__tests__/shared-look.json` で凍らせた書き方はまねしない(既存の手書きは寄せる途中)。
+- 外側を押した時の動き(閉じる等)は `useDismissOnOutside` を使う。document への手書きは禁止。
