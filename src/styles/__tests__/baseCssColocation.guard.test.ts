@@ -8,6 +8,7 @@ import { findOrderPairs, parseRules, subjectClasses } from '../../../scripts/css
 import { classGroups } from '../../../scripts/css-colocation/classGroups.mjs';
 // @ts-expect-error mjs の設定(型定義なし)
 import { CLASSES, prefixRe } from '../../../scripts/css-colocation/scopes/index.mjs';
+import { buildImportGraph, cssImporters, dependsOnOwner } from './importGraph';
 
 // 標準の部品の CSS は「部品の隣に <部品名>.css を置き、部品が import する」(2026-10-28 移行・設計書
 // docs/superpowers/specs/2026-10-28-index-css-colocation-design.md)。共有は src/styles/base/ の許可したものだけ。
@@ -104,6 +105,31 @@ describe('標準の CSS の置き場所(index.css 移行後)', () => {
         .some((n) => readFileSync(join(dirname(css), n), 'utf8').includes(line));
     });
     expect(orphans.map(rel), '同じフォルダの部品から import されていない CSS').toEqual([]);
+  });
+
+  // 2026-10-28 追加: MitigationSheetPreview が自分の見た目を持たず、隣の MitigationSheet.css に頼っていた
+  // (MitigationSheet を消すと上限整理・共有取り込みのプレビューが崩れる)。同じ形を新しく作らせない。
+  it('部品の CSS の class を書く部品は、その CSS を読む部品と必ず一緒に描かれる(他の部品の CSS に頼らない)', () => {
+    const graph = buildImportGraph(SRC);
+    // 部品の class(- か _ を含む名前)。テーマの印は対象外
+    const anyClass = /^(?!(theme-(light|dark|military)|milspec-app)$)\w+[-_][\w-]+$/;
+    const bad: string[] = [];
+    for (const css of componentCss) {
+      const owners = cssImporters(graph, rel(css));
+      const oks = owners.map((o) => dependsOnOwner(graph, o));
+      const subjects = new Set<string>();
+      for (const r of parseRules(readFileSync(css, 'utf8'), rel(css))) {
+        if (r.type === 'atrule' || !r.selector) continue;
+        for (const c of subjectClasses(r.selector, anyClass)) subjects.add(c);
+      }
+      for (const c of subjects) {
+        const re = new RegExp(`(?<![\\w-])${c.replace(/-/g, '\\-')}(?![\\w-])`);
+        for (const [file, text] of graph.code) {
+          if (re.test(text) && !oks.some((ok) => ok(file))) bad.push(`.${c}(${rel(css)})を ${file} が書いている`);
+        }
+      }
+    }
+    expect(bad, 'その部品の見た目はその部品の隣の CSS へ(他の画面からも使う子部品は、親の CSS に頼らず自分の CSS を持つ)').toEqual([]);
   });
 
   it('部品 CSS 同士の順番頼りの組は 0', () => {

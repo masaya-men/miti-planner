@@ -3,7 +3,6 @@ import clsx from 'clsx';
 import type { TFunction } from 'i18next';
 import { ChevronLeft, X, Undo2, Redo2, CloudDownload } from 'lucide-react';
 import { MobileBottomSheet } from '../MobileBottomSheet';
-import { MitigationSheet } from '../MitigationSheet';
 import { MOBILE_TOKENS } from '../../tokens/mobileTokens';
 import { getPhaseName } from '../../types';
 import { getMitigationPriority } from '../../hooks/useSkillsData';
@@ -331,15 +330,12 @@ interface TimelineMobileToolsProps {
     mobileToolsSheetOpen: boolean;
     setMobileToolsSheetOpen: (open: boolean) => void;
     setImportModalOpen: Dialogs['setImportModalOpen'];
-    isMitiSheetOpen: boolean;
-    setIsMitiSheetOpen: (open: boolean) => void;
-    currentContentId: string | null;
 }
 
-/** スマホの元に戻す/やり直し・ツールシート・みんなの軽減表シート。Timeline から移したもの(Fragment を返しラッパーは足さない)。 */
+/** スマホの元に戻す/やり直し・ツールシート。Timeline から移したもの(Fragment を返しラッパーは足さない)。 */
 export const TimelineMobileTools: React.FC<TimelineMobileToolsProps> = ({
     t, tutorialActive, undoRedoWrapRef, canUndo, canRedo, readOnly, mobileToolsSheetOpen, setMobileToolsSheetOpen,
-    setImportModalOpen, isMitiSheetOpen, setIsMitiSheetOpen, currentContentId,
+    setImportModalOpen,
 }) => {
     return (
         <>
@@ -414,26 +410,8 @@ export const TimelineMobileTools: React.FC<TimelineMobileToolsProps> = ({
                     {/* スプレッドシート取込: スマホでは非表示(有名スプシのマトリクス構造はスマホ貼付で
                         構造的に取り込めず、URL直読みは「あらゆるスプシ対応」を目指す前提で棚上げ。2026-06-30 判断)。
                         PC の入口(menu イベント→setShowGridImport)は別経路で維持。 */}
-                    {/* Popular Plans — みんなの軽減表ボトムシートを開く */}
-                    <button
-                        onClick={() => {
-                            setMobileToolsSheetOpen(false);
-                            setIsMitiSheetOpen(true);
-                        }}
-                        className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl border border-app-border hover:bg-app-surface2 transition-colors"
-                    >
-                        <div>
-                            <p className="text-app-2xl font-bold text-app-text">{t('popular.open_popular')}</p>
-                            <p className="text-app-lg text-app-text-muted">{t('popular.subtitle')}</p>
-                        </div>
-                    </button>
                 </div>
             </MobileBottomSheet>
-            <MitigationSheet
-                isOpen={isMitiSheetOpen}
-                onClose={() => setIsMitiSheetOpen(false)}
-                currentContentId={currentContentId}
-            />
         </>
     );
 };

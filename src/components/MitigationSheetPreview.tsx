@@ -5,6 +5,7 @@ import { getPhaseName } from '../types';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { useThemeStore } from '../store/useThemeStore';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
+import './MitigationSheetPreview.css';
 
 interface Props {
   planData: PlanData | null;

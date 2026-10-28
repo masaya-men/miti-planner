@@ -11,7 +11,6 @@
     "components/LoPoButton.tsx": [0,7,0],
     "components/LoginModal.tsx": [0,2,0],
     "components/MitigationSelector.tsx": [7,0,0],
-    "components/MitigationSheet.tsx": [0,2,0],
     "components/MobileContextMenu.tsx": [4,0,0],
     "components/MobileTimelineRow.tsx": [2,0,2],
     "components/PartySettingsModal.tsx": [44,0,0],

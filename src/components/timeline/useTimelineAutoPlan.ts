@@ -84,14 +84,11 @@ export function useTimelineAutoPlan({
         [t],
     );
 
-    const [isMitiSheetOpen, setIsMitiSheetOpen] = useState(false);
-
     const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
     const [aaSettingsOpen, setAaSettingsOpen] = useState(false);
 
     return {
         handleAutoPlan, sheetImportDefault, handleSheetImport,
-        isMitiSheetOpen, setIsMitiSheetOpen,
         isAaModeEnabled, setIsAaModeEnabled,
         aaSettingsOpen, setAaSettingsOpen,
     };

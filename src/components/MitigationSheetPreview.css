@@ -1,0 +1,150 @@
+/* MitigationSheetPreview の見た目。 他の部品の見た目は同じ詳細度で上書きしない。 */
+/* 元は MitigationSheet.css(みんなの軽減表・2026-10-28 撤去)の 21・22・24・25 節。 規則は一字一句そのまま。 */
+
+/* ----------------------------------------------------------
+   21. Table container
+   ---------------------------------------------------------- */
+
+.miti-table-wrap {
+  flex: 1;
+  overflow: auto;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.20);
+}
+
+.theme-light .miti-table-wrap {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* ----------------------------------------------------------
+   22. Mini table
+   ---------------------------------------------------------- */
+
+.miti-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 7px;
+  line-height: 1.4;
+  table-layout: fixed;
+}
+
+.miti-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(22, 22, 24, 0.90);
+}
+
+.theme-light .miti-table thead {
+  background: rgba(245, 245, 245, 0.95);
+}
+
+.miti-table th {
+  padding: 4px 5px;
+  text-align: left;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.miti-table td {
+  padding: 3px 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+  overflow: visible;
+  height: 22px;
+}
+
+.theme-light .miti-table td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.miti-table tr:last-child td {
+  border-bottom: none;
+}
+
+.miti-table td:first-child,
+.miti-table th:first-child {
+  /* phase column */
+  width: 50px;
+}
+
+.miti-table td:nth-child(2),
+.miti-table th:nth-child(2) {
+  /* time column */
+  width: 36px;
+}
+
+.miti-table td:nth-child(3),
+.miti-table th:nth-child(3) {
+  /* skill name column */
+  width: 64px;
+}
+
+/* ----------------------------------------------------------
+   24. Skill icon + pip + duration bar
+   ---------------------------------------------------------- */
+
+.miti-icon-wrap {
+  display: inline-flex;
+  position: relative;
+  vertical-align: middle;
+  z-index: 1;
+}
+
+.miti-skill-icon {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.miti-skill-pip {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  vertical-align: middle;
+  object-fit: contain;
+}
+
+.miti-duration-bar {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  border-radius: 0 0 1.5px 1.5px;
+  border-left: 1px solid;
+  border-right: 1px solid;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.7;
+}
+
+/* ----------------------------------------------------------
+   25. Skeleton / Loading states
+   ---------------------------------------------------------- */
+
+.miti-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  animation: logo-spin 600ms linear infinite;
+  margin: auto;
+}
+
+.theme-light .miti-spinner {
+  border: 2px solid rgba(0, 0, 0, 0.10);
+  border-top-color: rgba(0, 0, 0, 0.5);
+}

@@ -246,7 +246,6 @@ const Timeline: React.FC = () => {
 
     const {
         handleAutoPlan, sheetImportDefault, handleSheetImport,
-        isMitiSheetOpen, setIsMitiSheetOpen,
         isAaModeEnabled, setIsAaModeEnabled,
         aaSettingsOpen, setAaSettingsOpen,
     } = useTimelineAutoPlan({ readOnlyRef, setConfirmDialog, currentContentId, currentPlan, t });
@@ -862,9 +861,6 @@ const Timeline: React.FC = () => {
                 mobileToolsSheetOpen={mobileToolsSheetOpen}
                 setMobileToolsSheetOpen={setMobileToolsSheetOpen}
                 setImportModalOpen={setImportModalOpen}
-                isMitiSheetOpen={isMitiSheetOpen}
-                setIsMitiSheetOpen={setIsMitiSheetOpen}
-                currentContentId={currentContentId}
             />
             <TimelinePopovers
                 t={t}
