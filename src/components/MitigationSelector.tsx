@@ -5,16 +5,17 @@ import { CloseButton } from './ui/ModalParts';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { useMitigations, useJobs, getMitigationPriority } from '../hooks/useSkillsData';
-import type { Mitigation, AppliedMitigation, PartyMember } from '../types';
-import { getPhaseName } from '../types';
+import type { Mitigation, AppliedMitigation } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { resolveSeraphismMitigation, matchesCopiesShieldSource } from '../utils/scholarShieldRules';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useEscapeClose } from '../hooks/useEscapeClose';
-import { calculateLinkedShieldValue } from '../utils/calculator';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
+import { MitigationSkillButton } from './mitigationSelector/MitigationSkillButton';
+import { MitigationTargetPicker } from './mitigationSelector/MitigationTargetPicker';
+import { MitigationShieldPicker } from './mitigationSelector/MitigationShieldPicker';
 
 interface MitigationSelectorProps {
     isOpen: boolean;
@@ -378,238 +379,42 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
 
                                 return (
                                     <React.Fragment key={mitigation.id}>
-                                    <button
-                                        id={`miti-btn-${mitigation.id}`}
-                                        {...(mitigation.name.en === 'Reprisal' ? { 'data-tutorial': 'tutorial-skill-reprisal' } : {})}
+                                    <MitigationSkillButton
+                                        mitigation={mitigation}
+                                        status={status}
+                                        contentLanguage={contentLanguage}
+                                        isClickable={isClickable}
+                                        isAlreadyPlaced={isAlreadyPlaced}
+                                        isSelectedTargetMit={isSelectedTargetMit}
+                                        isSelectedShieldMit={isSelectedShieldMit}
+                                        isBlurred={isBlurred}
+                                        selectedCopyShieldMit={selectedCopyShieldMit}
                                         onClick={() => isClickable && handleMitigationClick(mitigation)}
-                                        disabled={!isClickable}
-                                        className={clsx(
-                                            "w-full flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-left group border text-app-text",
-                                            isBlurred ? "opacity-30 blur-[2px] grayscale" : "",
-                                            (isSelectedTargetMit || isSelectedShieldMit) ? "z-10 shadow-md bg-app-surface2 border-app-border" :
-                                            isAlreadyPlaced
-                                                ? ("bg-app-red-dim border-app-red-border hover:bg-app-red-border")
-                                                : !status.available
-                                                    ? ("border-app-red-border bg-app-red-dim opacity-50 dark:opacity-70")
-                                                    : status.warning
-                                                        ? ("hover:bg-app-amber-dim border-app-amber-border")
-                                                        : ("hover:bg-app-surface2 border-transparent hover:border-app-border"),
-                                            isClickable ? "cursor-pointer" : "cursor-not-allowed"
-                                        )}
-                                    >
-                                        <div className="relative flex-shrink-0">
-                                            <img
-                                                src={mitigation.icon}
-                                                alt={getPhaseName(mitigation.name, contentLanguage)}
-                                                className={clsx(
-                                                    "w-8 h-8 object-contain rounded border transition-opacity",
-                                                    !status.available
-                                                        ? ("bg-app-red-dim border-app-red-border")
-                                                        : status.warning
-                                                            ? ("bg-app-amber-dim border-app-amber-border")
-                                                            : ("bg-app-surface2 border-app-border")
-                                                )}
-                                            />
-                                            {status.badge && (
-                                                <span className={`absolute -top-1.5 -right-1.5 text-app-xs font-black leading-none px-1 py-0.5 rounded-full shadow-lg ring-1 ${status.badgeColor === 'red'
-                                                    ? 'bg-app-red text-red-100 ring-red-400/50'
-                                                    : status.badgeColor === 'amber'
-                                                        ? 'bg-app-amber text-amber-100 ring-amber-400/50'
-                                                        : 'bg-cyan-600/90 text-cyan-100 ring-cyan-400/50'
-                                                    }`}>
-                                                    {status.badge}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="overflow-hidden">
-                                            <div className={`text-app-lg font-black transition-colors truncate ${!status.available
-                                                ? 'text-app-red'
-                                                : status.warning
-                                                    ? 'text-app-amber'
-                                                    : 'text-app-text'
-                                                }`}>
-                                                {getPhaseName(mitigation.name, contentLanguage)}
-                                                {isAlreadyPlaced && <span className="ml-2 text-app-xs bg-app-red text-white px-1 rounded uppercase tracking-tighter shrink-0">{t('mitigation.remove')}</span>}
-                                                {mitigation.scope === 'target' && !isAlreadyPlaced && (
-                                                    <span className="ml-2 text-app-base text-app-text-sec transition-transform group-hover:translate-x-0.5 inline-block shrink-0">
-                                                        {isSelectedTargetMit ? '▼' : '▶'}
-                                                    </span>
-                                                )}
-                                                {mitigation.copiesShield && !isAlreadyPlaced && (
-                                                    <span className="ml-2 text-app-base text-app-text-sec transition-transform group-hover:translate-x-0.5 inline-block shrink-0">
-                                                        {selectedCopyShieldMit?.id === mitigation.id ? '▼' : '▶'}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            {!status.available ? (
-                                                <div className="text-app-base text-app-red font-bold">
-                                                    {status.message}
-                                                </div>
-                                            ) : status.warning ? (
-                                                <div className="text-app-base text-app-amber font-bold">
-                                                    ⚠ {status.message}
-                                                </div>
-                                            ) : status.recastInfo ? (
-                                                // チャージ技で配置可だが回復中: 次チャージまでの秒数を中立色で併記
-                                                // (使用可能なので赤/警告にはしない)
-                                                <div className="text-app-base text-app-text-sec font-bold">
-                                                    {status.recastInfo}
-                                                </div>
-                                            ) : null}
-                                        </div>
-                                    </button>
-                                    
+                                    />
+
                                     {/* 💥 修正：選択されたスキルの直下にインラインでパネルを展開する */}
                                     {isSelectedTargetMit && (
-                                        <div
-                                            className={clsx(
-                                                "w-full mt-1 mb-2 p-3 rounded-xl border-t-white/20",
-                                                "glass-panel shadow-[0_8px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.6)]",
-                                                "animate-in slide-in-from-top-2 fade-in duration-300 relative z-20"
-                                            )}
-                                            style={{ pointerEvents: 'auto' }}
-                                        >
-                                            <div className="grid grid-cols-4 grid-rows-2 gap-2 pb-1 pt-1">
-                                                {partyMembers.map((member: PartyMember) => {
-                                                    const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
-                                                    const isSelfTargetRestricted = selectedSingleTargetMit?.targetCannotBeSelf && member.id === ownerId;
-                                                    const isDisabled = isSelfTargetRestricted;
-
-                                                    return (
-                                                        <button
-                                                            key={`target-${member.id}`}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                if (!isDisabled) handleTargetSelect(member.id);
-                                                            }}
-                                                            disabled={isDisabled}
-                                                            className={clsx(
-                                                                "flex items-center justify-center p-2 rounded-lg border transition-all duration-200",
-                                                                "bg-app-surface2 border-app-border",
-                                                                "hover:bg-app-surface2 hover:border-app-border",
-                                                                "shadow-sm dark:shadow-none hover:shadow-md",
-                                                                isDisabled ? "opacity-30 cursor-not-allowed grayscale shadow-none" : "cursor-pointer active:scale-95 hover:scale-[1.03]"
-                                                            )}
-                                                        >
-                                                            {job ? (
-                                                                <img 
-                                                                    src={job.icon} 
-                                                                    alt={job.name?.en || job.id} 
-                                                                    className="w-8 h-8 object-contain drop-shadow-md" 
-                                                                />
-                                                            ) : (
-                                                                <span className={clsx(
-                                                                    "text-app-2xl font-black tracking-tighter uppercase drop-shadow-sm",
-                                                                    member.role === 'tank' ? 'text-app-role-tank' : 
-                                                                    member.role === 'healer' ? 'text-app-role-healer' : 
-                                                                    'text-app-role-dps'
-                                                                )}>
-                                                                    {t(`modal.${member.id.toLowerCase()}`, member.id)}
-                                                                </span>
-                                                            )}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
+                                        <MitigationTargetPicker
+                                            partyMembers={partyMembers}
+                                            JOBS={JOBS}
+                                            selectedSingleTargetMit={selectedSingleTargetMit}
+                                            ownerId={ownerId}
+                                            onSelect={handleTargetSelect}
+                                        />
                                     )}
 
                                     {/* copiesShield: 鼓舞選択パネル */}
-                                    {selectedCopyShieldMit?.id === mitigation.id && (() => {
-                                        const availableShields = timelineMitigations.filter(l =>
-                                            matchesCopiesShieldSource(l.mitigationId, mitigation.copiesShield!) &&
-                                            l.time <= selectedTime &&
-                                            l.time + l.duration > selectedTime
-                                        );
-                                        return (
-                                            <div
-                                                className={clsx(
-                                                    "w-full mt-1 mb-2 p-3 rounded-xl border-t-white/20",
-                                                    "glass-panel shadow-[0_8px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.6)]",
-                                                    "animate-in slide-in-from-top-2 fade-in duration-300 relative z-20"
-                                                )}
-                                                style={{ pointerEvents: 'auto' }}
-                                            >
-                                                {availableShields.length === 0 ? (
-                                                    <div className="flex flex-col gap-2">
-                                                        <p className="text-app-base text-app-amber font-bold text-center">
-                                                            {t('mitigation.no_shield', '有効な鼓舞がありません')}
-                                                        </p>
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleShieldSelect(undefined);
-                                                            }}
-                                                            className={clsx(
-                                                                "w-full p-2 rounded-lg border transition-all duration-200",
-                                                                "bg-app-surface2 border-app-border",
-                                                                "hover:bg-app-surface2 hover:border-app-border",
-                                                                "shadow-sm dark:shadow-none hover:shadow-md",
-                                                                "cursor-pointer active:scale-95 hover:scale-[1.01]",
-                                                                "text-app-base text-app-text-sec"
-                                                            )}
-                                                        >
-                                                            {t('mitigation.no_shield', '有効な鼓舞がありません')}（{t('mitigation.shield_value', { value: 0 })}）
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col gap-2">
-                                                        {availableShields.map(shield => {
-                                                            const shieldOwner = partyMembers.find(p => p.id === shield.ownerId);
-                                                            const targetMember = shield.targetId
-                                                                ? partyMembers.find(p => p.id === shield.targetId)
-                                                                : shieldOwner;
-                                                            const targetJob = targetMember?.jobId ? JOBS.find(j => j.id === targetMember.jobId) : null;
-                                                            const barrierValue = calculateLinkedShieldValue(
-                                                                shield, timelineMitigations, partyMembers, MITIGATIONS
-                                                            );
-                                                            return (
-                                                                <button
-                                                                    key={`shield-${shield.id}`}
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleShieldSelect(shield.id);
-                                                                    }}
-                                                                    className={clsx(
-                                                                        "flex items-center gap-3 p-2 rounded-lg border transition-all duration-200",
-                                                                        "bg-app-surface2 border-app-border",
-                                                                        "hover:bg-app-surface2 hover:border-app-border",
-                                                                        "shadow-sm dark:shadow-none hover:shadow-md",
-                                                                        "cursor-pointer active:scale-95 hover:scale-[1.01]"
-                                                                    )}
-                                                                >
-                                                                    {targetJob ? (
-                                                                        <img
-                                                                            src={targetJob.icon}
-                                                                            alt={targetJob.name?.en || targetJob.id}
-                                                                            className="w-8 h-8 object-contain drop-shadow-md shrink-0"
-                                                                        />
-                                                                    ) : (
-                                                                        <span className={clsx(
-                                                                            "w-8 h-8 flex items-center justify-center text-app-2xl font-black tracking-tighter uppercase drop-shadow-sm shrink-0",
-                                                                            targetMember?.role === 'tank' ? 'text-app-role-tank' :
-                                                                            targetMember?.role === 'healer' ? 'text-app-role-healer' :
-                                                                            'text-app-role-dps'
-                                                                        )}>
-                                                                            {t(`modal.${(targetMember?.id || '').toLowerCase()}`, targetMember?.id || '')}
-                                                                        </span>
-                                                                    )}
-                                                                    <div className="flex flex-col items-start min-w-0">
-                                                                        <span className="text-app-base font-bold text-app-text truncate">
-                                                                            {t(`modal.${(targetMember?.id || '').toLowerCase()}`, targetMember?.id || '')}
-                                                                        </span>
-                                                                        <span className="text-app-sm text-app-text-sec">
-                                                                            {t('mitigation.shield_value', { value: barrierValue.toLocaleString() })}
-                                                                        </span>
-                                                                    </div>
-                                                                </button>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })()}
+                                    {selectedCopyShieldMit?.id === mitigation.id && (
+                                        <MitigationShieldPicker
+                                            mitigation={mitigation}
+                                            selectedTime={selectedTime}
+                                            timelineMitigations={timelineMitigations}
+                                            partyMembers={partyMembers}
+                                            JOBS={JOBS}
+                                            MITIGATIONS={MITIGATIONS}
+                                            onSelect={handleShieldSelect}
+                                        />
+                                    )}
                                     </React.Fragment>
                                 );
                             })
