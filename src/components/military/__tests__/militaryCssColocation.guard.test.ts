@@ -5,6 +5,7 @@ import { basename, dirname, join, relative, resolve } from 'node:path';
 import { findOrderPairs, parseRules } from '../../../../scripts/css-colocation/cssRules.mjs';
 // @ts-expect-error mjs の共通部品(型定義なし)
 import { classGroups } from '../../../../scripts/css-colocation/classGroups.mjs';
+import { bootReach, fsBootIO } from './bootReach';
 
 // MIL-SPEC の CSS は「部品の隣に <部品名>.css を置き、部品が import する」(2026-10-28 移行・設計書
 // docs/superpowers/specs/2026-10-28-military-css-colocation-design.md)。共有は src/styles/military/ の許可したものだけ。
@@ -62,6 +63,27 @@ describe('MIL-SPEC CSS の置き場所', () => {
     // 使われていない規則の置き場 unused/ は 10-28 に確かめて全部消した。使わない規則は置いておかずに消す
     const shared = readdirSync(SHARED_DIR).sort();
     expect(shared, '新しい共有は SHARED_ALLOW に理由つきで足す。部品の見た目なら部品の隣へ').toEqual(Object.keys(SHARED_ALLOW).sort());
+  });
+
+  it('起動時(src/main.tsx の静的 import)で届く部品は、隣の CSS を持たない', () => {
+    // 起動時に読まれる部品の CSS は、後読みの共有(標準の部品の描き変え等)との勝ち負けが逆転しうる。
+    // 起動時の MIL-SPEC 部品の見た目は共有 boot-parts.css に置く(動的 import / React.lazy で届く部品は対象外)
+    const { css } = bootReach('main.tsx', fsBootIO(SRC));
+    const bootWithCss = [...css].filter(([f]) => f.startsWith('components/military/')).map(([f, c]) => `${f} → ${c.join(', ')}`);
+    expect(bootWithCss, '起動時から読まれる MIL-SPEC 部品が隣の CSS を import している。見た目は共有 boot-parts.css へ').toEqual([]);
+  });
+
+  it('bootReach は動的 import・型だけの import をたどらず、静的 import の CSS を拾う', () => {
+    const files: Record<string, string> = {
+      'main.tsx': ["import './a/A';", "import type { T } from './t';", "const L = lazy(() => import('./b/B'));"].join('\n'),
+      'a/A.tsx': ["import './A.css';", "export * from './c';"].join('\n'),
+      'a/c.ts': 'export const c = 1;',
+      't.ts': "import './t.css';",
+      'b/B.tsx': "import './B.css';",
+    };
+    const r = bootReach('main.tsx', { read: (p) => files[p] });
+    expect([...r.files].sort()).toEqual(['a/A.tsx', 'a/c.ts', 'main.tsx']);
+    expect([...r.css]).toEqual([['a/A.tsx', ['a/A.css']]]);
   });
 
   it('部品の CSS 同士で順番頼りが無い', () => {
