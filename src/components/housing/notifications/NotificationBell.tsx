@@ -5,28 +5,20 @@
  * - クリックで Dropdown 開閉、 外側クリックで閉じる
  * - aria-label は i18n キー経由
  */
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNotifications } from './useNotifications';
 import { NotificationDropdown } from './NotificationDropdown';
 import './NotificationBell.css';
 
+import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 export const NotificationBell: React.FC = () => {
   const { t } = useTranslation();
   const { items, unreadCount, deleteOne } = useNotifications();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!open) return;
-    const onClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
-  }, [open]);
+  useDismissOnOutside(open, () => setOpen(false), [ref]);
 
   const badge = unreadCount > 9 ? '9+' : String(unreadCount);
 

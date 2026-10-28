@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import './HousingDetailKebab.css';
 
+import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 export interface HousingDetailKebabProps {
   onEdit: () => void;
   onDelete: () => void;
@@ -22,20 +23,14 @@ export const HousingDetailKebab: React.FC<HousingDetailKebabProps> = ({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
+  useDismissOnOutside(open, () => setOpen(false), [ref]);
   useEffect(() => {
     if (!open) return;
-    const onClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
     const onEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false);
     };
-    document.addEventListener('mousedown', onClickOutside);
     document.addEventListener('keydown', onEsc);
-    return () => {
-      document.removeEventListener('mousedown', onClickOutside);
-      document.removeEventListener('keydown', onEsc);
-    };
+    return () => document.removeEventListener('keydown', onEsc);
   }, [open]);
 
   return (

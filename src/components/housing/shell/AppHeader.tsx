@@ -17,6 +17,7 @@ import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import './AppHeader.css';
 
+import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 export interface AppHeaderProps {
   /** 実機FB第2弾#2: スマホの探すページのみ、ヘッダー右端にフィルターボタンを出す (HousingShell がシート開閉を保持)。 */
   onOpenFilter?: () => void;
@@ -97,17 +98,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenFilter }) => {
     };
   }, [keyword, showSearch]);
 
-  // 検索窓の外側クリックで候補ドロップダウンを閉じる。
-  useEffect(() => {
-    if (!dropdownOpen) return;
-    const onDown = (e: MouseEvent) => {
-      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', onDown);
-    return () => document.removeEventListener('mousedown', onDown);
-  }, [dropdownOpen]);
+  useDismissOnOutside(dropdownOpen, () => setDropdownOpen(false), [searchWrapRef]);
 
   return (
     <header

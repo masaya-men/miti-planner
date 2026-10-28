@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
 import './FilterDropdown.css';
 
+import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 interface FilterOption {
   value: string;
   label: string;
@@ -37,15 +38,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // 外側クリックで閉じる (同一パネル内の他ドロップダウンを触ったときなど)。
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDown);
-    return () => document.removeEventListener('mousedown', onDown);
-  }, [open]);
+  useDismissOnOutside(open, () => setOpen(false), [rootRef]);
 
   const labelOf = (value: string) => options.find((o) => o.value === value)?.label ?? value;
   const summary =

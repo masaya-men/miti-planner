@@ -11,6 +11,7 @@ import { TwitterXIcon, type TwitterXIconHandle } from './TwitterXIcon';
 import { canonicalPostUrl } from '../../../lib/housing/canonicalPostUrl';
 import './HousingShareButton.css';
 
+import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 export interface HousingShareButtonProps {
   url: string;
   title: string;
@@ -38,20 +39,14 @@ export const HousingShareButton: React.FC<HousingShareButtonProps> = ({ url, tit
   // X (Twitter) へ渡す URL: 投稿元があればそちらを優先、なければ LoPo ページ URL。
   const xTargetUrl = sourceUrl ?? url;
 
+  useDismissOnOutside(open, () => setOpen(false), [ref]);
   useEffect(() => {
     if (!open) return;
-    const onClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
     const onEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false);
     };
-    document.addEventListener('mousedown', onClickOutside);
     document.addEventListener('keydown', onEsc);
-    return () => {
-      document.removeEventListener('mousedown', onClickOutside);
-      document.removeEventListener('keydown', onEsc);
-    };
+    return () => document.removeEventListener('keydown', onEsc);
   }, [open]);
 
   const onTriggerClick = async () => {

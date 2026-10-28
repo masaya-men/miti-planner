@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { HousingerReportModal } from '../report/HousingerReportModal';
 import { showToast } from '../../toastBus';
 
+import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 interface Props {
   viewerUid: string | null;
   housingerUid: string;
@@ -19,20 +20,14 @@ export const HousingerReportMenu: React.FC<Props> = ({ viewerUid, housingerUid }
   const [reportOpen, setReportOpen] = useState(false);
   const kebabRef = useRef<HTMLDivElement>(null);
 
+  useDismissOnOutside(kebabOpen, () => setKebabOpen(false), [kebabRef]);
   useEffect(() => {
     if (!kebabOpen) return;
-    const onClickOutside = (e: MouseEvent) => {
-      if (kebabRef.current && !kebabRef.current.contains(e.target as Node)) setKebabOpen(false);
-    };
     const onEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setKebabOpen(false);
     };
-    document.addEventListener('mousedown', onClickOutside);
     document.addEventListener('keydown', onEsc);
-    return () => {
-      document.removeEventListener('mousedown', onClickOutside);
-      document.removeEventListener('keydown', onEsc);
-    };
+    return () => document.removeEventListener('keydown', onEsc);
   }, [kebabOpen]);
 
   // HousingActionBar.tsx の onReportClick と同形 (未ログインならログイン案内、それ以外はモーダルを開く)。

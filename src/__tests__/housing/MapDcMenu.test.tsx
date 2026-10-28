@@ -82,9 +82,9 @@ describe('BrowseViewToggle の DC メニュー', () => {
     expect(screen.getByTestId('menu-body')).toBeTruthy();
     expect(screen.getByRole('tab', { name: /マップ.*Mana/ })).toBeTruthy();
     // メニュー内クリックでは閉じない
-    fireEvent.mouseDown(screen.getByTestId('menu-body'));
+    fireEvent.pointerDown(screen.getByTestId('menu-body'));
     expect(onClose).not.toHaveBeenCalled();
-    fireEvent.mouseDown(screen.getByTestId('outside'));
+    fireEvent.pointerDown(screen.getByTestId('outside'));
     expect(onClose).toHaveBeenCalledTimes(1);
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(onClose).toHaveBeenCalledTimes(2);

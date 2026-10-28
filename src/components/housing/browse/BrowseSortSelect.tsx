@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Check } from 'lucide-react';
 import './BrowseSortSelect.css';
 
+import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 export type BrowseSortOrder = 'random' | 'newest' | 'oldest';
 
 export interface BrowseSortSelectProps {
@@ -27,14 +28,7 @@ export const BrowseSortSelect: React.FC<BrowseSortSelectProps> = ({ value, onCha
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDown);
-    return () => document.removeEventListener('mousedown', onDown);
-  }, [open]);
+  useDismissOnOutside(open, () => setOpen(false), [rootRef]);
 
   const labelOf = (o: BrowseSortOrder) => t(`housing.browse.sort_${o}`);
 

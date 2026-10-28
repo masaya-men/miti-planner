@@ -8,6 +8,7 @@ import { useHousingHomeScrollSignal } from '../../../store/useHousingHomeScrollS
 import { useNotifications } from '../notifications/useNotifications';
 import './HousingBottomNav.css';
 
+import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 export interface HousingBottomNavProps {
   /** 設定シートを開く (HousingShell がローカル state で保持) */
   onOpenSettings: () => void;
@@ -46,22 +47,14 @@ export const HousingBottomNav: React.FC<HousingBottomNavProps> = ({ onOpenSettin
   // 画面が狭くタブとして両方常設できないため、下部ナビでは1項目に集約する。
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
+  useDismissOnOutside(accountMenuOpen, () => setAccountMenuOpen(false), [accountMenuRef]);
   useEffect(() => {
     if (!accountMenuOpen) return;
-    const onClickOutside = (e: MouseEvent) => {
-      if (accountMenuRef.current && !accountMenuRef.current.contains(e.target as Node)) {
-        setAccountMenuOpen(false);
-      }
-    };
     const onEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setAccountMenuOpen(false);
     };
-    document.addEventListener('mousedown', onClickOutside);
     document.addEventListener('keydown', onEsc);
-    return () => {
-      document.removeEventListener('mousedown', onClickOutside);
-      document.removeEventListener('keydown', onEsc);
-    };
+    return () => document.removeEventListener('keydown', onEsc);
   }, [accountMenuOpen]);
 
   const items: NavItem[] = [

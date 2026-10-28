@@ -11,6 +11,7 @@ import {
 } from '../../../lib/housing/dateTimePicker';
 import './HousingDateTimePicker.css';
 
+import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 interface Props {
   /** epoch ms。未設定は null。 */
   valueMs: number | null;
@@ -38,21 +39,14 @@ export const HousingDateTimePicker: React.FC<Props> = ({ valueMs, onChange }) =>
   const [timeText, setTimeText] = useState(valueMs != null ? formatTimeText(valueMs) : '');
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // 外側クリック / Escape で閉じる (開いている間だけ購読)。
+  useDismissOnOutside(open, () => setOpen(false), [rootRef]);
   useEffect(() => {
     if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
-    };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false);
     };
-    document.addEventListener('mousedown', onDown);
     document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
+    return () => document.removeEventListener('keydown', onKey);
   }, [open]);
 
   // 親からの value 変化 (復元等) に時刻欄を追随させる。

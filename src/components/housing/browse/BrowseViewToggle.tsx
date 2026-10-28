@@ -4,6 +4,7 @@ import { ChevronDown } from 'lucide-react';
 import type { HousingBrowseView } from '../../../store/useHousingViewStore';
 import './BrowseViewToggle.css';
 
+import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 export interface BrowseViewToggleProps {
   value: HousingBrowseView;
   onChange: (v: HousingBrowseView) => void;
@@ -29,20 +30,15 @@ export const BrowseViewToggle: React.FC<BrowseViewToggleProps> = ({
 
   // DC メニューは外側クリック / Esc で閉じる。「マップ」ボタン自体は anchor の内側なので、
   // 押した時の開閉トグルと二重に反応しない。
+  useDismissOnOutside(mapMenuOpen === true && !!onMapMenuClose, () => onMapMenuClose?.(), [anchorRef]);
+
   useEffect(() => {
     if (!mapMenuOpen || !onMapMenuClose) return;
-    const onDown = (e: MouseEvent) => {
-      if (anchorRef.current && !anchorRef.current.contains(e.target as Node)) onMapMenuClose();
-    };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onMapMenuClose();
     };
-    document.addEventListener('mousedown', onDown);
     window.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      window.removeEventListener('keydown', onKey);
-    };
+    return () => window.removeEventListener('keydown', onKey);
   }, [mapMenuOpen, onMapMenuClose]);
 
   const labelOf = (v: HousingBrowseView) => t(`housing.browse.view_${v}`);

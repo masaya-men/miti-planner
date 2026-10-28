@@ -25,6 +25,7 @@ import { HousingImage } from '../media/HousingImage';
 import { staggerDelayMs } from './listingCardUtils';
 import './ListingCard.css';
 
+import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 export interface ListingCardProps {
   listing: MockListing;
   /** 未指定なら「ツアーに追加」ボタン自体を出さない (例: ハウジンガーページの一覧)。 */
@@ -98,25 +99,14 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const [visibilityMenuPos, setVisibilityMenuPos] = useState<{ top: number; right: number } | null>(null);
   const visibilityBtnRef = useRef<HTMLButtonElement | null>(null);
   const visibilityMenuPortalRef = useRef<HTMLDivElement | null>(null);
+  useDismissOnOutside(visibilityMenuOpen, () => setVisibilityMenuOpen(false), [visibilityBtnRef, visibilityMenuPortalRef]);
   useEffect(() => {
     if (!visibilityMenuOpen) return;
-    const onClickOutside = (e: MouseEvent) => {
-      const target = e.target as Node;
-      const insideButton = visibilityBtnRef.current?.contains(target) ?? false;
-      const insideMenu = visibilityMenuPortalRef.current?.contains(target) ?? false;
-      if (!insideButton && !insideMenu) {
-        setVisibilityMenuOpen(false);
-      }
-    };
     const onEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setVisibilityMenuOpen(false);
     };
-    document.addEventListener('mousedown', onClickOutside);
     document.addEventListener('keydown', onEsc);
-    return () => {
-      document.removeEventListener('mousedown', onClickOutside);
-      document.removeEventListener('keydown', onEsc);
-    };
+    return () => document.removeEventListener('keydown', onEsc);
   }, [visibilityMenuOpen]);
 
   // 生きたカード (段階2): 動画種別 → spotlight 候補判定、frames 解決、IO 登録。旧 HousingCard と同型。
