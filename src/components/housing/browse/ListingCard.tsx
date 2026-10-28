@@ -1,9 +1,6 @@
-import { scalePx } from '../../../lib/housing/housingScale';
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Check, Pencil, Image as ImageIcon } from 'lucide-react';
 import { HousingCardMarqueeLine } from './HousingCardMarqueeLine';
 import { HousingFavHeart } from './HousingFavHeart';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -18,18 +15,21 @@ import { representativeImage } from '../../../lib/housing/representativeImage';
 import { thumbHashToDataURL } from 'thumbhash';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
-import { HousingRipple } from '../HousingRipple';
 import { useTourAddFeedback } from '../../../lib/housing/useTourAddFeedback';
-import { HousingTourAddErrorBubble } from '../HousingTourAddErrorBubble';
 import { HousingImage } from '../media/HousingImage';
-import { staggerDelayMs } from './newShineStagger';
+import { useListingVisibilityMenu } from './useListingVisibilityMenu';
+import { useListingNewBeam } from './useListingNewBeam';
+import { ListingCardNewRibbon } from './ListingCardNewRibbon';
+import { ListingCardTopLeft } from './ListingCardTopLeft';
+import { ListingCardOwnerControls } from './ListingCardOwnerControls';
+import { ListingCardTourAddOverlay } from './ListingCardTourAddOverlay';
+import { ListingCardTourAddFooter } from './ListingCardTourAddFooter';
 import './ListingCard.css';
 import './ListingCardOwner.css';
 import './ListingCardMarks.css';
 import './ListingCardNew.css';
 import './ListingCardTourAdd.css';
 
-import { useDismissOnOutside } from '../../../hooks/useDismissOnOutside';
 export interface ListingCardProps {
   listing: MockListing;
   /** 未指定なら「ツアーに追加」ボタン自体を出さない (例: ハウジンガーページの一覧)。 */
@@ -94,24 +94,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const navigate = useNavigate();
   const viewerUid = useAuthStore((s) => s.user?.uid ?? null);
 
-  // マイページ: 公開状態切替ポップオーバーの開閉。カードごとに独立 (HousingDetailKebab と同仕様)。
-  // カード自体が overflow:hidden (角丸のため) を持つため、メニューはカード内の絶対配置ではなく
-  // createPortal で document.body 直下に出す (でないとカードの縁でクリップされ表示が崩れる・
-  // 2026-07-24 実機指摘)。ボタンとメニューが DOM 上は離れた場所になるため、外側クリック判定は
-  // 両方の ref を見る。
-  const [visibilityMenuOpen, setVisibilityMenuOpen] = useState(false);
-  const [visibilityMenuPos, setVisibilityMenuPos] = useState<{ top: number; right: number } | null>(null);
-  const visibilityBtnRef = useRef<HTMLButtonElement | null>(null);
-  const visibilityMenuPortalRef = useRef<HTMLDivElement | null>(null);
-  useDismissOnOutside(visibilityMenuOpen, () => setVisibilityMenuOpen(false), [visibilityBtnRef, visibilityMenuPortalRef]);
-  useEffect(() => {
-    if (!visibilityMenuOpen) return;
-    const onEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setVisibilityMenuOpen(false);
-    };
-    document.addEventListener('keydown', onEsc);
-    return () => document.removeEventListener('keydown', onEsc);
-  }, [visibilityMenuOpen]);
+  const {
+    visibilityMenuOpen, setVisibilityMenuOpen, visibilityMenuPos, setVisibilityMenuPos, visibilityBtnRef, visibilityMenuPortalRef,
+  } = useListingVisibilityMenu();
 
   // 生きたカード (段階2): 動画種別 → spotlight 候補判定、frames 解決、IO 登録。旧 HousingCard と同型。
   const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
@@ -178,27 +163,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   // enterCount を「画面内に入った回数」として増やし、それを beam span の key にすることで、
   // React に毎回そのDOM要素を作り直させ (再マウント)、CSSアニメーションを確実に最初から
   // 再生させる (クラスの再付与だけでは既に走り終えたCSSアニメーションは再始動しないため)。
-  const [enterCount, setEnterCount] = useState(0);
-  const wasIntersectingRef = useRef(false);
-  const cardElRef = useRef<HTMLElement | null>(null);
-  useEffect(() => {
-    if (!isNew) return;
-    const el = cardElRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !wasIntersectingRef.current) {
-          wasIntersectingRef.current = true;
-          setEnterCount((c) => c + 1);
-        } else if (!entry.isIntersecting) {
-          wasIntersectingRef.current = false;
-        }
-      },
-      { threshold: 0.2 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [isNew]);
+  const { enterCount, cardElRef } = useListingNewBeam(isNew);
 
   // カード全体クリック → 既定は詳細ページ。onCardClick 指定時はそちらを優先
   // (♡ / 選択 / ツアー追加は stopPropagation で独立動作、以下いずれの場合も不変)。
@@ -257,24 +222,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         {/* NEWリボン (探すページ限定・投稿7日以内): 左上の角を斜めに横切る帯。
             selectable (お気に入り/マイページ) では showNewBadge 自体を渡さないので競合しない。 */}
         {isNew && (
-          <span
-            className="housing-card-new-ribbon"
-            data-testid="housing-card-new-ribbon"
-            aria-label={t('housing.card.new_badge_aria')}
-          >
-            {t('housing.card.new_badge')}
-            {/* 帯の上だけを光沢がキラッと通る (2026-10-22 見本で決定・写真や縁には何も重ねない)。
-                key={enterCount}: 画面内に入るたびに作り直して、もう一度最初から光らせる。
-                ずらし値は CSS 変数 --beam-delay で animation-delay に渡す。 */}
-            {showBeam && (
-              <span
-                key={enterCount}
-                className="housing-card-new-shine"
-                style={{ '--beam-delay': `${staggerDelayMs(listing.id)}ms` } as React.CSSProperties}
-                aria-hidden="true"
-              />
-            )}
-          </span>
+          <ListingCardNewRibbon listing={listing} showBeam={showBeam} enterCount={enterCount} />
         )}
 
         {/* 常時表示 (左上): 選択チェック (お気に入りページのタグ選択・マイページのOGP代表作選択で共用)
@@ -283,110 +231,35 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             showOwnerControls (マイページ) では isPrivate は右上の公開状態バッジと表示が重複する
             ため出さない。isExpired (visibility=public のまま公開期限切れで実質非表示) は
             バッジには出ない状態なので引き続き表示する。 */}
-        <div className="housing-listing-card-topleft">
-          {selectable && (
-            <button
-              type="button"
-              className={`housing-card-select${selected ? ' is-selected' : ''}`}
-              aria-label={t('housing.card.select')}
-              aria-pressed={selected ?? false}
-              data-testid="housing-card-select"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleSelect?.(listing.id);
-              }}
-            >
-              {selected && <Check size={14} aria-hidden="true" />}
-            </button>
-          )}
-          {selectable && selected && onToggleBackground && (
-            <button
-              type="button"
-              className={`housing-card-background-select${isBackground ? ' is-selected' : ''}`}
-              aria-label={t('housing.housinger.ogSelect.backgroundToggle')}
-              aria-pressed={isBackground ?? false}
-              data-testid="housing-card-background-select"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleBackground(listing.id);
-              }}
-            >
-              <ImageIcon size={13} aria-hidden="true" />
-            </button>
-          )}
-          {((isPrivate && !showOwnerControls) || isExpired) && (
-            <span className="housing-listing-card-mine-note" data-testid="housing-card-mine-note">
-              {isPrivate ? t('housing.register.badge_private') : t('housing.register.badge_expired')}
-            </span>
-          )}
-        </div>
+        <ListingCardTopLeft
+          listing={listing}
+          selectable={selectable}
+          selected={selected}
+          onToggleSelect={onToggleSelect}
+          isBackground={isBackground}
+          onToggleBackground={onToggleBackground}
+          isPrivate={isPrivate}
+          isExpired={isExpired}
+          showOwnerControls={showOwnerControls}
+        />
 
         {/* マイページ (showOwnerControls): 右上はお気に入りハートの代わりに公開状態バッジ、
             右下に編集(鉛筆)ボタン。旧: 画像の下に常設フッター行を作っていたため縦に長く、
             一度に見えるカード数が少なかった (2026-07-24 実機指摘・画像タイル上のオーバーレイに統合)。 */}
         {showOwnerControls ? (
-          <button
-            ref={visibilityBtnRef}
-            type="button"
-            className="housing-card-visibility-badge housing-card-visibility-badge-overlay"
-            aria-haspopup="menu"
-            aria-expanded={visibilityMenuOpen}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!visibilityMenuOpen && visibilityBtnRef.current) {
-                const rect = visibilityBtnRef.current.getBoundingClientRect();
-                setVisibilityMenuPos({ top: rect.bottom + scalePx(4), right: window.innerWidth - rect.right });
-              }
-              setVisibilityMenuOpen((v) => !v);
-            }}
-          >
-            {t(`housing.register.visibility.${listing.visibility ?? 'public'}`)}
-          </button>
+          <ListingCardOwnerControls
+            listing={listing}
+            visibilityMenuOpen={visibilityMenuOpen}
+            setVisibilityMenuOpen={setVisibilityMenuOpen}
+            visibilityMenuPos={visibilityMenuPos}
+            setVisibilityMenuPos={setVisibilityMenuPos}
+            visibilityBtnRef={visibilityBtnRef}
+            visibilityMenuPortalRef={visibilityMenuPortalRef}
+            onRequestVisibilityChange={onRequestVisibilityChange}
+            onEditListing={onEditListing}
+          />
         ) : (
           <HousingFavHeart listingId={listing.id} />
-        )}
-
-        {/* カード自体が overflow:hidden なのでメニューは body 直下に portal し、
-            ボタンの画面座標を基準に fixed 配置する (2026-07-24 実機指摘)。 */}
-        {showOwnerControls && visibilityMenuOpen && visibilityMenuPos && createPortal(
-          <div
-            ref={visibilityMenuPortalRef}
-            role="menu"
-            className="housing-card-visibility-menu housing-card-visibility-menu-portal"
-            style={{ top: `${visibilityMenuPos.top}px`, right: `${visibilityMenuPos.right}px` }}
-          >
-            {(['public', 'unlisted', 'private'] as const).map((v) => (
-              <button
-                key={v}
-                type="button"
-                role="menuitem"
-                disabled={(listing.visibility ?? 'public') === v}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setVisibilityMenuOpen(false);
-                  onRequestVisibilityChange?.(listing.id, v);
-                }}
-              >
-                {t(`housing.register.visibility.${v}`)}
-              </button>
-            ))}
-          </div>,
-          document.body,
-        )}
-
-        {showOwnerControls && (
-          <button
-            type="button"
-            className="housing-card-edit-btn housing-card-edit-btn-overlay"
-            aria-label={t('housing.mypage.editListing')}
-            title={t('housing.mypage.editListing')}
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditListing?.(listing.id);
-            }}
-          >
-            <Pencil size={14} aria-hidden="true" />
-          </button>
         )}
 
         {/* 常時表示: 下端グラデーションにタイトル1行。見切れ分はカードホバー中に
@@ -396,77 +269,29 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           <HousingCardMarqueeLine>{title}</HousingCardMarqueeLine>
         </div>
 
-        {/* overlay: 追加済みの印 (ホバー無しでも常時・タッチ端末では＋が✓に変わるので CSS で隠す) */}
-        {showOverlayAdd && tourFeedback.isAdded && (
-          <span className="housing-listing-card-added-mark" data-testid="housing-card-added-mark">
-            {t('housing.card.added_mark')}
-          </span>
-        )}
-        {/* overlay: ボタンは 1 個。PC=下端の帯 / タッチ=右下の丸＋ を CSS のメディアクエリで切替える。 */}
         {showOverlayAdd && onAddToTour && (
-          <>
-            <button
-              ref={addToTourBtnRef}
-              type="button"
-              className={`housing-card-add-overlay${tourFeedback.isAdded ? ' is-added' : ''}`}
-              data-tour-anim={tourFeedback.animState}
-              data-testid="housing-card-add-overlay"
-              aria-pressed={tourFeedback.isAdded}
-              aria-label={tourFeedback.isAdded ? t('housing.card.added_to_tour') : t('housing.card.add_to_tour')}
-              onClick={(e) => {
-                e.stopPropagation();
-                addRipple(e);
-                const outcome = tourFeedback.attemptToggle();
-                if (outcome === 'added') onAddToTour(listing.id);
-              }}
-              onKeyDown={(e) => e.stopPropagation()}
-            >
-              {tourFeedback.isAdded ? (
-                <Check size={14} aria-hidden="true" />
-              ) : (
-                <Plus size={14} aria-hidden="true" />
-              )}
-              <span className="housing-card-add-overlay-label">
-                {tourFeedback.isAdded ? t('housing.card.added_to_tour') : t('housing.card.add_to_tour')}
-              </span>
-              <HousingRipple ripples={ripples} />
-            </button>
-            <HousingTourAddErrorBubble anchorRef={addToTourBtnRef} message={tourFeedback.errorMessage} />
-          </>
+          <ListingCardTourAddOverlay
+            listing={listing}
+            onAddToTour={onAddToTour}
+            tourFeedback={tourFeedback}
+            addToTourBtnRef={addToTourBtnRef}
+            ripples={ripples}
+            addRipple={addRipple}
+          />
         )}
       </div>
 
       {/* 画像に被らない常設フッター (主アクション)。onAddToTour 未指定 (ハウジンガーページ等) では
           ツアー追加ボタン自体を出さない (フッターごと消す)。 */}
       {onAddToTour && tourAddVariant === 'footer' && (
-        <div className="housing-listing-card-footer">
-          <button
-            ref={addToTourBtnRef}
-            type="button"
-            className={`housing-card-add-btn${tourFeedback.isAdded ? ' is-added' : ''}`}
-            data-tour-anim={tourFeedback.animState}
-            disabled={listing.visibility === 'unlisted'}
-            aria-disabled={listing.visibility === 'unlisted'}
-            aria-pressed={tourFeedback.isAdded}
-            title={listing.visibility === 'unlisted' ? t('housing.card.addressPrivate') : undefined}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (listing.visibility === 'unlisted') return;
-              addRipple(e);
-              const outcome = tourFeedback.attemptToggle();
-              if (outcome === 'added') onAddToTour(listing.id);
-            }}
-          >
-            {tourFeedback.isAdded ? (
-              <Check size={14} aria-hidden="true" />
-            ) : (
-              <Plus size={14} aria-hidden="true" />
-            )}
-            {tourFeedback.isAdded ? t('housing.card.added_to_tour') : t('housing.card.add_to_tour')}
-            <HousingRipple ripples={ripples} />
-          </button>
-          <HousingTourAddErrorBubble anchorRef={addToTourBtnRef} message={tourFeedback.errorMessage} />
-        </div>
+        <ListingCardTourAddFooter
+          listing={listing}
+          onAddToTour={onAddToTour}
+          tourFeedback={tourFeedback}
+          addToTourBtnRef={addToTourBtnRef}
+          ripples={ripples}
+          addRipple={addRipple}
+        />
       )}
 
     </article>
