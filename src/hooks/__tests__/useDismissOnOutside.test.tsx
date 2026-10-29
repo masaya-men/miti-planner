@@ -193,4 +193,44 @@ describe('useDismissOnOutside', () => {
         expect(onDismiss).toHaveBeenCalledTimes(0);
         expect(onBelow).toHaveBeenCalledTimes(1);
     });
+
+    // 開いている間は外側に「押せない」印(CSS が矢印のまま・光らないようにする)。内側だけ印で外す(masaya 10-29 案ア)
+    it('開いている間だけ html に外側の印、内側に内側の印が付く', () => {
+        const html = document.documentElement;
+        const { getByTestId, rerender } = render(<Harness onDismiss={vi.fn()} />);
+        expect(html.hasAttribute('data-outside-shield')).toBe(true);
+        expect(getByTestId('panel').hasAttribute('data-outside-inside')).toBe(true);
+        expect(getByTestId('portal-child').hasAttribute('data-outside-inside')).toBe(true);
+        expect(getByTestId('below').hasAttribute('data-outside-inside')).toBe(false);
+        rerender(<Harness isOpen={false} onDismiss={vi.fn()} />);
+        expect(html.hasAttribute('data-outside-shield')).toBe(false);
+        expect(getByTestId('panel').hasAttribute('data-outside-inside')).toBe(false);
+    });
+
+    it('開いている間、外側の右クリックはブラウザ標準のメニューを出さない(内側はそのまま)', () => {
+        const { getByTestId } = render(<Harness onDismiss={vi.fn()} />);
+        expect(fireEvent.contextMenu(document.body)).toBe(false);
+        expect(fireEvent.contextMenu(getByTestId('inner'))).toBe(true);
+    });
+
+    it('2 つ開いていたら、両方閉じるまで外側の印は残る', () => {
+        const html = document.documentElement;
+        const a = render(<Harness onDismiss={vi.fn()} />);
+        const b = render(<Harness onDismiss={vi.fn()} />);
+        b.unmount();
+        expect(html.hasAttribute('data-outside-shield')).toBe(true);
+        a.unmount();
+        expect(html.hasAttribute('data-outside-shield')).toBe(false);
+    });
+
+    it('チュートリアル中(許可なし)は外側の印を付けない=チュートリアルの操作を邪魔しない', () => {
+        useTutorialStore.setState({ isActive: true });
+        const html = document.documentElement;
+        const a = render(<Harness onDismiss={vi.fn()} />);
+        expect(html.hasAttribute('data-outside-shield')).toBe(false);
+        a.unmount();
+        const b = render(<Harness onDismiss={vi.fn()} allowDuringTutorial />);
+        expect(html.hasAttribute('data-outside-shield')).toBe(true);
+        b.unmount();
+    });
 });

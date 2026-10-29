@@ -85,3 +85,10 @@ button, [role="button"], .touch-none {
     --duration-toast: 0ms;
   }
 }
+
+/* 外側を押すと閉じるメニューが開いている間(useDismissOnOutside)、外側は矢印のまま・光らない。
+   押すと閉じるだけなのに押せそうに見えないように(masaya 10-29 案ア)。指はスクロールを止めないようマウスだけ */
+@media (hover: hover) and (pointer: fine) {
+  html[data-outside-shield] body :not([data-outside-inside], [data-outside-inside] *) { pointer-events: none; }
+  html[data-outside-shield] [data-outside-inside] { pointer-events: auto; }
+}

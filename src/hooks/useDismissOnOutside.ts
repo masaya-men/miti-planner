@@ -9,6 +9,12 @@ const dismissStack: Array<symbol> = [];
 // 離してから click が来ない時の保険の待ち時間
 const SWALLOW_MS = 400;
 
+// 開いている間は外側を「押せない」見た目にする(矢印のまま・光らない。CSS は base/global.css・マウスだけ)。
+// html の印=開いている数、内側の印=パネル本体と portal の子(masaya 10-29 案ア)
+const SHIELD_ATTR = 'data-outside-shield';
+const INSIDE_ATTR = 'data-outside-inside';
+let shieldCount = 0;
+
 /**
  * 外側を押したら閉じる(閉じるだけ・その 1 回は下に届けない)。
  * insideRefs = パネル本体と portal で出した子。開くボタンは入れない(外扱い=押すと閉じるだけ)。
@@ -32,6 +38,9 @@ export function useDismissOnOutside(
     const entry = Symbol('dismiss');
     dismissStack.push(entry);
     let stopTouchWait = () => {};
+    // チュートリアル中(許可なし)は外側クリックに反応しないので、外側も止めない
+    const shield = allowDuringTutorialRef.current || !useTutorialStore.getState().isActive;
+    if (shield && shieldCount++ === 0) document.documentElement.setAttribute(SHIELD_ATTR, '');
 
     const handlePointerDown = (e: PointerEvent) => {
       if (!allowDuringTutorialRef.current && useTutorialStore.getState().isActive) return;
@@ -87,12 +96,29 @@ export function useDismissOnOutside(
       document.addEventListener('pointercancel', release, true);
     };
 
+    // 外側は押せない作りなので、右クリックがブラウザ標準のメニューにならないよう止める
+    const handleContextMenu = (e: MouseEvent) => {
+      const target = e.target as Node | null;
+      if (target && refsRef.current.some((r) => r.current?.contains(target))) return;
+      e.preventDefault();
+    };
+
     document.addEventListener('pointerdown', handlePointerDown, true);
+    if (shield) document.addEventListener('contextmenu', handleContextMenu, true);
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown, true);
+      document.removeEventListener('contextmenu', handleContextMenu, true);
       stopTouchWait();
       const idx = dismissStack.indexOf(entry);
       if (idx >= 0) dismissStack.splice(idx, 1);
+      if (shield && --shieldCount === 0) document.documentElement.removeAttribute(SHIELD_ATTR);
+      refsRef.current.forEach((r) => r.current?.removeAttribute(INSIDE_ATTR));
     };
   }, [isOpen]);
+
+  // 内側の印は毎回付け直す(パネルが測ってから出る等、開いた後に現れる要素にも付くように)
+  useEffect(() => {
+    if (!isOpen) return;
+    refsRef.current.forEach((r) => r.current?.setAttribute(INSIDE_ATTR, ''));
+  });
 }
