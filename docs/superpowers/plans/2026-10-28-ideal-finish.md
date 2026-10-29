@@ -150,8 +150,8 @@ export function useDismissOnOutside(
 
 ### Task 14: 最終ゲート
 
-- [ ] **Step 1:** `npm run test:gate` 失敗 0・`npm run build` 0・`npm run lint` 0・`npm run knip` 0
-- [ ] **Step 2:** `node scripts/visual-regress/run.mjs --compare=pre-finish` 全体一致(意図した差は理由つき)・`node scripts/css-colocation/compare-build.mjs` 欠け 0
-- [ ] **Step 3:** 400 行を超える文字のファイルを数え直す(データ・自動生成・翻訳・例外の登録を除く)。残ったのは理由つきの物だけ、を確かめる
-- [ ] **Step 4:** fresh context の opus で全体の敵対レビュー(正しさの指摘だけ取り込む)
-- [ ] **Step 5:** TODO.md を更新し、完了を TODO_COMPLETED.md へ移して commit
+- [x] **Step 1:** `npm run test:gate` 失敗 0・`npm run build` 0・`npm run lint` 0・`npm run knip` 0
+- [x] **Step 2:** `node scripts/visual-regress/run.mjs --compare=pre-finish` 全体一致(意図した差は理由つき)・`node scripts/css-colocation/compare-build.mjs` 欠け 0
+- [x] **Step 3:** 400 行を超える文字のファイルを数え直す(データ・自動生成・翻訳・例外の登録を除く)。残ったのは理由つきの物だけ、を確かめる
+- [x] **Step 4:** fresh context の opus で全体の敵対レビュー(正しさの指摘だけ取り込む)
+- [x] **Step 5:** TODO.md を更新し、完了を TODO_COMPLETED.md へ移して commit
