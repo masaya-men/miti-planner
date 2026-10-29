@@ -99,7 +99,10 @@ export function resolveRemoteLoad(args: {
   const editedLocally = (p: SavedPlan) => {
     const base = baseOf(p.id);
     if (!base) return true; // 読み直しの間に作った表
-    return base !== p && !samePlanContent(p, base);
+    if (base === p || contentUnreadable(p)) return false; // 圧縮・アーカイブしただけは編集ではない
+    // 始めた時は圧縮されていて、間に開かれた表は比べられない。編集を消さない側(編集あり)へ倒す
+    if (contentUnreadable(base)) return true;
+    return !samePlanContent(p, base);
   };
   const changedRemotely = (id: string) => {
     const r = mergedMap.get(id);

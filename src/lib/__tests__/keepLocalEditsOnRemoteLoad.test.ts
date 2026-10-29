@@ -88,6 +88,24 @@ describe('resolveRemoteLoad(読み直しの間の手元の変更を結果に戻�
         expect(r.conflicts.map((c) => c.data)).toEqual([data('m')]);
     });
 
+    // 最終ゲートの敵対レビュー: 始めた時は黙って圧縮されていた表を、読み直しの間に開いて編集した(作業ストアの印は前の表のまま)
+    it('始めた時は圧縮されていた表を間に開いて編集し、サーバーも新しい時は、手元を競合コピーに残す', () => {
+        const compressed = { id: 'a', title: 'a', updatedAt: 1, compressedData: 'gz' } as unknown as SavedPlan;
+        const openedEdited = plan('a', 5, data('m'));
+        const remote = plan('a', 9, data('r'));
+        const r = resolve([remote], [compressed], [openedEdited]);
+        expect(r.plans[0]).toBe(remote);
+        expect(r.conflicts).toEqual([openedEdited]);
+    });
+
+    it('始めた時は圧縮されていた表を間に開いて編集し、サーバーが変わっていない時は、手元の物を使う', () => {
+        const compressed = { id: 'a', title: 'a', updatedAt: 1, compressedData: 'gz' } as unknown as SavedPlan;
+        const openedEdited = plan('a', 5, data('m'));
+        const r = resolve([compressed], [compressed], [openedEdited]);
+        expect(r.plans).toEqual([openedEdited]);
+        expect([...r.keptIds]).toEqual(['a']);
+    });
+
     // 再レビュー Minor C: 表ごとの表示設定も保存される中身
     it('表ごとの表示設定(自分の担当・隠したメンバー・並び順)の違いも編集とみなす', () => {
         const a = plan('a', 1, data());
