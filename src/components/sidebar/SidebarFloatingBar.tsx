@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { MultiSelectState } from '../../types/sidebarTypes';
 import { Share2, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
+import { ModalButton } from '../ui/ModalParts';
 import './SidebarFloatingBar.css';
 
 interface SidebarFloatingBarProps {
@@ -54,19 +55,15 @@ export const SidebarFloatingBar: React.FC<SidebarFloatingBarProps> = ({ multiSel
                             </button>
                             {/* アクションボタン */}
                             {multiSelect.mode === 'share' ? (
-                                <button
+                                <ModalButton
+                                    variant="primary"
                                     onClick={handleShareBundle}
                                     disabled={multiSelect.selectedIds.length === 0}
-                                    className={clsx(
-                                        "flex items-center gap-2 py-1.5 px-4 rounded-lg text-app-md font-black transition-all cursor-pointer whitespace-nowrap",
-                                        multiSelect.selectedIds.length > 0
-                                            ? "bg-app-blue text-white hover:bg-app-blue-hover active:scale-95"
-                                            : "bg-app-blue-dim text-app-text-muted opacity-50 cursor-not-allowed"
-                                    )}
+                                    className="whitespace-nowrap"
                                 >
                                     <Share2 size={13} />
                                     <span>{t('sidebar.share_together')}</span>
-                                </button>
+                                </ModalButton>
                             ) : (
                                 <button
                                     onClick={() => {

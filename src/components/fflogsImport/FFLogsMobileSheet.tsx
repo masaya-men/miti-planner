@@ -5,7 +5,7 @@ import { CloudDownload, Loader2, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { backdropClose } from '../../utils/backdropClose';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
-import { ModalHeader } from '../ui/ModalParts';
+import { ModalButton, ModalHeader } from '../ui/ModalParts';
 import type { ImportStatus } from './importStatus';
 
 /* Slide-in animation for buttons */
@@ -86,13 +86,10 @@ export const FFLogsMobileSheet: React.FC<FFLogsMobileSheetProps> = ({
                             <AnimatePresence>
                                 {canFetch && (
                                     <motion.div {...slideUp} key="fetch-actions" className="mt-5 flex flex-col gap-3">
-                                        <button
-                                            onClick={handleFetch}
-                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-app-2xl font-bold uppercase bg-app-blue text-white hover:bg-app-blue-hover active:scale-[0.98] transition-transform cursor-pointer"
-                                        >
+                                        <ModalButton variant="primary" size="lg" onClick={handleFetch} className="w-full px-5 py-3.5">
                                             <CloudDownload size={18} />
                                             {t('fflogs.fetch_button')}
-                                        </button>
+                                        </ModalButton>
                                         <button
                                             onClick={handleClose}
                                             className="w-full py-3 rounded-xl text-app-2xl font-bold text-app-text bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
@@ -124,13 +121,10 @@ export const FFLogsMobileSheet: React.FC<FFLogsMobileSheetProps> = ({
                                     <motion.div {...slideUp} key="preview-actions" className="mt-5 space-y-4">
                                         {previewStats}
 
-                                        <button
-                                            onClick={handleImport}
-                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-app-2xl font-bold uppercase bg-app-blue text-white hover:bg-app-blue-hover active:scale-[0.98] transition-transform cursor-pointer"
-                                        >
+                                        <ModalButton variant="primary" size="lg" onClick={handleImport} className="w-full px-5 py-3.5">
                                             <CheckCircle2 size={18} />
                                             {t('fflogs.import_button')}
-                                        </button>
+                                        </ModalButton>
                                         <button
                                             onClick={handleClose}
                                             className="w-full py-3 rounded-xl text-app-2xl font-bold text-app-text bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"

@@ -72,16 +72,26 @@ const BUTTON_VARIANT = {
 
 export type ModalButtonVariant = keyof typeof BUTTON_VARIANT;
 
-/** 窓のボタン。variant で役割を選ぶ(見た目は役割ごとに 1 つ) */
+const BUTTON_SIZE = {
+    /** 窓の下の標準 */
+    md: 'gap-1.5 px-4 py-1.5 rounded-md text-app-lg',
+    /** 大きい決定(スマホの横幅いっぱい等)。高さ・横幅は置き場所が className で決める */
+    lg: 'gap-2 rounded-xl text-app-2xl',
+} as const;
+
+export type ModalButtonSize = keyof typeof BUTTON_SIZE;
+
+/** 窓のボタン。variant で役割を選ぶ(見た目は役割ごとに 1 つ)。size は標準か大きい決定か */
 export const ModalButton: React.FC<
-    React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ModalButtonVariant }
-> = ({ variant = 'secondary', className, type = 'button', ...rest }) => (
+    React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ModalButtonVariant; size?: ModalButtonSize }
+> = ({ variant = 'secondary', size = 'md', className, type = 'button', ...rest }) => (
     <button
         type={type}
         {...rest}
         className={clsx(
-            'inline-flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-md border text-app-lg font-bold transition-colors duration-150 cursor-pointer active:scale-95',
+            'inline-flex items-center justify-center border font-bold transition-colors duration-150 cursor-pointer active:scale-95',
             'disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100',
+            BUTTON_SIZE[size],
             BUTTON_VARIANT[variant],
             className,
         )}

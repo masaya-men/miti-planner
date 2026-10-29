@@ -189,12 +189,9 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         <>
                                             <p className="text-app-lg font-bold text-app-red text-center leading-snug">{t('timeline.recorder.video_hint')}</p>
                                             {/* 未再生→「動画を再生する」, 再生中→「戦闘開始！」(押下で戦闘開始マーク=ストップウォッチ開始) */}
-                                            <button
-                                                onClick={isPlaying ? handleStart : play}
-                                                className="w-full rounded-xl bg-app-blue py-4 text-app-2xl font-bold text-white hover:bg-app-blue-hover active:scale-95 cursor-pointer"
-                                            >
+                                            <ModalButton variant="primary" size="lg" onClick={isPlaying ? handleStart : play} className="w-full py-4">
                                                 {isPlaying ? t('timeline.recorder.combat_start_button') : t('timeline.recorder.video_play_button')}
-                                            </button>
+                                            </ModalButton>
                                         </>
                                     ) : (
                                         <>
@@ -216,12 +213,9 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                             </div>
 
                                             {/* イベント追加ボタン */}
-                                            <button
-                                                onClick={handleAddEvent}
-                                                className="flex w-full items-center justify-center gap-2 rounded-xl bg-app-blue py-4 text-app-2xl font-bold text-white hover:bg-app-blue-hover active:scale-95 cursor-pointer"
-                                            >
+                                            <ModalButton variant="primary" size="lg" onClick={handleAddEvent} className="w-full py-4">
                                                 <Plus size={20} /> {t('timeline.recorder.add_event')}
-                                            </button>
+                                            </ModalButton>
 
                                             {/* 記録件数 + Undo */}
                                             <div className="flex w-full items-center justify-between text-app-base text-app-text/60">

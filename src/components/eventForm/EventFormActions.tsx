@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { Trash2, Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { TimelineEvent } from '../../types';
+import { ModalButton } from '../ui/ModalParts';
 
 interface EventFormActionsProps {
     compact: boolean;
@@ -54,20 +55,17 @@ export const EventFormActions: React.FC<EventFormActionsProps> = ({
                     </button>
                 ) : <div className="hidden sm:block"></div>}
 
-                <button
+                <ModalButton
+                    variant="primary"
+                    size="lg"
                     data-tutorial="event-save-btn"
                     type={variant === 'pip' ? 'button' : 'submit'}
                     onClick={variant === 'pip' ? handleSubmit : undefined}
-                    className={clsx(
-                        "flex items-center justify-center gap-2 bg-app-blue text-white hover:bg-app-blue-hover font-bold transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-wider cursor-pointer",
-                        compact
-                            ? "w-full py-3.5 rounded-xl text-app-2xl"
-                            : "w-full sm:w-auto flex-1 sm:flex-none px-8 py-2.5 rounded-lg text-app-2xl"
-                    )}
+                    className={compact ? "w-full py-3.5" : "w-full sm:w-auto flex-1 sm:flex-none px-8 py-2.5"}
                 >
                     <Save size={compact ? 18 : 16} />
                     {t(saveButtonKey ?? 'mechanic_modal.add_button')}
-                </button>
+                </ModalButton>
             </div>
     );
 };

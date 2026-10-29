@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { useShareImportFlow } from '../../store/useShareImportFlow';
+import { ModalButton } from '../ui/ModalParts';
 
 type FlowState = ReturnType<typeof useShareImportFlow.getState>;
 
@@ -33,8 +34,8 @@ export function ShareImportFooter({ isBundle, selectedCount, status, close, hand
                 >
                     {t('share_import.button_cancel')}
                 </button>
-                <button
-                    type="button"
+                <ModalButton
+                    variant="primary"
                     disabled={selectedCount === 0 || status !== 'preview'}
                     onClick={handleImport}
                     aria-label={
@@ -42,12 +43,11 @@ export function ShareImportFooter({ isBundle, selectedCount, status, close, hand
                             ? t('share_import.button_import_count', { count: selectedCount })
                             : t('share_import.button_import_single')
                     }
-                    className="px-5 py-2 rounded-md bg-app-blue text-white font-semibold uppercase hover:bg-app-blue-hover disabled:bg-app-text-muted/30 disabled:text-app-text-muted disabled:cursor-not-allowed active:scale-95 transition-all"
                 >
                     {isBundle
                         ? t('share_import.button_import_count', { count: selectedCount })
                         : t('share_import.button_import_single')}
-                </button>
+                </ModalButton>
             </div>
         </div>
     );
