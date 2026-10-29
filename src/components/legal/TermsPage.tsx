@@ -2,7 +2,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCanonicalUrl } from '../../hooks/useCanonicalUrl';
 import { LegalPageLayout } from './LegalPageLayout';
-import { Section, BulletList, splitItems } from './legalSectionParts';
+import { Section, BulletList } from './legalSectionParts';
+import { splitItems } from './splitItems';
 
 // ========================================
 // 利用規約

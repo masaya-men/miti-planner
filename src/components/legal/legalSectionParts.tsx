@@ -1,10 +1,5 @@
 import React from 'react';
 
-/** i18nキーで「,」区切りのリストを配列に変換 */
-export function splitItems(value: string): string[] {
-    return value.split(',').map((s) => s.trim()).filter(Boolean);
-}
-
 /** セクション: タイトル + 本文 */
 export const Section: React.FC<{ title: string; id?: string; children: React.ReactNode }> = ({ title, id, children }) => (
     <section id={id} className="mb-8 scroll-mt-6">

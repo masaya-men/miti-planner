@@ -2,7 +2,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCanonicalUrl } from '../../hooks/useCanonicalUrl';
 import { LegalPageLayout } from './LegalPageLayout';
-import { Section, BulletList, SubSection, ThreeColumnTable, Note, InlineLink, splitItems } from './legalSectionParts';
+import { Section, BulletList, SubSection, ThreeColumnTable, Note, InlineLink } from './legalSectionParts';
+import { splitItems } from './splitItems';
 
 // ========================================
 // プライバシーポリシー
