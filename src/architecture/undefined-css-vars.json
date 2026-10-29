@@ -1,0 +1,5 @@
+{
+  "--housing-text-muted": "要確認: 似た名前 --housing-text-mute(src/styles/housing/tokens.css)",
+  "--housing-text-small": "要確認: 似た名前 --housing-text-sm(src/styles/housing/tokens.css)",
+  "--housing-bg": "要確認: 定義が見つからない"
+}
