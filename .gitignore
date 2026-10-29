@@ -119,3 +119,6 @@ scripts/visual-regress/.cache/
 /build_errors*.txt
 /*.xlsx
 scripts/css-colocation/.out/
+
+# 計算後スタイル比較(theme-out)の結果(コミットしない)
+.out/
