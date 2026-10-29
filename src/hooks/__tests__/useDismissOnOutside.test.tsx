@@ -128,6 +128,28 @@ describe('useDismissOnOutside', () => {
         expect(onBelow).toHaveBeenCalledTimes(1);
     });
 
+    // 指で触った時の pointerdown はスクロールかタップか決まる前に来る
+    it('指で外側からスクロールを始めただけ(pointercancel)では閉じない', () => {
+        const onDismiss = vi.fn();
+        const { getByTestId } = render(<Harness onDismiss={onDismiss} />);
+        fireEvent.pointerDown(getByTestId('below'), { pointerType: 'touch' });
+        fireEvent.pointerCancel(getByTestId('below'), { pointerType: 'touch' });
+        expect(onDismiss).toHaveBeenCalledTimes(0);
+    });
+
+    it('指で外側をタップすると離した時に閉じ、下のボタンには届かない', () => {
+        const onDismiss = vi.fn();
+        const onBelow = vi.fn();
+        const { getByTestId } = render(<Harness onDismiss={onDismiss} onBelow={onBelow} />);
+        const below = getByTestId('below');
+        fireEvent.pointerDown(below, { pointerType: 'touch' });
+        expect(onDismiss).toHaveBeenCalledTimes(0);
+        fireEvent.pointerUp(below, { pointerType: 'touch' });
+        fireEvent.click(below);
+        expect(onDismiss).toHaveBeenCalledTimes(1);
+        expect(onBelow).toHaveBeenCalledTimes(0);
+    });
+
     it('右ボタンで外を押すと閉じ、止めは置かない', () => {
         const onDismiss = vi.fn();
         const onBelow = vi.fn();

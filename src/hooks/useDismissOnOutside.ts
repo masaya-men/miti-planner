@@ -31,6 +31,7 @@ export function useDismissOnOutside(
 
     const entry = Symbol('dismiss');
     dismissStack.push(entry);
+    let stopTouchWait = () => {};
 
     const handlePointerDown = (e: PointerEvent) => {
       if (!allowDuringTutorialRef.current && useTutorialStore.getState().isActive) return;
@@ -38,11 +39,6 @@ export function useDismissOnOutside(
       if (dismissStack[dismissStack.length - 1] !== entry) return;
       const target = e.target as Node | null;
       if (target && refsRef.current.some((r) => r.current?.contains(target))) return;
-
-      callbackRef.current();
-
-      // 主ボタン以外は click が来ないので止めは置かない
-      if (e.button !== 0) return;
 
       // 次の click 1 回だけ止める(押下は止めない=focus は動く)。
       // 時計は離した時から 400ms(ゆっくり押しても効く)。キャンセルされたら click は来ないのですぐ外す
@@ -61,6 +57,31 @@ export function useDismissOnOutside(
       const startTimer = () => {
         timer = window.setTimeout(release, SWALLOW_MS);
       };
+
+      // 指はスクロールかタップか押した時点では決まらない: 離したら(タップ)閉じ、スクロールに変わったら(pointercancel)閉じない
+      if (e.pointerType === 'touch') {
+        const onUp = () => {
+          stopWaiting();
+          callbackRef.current();
+          document.addEventListener('click', swallow, true);
+          startTimer();
+        };
+        const stopWaiting = () => {
+          document.removeEventListener('pointerup', onUp, true);
+          document.removeEventListener('pointercancel', stopWaiting, true);
+        };
+        stopTouchWait();
+        stopTouchWait = stopWaiting;
+        document.addEventListener('pointerup', onUp, true);
+        document.addEventListener('pointercancel', stopWaiting, true);
+        return;
+      }
+
+      callbackRef.current();
+
+      // 主ボタン以外は click が来ないので止めは置かない
+      if (e.button !== 0) return;
+
       document.addEventListener('click', swallow, true);
       document.addEventListener('pointerup', startTimer, true);
       document.addEventListener('pointercancel', release, true);
@@ -69,6 +90,7 @@ export function useDismissOnOutside(
     document.addEventListener('pointerdown', handlePointerDown, true);
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown, true);
+      stopTouchWait();
       const idx = dismissStack.indexOf(entry);
       if (idx >= 0) dismissStack.splice(idx, 1);
     };

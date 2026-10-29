@@ -53,7 +53,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ btnClassName
         });
     }, [open]);
 
-    useDismissOnOutside(open, () => setOpen(false), [dropdownRef]);
+    useDismissOnOutside(open, () => setOpen(false), [dropdownRef], { allowDuringTutorial: true });
 
     return (
         <div ref={ref} data-tutorial-always className="relative select-none">

@@ -152,11 +152,21 @@ function useKeyPressMotion(o: { btnRef: RefObject<HTMLElement | null>; kfRef: Re
       if (st.current.down) { st.current.held = false; window.clearTimeout(st.current.timer); upRef.current(live.current.latch && live.current.pressed ? 'latch' : 'rest'); }
     };
     const onClick = () => { st.current.held = false; upRef.current(live.current.latch ? 'latch' : 'rest'); };
+    let clickWait = 0;
     // ポインタがキーの外で離されても戻す
     const release = (e: Event) => {
       if (!st.current.held) return;
-      // キー自身の上で離したときは click が戻しを担当する(二重に戻さない)
-      if (e.target instanceof Node && btn.contains(e.target)) return;
+      // キー自身の上で離したときは click が戻しを担当する(二重に戻さない)。
+      // ただし浮かぶものの外側押し(useDismissOnOutside)が click を止めると来ないので、来なければ押す前の姿勢へ戻す
+      if (e.target instanceof Node && btn.contains(e.target)) {
+        window.clearTimeout(clickWait);
+        clickWait = window.setTimeout(() => {
+          if (!st.current.held) return;
+          st.current.held = false;
+          if (st.current.down) upRef.current(live.current.latch && live.current.pressed ? 'latch' : 'rest');
+        }, 0);
+        return;
+      }
       st.current.held = false;
       if (st.current.down) upRef.current('rest');
     };
@@ -175,6 +185,7 @@ function useKeyPressMotion(o: { btnRef: RefObject<HTMLElement | null>; kfRef: Re
       window.removeEventListener('pointerup', release);
       window.removeEventListener('pointercancel', release);
       window.clearTimeout(s.timer);
+      window.clearTimeout(clickWait);
       s.anims.forEach((a) => a.cancel());
     };
   }, [btnRef]);

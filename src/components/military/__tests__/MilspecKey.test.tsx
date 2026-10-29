@@ -190,6 +190,21 @@ describe('MilspecKey ARIA / ref / blur', () => {
     fireEvent.blur(b);
     expect(b.classList.contains('milspec-key-down')).toBe(false);
   });
+
+  // 浮かぶものが開いている時、外側押しの仕組み(useDismissOnOutside)が click を止める
+  it('キーの上で離したのに click が来なかったら(止められた)沈みを戻す', () => {
+    vi.useFakeTimers();
+    try {
+      render(<MilspecKey cap={cap} aria-label="k" />);
+      const b = screen.getByRole('button');
+      fireEvent.pointerDown(b, { button: 0 });
+      fireEvent.pointerUp(b, { button: 0 });
+      act(() => { vi.runAllTimers(); });
+      expect(b.classList.contains('milspec-key-down')).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 
