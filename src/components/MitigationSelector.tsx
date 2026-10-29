@@ -208,7 +208,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                     "pointer-events-auto p-2 flex flex-col float-surface",
                     isMobile && !isCentered
                         ? "fixed bottom-0 left-0 right-0 w-full rounded-t-sheet rounded-b-none glass-border-b-0 translate-y-0"
-                        : "rounded-xl w-64",
+                        : "rounded-xl w-64 animate-[popIn_150ms_ease-out]",
                     !isCentered && !isMobile ? "fixed" : "relative"
                 )}
                 style={isMobile && !isCentered

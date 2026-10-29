@@ -20,6 +20,12 @@
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+/* 押した場所の横に出る小窓用。transform は位置決めに使うので scale で縮める */
+@keyframes popIn {
+  from { opacity: 0; scale: 0.96; }
+  to { opacity: 1; scale: 1; }
+}
+
 @keyframes toastIn {
   from { opacity: 0; transform: translateY(-52px) scale(0.82); }
   to { opacity: 1; transform: translateY(0) scale(1); }

@@ -90,7 +90,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     "flex flex-col overflow-hidden pointer-events-auto float-surface",
                     isMobile
                         ? "fixed bottom-14 left-0 right-0 z-[9999] w-full max-h-[75vh] glass-border-b-0"
-                        : "absolute w-[500px] rounded-2xl"
+                        : "absolute w-[500px] rounded-2xl animate-[popIn_150ms_ease-out]"
                 )}
                 style={isMobile ? {
                     borderTopLeftRadius: MOBILE_TOKENS.sheet.radius,
