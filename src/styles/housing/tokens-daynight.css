@@ -11,15 +11,6 @@
   --housing-scenery-sky: linear-gradient(180deg, transparent 55%, rgba(15, 10, 20, 0.35) 100%);
   --housing-scenery-sky-size: auto;
   --housing-scenery-sky-opacity: 1;
-
-  /* 地図(ward-map.css) */
-  --housing-floor-grid-line-h: rgba(255, 201, 135, 0.16);
-  --housing-floor-grid-line-v: rgba(255, 201, 135, 0.10);
-  --housing-map-img-brightness: 1.1;
-  --housing-map-img-shadow-y: 14;
-  --housing-map-img-shadow-blur: 26;
-  --housing-map-img-shadow-color: rgba(0, 0, 0, 0.6);
-  --housing-map-img-opacity: 0.88;
 }
 
 .housing-workspace[data-theme="dark"] {
@@ -50,11 +41,4 @@
   --housing-scenery-sky-size: 100% 100%;
   --housing-scenery-sky-opacity: 0.9;
 
-  --housing-floor-grid-line-h: rgba(180, 210, 255, 0.18);
-  --housing-floor-grid-line-v: rgba(180, 210, 255, 0.12);
-  --housing-map-img-brightness: 1.05;
-  --housing-map-img-shadow-y: 16;
-  --housing-map-img-shadow-blur: 28;
-  --housing-map-img-shadow-color: rgba(0, 0, 0, 0.55);
-  --housing-map-img-opacity: 0.9;
 }
