@@ -11,6 +11,7 @@ import type { SheetHiddenPopoverState } from './sheet/SheetHiddenPopover';
 import type { SheetPopoverState } from './sheet/SheetTargetPopover';
 import { sheetBands } from './sheet/memberX';
 import { buildAppliedMitigation, resolveSheetTap } from './sheet/sheetTap';
+import { canStackSameSecond } from '../../utils/sameSecondStack';
 
 /*
  * スプシ表示まわりの状態。Timeline 本体から移したもの。
@@ -67,7 +68,9 @@ export function useTimelineSheetTap({
         // もう一度押して消す: この列に描かれている配置(版違い・セラフィズム差し替えなど id が列と違うものも含む)
         const defs = sheetDefsRef.current;
         const existing = ownerMitigations.find(m => m.time === time && sheetColumnIndex(cols, m.mitigationId, defs) === colIndex);
-        if (existing) {
+        // 2 回分ためて相手を選ぶ技は消さずに相手選びへ(resolveSheetTap が selectTarget を返す・masaya 10-29)
+        const existingDef = existing && defs.find(d => d.id === existing.mitigationId);
+        if (existing && !(existingDef && canStackSameSecond(existingDef))) {
             useMitigationStore.getState().removeMitigation(existing.id);
             return;
         }
