@@ -1,0 +1,48 @@
+/* スプシ表示(timelineView === 'sheet'・src/components/timeline/sheet/sheet.css)を MIL-SPEC で描き変える規則。
+   sheet.css から中身を変えずに移した(2026-10-29)。 */
+/* MIL-SPEC: 罫線は表と同じ --ma-cell-line(列)/ --ma-row-line(ジョブの境目)。
+   src/styles/military/standard-table.css の `[data-time-row] > *` が background:none と左線(box-shadow)を当てるので、
+   同じ強さ以上で縦罫線(background-image)を重ねる。 */
+.theme-military .milspec-app [data-time-row] > [data-sheet-cols] {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 calc(var(--sheet-col-w) - 1px),
+    var(--ma-cell-line) calc(var(--sheet-col-w) - 1px) var(--sheet-col-w)
+  );
+  box-shadow: inset 1px 0 0 var(--ma-row-line);
+}
+.theme-military .milspec-app [data-member-id][data-sheet-cols],
+.theme-military .milspec-app [data-sheet-member] {
+  background-image: none;
+}
+/* 列見出し(下段): 列の箱の仕切りは --ma-cell-line。アイコンは表のアイコンと同じ角丸 2px + 影 */
+.theme-military .milspec-app [data-sheet-col] {
+  border-right-color: var(--ma-cell-line);
+}
+.theme-military .milspec-app [data-sheet-member] {
+  border-right-color: var(--ma-row-line);
+}
+.theme-military .milspec-app [data-sheet-col] img {
+  border: 0; background: none; border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 2px 3px rgba(0,0,0,0.4);
+}
+/* 上段のジョブ名(3 列以上のとき出る文字) */
+.theme-military .milspec-app [data-member-id][data-sheet-cols] [class*="text-app-"] {
+  color: var(--ma-txt-atk);
+}
+/* 列が 1 つ以下のメンバーは差込口(34px)が列(28px)からはみ出すので縮める */
+.theme-military .milspec-app [data-sheet-cols="0"] .milspec-jack,
+.theme-military .milspec-app [data-sheet-cols="1"] .milspec-jack {
+  scale: 0.8;
+}
+
+.theme-military { --sheet-cd: rgba(205, 209, 212, 0.42); --sheet-cd-end: rgb(205, 209, 212); }
+/* MIL-SPEC の帯は 4px なので、細くする継ぎ目は付けず最初から 4px 幅 */
+.theme-military [data-mit-cd] {
+  clip-path: inset(0 1px) !important;
+}
+
+.theme-military .milspec-app .table-hover-hl {
+  background: color-mix(in srgb, var(--ma-ink) 8%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ma-ink-2) 40%, transparent);
+}

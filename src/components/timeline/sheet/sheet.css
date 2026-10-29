@@ -30,65 +30,19 @@
   border-right: 0;
 }
 
-/* MIL-SPEC: 罫線は表と同じ --ma-cell-line(列)/ --ma-row-line(ジョブの境目)。
-   src/styles/military/standard-table.css の `[data-time-row] > *` が background:none と左線(box-shadow)を当てるので、
-   同じ強さ以上で縦罫線(background-image)を重ねる。 */
-.theme-military .milspec-app [data-time-row] > [data-sheet-cols] {
-  background-image: repeating-linear-gradient(
-    90deg,
-    transparent 0 calc(var(--sheet-col-w) - 1px),
-    var(--ma-cell-line) calc(var(--sheet-col-w) - 1px) var(--sheet-col-w)
-  );
-  box-shadow: inset 1px 0 0 var(--ma-row-line);
-}
-.theme-military .milspec-app [data-member-id][data-sheet-cols],
-.theme-military .milspec-app [data-sheet-member] {
-  background-image: none;
-}
-/* 列見出し(下段): 列の箱の仕切りは --ma-cell-line。アイコンは表のアイコンと同じ角丸 2px + 影 */
-.theme-military .milspec-app [data-sheet-col] {
-  border-right-color: var(--ma-cell-line);
-}
-.theme-military .milspec-app [data-sheet-member] {
-  border-right-color: var(--ma-row-line);
-}
-.theme-military .milspec-app [data-sheet-col] img {
-  border: 0; background: none; border-radius: 2px;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 2px 3px rgba(0,0,0,0.4);
-}
-/* 上段のジョブ名(3 列以上のとき出る文字) */
-.theme-military .milspec-app [data-member-id][data-sheet-cols] [class*="text-app-"] {
-  color: var(--ma-txt-atk);
-}
-/* 列が 1 つ以下のメンバーは差込口(34px)が列(28px)からはみ出すので縮める */
-.theme-military .milspec-app [data-sheet-cols="0"] .milspec-jack,
-.theme-military .milspec-app [data-sheet-cols="1"] .milspec-jack {
-  scale: 0.8;
-}
+/* MIL-SPEC での描き変えは src/styles/military/standard-sheet.css。線の色はテーマごとに tokens-parts.css。 */
 
 /* リキャスト線(Q1 案 b・色は 2026-10-23 見本 recast-color 案 a): 見える幅 4px・中立色の実線・終わりの行の下端に横棒(14×2)。
    赤は近接 DPS の効果時間の帯と紛らわしいので使わない。色は 3 つの見た目ごとのトークン。
    外箱 [data-mit-cd-box] は帯と同じ 6px 幅・同じ中心。clip-path で帯の下端から 4px 幅へ細くする(SheetCooldownLines)。 */
-:root, .theme-dark { --sheet-cd: rgba(255, 255, 255, 0.38); --sheet-cd-end: rgba(255, 255, 255, 0.8); }
-.theme-light { --sheet-cd: rgba(113, 113, 122, 0.62); --sheet-cd-end: rgb(82, 82, 91); }
-.theme-military { --sheet-cd: rgba(205, 209, 212, 0.42); --sheet-cd-end: rgb(205, 209, 212); }
 [data-mit-cd] { background-color: var(--sheet-cd); }
 [data-mit-cd-end] {
   left: -4px; bottom: 0; width: 14px; height: 2px;
   background-color: var(--sheet-cd-end);
 }
-/* MIL-SPEC の帯は 4px なので、細くする継ぎ目は付けず最初から 4px 幅 */
-.theme-military [data-mit-cd] {
-  clip-path: inset(0 1px) !important;
-}
-
 /* ホバー強調(TableHoverHighlight): 要素 1 個。ふつう表示=ジョブのレーン全体 / スプシ表示=セル 1 つ。
    標準は文字色の 6% の薄い面、MIL-SPEC は表の ink 色 8% の面 + 細い縁(--ma-ink-2)。 */
 .table-hover-hl {
   position: absolute; left: 0; top: 0; pointer-events: none;
   background: color-mix(in srgb, var(--color-app-text) 6%, transparent);
-}
-.theme-military .milspec-app .table-hover-hl {
-  background: color-mix(in srgb, var(--ma-ink) 8%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ma-ink-2) 40%, transparent);
 }
