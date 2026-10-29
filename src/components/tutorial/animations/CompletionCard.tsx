@@ -32,7 +32,7 @@ export function CompletionCard({ onDismiss, variant = 'default' }: CompletionCar
       exit={{ opacity: 0 }}
     >
       {/* 背景オーバーレイ */}
-      <div className="absolute inset-0 bg-black/30" onClick={onDismiss} />
+      <div className="absolute inset-0 modal-scrim" onClick={onDismiss} />
 
       {/* カード */}
       <motion.div

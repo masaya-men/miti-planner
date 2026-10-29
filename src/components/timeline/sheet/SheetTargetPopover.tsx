@@ -121,7 +121,7 @@ export const SheetTargetPopover: React.FC<Props> = ({ state, onPick, onClose }) 
                                 data-target-id={member.id}
                                 disabled={disabled}
                                 aria-pressed={usedId ? true : undefined}
-                                title={usedId ? t('mitigation.remove') : undefined}
+                                aria-label={usedId ? t('mitigation.remove') : undefined}
                                 onClick={() => { if (usedId) onPick({ removeId: usedId }); else if (!disabled) onPick({ targetId: member.id }); }}
                                 className={clsx(
                                     BTN, 'relative w-10 h-10 flex items-center justify-center p-1',

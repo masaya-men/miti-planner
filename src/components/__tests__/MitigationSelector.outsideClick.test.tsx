@@ -68,7 +68,7 @@ describe('軽減追加の窓: 外側クリック', () => {
 
     it('中央表示(スマホ等): 暗い背景を押すと閉じる', () => {
         const { container, onClose } = renderSelector({ isCentered: true });
-        const overlay = container.querySelector<HTMLElement>('.fixed.inset-0.bg-black\\/50');
+        const overlay = container.querySelector<HTMLElement>('.fixed.inset-0.modal-scrim');
         expect(overlay).not.toBeNull();
         pressAndRelease(overlay!, overlay!, overlay!);
         expect(onClose).toHaveBeenCalledTimes(1);

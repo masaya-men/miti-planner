@@ -323,7 +323,7 @@ export function TutorialOverlay() {
 function ExitDialog() {
   const { t } = useTranslation();
   return (
-    <div className="fixed inset-0 z-[10010] flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-[10010] flex items-center justify-center modal-scrim">
       <div className="float-surface rounded-2xl p-6 max-w-xs text-center">
         <p className="text-app-2xl text-app-text font-semibold mb-4">
           {t('tutorial.exit_confirm')}

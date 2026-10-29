@@ -49,7 +49,7 @@ export const MitigationTargetPicker: React.FC<MitigationTargetPickerProps> = ({
                                                             }}
                                                             disabled={isDisabled}
                                                             aria-pressed={usedId ? true : undefined}
-                                                            title={usedId ? t('mitigation.remove') : undefined}
+                                                            aria-label={usedId ? t('mitigation.remove') : undefined}
                                                             className={clsx(
                                                                 "relative",
                                                                 "flex items-center justify-center p-2 rounded-lg border transition-all duration-200",

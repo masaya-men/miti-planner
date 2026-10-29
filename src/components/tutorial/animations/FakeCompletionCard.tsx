@@ -71,7 +71,7 @@ export function FakeCompletionCard({ onComplete }: FakeCompletionCardProps) {
   return (
     <div className="fixed inset-0 z-[10005] flex items-center justify-center">
       {/* 背景オーバーレイ */}
-      <div className={`absolute inset-0 ${phase === 'pressed' ? 'bg-black/10' : 'bg-black/30'}`} />
+      <div className="absolute inset-0 modal-scrim" />
 
       {/* ── 偽 CompletionCard ── */}
       <AnimatePresence>
