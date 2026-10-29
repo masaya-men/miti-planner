@@ -55,7 +55,7 @@ CSS 211 本のうち、テーマ指定(`.theme-*` / `[data-theme…]` / `.milspe
 改名は**名前だけの置き換え**として、MIL-SPEC のフォルダ(`standard-revert.css`・`semantic-tokens.css`)・テスト(`floatSurface.*`・`military-overlay-island.test.ts`・`militaryCssColocation.guard.test.ts`)・`scripts/milspec-sp2/military-smoke/` にも行ってよい。「standard-*.css の中身は書き換えない」の例外(Claude の判断)。改名は 1 つの組が 1 commit でまとめて行い、他の組と並行しない(多くのファイルに波及するため)。
 
 ## 強さの順番(@layer)
-- `src/index.css` の先頭(`@import "tailwindcss"` の直前)で、層の順番を 1 行で宣言する。Tailwind の層を含めて今と同じ順番(`theme, base, components, utilities`)にする。
+- 層の順番の宣言は `tailwindcss` の中の 1 か所(`theme, base, components, utilities`)に任せ、`src/index.css` の先頭には説明のコメントだけを置く(実装時に変更: `@import "tailwindcss"` の前に `@layer` を書くと Tailwind が先頭でなくなり @import 先の中身を捨てる=`baseCssColocation.guard.test.ts` が守る決まり)。
 - `PartySettingsModal.css` の `@layer components` は、そうした理由がコメントで説明できればそのまま、説明できなければ層の外に戻す(どちらも見た目が変わらないことを visual-regress で確かめる)。
 - **やらないこと**: 層の外にある約 200 本の CSS を層に入れること。入れると Tailwind のユーティリティとの強さが入れ替わり、全画面の見た目が変わる危険が大きい。「層の外=部品の CSS はユーティリティより強い」が今の決まりだと宣言の横のコメントに書く(Claude の判断)。
 

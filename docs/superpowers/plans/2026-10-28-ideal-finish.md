@@ -144,9 +144,9 @@ export function useDismissOnOutside(
 
 ### Task 16: CSS のテーマ指定を部品から抜く(設計書 ⑥・Task 5〜11 の後)
 
-- [ ] **Step 1:** 測る: 部品の CSS にあるテーマ指定の本数と種類を一覧にし、@layer の今の使い方(base の 5 本・PartySettingsModal.css)を確かめる。
-- [ ] **Step 2:** brainstorming→writing-plans で別の設計書・計画に起こす(1 部品ずつ・visual-regress 一致・見張りで数を凍らせる)。
-- [ ] **Step 3:** その計画どおりに実行する。
+- [x] **Step 1:** 測る: 部品の CSS にあるテーマ指定の本数と種類を一覧にし、@layer の今の使い方(base の 5 本・PartySettingsModal.css)を確かめる。
+- [x] **Step 2:** brainstorming→writing-plans で別の設計書・計画に起こす(1 部品ずつ・visual-regress 一致・見張りで数を凍らせる)。
+- [x] **Step 3:** その計画どおりに実行する(10-29 完了)。
 
 ### Task 14: 最終ゲート
 
