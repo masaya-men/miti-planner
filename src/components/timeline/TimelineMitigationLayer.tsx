@@ -221,6 +221,22 @@ export const TimelineMitigationLayer: React.FC<TimelineMitigationLayerProps> = (
                 const positionByMitId = new Map<string, number>();
                 assignedPositions.forEach(p => positionByMitId.set(p.m.id, p.left));
 
+                // スプシ表示: 同じマスに同じ技が重なる(2 回分ためて別の人へ)と下のアイコンが見えないので、
+                // 一番上(後に描く方)に全員の札と数をまとめ、下は札を隠す(masaya 10-29)
+                const sheetStacks = new Map<string, DisplayItem[]>();
+                if (ownerSheetCols) displayItems.forEach(d => {
+                    if (d.isVirtual) return;
+                    const key = `${d.mitigationId}@${d.time}`;
+                    sheetStacks.set(key, [...(sheetStacks.get(key) ?? []), d]);
+                });
+                const sheetStackOf = (d: DisplayItem) => {
+                    const group = sheetStacks.get(`${d.mitigationId}@${d.time}`);
+                    if (!group || group.length < 2) return undefined;
+                    return group[group.length - 1].id === d.id
+                        ? { targetIds: group.flatMap(g => g.targetId ? [g.targetId] : []) }
+                        : 'hidden' as const;
+                };
+
                 displayItems.forEach(mitigation => {
                     const candidateLeft = positionByMitId.get(mitigation.id) ?? 0;
 
@@ -328,6 +344,7 @@ export const TimelineMitigationLayer: React.FC<TimelineMitigationLayerProps> = (
                             slideOnSort={isMilspecTable}
                             iconPx={ownerSheetCols ? SHEET_ICON_PX : undefined}
                             onIconTap={ownerSheetCols && !mitigation.isVirtual ? handleCellClick : undefined}
+                            sheetStack={sheetStackOf(mitigation)}
                         />
                     );
                 });

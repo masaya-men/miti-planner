@@ -1,5 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
+import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Mitigation, PartyMember } from '../../types';
 import type { useJobs } from '../../hooks/useSkillsData';
@@ -10,11 +11,16 @@ interface MitigationTargetPickerProps {
     selectedSingleTargetMit: Mitigation | null;
     ownerId?: string | null;
     onSelect: (targetId: string) => void;
+    /** この秒にもう相手にした人 → 配置 ID(押すとその 1 つを消す) */
+    used?: ReadonlyMap<string, string>;
+    /** まだ足せるか(チャージが残っているか) */
+    canAddMore?: boolean;
+    onRemoveTarget?: (instanceId: string) => void;
 }
 
 // 単体対象スキルを選んだ時に、スキルの直下へ開く対象(パーティ 8 人)の選択パネル。
 export const MitigationTargetPicker: React.FC<MitigationTargetPickerProps> = ({
-    partyMembers, JOBS, selectedSingleTargetMit, ownerId, onSelect,
+    partyMembers, JOBS, selectedSingleTargetMit, ownerId, onSelect, used, canAddMore = true, onRemoveTarget,
 }) => {
     const { t } = useTranslation();
     return (
@@ -30,20 +36,25 @@ export const MitigationTargetPicker: React.FC<MitigationTargetPickerProps> = ({
                                                 {partyMembers.map((member: PartyMember) => {
                                                     const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
                                                     const isSelfTargetRestricted = selectedSingleTargetMit?.targetCannotBeSelf && member.id === ownerId;
-                                                    const isDisabled = isSelfTargetRestricted;
+                                                    const usedId = used?.get(member.id);
+                                                    const isDisabled = !usedId && (isSelfTargetRestricted || !canAddMore);
 
                                                     return (
                                                         <button
                                                             key={`target-${member.id}`}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                if (!isDisabled) onSelect(member.id);
+                                                                if (usedId) onRemoveTarget?.(usedId);
+                                                                else if (!isDisabled) onSelect(member.id);
                                                             }}
                                                             disabled={isDisabled}
+                                                            aria-pressed={usedId ? true : undefined}
+                                                            title={usedId ? t('mitigation.remove') : undefined}
                                                             className={clsx(
+                                                                "relative",
                                                                 "flex items-center justify-center p-2 rounded-lg border transition-all duration-200",
-                                                                "bg-app-surface2 border-app-border",
-                                                                "hover:bg-app-surface2 hover:border-app-border",
+                                                                usedId ? "bg-app-surface2 border-app-red" : "bg-app-surface2 border-app-border",
+                                                                usedId ? "hover:bg-app-red-dim" : "hover:bg-app-surface2 hover:border-app-border",
                                                                 "shadow-sm dark:shadow-none hover:shadow-md",
                                                                 isDisabled ? "opacity-30 cursor-not-allowed grayscale shadow-none" : "cursor-pointer active:scale-95 hover:scale-[1.03]"
                                                             )}
@@ -62,6 +73,12 @@ export const MitigationTargetPicker: React.FC<MitigationTargetPickerProps> = ({
                                                                     'text-app-role-dps'
                                                                 )}>
                                                                     {t(`modal.${member.id.toLowerCase()}`, member.id)}
+                                                                </span>
+                                                            )}
+                                                            {/* この秒にもう使った人: 押すと消える印 */}
+                                                            {usedId && (
+                                                                <span className="absolute -top-1.5 -right-1.5 rounded-full bg-app-red text-white p-0.5 shadow-sm">
+                                                                    <X size={10} strokeWidth={3} />
                                                                 </span>
                                                             )}
                                                         </button>

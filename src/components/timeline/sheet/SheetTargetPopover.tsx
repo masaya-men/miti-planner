@@ -4,12 +4,14 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
+import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { AppliedMitigation, Mitigation, PartyMember } from '../../../types';
 import { useMitigationStore } from '../../../store/useMitigationStore';
 import { useJobs, useMitigations } from '../../../hooks/useSkillsData';
 import { backdropClose } from '../../../utils/backdropClose';
 import { calculateLinkedShieldValue } from '../../../utils/calculator';
+import { sameSecondTargets } from '../../../utils/sameSecondStack';
 
 export interface SheetPopoverState {
     memberId: string;
@@ -24,7 +26,8 @@ export interface SheetPopoverState {
 
 interface Props {
     state: SheetPopoverState;
-    onPick: (pick: { targetId?: string; linkedMitigationId?: string }) => void;
+    /** removeId = この秒にもう使った人を押した(その 1 つを消す) */
+    onPick: (pick: { targetId?: string; linkedMitigationId?: string; removeId?: string }) => void;
     onClose: () => void;
 }
 
@@ -75,6 +78,11 @@ export const SheetTargetPopover: React.FC<Props> = ({ state, onPick, onClose }) 
         };
     }, [onClose]);
 
+    // この秒にもう相手にした人(押すと消える)・まだ足せるか
+    const { used, canAddMore } = sameSecondTargets(
+        state.def, state.time, timelineMitigations.filter(m => m.ownerId === state.memberId),
+    );
+
     const memberLabel = (m: PartyMember | undefined) => t(`modal.${(m?.id || '').toLowerCase()}`, m?.id || '');
     const roleText = (m: PartyMember | undefined) =>
         m?.role === 'tank' ? 'text-app-role-tank'
@@ -104,16 +112,20 @@ export const SheetTargetPopover: React.FC<Props> = ({ state, onPick, onClose }) 
                 <div className="grid grid-cols-4 grid-rows-2 gap-1.5">
                     {partyMembers.map(member => {
                         const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
-                        const disabled = !!state.def.targetCannotBeSelf && member.id === state.memberId;
+                        const usedId = used.get(member.id);
+                        const disabled = !usedId && ((!!state.def.targetCannotBeSelf && member.id === state.memberId) || !canAddMore);
                         return (
                             <button
                                 key={member.id}
                                 type="button"
                                 data-target-id={member.id}
                                 disabled={disabled}
-                                onClick={() => { if (!disabled) onPick({ targetId: member.id }); }}
+                                aria-pressed={usedId ? true : undefined}
+                                title={usedId ? t('mitigation.remove') : undefined}
+                                onClick={() => { if (usedId) onPick({ removeId: usedId }); else if (!disabled) onPick({ targetId: member.id }); }}
                                 className={clsx(
-                                    BTN, 'w-10 h-10 flex items-center justify-center p-1',
+                                    BTN, 'relative w-10 h-10 flex items-center justify-center p-1',
+                                    usedId && 'border-app-red',
                                     disabled ? 'opacity-30 cursor-not-allowed grayscale shadow-none' : 'cursor-pointer active:scale-95 hover:scale-[1.03]',
                                 )}
                             >
@@ -122,6 +134,11 @@ export const SheetTargetPopover: React.FC<Props> = ({ state, onPick, onClose }) 
                                 ) : (
                                     <span className={clsx('text-app-lg font-black tracking-tighter uppercase', roleText(member))}>
                                         {memberLabel(member)}
+                                    </span>
+                                )}
+                                {usedId && (
+                                    <span className="absolute -top-1.5 -right-1.5 rounded-full bg-app-red text-white p-0.5 shadow-sm">
+                                        <X size={9} strokeWidth={3} />
                                     </span>
                                 )}
                             </button>

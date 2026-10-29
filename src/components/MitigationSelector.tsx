@@ -18,6 +18,7 @@ import { MitigationShieldPicker } from './mitigationSelector/MitigationShieldPic
 import { MitigationSelectorHeader } from './mitigationSelector/MitigationSelectorHeader';
 import { useAdjustedPanelPosition } from './mitigationSelector/useAdjustedPanelPosition';
 import { getAvailableMitigations } from './mitigationSelector/getAvailableMitigations';
+import { canStackSameSecond, sameSecondTargets } from '../utils/sameSecondStack';
 
 interface MitigationSelectorProps {
     isOpen: boolean;
@@ -103,7 +104,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
 
     const handleMitigationClick = (mitigation: Mitigation) => {
         const existingInstance = activeMitigations.find(am => am.mitigationId === mitigation.id && am.time === selectedTime);
-        if (existingInstance && onRemove) {
+        // 同じ秒に重ねられる技は消さずに相手選びへ(使った人を押すとその 1 つが消える)
+        if (existingInstance && onRemove && !canStackSameSecond(mitigation)) {
             onRemove(existingInstance.id);
             return;
         }
@@ -240,9 +242,11 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                         ) : (
                             availableMitigations.map(mitigation => {
                                 const status = getResourceStatus(mitigation);
-                                const isAlreadyPlaced = activeMitigations.some(am => am.mitigationId === mitigation.id && am.time === selectedTime);
+                                const isPlacedThisSecond = activeMitigations.some(am => am.mitigationId === mitigation.id && am.time === selectedTime);
+                                // 重ねられる技は「削除」にしない(相手選びで足す・消す)。チャージ切れでも相手選びは開ける
+                                const isAlreadyPlaced = isPlacedThisSecond && !canStackSameSecond(mitigation);
 
-                                const isClickable = (status.available || status.conflictOverride || isAlreadyPlaced);
+                                const isClickable = (status.available || status.conflictOverride || isPlacedThisSecond);
                                 const isSelectedTargetMit = selectedSingleTargetMit?.id === mitigation.id;
                                 const isSelectedShieldMit = selectedCopyShieldMit?.id === mitigation.id;
                                 const isBlurred = (selectedSingleTargetMit !== null && !isSelectedTargetMit) ||
@@ -271,6 +275,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                             selectedSingleTargetMit={selectedSingleTargetMit}
                                             ownerId={ownerId}
                                             onSelect={handleTargetSelect}
+                                            {...sameSecondTargets(mitigation, selectedTime, activeMitigations)}
+                                            onRemoveTarget={(id) => { onRemove?.(id); setSelectedSingleTargetMit(null); }}
                                         />
                                     )}
 

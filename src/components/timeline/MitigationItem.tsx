@@ -50,6 +50,8 @@ export interface MitigationItemProps {
     iconPx?: number;
     /** スプシ表示: 置いたアイコンをドラッグせずに押した(= もう一度で消す)。マスのクリックと同じ関数を受け取る */
     onIconTap?: (memberId: string, time: number, e: React.MouseEvent) => void;
+    /** スプシ表示: 同じマスに同じ技が重なった時(2 回分ためて別の人へ)。一番上のアイコンに全員の札と数を出し、下のアイコンは札を隠す */
+    sheetStack?: { targetIds: string[] } | 'hidden';
 }
 
 export const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
@@ -58,7 +60,7 @@ export const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) 
         top, height, left, partySortOrder,
         scrollContainerRef, activeMitigations, overlapOffset = 0,
         isVirtual = false, iconOverride, layoutReady = true, grayscale = false,
-        onCellClick, slideOnSort, iconPx = MITI_ICON_PX, onIconTap
+        onCellClick, slideOnSort, iconPx = MITI_ICON_PX, onIconTap, sheetStack
     } = props;
 
     const { t } = useTranslation();
@@ -193,8 +195,16 @@ export const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) 
                         </div>
                     </Tooltip>
 
-                    {!isVirtual && mitigation.targetId && (
-                        <MitigationTargetBadge mitigation={mitigation} JOBS={JOBS} contentLanguage={contentLanguage} isSheetIcon={isSheetIcon} />
+                    {!isVirtual && mitigation.targetId && sheetStack !== 'hidden' && (
+                        <MitigationTargetBadge
+                            targetIds={sheetStack ? sheetStack.targetIds : [mitigation.targetId]}
+                            JOBS={JOBS} contentLanguage={contentLanguage} isSheetIcon={isSheetIcon}
+                        />
+                    )}
+                    {sheetStack && sheetStack !== 'hidden' && (
+                        <div className="absolute z-30 -top-[3px] -right-[4px] pointer-events-none bg-app-red text-white rounded-full px-1 text-app-xs font-black leading-none scale-[.6] origin-top-right">
+                            {sheetStack.targetIds.length}
+                        </div>
                     )}
                 </div>
 

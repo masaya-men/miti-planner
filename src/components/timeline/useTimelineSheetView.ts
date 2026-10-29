@@ -103,8 +103,10 @@ export function useTimelineSheetTap({
         return () => clearTimeout(timer);
     }, [setSheetToast, sheetToast]);
 
-    const handleSheetPopoverPick = useCallback((pick: { targetId?: string; linkedMitigationId?: string }) => {
-        if (sheetPopover && !readOnlyRef.current) {
+    const handleSheetPopoverPick = useCallback((pick: { targetId?: string; linkedMitigationId?: string; removeId?: string }) => {
+        if (sheetPopover && !readOnlyRef.current && pick.removeId) {
+            useMitigationStore.getState().removeMitigation(pick.removeId);
+        } else if (sheetPopover && !readOnlyRef.current) {
             // 小窓を開いている間に共同編集で別の配置が入った場合に備え、選んだ時点で配置可否を再判定する
             const own = useMitigationStore.getState().timelineMitigations.filter(m => m.ownerId === sheetPopover.memberId);
             const status = validateMitigationPlacement(sheetPopover.def, sheetPopover.time, own, (k, o) => String(sheetTRef.current(k, o as never)));

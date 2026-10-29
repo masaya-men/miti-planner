@@ -2,6 +2,7 @@ import { genId } from '../../../utils/genId';
 import type { Mitigation, AppliedMitigation } from '../../../types';
 import { validateMitigationPlacement } from '../../../utils/resourceTracker';
 import { resolveMitigationTap } from '../../../utils/mitigationTapResolver';
+import { canStackSameSecond } from '../../../utils/sameSecondStack';
 
 /** スプシモードで列のマスをクリックしたときの結果(純粋判定) */
 export type SheetTapResult =
@@ -24,7 +25,8 @@ export function resolveSheetTap(
   t: (k: string, o?: object) => string,
 ): SheetTapResult {
   const existing = ownerMitigations.find(am => am.mitigationId === def.id && am.time === time);
-  if (existing) return { kind: 'remove', id: existing.id };
+  // 同じ秒に重ねられる技(2 回分ためて相手を選ぶ)は消さずに相手選びへ。使った人を押すとその 1 つが消える
+  if (existing) return canStackSameSecond(def) ? { kind: 'selectTarget' } : { kind: 'remove', id: existing.id };
 
   const status = validateMitigationPlacement(def, time, ownerMitigations, t);
   // 前方のリキャスト中(conflictOverride)はレーン表示と同じく置ける。重なりは競合のシェブロン・脈動が知らせる

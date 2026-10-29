@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { MITIGATIONS } from '../../../data/mockData';
 import type { Mitigation, AppliedMitigation } from '../../../types';
 import { resolveSheetTap, buildAppliedMitigation } from '../sheet/sheetTap';
+import { useMitigationStore } from '../../../store/useMitigationStore';
 
 const t = (_k: string, o?: any) => (typeof o === 'string' ? o : o?.defaultValue ?? _k);
 const def = (id: string): Mitigation => {
@@ -20,6 +21,12 @@ describe('resolveSheetTap', () => {
   it('同じ技が同じ秒にあれば remove', () => {
     const own = [placed(reprisal, 10, 'MT', 'x1')];
     expect(resolveSheetTap(reprisal, 10, own, [], t)).toEqual({ kind: 'remove', id: 'x1' });
+  });
+
+  it('2 回分ためて相手を選ぶ技は、同じ秒にあっても消さずに相手選び(別の人へ重ねる・使った人を押すと消える)', () => {
+    useMitigationStore.setState({ currentLevel: 100 });
+    const own = [{ ...placed(benison, 10, 'H1', 'b1'), targetId: 'MT' }];
+    expect(resolveSheetTap(benison, 10, own, [], t)).toEqual({ kind: 'selectTarget' });
   });
 
   it('リキャスト中でもレーン表示と同じく置ける(place + warning・重なりはシェブロンが知らせる)', () => {

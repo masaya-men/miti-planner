@@ -2,6 +2,7 @@ import type { AppliedMitigation, Mitigation } from '../types';
 import { getMitigationsFromStore } from '../hooks/useSkillsData';
 import { getAetherflowStacks, getAddersgallStacks, getLilyStacks, isFairyAvailable, canUseSummonSeraph } from './jobResourceStacks';
 import { effectiveMaxCharges, getRemainingCharges, getTimeUntilNextCharge } from './chargeTracker';
+import { canStackSameSecond, sameSecondInstances } from './sameSecondStack';
 
 /**
  * ドラッグで「同じ軽減のCD被り」位置へドロップした時の挙動トグル。
@@ -98,9 +99,14 @@ export function validateMitigationPlacement(
     // 👆 追加ここまで
 
     // 引っぱって動かす時: 同じ秒にある同じ技の上へは置けない(ゲームで同じ秒に 2 回は使えない・重なると見えない)。
-    // クリックで置く道は同じ秒の同じ技=削除になるので、ここはドラッグだけ(masaya 10-29)
-    if (ignoreInstanceId && relevantMitigations.some(am => am.mitigationId === m.id && am.time === selectedTime)) {
-        return { available: false };
+    // 例外は 2 回分ためられて相手を選ぶ技を別の人へ(canStackSameSecond)。回数はこの下のチャージ判定が見る。
+    // クリックで置く道は同じ秒の同じ技=削除 / 相手選びになるので、ここはドラッグだけ(masaya 10-29)
+    if (ignoreInstanceId) {
+        const same = sameSecondInstances(m.id, selectedTime, relevantMitigations);
+        const movingTarget = activeMitigations.find(am => am.id === ignoreInstanceId)?.targetId;
+        if (same.length > 0 && (!canStackSameSecond(m) || same.some(am => am.targetId === movingTarget))) {
+            return { available: false };
+        }
     }
 
     // 👇 AST ドロー専用: 直前のドローと交互制約 (同種別の連続使用は不可)
