@@ -180,7 +180,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             {/* 名前入力ダイアログ — createPortalでbodyに配置（motion.aside内のtransformでfixedが効かない問題を回避） */}
             {pendingContent && createPortal(
                 <div
-                    className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-[2px]"
+                    className="fixed inset-0 z-[100000] flex items-center justify-center modal-scrim"
                     {...backdropClose(handleCancelNewPlan)}
                 >
                     <div
@@ -258,7 +258,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             {/* 削除確認モーダル — NewPlanModalと同じ温度感 */}
             {showDeleteConfirm && createPortal(
                 <div
-                    className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4"
+                    className="fixed inset-0 z-[100000] flex items-center justify-center modal-scrim p-4"
                     {...backdropClose(() => setShowDeleteConfirm(false))}
                 >
                     <div

@@ -47,7 +47,7 @@ export const FFLogsMobileSheet: React.FC<FFLogsMobileSheetProps> = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    data-backdrop className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+                    data-backdrop className="absolute inset-0 modal-scrim"
                 />
 
                 {/* ─── Mobile: Bottom Sheet with inline step-by-step buttons ─── */}

@@ -17,3 +17,11 @@
   -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
   backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
 }
+
+/* 窓・下から出るシートの後ろの幕 .modal-scrim(押すと閉じる・後ろは押せない)。見た目の暗さ・ぼかしはここ 1 か所。
+   2026-10-29 masaya「一回外してみる」で暗さ・ぼかし無し: 透けるガラスはダーク・ライトとも幕なしで読めると確かめて選んだため
+   (暗い幕の上だとライトの窓が灰色に見えた)。気づきにくい窓は開く時の動きで知らせる。
+   戻す時はこの規則だけ変える(旧: 背景 rgba(0,0,0,.5)+ぼかし 2px。スマホのシートは --color-overlay)。 */
+.modal-scrim {
+  background: transparent;
+}

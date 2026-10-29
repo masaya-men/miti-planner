@@ -79,7 +79,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     return createPortal(
         <div className="fixed inset-0 z-[9999] text-left pointer-events-none">
             {/* Transparent Backdrop */}
-            <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? '' : 'bg-transparent'}`} style={{ backgroundColor: isMobile ? 'var(--color-overlay)' : 'transparent' }} {...backdropClose(onClose)} />
+            <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'modal-scrim' : 'bg-transparent'}`} {...backdropClose(onClose)} />
 
             <div
                 ref={modalRef}

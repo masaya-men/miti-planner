@@ -23,10 +23,9 @@ describe('ModalShell', () => {
         expect(dialog.closest('[data-modal-shell]')?.parentElement).toBe(document.body);
     });
 
-    it('案B の見た目(暗さ50%+うすいぼかし+ふわっと開く)', () => {
+    it('後ろの幕は共通の .modal-scrim(10-29 から暗さ無し)+ふわっと開く', () => {
         render(<ModalShell isOpen onClose={() => {}}><p>中身</p></ModalShell>);
-        expect(backdrop().className).toContain('bg-black/50');
-        expect(backdrop().className).toContain('backdrop-blur-[2px]');
+        expect(backdrop().className).toContain('modal-scrim');
         expect(backdrop().className).toContain('animate-[fadeIn_150ms_ease-out]');
         expect(screen.getByRole('dialog').className).toContain('animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]');
     });

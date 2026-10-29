@@ -119,7 +119,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
             {isOpen && (
                 <div className="fixed inset-0 z-[9999] text-left pointer-events-none flex flex-col justify-end">
                     <div
-                        className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/50 backdrop-blur-[2px]' : 'bg-transparent'}`}
+                        className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'modal-scrim' : 'bg-transparent'}`}
                         {...backdropClose(handleBackdropClick, { autoGuard: false })}
                     />
                     <motion.div

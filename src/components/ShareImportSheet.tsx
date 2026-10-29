@@ -102,7 +102,7 @@ export function ShareImportSheet() {
                 <Fragment key="share-import-sheet-fragment">
                     <motion.div
                         key="share-import-backdrop"
-                        className={`fixed inset-0 z-[99990] ${isLoadingPhase ? 'bg-black/75 cursor-not-allowed' : 'bg-black/60'}`}
+                        className={`fixed inset-0 z-[99990] modal-scrim ${isLoadingPhase ? 'cursor-not-allowed' : ''}`}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}

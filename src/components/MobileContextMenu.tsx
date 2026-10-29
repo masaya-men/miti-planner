@@ -81,8 +81,7 @@ export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
                         {/* 背景オーバーレイ */}
                         <motion.div
                             key="context-overlay"
-                            className="absolute inset-0 pointer-events-auto"
-                            style={{ backgroundColor: 'var(--color-overlay)' }}
+                            className="absolute inset-0 pointer-events-auto modal-scrim"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}

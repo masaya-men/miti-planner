@@ -61,8 +61,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                     {/* Backdrop */}
                     <motion.div
                         data-no-pull-refresh
-                        className="md:hidden fixed inset-0 z-[300]"
-                        style={{ backgroundColor: 'var(--color-overlay)' }}
+                        className="md:hidden fixed inset-0 z-[300] modal-scrim"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}

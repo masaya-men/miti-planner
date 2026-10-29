@@ -6,7 +6,7 @@ import { backdropClose, type BackdropCloseOptions } from '../../utils/backdropCl
 
 /**
  * 窓(モーダル)の共通の殻。新しい窓は必ずこれを使う(ModalShell.guard.test が見張る)。
- * - body 直下に描く / 背景=暗さ50%+うすいぼかし / 窓=ふわっと開く(2026-10-26 案B)
+ * - body 直下に描く / 後ろの幕=.modal-scrim(10-29 から暗さ無し・float-surface.css) / 窓=ふわっと開く(2026-10-26 案B)
  * - Esc で閉じる(重なっていたら一番上だけ) / 外側クリックで閉じる(入力後は閉じずに枠を光らせる)
  * - locked の間(取り込み中など)は Esc も外側クリックも効かない。Esc は下の窓へも抜けない
  * 中身は ModalParts(ModalHeader / ModalFooter / ModalButton / INPUT_CLASS)で組む。
@@ -67,7 +67,7 @@ export const ModalShell: React.FC<ModalShellProps> = ({
         <div data-modal-shell className={clsx('fixed inset-0 flex items-center justify-center p-4', LAYER_CLASS[layer])}>
             <div
                 data-modal-backdrop
-                className="absolute inset-0 bg-black/50 backdrop-blur-[2px] animate-[fadeIn_150ms_ease-out]"
+                className="absolute inset-0 modal-scrim animate-[fadeIn_150ms_ease-out]"
                 {...backdropClose(canBackdropClose ? onClose : undefined, backdropOptions)}
             />
             <div

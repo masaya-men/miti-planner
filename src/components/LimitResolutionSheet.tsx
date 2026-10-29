@@ -232,7 +232,7 @@ export function LimitResolutionSheet() {
             {/* Backdrop: ShareImportSheet (z=99991) の上、シート本体 (z=99993) の下 */}
             <motion.div
                 key="limit-resolution-backdrop"
-                className="fixed inset-0 z-[99992] bg-black/70"
+                className="fixed inset-0 z-[99992] modal-scrim"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}

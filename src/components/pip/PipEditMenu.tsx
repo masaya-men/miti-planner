@@ -29,7 +29,7 @@ export const PipEditMenu: React.FC<PipEditMenuProps> = ({
                 if (!group) return null;
                 return (
                     <div
-                        className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 px-4"
+                        className="fixed inset-0 z-[10000] flex items-center justify-center modal-scrim px-4"
                         onClick={closeMenu}
                     >
                         <div

@@ -54,7 +54,7 @@ export const TimelinePopovers: React.FC<TimelinePopoversProps> = ({
         <>
             {phasePopover && createPortal(
                 <div
-                    className="fixed inset-0 z-[9998] cursor-default md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
+                    className="fixed inset-0 z-[9998] cursor-default modal-scrim"
                     {...backdropClose(() => setPhasePopover(null))}
                 >
                     <div
@@ -115,7 +115,7 @@ export const TimelinePopovers: React.FC<TimelinePopoversProps> = ({
             )}
             {labelPopover && createPortal(
                 <div
-                    className="fixed inset-0 z-[9998] cursor-default md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
+                    className="fixed inset-0 z-[9998] cursor-default modal-scrim"
                     {...backdropClose(() => setLabelPopover(null))}
                 >
                     <div
@@ -176,7 +176,7 @@ export const TimelinePopovers: React.FC<TimelinePopoversProps> = ({
             )}
             {eventPopover && createPortal(
                 <div
-                    className="fixed inset-0 z-[9998] cursor-default md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
+                    className="fixed inset-0 z-[9998] cursor-default modal-scrim"
                     {...backdropClose(() => setEventPopover(null))}
                 >
                     <div
