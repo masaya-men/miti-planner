@@ -13,7 +13,7 @@
     --housing-action-bar-btn-h: calc(32px * var(--housing-scale));
 }
 .housing-action-bar-confirmed-at {
-    color: var(--housing-text-muted);
-    font-size: var(--housing-text-small);
+    color: var(--housing-text-mute);
+    font-size: var(--housing-text-sm);
     align-self: center;
 }

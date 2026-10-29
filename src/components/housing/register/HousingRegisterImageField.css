@@ -24,7 +24,7 @@
   border: calc(1.5px * var(--housing-scale)) dashed var(--housing-panel-border);
   border-radius: calc(10px * var(--housing-scale));
   background: var(--housing-chip-bg);
-  color: var(--housing-text-muted);
+  color: var(--housing-text-mute);
   cursor: pointer;
   transition: border-color 150ms ease, background 150ms ease;
   text-align: center;
@@ -53,7 +53,7 @@
 }
 .housing-register-image-hint {
   font-size: var(--housing-text-xs);
-  color: var(--housing-text-muted);
+  color: var(--housing-text-mute);
 }
 .housing-register-image-status {
   font-size: var(--housing-text-sm);
@@ -148,7 +148,7 @@
 }
 .housing-register-image-tile-meta {
   font-size: var(--housing-text-xs);
-  color: var(--housing-text-muted);
+  color: var(--housing-text-mute);
   font-variant-numeric: tabular-nums;
   text-align: center;
 }

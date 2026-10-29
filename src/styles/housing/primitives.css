@@ -317,7 +317,7 @@ select.housing-input option {
 }
 .housing-action-bar .housing-action-btn--still-here:hover {
     background: var(--housing-honey);
-    color: var(--housing-bg);
+    color: var(--housing-honey-text);
 }
 .housing-action-bar .housing-action-btn--still-here:disabled {
     opacity: 0.5;
