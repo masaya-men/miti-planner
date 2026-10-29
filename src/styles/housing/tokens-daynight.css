@@ -1,0 +1,60 @@
+/* ハウジングの昼(light)/夜(dark)で変わる値。部品の CSS は var() を読むだけ(テーマの分かれ道はここだけ)。
+   ⚠ --housing-scale は中央の列で値が違うので、地図(中央の列に出る)の値には入れない。
+     背景(.housing-scenery・画面全体の fixed)はワークスペース直下なので、星の大きさの calc をここに置いても同じ値になる。 */
+.housing-workspace[data-theme="light"] {
+  /* 背景(SceneryVideo.css) */
+  --housing-scenery-bg: #000;
+  --housing-scenery-glow:
+    radial-gradient(circle at 78% 32%, rgba(255, 220, 170, 0.18) 0%, transparent 35%),
+    linear-gradient(180deg, rgba(255, 200, 150, 0.05) 0%, transparent 40%, rgba(40, 20, 30, 0.15) 100%);
+  --housing-scenery-glow-blend: soft-light;
+  --housing-scenery-sky: linear-gradient(180deg, transparent 55%, rgba(15, 10, 20, 0.35) 100%);
+  --housing-scenery-sky-size: auto;
+  --housing-scenery-sky-opacity: 1;
+
+  /* 地図(ward-map.css) */
+  --housing-floor-grid-line-h: rgba(255, 201, 135, 0.16);
+  --housing-floor-grid-line-v: rgba(255, 201, 135, 0.10);
+  --housing-map-img-brightness: 1.1;
+  --housing-map-img-shadow-y: 14;
+  --housing-map-img-shadow-blur: 26;
+  --housing-map-img-shadow-color: rgba(0, 0, 0, 0.6);
+  --housing-map-img-opacity: 0.88;
+}
+
+.housing-workspace[data-theme="dark"] {
+  --housing-scenery-bg:
+    radial-gradient(60% 40% at 50% 18%, #2a3a72 0%, transparent 60%),
+    radial-gradient(40% 30% at 80% 30%, #6d3a78 0%, transparent 55%),
+    linear-gradient(180deg, #050814 0%, #0a1230 35%, #0d1140 65%, #04060f 100%);
+  --housing-scenery-glow:
+    radial-gradient(ellipse 70% 18% at 35% 45%, rgba(180, 200, 255, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 14% at 65% 55%, rgba(220, 180, 255, 0.12) 0%, transparent 60%);
+  --housing-scenery-glow-blend: screen;
+  /* 星 */
+  --housing-scenery-sky:
+    radial-gradient(calc(1px * var(--housing-scale)) calc(1px * var(--housing-scale)) at 12% 18%, #ffffff 50%, transparent 51%),
+    radial-gradient(calc(1px * var(--housing-scale)) calc(1px * var(--housing-scale)) at 27% 42%, #ffffff 50%, transparent 51%),
+    radial-gradient(calc(1.5px * var(--housing-scale)) calc(1.5px * var(--housing-scale)) at 45% 12%, #fff4d8 50%, transparent 51%),
+    radial-gradient(calc(1px * var(--housing-scale)) calc(1px * var(--housing-scale)) at 62% 38%, #ffffff 50%, transparent 51%),
+    radial-gradient(calc(1px * var(--housing-scale)) calc(1px * var(--housing-scale)) at 78% 22%, #ffffff 50%, transparent 51%),
+    radial-gradient(calc(1.5px * var(--housing-scale)) calc(1.5px * var(--housing-scale)) at 88% 48%, #d8e6ff 50%, transparent 51%),
+    radial-gradient(calc(1px * var(--housing-scale)) calc(1px * var(--housing-scale)) at 8% 62%, #ffffff 50%, transparent 51%),
+    radial-gradient(calc(1px * var(--housing-scale)) calc(1px * var(--housing-scale)) at 33% 70%, #ffffff 50%, transparent 51%),
+    radial-gradient(calc(2px * var(--housing-scale)) calc(2px * var(--housing-scale)) at 52% 28%, #ffe7b3 50%, transparent 51%),
+    radial-gradient(calc(1px * var(--housing-scale)) calc(1px * var(--housing-scale)) at 70% 75%, #ffffff 50%, transparent 51%),
+    radial-gradient(calc(1px * var(--housing-scale)) calc(1px * var(--housing-scale)) at 92% 82%, #ffffff 50%, transparent 51%),
+    radial-gradient(calc(1px * var(--housing-scale)) calc(1px * var(--housing-scale)) at 20% 88%, #ffffff 50%, transparent 51%),
+    radial-gradient(calc(1px * var(--housing-scale)) calc(1px * var(--housing-scale)) at 58% 92%, #cfe0ff 50%, transparent 51%),
+    radial-gradient(calc(1.5px * var(--housing-scale)) calc(1.5px * var(--housing-scale)) at 82% 8%, #ffe7b3 50%, transparent 51%);
+  --housing-scenery-sky-size: 100% 100%;
+  --housing-scenery-sky-opacity: 0.9;
+
+  --housing-floor-grid-line-h: rgba(180, 210, 255, 0.18);
+  --housing-floor-grid-line-v: rgba(180, 210, 255, 0.12);
+  --housing-map-img-brightness: 1.05;
+  --housing-map-img-shadow-y: 16;
+  --housing-map-img-shadow-blur: 28;
+  --housing-map-img-shadow-color: rgba(0, 0, 0, 0.55);
+  --housing-map-img-opacity: 0.9;
+}

@@ -18,6 +18,7 @@ const SHARED_DIR = join(SRC, 'styles/housing');
 /** src/styles/housing/ に置いてよい共有ファイル(なぜ共有か) */
 const SHARED_ALLOW: Record<string, string> = {
   'tokens.css': '色・寸法などのトークン',
+  'tokens-daynight.css': '昼(light)/夜(dark)で変わる値(背景・地図)。部品の CSS は var() を読むだけ',
   'shell-frame.css': '画面全体の外枠・背景',
   'shell-header.css': '上のヘッダー・タブ・検索の外枠',
   'primitives.css': '3 つ以上の機能で使う下地(ボタン・入力欄・項目・スピナー・窓の背景・出現の動き・骨組み・フォーカス枠)',

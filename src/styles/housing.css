@@ -3,6 +3,7 @@
  * 入口を読む部品(HousingShell 等)はこのファイルを最初に import する(部品の CSS より先に読むため)。
  * CSS は後に書いたものが勝つので、 この並びは入れ替えない。 */
 @import "./housing/tokens.css";
+@import "./housing/tokens-daynight.css";
 @import "./housing/shell-frame.css";
 @import "./housing/primitives.css";
 @import "./housing/ward-map.css";
