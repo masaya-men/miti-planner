@@ -83,6 +83,10 @@ export const THEME_STYLE_CLASS: Record<ThemeStyle, string | null> = {
     military: 'theme-military',
 };
 
+/** 今の明るさがダークか。<html> のクラスを読まず store(正本)から読む。
+ *  描画ループの毎フレームで呼ぶ所(GridOverlay)向けに購読しない形で出す。 */
+export const isDarkTheme = (): boolean => useThemeStore.getState().theme === 'dark';
+
 /** <html> のテーマクラス(明るさ theme-dark / theme-light + スタイル別クラス)を正しい状態へ正規化する。
  *  App.tsx の useEffect と store の setter が共用し、付与ロジックを1箇所に閉じる。 */
 export function applyThemeClasses(theme: Theme, style: ThemeStyle): void {

@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { pulseConfig } from './gridOverlayConfig';
+import { isDarkTheme } from '../store/useThemeStore';
 import { CELL_SIZE, BASE_OPACITY, GLOW_RADIUS, OFFSET_X, OFFSET_Y, getGridLineWidth, getPulseLength, getPulseSegmentDuration, getPulseLineWidth, getPulseMaxOpacity, getPulseColor, getGlowLevel, PULSE_FADE_DURATION, PULSE_COUNT_MIN, PULSE_COUNT_MAX, PULSE_COOLDOWN, DIRECTIONS } from './gridOverlayParams';
 
 
@@ -162,9 +163,7 @@ export const GridOverlay: React.FC = () => {
 
         // --- 光パルスの描画 ---
         // カラー設定変更を即時反映するため、毎フレーム取得
-        const isDark = document.documentElement.classList.contains('theme-dark') ||
-                       (!document.documentElement.classList.contains('theme-light'));
-        const pulseColor = getPulseColor(isDark);
+        const pulseColor = getPulseColor(isDarkTheme());
         const glowLevel = getGlowLevel();
         const activePulses: Pulse[] = [];
 

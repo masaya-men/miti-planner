@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useThemeStore, applyThemeClasses } from '../useThemeStore';
+import { useThemeStore, applyThemeClasses, isDarkTheme } from '../useThemeStore';
 
 describe('useThemeStore themeStyle 軸', () => {
   beforeEach(() => {
@@ -53,5 +53,20 @@ describe('useThemeStore persist migrate', () => {
       1,
     );
     expect(migrated.themeStyle).toBe('standard');
+  });
+});
+
+describe('isDarkTheme(描画のたびに明るさを読む)', () => {
+  it('store の theme をそのまま読む', () => {
+    useThemeStore.setState({ theme: 'light' });
+    expect(isDarkTheme()).toBe(false);
+    useThemeStore.setState({ theme: 'dark' });
+    expect(isDarkTheme()).toBe(true);
+  });
+
+  it('<html> のクラスより store の値が正', () => {
+    useThemeStore.setState({ theme: 'light' });
+    document.documentElement.className = 'theme-dark';
+    expect(isDarkTheme()).toBe(false);
   });
 });
