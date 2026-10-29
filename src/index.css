@@ -1,8 +1,13 @@
+/* 強さの順番(弱い→強い)。Tailwind が中で宣言する順と同じものを、ここ 1 か所で明示する。
+   層の外に書いた CSS(部品の隣の <部品名>.css の大半)はどの層よりも強い=ユーティリティより強いのが今の決まり。
+   ユーティリティに負けたい規則だけ @layer components に入れる(例 PartySettingsModal.css)。 */
+@layer theme, base, components, utilities;
 @import "tailwindcss";
 @import "./styles/base/tokens-admin.css";
 @import "./styles/base/tokens-dark.css";
 @import "./styles/base/tokens-light.css";
 @import "./styles/base/tokens-columns.css";
+@import "./styles/base/tokens-parts.css";
 @import "./styles/base/global.css";
 @import "./styles/base/float-surface.css";
 @import "./styles/base/glass.css";

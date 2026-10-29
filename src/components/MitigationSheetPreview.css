@@ -10,11 +10,7 @@
   overflow: auto;
   border-radius: 8px;
   border: 1px solid var(--color-border);
-  background: rgba(0, 0, 0, 0.20);
-}
-
-.theme-light .miti-table-wrap {
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--miti-preview-wrap-bg); /* テーマごとの値は tokens-parts.css */
 }
 
 /* ----------------------------------------------------------
@@ -33,11 +29,7 @@
   position: sticky;
   top: 0;
   z-index: 2;
-  background: rgba(22, 22, 24, 0.90);
-}
-
-.theme-light .miti-table thead {
-  background: rgba(245, 245, 245, 0.95);
+  background: var(--miti-preview-head-bg);
 }
 
 .miti-table th {
@@ -55,14 +47,10 @@
 
 .miti-table td {
   padding: 3px 5px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--miti-preview-row-line);
   vertical-align: middle;
   overflow: visible;
   height: 22px;
-}
-
-.theme-light .miti-table td {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .miti-table tr:last-child td {
@@ -137,8 +125,8 @@
 .miti-spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  border-top-color: rgba(255, 255, 255, 0.5);
+  border: 2px solid var(--miti-preview-spinner-track);
+  border-top-color: var(--miti-preview-spinner-head);
   border-radius: 50%;
   animation: miti-spinner-rotate 600ms linear infinite;
   margin: auto;
@@ -146,9 +134,4 @@
 
 @keyframes miti-spinner-rotate {
   to { transform: rotate(360deg); }
-}
-
-.theme-light .miti-spinner {
-  border: 2px solid rgba(0, 0, 0, 0.10);
-  border-top-color: rgba(0, 0, 0, 0.5);
 }

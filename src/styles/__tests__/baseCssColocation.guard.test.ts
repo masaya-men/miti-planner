@@ -24,6 +24,7 @@ const SHARED_ALLOW: Record<string, string> = {
   'tokens-dark.css': 'ダークテーマのトークン(色・寸法)。全部品が使う',
   'tokens-light.css': 'ライトテーマのトークン(色・寸法)。全部品が使う',
   'tokens-columns.css': 'タイムラインの列幅トークン(--col-*)。複数部品と計算が読む',
+  'tokens-parts.css': '部品ごとの、テーマで変わる値(部品の CSS は var() を読むだけ)。テーマの分かれ道を部品から抜いた置き場',
   'global.css': 'html・body・* など全体に効く規則',
   'glass.css': '3 部品以上が使う共通部品(.glass-* の面)',
   'float-surface.css': '浮かぶもの(窓・シート・通知・帯・メニュー・ツールチップ)が共通で使う素材 .float-surface(2026-10-28)',

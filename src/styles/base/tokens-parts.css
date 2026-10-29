@@ -1,0 +1,131 @@
+/* 部品ごとの、テーマで変わる値(部品の CSS は var() を読むだけ・テーマの分かれ道はここだけ)。
+   共通の色(--color-*)にならない、その部品だけの値を置く。名前は部品の名前で始める。 */
+@layer base {
+  :root,
+  .theme-dark {
+    /* 空の表のすりガラス(Timeline.css) */
+    --empty-scrim-bg: rgba(0,0,0,0.35);
+    --empty-scrim-shadow:
+      inset 0 1px 1px rgba(255,255,255,0.08),
+      inset 0 -1px 1px rgba(255,255,255,0.04);
+    --empty-scrim-edge-v: linear-gradient(180deg,
+      rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 15%,
+      rgba(255,255,255,0.04) 30%, transparent 45%,
+      transparent 55%, rgba(255,255,255,0.04) 70%,
+      rgba(255,255,255,0.1) 85%, rgba(255,255,255,0.2) 100%
+    );
+    --empty-scrim-edge-h: linear-gradient(90deg,
+      rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.06) 10%,
+      transparent 25%, transparent 75%,
+      rgba(255,255,255,0.06) 90%, rgba(255,255,255,0.15) 100%
+    );
+    --empty-corner-tl: rgba(255,255,255,0.12);
+    --empty-corner-tr: rgba(255,255,255,0.08);
+    --empty-corner-bl: rgba(255,255,255,0.08);
+    --empty-corner-br: rgba(255,255,255,0.06);
+    --empty-sheen-side: rgba(255,255,255,0.15);
+    --empty-sheen-mid: rgba(255,255,255,0.25);
+    --empty-glow-left: radial-gradient(
+      ellipse 100% 35% at 0% 50%,
+      rgba(255,255,255,1) 0%,
+      rgba(255,255,255,0.7) 25%,
+      rgba(255,255,255,0.3) 50%,
+      transparent 100%
+    );
+    --empty-glow-left-spread: radial-gradient(
+      ellipse 100% 35% at 0% 50%,
+      rgba(255,255,255,0.3) 0%,
+      rgba(255,255,255,0.12) 35%,
+      rgba(255,255,255,0.03) 60%,
+      transparent 100%
+    );
+    --empty-glow-bl-h: linear-gradient(to right, rgba(255,255,255,0.8), rgba(255,255,255,0.3) 50%, transparent);
+    --empty-glow-bl-v: linear-gradient(to top, rgba(255,255,255,0.8), rgba(255,255,255,0.3) 50%, transparent);
+    --empty-glow-bl-spread: radial-gradient(ellipse at 0% 100%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 35%, transparent 65%);
+
+    /* メモの文字の縁取り(memo.css)。白文字に黒縁取り */
+    --plan-memo-text-shadow:
+      0 0 4px rgba(0, 0, 0, 0.9),
+      0 0 2px rgba(0, 0, 0, 0.8),
+      0 1px 2px rgba(0, 0, 0, 0.6);
+
+    /* 画面外の競合の矢印(ConflictOffscreenArrows.css) */
+    --conflict-chevron-filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.7));
+
+    /* 軽減表のプレビュー(MitigationSheetPreview.css) */
+    --miti-preview-wrap-bg: rgba(0, 0, 0, 0.20);
+    --miti-preview-head-bg: rgba(22, 22, 24, 0.90);
+    --miti-preview-row-line: rgba(255, 255, 255, 0.04);
+    --miti-preview-spinner-track: rgba(255, 255, 255, 0.12);
+    --miti-preview-spinner-head: rgba(255, 255, 255, 0.5);
+
+    /* スプシ表示のリキャスト線(sheet.css)。MIL-SPEC の値は styles/military/standard-sheet.css */
+    --sheet-cd: rgba(255, 255, 255, 0.38);
+    --sheet-cd-end: rgba(255, 255, 255, 0.8);
+
+    /* サイドバー・ヘッダーの枠の背景(glass.css の .glass-frame)。ダークは枠の素材のまま */
+    --glass-frame-bg: var(--frame-surface-bg);
+  }
+
+  .theme-light {
+    --empty-scrim-bg: rgba(255,255,255,0.55);
+    --empty-scrim-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.8),
+      inset 0 -1px 0 rgba(0,0,0,0.05),
+      0 0 0 1px rgba(0,0,0,0.08),
+      0 2px 8px rgba(0,0,0,0.04);
+    --empty-scrim-edge-v: linear-gradient(180deg,
+      rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.04) 15%,
+      transparent 35%, transparent 65%,
+      rgba(0,0,0,0.03) 85%, rgba(0,0,0,0.06) 100%
+    );
+    --empty-scrim-edge-h: linear-gradient(90deg,
+      rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.03) 10%,
+      transparent 25%, transparent 75%,
+      rgba(0,0,0,0.02) 90%, rgba(0,0,0,0.05) 100%
+    );
+    --empty-corner-tl: rgba(255,255,255,0.5);
+    --empty-corner-tr: rgba(255,255,255,0.4);
+    --empty-corner-bl: rgba(255,255,255,0.4);
+    --empty-corner-br: rgba(255,255,255,0.3);
+    --empty-sheen-side: rgba(255,255,255,0.5);
+    --empty-sheen-mid: rgba(255,255,255,0.8);
+    /* グローを黒ベースに */
+    --empty-glow-left: radial-gradient(
+      ellipse 100% 35% at 0% 50%,
+      rgba(0,0,0,0.5) 0%,
+      rgba(0,0,0,0.3) 25%,
+      rgba(0,0,0,0.1) 50%,
+      transparent 100%
+    );
+    --empty-glow-left-spread: radial-gradient(
+      ellipse 100% 35% at 0% 50%,
+      rgba(0,0,0,0.12) 0%,
+      rgba(0,0,0,0.05) 35%,
+      transparent 100%
+    );
+    --empty-glow-bl-h: linear-gradient(to right, rgba(0,0,0,0.5), rgba(0,0,0,0.15) 50%, transparent);
+    --empty-glow-bl-v: linear-gradient(to top, rgba(0,0,0,0.5), rgba(0,0,0,0.15) 50%, transparent);
+    --empty-glow-bl-spread: radial-gradient(ellipse at 0% 100%, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.04) 35%, transparent 65%);
+
+    /* 黒文字に白縁取りで反転(文字色は --color-text-primary が切り替わる) */
+    --plan-memo-text-shadow:
+      0 0 4px rgba(255, 255, 255, 0.9),
+      0 0 2px rgba(255, 255, 255, 0.8),
+      0 1px 2px rgba(255, 255, 255, 0.6);
+
+    /* 白背景で滲まないよう薄い黒シャドウで輪郭だけ締める */
+    --conflict-chevron-filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.25));
+
+    --miti-preview-wrap-bg: rgba(255, 255, 255, 0.6);
+    --miti-preview-head-bg: rgba(245, 245, 245, 0.95);
+    --miti-preview-row-line: rgba(0, 0, 0, 0.04);
+    --miti-preview-spinner-track: rgba(0, 0, 0, 0.10);
+    --miti-preview-spinner-head: rgba(0, 0, 0, 0.5);
+
+    --sheet-cd: rgba(113, 113, 122, 0.62);
+    --sheet-cd-end: rgb(82, 82, 91);
+
+    --glass-frame-bg: transparent;
+  }
+}
