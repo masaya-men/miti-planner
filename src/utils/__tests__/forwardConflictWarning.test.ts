@@ -39,3 +39,21 @@ describe('forward 競合(既存CD中に重ねる)', () => {
         expect(r.warning).toBe(true);
     });
 });
+
+describe('同じ秒に同じ技を重ねる(引っぱって動かす時)', () => {
+    // クリックで置く道は「同じ秒の同じ技=削除」になるので、重なりを作れるのは引っぱりだけ(masaya 10-29)
+    it('同じ秒にある同じ技の上へは置けない', () => {
+        useMitigationStore.setState({ currentLevel: 100 });
+        const applied = [ap('a', 60), ap('dragging', 120)];
+        const r = validateMitigationPlacement(reprisal, 60, applied, tStub, 'dragging');
+        expect(r.available).toBe(false);
+    });
+
+    it('チャージ技でも同じ秒には置けない', () => {
+        useMitigationStore.setState({ currentLevel: 100 });
+        const charged = { ...reprisal, maxCharges: 2 };
+        const applied = [ap('a', 60), ap('dragging', 120)];
+        const r = validateMitigationPlacement(charged, 60, applied, tStub, 'dragging');
+        expect(r.available).toBe(false);
+    });
+});

@@ -97,6 +97,12 @@ export function validateMitigationPlacement(
 
     // 👆 追加ここまで
 
+    // 引っぱって動かす時: 同じ秒にある同じ技の上へは置けない(ゲームで同じ秒に 2 回は使えない・重なると見えない)。
+    // クリックで置く道は同じ秒の同じ技=削除になるので、ここはドラッグだけ(masaya 10-29)
+    if (ignoreInstanceId && relevantMitigations.some(am => am.mitigationId === m.id && am.time === selectedTime)) {
+        return { available: false };
+    }
+
     // 👇 AST ドロー専用: 直前のドローと交互制約 (同種別の連続使用は不可)
     // ゲーム内仕様: アストラル → アンブラル → アストラル → ... と必ず交互。 時間経過で復活しない。
     if (m.id === 'astral_draw' || m.id === 'umbral_draw') {
