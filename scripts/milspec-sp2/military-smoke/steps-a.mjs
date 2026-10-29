@@ -114,12 +114,12 @@ export async function runStepsA(viewport) {
       if ((await btn.count()) === 0) fail('AA 追加キー ([data-deck=aa]) が見つからない');
       await btn.click();
       await page.waitForTimeout(300);
-      const pop = page.locator('.glass-tier3.z-\\[9999\\]');
+      const pop = page.locator('.frame-surface.z-\\[9999\\]');
       const opened = (await pop.count()) > 0;
       if (!opened) return 'WARN: AA ポップオーバーを検出できず (Esc は送信済)';
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
-      const stillOpen = (await page.locator('.glass-tier3.z-\\[9999\\]').count()) > 0;
+      const stillOpen = (await page.locator('.frame-surface.z-\\[9999\\]').count()) > 0;
       if (stillOpen) fail('Esc で AA ポップオーバーが閉じない');
       return 'ポップオーバー開閉 OK';
     });
@@ -168,7 +168,7 @@ export async function runStepsA(viewport) {
       if ((await phaseCell.count()) === 0) return 'WARN: フェーズヘッダーセルが見つからない';
       await phaseCell.click();
       await page.waitForTimeout(350);
-      const dd = page.locator('.glass-tier3.z-\\[9999\\]');
+      const dd = page.locator('.frame-surface.z-\\[9999\\]');
       if ((await dd.count()) === 0) return 'WARN: フェーズドロップダウンを開けず (click は送信済)';
       const topBefore = await sc.evaluate((el) => el.scrollTop);
       // ドロップダウン内のフェーズ項目 (先頭 = フェーズ 1 = startTime 0 へジャンプ)

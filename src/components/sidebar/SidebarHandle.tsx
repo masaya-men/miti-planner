@@ -52,7 +52,7 @@ export const SidebarHandle: React.FC<SidebarHandleProps> = ({ fullWidth, isOpen,
                                 "hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
                             )}
                         >
-                            {/* 左端の固定ライン（右端はサイドバーのglass-tier3 borderが担当） */}
+                            {/* 左端の固定ライン（右端はサイドバーのframe-surface borderが担当） */}
                             <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border group-hover/btn:bg-app-text-muted transition-colors duration-200" />
 
                             <div className="relative flex items-center justify-center h-full">

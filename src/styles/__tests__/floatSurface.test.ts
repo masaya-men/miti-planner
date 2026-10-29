@@ -61,7 +61,7 @@ describe('浮かぶものの素材 float-surface', () => {
 
     it('MIL-SPEC のボードの中でも、掛け戻しの節と文字・書体の節が float-surface に効く', () => {
         const revert = ruleWith(military, '.theme-military .milspec-app .float-surface');
-        expect(revert).toContain('.theme-military .milspec-app .glass-tier3');
+        expect(revert).toContain('.theme-military .milspec-app .frame-surface');
         expect(revert).toContain('--color-app-text: var(--color-text-primary);');
         expect(military).toMatch(/:where\([^)]*\.theme-military \.milspec-app \.float-surface[^)]*\)\s*\{/);
     });

@@ -72,7 +72,7 @@ export async function runStepsE(viewport) {
     await step('操作列の PiP ロッカー: 押すとメニューが出て、外へ出ると閉じる', async () => {
       const sw = page.locator('#timeline-controls-inner [data-deck="pip"]').first();
       if ((await sw.count()) === 0) return 'WARN: PiP ロッカーが無い(この環境は PiP 非対応)';
-      const menu = page.locator('div.w-max.glass-tier3.rounded-xl');
+      const menu = page.locator('div.w-max.frame-surface.rounded-xl');
       await sw.click();
       try { await menu.first().waitFor({ state: 'visible', timeout: 3000 }); } catch { fail('PiP ロッカーを押してもメニューが出ない'); }
       await page.mouse.move(5, 5);

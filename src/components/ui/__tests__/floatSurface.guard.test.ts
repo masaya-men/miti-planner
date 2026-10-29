@@ -12,7 +12,7 @@ const EXCLUDED_DIRS = ['housing', 'admin', 'military', '__tests__'];
 /** 浮かぶものではない/今回の対象外(spec の「対象外」)。 */
 const EXEMPT: Record<string, string> = {
     'AppFooter.tsx': '常設のフッター',
-    'ConsolidatedHeader.tsx': '常設のヘッダー(glass-tier3 の面)',
+    'ConsolidatedHeader.tsx': '常設のヘッダー(frame-surface の面)',
     'header/HeaderCollapseHandle.tsx': '常設のヘッダーの取っ手',
     'Sidebar.tsx': '常設のサイドバー',
     'sidebar/SidebarHandle.tsx': '常設のサイドバーの取っ手',
@@ -63,8 +63,8 @@ function walk(dir: string): string[] {
 
 const files = walk(ROOT).map((full) => ({ key: relative(ROOT, full).replace(/\\/g, '/'), src: readFileSync(full, 'utf8') }));
 
-/** 古い素材(glass-tier3 の面・ライトで白地にする --share-modal-bg) */
-const usesOldMaterial = (src: string) => src.includes('glass-tier3') || src.includes('share-modal-bg');
+/** 古い素材(frame-surface の面・ライトで白地にする --share-modal-bg) */
+const usesOldMaterial = (src: string) => src.includes('frame-surface') || src.includes('share-modal-bg');
 
 /** 浮かぶもの候補: portal で出す/fixed で z の高い要素/古い素材を使う */
 const isCandidate = (src: string) =>
@@ -113,11 +113,11 @@ describe('浮かぶものは素材 float-surface を使う', () => {
         expect(done, '載せ替えたら PENDING から消す').toEqual([]);
     });
 
-    it('float-surface と同じ className に背景(bg-*)や --glass-tier3-bg を並べない', () => {
+    it('float-surface と同じ className に背景(bg-*)や --frame-surface-bg を並べない', () => {
         const bad = files.flatMap((f) =>
             f.src
                 .split('\n')
-                .filter((line) => line.includes('float-surface') && (/\bbg-(?!clip|black\/)[a-z[]/.test(line) || line.includes('--glass-tier3-bg')))
+                .filter((line) => line.includes('float-surface') && (/\bbg-(?!clip|black\/)[a-z[]/.test(line) || line.includes('--frame-surface-bg')))
                 .map((line) => `${f.key}: ${line.trim()}`),
         );
         expect(bad).toEqual([]);

@@ -19,7 +19,7 @@ export const FocusModeRail: React.FC<FocusModeRailProps> = ({ visible, theme, on
     );
     return (
         <motion.div
-            className="hidden md:flex flex-col h-full shrink-0 relative z-40 glass-tier3 glass-frame glass-border-t-0 glass-border-l-0 glass-shadow-none overflow-hidden"
+            className="hidden md:flex flex-col h-full shrink-0 relative z-40 frame-surface glass-frame glass-border-t-0 glass-border-l-0 glass-shadow-none overflow-hidden"
             initial={false}
             animate={{ width: visible ? 24 : 0 }}
             transition={{ type: "spring", stiffness: 380, damping: 22 }}

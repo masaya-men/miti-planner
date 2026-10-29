@@ -40,7 +40,7 @@
       "pattern": "(?<!(?:\\/\\/|\\n\\s*\\*)[^\\n]*)glass-tier[23]\\b",
       "files": "^src/.*\\.tsx$",
       "sharedHome": "^src/styles/base/glass\\.css$|/__tests__/",
-      "why": "古い浮かぶ面のクラス。浮かぶ面は float-surface に統一する。Task 13 で寄せて、最後に glass.css の定義を消す"
+      "why": "古い名前。浮かぶ面は float-surface、ヘッダー・サイドバー・フッター等の画面の枠は frame-surface(2026-10-29 に glass-tier3 から改名・glass-tier2 は撤去済み)。古い名前を戻さない"
     }
   ],
   "frozen": {
@@ -55,17 +55,6 @@
       "src/components/sidebar/SidebarFloatingBar.tsx": 1
     },
     "mobile-width-handwritten": {},
-    "glass-tier-legacy": {
-      "src/components/AppFooter.tsx": 1,
-      "src/components/CollabJoinerPage.tsx": 1,
-      "src/components/ConsolidatedHeader.tsx": 1,
-      "src/components/Sidebar.tsx": 1,
-      "src/components/WelcomeSetup.tsx": 1,
-      "src/components/admin/CsvImportModal.tsx": 1,
-      "src/components/admin/FflogsTranslationModal.tsx": 1,
-      "src/components/header/HeaderCollapseHandle.tsx": 1,
-      "src/components/layout/FocusModeRail.tsx": 1,
-      "src/components/sidebar/SidebarHandle.tsx": 1
-    }
+    "glass-tier-legacy": {}
   }
 }

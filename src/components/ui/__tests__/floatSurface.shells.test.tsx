@@ -19,8 +19,8 @@ describe('共通の殻は素材 float-surface', () => {
         render(<ModalShell isOpen onClose={() => {}}><p>中身</p></ModalShell>);
         const dialog = screen.getByRole('dialog');
         expect(dialog.className).toContain('float-surface');
-        expect(dialog.className).not.toContain('glass-tier3');
-        expect(dialog.getAttribute('style') ?? '').not.toContain('--glass-tier3-bg');
+        expect(dialog.className).not.toContain('frame-surface');
+        expect(dialog.getAttribute('style') ?? '').not.toContain('--frame-surface-bg');
     });
 
     it('枠を自前で描く窓(frame={false})には付けない', () => {
@@ -31,7 +31,7 @@ describe('共通の殻は素材 float-surface', () => {
     it('ツールチップの箱は float-surface で、角丸 8px(rounded-lg)', () => {
         expect(TOOLTIP_BOX_CLASS).toContain('float-surface');
         expect(TOOLTIP_BOX_CLASS).toContain('rounded-lg');
-        expect(TOOLTIP_BOX_CLASS).not.toContain('glass-tier3');
+        expect(TOOLTIP_BOX_CLASS).not.toContain('frame-surface');
     });
 
     it('下から出るシートは float-surface で、シート独自の背景色を inline で持たない', () => {
@@ -53,6 +53,6 @@ describe('共通の殻は素材 float-surface', () => {
         act(() => { showToast('保存しました'); });
         const box = screen.getByText('保存しました').parentElement as HTMLElement;
         expect(box.className).toContain('float-surface');
-        expect(box.className).not.toContain('glass-tier3');
+        expect(box.className).not.toContain('frame-surface');
     });
 });

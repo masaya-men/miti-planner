@@ -120,7 +120,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
       />
 
       {/* モーダル本体 */}
-      <div className="relative glass-tier3 shadow-sm rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200 flex flex-col">
+      <div className="relative frame-surface shadow-sm rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200 flex flex-col">
 
         {/* ヘッダー */}
         <div className="px-5 py-4 border-b border-app-border flex items-center justify-between shrink-0">

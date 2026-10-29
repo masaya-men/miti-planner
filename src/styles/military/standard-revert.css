@@ -1,6 +1,6 @@
 /* 2026-10-22 案 B の続き: ボードの中に直接描かれる上に出る窓(軽減追加・ジョブ変更など)も標準の見た目に戻す。
-   窓の土台 .glass-tier3 の内側だけ、html の段階の標準値(--std-*)で意味トークンを掛け戻す。
-   待機時のボードに .glass-tier3 は 0 個(2026-10-22 実測)= ボードの見た目は変わらない。
+   窓の土台 .frame-surface の内側だけ、html の段階の標準値(--std-*)で意味トークンを掛け戻す。
+   待機時のボードに .frame-surface は 0 個(2026-10-22 実測)= ボードの見た目は変わらない。
    ⚠ 意味トークンの差し替え(上の Dark/Light 節)に名前を足したら、ここにも同じ名前が入る(military-overlay-island.test が検査)。 */
 .theme-military:root {
   --std-app-accent-rgb: var(--app-accent-rgb);
@@ -49,11 +49,11 @@
   --std-glass-tier1-bg: var(--glass-tier1-bg);
   --std-glass-tier1-blur: var(--glass-tier1-blur);
   --std-glass-tier1-border: var(--glass-tier1-border);
-  --std-glass-tier3-bg: var(--glass-tier3-bg);
-  --std-glass-tier3-blur: var(--glass-tier3-blur);
-  --std-glass-tier3-border: var(--glass-tier3-border);
-  --std-glass-tier3-inset: var(--glass-tier3-inset);
-  --std-glass-tier3-shadow: var(--glass-tier3-shadow);
+  --std-frame-surface-bg: var(--frame-surface-bg);
+  --std-frame-surface-blur: var(--frame-surface-blur);
+  --std-frame-surface-border: var(--frame-surface-border);
+  --std-frame-surface-inset: var(--frame-surface-inset);
+  --std-frame-surface-shadow: var(--frame-surface-shadow);
   --std-progress-toast-num: var(--progress-toast-num);
   --std-radius-2xl: var(--radius-2xl);
   --std-radius-lg: var(--radius-lg);
@@ -63,7 +63,7 @@
   --std-row-hover-line-color: var(--row-hover-line-color);
   --std-share-modal-bg: var(--share-modal-bg);
 }
-.theme-military .milspec-app .glass-tier3,
+.theme-military .milspec-app .frame-surface,
 .theme-military .milspec-app .float-surface {
   --app-accent-rgb: var(--std-app-accent-rgb);
   --color-accent-dim: var(--std-color-accent-dim);
@@ -111,11 +111,11 @@
   --glass-tier1-bg: var(--std-glass-tier1-bg);
   --glass-tier1-blur: var(--std-glass-tier1-blur);
   --glass-tier1-border: var(--std-glass-tier1-border);
-  --glass-tier3-bg: var(--std-glass-tier3-bg);
-  --glass-tier3-blur: var(--std-glass-tier3-blur);
-  --glass-tier3-border: var(--std-glass-tier3-border);
-  --glass-tier3-inset: var(--std-glass-tier3-inset);
-  --glass-tier3-shadow: var(--std-glass-tier3-shadow);
+  --frame-surface-bg: var(--std-frame-surface-bg);
+  --frame-surface-blur: var(--std-frame-surface-blur);
+  --frame-surface-border: var(--std-frame-surface-border);
+  --frame-surface-inset: var(--std-frame-surface-inset);
+  --frame-surface-shadow: var(--std-frame-surface-shadow);
   --progress-toast-num: var(--std-progress-toast-num);
   --radius-2xl: var(--std-radius-2xl);
   --radius-lg: var(--std-radius-lg);
@@ -159,7 +159,7 @@
 }
 /* 文字色・書体もボード(.milspec-app の --ms-text / --ms-font-ui)ではなく標準に戻す(書体は Tailwind preflight の html と同じ式)。
    :where() で詳細度 0 = 窓が自分で付けた text-* / font-* の指定は上書きしない */
-:where(.theme-military .milspec-app .glass-tier3, .theme-military .milspec-app .float-surface) {
+:where(.theme-military .milspec-app .frame-surface, .theme-military .milspec-app .float-surface) {
   color: var(--color-app-text);
   font-family: var(--default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
 }

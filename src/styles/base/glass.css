@@ -1,33 +1,30 @@
-/* ガラスパネル — 3層Tierシステム（@layer外=Tailwindユーティリティより高優先度） */
-.glass-tier3 {
-  --tw-backdrop-blur: blur(var(--glass-tier3-blur));
-  background: var(--glass-tier3-bg) !important;
-  border: 1px solid var(--glass-tier3-border) !important;
-  box-shadow: var(--glass-tier3-shadow), var(--glass-tier3-inset) !important;
+/* ガラスパネル。.frame-surface = ヘッダー・サイドバー・フッター等の画面の枠の素材(旧名 glass-tier3・2026-10-29 改名)。@layer外=Tailwindユーティリティより高優先度 */
+.frame-surface {
+  --tw-backdrop-blur: blur(var(--frame-surface-blur));
+  background: var(--frame-surface-bg) !important;
+  border: 1px solid var(--frame-surface-border) !important;
+  box-shadow: var(--frame-surface-shadow), var(--frame-surface-inset) !important;
 }
 /* backdrop-filterはTailwindの変数経由で適用（Lightning CSSがカスタムCSS直書きを削除するため） */
-.glass-tier3,
-.glass-tier3::before,
-.glass-tier3::after {
+.frame-surface,
+.frame-surface::before,
+.frame-surface::after {
   -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
   backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
 }
 
-/* glass-tier3 の !important border/shadow を個別辺で上書きするユーティリティ
-   glass-tier3 より後に定義することで !important 競合時に確実に上書きできる */
+/* frame-surface の !important border/shadow を個別辺で上書きするユーティリティ
+   frame-surface より後に定義することで !important 競合時に確実に上書きできる */
 .glass-border-t-0 { border-top-width: 0 !important; }
 .glass-border-b-0 { border-bottom-width: 0 !important; }
 .glass-border-l-0 { border-left-width: 0 !important; }
 .glass-border-r-0 { border-right-width: 0 !important; }
 .glass-shadow-none { box-shadow: none !important; }
 
-/* サイドバー・ヘッダーはblur控えめ（元の値を維持） */
-.theme-light .glass-frame {
-  --glass-tier3-bg: transparent;
-  --glass-tier3-blur: 2px;
-}
-.theme-dark .glass-frame {
-  --glass-tier3-blur: 2px;
+/* サイドバー・ヘッダーはblur控えめ（元の値を維持）。背景のテーマごとの値は tokens-parts.css */
+.glass-frame {
+  --frame-surface-bg: var(--glass-frame-bg);
+  --frame-surface-blur: 2px;
 }
 
 /* glass-panel — タイムライン枠のガラス表現 */

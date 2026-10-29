@@ -94,7 +94,7 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
     return createPortal(
         <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-app-bg/95">
             <div className={clsx(
-                "relative w-full max-w-[380px] mx-4 rounded-2xl glass-tier3",
+                "relative w-full max-w-[380px] mx-4 rounded-2xl frame-surface",
                 "animate-[dialogIn_300ms_cubic-bezier(0.2,0.8,0.2,1)]",
                 "px-8 py-8 flex flex-col items-center gap-6"
             )}>

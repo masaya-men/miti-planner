@@ -254,7 +254,7 @@ export default function CollabJoinerPage() {
       {/* ── アプリシェル外周クローム: サイドバーハンドル(左) + メインコンテンツ列 + 右端デコ ── */}
       <div className="flex flex-1 overflow-hidden relative">
         {/* 左: 折り畳み済みサイドバーハンドル(静的・read-only。本物 Sidebar は mount しない) */}
-        <div className="hidden md:flex h-full w-6 shrink-0 flex-col relative z-40 glass-tier3 glass-frame glass-border-t-0 glass-border-r-0 glass-shadow-none">
+        <div className="hidden md:flex h-full w-6 shrink-0 flex-col relative z-40 frame-surface glass-frame glass-border-t-0 glass-border-r-0 glass-shadow-none">
           {/* 右端境界線 */}
           <div className="absolute inset-y-0 right-0 w-[1px] bg-app-border" />
           {/* ハンドルボタン(静的・cursor-not-allowed で操作不可を明示) */}

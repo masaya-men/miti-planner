@@ -81,12 +81,12 @@
   --progress-toast-num: var(--ms-cyan-bright);
 
   /* ガラス tier3 (モーダル) = 金属プレート化・blur 0 */
-  --glass-tier3-bg:     var(--ms-raised-grad);
-  --glass-tier3-blur:   0px;
-  --glass-tier3-border: var(--ms-hairline-2);
-  --glass-tier3-shadow: var(--ms-shadow-raised);
-  --glass-tier3-inset:  inset 0 1px 0 var(--ms-edge-hi);
-  --share-modal-bg:     var(--ms-raised-grad);   /* 多数のモーダルが style で --glass-tier3-bg にこれを流す (ConfirmDialog 等) */
+  --frame-surface-bg:     var(--ms-raised-grad);
+  --frame-surface-blur:   0px;
+  --frame-surface-border: var(--ms-hairline-2);
+  --frame-surface-shadow: var(--ms-shadow-raised);
+  --frame-surface-inset:  inset 0 1px 0 var(--ms-edge-hi);
+  --share-modal-bg:     var(--ms-raised-grad);   /* 多数のモーダルが style で --frame-surface-bg にこれを流す (ConfirmDialog 等) */
 
   /* ガラス tier2 / tier1 = パネルプレート化 */
   --glass-tier1-bg:     var(--ms-plate-grad);
@@ -173,11 +173,11 @@
   --progress-toast-num: var(--ms-cyan-bright);
 
   /* ガラス tier3 (モーダル): light は raised-hi=#ffffff なので白パネルになる ([reference_modal_light_mode_white_bg]) */
-  --glass-tier3-bg:     var(--ms-raised-grad);
-  --glass-tier3-blur:   0px;
-  --glass-tier3-border: var(--ms-hairline-2);
-  --glass-tier3-shadow: var(--ms-shadow-raised);
-  --glass-tier3-inset:  inset 0 1px 0 var(--ms-edge-hi);
+  --frame-surface-bg:     var(--ms-raised-grad);
+  --frame-surface-blur:   0px;
+  --frame-surface-border: var(--ms-hairline-2);
+  --frame-surface-shadow: var(--ms-shadow-raised);
+  --frame-surface-inset:  inset 0 1px 0 var(--ms-edge-hi);
   --share-modal-bg:     var(--ms-raised-grad);
 
   /* ガラス tier2 / tier1 */

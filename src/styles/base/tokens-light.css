@@ -116,12 +116,12 @@
     --color-lp-text-muted: #999999;
     --color-lp-grid: rgba(0, 0, 0, 0.06);
 
-    --glass-tier3-bg: rgba(255, 255, 255, 0.15);
+    --frame-surface-bg: rgba(255, 255, 255, 0.15);
     --share-modal-bg: #ffffff;
-    --glass-tier3-blur: 12px; /* 元の値: 2px — サイドバー・ヘッダーに問題があれば戻す */
-    --glass-tier3-border: rgba(0, 0, 0, 0.08);
-    --glass-tier3-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-    --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    --frame-surface-blur: 12px; /* 元の値: 2px — サイドバー・ヘッダーに問題があれば戻す */
+    --frame-surface-border: rgba(0, 0, 0, 0.08);
+    --frame-surface-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    --frame-surface-inset: inset 0 1px 0 rgba(255, 255, 255, 0.5);
 
     /* 浮かぶもの(窓・シート・通知・帯・メニュー・ツールチップ)の素材 .float-surface(2026-10-28・案 C) */
     --float-bg: rgba(255, 255, 255, 0.55);
