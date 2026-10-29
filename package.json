@@ -70,6 +70,7 @@
     "happy-dom": "^20.8.9",
     "husky": "^9.1.7",
     "jsdom": "^29.0.1",
+    "knip": "^5.88.1",
     "lightningcss": "^1.32.0",
     "madge": "^8.0.0",
     "postcss": "^8.5.6",

@@ -23,10 +23,11 @@
   ],
   "ignoreDependencies": [
     "playwright",
-    "cloudflare"
+    "cloudflare",
+    "partyserver"
   ],
-  "ignoreBinaries": ["knip"],
   "ignoreUnresolved": [
     "^/src/"
-  ]
+  ],
+  "ignoreExportsUsedInFile": true
 }
