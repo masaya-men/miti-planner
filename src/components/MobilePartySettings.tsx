@@ -267,7 +267,7 @@ const MobilePartySettings: React.FC = () => {
                             onMouseDown={(e) => drag.startDrag(job, e)}
                             className="aspect-square rounded-lg border border-app-border bg-app-surface2 flex items-center justify-center cursor-pointer active:scale-90 transition-all touch-none"
                         >
-                            <img src={job.icon} alt={job.name?.ja} className="w-9 h-9 object-contain pointer-events-none" />
+                            <img referrerPolicy="no-referrer" src={job.icon} alt={job.name?.ja} className="w-9 h-9 object-contain pointer-events-none" />
                         </button>
                     ))}
                 </div>
@@ -284,7 +284,7 @@ const MobilePartySettings: React.FC = () => {
                     }}
                 >
                     <div className="w-12 h-12 rounded-xl bg-app-surface2 border border-app-text/30 flex items-center justify-center shadow-lg shadow-black/40">
-                        <img src={drag.item.icon} className="w-9 h-9 object-contain" />
+                        <img referrerPolicy="no-referrer" src={drag.item.icon} className="w-9 h-9 object-contain" />
                     </div>
                 </div>,
                 document.body

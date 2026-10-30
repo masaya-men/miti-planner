@@ -39,7 +39,7 @@ export const PartyMobileJobPicker: React.FC<PartyMobileJobPickerProps> = ({ focu
                                                     : "bg-app-surface2 border-app-border"
                                             )}
                                         >
-                                            <img src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-7 h-7 object-contain" />
+                                            <img referrerPolicy="no-referrer" src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-7 h-7 object-contain" />
                                         </button>
                                     ))}
                                 </div>

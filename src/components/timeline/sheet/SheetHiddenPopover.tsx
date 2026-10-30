@@ -73,7 +73,7 @@ export const SheetHiddenPopover: React.FC<Props> = ({ state, columns, onShow, on
                     onClick={() => onShow(mitigationId)}
                     className="flex items-center gap-2 px-1.5 py-1 rounded-lg bg-app-surface2 border border-app-border hover:border-app-text/40 cursor-pointer text-left"
                 >
-                    <img src={def.icon} alt="" draggable={false} className="w-6 h-6 object-contain shrink-0" />
+                    <img referrerPolicy="no-referrer" src={def.icon} alt="" draggable={false} className="w-6 h-6 object-contain shrink-0" />
                     <span className="text-app-base font-bold text-app-text truncate flex-1">{getPhaseName(def.name, contentLanguage)}</span>
                     <span className="text-app-sm font-black text-app-text-sec shrink-0">{t('timeline.sheet_hidden_show')}</span>
                 </button>

@@ -96,7 +96,7 @@ export const LocalImportPlanRow: React.FC<LocalImportPlanRowProps> = ({
                     {jobIcons.length > 0 && (
                         <div className="flex items-center gap-0.5 mt-1">
                             {jobIcons.slice(0, 8).map(j => (
-                                <img
+                                <img referrerPolicy="no-referrer"
                                     key={j.id}
                                     src={j.icon}
                                     alt={j.jobName}

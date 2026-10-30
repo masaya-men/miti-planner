@@ -47,7 +47,7 @@ export const MitigationSkillButton: React.FC<MitigationSkillButtonProps> = ({
                                         )}
                                     >
                                         <div className="relative flex-shrink-0">
-                                            <img
+                                            <img referrerPolicy="no-referrer"
                                                 src={mitigation.icon}
                                                 alt={getPhaseName(mitigation.name, contentLanguage)}
                                                 className={clsx(

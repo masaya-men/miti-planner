@@ -84,7 +84,7 @@ export const JobPickerRow: React.FC<JobPickerRowProps> = ({
                         >
                             {member.jobId ? (
                                 // スプシ表示はジョブアイコンのみ(ジョブ名・MT 等の文字は出さない)
-                                <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className={clsx("object-contain opacity-90 drop-shadow-sm transition-transform group-hover:scale-125", sheetCols ? "w-[18px] h-[18px] shrink-0" : "w-6 h-6")} />
+                                <img referrerPolicy="no-referrer" src={getJobIcon(member.jobId) || ''} alt={member.jobId} className={clsx("object-contain opacity-90 drop-shadow-sm transition-transform group-hover:scale-125", sheetCols ? "w-[18px] h-[18px] shrink-0" : "w-6 h-6")} />
                             ) : (
                                 <div className="w-5 h-5 rounded-full border border-app-border bg-app-surface2 flex items-center justify-center hover:bg-app-surface2">
                                     <Plus size={10} className="text-app-text-muted" />

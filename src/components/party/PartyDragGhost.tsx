@@ -19,7 +19,7 @@ export const PartyDragGhost: React.FC<PartyDragGhostProps> = ({ drag }) => (
                     }}
                 >
                     <div className="w-10 h-10 rounded-xl bg-app-surface2 border border-app-text/30 flex items-center justify-center shadow-lg shadow-black/40">
-                        <img src={drag.item.icon} className="w-8 h-8 object-contain" />
+                        <img referrerPolicy="no-referrer" src={drag.item.icon} className="w-8 h-8 object-contain" />
                     </div>
                 </div>
             )}

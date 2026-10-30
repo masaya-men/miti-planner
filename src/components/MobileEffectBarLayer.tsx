@@ -60,14 +60,14 @@ export const MobileEffectBarLayer: React.FC<MobileEffectBarLayerProps> = ({ bars
               className="mobile-effect-bar-icon-slot absolute animate-conflict-pulse"
               style={{ top: '0px', left: '50%' }}
             >
-              <img
+              <img referrerPolicy="no-referrer"
                 src={bar.iconUrl}
                 alt=""
                 className="mobile-effect-bar-icon absolute inset-0 rounded object-cover max-w-none ring-1 ring-app-amber"
               />
             </div>
           ) : (
-            <img
+            <img referrerPolicy="no-referrer"
               src={bar.iconUrl}
               alt=""
               className="mobile-effect-bar-icon absolute rounded object-cover max-w-none"

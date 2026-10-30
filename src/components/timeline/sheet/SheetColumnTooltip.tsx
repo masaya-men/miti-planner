@@ -46,7 +46,7 @@ export const SheetColumnTooltip: React.FC<Props> = ({ def, x, y }) => {
             className={`${TOOLTIP_BOX_CLASS} flex items-center gap-2`}
             style={{ position: 'fixed', zIndex: 99999, pointerEvents: 'none', left: x + 16, top: y }}
         >
-            <img src={def.icon} alt="" draggable={false} className="w-5 h-5 object-contain shrink-0" />
+            <img referrerPolicy="no-referrer" src={def.icon} alt="" draggable={false} className="w-5 h-5 object-contain shrink-0" />
             <span>{name}</span>
         </div>,
         document.body,

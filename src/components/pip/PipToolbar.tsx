@@ -67,7 +67,7 @@ export const PipToolbar: React.FC<PipToolbarProps> = ({
                             title={m.id}
                         >
                             {m.job && (
-                                <img
+                                <img referrerPolicy="no-referrer"
                                     src={m.job.icon}
                                     className={clsx(
                                         "object-contain transition-opacity",

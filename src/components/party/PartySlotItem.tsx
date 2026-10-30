@@ -85,7 +85,7 @@ export const SlotItem = React.memo<SlotItemProps>(({
                     {member.id}
                 </div>
                 {job ? (
-                    <img
+                    <img referrerPolicy="no-referrer"
                         src={job.icon}
                         alt={getPhaseName(job.name, contentLanguage)}
                         className="w-8 h-8 object-contain"

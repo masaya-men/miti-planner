@@ -8,6 +8,17 @@
   overflow: hidden;
   border-radius: inherit;
 }
+/* 動画の表紙(X の画像)。動画の後ろに敷き、最初のコマが出るまで見せる */
+.housing-card-video-overlay > .housing-card-video-overlay-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.housing-card-video-overlay > video {
+  position: relative;
+}
 .housing-card-video-overlay > video,
 .housing-card-video-overlay > iframe {
   width: 100%;

@@ -47,7 +47,7 @@ export const ShareTeamLogoSettings: React.FC<ShareTeamLogoSettingsProps> = ({
             <div className="flex items-center gap-2">
                 {teamLogoUrl ? (
                     <>
-                        <img
+                        <img referrerPolicy="no-referrer"
                             src={teamLogoUrl}
                             alt="Team Logo"
                             className="w-8 h-8 rounded object-cover border border-app-border"

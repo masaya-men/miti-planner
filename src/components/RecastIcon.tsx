@@ -30,7 +30,7 @@ export const RecastIcon = forwardRef<HTMLDivElement, RecastIconProps>(
                     '--cd-order': '0',
                 } as CSSProperties}
             >
-                <img src={iconUrl} alt={alt} />
+                <img referrerPolicy="no-referrer" src={iconUrl} alt={alt} />
                 <span className="recast-num" />
             </div>
         );

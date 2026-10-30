@@ -119,7 +119,7 @@ export function TutorialCard({
           )}
 
           {image && (
-            <img
+            <img referrerPolicy="no-referrer"
               src={image}
               alt=""
               className="w-full rounded-lg mb-2.5"

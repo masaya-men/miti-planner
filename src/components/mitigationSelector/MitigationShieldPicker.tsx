@@ -84,7 +84,7 @@ export const MitigationShieldPicker: React.FC<MitigationShieldPickerProps> = ({
                                                                     )}
                                                                 >
                                                                     {targetJob ? (
-                                                                        <img
+                                                                        <img referrerPolicy="no-referrer"
                                                                             src={targetJob.icon}
                                                                             alt={targetJob.name?.en || targetJob.id}
                                                                             className="w-8 h-8 object-contain drop-shadow-md shrink-0"

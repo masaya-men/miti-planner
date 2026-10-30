@@ -231,7 +231,7 @@ export function AdminSkills() {
                                             className="flex-1 text-left px-3 py-2.5 text-app-lg flex items-center gap-3"
                                         >
                                             {skill.icon ? (
-                                                <img src={skill.icon} alt="" className="w-6 h-6 object-contain"
+                                                <img referrerPolicy="no-referrer" src={skill.icon} alt="" className="w-6 h-6 object-contain"
                                                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                                             ) : (
                                                 <div className="w-6 h-6 rounded border border-dashed border-app-text/20 flex items-center justify-center text-app-text-muted text-[10px]">?</div>

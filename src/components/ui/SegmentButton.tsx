@@ -91,7 +91,7 @@ export function SegmentButton<T extends string>({
         >
           {option.icon && (
             typeof option.icon === 'string'
-              ? <img src={option.icon} alt="" className={clsx('object-contain', size === 'sm' ? 'w-3.5 h-3.5' : 'w-5 h-5')} />
+              ? <img referrerPolicy="no-referrer" src={option.icon} alt="" className={clsx('object-contain', size === 'sm' ? 'w-3.5 h-3.5' : 'w-5 h-5')} />
               : option.icon
           )}
           <span className="whitespace-nowrap">{option.label}</span>

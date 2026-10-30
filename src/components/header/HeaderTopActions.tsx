@@ -93,7 +93,7 @@ export const HeaderTopActions: React.FC<HeaderTopActionsProps> = ({
                     className={clsx(iconBtnBase, iconBtnDefault)}
                 >
                     {profileAvatarUrl ? (
-                        <img src={profileAvatarUrl} alt="" className="w-6 h-6 rounded-full" />
+                        <img referrerPolicy="no-referrer" src={profileAvatarUrl} alt="" className="w-6 h-6 rounded-full" />
                     ) : user ? (
                         <div className="w-6 h-6 rounded-full bg-app-text/15 flex items-center justify-center">
                             <span className="text-app-base font-black text-app-text">{(profileDisplayName || 'U').charAt(0).toUpperCase()}</span>

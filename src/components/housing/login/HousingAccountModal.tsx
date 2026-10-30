@@ -119,7 +119,7 @@ export const HousingAccountModal: React.FC = () => {
                         aria-label={t('housing.account.avatarChange')}
                     >
                         {profileAvatarUrl ? (
-                            <img src={profileAvatarUrl} alt="" />
+                            <img referrerPolicy="no-referrer" src={profileAvatarUrl} alt="" />
                         ) : (
                             <Camera size={24} />
                         )}

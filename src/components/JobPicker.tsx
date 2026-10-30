@@ -111,7 +111,7 @@ const JobButton: React.FC<{ job: Job, currentJobId: string | null, onSelect: () 
         )}
     >
         <Tooltip content={getPhaseName(job.name, contentLanguage)}>
-            <img src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-6 h-6 object-contain drop-shadow-md z-10" />
+            <img referrerPolicy="no-referrer" src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-6 h-6 object-contain drop-shadow-md z-10" />
         </Tooltip>
     </button>
 );

@@ -294,7 +294,7 @@ function StepIcon({ data, setField, t }: StepBaseProps) {
       />
       {preview && (
         <div className="flex items-center gap-3">
-          <img src={preview} alt="icon preview" className="w-12 h-12 object-contain" />
+          <img referrerPolicy="no-referrer" src={preview} alt="icon preview" className="w-12 h-12 object-contain" />
           <button
             type="button"
             onClick={() => {

@@ -165,7 +165,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                             )}
                                         >
                                             {profileAvatarUrl ? (
-                                                <img src={profileAvatarUrl} alt="" className="w-full h-full object-cover" />
+                                                <img referrerPolicy="no-referrer" src={profileAvatarUrl} alt="" className="w-full h-full object-cover" />
                                             ) : (
                                                 <div className="w-full h-full bg-app-surface2 flex items-center justify-center">
                                                     <span className="text-app-xl font-bold text-app-text">{(profileDisplayName || 'U').charAt(0).toUpperCase()}</span>

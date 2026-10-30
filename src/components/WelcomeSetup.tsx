@@ -134,7 +134,7 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
                     )}
                 >
                     {avatarPreview ? (
-                        <img
+                        <img referrerPolicy="no-referrer"
                             src={avatarPreview}
                             alt=""
                             className="w-full h-full object-cover"

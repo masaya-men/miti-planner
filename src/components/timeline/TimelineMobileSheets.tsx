@@ -79,7 +79,7 @@ export const TimelineMobileSheets: React.FC<TimelineMobileSheetsProps> = ({
                                     {placed.map(am => {
                                         const def = MITIGATIONS.find(m => m.id === am.mitigationId);
                                         if (!def) return null;
-                                        return <img key={am.id} src={def.icon} className="w-[22px] h-[22px] rounded-sm object-contain opacity-80" />;
+                                        return <img referrerPolicy="no-referrer" key={am.id} src={def.icon} className="w-[22px] h-[22px] rounded-sm object-contain opacity-80" />;
                                     })}
                                 </div>
                             );
@@ -133,7 +133,7 @@ export const TimelineMobileSheets: React.FC<TimelineMobileSheetsProps> = ({
                                                             )}
                                                         >
                                                             {job ? (
-                                                                <img src={job.icon} className="w-9 h-9 object-contain rounded" />
+                                                                <img referrerPolicy="no-referrer" src={job.icon} className="w-9 h-9 object-contain rounded" />
                                                             ) : (
                                                                 <span className={clsx(
                                                                     "text-app-lg font-black uppercase tracking-tighter",
@@ -172,7 +172,7 @@ export const TimelineMobileSheets: React.FC<TimelineMobileSheetsProps> = ({
                                                                 className="flex items-center gap-3 p-3 rounded-xl border border-app-border bg-app-surface2 active:scale-95 cursor-pointer"
                                                             >
                                                                 {targetJob ? (
-                                                                    <img src={targetJob.icon} className="w-8 h-8 object-contain rounded shrink-0" />
+                                                                    <img referrerPolicy="no-referrer" src={targetJob.icon} className="w-8 h-8 object-contain rounded shrink-0" />
                                                                 ) : (
                                                                     <span className="w-8 h-8 flex items-center justify-center text-app-lg font-black tracking-tighter uppercase shrink-0">
                                                                         {t(`modal.${(targetMember?.id || '').toLowerCase()}`, targetMember?.id || '')}
@@ -223,7 +223,7 @@ export const TimelineMobileSheets: React.FC<TimelineMobileSheetsProps> = ({
                                                 <span className="text-app-base font-black text-app-text-muted uppercase tracking-widest">
                                                     {t(`modal.${member.id.toLowerCase()}`, member.id)}
                                                 </span>
-                                                <img src={job.icon} className="w-5 h-5 object-contain rounded" />
+                                                <img referrerPolicy="no-referrer" src={job.icon} className="w-5 h-5 object-contain rounded" />
                                                 <span className="text-app-sm font-bold text-app-text">
                                                     {getPhaseName(job.name, contentLanguage)}
                                                 </span>
@@ -280,7 +280,7 @@ export const TimelineMobileSheets: React.FC<TimelineMobileSheetsProps> = ({
                                                                             : "bg-black/20 border-app-red-border opacity-60"
                                                             )}
                                                         >
-                                                            <img src={mit.icon} className="w-9 h-9 object-contain rounded" />
+                                                            <img referrerPolicy="no-referrer" src={mit.icon} className="w-9 h-9 object-contain rounded" />
                                                             {/* リキャスト/使用不可メッセージ — 軽くグレーアウト + 文字を下端に詰める */}
                                                             {!status.available && !isAlreadyPlaced && status.message && (
                                                                 <div className="absolute inset-0 bg-black/30">

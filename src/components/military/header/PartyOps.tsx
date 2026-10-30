@@ -129,7 +129,7 @@ export function PartyOps({ MW, partySortOrder, setPartySortOrder, onAutoPlan, on
           const job = jobId ? jobs.find((j) => j.id === jobId) : undefined;
           return (
             <MilspecKey key={id} cap={members.caps[i + 1]} style={capPos(members.caps[i + 1])} latch pressed={!hidden} data-member-toggle={id}
-              label={job?.icon ? <img className="milspec-key-av" src={job.icon} alt="" /> : <b>{id}</b>}
+              label={job?.icon ? <img referrerPolicy="no-referrer" className="milspec-key-av" src={job.icon} alt="" /> : <b>{id}</b>}
               aria-label={t('ui.party_visibility_toggle_tooltip', { id, action: hidden ? t('ui.party_visibility_show') : t('ui.party_visibility_hide') })}
               onClick={() => deferHeavy(() => toggleHiddenPartyMember(id))} />
           );

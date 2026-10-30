@@ -161,7 +161,7 @@ export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading, dis
               return (
                 <th key={member.id} style={{ textAlign: 'center' }}>
                   {job && (
-                    <img
+                    <img referrerPolicy="no-referrer"
                       src={job.icon}
                       alt={getPhaseName(job.name, lang)}
                       title={getPhaseName(job.name, lang)}
@@ -194,7 +194,7 @@ export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading, dis
                       return (
                         <span key={mit.id ?? i} className="miti-icon-wrap">
                           {def?.icon && (
-                            <img
+                            <img referrerPolicy="no-referrer"
                               className="miti-skill-icon"
                               src={def.icon}
                               alt=""

@@ -139,7 +139,7 @@ export const PipCueList: React.FC<PipCueListProps> = ({
                                     {/* 軽減スキルアイコン */}
                                     <div className="flex items-center shrink-0">
                                         {mitigations.map(({ applied, definition }) => (
-                                            <img
+                                            <img referrerPolicy="no-referrer"
                                                 key={applied.id}
                                                 src={definition.icon}
                                                 className={clsx(

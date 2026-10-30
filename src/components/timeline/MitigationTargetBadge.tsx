@@ -25,7 +25,7 @@ const TargetMark = ({ targetId, JOBS, contentLanguage, isSheetIcon }: Omit<Mitig
     return (
         <>
             {targetJob ? (
-                <img src={targetJob.icon} alt={getPhaseName(targetJob.name, contentLanguage)} className={clsx("object-contain rounded-sm", isSheetIcon ? "w-[10px] h-[10px]" : "w-[20px] h-[20px]")} />
+                <img referrerPolicy="no-referrer" src={targetJob.icon} alt={getPhaseName(targetJob.name, contentLanguage)} className={clsx("object-contain rounded-sm", isSheetIcon ? "w-[10px] h-[10px]" : "w-[20px] h-[20px]")} />
             ) : (
                 <div className={clsx("bg-black/90 rounded px-1 py-0.5 text-app-xs font-black text-slate-800 dark:text-white ring-1 ring-white/20 origin-bottom-right", isSheetIcon && "scale-[.6]")}>
                     {targetId}

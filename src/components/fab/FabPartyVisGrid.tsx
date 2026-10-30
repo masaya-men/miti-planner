@@ -59,7 +59,7 @@ export const FabPartyVisGrid: React.FC<FabPartyVisGridProps> = ({ partyVisButton
                                 }}
                             >
                                 {m.icon ? (
-                                    <img
+                                    <img referrerPolicy="no-referrer"
                                         src={m.icon}
                                         alt={m.id}
                                         className={clsx(

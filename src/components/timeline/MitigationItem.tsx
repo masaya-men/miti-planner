@@ -175,7 +175,7 @@ export const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) 
                             "w-full h-full bg-black/50 overflow-hidden rounded border border-app-border flex items-center justify-center",
                             isVirtual && "bg-transparent border-none shadow-none"
                         )}>
-                            <img
+                            <img referrerPolicy="no-referrer"
                                 src={iconUrl}
                                 alt=""
                                 style={grayscale ? { filter: 'grayscale(1)' } : undefined}
@@ -239,7 +239,7 @@ export const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) 
                             隣接レーン間隔が12px(PLACEMENT_STEP)のため、3px×2=6pxの拡張なら隣のレーンの
                             判定と重ならない上限ちょうど。 */}
                         <Tooltip
-                            content={isSheetIcon ? null : <img src={iconUrl} alt="" className="w-4 h-4 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" />}
+                            content={isSheetIcon ? null : <img referrerPolicy="no-referrer" src={iconUrl} alt="" className="w-4 h-4 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" />}
                             bare
                             below={slideOnSort || undefined}
                             // Tooltipのデフォルトwrapperはw-fit/h-fit(fit-content)なので、left+rightだけ

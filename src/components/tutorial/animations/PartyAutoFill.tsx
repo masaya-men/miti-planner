@@ -312,7 +312,7 @@ export function PartyAutoFill({ onComplete }: PartyAutoFillProps) {
           style={{ opacity: 0, transform: `translate(${job.btnX - 16}px, ${job.btnY - 16}px) scale(0)` }}
         >
           <div className="relative">
-            <img
+            <img referrerPolicy="no-referrer"
               src={job.iconSrc} alt=""
               className="w-8 h-8 rounded-full relative z-10"
               style={{ filter: 'drop-shadow(0 2px 8px color-mix(in srgb, var(--color-app-green) 50%, transparent))' }}
@@ -373,7 +373,7 @@ export function PartyAutoFill({ onComplete }: PartyAutoFillProps) {
                 }}
               >
                 <div className="relative">
-                  <img
+                  <img referrerPolicy="no-referrer"
                     src={job.iconSrc} alt=""
                     className="w-8 h-8 rounded-full relative z-10"
                     style={{ filter: 'drop-shadow(0 2px 8px color-mix(in srgb, var(--color-app-green) 50%, transparent))' }}

@@ -132,7 +132,7 @@ export const HousingImage = forwardRef<HTMLImageElement, HousingImageProps>(func
   };
 
   return (
-    <img
+    <img referrerPolicy="no-referrer"
       ref={ref}
       src={a.src}
       srcSet={a.srcSet}

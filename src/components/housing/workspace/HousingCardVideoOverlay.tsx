@@ -1,4 +1,5 @@
 import { buildTweetVideoProxyUrl } from '../../../lib/housing/tweetVideoProxy';
+import { HousingImage } from '../media/HousingImage';
 import './HousingCardVideoOverlay.css';
 
 export type HousingCardVideoOverlayProps =
@@ -25,9 +26,12 @@ export function HousingCardVideoOverlay(
     const proxied = buildTweetVideoProxyUrl(props.videoUrl);
     return (
       <div className="housing-card-video-overlay" aria-hidden="true">
+        {/* 表紙は X の画像。<video poster> は Referer を止められず X に断られるので、後ろに <img> を敷く */}
+        {props.posterUrl && (
+          <HousingImage className="housing-card-video-overlay-poster" src={props.posterUrl} alt="" fallback="none" />
+        )}
         <video
           src={proxied}
-          poster={props.posterUrl}
           muted
           autoPlay
           loop

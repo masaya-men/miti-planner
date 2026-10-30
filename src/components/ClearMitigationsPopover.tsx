@@ -169,7 +169,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                             {hasMitigations ? (
                                 <Tooltip content={`${m.id} (${job ? getPhaseName(job.name, contentLanguage) : m.id})`}>
                                     {job ? (
-                                        <img src={job.icon} alt="" className="w-6 h-6 object-contain drop-shadow-md" />
+                                        <img referrerPolicy="no-referrer" src={job.icon} alt="" className="w-6 h-6 object-contain drop-shadow-md" />
                                     ) : (
                                         <span className={clsx(
                                             "text-app-base font-black tracking-tighter uppercase",
@@ -183,7 +183,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                                 </Tooltip>
                             ) : (
                                 job ? (
-                                    <img src={job.icon} alt="" className="w-6 h-6 object-contain drop-shadow-md" />
+                                    <img referrerPolicy="no-referrer" src={job.icon} alt="" className="w-6 h-6 object-contain drop-shadow-md" />
                                 ) : (
                                     <span className={clsx(
                                         "text-app-base font-black tracking-tighter uppercase",

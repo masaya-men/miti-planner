@@ -20,7 +20,7 @@ export function SkillFormRequiredSection({ form, update, updateName, jobs, selec
         <>
             {/* ── ジョブ表示（新規時は選択可、編集時は固定） ── */}
             <div className="flex items-center gap-3 p-3 bg-app-text/5 rounded">
-                {selectedJob?.icon && <img src={selectedJob.icon} alt="" className="w-6 h-6" />}
+                {selectedJob?.icon && <img referrerPolicy="no-referrer" src={selectedJob.icon} alt="" className="w-6 h-6" />}
                 <span className="font-bold">{selectedJob?.name.ja ?? form.jobId}</span>
                 {isNew && (
                     <select
@@ -40,7 +40,7 @@ export function SkillFormRequiredSection({ form, update, updateName, jobs, selec
             {/* アイコン */}
             <div className="flex items-center gap-3">
                 {form.icon ? (
-                    <img src={form.icon} alt="" className="w-10 h-10 object-contain rounded border border-app-text/10" />
+                    <img referrerPolicy="no-referrer" src={form.icon} alt="" className="w-10 h-10 object-contain rounded border border-app-text/10" />
                 ) : (
                     <div className="w-10 h-10 rounded border border-dashed border-app-text/20 flex items-center justify-center text-app-text-muted text-app-base">?</div>
                 )}

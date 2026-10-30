@@ -130,7 +130,7 @@ export const SheetTargetPopover: React.FC<Props> = ({ state, onPick, onClose }) 
                                 )}
                             >
                                 {job ? (
-                                    <img src={job.icon} alt={job.name?.en || job.id} className="w-7 h-7 object-contain drop-shadow-md" />
+                                    <img referrerPolicy="no-referrer" src={job.icon} alt={job.name?.en || job.id} className="w-7 h-7 object-contain drop-shadow-md" />
                                 ) : (
                                     <span className={clsx('text-app-lg font-black tracking-tighter uppercase', roleText(member))}>
                                         {memberLabel(member)}
@@ -175,7 +175,7 @@ export const SheetTargetPopover: React.FC<Props> = ({ state, onPick, onClose }) 
                                 className={clsx(BTN, 'flex items-center gap-2 p-1.5 cursor-pointer active:scale-95')}
                             >
                                 {targetJob ? (
-                                    <img src={targetJob.icon} alt={targetJob.name?.en || targetJob.id} className="w-7 h-7 object-contain drop-shadow-md shrink-0" />
+                                    <img referrerPolicy="no-referrer" src={targetJob.icon} alt={targetJob.name?.en || targetJob.id} className="w-7 h-7 object-contain drop-shadow-md shrink-0" />
                                 ) : (
                                     <span className={clsx('w-7 h-7 flex items-center justify-center text-app-lg font-black uppercase shrink-0', roleText(target))}>
                                         {memberLabel(target)}

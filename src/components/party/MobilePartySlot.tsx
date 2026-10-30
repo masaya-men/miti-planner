@@ -69,7 +69,7 @@ export const PartySlot: React.FC<{
             style={{ borderRadius: MOBILE_TOKENS.party.slotRadius }}
         >
             {job ? (
-                <img src={job.icon} className="w-8 h-8 object-contain pointer-events-none" />
+                <img referrerPolicy="no-referrer" src={job.icon} className="w-8 h-8 object-contain pointer-events-none" />
             ) : (
                 <div className="w-8 h-8 rounded-full border border-dashed border-app-border flex items-center justify-center">
                     <span className="text-app-base text-app-text-muted">+</span>

@@ -177,7 +177,7 @@ export function AdminHousingerReports() {
               className="border border-app-text/10 rounded p-3 flex gap-3 items-start"
             >
               {p.avatarUrl && (
-                <img
+                <img referrerPolicy="no-referrer"
                   src={p.avatarUrl}
                   alt=""
                   className="w-16 h-16 object-cover rounded-full shrink-0"

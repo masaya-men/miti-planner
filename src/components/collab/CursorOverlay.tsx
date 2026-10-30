@@ -101,7 +101,7 @@ export const CursorOverlay: React.FC<CursorOverlayProps> = ({ timeToYMapRef, she
             <path d="M1 1 L1 16 L5 12 L8 18 L10 17 L7 11 L13 11 Z" fill="currentColor" stroke="#000" strokeWidth="1" />
           </svg>
           {c.jobId && jobIconById.has(c.jobId) && (
-            <img className="collab-cursor__job" src={jobIconById.get(c.jobId)} alt="" />
+            <img referrerPolicy="no-referrer" className="collab-cursor__job" src={jobIconById.get(c.jobId)} alt="" />
           )}
         </div>
       ))}

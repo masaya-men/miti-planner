@@ -21,6 +21,7 @@ const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 async function resizeToJpeg(file: File): Promise<Blob> {
     return new Promise((resolve, reject) => {
         const img = new Image();
+        img.referrerPolicy = 'no-referrer';
         img.onload = () => {
             // 長辺が LOGO_MAX_DIM を超える場合のみ縮小
             const scale = Math.min(1, LOGO_MAX_DIM / Math.max(img.width, img.height));

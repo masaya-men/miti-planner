@@ -75,7 +75,7 @@ export const ShareOgPreview: React.FC<ShareOgPreviewProps> = ({
                     // 新 src で確実に新規 fetch + onLoad/onError が発火する。
                     // （src だけ書き換わっても新規ロードがトリガーされず「永遠に生成中」に
                     //  なる事象への対策）
-                    <img
+                    <img referrerPolicy="no-referrer"
                         key={ogImageUrl}
                         src={ogImageUrl}
                         alt="OGP Preview"

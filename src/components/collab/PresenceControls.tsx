@@ -100,7 +100,7 @@ export const PresenceControls: React.FC<{ compact?: boolean }> = ({ compact = fa
         )}
       >
         {myJobIcon
-          ? <img src={myJobIcon} alt="" className={compact ? 'w-5 h-5 object-contain' : 'w-6 h-6 object-contain'} />
+          ? <img referrerPolicy="no-referrer" src={myJobIcon} alt="" className={compact ? 'w-5 h-5 object-contain' : 'w-6 h-6 object-contain'} />
           : <User size={compact ? 13 : 15} className="text-app-text-muted" />}
       </button>
     </Tooltip>

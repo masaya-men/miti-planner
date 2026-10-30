@@ -23,7 +23,7 @@ export const DamageTypeIcon: React.FC<{
   const def = damageType ? ICON_BY_TYPE[damageType] : undefined;
   if (!def) return null;
 
-  const img = <img src={def.src} className={clsx(size, 'object-contain opacity-90')} alt={t(def.altKey)} />;
+  const img = <img referrerPolicy="no-referrer" src={def.src} className={clsx(size, 'object-contain opacity-90')} alt={t(def.altKey)} />;
 
   if (!ignoresDebuffMitigation) {
     return <span className={clsx('flex-shrink-0 inline-flex', className)}>{img}</span>;

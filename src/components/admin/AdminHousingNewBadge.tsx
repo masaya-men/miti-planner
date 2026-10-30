@@ -172,7 +172,7 @@ export function AdminHousingNewBadge() {
           <div className="border border-app-border rounded-lg p-4">
             <div className="flex gap-4 mb-4">
               {realListingImageUrl(listing) ? (
-                <img
+                <img referrerPolicy="no-referrer"
                   src={realListingImageUrl(listing)!}
                   alt=""
                   className="w-32 h-32 rounded-lg border border-app-border bg-app-surface2 object-cover shrink-0"

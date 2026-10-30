@@ -15,7 +15,7 @@ export const HousingerAvatar: React.FC<HousingerAvatarProps> = ({ avatarUrl, nam
   return (
     <span className={`housinger-avatar ${className}`}>
       {avatarUrl ? (
-        <img src={avatarUrl} alt="" />
+        <img referrerPolicy="no-referrer" src={avatarUrl} alt="" />
       ) : (
         <span className="housinger-avatar-fallback" aria-hidden="true">
           {initial}

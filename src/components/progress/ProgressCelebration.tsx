@@ -27,7 +27,7 @@ export function ProgressCelebration({ icons, onDismiss }: { icons: string[]; onD
   // アイコン片（img または フォールバックの白い矩形）
   const Piece = ({ s, px, blur }: { s: string; px: number; blur?: boolean }) =>
     s
-      ? <img src={s} alt="" width={px} height={px} className="object-contain rounded-md"
+      ? <img referrerPolicy="no-referrer" src={s} alt="" width={px} height={px} className="object-contain rounded-md"
           style={{ filter: `drop-shadow(0 0 5px rgba(59,130,246,0.4))${blur ? ' blur(0.7px)' : ''}` }}
           onError={(e) => { (e.currentTarget.style.visibility = 'hidden'); }} />
       : <span className="block rounded-[1px]" style={{ width: 8, height: 13, background: '#fff' }} />;

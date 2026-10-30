@@ -101,7 +101,7 @@ export const HousingBottomNav: React.FC<HousingBottomNavProps> = ({ onOpenSettin
       // ログイン中でも「未ログイン」に見えていた。
       icon: user ? (
         profileAvatarUrl ? (
-          <img src={profileAvatarUrl} alt="" className="housing-bottomnav-avatar" />
+          <img referrerPolicy="no-referrer" src={profileAvatarUrl} alt="" className="housing-bottomnav-avatar" />
         ) : (
           <span className="housing-bottomnav-avatar housing-bottomnav-avatar-fallback" aria-hidden="true">
             👤

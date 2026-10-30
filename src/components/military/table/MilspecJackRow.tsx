@@ -122,7 +122,7 @@ export const MilspecJackRow: React.FC<JobPickerRowProps> = ({
                     <polygon className="mouth" points="8.6,2.2 25.4,2.2 24.2,21.8 9.8,21.8" />
                     <polygon className="rimh" points="7,0.5 27,0.5 25.6,23.5 8.4,23.5" />
                   </svg>
-                  {icon && <img src={icon} alt={member.jobId ?? ''} />}
+                  {icon && <img referrerPolicy="no-referrer" src={icon} alt={member.jobId ?? ''} />}
                 </span>
               </div>
             </Tooltip>

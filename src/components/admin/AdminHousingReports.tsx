@@ -177,7 +177,7 @@ export function AdminHousingReports() {
                 className="border border-app-text/10 rounded p-3 flex gap-3 items-start"
               >
                 {imgSrc && (
-                  <img
+                  <img referrerPolicy="no-referrer"
                     src={imgSrc}
                     alt=""
                     className="w-24 h-24 object-cover rounded shrink-0"

@@ -84,7 +84,7 @@ export function PartyToggleStrip({ size = 22 }: PartyToggleStripProps) {
                                 )}
                             >
                                 {icon ? (
-                                    <img
+                                    <img referrerPolicy="no-referrer"
                                         src={icon}
                                         alt=""
                                         style={{ width: iconPx, height: iconPx }}

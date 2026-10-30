@@ -338,7 +338,7 @@ const SkillPreviewItem: React.FC<{ item: { key: string; value: number; iconUrl: 
             <Tooltip content={displayName}>
                 <div className="flex flex-col items-center gap-1">
                     {item.iconUrl ? (
-                        <img src={item.iconUrl} alt={displayName} className="w-6 h-6 rounded-md opacity-100 drop-shadow-sm" />
+                        <img referrerPolicy="no-referrer" src={item.iconUrl} alt={displayName} className="w-6 h-6 rounded-md opacity-100 drop-shadow-sm" />
                     ) : (
                         <div className="w-6 h-6 bg-app-surface2 rounded-md flex items-center justify-center text-app-base text-app-text-muted">?</div>
                     )}

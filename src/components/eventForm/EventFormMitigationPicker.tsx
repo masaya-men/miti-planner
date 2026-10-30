@@ -50,7 +50,7 @@ export const EventFormMitigationPicker: React.FC<EventFormMitigationPickerProps>
                                       if (!mit) return null;
                                       const lang = t('app.language') === 'English' ? 'en' : 'ja';
                                       return (
-                                        <img
+                                        <img referrerPolicy="no-referrer"
                                           key={mitId}
                                           src={mit.icon}
                                           alt={mit.name[lang] || mit.name.ja}
@@ -120,9 +120,9 @@ export const EventFormMitigationPicker: React.FC<EventFormMitigationPickerProps>
                                                         <div className="relative">
                                                             {mitVariant.deployVariant === 'plain' || mitVariant.deployVariant === undefined ? (
                                                                 <>
-                                                                    <img src={mit.icon} alt={getPhaseName(mit.name, contentLanguage)} className="w-7 h-7 object-contain drop-shadow" />
+                                                                    <img referrerPolicy="no-referrer" src={mit.icon} alt={getPhaseName(mit.name, contentLanguage)} className="w-7 h-7 object-contain drop-shadow" />
                                                                     {mitVariant.burst && (
-                                                                        <img
+                                                                        <img referrerPolicy="no-referrer"
                                                                             src={mit.icon}
                                                                             alt=""
                                                                             className="absolute -top-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"
@@ -132,20 +132,20 @@ export const EventFormMitigationPicker: React.FC<EventFormMitigationPickerProps>
                                                             ) : (
                                                                 // 鼓舞展開バリアント: 展開戦術ベース + 右上に秘策バッジ (+ crit_protraction なら右下に生命回生バッジ)
                                                                 <div className="relative w-7 h-7">
-                                                                    <img
+                                                                    <img referrerPolicy="no-referrer"
                                                                         src={deploymentIcon}
                                                                         alt={getPhaseName(mit.name, contentLanguage)}
                                                                         className="w-7 h-7 object-contain drop-shadow"
                                                                     />
                                                                     {/* 右上: 秘策（crit と crit_protraction の両方） */}
-                                                                    <img
+                                                                    <img referrerPolicy="no-referrer"
                                                                         src={recitationIcon}
                                                                         alt=""
                                                                         className="absolute -top-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"
                                                                     />
                                                                     {/* 右下: 生命回生法（crit_protraction のみ） */}
                                                                     {mitVariant.deployVariant === 'crit_protraction' && (
-                                                                        <img
+                                                                        <img referrerPolicy="no-referrer"
                                                                             src={protractionIcon}
                                                                             alt=""
                                                                             className="absolute -bottom-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"

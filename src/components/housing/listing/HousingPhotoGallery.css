@@ -37,6 +37,17 @@
     overflow: hidden;
     border-radius: calc(8px * var(--housing-scale));
 }
+/* 動画の表紙(X の画像)。動画の後ろに敷き、最初のコマが出るまで見せる */
+.housing-gallery-video > .housing-gallery-video-poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.housing-gallery-video > video {
+    position: relative;
+}
 .housing-gallery-video > video,
 .housing-gallery-video > iframe {
     width: 100%;

@@ -55,7 +55,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         {
             id: 'login',
             icon: profileAvatarUrl ? (
-                <img
+                <img referrerPolicy="no-referrer"
                     src={profileAvatarUrl}
                     alt=""
                     className="rounded-full object-cover"

@@ -15,7 +15,7 @@ export const MitiIconImg: React.FC<{
     /** 競合(同スキルCDかぶり)中: PC版のring-2より枠を細くして22pxアイコンでも潰れないようにする。 */
     isConflicting?: boolean;
 }> = ({ mit, def, contentLanguage, isNotMine, isStartRow, isConflicting }) => (
-    <img
+    <img referrerPolicy="no-referrer"
         key={mit.id}
         src={def.icon}
         alt={def.name ? getPhaseName(def.name, contentLanguage) : ''}

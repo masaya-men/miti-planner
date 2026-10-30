@@ -115,9 +115,13 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
         {active.kind === 'video' ? (
           <div className="housing-gallery-video" style={videoAspectStyle}>
             {listing.videoUrl ? (
+              <>
+              {/* 表紙は X の画像。<video poster> は Referer を止められず X に断られるので、後ろに <img> を敷く */}
+              {listing.videoPosterUrl && (
+                <HousingImage className="housing-gallery-video-poster" src={listing.videoPosterUrl} alt="" fallback="none" />
+              )}
               <video
                 src={buildTweetVideoProxyUrl(listing.videoUrl)}
-                poster={listing.videoPosterUrl}
                 controls
                 muted
                 autoPlay
@@ -128,6 +132,7 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
                   defaultValue: 'Listing video',
                 })}
               />
+              </>
             ) : listing.youtubeVideoId ? (
               <iframe
                 // loop=1 + playlist=(自身のID) で再生終了後にYouTubeの「関連動画」オーバーレイが

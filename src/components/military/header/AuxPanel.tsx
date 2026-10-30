@@ -155,7 +155,7 @@ export function AuxPanel({ MW, theme, onToggleTheme }: AuxPanelProps) {
           cap={com.caps[3]}
           style={capPos(com.caps[3])}
           className={iconCap}
-          label={user ? (profileAvatarUrl ? <img className="milspec-key-av" src={profileAvatarUrl} alt="" /> : <b>{initial}</b>) : MsIcon.login()}
+          label={user ? (profileAvatarUrl ? <img referrerPolicy="no-referrer" className="milspec-key-av" src={profileAvatarUrl} alt="" /> : <b>{initial}</b>) : MsIcon.login()}
           aria-label={t('app.sign_in')}
           title={t('app.sign_in')}
           onClick={() => setShowLogin(true)}

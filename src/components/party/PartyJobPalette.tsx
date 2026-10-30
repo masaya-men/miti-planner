@@ -47,7 +47,7 @@ export const PartyJobPalette: React.FC<PartyJobPaletteProps> = ({ JOBS, contentL
                                         >
                                             <Ripple />
                                             <Tooltip content={getPhaseName(job.name, contentLanguage)}>
-                                                <img src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-8 h-8 object-contain transition-transform group-hover/btn:scale-110 relative z-10 pointer-events-none" />
+                                                <img referrerPolicy="no-referrer" src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-8 h-8 object-contain transition-transform group-hover/btn:scale-110 relative z-10 pointer-events-none" />
                                             </Tooltip>
                                         </button>
                                     );

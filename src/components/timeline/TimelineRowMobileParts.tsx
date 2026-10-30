@@ -11,7 +11,7 @@ export const MobileTargetBadge: React.FC<{ partyMembers: PartyMember[]; effTarge
     const member = partyMembers.find(m => m.id === effTarget);
     const job = member ? JOBS.find(j => j.id === member.jobId) : null;
     if (job) {
-        return <img src={job.icon} className="w-3.5 h-3.5 rounded-sm flex-shrink-0" alt={effTarget} />;
+        return <img referrerPolicy="no-referrer" src={job.icon} className="w-3.5 h-3.5 rounded-sm flex-shrink-0" alt={effTarget} />;
     }
     return (
         <span className={clsx(
@@ -40,7 +40,7 @@ export const MobileMitiIcons: React.FC<{
             // ここでは「自分以外」の印(data-myjob-dim)だけ付ける（myJobHighlight は購読しない）。
             const isNotMine = !!myMemberId && mit.ownerId !== myMemberId;
             return (
-                <img
+                <img referrerPolicy="no-referrer"
                     key={mit.id}
                     src={def.icon}
                     alt={def.name ? getPhaseName(def.name, contentLanguage) : ''}

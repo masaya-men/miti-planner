@@ -12,7 +12,7 @@ export const TargetBadge: React.FC<{ effTarget: TimelineEvent['target']; partyMe
     if (job) {
         return (
             <span className="inline-flex items-center gap-0.5 px-1 py-px rounded-md bg-app-text/5 flex-shrink-0">
-                <img src={job.icon} className="w-3.5 h-3.5 rounded flex-shrink-0" alt={effTarget ?? ''} />
+                <img referrerPolicy="no-referrer" src={job.icon} className="w-3.5 h-3.5 rounded flex-shrink-0" alt={effTarget ?? ''} />
             </span>
         );
     }

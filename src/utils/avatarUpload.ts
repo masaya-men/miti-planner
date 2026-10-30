@@ -34,6 +34,7 @@ export async function cropAndResize(
 ): Promise<Blob> {
     return new Promise((resolve, reject) => {
         const img = new Image();
+        img.referrerPolicy = 'no-referrer';
         img.onload = () => {
             const canvas = document.createElement('canvas');
             canvas.width = AVATAR_SIZE;

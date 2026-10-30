@@ -49,7 +49,7 @@ export const SheetColumnHeader: React.FC<SheetColumnHeaderProps> = ({ members, s
                                         content={t('timeline.sheet_col_tooltip', { name, recast: def.recast, duration: def.duration }) + (onHideColumn ? ` — ${t('timeline.sheet_col_tooltip_hide')}` : '')}
                                         position="bottom"
                                     >
-                                        <img
+                                        <img referrerPolicy="no-referrer"
                                             data-mit-icon=""
                                             src={def.icon}
                                             alt={name}

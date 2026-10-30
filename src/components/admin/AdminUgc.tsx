@@ -152,7 +152,7 @@ export function AdminUgc() {
               <h3 className="text-app-2xl font-semibold mb-3">{t('admin.ugc_logo')}</h3>
               {plan.hasLogo && plan.logoBase64 ? (
                 <div className="flex items-start gap-4">
-                  <img
+                  <img referrerPolicy="no-referrer"
                     src={plan.logoBase64}
                     alt="Logo"
                     className="w-24 h-24 rounded-lg object-contain border border-app-border bg-app-surface2"

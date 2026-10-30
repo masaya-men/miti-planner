@@ -89,7 +89,7 @@ export const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: Part
                         className="inline-flex"
                     >
                         {job ? (
-                            <img src={job.icon} className="w-6 h-6 rounded-sm" alt={effTarget} />
+                            <img referrerPolicy="no-referrer" src={job.icon} className="w-6 h-6 rounded-sm" alt={effTarget} />
                         ) : (
                             <span className={clsx(
                                 "font-bold px-1 rounded",

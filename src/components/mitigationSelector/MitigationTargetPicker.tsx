@@ -60,7 +60,7 @@ export const MitigationTargetPicker: React.FC<MitigationTargetPickerProps> = ({
                                                             )}
                                                         >
                                                             {job ? (
-                                                                <img 
+                                                                <img referrerPolicy="no-referrer" 
                                                                     src={job.icon} 
                                                                     alt={job.name?.en || job.id} 
                                                                     className="w-8 h-8 object-contain drop-shadow-md" 

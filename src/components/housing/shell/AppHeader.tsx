@@ -222,7 +222,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenFilter }) => {
             aria-label={t('housing.topbar.account')}
           >
             {profileAvatarUrl ? (
-              <img src={profileAvatarUrl} alt="" />
+              <img referrerPolicy="no-referrer" src={profileAvatarUrl} alt="" />
             ) : (
               <span className="housing-avatar-fallback">👤</span>
             )}
