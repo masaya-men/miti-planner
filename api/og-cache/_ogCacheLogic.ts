@@ -51,3 +51,15 @@ export async function buildInternalOgUrl(
   url += `&lang=${meta.lang === 'en' ? 'en' : 'ja'}`;
   return url;
 }
+
+/**
+ * HIT 時の lastAccessedAt(週 1 の cleanup-og-images cron が 30 日より古いものを消す LRU 用)の書き込み間隔。
+ * 1 日 1 回に間引いても cron の 30 日に対する誤差は最大 1 日 = LRU は壊れない。
+ */
+export const LAST_ACCESSED_REFRESH_MS = 24 * 60 * 60 * 1000;
+
+/** 前回の lastAccessedAt(Storage のカスタムメタデータ・数字の文字列)から、書き直すべきかを返す。 */
+export function shouldRefreshLastAccessed(lastAccessedRaw: unknown, nowMs: number): boolean {
+  if (typeof lastAccessedRaw !== 'string' || !/^\d+$/.test(lastAccessedRaw)) return true;
+  return nowMs - Number(lastAccessedRaw) >= LAST_ACCESSED_REFRESH_MS;
+}

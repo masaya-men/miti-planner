@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isValidOgImageMeta, buildInternalOgUrl } from '../_ogCacheLogic.js';
+import { isValidOgImageMeta, buildInternalOgUrl, shouldRefreshLastAccessed, LAST_ACCESSED_REFRESH_MS } from '../_ogCacheLogic.js';
 
 describe('isValidOgImageMeta', () => {
   it('type無し(page型)はshareIdが必須', () => {
@@ -57,5 +57,20 @@ describe('buildInternalOgUrl', () => {
     await expect(
       buildInternalOgUrl('https://lopoly.app', { type: 'listing', imageUrl: 'https://x.test/a.jpg' }, undefined),
     ).rejects.toThrow();
+  });
+});
+
+describe('shouldRefreshLastAccessed', () => {
+  const NOW = 1_800_000_000_000;
+  it('23 時間前なら false', () => {
+    expect(shouldRefreshLastAccessed(String(NOW - 23 * 60 * 60 * 1000), NOW)).toBe(false);
+  });
+  it('24 時間ちょうどなら true', () => {
+    expect(shouldRefreshLastAccessed(String(NOW - LAST_ACCESSED_REFRESH_MS), NOW)).toBe(true);
+  });
+  it('未設定 / 数字以外なら true', () => {
+    expect(shouldRefreshLastAccessed(undefined, NOW)).toBe(true);
+    expect(shouldRefreshLastAccessed('abc', NOW)).toBe(true);
+    expect(shouldRefreshLastAccessed(123, NOW)).toBe(true);
   });
 });

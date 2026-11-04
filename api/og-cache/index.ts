@@ -19,7 +19,7 @@
 import { initAdmin } from '../../src/lib/adminAuth.js';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
-import { isValidOgImageMeta, buildInternalOgUrl } from './_ogCacheLogic.js';
+import { isValidOgImageMeta, buildInternalOgUrl, shouldRefreshLastAccessed } from './_ogCacheLogic.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 import { loadSharp } from '../_lib/loadSharp.js';
 
@@ -92,19 +92,28 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         const bucket = getStorage().bucket(STORAGE_BUCKET);
         const filePath = `og-images/${hash}.png`;
         const file = bucket.file(filePath);
-        const [exists] = await file.exists();
+        // exists() の代わりに getMetadata() 1 往復で「有るか」と前回の lastAccessedAt を取る。
+        // 404 = 未生成(MISS へ)。404 以外の失敗は外側の catch で 500。
+        let storedMeta: { metadata?: Record<string, unknown> } | null = null;
+        try {
+            [storedMeta] = await file.getMetadata();
+        } catch (err) {
+            if ((err as { code?: unknown })?.code !== 404) throw err;
+        }
 
         // HIT: Storage から直接配信
-        if (exists) {
+        if (storedMeta) {
             const [buffer] = await file.download();
             res.setHeader('Content-Type', sniffImageContentType(buffer));
             res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
             res.setHeader('X-OG-Cache', 'HIT');
-            // Storage の updated タイムスタンプを更新して LRU 的に使えるようにする
-            // （クリーンアップ cron が `updated` を基準に判定するため）
-            try {
-                await file.setMetadata({ metadata: { lastAccessedAt: String(Date.now()) } });
-            } catch { /* 参照時刻更新の失敗は致命的でないため握りつぶす */ }
+            // 参照時刻(cleanup cron の LRU 判定に使う)の書き込みは 1 日 1 回に間引く
+            const now = Date.now();
+            if (shouldRefreshLastAccessed(storedMeta.metadata?.lastAccessedAt, now)) {
+                try {
+                    await file.setMetadata({ metadata: { lastAccessedAt: String(now) } });
+                } catch { /* 参照時刻更新の失敗は致命的でないため握りつぶす */ }
+            }
             return res.status(200).send(buffer);
         }
 
