@@ -1,8 +1,12 @@
 import { routePartykitRequest } from "partyserver";
 import { isRoomFull } from "./collabCapacity";
 import { verifyToken, authorizeConnection } from "./collabAuth";
+import { createVerifyCache } from "./verifyCache";
 
 export { Room } from "./server";
+
+/** verify 結果の短期記憶(isolate 単位・ベストエフォート)。つなぎ直しで Vercel verify を呼ばない。 */
+const verifyCache = createVerifyCache();
 
 export interface Env {
   Room: DurableObjectNamespace;
@@ -53,7 +57,7 @@ export default {
       if (req.headers.get("Upgrade")?.toLowerCase() === "websocket") {
         // req(可変ヘッダのコピー)を in-place 認可。二重コピーしないので名前バインドは無傷。
         await authorizeConnection(req, (t) =>
-          verifyToken(env.APP_API_BASE, env.COLLAB_SHARED_SECRET, t),
+          verifyCache.verify(t, (tt) => verifyToken(env.APP_API_BASE, env.COLLAB_SHARED_SECRET, tt)),
         );
       }
       request = req;
