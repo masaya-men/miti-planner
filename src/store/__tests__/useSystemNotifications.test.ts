@@ -4,10 +4,12 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 
 import { useSystemNotifications } from '../useSystemNotifications';
 import { STORAGE_KEY } from '../../lib/systemNotifReadStorage';
+import { __resetSystemNotificationsFeedForTest } from '../systemNotificationsFeed';
 
 describe('useSystemNotifications', () => {
   beforeEach(() => {
     localStorage.removeItem(STORAGE_KEY);
+    __resetSystemNotificationsFeedForTest();
     vi.restoreAllMocks();
   });
 

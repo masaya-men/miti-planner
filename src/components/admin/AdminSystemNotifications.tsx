@@ -16,6 +16,7 @@ import { Pencil, Trash2, Eye, EyeOff, Plus } from 'lucide-react';
 import { apiFetch } from '../../lib/apiClient';
 import type { SystemNotification, LocalizedText } from '../../types/systemNotification';
 import { AdminPage } from './AdminPage';
+import { refreshSystemNotifications } from '../../store/systemNotificationsFeed';
 
 function emptyLocalized(): LocalizedText {
   return { ja: '', en: '' };
@@ -68,6 +69,8 @@ export const AdminSystemNotifications: React.FC = () => {
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error('save_failed');
+      // 投稿・編集した本人の画面ではその場で取り直す (ほかの人は最大 5 分遅れ)
+      void refreshSystemNotifications({ force: true });
       setEdit({ isOpen: false, editing: null });
     } catch {
       setErrorMsg(t('system_notif.admin.save_error'));
@@ -82,6 +85,7 @@ export const AdminSystemNotifications: React.FC = () => {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ id: item.id, published: !item.published }),
     });
+    void refreshSystemNotifications({ force: true });
   }
 
   async function remove(item: SystemNotification) {
@@ -91,6 +95,7 @@ export const AdminSystemNotifications: React.FC = () => {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ id: item.id }),
     });
+    void refreshSystemNotifications({ force: true });
   }
 
   return (
