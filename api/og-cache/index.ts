@@ -19,12 +19,11 @@
 import { initAdmin } from '../../src/lib/adminAuth.js';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
-import sharp from 'sharp';
 import { isValidOgImageMeta, buildInternalOgUrl } from './_ogCacheLogic.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
+import { loadSharp } from '../_lib/loadSharp.js';
 
-// GHSA-wq5f-xc86-pv6w 対策: LoPo は SVG を変換しないので sharp の SVG 読込を無効化する
-sharp.block({ operation: ['VipsForeignLoadSvg'] });
+// sharp は MISS の時だけ読む(GHSA-wq5f-xc86-pv6w の SVG 読込無効化は loadSharp が必ずかける)
 
 const STORAGE_BUCKET = 'lopo-7793e.firebasestorage.app';
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
@@ -50,6 +49,7 @@ function sniffImageContentType(buf: Buffer): 'image/jpeg' | 'image/png' {
  */
 async function toJpegOgCard(pngBuffer: Buffer): Promise<{ buffer: Buffer; contentType: 'image/jpeg' | 'image/png' }> {
     try {
+        const sharp = await loadSharp();
         const jpeg = await sharp(pngBuffer)
             .flatten({ background: '#0e1116' })
             .jpeg({ quality: 85, mozjpeg: true, chromaSubsampling: '4:4:4' })

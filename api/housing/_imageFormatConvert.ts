@@ -8,10 +8,10 @@
  * WebP/AVIF由来のURLを見たら同じパスの .png 版を優先して使う (拡張子違いの
  * 兄弟ファイルのみ・Firestoreスキーマは変更しない)。
  */
-import sharp from 'sharp';
 
-// GHSA-wq5f-xc86-pv6w 対策: LoPo は SVG を変換しないので sharp の SVG 読込を無効化する
-sharp.block({ operation: ['VipsForeignLoadSvg'] });
+import { loadSharp } from '../_lib/loadSharp.js';
+
+// sharp は使う時だけ読む(GHSA-wq5f-xc86-pv6w の SVG 読込無効化は loadSharp が必ずかける)
 
 /**
  * PNG 兄弟変換の対象となる原本 MIME（satori 非対応形式）。
@@ -46,6 +46,7 @@ export async function convertToPngIfNeeded(
 ): Promise<Buffer | null> {
   if (!CONVERTIBLE_MIME.has(mimeType)) return null;
   try {
+    const sharp = await loadSharp();
     let img = sharp(buf);
     if (opts.maxDimension) {
       img = img.resize(opts.maxDimension, opts.maxDimension, { fit: 'inside', withoutEnlargement: true });
@@ -63,6 +64,7 @@ export async function convertToPngIfNeeded(
  * 変換失敗は throw する(呼び出し側で致命的に扱う。派生欠けは srcset の 404 を招くため)。
  */
 export async function resizeToWebp(buf: Buffer, width: number): Promise<Buffer> {
+  const sharp = await loadSharp();
   return sharp(buf)
     .resize(width, null, { withoutEnlargement: true, fit: 'inside' })
     .webp({ quality: 78 })

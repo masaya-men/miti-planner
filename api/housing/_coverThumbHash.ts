@@ -4,14 +4,13 @@
  * ThumbHash は最大 100px の縮小画像で計算する。失敗は throw せず null(呼び出し側は
  * 「ハッシュ無し = 従来どおり背景色」で続行する)。
  */
-import sharp from 'sharp';
 import { rgbaToThumbHash } from 'thumbhash';
-
-// GHSA-wq5f-xc86-pv6w 対策: LoPo は SVG を変換しないので sharp の SVG 読込を無効化する
-sharp.block({ operation: ['VipsForeignLoadSvg'] });
+import { loadSharp } from '../_lib/loadSharp.js';
 
 export async function computeCoverThumbHash(buf: Buffer): Promise<string | null> {
   try {
+    // sharp は使う時だけ読む(SVG 読込の無効化は loadSharp が必ずかける)
+    const sharp = await loadSharp();
     const { data, info } = await sharp(buf)
       .resize(100, 100, { fit: 'inside' })
       .ensureAlpha()
