@@ -12,5 +12,6 @@
   ],
   // 受付係(Vercel)オリジン。COLLAB_SHARED_SECRET は機密のためここに書かず
   // `wrangler secret put COLLAB_SHARED_SECRET` で投入する(段取り③ Task10)。
-  "vars": { "APP_API_BASE": "https://lopoly.app" }
+  // FIREBASE_PROJECT_ID は公開の値(src/lib/firebase.ts と同じ)。worker の中で ID トークンを確かめる時の aud / iss に使う
+  "vars": { "APP_API_BASE": "https://lopoly.app", "FIREBASE_PROJECT_ID": "lopo-7793e" }
 }
