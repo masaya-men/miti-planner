@@ -1,6 +1,8 @@
 import { routePartykitRequest } from "partyserver";
 import { isRoomFull } from "./collabCapacity";
-import { verifyToken, authorizeConnection } from "./collabAuth";
+import { verifyToken, authorizeConnection, type VerifyFn } from "./collabAuth";
+import { createJwksSource } from "./firebaseJwks";
+import { verifyFirebaseIdToken } from "./firebaseIdToken";
 
 export { Room } from "./server";
 
@@ -10,6 +12,21 @@ export interface Env {
   APP_API_BASE: string;
   /** DO↔Vercel のサーバー間共有シークレット(wrangler secret で投入)。 */
   COLLAB_SHARED_SECRET: string;
+  /**
+   * Firebase のプロジェクト ID(wrangler secret で投入・実値をファイルに書かない)。
+   * あれば ID トークンを worker の中で確かめる(Vercel を呼ばない)。
+   * 無ければ従来どおり Vercel の /api/collab/verify に聞く(投入前の安全側の戻り道)。
+   */
+  FIREBASE_PROJECT_ID?: string;
+}
+
+/** Google の公開鍵(isolate 単位で Cache-Control の期間だけ覚える)。 */
+const jwks = createJwksSource();
+
+function pickVerify(env: Env): VerifyFn {
+  const projectId = env.FIREBASE_PROJECT_ID;
+  if (projectId) return (t) => verifyFirebaseIdToken(t, projectId, (kid) => jwks.getKey(kid));
+  return (t) => verifyToken(env.APP_API_BASE, env.COLLAB_SHARED_SECRET, t);
 }
 
 /**
@@ -52,9 +69,7 @@ export default {
       //   /count 等(Upgrade 無し)は対象外。
       if (req.headers.get("Upgrade")?.toLowerCase() === "websocket") {
         // req(可変ヘッダのコピー)を in-place 認可。二重コピーしないので名前バインドは無傷。
-        await authorizeConnection(req, (t) =>
-          verifyToken(env.APP_API_BASE, env.COLLAB_SHARED_SECRET, t),
-        );
+        await authorizeConnection(req, pickVerify(env));
       }
       request = req;
     }
