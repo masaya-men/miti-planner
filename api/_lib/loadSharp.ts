@@ -7,14 +7,14 @@
  * 必ずかけてから返す。2 回目以降は同じ Promise を返す。
  * 静的に `import sharp from 'sharp'` しないこと(api/__tests__/noStaticSharpImport.test.ts が見張る)。
  */
-type Sharp = typeof import('sharp');
+type Sharp = typeof import('sharp')['default'];
 
 let pending: Promise<Sharp> | null = null;
 
 export function loadSharp(): Promise<Sharp> {
   if (!pending) {
     pending = import('sharp').then((mod) => {
-      const sharp = ((mod as { default?: Sharp }).default ?? mod) as Sharp;
+      const sharp = mod.default;
       sharp.block({ operation: ['VipsForeignLoadSvg'] });
       return sharp;
     });
