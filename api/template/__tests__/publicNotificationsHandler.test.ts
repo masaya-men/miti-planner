@@ -33,11 +33,11 @@ function createRes() {
 }
 
 describe('public-notifications ハンドラー', () => {
-  it('Cache-Control は max-age=300', async () => {
+  it('Cache-Control は public, max-age=3600', async () => {
     const req: any = { method: 'GET', headers: {}, query: {} };
     const res = createRes();
     await handler(req, res);
     expect(res.statusCode).toBe(200);
-    expect(res.headers['Cache-Control']).toBe('public, s-maxage=300, max-age=300');
+    expect(res.headers['Cache-Control']).toBe('public, max-age=3600');
   });
 });

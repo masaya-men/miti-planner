@@ -6,7 +6,7 @@
  * - 最後に「成功した」取得から 5 分未満なら、マウント時も前面復帰時も取りに行かない
  *   (初回=成功記録なしは必ず取る。失敗時は時刻を進めない=次の前面復帰ですぐ取り直す)。
  * - 管理者が通知を投稿・編集した直後は `refreshSystemNotifications({ force: true })` で
- *   5 分ルールとブラウザの HTTP キャッシュを飛ばして取り直す。
+ *   5 分ルールを飛ばし、その 1 回だけ URL に時刻の印 (&t=) を付けて Cloudflare・ブラウザのキャッシュを避けて取り直す。
  * - 素の fetch で App Check を付与しない (Admin SDK 経由の公開読み窓口・App Check 不要)。
  */
 import type { SystemNotification } from '../types/systemNotification';
@@ -33,7 +33,7 @@ function onVisible() {
 
 async function fetchOnce(gen: number, force: boolean): Promise<void> {
   try {
-    const res = force ? await fetch(ENDPOINT, { cache: 'reload' }) : await fetch(ENDPOINT);
+    const res = await fetch(force ? `${ENDPOINT}&t=${Date.now()}` : ENDPOINT);
     if (!res.ok) return;
     const data = (await res.json()) as { items?: SystemNotification[] };
     if (gen !== generation) return;
@@ -52,7 +52,7 @@ export function getSystemNotificationsSnapshot(): SystemNotification[] {
 
 /**
  * 取得する。実行中の取得があればそれを共有し、前回成功から 5 分未満なら何もしない。
- * force=true は両方を飛ばして新しく取る (管理者の投稿・編集直後用)。
+ * force=true は両方を飛ばし、URL に時刻の印を付けて新しく取る (管理者の投稿・編集直後用)。
  */
 export function refreshSystemNotifications(opts?: { force?: boolean }): Promise<void> {
   const force = opts?.force === true;

@@ -114,13 +114,13 @@ describe('systemNotificationsFeed', () => {
     expect(fetchFn).toHaveBeenCalledTimes(1);
   });
 
-  it('force は 5 分未満でもブラウザのキャッシュを飛ばして取り直す (管理者の投稿直後)', async () => {
+  it('force は 5 分未満でも URL に時刻の印を付けて取り直す (管理者の投稿直後)', async () => {
     const fetchFn = stubFetch(['a'], ['a', 'b']);
     const h = renderHook(() => useSystemNotifications());
     await waitFor(() => expect(h.result.current.items).toHaveLength(1));
     await act(async () => { await refreshSystemNotifications({ force: true }); });
     expect(fetchFn).toHaveBeenCalledTimes(2);
-    expect(fetchFn).toHaveBeenLastCalledWith('/api/template?action=public-notifications', { cache: 'reload' });
+    expect(fetchFn).toHaveBeenLastCalledWith(`/api/template?action=public-notifications&t=${T0}`);
     expect(h.result.current.items).toHaveLength(2);
   });
 });

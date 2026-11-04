@@ -4,8 +4,9 @@
  *
  * - Admin SDK 経由の窓口読み (P1-M: Firestore Rules の直読みから移行する準備)。
  * - 匿名可・App Check 検証しない (公開データの GET のみ、書き込み無し)。
- * - Cache-Control: public, s-maxage=300, max-age=300 (Vercel は s-maxage を落とすので max-age が効く。
- *   クライアントも 5 分に 1 回しか取りに来ない=src/store/systemNotificationsFeed.ts)。
+ * - Cache-Control: public, max-age=3600 (Cloudflare とブラウザが 1 時間答える=Vercel に届かない。持ち主承認 11-05。
+ *   緊急時は Cloudflare のキャッシュを手で消す。管理者の投稿直後は URL に時刻の印を付けて取り直す
+ *   =src/store/systemNotificationsFeed.ts)。
  */
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
@@ -33,7 +34,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       .get();
     const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
-    res.setHeader('Cache-Control', 'public, s-maxage=300, max-age=300');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
     return res.status(200).json({ items });
   } catch (err) {
     console.error('[template/public-notifications] error:', err);
