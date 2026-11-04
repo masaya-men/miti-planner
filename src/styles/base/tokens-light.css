@@ -5,7 +5,7 @@
     font-size: 16px;
 
     /* === 共通基盤 (全プロジェクト共通の sizing 思想) === */
-    --container-max: 1489px;
+    --container-max: none;           /* 上限なし = 画面いっぱい(持ち主 11-05) */
     --text-scale-multiplier: 1;
 
     /* Font size tokens */
