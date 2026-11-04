@@ -7,6 +7,7 @@ import {
   __resetSystemNotificationsFeedForTest,
   refreshSystemNotifications,
   NOTIFICATIONS_MIN_REFETCH_MS,
+  NOTIFICATIONS_BROWSER_CACHE_MS,
 } from '../systemNotificationsFeed';
 import { STORAGE_KEY } from '../../lib/systemNotifReadStorage';
 
@@ -122,5 +123,20 @@ describe('systemNotificationsFeed', () => {
     expect(fetchFn).toHaveBeenCalledTimes(2);
     expect(fetchFn).toHaveBeenLastCalledWith(`/api/template?action=public-notifications&t=${T0}`);
     expect(h.result.current.items).toHaveLength(2);
+  });
+  it("force の後 1 時間は、普通の取り直しも時刻の印を付ける(ブラウザが覚えた投稿前の応答に戻らない)", async () => {
+    const fetchFn = stubFetch(["a"], ["a", "b"], ["a", "b"], ["a", "b"]);
+    const h = renderHook(() => useSystemNotifications());
+    await waitFor(() => expect(h.result.current.items).toHaveLength(1));
+    await act(async () => { await refreshSystemNotifications({ force: true }); });
+    const t1 = T0 + NOTIFICATIONS_MIN_REFETCH_MS;
+    vi.setSystemTime(t1);
+    await becomeVisible();
+    await waitFor(() => expect(fetchFn).toHaveBeenCalledTimes(3));
+    expect(fetchFn).toHaveBeenLastCalledWith(`/api/template?action=public-notifications&t=${t1}`);
+    vi.setSystemTime(T0 + NOTIFICATIONS_BROWSER_CACHE_MS);
+    await becomeVisible();
+    await waitFor(() => expect(fetchFn).toHaveBeenCalledTimes(4));
+    expect(fetchFn).toHaveBeenLastCalledWith("/api/template?action=public-notifications");
   });
 });

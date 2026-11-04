@@ -12,12 +12,16 @@
 import type { SystemNotification } from '../types/systemNotification';
 
 export const NOTIFICATIONS_MIN_REFETCH_MS = 5 * 60_000;
+/** サーバーの Cache-Control の max-age と同じ長さ。強制で取り直した後この間は、普通の取得も時刻の印を付ける(ブラウザが覚えている投稿前の古い応答に戻らないため) */
+export const NOTIFICATIONS_BROWSER_CACHE_MS = 60 * 60_000;
 
 const ENDPOINT = '/api/template?action=public-notifications';
 const EMPTY: SystemNotification[] = [];
 
 let snapshot: SystemNotification[] = EMPTY;
 let lastSuccessAt: number | null = null;
+/** 最後に強制で取り直した時刻(このタブだけ・管理者の画面) */
+let forcedAt: number | null = null;
 let inflight: Promise<void> | null = null;
 /** 取得の世代。新しい取得を始めたら進め、古い取得の結果は捨てる。 */
 let generation = 0;
@@ -33,7 +37,8 @@ function onVisible() {
 
 async function fetchOnce(gen: number, force: boolean): Promise<void> {
   try {
-    const res = await fetch(force ? `${ENDPOINT}&t=${Date.now()}` : ENDPOINT);
+    const bypass = force || (forcedAt !== null && Date.now() - forcedAt < NOTIFICATIONS_BROWSER_CACHE_MS);
+    const res = await fetch(bypass ? `${ENDPOINT}&t=${Date.now()}` : ENDPOINT);
     if (!res.ok) return;
     const data = (await res.json()) as { items?: SystemNotification[] };
     if (gen !== generation) return;
@@ -62,6 +67,7 @@ export function refreshSystemNotifications(opts?: { force?: boolean }): Promise<
       return Promise.resolve();
     }
   }
+  if (force) forcedAt = Date.now();
   generation += 1;
   const gen = generation;
   const p = fetchOnce(gen, force).finally(() => {
@@ -91,6 +97,7 @@ export function __resetSystemNotificationsFeedForTest(): void {
   listeners.clear();
   snapshot = EMPTY;
   lastSuccessAt = null;
+  forcedAt = null;
   inflight = null;
   generation += 1;
 }
