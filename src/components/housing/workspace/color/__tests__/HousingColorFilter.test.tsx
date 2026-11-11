@@ -3,7 +3,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { useHousingFilterStore } from '../../../../../store/useHousingFilterStore';
 import { HousingColorFilter } from '../HousingColorFilter';
-import { wheelPosition } from '../ColorWheel';
 
 // t(key, 値) を「キー|値」に直す(文言ではなく配線を確かめる)
 vi.mock('react-i18next', () => ({
@@ -22,6 +21,11 @@ describe('HousingColorFilter', () => {
         const { container } = render(<HousingColorFilter pendingCount={0} />);
         expect(container.querySelectorAll('.housing-color-swatch')).toHaveLength(50);
     });
+    it('格子は10列で、番号順(5行目=無彩色40〜49)に並ぶ', () => {
+        const { container } = render(<HousingColorFilter pendingCount={0} />);
+        const labels = [...container.querySelectorAll('.housing-color-swatch')].map((b) => b.getAttribute('aria-label'));
+        expect(labels[40]).toContain('white');
+    });
     it('丸を押すと選ばれ、もう一度押すと外れる', () => {
         const { container } = render(<HousingColorFilter pendingCount={0} />);
         const first = container.querySelectorAll('.housing-color-swatch')[0] as HTMLButtonElement;
@@ -38,11 +42,11 @@ describe('HousingColorFilter', () => {
         fireEvent.click(sw[45]);
         expect(useHousingFilterStore.getState().colorSwatches).toEqual([0, 45]);
     });
-    it('真ん中の「外す」で全解除', () => {
+    it('「色を外す」で全解除', () => {
         useHousingFilterStore.getState().toggleColor(2);
         useHousingFilterStore.getState().toggleColor(7);
         const { container } = render(<HousingColorFilter pendingCount={0} />);
-        fireEvent.click(container.querySelector('.housing-color-wheel-core')!);
+        fireEvent.click(container.querySelector('.housing-color-filter-clear')!);
         expect(useHousingFilterStore.getState().colorSwatches).toEqual([]);
     });
     it('地図表示では丸が無効', () => {
@@ -58,15 +62,5 @@ describe('HousingColorFilter', () => {
         expect(container.querySelector('.housing-color-filter-note')?.textContent).toContain('pending_note');
         rerender(<HousingColorFilter pendingCount={0} />);
         expect(container.querySelector('.housing-color-filter-note')).toBeNull();
-    });
-});
-
-describe('wheelPosition', () => {
-    it('色相0は真上、外側の段ほど端に近い', () => {
-        const outer = wheelPosition(0, 0);
-        const inner = wheelPosition(3, 0);
-        expect(outer.x).toBeCloseTo(50, 5);
-        expect(outer.y).toBeLessThan(inner.y);
-        expect(inner.y).toBeLessThan(50);
     });
 });

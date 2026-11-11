@@ -24,22 +24,16 @@ interface Props {
     selected: boolean;
     disabled?: boolean;
     onToggle: (index: number) => void;
-    /** 色相環の上の位置(% 指定)。無彩色の列では付けない。 */
-    position?: { x: number; y: number };
 }
 
 /** 色の丸 1 つ。押すと選ぶ・もう一度押すと外れる。丸の色は「テーマで変わらない見本の色」なので style の背景で渡す(例外)。 */
-export const ColorSwatchButton: React.FC<Props> = ({ index, selected, disabled, onToggle, position }) => {
+export const ColorSwatchButton: React.FC<Props> = ({ index, selected, disabled, onToggle }) => {
     const label = useSwatchLabel()(index);
     return (
         <button
             type="button"
             className="housing-color-swatch"
-            style={{
-                background: SEARCH_SWATCHES[index],
-                ...(position ? { left: `${position.x}%`, top: `${position.y}%` } : null),
-            }}
-            data-positioned={position ? 'true' : undefined}
+            style={{ background: SEARCH_SWATCHES[index] }}
             aria-pressed={selected}
             aria-label={label}
             title={label}

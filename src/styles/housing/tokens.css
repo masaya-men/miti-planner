@@ -97,8 +97,7 @@
   /* 色で探す: 丸の縁・輪の大きさ(丸の色そのものはテーマで変わらない見本の色でデータ側) */
   --housing-color-swatch-border: rgba(255, 255, 255, 0.2);
   --housing-color-swatch-border-strong: rgba(255, 255, 255, 0.35);
-  --housing-color-wheel-size: calc(216px * var(--housing-scale));
-  --housing-color-wheel-size-mobile: calc(300px * var(--housing-scale));
+  --housing-color-swatch-min: 20px;
 
   --housing-chip-bg: rgba(255, 255, 255, 0.05);
   --housing-chip-bg-hover: rgba(255, 255, 255, 0.08);

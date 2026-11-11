@@ -1,6 +1,5 @@
 /* 色で探す(ハウジング)の見た目。丸の色そのものは style の背景(テーマで変わらない見本の色)。 */
 .housing-color-filter {
-  --wheel: var(--housing-color-wheel-size);
   display: flex; flex-direction: column; gap: calc(12px * var(--housing-scale));
   margin-bottom: calc(12px * var(--housing-scale));
 }
@@ -26,45 +25,30 @@
   font-size: var(--housing-text-xs); color: var(--housing-text-mute);
 }
 
-/* 色相環 */
-/* 幅は枠より少し狭く(選択の輪郭が枠の端で切れないように)。高さは幅に合わせて正円を保つ */
-.housing-color-wheel { position: relative; width: min(var(--wheel), calc(100% - 14px * var(--housing-scale))); aspect-ratio: 1; margin: 0 auto; }
-.housing-color-wheel-guide {
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  border-radius: 50%; border: 1px solid var(--housing-divider); pointer-events: none;
+/* 色の格子: 10 列 × 5 行(5 行目が無彩色)。丸は列幅いっぱいまで広がり、横にはみ出さない */
+.housing-color-grid {
+  display: grid; grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: calc(6px * var(--housing-scale)); padding: calc(3px * var(--housing-scale));
 }
-.housing-color-wheel-core {
-  position: absolute; left: 50%; top: 50%; width: 26%; height: 26%; transform: translate(-50%, -50%);
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 50%; border: 1px solid var(--housing-divider); background: var(--housing-panel-inner);
-  font-family: inherit; font-size: var(--housing-text-xs); color: var(--housing-text-mute);
-  cursor: pointer; transition: color 0.15s ease, border-color 0.15s ease;
-}
-.housing-color-wheel-core:disabled { cursor: default; }
-.housing-color-wheel-core[data-active="true"]:not(:disabled):hover { color: var(--housing-text); border-color: var(--housing-honey-border); }
+.housing-color-grid > .housing-color-swatch:nth-child(n + 41) { margin-top: calc(6px * var(--housing-scale)); }
 
-/* 丸(色相環の上・無彩色の列で共通) */
+/* 丸 */
 .housing-color-swatch {
-  appearance: none; padding: 0; cursor: pointer; flex: 0 0 auto;
-  width: calc(20px * var(--housing-scale)); height: calc(20px * var(--housing-scale)); border-radius: 50%;
+  appearance: none; padding: 0; cursor: pointer; width: 100%; aspect-ratio: 1; min-width: calc(var(--housing-color-swatch-min) * var(--housing-scale)); max-width: calc(28px * var(--housing-scale)); justify-self: center;
+  border-radius: 50%;
   border: 1px solid var(--housing-color-swatch-border);
   transition: transform 0.15s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.housing-color-swatch[data-positioned="true"] {
-  position: absolute; width: 8.4%; height: 8.4%; margin: -4.2% 0 0 -4.2%;
-}
-.housing-color-swatch:hover:not(:disabled) { transform: scale(1.3); z-index: 2; }
-.housing-color-swatch[aria-pressed="true"] { outline: calc(2px * var(--housing-scale)) solid var(--housing-aether); outline-offset: calc(2px * var(--housing-scale)); z-index: 1; }
+.housing-color-swatch:hover:not(:disabled) { transform: scale(1.12); z-index: 2; }
+.housing-color-swatch[aria-pressed="true"] { outline: calc(1.5px * var(--housing-scale)) solid var(--housing-aether); outline-offset: calc(2px * var(--housing-scale)); z-index: 1; }
 .housing-color-swatch:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
 .housing-color-swatch:disabled { cursor: default; }
-.housing-color-neutrals { display: flex; justify-content: space-between; }
 
 @media (prefers-reduced-motion: reduce) {
-  .housing-color-swatch, .housing-color-wheel-core { transition: none; }
+  .housing-color-swatch { transition: none; }
 }
 
-/* スマホ: 絞り込みシートの一番上に出し、輪を大きくする */
+/* スマホ: 絞り込みシートの一番上に出す */
 @media (max-width: 767px) {
-  .housing-color-filter { --wheel: var(--housing-color-wheel-size-mobile); order: -1; }
-  .housing-color-neutrals .housing-color-swatch { width: calc(26px * var(--housing-scale)); height: calc(26px * var(--housing-scale)); }
+  .housing-color-filter { order: -1; --housing-color-swatch-min: 28px; }
 }
