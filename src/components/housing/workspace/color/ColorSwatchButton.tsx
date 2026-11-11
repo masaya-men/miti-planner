@@ -1,0 +1,50 @@
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { SEARCH_SWATCHES, swatchNameKey, swatchTone } from '../../../../lib/housing/color/housingColorSwatches';
+
+const TONE_KEYS = ['light', 'midLight', 'midDark', 'dark'] as const;
+
+/** 丸 1 つの読み上げ名: 系統名(+ 色相の丸だけ明るさの段)。 */
+export function useSwatchLabel(): (index: number) => string {
+    const { t } = useTranslation();
+    return (index) => {
+        const family = t(`housing.workspace.filter.color.family.${swatchNameKey(index)}`);
+        const tone = swatchTone(index);
+        return tone === null
+            ? family
+            : t('housing.workspace.filter.color.swatch_aria', {
+                family,
+                tone: t(`housing.workspace.filter.color.tone.${TONE_KEYS[tone]}`),
+            });
+    };
+}
+
+interface Props {
+    index: number;
+    selected: boolean;
+    disabled?: boolean;
+    onToggle: (index: number) => void;
+    /** 色相環の上の位置(% 指定)。無彩色の列では付けない。 */
+    position?: { x: number; y: number };
+}
+
+/** 色の丸 1 つ。押すと選ぶ・もう一度押すと外れる。丸の色は「テーマで変わらない見本の色」なので style の背景で渡す(例外)。 */
+export const ColorSwatchButton: React.FC<Props> = ({ index, selected, disabled, onToggle, position }) => {
+    const label = useSwatchLabel()(index);
+    return (
+        <button
+            type="button"
+            className="housing-color-swatch"
+            style={{
+                background: SEARCH_SWATCHES[index],
+                ...(position ? { left: `${position.x}%`, top: `${position.y}%` } : null),
+            }}
+            data-positioned={position ? 'true' : undefined}
+            aria-pressed={selected}
+            aria-label={label}
+            title={label}
+            disabled={disabled}
+            onClick={() => onToggle(index)}
+        />
+    );
+};

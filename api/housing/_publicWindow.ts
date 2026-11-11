@@ -30,7 +30,7 @@ const SELECT_FIELDS = [
   'ownerUid', 'visibility', 'isHidden', 'deletedAt', 'createdAt', 'publishUntil', 'pinnedNewUntil',
   'dc', 'server', 'area', 'ward', 'plot', 'size', 'apartmentBuilding', 'roomNumber', 'addressKey',
   'title', 'description', 'tags', 'imageMode', 'postUrl', 'ogImageUrl',
-  'thumbnailPath', 'thumbnailPaths', 'coverThumbHash', 'sourceImageUrls', 'sourceImageAspectRatios',
+  'thumbnailPath', 'thumbnailPaths', 'coverThumbHash', 'colorFamilies', 'colorRule', 'sourceImageUrls', 'sourceImageAspectRatios',
   'youtubeVideoId', 'videoUrl', 'videoPosterUrl', 'videoAspectRatio', 'tweetId',
   'buildingType', 'roomKind', 'lastConfirmedAt',
 ];

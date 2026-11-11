@@ -41,6 +41,7 @@ import { parseStoragePathFromPublicUrl, buildHousingImagePublicUrl, toPngSibling
 import { bumpPublicVersionTx } from './_publicVersion.js';
 import { warmListingCardByRef } from './_warmListingCard.js';
 import { convertToPngIfNeeded, LISTING_THUMBNAIL_PNG_MAX_DIMENSION, resizeToWebp, CONVERTIBLE_MIME } from './_imageFormatConvert.js';
+import { colorInvalidation, validatedColorFields } from './_colorFields.js';
 import { computeCoverThumbHash } from './_coverThumbHash.js';
 import type { HousingReq, HousingRes } from './_httpTypes.js';
 import { setCors } from '../_lib/setCors.js';
@@ -75,6 +76,8 @@ export default async function handler(req: HousingReq, res: HousingRes) {
     const uid = decoded.uid;
 
     const { listingId, base64, mimeType, index } = req.body || {};
+    // 色で探す: クライアントが同梱した色(代表 index 0 のときだけ使う)。検証を通らなければ null。
+    const colorFieldsFromBody = validatedColorFields(req.body);
     if (!listingId || typeof listingId !== 'string') {
       return res.status(400).json({ error: 'invalid_listingId' });
     }
@@ -211,6 +214,8 @@ export default async function handler(req: HousingReq, res: HousingRes) {
       // (誤ったぼかしを出し続けない)。
       if (imageIndex === 0) {
         update.coverThumbHash = coverThumbHash ?? FieldValue.delete();
+        // 色で探す: クライアントが新しい代表から計算した色が検証を通ればそれを保存、無ければ古い色を無効にする
+        Object.assign(update, colorFieldsFromBody ?? colorInvalidation());
       }
       // sns→thumbnail の登録方法切替 (2026-07-20 編集ページ画像管理設計): このアップロードが
       // 「URL経由だった物件に初めて直接アップロード画像を追加した」ケースなら、SNS由来の

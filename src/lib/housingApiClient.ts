@@ -8,6 +8,7 @@
 import { buildHousingHeaders as buildHeaders } from './housingAuthHeaders';
 import type { AddressInput, RegistrationDraft } from '../utils/housingRegistrationTypes';
 import type { TourSnapshot } from '../types/sharedTour';
+import type { ListingColors } from './housing/color/housingColorFromUrl';
 
 const API_BASE = '/api/housing';
 
@@ -38,12 +39,13 @@ export interface RegisterListingResponse {
   addressKey: string;
 }
 
-export async function registerListing(draft: RegistrationDraft): Promise<RegisterListingResponse> {
+/** colors: 色で探す。X・YouTube・OGP の家は、代表の写真から計算した色を登録の本文に同梱できる。 */
+export async function registerListing(draft: RegistrationDraft, colors?: ListingColors | null): Promise<RegisterListingResponse> {
   const headers = await buildHeaders(true);
   const res = await fetch(`${API_BASE}?action=register-listing`, {
     method: 'POST',
     headers,
-    body: JSON.stringify(draft),
+    body: JSON.stringify(colors ? { ...draft, ...colors } : draft),
   });
   if (res.status === 429) {
     const body = await res.json().catch(() => ({}));
@@ -151,12 +153,14 @@ export async function uploadListingThumbnail(params: {
   base64: string;
   mimeType: string;
   index?: number;
+  /** 色で探す: 代表(index 0)の写真から計算した色。検証を通れば一緒に保存される。 */
+  colors?: ListingColors | null;
 }): Promise<UploadThumbnailResponse> {
   const headers = await buildHeaders(true);
   const res = await fetch(`${API_BASE}?action=upload-thumbnail`, {
     method: 'POST',
     headers,
-    body: JSON.stringify(params),
+    body: JSON.stringify({ listingId: params.listingId, base64: params.base64, mimeType: params.mimeType, index: params.index, ...(params.index ? {} : params.colors ?? {}) }),
   });
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { error?: string };
@@ -300,4 +304,18 @@ export async function joinSharedTour(tourToken: string, sessionId: string): Prom
     throw new Error(body.error ?? `join-shared-tour failed: ${res.status}`);
   }
   return (await res.json()) as JoinSharedTourResponse;
+}
+
+/** 色で探す: 家の代表の写真から計算した色を保存する(家主のみ)。 */
+export async function setListingColors(listingId: string, colors: ListingColors): Promise<void> {
+  const headers = await buildHeaders(true);
+  const res = await housingFetch(`${API_BASE}?action=set-listing-colors`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ listingId, ...colors }),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? `set-listing-colors failed: ${res.status}`);
+  }
 }

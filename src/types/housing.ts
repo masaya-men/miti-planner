@@ -145,6 +145,11 @@ export interface HousingListing {
    */
   coverThumbHash?: string;
 
+  /** 色で探す(2026-11-12): 代表写真の主な系統名(0〜3件・多い順)。欄が無い=未計算。 */
+  colorFamilies?: string[];
+  /** colorFamilies の計算に使った PALETTE_RULE。現行値と違えば未計算扱い。 */
+  colorRule?: number;
+
   /**
    * 2026-05-27 追加: SNS 投稿元から取得した外部画像 URL リスト (1-10 件)。
    * imageMode==='sns' のときのみ持つ。

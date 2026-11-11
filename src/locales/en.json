@@ -1736,6 +1736,29 @@
             "report_count": "{{count}} report(s)",
             "hidden_badge": "Hidden"
         },
+        "housing_colors": {
+            "title": "Housing color backfill",
+            "description": "For the color search, this computes the main colors of the representative photo for listings that have none yet, in this browser, and saves them. Only two steps: 1. Start, 2. Publish.",
+            "loading": "Loading listings…",
+            "error": "Failed: {{message}} (press the button again to continue where it stopped)",
+            "step1_title": "1. Get the colors",
+            "count_pending": "Listings without colors: {{count}}",
+            "nothing_to_do": "No listings are missing colors",
+            "progress": "{{done}} / {{total}} done",
+            "start": "Start",
+            "resume": "Resume",
+            "stop": "Stop",
+            "start_hint": "Stopping midway is fine. Press again to continue where it stopped.",
+            "count_done": "Colors saved so far: {{count}}",
+            "step2_title": "2. Publish",
+            "publish_hint": "Users will not see any change until you publish. Press this once, at the very end (after finishing or stopping).",
+            "publish_confirm": "Publish the colors to users? (Press this only once, at the end.)",
+            "publish": "Publish",
+            "published": "Published. Pick a color on the browse page to check.",
+            "unreadable_title": "Unreadable listings: {{count}}",
+            "unreadable_hint": "The photo is gone, or its host does not allow reading colors. These stay as \"checking color\" and do not appear in color search.",
+            "retry": "Try again"
+        },
         "housing_new_badge": {
             "title": "Housing NEW ribbon pin",
             "description": "Search for a listing by URL (detail or edit page) or ID to pin its NEW ribbon for a chosen number of days, regardless of when it was posted. Once the period ends it automatically falls back to the normal rule (within N days of posting).",
@@ -2487,7 +2510,40 @@
                 "clear_all": "Clear filters",
                 "size_s": "Small",
                 "size_m": "Medium",
-                "size_l": "Large"
+                "size_l": "Large",
+                "color": {
+                    "title": "Color",
+                    "clear": "Clear colors",
+                    "now_empty": "Pick colors (multiple OK)",
+                    "now_more": "{{name}} +{{count}} more",
+                    "core_label": "Color",
+                    "core_clear": "Clear",
+                    "swatch_aria": "{{tone}} {{family}}",
+                    "pending_note": "{{count}} listings are still having their color checked",
+                    "disabled_in_map": "Color filter is unavailable on the map",
+                    "wheel_aria": "Color picker",
+                    "tone": {
+                        "light": "Light",
+                        "midLight": "Medium light",
+                        "midDark": "Medium dark",
+                        "dark": "Dark"
+                    },
+                    "family": {
+                        "red": "red",
+                        "orange": "orange",
+                        "yellow": "yellow",
+                        "green": "green",
+                        "lightBlue": "light blue",
+                        "blue": "blue",
+                        "purple": "purple",
+                        "pink": "pink",
+                        "brown": "brown",
+                        "beige": "beige",
+                        "white": "white",
+                        "gray": "gray",
+                        "black": "black"
+                    }
+                }
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

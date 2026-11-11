@@ -9,6 +9,7 @@ import { useHousingViewStore, type HousingBrowseView } from '../../../store/useH
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { applyFilters } from '../../../lib/housing/applyFilters';
+import { familiesOfSwatches } from '../../../lib/housing/color/housingColorFilter';
 import { useKeywordFilteredListings } from '../../../lib/housing/useKeywordFilteredListings';
 import { mergeListingsForViewer, NEW_LISTING_WINDOW_MS } from '../../../lib/housing/listingPublish';
 import { useMasterData } from '../../../hooks/useMasterData';
@@ -74,13 +75,15 @@ export const BrowsePage: React.FC = () => {
   const areas = useHousingFilterStore((s) => s.areas);
   const sizes = useHousingFilterStore((s) => s.sizes);
   const tags = useHousingFilterStore((s) => s.tags);
+  const colorSwatches = useHousingFilterStore((s) => s.colorSwatches);
+  const colors = useMemo(() => familiesOfSwatches(colorSwatches), [colorSwatches]);
   const keyword = useHousingFilterStore((s) => s.keyword);
   // f: 中央フィルター解除ボタンの表示条件。FilterPanel.tsx の hasActiveFilter と同じ式
   // (keyword は対象外・据え置き)。地域は言語既定選択だけでは「フィルター中」扱いしない
   // (regionsTouched ベース)。
   const hasActiveFilter =
     Boolean(dc) || regionsTouched || servers.length > 0 ||
-    areas.length > 0 || sizes.length > 0 || tags.length > 0;
+    areas.length > 0 || sizes.length > 0 || tags.length > 0 || colorSwatches.length > 0;
 
   // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) を合流。他人視点の表示は不変。
   const merged = useMemo(
@@ -89,8 +92,8 @@ export const BrowsePage: React.FC = () => {
   );
 
   const filteredBase = useMemo(
-    () => applyFilters(merged, { dc, regions, servers, areas, sizes, tags }),
-    [merged, dc, regions, servers, areas, sizes, tags],
+    () => applyFilters(merged, { dc, regions, servers, areas, sizes, tags, colors }),
+    [merged, dc, regions, servers, areas, sizes, tags, colors],
   );
   // keyword は applyFilters(純関数)の後段で適用する (表示名解決に i18n が要るため別レイヤー)。
   const filtered = useKeywordFilteredListings(filteredBase, keyword);
@@ -101,9 +104,9 @@ export const BrowsePage: React.FC = () => {
   const [dcMenuOpen, setDcMenuOpen] = useState(false);
   const mapPoolBase = useMemo(
     () => (effectiveView === 'map'
-      ? applyFilters(merged, { dc: null, regions, servers: [], areas, sizes, tags })
+      ? applyFilters(merged, { dc: null, regions, servers: [], areas, sizes, tags, colors })
       : []),
-    [effectiveView, merged, regions, areas, sizes, tags],
+    [effectiveView, merged, regions, areas, sizes, tags, colors],
   );
   const mapPool = useKeywordFilteredListings(mapPoolBase, keyword);
   const mapIndex = useMemo(() => buildMapIndex(mapPool), [mapPool]);

@@ -1711,6 +1711,29 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
+        "housing_colors": {
+            "title": "房屋顏色重新取得",
+            "description": "為「依顏色尋找」功能,在此瀏覽器中計算尚無顏色的房屋的代表照片顏色並儲存。只需兩步:①「開始」→ ②「發布」。",
+            "loading": "正在讀取房屋列表…",
+            "error": "失敗: {{message}}(再按一次按鈕即可從中斷處繼續)",
+            "step1_title": "① 取得顏色",
+            "count_pending": "尚無顏色的房屋: {{count}}間",
+            "nothing_to_do": "沒有缺少顏色的房屋",
+            "progress": "已完成 {{done}} / {{total}}",
+            "start": "開始",
+            "resume": "繼續",
+            "stop": "停止",
+            "start_hint": "中途停止也沒關係。再按一次即可繼續。",
+            "count_done": "目前已取得顏色的房屋: {{count}}間",
+            "step2_title": "② 發布",
+            "publish_hint": "發布之前,使用者的畫面不會改變。取得完成(或停止)後,請在最後只按一次。",
+            "publish_confirm": "要將顏色發布給使用者嗎?(只在最後按一次)",
+            "publish": "發布",
+            "published": "已發布。請在尋找頁面選擇顏色確認。",
+            "unreadable_title": "無法讀取的房屋 {{count}}間",
+            "unreadable_hint": "照片已被刪除,或照片所在位置不允許讀取顏色。這些房屋會一直顯示為「顏色確認中」,不會出現在顏色搜尋中。",
+            "retry": "再試一次"
+        },
         "housing_new_badge": {
             "title": "ハウジング NEW リボン固定",
             "description": "物件のURL(または詳細ページ/編集ページのURL)を入力して検索すると、投稿日に関わらずNEWリボンを指定した日数だけ固定表示できます。期限が過ぎると自動的に通常の判定(投稿から数日以内)へ戻ります。",
@@ -2462,7 +2485,40 @@
                 "clear_all": "清除篩選",
                 "size_s": "S 尺寸",
                 "size_m": "M 尺寸",
-                "size_l": "L 尺寸"
+                "size_l": "L 尺寸",
+                "color": {
+                    "title": "顏色",
+                    "clear": "清除顏色",
+                    "now_empty": "選擇顏色(可多選)",
+                    "now_more": "{{name}} 等{{count}}色",
+                    "core_label": "顏色",
+                    "core_clear": "清除",
+                    "swatch_aria": "{{tone}}{{family}}",
+                    "pending_note": "有{{count}}間房屋正在確認顏色",
+                    "disabled_in_map": "地圖模式下無法依顏色篩選",
+                    "wheel_aria": "顏色選擇",
+                    "tone": {
+                        "light": "淺",
+                        "midLight": "較淺",
+                        "midDark": "較深",
+                        "dark": "深"
+                    },
+                    "family": {
+                        "red": "紅色",
+                        "orange": "橙色",
+                        "yellow": "黃色",
+                        "green": "綠色",
+                        "lightBlue": "淺藍色",
+                        "blue": "藍色",
+                        "purple": "紫色",
+                        "pink": "粉紅色",
+                        "brown": "棕色",
+                        "beige": "米色",
+                        "white": "白色",
+                        "gray": "灰色",
+                        "black": "黑色"
+                    }
+                }
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

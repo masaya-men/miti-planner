@@ -1711,6 +1711,29 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
+        "housing_colors": {
+            "title": "하우징 색 다시 가져오기",
+            "description": "색으로 찾기 기능을 위해, 아직 색이 없는 집의 대표 사진 색을 이 브라우저에서 계산해 저장합니다. 누르는 순서는 ① 시작 → ② 반영, 두 가지뿐입니다.",
+            "loading": "집 목록을 불러오는 중…",
+            "error": "실패했습니다: {{message}} (버튼을 다시 누르면 이어서 진행됩니다)",
+            "step1_title": "① 색 가져오기",
+            "count_pending": "아직 색이 없는 집: {{count}}개",
+            "nothing_to_do": "색이 없는 집이 없습니다",
+            "progress": "{{done}} / {{total}} 완료",
+            "start": "시작",
+            "resume": "이어서 하기",
+            "stop": "멈추기",
+            "start_hint": "중간에 멈춰도 괜찮습니다. 다시 누르면 이어서 진행됩니다.",
+            "count_done": "지금까지 색을 가져온 집: {{count}}개",
+            "step2_title": "② 반영",
+            "publish_hint": "반영하기 전까지 이용자 화면은 바뀌지 않습니다. 색을 다 가져온 뒤(또는 멈춘 뒤) 마지막에 한 번만 눌러 주세요.",
+            "publish_confirm": "이용자 화면에 색을 반영할까요? (마지막에 한 번만 누릅니다)",
+            "publish": "반영하기",
+            "published": "반영했습니다. 찾기 페이지에서 색을 골라 확인해 주세요.",
+            "unreadable_title": "읽지 못한 집 {{count}}개",
+            "unreadable_hint": "사진이 사라졌거나, 사진이 있는 곳에서 색 읽기를 허용하지 않는 집입니다. 이 집은 \"색 확인 중\"으로 남고 색 검색에는 나오지 않습니다.",
+            "retry": "다시 시도"
+        },
         "housing_new_badge": {
             "title": "ハウジング NEW リボン固定",
             "description": "物件のURL(または詳細ページ/編集ページのURL)を入力して検索すると、投稿日に関わらずNEWリボンを指定した日数だけ固定表示できます。期限が過ぎると自動的に通常の判定(投稿から数日以内)へ戻ります。",
@@ -2462,7 +2485,40 @@
                 "clear_all": "필터 해제",
                 "size_s": "S 크기",
                 "size_m": "M 크기",
-                "size_l": "L 크기"
+                "size_l": "L 크기",
+                "color": {
+                    "title": "색",
+                    "clear": "색 해제",
+                    "now_empty": "색을 고르세요(여러 개 가능)",
+                    "now_more": "{{name}} 외 {{count}}색",
+                    "core_label": "색",
+                    "core_clear": "해제",
+                    "swatch_aria": "{{tone}} {{family}}",
+                    "pending_note": "색을 확인 중인 집이 {{count}}개 있습니다",
+                    "disabled_in_map": "지도에서는 색으로 좁힐 수 없습니다",
+                    "wheel_aria": "색 선택",
+                    "tone": {
+                        "light": "밝은",
+                        "midLight": "약간 밝은",
+                        "midDark": "약간 어두운",
+                        "dark": "어두운"
+                    },
+                    "family": {
+                        "red": "빨강",
+                        "orange": "주황",
+                        "yellow": "노랑",
+                        "green": "초록",
+                        "lightBlue": "하늘색",
+                        "blue": "파랑",
+                        "purple": "보라",
+                        "pink": "분홍",
+                        "brown": "갈색",
+                        "beige": "베이지",
+                        "white": "흰색",
+                        "gray": "회색",
+                        "black": "검정"
+                    }
+                }
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

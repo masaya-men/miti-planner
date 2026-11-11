@@ -1711,6 +1711,29 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
+        "housing_colors": {
+            "title": "房屋颜色重新获取",
+            "description": "为“按颜色查找”功能,在此浏览器中计算尚无颜色的房屋的代表照片颜色并保存。只需两步:①“开始”→ ②“发布”。",
+            "loading": "正在读取房屋列表…",
+            "error": "失败: {{message}}(再按一次按钮即可从中断处继续)",
+            "step1_title": "① 获取颜色",
+            "count_pending": "尚无颜色的房屋: {{count}}个",
+            "nothing_to_do": "没有缺少颜色的房屋",
+            "progress": "已完成 {{done}} / {{total}}",
+            "start": "开始",
+            "resume": "继续",
+            "stop": "停止",
+            "start_hint": "中途停止也没关系。再按一次即可继续。",
+            "count_done": "目前已获取颜色的房屋: {{count}}个",
+            "step2_title": "② 发布",
+            "publish_hint": "发布之前,用户的画面不会改变。获取完成(或停止)后,请在最后只按一次。",
+            "publish_confirm": "要将颜色发布给用户吗?(只在最后按一次)",
+            "publish": "发布",
+            "published": "已发布。请在查找页面选择颜色确认。",
+            "unreadable_title": "无法读取的房屋 {{count}}个",
+            "unreadable_hint": "照片已被删除,或照片所在位置不允许读取颜色。这些房屋会一直显示为“颜色确认中”,不会出现在颜色搜索中。",
+            "retry": "再试一次"
+        },
         "housing_new_badge": {
             "title": "ハウジング NEW リボン固定",
             "description": "物件のURL(または詳細ページ/編集ページのURL)を入力して検索すると、投稿日に関わらずNEWリボンを指定した日数だけ固定表示できます。期限が過ぎると自動的に通常の判定(投稿から数日以内)へ戻ります。",
@@ -2462,7 +2485,40 @@
                 "clear_all": "清除筛选",
                 "size_s": "S 尺寸",
                 "size_m": "M 尺寸",
-                "size_l": "L 尺寸"
+                "size_l": "L 尺寸",
+                "color": {
+                    "title": "颜色",
+                    "clear": "清除颜色",
+                    "now_empty": "选择颜色(可多选)",
+                    "now_more": "{{name}} 等{{count}}色",
+                    "core_label": "颜色",
+                    "core_clear": "清除",
+                    "swatch_aria": "{{tone}}{{family}}",
+                    "pending_note": "有{{count}}个房屋正在确认颜色",
+                    "disabled_in_map": "地图模式下无法按颜色筛选",
+                    "wheel_aria": "颜色选择",
+                    "tone": {
+                        "light": "浅",
+                        "midLight": "较浅",
+                        "midDark": "较深",
+                        "dark": "深"
+                    },
+                    "family": {
+                        "red": "红色",
+                        "orange": "橙色",
+                        "yellow": "黄色",
+                        "green": "绿色",
+                        "lightBlue": "浅蓝色",
+                        "blue": "蓝色",
+                        "purple": "紫色",
+                        "pink": "粉色",
+                        "brown": "棕色",
+                        "beige": "米色",
+                        "white": "白色",
+                        "gray": "灰色",
+                        "black": "黑色"
+                    }
+                }
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

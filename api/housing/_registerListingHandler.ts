@@ -17,6 +17,7 @@ import { evaluateCanRegister, applyRegistrationSuccess, initialUserMeta } from '
 import { validateRegistrationDraft, normalizePublishUntil, normalizeAfterExpiryVisibility } from '../../src/utils/housingValidation.js';
 import type { RegistrationDraft } from '../../src/utils/housingRegistrationTypes.js';
 import { buildListingImageFields } from '../../src/utils/housingImageValidation.js';
+import { registrationColorFields } from './_colorFields.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import type { HousingUserMeta } from '../../src/types/housing.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
@@ -59,6 +60,7 @@ export default async function handler(req: HousingReq, res: HousingRes) {
     const metaRef = adminDb.collection('housing_user_meta').doc(uid);
     const listingsCol = adminDb.collection('housing_listings');
     const now = Date.now();
+    const imageFields = buildListingImageFields(draft, now);
     const addressKey = buildAddressKey(draft);
 
     let createdId: string | null = null;
@@ -99,7 +101,9 @@ export default async function handler(req: HousingReq, res: HousingRes) {
           roomNumber: draft.roomNumber,
         } : {}),
         addressKey,
-        ...buildListingImageFields(draft, now),
+        ...imageFields,
+        // 色で探す: sns の家は代表の写真の色を登録の本文に同梱できる (検証を通った時だけ保存)
+        ...registrationColorFields(req.body, imageFields),
         tags: draft.tags,
         ...(draft.description ? { description: draft.description } : {}),
         createdAt: now,

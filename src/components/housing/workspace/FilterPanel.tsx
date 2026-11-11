@@ -18,6 +18,8 @@ import {
 import { REGION_LABELS, pickRegionLocale } from '../../../data/housing/regionMap';
 import { displayDcName, displayWorldName } from '../../../lib/housing/housingTerms';
 import { applyFilters } from '../../../lib/housing/applyFilters';
+import { familiesOfSwatches, countColorPending } from '../../../lib/housing/color/housingColorFilter';
+import { HousingColorFilter } from './color/HousingColorFilter';
 import { useKeywordFilteredListings } from '../../../lib/housing/useKeywordFilteredListings';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
 import { FilterDropdown } from './FilterDropdown';
@@ -47,6 +49,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     const areas = useHousingFilterStore((s) => s.areas);
     const sizes = useHousingFilterStore((s) => s.sizes);
     const tags = useHousingFilterStore((s) => s.tags);
+    const colorSwatches = useHousingFilterStore((s) => s.colorSwatches);
+    const colors = useMemo(() => familiesOfSwatches(colorSwatches), [colorSwatches]);
     const keyword = useHousingFilterStore((s) => s.keyword);
     const setDC = useHousingFilterStore((s) => s.setDC);
     const toggleRegion = useHousingFilterStore((s) => s.toggleRegion);
@@ -64,8 +68,15 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     const source = viewMode === 'map' ? MOCK_LISTINGS : realListings;
 
     const resultBase = useMemo(
-        () => applyFilters(source, { dc, regions, servers, areas, sizes, tags }),
-        [source, dc, regions, servers, areas, sizes, tags],
+        () => applyFilters(source, { dc, regions, servers, areas, sizes, tags, colors }),
+        [source, dc, regions, servers, areas, sizes, tags, colors],
+    );
+    // 「色を確認中の家」: 色以外の条件を通った家のうち、色が未計算の数(色を選んでいる時だけ数える)。
+    const colorPendingCount = useMemo(
+        () => (colors.length === 0 ? 0 : countColorPending(
+            applyFilters(source, { dc, regions, servers, areas, sizes, tags }),
+        )),
+        [source, colors, dc, regions, servers, areas, sizes, tags],
     );
     // keyword は applyFilters の後段で適用 (件数バッジも検索反映後の数にする)。
     const result = useKeywordFilteredListings(resultBase, keyword);
@@ -101,7 +112,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     // ユーザーが自分で触った (regionsTouched) 場合のみアクティブ判定に含める。
     const hasActiveFilter =
         Boolean(dc) || regionsTouched || servers.length > 0 ||
-        areas.length > 0 || sizes.length > 0 || tags.length > 0;
+        areas.length > 0 || sizes.length > 0 || tags.length > 0 || colorSwatches.length > 0;
 
     // スクロールバーを出さず端フェードで「続きがある」ことを示す (業界標準・共通フック)。
     const { ref: bodyRef, atStart, atEnd, onScroll } = useScrollFade<HTMLDivElement>();
@@ -187,6 +198,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                         ))}
                     </div>
                 </div>
+
+                <HousingColorFilter
+                    disabled={browseView === 'map'}
+                    pendingCount={colorPendingCount}
+                />
 
                 {hasActiveFilter && (
                     <button

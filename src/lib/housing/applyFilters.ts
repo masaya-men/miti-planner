@@ -3,6 +3,7 @@ import type { HousingArea, HousingSize } from '../../store/useHousingFilterStore
 import type { Region } from '../../data/housing/dcServerMap';
 import { isPersonalTagIdFormat } from '../../data/housingTags';
 import { ownerUidFromPersonalFilterId } from './housingerProfile';
+import { matchesColors } from './color/housingColorFilter';
 
 export interface FilterCondition {
     dc: string | null;
@@ -11,6 +12,8 @@ export interface FilterCondition {
     areas: HousingArea[];
     sizes: HousingSize[];
     tags: string[];
+    /** 色で探す: 系統名(13種)。選んだ系統のどれか(OR)を代表写真の色に持つ家だけ通す。省略・空=絞らない。 */
+    colors?: string[];
 }
 
 export function applyFilters(listings: MockListing[], filters: FilterCondition): MockListing[] {
@@ -34,6 +37,8 @@ export function applyFilters(listings: MockListing[], filters: FilterCondition):
         if (filters.areas.length > 0 && (listing.area === undefined || !filters.areas.includes(listing.area))) return false;
         // サイズフィルタが指定されている時、 apartment (size 未定義) は概念的に該当しないので除外。
         if (filters.sizes.length > 0 && (listing.size === undefined || !filters.sizes.includes(listing.size))) return false;
+        // 色: 未計算(確認中)・どの系統も持たない家は、色を選んでいる間は出さない。
+        if (filters.colors && !matchesColors(listing, filters.colors)) return false;
         if (otherTags.length > 0 && !otherTags.some((t) => listing.tags.includes(t))) return false;
         // ハウジンガー選択の判定は listing.tags ではなく listing.ownerUid の一致で行う。
         // タグを実際に物件へ付けたかどうかに関係なく、 本人が登録した物件は全てヒットする

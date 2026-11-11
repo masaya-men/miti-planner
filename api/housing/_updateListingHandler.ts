@@ -19,6 +19,7 @@ import { validateRegistrationDraft, normalizePublishUntil, normalizeAfterExpiryV
 import type { RegistrationDraft } from '../../src/utils/housingRegistrationTypes.js';
 import { buildListingImageFields } from '../../src/utils/housingImageValidation.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
+import { colorInvalidation } from './_colorFields.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
 import { warmListingCardByRef } from './_warmListingCard.js';
 import type { HousingReq, HousingRes } from './_httpTypes.js';
@@ -174,6 +175,10 @@ export default async function handler(req: HousingReq, res: HousingRes) {
         const imageFields = buildListingImageFields(draftForValidation, Date.now());
         if (imageFields.imageMode === 'sns') {
           Object.assign(updatePayload, imageFields);
+          // 色で探す: 代表の写真(ogImageUrl)が変わるなら古い色は無効(thumbnail からの切替は下でも消す)
+          if (data.imageMode !== 'sns' || imageFields.ogImageUrl !== data.ogImageUrl) {
+            Object.assign(updatePayload, colorInvalidation());
+          }
 
           // 同じ imageMode==='sns' 内でのソース切替 (例: Twitter→YouTube) 時、旧ソースの
           // フィールドが Firestore に残留しないようにする (tx.update はマージのため上書きされない)。

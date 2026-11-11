@@ -12,10 +12,14 @@ import type { RegisterFields } from './useRegisterFields';
 import type { User } from 'firebase/auth';
 import type { TFunction } from 'i18next';
 import type { NavigateFunction } from 'react-router-dom';
+import { computeRegistrationColors, ensureListingColors } from '../../../../lib/housing/color/housingColorSync';
+import { useListingColorSync } from '../../../../lib/housing/color/useListingColorSync';
 import { buildDraftImageFields, buildLocalListingViewModel } from './registerPageModel';
 
 export function useRegisterSubmit({ f, mode, initialValues, onSaved, user, canSubmit, t, navigate, updateListing }: { f: RegisterFields; mode: 'create' | 'edit'; initialValues?: HousingListing; onSaved?: (listingId: string) => void | Promise<unknown>; user: User | null; canSubmit: boolean; t: TFunction; navigate: NavigateFunction; updateListing: ReturnType<typeof useHousingUpdate>['update'] }) {
   const { address, title, description, tags, visibility, publishUntil, afterExpiryVisibility, allowPromoTweet, localImages, sourceImageUrls, snsCapture, sourcePostUrls } = f;
+  // 色で探す: 家主が自分の家の編集ページを開いた時、色が無ければ自動で補う(非公開・期限切れの家向け)
+  useListingColorSync(mode === 'edit' ? initialValues : undefined);
 
   // ===== submit オーケストレーション (Task14) =====
   const [submitting, setSubmitting] = useState(false);
@@ -79,7 +83,9 @@ export function useRegisterSubmit({ f, mode, initialValues, onSaved, user, canSu
     async (draft: RegistrationDraft) => {
       setSubmitting(true);
       try {
-        const { id } = await registerListing(draft);
+        // 色で探す: 代表の写真の色を先に計算する(読めなければ null = 色なしで登録・あとで補われる)
+        const colors = await computeRegistrationColors(draft, localImages);
+        const { id } = await registerListing(draft, draft.imageMode === 'sns' ? colors : null);
 
         // localImages があれば register 直後に upload-thumbnail を逐次呼ぶ (index=0..N-1)。
         // 1 件でも失敗したら upload_failed を控えるが listing 自体は成功済み。
@@ -98,6 +104,7 @@ export function useRegisterSubmit({ f, mode, initialValues, onSaved, user, canSu
                 base64: img.base64,
                 mimeType: img.mimeType,
                 index: i,
+                colors: i === 0 ? colors : null,
               });
             } catch (uploadErr) {
               console.warn(`[RegisterPage] thumbnail upload failed (index=${i})`, uploadErr);
@@ -113,7 +120,10 @@ export function useRegisterSubmit({ f, mode, initialValues, onSaved, user, canSu
         // だけで反映できるため、追加の Firestore 読み取りを一切発生させない。
         // マイ一覧 (loadMine) の即時再取得は行わない (次回マイページ訪問時に load される)。
         if (user) {
-          useHousingListingsStore.getState().upsert(buildLocalListingViewModel(draft, id, user.uid));
+          useHousingListingsStore.getState().upsert({
+            ...buildLocalListingViewModel(draft, id, user.uid),
+            ...(colors ?? {}),
+          });
         }
 
         // 登録成功でオートセーブを破棄。
@@ -171,6 +181,8 @@ export function useRegisterSubmit({ f, mode, initialValues, onSaved, user, canSu
           }
           await useHousingListingsStore.getState().fetchAndUpsert(initialValues.id);
           if (user) await useHousingListingsStore.getState().loadMine(user.uid);
+          // 色で探す: 代表の写真が変わって色が無効になっていたら計算し直す(待たない・失敗しても編集は成功)
+          void ensureListingColors(initialValues.id, initialValues);
           showToast(t('housing.edit.success'), 'success');
           navigate(`/housing/listing/${initialValues.id}`);
         } else {

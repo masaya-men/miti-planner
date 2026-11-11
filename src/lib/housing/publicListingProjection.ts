@@ -17,6 +17,7 @@ export const ADDRESS_FIELDS = [
 const SAFE_FIELDS = [
   'ownerUid', 'title', 'description', 'tags',
   'imageMode', 'postUrl', 'ogImageUrl', 'thumbnailPath', 'thumbnailPaths', 'coverThumbHash',
+  'colorFamilies', 'colorRule',
   'sourceImageUrls', 'sourceImageAspectRatios',
   'youtubeVideoId', 'videoUrl', 'videoPosterUrl', 'videoAspectRatio',
   'tweetId', 'buildingType', 'roomKind',

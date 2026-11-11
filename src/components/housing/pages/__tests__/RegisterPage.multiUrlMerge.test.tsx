@@ -10,6 +10,12 @@ import { useAuthStore } from '../../../../store/useAuthStore';
 // mode=edit の保存 API (Task3.2)。 現物のシグネチャ (update: (id, updates) => Promise<{ok,error?}>)
 // に合わせる。 呼び出し検証のため vi.fn() を差し込む。
 const updateMock = vi.fn();
+// 色で探す: このテストは色を扱わない。happy-dom は画像を読み込まず色の計算が待ち続けるため差し替える
+vi.mock('../../../../lib/housing/color/housingColorSync', () => ({
+  computeRegistrationColors: async () => null,
+  ensureListingColors: async () => null,
+}));
+
 vi.mock('../../edit/useHousingUpdate', () => ({
   useHousingUpdate: () => ({ update: updateMock, loading: false }),
 }));

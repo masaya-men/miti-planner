@@ -1738,6 +1738,29 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
+        "housing_colors": {
+            "title": "ハウジングの色の取り直し",
+            "description": "色で探す機能のために、色がまだ無い家の「代表の写真の色」を、このブラウザで計算して保存します。押す順番は、①「始める」→ ②「反映する」の2つだけです。",
+            "loading": "家の一覧を読み込み中…",
+            "error": "失敗しました: {{message}}(もう一度ボタンを押せば、続きから進みます)",
+            "step1_title": "① 色を取る",
+            "count_pending": "色がまだ無い家: {{count}}件",
+            "nothing_to_do": "色がまだ無い家はありません",
+            "progress": "{{done}} / {{total}} 件 完了",
+            "start": "始める",
+            "resume": "続きから再開",
+            "stop": "止める",
+            "start_hint": "途中で止めても大丈夫です。もう一度押せば、続きから進みます。",
+            "count_done": "ここまでに色を取れた家: {{count}}件",
+            "step2_title": "② 反映する",
+            "publish_hint": "反映するまで、利用者の画面は変わりません。色を取り終えたら(または止めたら)、最後に1回だけ押してください。",
+            "publish_confirm": "利用者の画面に色を反映します。よろしいですか?(押すのは最後の1回だけです)",
+            "publish": "反映する",
+            "published": "反映しました。探すページで色を選んで確かめてください。",
+            "unreadable_title": "読めなかった家 {{count}}件",
+            "unreadable_hint": "写真が消えている、または写真の置き場所が色の読み取りを許可していない家です。この家は「色を確認中」のまま、色の検索には出ません。",
+            "retry": "もう一度試す"
+        },
         "housing_new_badge": {
             "title": "ハウジング NEW リボン固定",
             "description": "物件のURL(または詳細ページ/編集ページのURL)を入力して検索すると、投稿日に関わらずNEWリボンを指定した日数だけ固定表示できます。期限が過ぎると自動的に通常の判定(投稿から数日以内)へ戻ります。",
@@ -2489,7 +2512,40 @@
                 "clear_all": "フィルターを解除",
                 "size_s": "Sサイズ",
                 "size_m": "Mサイズ",
-                "size_l": "Lサイズ"
+                "size_l": "Lサイズ",
+                "color": {
+                    "title": "色",
+                    "clear": "色を外す",
+                    "now_empty": "好きな色を選ぶ(複数OK)",
+                    "now_more": "{{name}} ほか{{count}}色",
+                    "core_label": "色",
+                    "core_clear": "外す",
+                    "swatch_aria": "{{tone}}{{family}}",
+                    "pending_note": "色を確認中の家が{{count}}件あります",
+                    "disabled_in_map": "地図では色で絞れません",
+                    "wheel_aria": "色の選択",
+                    "tone": {
+                        "light": "明るい",
+                        "midLight": "やや明るい",
+                        "midDark": "やや暗い",
+                        "dark": "暗い"
+                    },
+                    "family": {
+                        "red": "赤",
+                        "orange": "オレンジ",
+                        "yellow": "黄",
+                        "green": "緑",
+                        "lightBlue": "水色",
+                        "blue": "青",
+                        "purple": "紫",
+                        "pink": "ピンク",
+                        "brown": "茶",
+                        "beige": "ベージュ",
+                        "white": "白",
+                        "gray": "グレー",
+                        "black": "黒"
+                    }
+                }
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

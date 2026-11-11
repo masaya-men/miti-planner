@@ -12,6 +12,7 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { computeArrayReorder } from './_imageArrayLogic.js';
+import { colorInvalidation } from './_colorFields.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
 import { warmListingCardByRef } from './_warmListingCard.js';
 import type { HousingReq, HousingRes } from './_httpTypes.js';
@@ -69,6 +70,9 @@ export default async function handler(req: HousingReq, res: HousingRes) {
       if (currentRatios && currentRatios.length === current.length) {
         update.sourceImageAspectRatios = result.permutation.map((i) => currentRatios[i]);
       }
+
+      // 色で探す: 先頭(代表)が変わる時だけ古い色を無効にする
+      if (newOrder[0] !== current[0]) Object.assign(update, colorInvalidation());
 
       tx.update(listingRef, update);
       bumpPublicVersionTx(tx, adminDb);

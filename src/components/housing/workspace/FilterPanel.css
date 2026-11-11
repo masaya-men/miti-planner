@@ -18,6 +18,11 @@
 }
 .housing-filter-body::-webkit-scrollbar { display: none; }
 
+/* スマホ: 色の部品を並びの先頭へ出すため、本文を縦並びの flex にする(部品側の order: -1) */
+@media (max-width: 767px) {
+  .housing-filter-body { display: flex; flex-direction: column; }
+}
+
 /* WebKit/Chrome */
 .housing-filter-body[data-at-top="true"] { --fade-top: 0px; }
 .housing-filter-body[data-at-bottom="true"] { --fade-bottom: 0px; }

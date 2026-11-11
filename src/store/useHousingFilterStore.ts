@@ -17,6 +17,8 @@ interface HousingFilterState {
     areas: HousingArea[];
     sizes: HousingSize[];
     tags: string[];
+    /** 色で探す: 選んだ丸の番号(0〜49)。複数可。判定は familiesOfSwatches で系統にして OR。 */
+    colorSwatches: number[];
     keyword: string;
     resultCount: number;
     totalCount: number;
@@ -29,6 +31,8 @@ interface HousingFilterState {
     toggleSize: (size: HousingSize) => void;
     toggleTag: (tag: string) => void;
     setTags: (tags: string[]) => void;
+    toggleColor: (swatchIndex: number) => void;
+    clearColors: () => void;
     setKeyword: (keyword: string) => void;
     setCounts: (result: number, total: number) => void;
     clearAll: () => void;
@@ -49,6 +53,7 @@ export const useHousingFilterStore = create<HousingFilterState>((set) => ({
     areas: [],
     sizes: [],
     tags: [],
+    colorSwatches: [],
     keyword: '',
     resultCount: 0,
     totalCount: 0,
@@ -64,13 +69,15 @@ export const useHousingFilterStore = create<HousingFilterState>((set) => ({
     toggleSize: (size) => set((s) => ({ sizes: toggleInArray(s.sizes, size) })),
     toggleTag: (tag) => set((s) => ({ tags: toggleInArray(s.tags, tag) })),
     setTags: (tags) => set({ tags }),
+    toggleColor: (i) => set((s) => ({ colorSwatches: toggleInArray(s.colorSwatches, i) })),
+    clearColors: () => set({ colorSwatches: [] }),
     setKeyword: (keyword) => set({ keyword }),
     setCounts: (resultCount, totalCount) => set({ resultCount, totalCount }),
     // クリア = 言語既定の初期状態へ戻す (全地域を見たい場合は地域チップを手で全部外せば
     // toggleRegion 経由で touched=true になり従来どおり維持される)。
     clearAll: () => set((s) => ({
         dc: null, regions: s.localeDefaultRegions, regionsTouched: false,
-        servers: [], areas: [], sizes: [], tags: [], keyword: '',
+        servers: [], areas: [], sizes: [], tags: [], colorSwatches: [], keyword: '',
     })),
     // 言語→地域の初期値 (spec: B案=言語は初期値のみ)。localeDefaultRegions は touched でも
     // 常に最新化する (clearAll の復帰先として必要)。regions への反映のみ touched でガードする。

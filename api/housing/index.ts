@@ -19,6 +19,7 @@
  * ?action=reorder-thumbnails        → POST 直接アップロード画像の並び順を変更 (Firestore のみ更新)
  * ?action=reorder-source-images     → POST URL経由画像の並び順を変更 (Firestore のみ更新)
  * ?action=confirm-listing           → POST 家主が「今もあります」 で lastConfirmedAt を更新 (Phase 2-2)
+ * ?action=set-listing-colors        → POST 家の代表の写真の色を保存 (家主のみ・色で探す)
  * ?action=search-housingers         → GET ハウジンガー名検索 (探すページヘッダー検索窓のサジェスト用)
  * ?action=upsert-housinger-profile  → POST ハウジンガープロフィール 公開/更新/非公開/同期 (冪等)
  * ?action=report-housinger          → POST ハウジンガープロフィール通報
@@ -46,6 +47,7 @@ import deleteSourceImageHandler from './_deleteSourceImageHandler.js';
 import reorderThumbnailsHandler from './_reorderThumbnailsHandler.js';
 import reorderSourceImagesHandler from './_reorderSourceImagesHandler.js';
 import confirmListingHandler from './_confirmListingHandler.js';
+import setListingColorsHandler from './_setListingColorsHandler.js';
 import searchHousingersHandler from './_searchHousingersHandler.js';
 import upsertHousingerProfileHandler from './_upsertHousingerProfileHandler.js';
 import reportHousingerHandler from './_reportHousingerHandler.js';
@@ -111,6 +113,8 @@ export default async function handler(req: HousingReq, res: HousingRes) {
       return reorderSourceImagesHandler(req, res);
     case 'confirm-listing':
       return confirmListingHandler(req, res);
+    case 'set-listing-colors':
+      return setListingColorsHandler(req, res);
     case 'search-housingers':
       return searchHousingersHandler(req, res);
     case 'upsert-housinger-profile':
@@ -130,7 +134,7 @@ export default async function handler(req: HousingReq, res: HousingRes) {
     default:
       return res.status(400).json({
         error:
-          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|delete-thumbnail|delete-source-image|reorder-thumbnails|reorder-source-images|confirm-listing|search-housingers|upsert-housinger-profile|report-housinger|create-shared-tour|join-shared-tour|fetch-allmarks-share',
+          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|delete-thumbnail|delete-source-image|reorder-thumbnails|reorder-source-images|confirm-listing|set-listing-colors|search-housingers|upsert-housinger-profile|report-housinger|create-shared-tour|join-shared-tour|fetch-allmarks-share',
       });
   }
 }

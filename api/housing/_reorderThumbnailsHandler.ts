@@ -14,6 +14,7 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { FieldValue } from 'firebase-admin/firestore';
 import { computeArrayReorder } from './_imageArrayLogic.js';
+import { colorInvalidation } from './_colorFields.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
 import { warmListingCardByRef } from './_warmListingCard.js';
 import type { HousingReq, HousingRes } from './_httpTypes.js';
@@ -68,6 +69,7 @@ export default async function handler(req: HousingReq, res: HousingRes) {
       if (newOrder[0] !== current[0]) {
         // 代表画像が変わったら古い coverThumbHash は無効 (次回バックフィルで再生成される)
         update.coverThumbHash = FieldValue.delete();
+        Object.assign(update, colorInvalidation()); // 色で探す: 古い色も無効
       }
       tx.update(listingRef, update);
       bumpPublicVersionTx(tx, adminDb);
