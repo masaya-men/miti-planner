@@ -50,6 +50,7 @@ import { AdminUgc } from './components/admin/AdminUgc';
 import { AdminHousingReports } from './components/admin/AdminHousingReports';
 import { AdminHousingerReports } from './components/admin/AdminHousingerReports';
 import { AdminHousingNewBadge } from './components/admin/AdminHousingNewBadge';
+import { AdminHousingColors } from './components/admin/AdminHousingColors';
 import { TutorialOverlay } from './components/tutorial/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
@@ -164,6 +165,7 @@ function AppRoutes() {
         <Route path="housing-reports" element={<AdminHousingReports />} />
         <Route path="housinger-reports" element={<AdminHousingerReports />} />
         <Route path="housing-new-badge" element={<AdminHousingNewBadge />} />
+        <Route path="housing-colors" element={<AdminHousingColors />} />
       </Route>
       {/* Catch-all: redirect unknown paths to portal */}
       <Route path="*" element={<Navigate to="/" replace />} />
