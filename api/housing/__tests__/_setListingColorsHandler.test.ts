@@ -24,7 +24,6 @@ vi.mock('firebase-admin/auth', () => ({
   getAuth: vi.fn(() => ({ verifyIdToken: vi.fn(async () => ({ uid: 'hashed:user1' })) })),
 }));
 vi.mock('firebase-admin/firestore', () => ({ FieldValue: { delete: () => '__DELETE__' } }));
-vi.mock('../_publicFeedStore.js', () => ({ recordPublicListingChange: h.record }));
 vi.mock('../_publicVersion.js', () => ({ bumpPublicVersionTx: h.bump }));
 
 import handler from '../_setListingColorsHandler.js';
@@ -54,7 +53,6 @@ describe('set-listing-colors', () => {
     expect(res.statusCode).toBe(200);
     expect(h.txUpdateSpy.mock.calls[0][1]).toMatchObject({ colorFamilies: ['red', 'white'], colorRule: PALETTE_RULE });
     expect(h.bump).toHaveBeenCalledTimes(1);
-    expect(h.record).toHaveBeenCalledTimes(1);
   });
   it('空配列(どの色にも当てはまらない)も保存できる', async () => {
     const { req, res } = makeReqRes({ ...ok, colorFamilies: [] });

@@ -309,7 +309,7 @@ export async function joinSharedTour(tourToken: string, sessionId: string): Prom
 /** 色で探す: 家の代表の写真から計算した色を保存する(家主のみ)。 */
 export async function setListingColors(listingId: string, colors: ListingColors): Promise<void> {
   const headers = await buildHeaders(true);
-  const res = await housingFetch(`${API_BASE}?action=set-listing-colors`, {
+  const res = await fetch(`${API_BASE}?action=set-listing-colors`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ listingId, ...colors }),

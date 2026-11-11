@@ -25,7 +25,6 @@ vi.mock('../../../src/lib/adminAuth.js', () => ({
 vi.mock('../../../src/lib/rateLimit.js', () => ({ applyRateLimit: vi.fn(async () => true) }));
 vi.mock('../../../src/lib/appCheckVerify.js', () => ({ verifyAppCheck: vi.fn(async () => true) }));
 vi.mock('../../housing/_publicVersion.js', () => ({ bumpPublicVersionDirect: h.bump }));
-vi.mock('../../housing/_publicFeedStore.js', () => ({ requestGalleryRotation: h.rotate }));
 
 import handler from '../_housingColorsHandler.js';
 import { PALETTE_RULE } from '../../../src/lib/housing/color/housingExtractPalette.js';
@@ -65,13 +64,11 @@ describe('PATCH housing_colors', () => {
     expect(h.batchUpdate).toHaveBeenCalledTimes(2);
     expect(h.batchCommit).toHaveBeenCalledTimes(1);
     expect(h.bump).not.toHaveBeenCalled();
-    expect(h.rotate).not.toHaveBeenCalled();
   });
   it('final:true は版と全件作り直しを 1 回だけ', async () => {
     const res = await call({ items: [item('a')], final: true });
     expect(res.statusCode).toBe(200);
     expect(h.bump).toHaveBeenCalledTimes(1);
-    expect(h.rotate).toHaveBeenCalledTimes(1);
   });
   it('items 無しの final:true だけでも版が進む(最後の「反映する」)', async () => {
     const res = await call({ items: [], final: true });

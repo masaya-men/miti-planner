@@ -6,6 +6,8 @@ import { useHousingListingsStore } from '../../../../store/useHousingListingsSto
 import { useHousingTagPickerStore } from '../../../../store/useHousingTagPickerStore';
 import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
 import { applyFilters } from '../../../../lib/housing/applyFilters';
+import { useActiveColorSwatches } from '../../../../lib/housing/color/useActiveColorSwatches';
+import { familiesOfSwatches } from '../../../../lib/housing/color/housingColorFilter';
 import { useKeywordFilteredListings } from '../../../../lib/housing/useKeywordFilteredListings';
 import { AllTagsSection } from './AllTagsSection';
 import './TagPickerPanel.css';
@@ -30,6 +32,8 @@ export const TagPickerPanel: React.FC<TagPickerPanelProps> = ({ onApplied }) => 
   const servers = useHousingFilterStore((s) => s.servers);
   const areas = useHousingFilterStore((s) => s.areas);
   const sizes = useHousingFilterStore((s) => s.sizes);
+  const colorSwatches = useActiveColorSwatches();
+  const colors = useMemo(() => familiesOfSwatches(colorSwatches), [colorSwatches]);
   const keyword = useHousingFilterStore((s) => s.keyword);
 
   const pendingTags = useHousingTagPickerStore((s) => s.pendingTags);
@@ -56,8 +60,8 @@ export const TagPickerPanel: React.FC<TagPickerPanelProps> = ({ onApplied }) => 
   const source = viewMode === 'map' ? MOCK_LISTINGS : realListings;
 
   const previewBase = useMemo(
-    () => applyFilters(source, { dc, regions, servers, areas, sizes, tags: pendingTags }),
-    [source, dc, regions, servers, areas, sizes, pendingTags],
+    () => applyFilters(source, { dc, regions, servers, areas, sizes, tags: pendingTags, colors }),
+    [source, dc, regions, servers, areas, sizes, pendingTags, colors],
   );
   const preview = useKeywordFilteredListings(previewBase, keyword);
 

@@ -9,6 +9,7 @@ import { useHousingViewStore, type HousingBrowseView } from '../../../store/useH
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { applyFilters } from '../../../lib/housing/applyFilters';
+import { useActiveColorSwatches } from '../../../lib/housing/color/useActiveColorSwatches';
 import { familiesOfSwatches } from '../../../lib/housing/color/housingColorFilter';
 import { useKeywordFilteredListings } from '../../../lib/housing/useKeywordFilteredListings';
 import { mergeListingsForViewer, NEW_LISTING_WINDOW_MS } from '../../../lib/housing/listingPublish';
@@ -75,7 +76,7 @@ export const BrowsePage: React.FC = () => {
   const areas = useHousingFilterStore((s) => s.areas);
   const sizes = useHousingFilterStore((s) => s.sizes);
   const tags = useHousingFilterStore((s) => s.tags);
-  const colorSwatches = useHousingFilterStore((s) => s.colorSwatches);
+  const colorSwatches = useActiveColorSwatches();
   const colors = useMemo(() => familiesOfSwatches(colorSwatches), [colorSwatches]);
   const keyword = useHousingFilterStore((s) => s.keyword);
   // f: 中央フィルター解除ボタンの表示条件。FilterPanel.tsx の hasActiveFilter と同じ式

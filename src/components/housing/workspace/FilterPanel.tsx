@@ -19,6 +19,8 @@ import { REGION_LABELS, pickRegionLocale } from '../../../data/housing/regionMap
 import { displayDcName, displayWorldName } from '../../../lib/housing/housingTerms';
 import { applyFilters } from '../../../lib/housing/applyFilters';
 import { familiesOfSwatches, countColorPending } from '../../../lib/housing/color/housingColorFilter';
+import { useActiveColorSwatches } from '../../../lib/housing/color/useActiveColorSwatches';
+import { useCanPreviewWip } from '../../../hooks/useCanPreviewWip';
 import { HousingColorFilter } from './color/HousingColorFilter';
 import { useKeywordFilteredListings } from '../../../lib/housing/useKeywordFilteredListings';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
@@ -49,7 +51,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     const areas = useHousingFilterStore((s) => s.areas);
     const sizes = useHousingFilterStore((s) => s.sizes);
     const tags = useHousingFilterStore((s) => s.tags);
-    const colorSwatches = useHousingFilterStore((s) => s.colorSwatches);
+    const colorSwatches = useActiveColorSwatches();
+    const canSeeColor = useCanPreviewWip();
     const colors = useMemo(() => familiesOfSwatches(colorSwatches), [colorSwatches]);
     const keyword = useHousingFilterStore((s) => s.keyword);
     const setDC = useHousingFilterStore((s) => s.setDC);
@@ -199,10 +202,12 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                     </div>
                 </div>
 
-                <HousingColorFilter
-                    disabled={browseView === 'map'}
-                    pendingCount={colorPendingCount}
-                />
+                {canSeeColor && (
+                    <HousingColorFilter
+                        disabled={browseView === 'map'}
+                        pendingCount={colorPendingCount}
+                    />
+                )}
 
                 {hasActiveFilter && (
                     <button

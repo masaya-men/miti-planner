@@ -14,7 +14,6 @@ import { initAdmin, verifyAdmin, getAdminFirestore } from '../../src/lib/adminAu
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { bumpPublicVersionDirect } from '../housing/_publicVersion.js';
-import { requestGalleryRotation } from '../housing/_publicFeedStore.js';
 import { validatedColorFields } from '../housing/_colorFields.js';
 import type { ApiRequest, ApiResponse } from '../_apiTypes.js';
 import { setCors } from '../_lib/setCors.js';
@@ -76,7 +75,6 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
     if (body.final) {
       await bumpPublicVersionDirect(db);
-      await requestGalleryRotation(db);
     }
 
     return res.status(200).json({ success: true, written, rejected, published: body.final });

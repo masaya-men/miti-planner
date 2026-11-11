@@ -13,7 +13,6 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { bumpPublicVersionTx } from './_publicVersion.js';
-import { recordPublicListingChange } from './_publicFeedStore.js';
 import { validatedColorFields } from './_colorFields.js';
 import type { HousingReq, HousingRes } from './_httpTypes.js';
 import { setCors } from '../_lib/setCors.js';
@@ -53,7 +52,6 @@ export default async function handler(req: HousingReq, res: HousingRes) {
       tx.update(listingRef, { ...colors, updatedAt: Date.now() });
       bumpPublicVersionTx(tx, adminDb);
     });
-    await recordPublicListingChange(adminDb, listingId);
 
     return res.status(200).json({ success: true });
   } catch (error) {

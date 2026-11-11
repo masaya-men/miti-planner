@@ -70,7 +70,6 @@ vi.mock('firebase-admin/storage', () => ({
 vi.mock('firebase-admin/firestore', () => ({
   FieldValue: { delete: () => '__DELETE__', increment: () => '__INCREMENT__' },
 }));
-vi.mock('../_publicFeedStore.js', () => ({ recordPublicListingChange: vi.fn(async () => {}), requestGalleryRotation: vi.fn(async () => {}) }));
 vi.mock('../_publicVersion.js', () => ({
   bumpPublicVersionTx: h.bumpPublicVersionTxMock,
   bumpPublicVersionBatch: vi.fn(),

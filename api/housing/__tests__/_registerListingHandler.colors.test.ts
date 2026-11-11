@@ -10,7 +10,6 @@ vi.mock('../../../src/lib/discordWebhook.js', () => ({
 }));
 vi.mock('../../../src/lib/appCheckVerify.js', () => ({ verifyAppCheck: vi.fn(() => Promise.resolve(true)) }));
 vi.mock('../../../src/lib/rateLimit.js', () => ({ applyRateLimit: vi.fn(() => Promise.resolve(true)) }));
-vi.mock('../_publicFeedStore.js', () => ({ recordPublicListingChange: vi.fn(async () => {}), requestGalleryRotation: vi.fn(async () => {}) }));
 vi.mock('../_publicVersion.js', () => ({
   bumpPublicVersionTx: vi.fn(),
   bumpPublicVersionBatch: vi.fn(),
