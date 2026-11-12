@@ -25,7 +25,6 @@ export const ColorSwatchButton: React.FC<Props> = ({ index, selected, disabled, 
             style={{ background: SEARCH_SWATCHES[index] }}
             aria-pressed={selected}
             aria-label={label}
-            title={label}
             disabled={disabled}
             onClick={() => onToggle(index)}
         />
