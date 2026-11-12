@@ -5,7 +5,9 @@
  * 目的: 動画バイトを Vercel ではなく Cloudflare 経由で配り、Vercel の
  * Fast Origin Transfer (従量課金) を消費しないようにする (CF egress は無料)。
  *
- * - allowlist: video.twimg.com のみ (open proxy 化防止)
+ * - allowlist: video.twimg.com + 写真の外部サイト 2 つ (open proxy 化防止)。
+ *   写真のサイトは CORS を返さず「色で探す」の色の計算(canvas)で読めないため中継する(2026-11-12)。
+ *   写真のサイトからは画像(image/*)しか通さない。
  * - UA 偽装: 独自 UA だと video.twimg.com が Range を無視し ~18KB しか返さない
  * - Range 透過 + 206/Content-Range 中継 (HTML5 video の seek 用)
  * - CORS: ACAO:* を全レスポンスで常時返す (frame 抽出 video.crossOrigin='anonymous'
@@ -14,7 +16,8 @@
  * - Cache-Control: s-maxage=86400 (CF エッジキャッシュ。egress 無料なので主目的は
  *   Twitter への取得回数削減と低レイテンシ)
  */
-const ALLOWED_HOSTS = new Set<string>(['video.twimg.com']);
+const VIDEO_HOSTS = new Set<string>(['video.twimg.com']);
+const IMAGE_HOSTS = new Set<string>(['assets.housingsnap.com', 'studio-xiv.com']);
 const TIMEOUT_MS = 30_000;
 
 const CORS_PREFLIGHT_HEADERS = {
@@ -52,7 +55,8 @@ export default {
     if (parsed.protocol !== 'https:') {
       return jsonError('only https upstream allowed', 400);
     }
-    if (!ALLOWED_HOSTS.has(parsed.hostname)) {
+    const imageOnly = IMAGE_HOSTS.has(parsed.hostname);
+    if (!VIDEO_HOSTS.has(parsed.hostname) && !imageOnly) {
       return jsonError('upstream host not allowed', 403);
     }
 
@@ -76,6 +80,10 @@ export default {
 
     if (!upstream.ok && upstream.status !== 206) {
       return jsonError(`upstream ${upstream.status}`, upstream.status === 404 ? 404 : 502);
+    }
+
+    if (imageOnly && !(upstream.headers.get('content-type') ?? '').startsWith('image/')) {
+      return jsonError('upstream is not an image', 415);
     }
 
     const headers = new Headers();

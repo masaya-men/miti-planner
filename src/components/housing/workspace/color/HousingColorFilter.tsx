@@ -13,34 +13,35 @@ interface Props {
     pendingCount: number;
 }
 
-/** 色で探す: 見出し・今の色名・色の格子・「確認中」の注記。FilterPanel から 1 か所で差し込む。 */
+/** 色で探す: 見出し・選んだ色(押すと外れる)・色の格子・「確認中」の注記。FilterPanel から 1 か所で差し込む。 */
 export const HousingColorFilter: React.FC<Props> = ({ disabled, pendingCount }) => {
     const { t } = useTranslation();
     const selected = useHousingFilterStore((s) => s.colorSwatches);
     const toggleColor = useHousingFilterStore((s) => s.toggleColor);
-    const clearColors = useHousingFilterStore((s) => s.clearColors);
     const labelOf = useSwatchLabel();
-
-    const last = selected.length > 0 ? selected[selected.length - 1] : null;
-    const nowName = last === null
-        ? t('housing.workspace.filter.color.now_empty')
-        : selected.length === 1
-            ? labelOf(last)
-            : t('housing.workspace.filter.color.now_more', { name: labelOf(last), count: selected.length - 1 });
 
     return (
         <section className="housing-color-filter" data-disabled={disabled ? 'true' : undefined}>
-            <div className="housing-color-filter-head">
-                <span className="housing-filter-field-label">{t('housing.workspace.filter.color.title')}</span>
-                {selected.length > 0 && (
-                    <button type="button" className="housing-color-filter-clear" onClick={clearColors}>
-                        {t('housing.workspace.filter.color.clear')}
-                    </button>
-                )}
-            </div>
+            <span className="housing-filter-field-label">{t('housing.workspace.filter.color.title')}</span>
             <div className="housing-color-filter-now" aria-live="polite">
-                {last !== null && <span className="housing-color-filter-dot" style={{ background: SEARCH_SWATCHES[last] }} />}
-                <span data-empty={last === null ? 'true' : undefined}>{nowName}</span>
+                {selected.length === 0 ? (
+                    <span className="housing-color-filter-empty">{t('housing.workspace.filter.color.now_empty')}</span>
+                ) : (
+                    selected.map((i) => (
+                        <button
+                            key={i}
+                            type="button"
+                            className="housing-color-filter-picked"
+                            aria-label={t('housing.workspace.filter.color.remove_aria', { name: labelOf(i) })}
+                            disabled={disabled}
+                            onClick={() => toggleColor(i)}
+                        >
+                            <span className="housing-color-filter-dot" style={{ background: SEARCH_SWATCHES[i] }} />
+                            {labelOf(i)}
+                            <span aria-hidden="true" className="housing-color-filter-x">×</span>
+                        </button>
+                    ))
+                )}
             </div>
             <ColorSwatchGrid selected={selected} disabled={disabled} onToggle={toggleColor} />
             {disabled && <p className="housing-color-filter-note">{t('housing.workspace.filter.color.disabled_in_map')}</p>}

@@ -4,18 +4,23 @@
   margin-bottom: calc(12px * var(--housing-scale));
 }
 .housing-color-filter[data-disabled="true"] { opacity: 0.5; }
-.housing-color-filter-head { display: flex; align-items: center; justify-content: space-between; }
-.housing-color-filter-clear {
-  appearance: none; cursor: pointer; background: none; border: 0; padding: 0;
-  font-family: inherit; font-size: var(--housing-text-xs); color: var(--housing-text-mute);
-  text-decoration: underline; text-underline-offset: calc(3px * var(--housing-scale));
-}
-.housing-color-filter-clear:hover { color: var(--housing-text); }
 .housing-color-filter-now {
-  min-height: calc(18px * var(--housing-scale)); display: flex; align-items: center; gap: calc(8px * var(--housing-scale));
+  min-height: calc(24px * var(--housing-scale)); display: flex; flex-wrap: wrap; align-items: center; gap: calc(6px * var(--housing-scale));
   font-size: var(--housing-text-xs); color: var(--housing-text-dim);
 }
-.housing-color-filter-now [data-empty="true"] { color: var(--housing-text-mute); }
+.housing-color-filter-empty { color: var(--housing-text-mute); }
+/* 選んだ色: 押すと外れる */
+.housing-color-filter-picked {
+  appearance: none; cursor: pointer; display: inline-flex; align-items: center; gap: calc(6px * var(--housing-scale));
+  min-height: calc(24px * var(--housing-scale)); padding: 0 calc(8px * var(--housing-scale));
+  border: 1px solid var(--housing-divider); border-radius: calc(6px * var(--housing-scale));
+  background: var(--housing-chip-bg); color: var(--housing-text-dim);
+  font-family: inherit; font-size: var(--housing-text-xs);
+}
+.housing-color-filter-picked:hover:not(:disabled) { background: var(--housing-chip-bg-hover); color: var(--housing-text); }
+.housing-color-filter-picked:focus-visible { outline: calc(2px * var(--housing-scale)) solid var(--housing-honey); outline-offset: calc(2px * var(--housing-scale)); }
+.housing-color-filter-picked:disabled { cursor: default; }
+.housing-color-filter-x { color: var(--housing-text-mute); }
 .housing-color-filter-dot {
   width: calc(12px * var(--housing-scale)); height: calc(12px * var(--housing-scale)); border-radius: 50%;
   border: 1px solid var(--housing-color-swatch-border-strong);
@@ -25,16 +30,16 @@
   font-size: var(--housing-text-xs); color: var(--housing-text-mute);
 }
 
-/* 色の格子: 10 列 × 5 行(5 行目が無彩色)。丸は列幅いっぱいまで広がり、横にはみ出さない */
+/* 色の格子: 7 列 × 2 行。丸は列幅いっぱいまで広がり、横にはみ出さない。
+   内側の余白 = 選んだ輪(線 + 離れ)と拡大の分。端の丸を選んでも輪が切れない */
 .housing-color-grid {
-  display: grid; grid-template-columns: repeat(10, minmax(0, 1fr));
-  gap: calc(6px * var(--housing-scale)); padding: calc(3px * var(--housing-scale));
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: calc(8px * var(--housing-scale)); padding: calc(7px * var(--housing-scale));
 }
-.housing-color-grid > .housing-color-swatch:nth-child(n + 41) { margin-top: calc(6px * var(--housing-scale)); }
 
 /* 丸 */
 .housing-color-swatch {
-  appearance: none; padding: 0; cursor: pointer; width: 100%; aspect-ratio: 1; min-width: calc(var(--housing-color-swatch-min) * var(--housing-scale)); max-width: calc(28px * var(--housing-scale)); justify-self: center;
+  appearance: none; padding: 0; cursor: pointer; width: 100%; aspect-ratio: 1; min-width: calc(var(--housing-color-swatch-min) * var(--housing-scale)); max-width: calc(32px * var(--housing-scale)); justify-self: center;
   border-radius: 50%;
   border: 1px solid var(--housing-color-swatch-border);
   transition: transform 0.15s cubic-bezier(0.2, 0.7, 0.2, 1);

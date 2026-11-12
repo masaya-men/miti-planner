@@ -2488,21 +2488,13 @@
                 "size_l": "L 尺寸",
                 "color": {
                     "title": "顏色",
-                    "clear": "清除顏色",
                     "now_empty": "選擇顏色(可多選)",
-                    "now_more": "{{name}} 等{{count}}色",
                     "core_label": "顏色",
                     "core_clear": "清除",
-                    "swatch_aria": "{{tone}}{{family}}",
                     "pending_note": "有{{count}}間房屋正在確認顏色",
                     "disabled_in_map": "地圖模式下無法依顏色篩選",
                     "wheel_aria": "顏色選擇",
-                    "tone": {
-                        "light": "淺",
-                        "midLight": "較淺",
-                        "midDark": "較深",
-                        "dark": "深"
-                    },
+                    "remove_aria": "移除{{name}}",
                     "family": {
                         "red": "紅色",
                         "orange": "橙色",

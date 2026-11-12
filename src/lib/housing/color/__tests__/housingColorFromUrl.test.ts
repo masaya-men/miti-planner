@@ -23,6 +23,16 @@ describe('colorCandidateUrls(縮小版を先に・だめなら元の URL)', () =
     });
 });
 
+describe('colorCandidateUrls(CORS を返さない外部サイト)', () => {
+    it('housingsnap と studio-xiv は中継経由の 1 本だけ', () => {
+        for (const u of ['https://assets.housingsnap.com/uploads/a.jpg', 'https://studio-xiv.com/b.png']) {
+            const list = colorCandidateUrls(u);
+            expect(list).toHaveLength(1);
+            expect(list[0]).toContain(`?url=${encodeURIComponent(u)}`);
+        }
+    });
+});
+
 describe('representativeUrlForColors', () => {
     it('thumbnail は thumbnailPath、sns は ogImageUrl、画像なしは null', () => {
         expect(representativeUrlForColors({ imageMode: 'thumbnail', thumbnailPath: 'https://x/a.webp' })).toBe('https://x/a.webp');

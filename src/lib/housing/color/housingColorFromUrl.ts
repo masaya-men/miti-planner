@@ -5,6 +5,7 @@ import { readPixels16 } from './housingColorPixels';
 import { housingImageVariant } from '../housingMediaUrl';
 import { twitterImageVariant } from '../twitterImageVariant';
 import { nextYoutubeThumbnailFallback, parseYoutubeThumbnailUrl } from '../youtubeUrl';
+import { buildImageRelayUrl, CORS_RELAY_IMAGE_HOSTS } from '../tweetVideoProxy';
 
 export interface ListingColors {
     colorFamilies: string[];
@@ -23,8 +24,19 @@ export function representativeUrlForColors(l: { imageMode?: string; ogImageUrl?:
     return null;
 }
 
-/** 読みに行く URL の順番。16×16 に縮めるだけなので小さい版を先に、だめなら元の URL。YouTube は画質を落とす連鎖。 */
+function hostOf(url: string): string | null {
+    try {
+        return new URL(url).hostname;
+    } catch {
+        return null;
+    }
+}
+
+/** 読みに行く URL の順番。16×16 に縮めるだけなので小さい版を先に、だめなら元の URL。YouTube は画質を落とす連鎖。
+ *  CORS を返さない外部サイトは中継経由だけ(直接は canvas で読めない)。 */
 export function colorCandidateUrls(url: string): string[] {
+    const host = hostOf(url);
+    if (host && CORS_RELAY_IMAGE_HOSTS.has(host)) return [buildImageRelayUrl(url)];
     if (parseYoutubeThumbnailUrl(url)) {
         const chain = [url];
         for (let next = nextYoutubeThumbnailFallback(url); next; next = nextYoutubeThumbnailFallback(next)) chain.push(next);

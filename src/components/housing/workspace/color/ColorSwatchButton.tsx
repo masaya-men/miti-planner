@@ -1,22 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { SEARCH_SWATCHES, swatchNameKey, swatchTone } from '../../../../lib/housing/color/housingColorSwatches';
+import { SEARCH_SWATCHES, swatchNameKey } from '../../../../lib/housing/color/housingColorSwatches';
 
-const TONE_KEYS = ['light', 'midLight', 'midDark', 'dark'] as const;
-
-/** 丸 1 つの読み上げ名: 系統名(+ 色相の丸だけ明るさの段)。 */
+/** 丸 1 つの名前(赤・白 …)。 */
 export function useSwatchLabel(): (index: number) => string {
     const { t } = useTranslation();
-    return (index) => {
-        const family = t(`housing.workspace.filter.color.family.${swatchNameKey(index)}`);
-        const tone = swatchTone(index);
-        return tone === null
-            ? family
-            : t('housing.workspace.filter.color.swatch_aria', {
-                family,
-                tone: t(`housing.workspace.filter.color.tone.${TONE_KEYS[tone]}`),
-            });
-    };
+    return (index) => t(`housing.workspace.filter.color.family.${swatchNameKey(index)}`);
 }
 
 interface Props {
@@ -36,6 +25,7 @@ export const ColorSwatchButton: React.FC<Props> = ({ index, selected, disabled, 
             style={{ background: SEARCH_SWATCHES[index] }}
             aria-pressed={selected}
             aria-label={label}
+            title={label}
             disabled={disabled}
             onClick={() => onToggle(index)}
         />

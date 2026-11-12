@@ -5,13 +5,13 @@ import { PALETTE_RULE } from '../housingExtractPalette';
 const L = (colorFamilies?: string[], colorRule: number | undefined = colorFamilies ? PALETTE_RULE : undefined) => ({ colorFamilies, colorRule });
 
 describe('familiesOfSwatches', () => {
-    it('丸の番号を系統名にする(重複は1つ)', () => {
-        expect(familiesOfSwatches([0, 10, 20, 30])).toEqual(['red']);
-        expect(familiesOfSwatches([0, 5])).toEqual(['red', 'blue']);
-        expect(familiesOfSwatches([40, 49])).toEqual(['white', 'black']);
+    it('丸の番号を、近い色も含めた系統名にする(重複は1つ)', () => {
+        expect(familiesOfSwatches([0])).toEqual(['red', 'pink', 'orange']);
+        expect(familiesOfSwatches([10])).toEqual(['white', 'lightGray']);
+        expect(familiesOfSwatches([10, 11])).toEqual(['white', 'lightGray', 'gray']);
     });
     it('範囲外の番号は無視', () => {
-        expect(familiesOfSwatches([-1, 50, 1.5])).toEqual([]);
+        expect(familiesOfSwatches([-1, 13, 1.5])).toEqual([]);
     });
 });
 

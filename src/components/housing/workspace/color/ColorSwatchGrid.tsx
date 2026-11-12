@@ -9,7 +9,7 @@ interface Props {
     onToggle: (index: number) => void;
 }
 
-/** 50 色の格子: 10 列 × 5 行。上 4 行が色相(明るい→暗い)、5 行目が無彩色(白→黒)。丸の番号順にそのまま並べる。 */
+/** 13 色の格子: 7 列 × 2 行。丸の番号順にそのまま並べる。 */
 export const ColorSwatchGrid: React.FC<Props> = ({ selected, disabled, onToggle }) => {
     const { t } = useTranslation();
     return (

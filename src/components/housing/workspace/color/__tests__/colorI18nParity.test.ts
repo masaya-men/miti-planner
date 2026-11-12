@@ -16,9 +16,9 @@ function leaves(obj: Record<string, unknown>, prefix = ''): string[] {
 
 describe('housing.workspace.filter.color の5言語パリティ', () => {
     const jaKeys = leaves(colorOf(ja));
-    it('13系統・4段の名前を含む', () => {
+    it('丸の13系統の名前を含む(明るさの段は無い)', () => {
         expect(jaKeys.filter((k) => k.startsWith('family.'))).toHaveLength(13);
-        expect(jaKeys.filter((k) => k.startsWith('tone.'))).toHaveLength(4);
+        expect(jaKeys.filter((k) => k.startsWith('tone.'))).toHaveLength(0);
     });
     for (const [name, data] of Object.entries({ en, ko, zh, 'zh-Hant': zhHant })) {
         it(`${name} は ja と同じキー`, () => {

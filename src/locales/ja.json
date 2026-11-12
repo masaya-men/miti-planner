@@ -2515,21 +2515,13 @@
                 "size_l": "Lサイズ",
                 "color": {
                     "title": "色",
-                    "clear": "色を外す",
                     "now_empty": "好きな色を選ぶ(複数OK)",
-                    "now_more": "{{name}} ほか{{count}}色",
                     "core_label": "色",
                     "core_clear": "外す",
-                    "swatch_aria": "{{tone}}{{family}}",
                     "pending_note": "色を確認中の家が{{count}}件あります",
                     "disabled_in_map": "地図では色で絞れません",
                     "wheel_aria": "色の選択",
-                    "tone": {
-                        "light": "明るい",
-                        "midLight": "やや明るい",
-                        "midDark": "やや暗い",
-                        "dark": "暗い"
-                    },
+                    "remove_aria": "{{name}}を外す",
                     "family": {
                         "red": "赤",
                         "orange": "オレンジ",

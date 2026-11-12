@@ -29,7 +29,8 @@ describe('validateListingColors', () => {
         expect(validateListingColors(null).ok).toBe(false);
         expect(validateListingColors('x').ok).toBe(false);
     });
-    it('許可リストは13系統', () => {
-        expect(COLOR_FAMILY_NAMES).toHaveLength(13);
+    it('許可リストは14系統(丸の13 + 薄い灰)', () => {
+        expect(COLOR_FAMILY_NAMES).toHaveLength(14);
+        expect(validateListingColors({ colorFamilies: ['lightGray'], colorRule: PALETTE_RULE }).ok).toBe(true);
     });
 });

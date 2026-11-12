@@ -1,47 +1,40 @@
-// 写真の 16×16 の画素 → 主な系統(20% 以上・最大 3 つ・多い順)。AllMarks の extract-palette.ts の移植。
-import { colorFamilyOf } from './housingColorFamily.js';
+// 写真の 16×16 の画素 → その家の系統(多い順)。
+// 11-12 masaya 決定: 影(暗い所)は数えず、明るく見えている所の中で
+//   「いちばん多い系統」+「30% 以上の系統」を付ける。明るい所がほとんど無い写真は黒。
+import { familyOfOklch } from './housingColorFamily.js';
+import type { ColorFamily } from './housingColorSwatches.js';
+import { toOklch } from './housingOklch.js';
 
-const MAX_COLORS = 3;
 const ALPHA_MIN = 128;
-const SHIFT = 4; // 1 色あたり 16 段階の箱
-/** 系統として数えるのは、絵の中でこの割合以上を占める時だけ(赤で探して肌・木・パンが出ないように)。 */
-export const MIN_SHARE = 0.2;
+/** これより暗い画素は影として数えない。 */
+export const SHADOW_L = 0.3;
+/** 明るい画素がこの割合未満なら、写真全体を黒とする。 */
+const MIN_LIT_SHARE = 0.25;
+/** いちばん多い系統の他に付けるのは、明るい所のこの割合以上を占める系統だけ。 */
+export const MIN_SHARE = 0.3;
 /** 決まりを変えたら上げる。古い決まりで保存した色は「未計算」扱いになり、取り直しの対象になる。 */
-export const PALETTE_RULE = 3;
-
-type Bucket = { count: number; r: number; g: number; b: number };
+export const PALETTE_RULE = 4;
 
 const toHex = (r: number, g: number, b: number): string =>
-    '#' + [r, g, b].map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
+    '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
 
-export function extractPalette(rgba: Uint8ClampedArray): string[] {
-    const buckets = new Map<number, Bucket>();
-    let total = 0;
+export function extractPalette(rgba: Uint8ClampedArray): ColorFamily[] {
+    const counts = new Map<ColorFamily, number>();
+    let opaque = 0;
+    let lit = 0;
     for (let i = 0; i + 3 < rgba.length; i += 4) {
         if (rgba[i + 3] < ALPHA_MIN) continue;
-        const r = rgba[i];
-        const g = rgba[i + 1];
-        const b = rgba[i + 2];
-        total++;
-        const key = ((r >> SHIFT) << 8) | ((g >> SHIFT) << 4) | (b >> SHIFT);
-        const bk = buckets.get(key);
-        if (bk) {
-            bk.count++;
-            bk.r += r;
-            bk.g += g;
-            bk.b += b;
-        } else {
-            buckets.set(key, { count: 1, r, g, b });
-        }
+        opaque++;
+        const oklch = toOklch(toHex(rgba[i], rgba[i + 1], rgba[i + 2]));
+        if (oklch.l < SHADOW_L) continue;
+        lit++;
+        const family = familyOfOklch(oklch);
+        counts.set(family, (counts.get(family) ?? 0) + 1);
     }
-    const shares = new Map<string, number>();
-    for (const bk of buckets.values()) {
-        const family = colorFamilyOf(toHex(bk.r / bk.count, bk.g / bk.count, bk.b / bk.count));
-        shares.set(family, (shares.get(family) ?? 0) + bk.count);
-    }
-    return [...shares.entries()]
-        .filter(([, count]) => count >= total * MIN_SHARE)
+    if (opaque === 0) return [];
+    if (lit < opaque * MIN_LIT_SHARE) return ['black'];
+    return [...counts.entries()]
         .sort((x, y) => y[1] - x[1])
-        .slice(0, MAX_COLORS)
+        .filter(([, count], rank) => rank === 0 || count >= lit * MIN_SHARE)
         .map(([family]) => family);
 }

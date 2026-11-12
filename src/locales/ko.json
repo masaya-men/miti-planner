@@ -2488,21 +2488,13 @@
                 "size_l": "L 크기",
                 "color": {
                     "title": "색",
-                    "clear": "색 해제",
                     "now_empty": "색을 고르세요(여러 개 가능)",
-                    "now_more": "{{name}} 외 {{count}}색",
                     "core_label": "색",
                     "core_clear": "해제",
-                    "swatch_aria": "{{tone}} {{family}}",
                     "pending_note": "색을 확인 중인 집이 {{count}}개 있습니다",
                     "disabled_in_map": "지도에서는 색으로 좁힐 수 없습니다",
                     "wheel_aria": "색 선택",
-                    "tone": {
-                        "light": "밝은",
-                        "midLight": "약간 밝은",
-                        "midDark": "약간 어두운",
-                        "dark": "어두운"
-                    },
+                    "remove_aria": "{{name}} 해제",
                     "family": {
                         "red": "빨강",
                         "orange": "주황",

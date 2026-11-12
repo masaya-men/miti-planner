@@ -17,14 +17,11 @@ beforeEach(() => {
 });
 
 describe('HousingColorFilter', () => {
-    it('丸は色相40 + 無彩色10 = 50個', () => {
-        const { container } = render(<HousingColorFilter pendingCount={0} />);
-        expect(container.querySelectorAll('.housing-color-swatch')).toHaveLength(50);
-    });
-    it('格子は10列で、番号順(5行目=無彩色40〜49)に並ぶ', () => {
+    it('丸は13個(1系統1個)で、番号順(10=白・11=灰・12=黒)に並ぶ', () => {
         const { container } = render(<HousingColorFilter pendingCount={0} />);
         const labels = [...container.querySelectorAll('.housing-color-swatch')].map((b) => b.getAttribute('aria-label'));
-        expect(labels[40]).toContain('white');
+        expect(labels).toHaveLength(13);
+        expect(labels.slice(10)).toEqual(['housing.workspace.filter.color.family.white', 'housing.workspace.filter.color.family.gray', 'housing.workspace.filter.color.family.black']);
     });
     it('丸を押すと選ばれ、もう一度押すと外れる', () => {
         const { container } = render(<HousingColorFilter pendingCount={0} />);
@@ -39,15 +36,23 @@ describe('HousingColorFilter', () => {
         const { container } = render(<HousingColorFilter pendingCount={0} />);
         const sw = container.querySelectorAll('.housing-color-swatch');
         fireEvent.click(sw[0]);
-        fireEvent.click(sw[45]);
-        expect(useHousingFilterStore.getState().colorSwatches).toEqual([0, 45]);
+        fireEvent.click(sw[12]);
+        expect(useHousingFilterStore.getState().colorSwatches).toEqual([0, 12]);
     });
-    it('「色を外す」で全解除', () => {
+    it('選んだ色が格子の上に選んだ順で並び、押すとその色だけ外れる', () => {
         useHousingFilterStore.getState().toggleColor(2);
         useHousingFilterStore.getState().toggleColor(7);
         const { container } = render(<HousingColorFilter pendingCount={0} />);
-        fireEvent.click(container.querySelector('.housing-color-filter-clear')!);
-        expect(useHousingFilterStore.getState().colorSwatches).toEqual([]);
+        const picked = container.querySelectorAll('.housing-color-filter-picked');
+        expect(picked).toHaveLength(2);
+        expect(picked[0].textContent).toContain('family.yellow');
+        fireEvent.click(picked[0]);
+        expect(useHousingFilterStore.getState().colorSwatches).toEqual([7]);
+    });
+    it('「色を外す」の文字ボタンは無い(外すのは選んだ色から)', () => {
+        useHousingFilterStore.getState().toggleColor(2);
+        const { container } = render(<HousingColorFilter pendingCount={0} />);
+        expect(container.querySelector('.housing-color-filter-clear')).toBeNull();
     });
     it('地図表示では丸が無効', () => {
         const { container } = render(<HousingColorFilter disabled pendingCount={0} />);

@@ -2513,21 +2513,13 @@
                 "size_l": "Large",
                 "color": {
                     "title": "Color",
-                    "clear": "Clear colors",
                     "now_empty": "Pick colors (multiple OK)",
-                    "now_more": "{{name}} +{{count}} more",
                     "core_label": "Color",
                     "core_clear": "Clear",
-                    "swatch_aria": "{{tone}} {{family}}",
                     "pending_note": "{{count}} listings are still having their color checked",
                     "disabled_in_map": "Color filter is unavailable on the map",
                     "wheel_aria": "Color picker",
-                    "tone": {
-                        "light": "Light",
-                        "midLight": "Medium light",
-                        "midDark": "Medium dark",
-                        "dark": "Dark"
-                    },
+                    "remove_aria": "Remove {{name}}",
                     "family": {
                         "red": "red",
                         "orange": "orange",

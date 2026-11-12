@@ -23,7 +23,7 @@ vi.mock('../../../constants/housing', () => ({ buildListingDetailPath: (id: stri
 
 import { AdminHousingColors } from '../AdminHousingColors';
 
-const RULE = 3;
+const RULE = 4;
 const colors = { colorFamilies: ['red'], colorRule: RULE };
 const listing = (i: number) => ({ id: `x${i}`, imageMode: 'sns', ogImageUrl: `https://pbs.twimg.com/media/x${i}.jpg` });
 const many = (n: number) => Array.from({ length: n }, (_, i) => listing(i));

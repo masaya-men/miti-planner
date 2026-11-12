@@ -22,3 +22,13 @@ function proxyBase(): string {
 export function buildTweetVideoProxyUrl(videoUrl: string): string {
   return `${proxyBase()}?url=${encodeURIComponent(videoUrl)}`;
 }
+
+/**
+ * 写真を CORS を返さない外部サイトから読む時の中継 URL(色の計算用・2026-11-12)。
+ * 中継の許可一覧(workers/media-proxy の ALLOWED_HOSTS)と同じホストだけ。
+ */
+export const CORS_RELAY_IMAGE_HOSTS: ReadonlySet<string> = new Set(['assets.housingsnap.com', 'studio-xiv.com']);
+
+export function buildImageRelayUrl(imageUrl: string): string {
+  return `${proxyBase()}?url=${encodeURIComponent(imageUrl)}`;
+}

@@ -1,5 +1,6 @@
 // 色の絞り込みの判定(純関数)。applyFilters / 件数 / 注記が使う。
 import { SWATCH_COUNT, swatchNameKey } from './housingColorSwatches.js';
+import { NEAR_FAMILIES } from './housingColorNear.js';
 import { PALETTE_RULE } from './housingExtractPalette.js';
 
 export interface ListingColorFields {
@@ -7,13 +8,12 @@ export interface ListingColorFields {
     colorRule?: number;
 }
 
-/** 丸の番号(0〜49)の配列 → 系統名の配列(重複なし・選んだ順)。範囲外は無視。 */
+/** 丸の番号(0〜12)の配列 → 当たりにする系統名の配列(近い色も含む・重複なし・選んだ順)。範囲外は無視。 */
 export function familiesOfSwatches(indexes: readonly number[]): string[] {
     const out: string[] = [];
     for (const i of indexes) {
         if (!Number.isInteger(i) || i < 0 || i >= SWATCH_COUNT) continue;
-        const f = swatchNameKey(i);
-        if (!out.includes(f)) out.push(f);
+        for (const f of NEAR_FAMILIES[swatchNameKey(i)]) if (!out.includes(f)) out.push(f);
     }
     return out;
 }

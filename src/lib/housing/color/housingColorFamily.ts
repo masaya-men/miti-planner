@@ -1,37 +1,40 @@
-// 色の系統(red, brown, white …)= 50 見本のうち OKLab で一番近い物の系統。
-// AllMarks の lib/color/color-family.ts の移植。
-import { SEARCH_SWATCHES, swatchNameKey, type SwatchNameKey } from './housingColorSwatches.js';
-import { toOklch } from './housingOklch.js';
+// 1 つの色 → 系統(red, brown, white …)。OKLCH の明るさ・鮮やかさ・色相で振り分ける。
+// 決まりは 11-12 に公開中の家 354 軒の写真で masaya が試し台で決めた物(白 = 明るさ 0.70 以上の無彩色)。
+// 線を動かしたら PALETTE_RULE を上げる(保存済みの色が取り直しの対象になる)。
+import type { ColorFamily } from './housingColorSwatches.js';
+import { toOklch, type Oklch } from './housingOklch.js';
 
-/** '#rrggbb' の OKLab 座標 [L, a, b]。 */
-function toOklab(hex: string): readonly [number, number, number] {
-    const { l, c, h } = toOklch(hex);
-    const rad = (h * Math.PI) / 180;
-    return [l, c * Math.cos(rad), c * Math.sin(rad)];
+/** これより鮮やかさが低い色は無彩色(白・灰・黒)。 */
+const NEUTRAL_CHROMA = 0.04;
+/** 無彩色の明るさの区切り: 白 / 薄い灰 / 灰 / 黒。 */
+const WHITE_L = 0.7;
+const LIGHT_GRAY_L = 0.6;
+const GRAY_L = 0.42;
+/** 色があってもこれより暗いと黒。 */
+const BLACK_L = 0.25;
+
+/** OKLCH → 系統。 */
+export function familyOfOklch({ l, c, h }: Oklch): ColorFamily {
+    if (c < NEUTRAL_CHROMA || (l > 0.9 && c < 0.06)) {
+        if (l >= WHITE_L) return 'white';
+        if (l >= LIGHT_GRAY_L) return 'lightGray';
+        return l >= GRAY_L ? 'gray' : 'black';
+    }
+    if (l < BLACK_L) return 'black';
+    // 黄みの橙で鮮やかさが控えめ = 木・肌・パン → 茶 / 明るければベージュ
+    if (h >= 40 && h < 95 && c < 0.13) return l >= 0.78 ? 'beige' : 'brown';
+    if (h < 15 || h >= 350) return 'pink';
+    if (h < 40) return 'red';
+    if (h < 75) return 'orange';
+    if (h < 115) return 'yellow';
+    if (h < 175) return 'green';
+    if (h < 225) return 'lightBlue';
+    if (h < 280) return 'blue';
+    if (h < 320) return 'purple';
+    return 'pink';
 }
 
-/** 見本が届かない画面上の鮮やかな原色の基準点(出さない)。純 #0000ff が青より紫の見本に近くなるのを防ぐ。 */
-const VIVID: ReadonlyArray<readonly [string, SwatchNameKey]> = [
-    ['#ff0000', 'red'], ['#ff8000', 'orange'], ['#ffff00', 'yellow'], ['#00ff00', 'green'],
-    ['#00ffff', 'lightBlue'], ['#0000ff', 'blue'], ['#0040ff', 'blue'], ['#8000ff', 'purple'], ['#ff00ff', 'pink'],
-];
-
-const SWATCH_LABS = [
-    ...SEARCH_SWATCHES.map((hex, i) => ({ family: swatchNameKey(i), lab: toOklab(hex) })),
-    ...VIVID.map(([hex, family]) => ({ family, lab: toOklab(hex) })),
-];
-
-/** 色の系統。肌・木・パンは赤でなくベージュ・茶・橙に落ちる。 */
-export function colorFamilyOf(hex: string): SwatchNameKey {
-    const [L, A, B] = toOklab(hex);
-    let best: SwatchNameKey = 'gray';
-    let bestD = Infinity;
-    for (const s of SWATCH_LABS) {
-        const d = (L - s.lab[0]) ** 2 + (A - s.lab[1]) ** 2 + (B - s.lab[2]) ** 2;
-        if (d < bestD) {
-            bestD = d;
-            best = s.family;
-        }
-    }
-    return best;
+/** '#rrggbb' → 系統。 */
+export function colorFamilyOf(hex: string): ColorFamily {
+    return familyOfOklch(toOklch(hex));
 }
